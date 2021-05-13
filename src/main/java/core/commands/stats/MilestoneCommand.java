@@ -46,10 +46,12 @@ public class MilestoneCommand extends ConcurrentCommand<NumberParameters<ChuuDat
         Map<Integer, String> map = new HashMap<>(2);
         map.put(LIMIT_ERROR, "The number introduced must be positive and not very big");
         String s = "The specific milestone you want to lookup";
-        return new NumberParser<>(new OnlyUsernameParser(db),
+        var parser = new NumberParser<>(new OnlyUsernameParser(db),
                 1L,
                 Integer.MAX_VALUE,
                 map, s, false, true, false, "milestone");
+        parser.setReverseOrder(true);
+        return parser;
 
     }
 

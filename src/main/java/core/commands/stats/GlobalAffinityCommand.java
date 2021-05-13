@@ -46,11 +46,11 @@ public class GlobalAffinityCommand extends ConcurrentCommand<NumberParameters<Ch
         Map<Integer, String> map = new HashMap<>(2);
         map.put(LIMIT_ERROR, "The number introduced must be positive and not very big");
         String s = "You can also introduce a number to vary the number of plays needed to award a match, " +
-                "defaults to 30";
+                   "defaults to 30";
         return new NumberParser<>(new OnlyUsernameParser(db),
                 30L,
                 Integer.MAX_VALUE,
-                map, s, false, true);
+                map, s, false, true, true);
     }
 
     @Override
@@ -72,7 +72,7 @@ public class GlobalAffinityCommand extends ConcurrentCommand<NumberParameters<Ch
     protected void onCommand(Context e, @NotNull NumberParameters<ChuuDataParams> params) throws InstanceNotFoundException {
 
 
-        LastFMData ogData = db.findLastFMData(e.getAuthor().getIdLong());
+        LastFMData ogData = params.getInnerParams().getLastFMData();
         int threshold = Math.toIntExact(params.getExtraParam());
         List<dao.entities.GlobalAffinity> globalAff = db.getGlobalAffinity(ogData.getName(), threshold).stream().sorted(Comparator.comparing(Affinity::getAffinity).reversed()).toList();
 
@@ -91,7 +91,7 @@ public class GlobalAffinityCommand extends ConcurrentCommand<NumberParameters<Ch
             stringBuilder.append(i + 1).append(text);
         }
 
-        DiscordUserDisplay uinfo = CommandUtil.getUserInfoConsideringGuildOrNot(e, e.getAuthor().getIdLong());
+        DiscordUserDisplay uinfo = CommandUtil.getUserInfoConsideringGuildOrNot(e, ogData.getDiscordId());
         String name = e.getJDA().getSelfUser().getName();
         EmbedBuilder embedBuilder = new ChuuEmbedBuilder()
                 .setDescription(stringBuilder)

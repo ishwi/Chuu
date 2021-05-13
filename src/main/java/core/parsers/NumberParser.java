@@ -79,7 +79,7 @@ public class NumberParser<K extends CommandParameters, T extends Parser<K>> exte
                         Map<Integer, String> errorMessages,
                         String description,
                         boolean panicOnFailure,
-                        boolean catchFirst
+                        boolean catchFirst, boolean reverseOrder
     ) {
         super(innerParser,
                 defaultItem,
@@ -96,6 +96,18 @@ public class NumberParser<K extends CommandParameters, T extends Parser<K>> exte
 
 
         );
+        this.setReverseOrder(reverseOrder);
+    }
+
+    public NumberParser(T innerParser,
+                        Long defaultItem,
+                        long max,
+                        Map<Integer, String> errorMessages,
+                        String description,
+                        boolean panicOnFailure,
+                        boolean catchFirst
+    ) {
+        this(innerParser, defaultItem, max, errorMessages, description, panicOnFailure, catchFirst, false);
     }
 
     public NumberParser(T innerParser,

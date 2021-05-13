@@ -44,7 +44,7 @@ public class GayParams extends ChartParameters {
 
 
     @Override
-    public boolean isPieFormat() {
+    public boolean isPie() {
         return false;
     }
 

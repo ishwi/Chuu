@@ -6,11 +6,11 @@ import core.commands.stats.AffinityCommand;
 import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
-import core.parsers.NoOpParser;
 import core.parsers.NumberParser;
+import core.parsers.OnlyUsernameParser;
 import core.parsers.OptionalEntity;
 import core.parsers.Parser;
-import core.parsers.params.CommandParameters;
+import core.parsers.params.ChuuDataParams;
 import core.parsers.params.NumberParameters;
 import core.services.ColorService;
 import dao.ChuuService;
@@ -30,7 +30,7 @@ import java.util.TreeMap;
 
 import static core.parsers.ExtraParser.LIMIT_ERROR;
 
-public class GlobalRecommendationCommand extends ConcurrentCommand<NumberParameters<CommandParameters>> {
+public class GlobalRecommendationCommand extends ConcurrentCommand<NumberParameters<ChuuDataParams>> {
     public GlobalRecommendationCommand(ChuuService dao) {
         super(dao);
     }
@@ -41,15 +41,15 @@ public class GlobalRecommendationCommand extends ConcurrentCommand<NumberParamet
     }
 
     @Override
-    public Parser<NumberParameters<CommandParameters>> initParser() {
+    public Parser<NumberParameters<ChuuDataParams>> initParser() {
         Map<Integer, String> map = new HashMap<>(2);
         map.put(LIMIT_ERROR, "The number introduced must be positive and smaller than 25");
         String s = "You can also introduce a number to vary the number of recommendations that you will receive, " +
                    "defaults to 1";
-        NumberParser<CommandParameters, NoOpParser> parser = new NumberParser<>(NoOpParser.INSTANCE,
+        var parser = new NumberParser<>(new OnlyUsernameParser(db),
                 1L,
                 Integer.MAX_VALUE,
-                map, s, false, true);
+                map, s, false, true, true);
         parser.addOptional(new OptionalEntity("repeated", "gives you a repeated recommendation"));
         return parser;
     }
@@ -70,12 +70,12 @@ public class GlobalRecommendationCommand extends ConcurrentCommand<NumberParamet
     }
 
     @Override
-    protected void onCommand(Context e, @NotNull NumberParameters<CommandParameters> params) throws InstanceNotFoundException {
+    protected void onCommand(Context e, @NotNull NumberParameters<ChuuDataParams> params) throws InstanceNotFoundException {
 
 
         long firstDiscordID;
         long secondDiscordID;
-        LastFMData lastFMData = db.findLastFMData(e.getAuthor().getIdLong());
+        LastFMData lastFMData = params.getInnerParams().getLastFMData();
         List<dao.entities.GlobalAffinity> serverAffinity = db.getGlobalAffinity(lastFMData.getName(), AffinityCommand.DEFAULT_THRESHOLD);
         if (serverAffinity.isEmpty()) {
             sendMessageQueue(e, "Couldn't get you any global recommendation :(");
@@ -101,7 +101,7 @@ public class GlobalRecommendationCommand extends ConcurrentCommand<NumberParamet
         }
         Affinity affinity = floatAffinityEntry.getValue();
 
-        firstDiscordID = e.getAuthor().getIdLong();
+        firstDiscordID = params.getInnerParams().getLastFMData().getDiscordId();
         secondDiscordID = affinity.getDiscordId();
 
         List<ScrobbledArtist> recs = db.getRecommendation(secondDiscordID, firstDiscordID, params.hasOptional("repeated"), Math.toIntExact(params.getExtraParam()));

@@ -11,9 +11,11 @@ import core.parsers.utils.CustomTimeFrame;
 import dao.entities.ChartMode;
 import dao.entities.DiscordUserDisplay;
 import dao.entities.LastFMData;
+import dao.entities.TimeFrameEnum;
 import net.dv8tion.jda.api.EmbedBuilder;
 import org.json.JSONObject;
 
+import javax.validation.constraints.NotNull;
 import java.util.concurrent.BlockingQueue;
 import java.util.function.BiFunction;
 
@@ -24,7 +26,7 @@ public class ChartParameters extends CommandParameters {
     private int y;
 
 
-    public ChartParameters(Context e, LastFMData lastFMData, CustomTimeFrame timeFrameEnum, int x, int y) {
+    public ChartParameters(Context e, @NotNull LastFMData lastFMData, CustomTimeFrame timeFrameEnum, int x, int y) {
         super(e);
         this.user = lastFMData;
         this.timeFrameEnum = timeFrameEnum;
@@ -32,7 +34,7 @@ public class ChartParameters extends CommandParameters {
         this.y = y;
     }
 
-    public ChartParameters(Context e, LastFMData user, CustomTimeFrame timeFrameEnum, int x, int y, boolean writeTitles, boolean writePlays, boolean isList) {
+    public ChartParameters(Context e, @NotNull LastFMData user, CustomTimeFrame timeFrameEnum, int x, int y, boolean writeTitles, boolean writePlays, boolean isList) {
         super(e);
         this.user = user;
         this.timeFrameEnum = timeFrameEnum;
@@ -41,7 +43,7 @@ public class ChartParameters extends CommandParameters {
         this.optionals.put(new OptionalEntity("notitles", ""), !writeTitles);
         this.optionals.put(new OptionalEntity("plays", ""), writePlays);
         this.optionals.put(new OptionalEntity("list", ""), isList);
-        this.optionals.put(new OptionalEntity("pie", ""), isPieFormat());
+        this.optionals.put(new OptionalEntity("pie", ""), isPie());
         this.optionals.put(new OptionalEntity("aside", ""), isAside());
 
 
@@ -49,7 +51,7 @@ public class ChartParameters extends CommandParameters {
 
 
     public static ChartParameters toListParams() {
-        return new ChartParameters(null, null, null, 0, 0, true
+        return new ChartParameters(null, LastFMData.ofDefault(), CustomTimeFrame.ofTimeFrameEnum(TimeFrameEnum.ALL), 5, 5, true
                 , true, true);
     }
 
@@ -99,7 +101,7 @@ public class ChartParameters extends CommandParameters {
     }
 
     public boolean needCount() {
-        return isList() || isPieFormat() || chartMode() == ChartMode.IMAGE_INFO;
+        return isList() || isPie() || chartMode() == ChartMode.IMAGE_INFO;
     }
 
     public boolean isPie() {
@@ -126,10 +128,6 @@ public class ChartParameters extends CommandParameters {
                 .setFooter(CommandUtil.markdownLessString(uInfo.getUsername()) + footerText + this.getTimeFrameEnum().getDisplayString()).setColor(CommandUtil.randomColor(getE()));
     }
 
-
-    public boolean isPieFormat() {
-        return hasOptional("pie");
-    }
 
     public boolean isBubble() {
         return hasOptional("bubble");
