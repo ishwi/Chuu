@@ -1,5 +1,7 @@
 package core.parsers.params;
 
+import core.parsers.ParserAux;
+import core.services.VoiceAnnounceService;
 import dao.ChuuService;
 import dao.entities.*;
 import dao.exceptions.InstanceNotFoundException;
@@ -21,7 +23,8 @@ public enum GuildConfigType {
     DELETE_MESSAGE("delete-message"), NP("np"), REMAINING_MODE("rest"), SHOW_DISABLED_WARNING("disabled-warning"),
     COLOR("color"),
     WHOKNOWS_MODE("whoknows"),
-
+    VOICE_ANNOUNCEMENT_CHANNEL("voice-announcement-channel"),
+    VOICE_ANNOUNCEMENT_ENABLED("voice-announcement-enabled"),
     CENSOR_CONVERS("censor-covers");
 
     public static final Pattern number = Pattern.compile("\\d+");
@@ -118,6 +121,15 @@ public enum GuildConfigType {
                             }
                             yield String.format("**%s** -> %s", key, strModes);
                         }
+                        case VOICE_ANNOUNCEMENT_CHANNEL, VOICE_ANNOUNCEMENT_ENABLED -> {
+                            VoiceAnnounceService voiceAnnounceService = new VoiceAnnounceService(dao);
+                            VoiceAnnouncement voiceAnnouncement = voiceAnnounceService.getVoiceAnnouncement(guildId);
+                            if (x.getValue() == VOICE_ANNOUNCEMENT_CHANNEL) {
+                                yield String.format("**%s** -> %s", key, voiceAnnouncement.channelId() == null ? "None" : "<#" + voiceAnnouncement.channelId() + ">");
+                            } else {
+                                yield String.format("**%s** -> %s", key, voiceAnnouncement.enabled());
+                            }
+                        }
                         case CENSOR_CONVERS -> String.format("**%s** -> %s", key, !guildProperties.censorCovers());
                     };
                 }).collect(Collectors.joining("\n"));
@@ -135,7 +147,8 @@ public enum GuildConfigType {
             case COLOR -> colorMode.asMatchPredicate();
             case REMAINING_MODE, WHOKNOWS_MODE -> UserConfigType.whoknowsMode.asMatchPredicate();
             case OVERRIDE_COLOR -> overrideColorMode.asMatchPredicate();
-            case CENSOR_CONVERS, ALLOW_NP_REACTIONS, DELETE_MESSAGE, SHOW_DISABLED_WARNING -> UserConfigType.bool.asMatchPredicate();
+            case VOICE_ANNOUNCEMENT_CHANNEL -> ParserAux.CHANNEL_PREDICATE.or(z -> z.equalsIgnoreCase("clear"));
+            case VOICE_ANNOUNCEMENT_ENABLED, CENSOR_CONVERS, ALLOW_NP_REACTIONS, DELETE_MESSAGE, SHOW_DISABLED_WARNING -> UserConfigType.bool.asMatchPredicate();
             case OVERRIDE_NP_REACTIONS -> overrideMode.asMatchPredicate();
             case NP -> GuildConfigType.npMode.asMatchPredicate();
         };
@@ -180,6 +193,10 @@ public enum GuildConfigType {
                 return "Whether you want the bot to show a warning when you try to run a disabled command.";
             case NP:
                 return "Setting this will alter the appearance of this server nowPlayingInfo commands. You can select up to 10 different from the following list and mix them up:\n" + "CLEAR | " + NPMode.getListedName(EnumSet.allOf(NPMode.class));
+            case VOICE_ANNOUNCEMENT_CHANNEL:
+                return "If set, the bot will send to this channel when a new song is started, as opposed to using the channel where the command was invoked.";
+            case VOICE_ANNOUNCEMENT_ENABLED:
+                return "Whether the bot should announce if it plays the next song or not";
             case CENSOR_CONVERS:
                 return "Whether you want the bot to censor potentially nsfw album covers.";
             default:

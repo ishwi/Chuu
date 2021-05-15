@@ -47,9 +47,9 @@ public class YoutubeFilters {
         // (Official Track Stream)
         filters.put(Pattern.compile("\\((of+icial\\s*)?(track\\s*)?stream\\)", Pattern.CASE_INSENSITIVE), "");
         // (official)? (music)? video
-        filters.put(Pattern.compile("\\((of+icial\\s*)?(music|art\\s*)?video\\)", Pattern.CASE_INSENSITIVE), "");
+        filters.put(Pattern.compile("\\((of+icial\\s*)?(music|art)?\\s*video\\)", Pattern.CASE_INSENSITIVE), "");
         // (official)? (music)? audio
-        filters.put(Pattern.compile("\\((of+icial\\s*)?(music|art\\s*)?audio\\)", Pattern.CASE_INSENSITIVE), "");
+        filters.put(Pattern.compile("\\((of+icial\\s*)?(music|art)?\\s*audio\\)", Pattern.CASE_INSENSITIVE), "");
         // (ALBUM TRACK)
         filters.put(Pattern.compile("(ALBUM TRACK\\s*)?(album track\\s*)", Pattern.CASE_INSENSITIVE), "");
         // (Cover Art)

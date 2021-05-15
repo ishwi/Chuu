@@ -19,7 +19,6 @@ package core.commands.music;
 
 import core.Chuu;
 import core.commands.Context;
-import core.commands.utils.CommandCategory;
 import core.music.LoadResultHandler;
 import core.music.MusicManager;
 import core.music.utils.TrackContext;
@@ -60,10 +59,6 @@ public class Enqueue extends core.commands.abstracts.MusicCommand<WordParameter>
         LoadResultHandler.loadItem(query, e, musicManager, trackContext, isNext, "");
     }
 
-    @Override
-    protected CommandCategory initCategory() {
-        return CommandCategory.MUSIC;
-    }
 
     @Override
     public Parser<WordParameter> initParser() {

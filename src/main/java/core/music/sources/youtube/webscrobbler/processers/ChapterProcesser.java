@@ -60,9 +60,9 @@ public class ChapterProcesser implements YtProcessser {
             return new Processed(finalProcess.artist(), finalProcess.album(), t.name, t.ms);
         }).toList();
         long count = processeds.stream().map(Processed::artist).distinct().count();
-        if (count >= processeds.size() / 2) {
+        if (count > processeds.size() / 2f) {
             processeds = processeds.stream().map(z -> new Processed(z.artist(),
-                    YoutubeFilters.doFilters(details.get("videoDetails").get("title").safeText()),
+                    null,
                     z.song(), z.msStart()
             )).toList();
         }

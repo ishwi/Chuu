@@ -8,6 +8,7 @@ import core.parsers.explanation.util.ExplanationLineType;
 import core.parsers.interactions.InteractionAux;
 import core.parsers.params.ChannelParameters;
 import dao.exceptions.InstanceNotFoundException;
+import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.GuildChannel;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
@@ -16,6 +17,12 @@ import java.util.List;
 import java.util.Optional;
 
 public class ChannelParser extends Parser<ChannelParameters> {
+
+    public static Optional<GuildChannel> parseChannel(String input, Guild guild) {
+        var snowflake = ParserAux.parseSnowflake(input);
+        return snowflake.map(value -> guild.getGuildChannelById(value.id()))
+                .or(() -> guild.getChannels().stream().filter(x -> x.getName().equalsIgnoreCase(input)).findFirst());
+    }
 
     @Override
     protected void setUpErrorMessages() {
@@ -37,9 +44,7 @@ public class ChannelParser extends Parser<ChannelParameters> {
             }
         }
         String join = String.join(" ", words);
-        var snowflake = ParserAux.parseSnowflake(join);
-        Optional<GuildChannel> guildChannel = snowflake.map(value -> e.getGuild().getGuildChannelById(value.id()))
-                .or(() -> e.getGuild().getChannels().stream().filter(x -> x.getName().equalsIgnoreCase(join)).findFirst());
+        Optional<GuildChannel> guildChannel = parseChannel(join, e.getGuild());
         if (guildChannel.isEmpty()) {
             sendError("Couldn't find a channel", e);
             return null;

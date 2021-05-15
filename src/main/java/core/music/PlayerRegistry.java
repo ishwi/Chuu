@@ -17,6 +17,8 @@
  */
 package core.music;
 
+import core.Chuu;
+import core.services.VoiceAnnounceService;
 import net.dv8tion.jda.api.entities.Guild;
 
 import java.util.Map;
@@ -55,7 +57,7 @@ public class PlayerRegistry {
 
 
     public synchronized MusicManager get(Guild guild) {
-        return registry.computeIfAbsent(guild.getIdLong(), (k) -> new MusicManager(k, playerManager.createPlayer(), this.playerManager));
+        return registry.computeIfAbsent(guild.getIdLong(), (k) -> new MusicManager(k, playerManager.createPlayer(), this.playerManager, new VoiceAnnounceService(Chuu.getDao())));
     }
 
     public MusicManager getExisting(long id) {

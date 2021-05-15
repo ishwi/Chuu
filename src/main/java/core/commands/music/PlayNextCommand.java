@@ -19,7 +19,6 @@ package core.commands.music;
 
 import core.Chuu;
 import core.commands.Context;
-import core.commands.utils.CommandCategory;
 import core.parsers.MusicInputParser;
 import core.parsers.Parser;
 import core.parsers.params.WordParameter;
@@ -36,11 +35,6 @@ public class PlayNextCommand extends core.commands.abstracts.MusicCommand<WordPa
         requireManager = false;
         requireVoiceState = true;
 
-    }
-
-    @Override
-    protected CommandCategory initCategory() {
-        return CommandCategory.MUSIC;
     }
 
     @Override

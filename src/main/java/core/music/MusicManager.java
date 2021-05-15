@@ -35,7 +35,9 @@ import core.music.radio.RadioTrackContext;
 import core.music.sources.youtube.webscrobbler.processers.Processed;
 import core.music.utils.*;
 import core.services.ColorService;
+import core.services.VoiceAnnounceService;
 import dao.entities.Metadata;
+import dao.entities.VoiceAnnouncement;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.audio.AudioSendHandler;
 import net.dv8tion.jda.api.entities.*;
@@ -53,6 +55,7 @@ public class MusicManager extends AudioEventAdapter implements AudioSendHandler 
 
 
     private final ExtendedAudioPlayerManager manager;
+    private final VoiceAnnounceService voiceAnnounceService;
     private final ScrobblerEventListener listener;
     private final ScrobbleProcesser scrobbleProcesser;
     private final long guildId;
@@ -84,10 +87,11 @@ public class MusicManager extends AudioEventAdapter implements AudioSendHandler 
     // Settings/internals.
     private final Task leaveTask = new core.music.utils.Task(30, TimeUnit.SECONDS, this::destroy);
 
-    public MusicManager(long guildId, AudioPlayer player, ExtendedAudioPlayerManager manager) {
+    public MusicManager(long guildId, AudioPlayer player, ExtendedAudioPlayerManager manager, VoiceAnnounceService voiceAnnounceService) {
         this.guildId = guildId;
         this.player = player;
         this.manager = manager;
+        this.voiceAnnounceService = voiceAnnounceService;
         this.scrobbleProcesser = Chuu.getScrobbleProcesser();
         this.player.addListener(this);
         this.player.setVolume(100);
@@ -152,22 +156,19 @@ public class MusicManager extends AudioEventAdapter implements AudioSendHandler 
     }
 
     public TextChannel getAnnouncementChannel() {
-        String dbAnnouncmentChannel = getDbAnnouncmentChannel();
-        if (dbAnnouncmentChannel == null) {
-            return getCurrentRequestChannel();
+        VoiceAnnouncement voiceAnnouncement = voiceAnnounceService.getVoiceAnnouncement(this.guildId);
+        if (!voiceAnnouncement.enabled()) {
+            return null;
         }
-        return getGuild().getTextChannelById(dbAnnouncmentChannel);
-    }
-
-    public String getDbAnnouncmentChannel() {
-        if (dbAnnouncementChannel == null) {
-            dbAnnouncementChannel = core.Chuu.getRandomSong(guildId + "");
+        if (voiceAnnouncement.channelId() != null) {
+            TextChannel textChannelById = getGuild().getTextChannelById(voiceAnnouncement.channelId());
+            if (textChannelById == null) {
+                return getCurrentRequestChannel();
+            }
+            return textChannelById;
         }
-        return dbAnnouncementChannel;
+        return getCurrentRequestChannel();
     }
-
-
-    // ---------- End Properties ----------
 
     public Boolean isAlone() {
         GuildVoiceState voiceState = getGuild().getSelfMember().getVoiceState();
@@ -508,7 +509,7 @@ public class MusicManager extends AudioEventAdapter implements AudioSendHandler 
         return getScrobble(player.getPlayingTrack());
     }
 
-    private AudioTrack getLastValidTrack() {
+    public AudioTrack getLastValidTrack() {
         return player.getPlayingTrack() == null ? currentTrack == null ? lastTrack : currentTrack : player.getPlayingTrack();
     }
 

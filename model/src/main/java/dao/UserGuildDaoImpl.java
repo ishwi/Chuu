@@ -1548,7 +1548,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }
-        return new VoiceAnnouncement(null, false);
+        return new VoiceAnnouncement(null, true);
 
     }
 
@@ -1561,14 +1561,13 @@ public class UserGuildDaoImpl implements UserGuildDao {
                 WHERE guild_id = ?
                 """;
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
-            int i = 1;
             if (voiceAnnouncement.channelId() == null) {
                 preparedStatement.setNull(1, Types.BIGINT);
             } else {
                 preparedStatement.setLong(1, voiceAnnouncement.channelId());
             }
-            preparedStatement.setBoolean(i++, voiceAnnouncement.enabled());
-            preparedStatement.setLong(i, guildId);
+            preparedStatement.setBoolean(2, voiceAnnouncement.enabled());
+            preparedStatement.setLong(3, guildId);
             preparedStatement.executeUpdate();
 
         } catch (SQLException e) {

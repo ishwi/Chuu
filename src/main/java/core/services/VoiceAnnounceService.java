@@ -14,7 +14,7 @@ public class VoiceAnnounceService {
         return this.chuuService.getGuildVoiceAnnouncement(guildId);
     }
 
-    public void setVoiceAnnouncement(long guildId, long channelId, boolean enabled) {
+    public void setVoiceAnnouncement(long guildId, Long channelId, boolean enabled) {
         this.chuuService.setGuildVoiceAnnouncement(guildId, new VoiceAnnouncement(channelId, enabled));
     }
 

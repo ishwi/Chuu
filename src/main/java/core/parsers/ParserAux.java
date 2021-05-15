@@ -24,6 +24,7 @@ public class ParserAux {
     private static final Pattern lfm = Pattern.compile("lfm:(\\S+)");
     private static final Pattern userRaw = Pattern.compile("u:(\\S+)");
     private static final Pattern idParser = Pattern.compile("^(?:<(?:@!?|@&|#)(?<sid>[0-9]{17,21})>|(?<id>[0-9]{17,21}))$");
+    public static final Predicate<String> CHANNEL_PREDICATE = idParser.asMatchPredicate().or(Pattern.compile("[\\S]*").asMatchPredicate());
     private final boolean doExpensiveSearch;
     private String[] message;
 

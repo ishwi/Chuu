@@ -72,16 +72,6 @@ public class VoiceListener implements EventListener {
             return;
         }
 
-//        val options = OptionsRegistry.ofGuild(event.guild)
-//
-//        if (options.music.channels.isNotEmpty() && event.channelJoined.id !in options.music.channels){
-//            manager.announcementChannel
-//                    ?.
-//            sendMessage("Cannot join `${event.channelJoined.name}`, it isn't one of the designated music channels.")
-//                    ?.queue()
-//
-//            return Launcher.players.destroy(event.guild.idLong)
-//        }
 
         checkVoiceState(event.getGuild());
     }

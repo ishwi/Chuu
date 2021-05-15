@@ -58,4 +58,7 @@ ALTER TABLE command_logs
 ALTER TABLE command_logs
     ADD COLUMN is_slash boolean;
 
-
+ALTER TABLE guild
+    ADD COLUMN announcement_id bigint NULL;
+ALTER TABLE guild
+    ADD COLUMN announcement_enabled boolean NOT NULL DEFAULT TRUE;
