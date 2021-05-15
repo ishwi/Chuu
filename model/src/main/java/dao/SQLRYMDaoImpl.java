@@ -59,10 +59,10 @@ public class SQLRYMDaoImpl implements SQLRYMDao {
     public Map<Long, Long> findArtists(Connection connection) {
         HashMap<Long, Long> returnedMap = new HashMap<>();
         String s = "Select b.id,a.rym_id from temp_rating a left join artist b " +
-                "on a.last_name = name  " +
-                "or if(concat(a.first_name,' ',a.last_name) = '',null,concat(a.first_localized_name,' ',a.last_localized_name))= name " +
-                "or  if(concat(a.first_localized_name,' ',a.last_localized_name) = '',null,concat(a.first_localized_name,' ',a.last_localized_name)) = name " +
-                "or if(last_localized_name = '',null,last_localized_name) = name ";
+                   "on a.last_name = name  " +
+                   "or if(concat(a.first_name,' ',a.last_name) = '',null,concat(a.first_localized_name,' ',a.last_localized_name))= name " +
+                   "or  if(concat(a.first_localized_name,' ',a.last_localized_name) = '',null,concat(a.first_localized_name,' ',a.last_localized_name)) = name " +
+                   "or if(last_localized_name = '',null,last_localized_name) = name ";
         try (PreparedStatement preparedStatement = connection.prepareStatement(s)) {
             ResultSet resultSet = preparedStatement.executeQuery();
 
@@ -82,8 +82,8 @@ public class SQLRYMDaoImpl implements SQLRYMDao {
     public Map<Long, Long> findArtistsByLocalizedJoinedNames(Connection connection) {
         HashMap<Long, Long> returnedMap = new HashMap<>();
         String s = "Select b.id,a.rym_id from temp_rating a left join artist b " +
-                " on  " +
-                " concat(a.first_localized_name,' ',a.last_localized_name)= name ";
+                   " on  " +
+                   " concat(a.first_localized_name,' ',a.last_localized_name)= name ";
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(s)) {
             ResultSet resultSet = preparedStatement.executeQuery();
@@ -104,8 +104,8 @@ public class SQLRYMDaoImpl implements SQLRYMDao {
     public Map<Long, Long> findArtistsByLocalizedNames(Connection connection) {
         HashMap<Long, Long> returnedMap = new HashMap<>();
         String s = "Select b.id,a.rym_id from temp_rating a left join artist b " +
-                " on  " +
-                "a.last_localized_name = name ";
+                   " on  " +
+                   "a.last_localized_name = name ";
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(s)) {
             ResultSet resultSet = preparedStatement.executeQuery();
@@ -126,8 +126,8 @@ public class SQLRYMDaoImpl implements SQLRYMDao {
     public Map<Long, Long> findArtistsByJoinedNames(Connection connection) {
         HashMap<Long, Long> returnedMap = new HashMap<>();
         String s = "Select b.id,a.rym_id from temp_rating a left join artist b " +
-                " on  " +
-                "a.last_name = name ";
+                   " on  " +
+                   "a.last_name = name ";
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(s)) {
             ResultSet resultSet = preparedStatement.executeQuery();
@@ -148,8 +148,8 @@ public class SQLRYMDaoImpl implements SQLRYMDao {
     public Map<Long, Long> findArtistsByNames(Connection connection) {
         HashMap<Long, Long> returnedMap = new HashMap<>();
         String s = "Select b.id,a.rym_id from temp_rating a left join artist b " +
-                " on  " +
-                " concat(a.first_name,' ',a.last_name)= name ";
+                   " on  " +
+                   " concat(a.first_name,' ',a.last_name)= name ";
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(s)) {
             ResultSet resultSet = preparedStatement.executeQuery();
@@ -171,7 +171,7 @@ public class SQLRYMDaoImpl implements SQLRYMDao {
     public Map<Long, Long> findArtistsAuxiliar(Connection connection) {
         HashMap<Long, Long> returnedMap = new HashMap<>();
         String s = "Select b.id,a.rym_id from temp_rating a left join artist b " +
-                "on soundex(a.last_name) = soundex(name)  ";
+                   "on soundex(a.last_name) = soundex(name)  ";
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(s)) {
             ResultSet resultSet = preparedStatement.executeQuery();
@@ -226,12 +226,12 @@ public class SQLRYMDaoImpl implements SQLRYMDao {
     public AlbumRatings getRatingsByName(Connection connection, long guildId, String album, long artistId) {
 
         String s = "Select a.discord_id,d.rym_id,d.album_name,c.rating,d.release_year, exists (select discord_id  from user_guild where discord_id = a.discord_id and guild_id = ? )  as owner " +
-                "from user a  " +
-                "join album_rating c on a.discord_id = c.discord_id " +
-                "join album d on c.album_id = d.id " +
-                "and d.album_name = ? " +
-                "and c.artist_id = ?" +
-                " order by  c.rating desc ";
+                   "from user a  " +
+                   "join album_rating c on a.discord_id = c.discord_id " +
+                   "join album d on c.album_id = d.id " +
+                   "and d.album_name = ? " +
+                   "and c.artist_id = ?" +
+                   " order by  c.rating desc ";
 
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(s)) {
@@ -271,10 +271,10 @@ public class SQLRYMDaoImpl implements SQLRYMDao {
     @Nullable
     public Rating getUserAlbumRating(Connection connection, long userId, long albumId, long artistId) {
         String s = "Select c.rating " +
-                "from  album_rating c  " +
-                "where c.artist_id = ?" +
-                " and c.album_id = ? and c.discord_id = ?  " +
-                " order by  c.rating desc ";
+                   "from  album_rating c  " +
+                   "where c.artist_id = ?" +
+                   " and c.album_id = ? and c.discord_id = ?  " +
+                   " order by  c.rating desc ";
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(s)) {
             preparedStatement.setLong(1, artistId);
@@ -315,11 +315,11 @@ public class SQLRYMDaoImpl implements SQLRYMDao {
     public Collection<AlbumRatings> getArtistRatings(Connection connection, long guildId, long artistId) {
         Map<String, AlbumRatings> retunMap = new HashMap<>();
         String s = "Select a.discord_id,d.rym_id,d.album_name,c.rating,d.release_year, " +
-                "exists (select discord_id  from user_guild where discord_id = a.discord_id and guild_id = ? )  as owner " +
-                "from user a  " +
-                "join album_rating c on a.discord_id = c.discord_id " +
-                "join album d on c.album_id = d.id " +
-                "and c.artist_id = ? ";
+                   "exists (select discord_id  from user_guild where discord_id = a.discord_id and guild_id = ? )  as owner " +
+                   "from user a  " +
+                   "join album_rating c on a.discord_id = c.discord_id " +
+                   "join album d on c.album_id = d.id " +
+                   "and c.artist_id = ? ";
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(s)) {
             preparedStatement.setLong(1, guildId);
@@ -356,11 +356,11 @@ public class SQLRYMDaoImpl implements SQLRYMDao {
     public List<ScoredAlbumRatings> getGlobalTopRatings(Connection connection) {
         List<ScoredAlbumRatings> returnList = new ArrayList<>();
         String s = "select *  from (select  album_name, count(*) as  coun, 0, avg(rating) as ave, name,c.url " +
-                "from album_rating a " +
-                "join artist b on a.artist_id = b.id " +
-                "join album c on a.album_id = c.id " +
-                "group by album_id) main " +
-                "order by ((0.5 * main.ave) + 10 * (1 - 0.5) * (1 - (EXP(-main.coun/5))))  desc limit 200";
+                   "from album_rating a " +
+                   "join artist b on a.artist_id = b.id " +
+                   "join album c on a.album_id = c.id " +
+                   "group by album_id) main " +
+                   "order by ((0.5 * main.ave) + 10 * (1 - 0.5) * (1 - (EXP(-main.coun/5))))  desc limit 200";
         try (PreparedStatement preparedStatement = connection.prepareStatement(s)) {
             ResultSet resultSet = preparedStatement.executeQuery();
             getScoredAlbums(returnList, resultSet);
@@ -378,13 +378,13 @@ public class SQLRYMDaoImpl implements SQLRYMDao {
         List<ScoredAlbumRatings> returnList = new ArrayList<>();
 
         String s = "select *  from (select  album_name, count(*) as  coun, 1, avg(rating) as ave, name,c.url " +
-                "from album_rating a " +
-                "join artist b on a.artist_id = b.id " +
-                "join album c on a.album_id = c.id " +
-                "join user_guild d on a.discord_id = d.discord_id " +
-                " where guild_id = ? " +
-                "group by album_id) main " +
-                "order by ((0.5 * main.ave) + 10 * (1 - 0.5) * (1 - (EXP(-main.coun/5))))  desc limit 200";
+                   "from album_rating a " +
+                   "join artist b on a.artist_id = b.id " +
+                   "join album c on a.album_id = c.id " +
+                   "join user_guild d on a.discord_id = d.discord_id " +
+                   " where guild_id = ? " +
+                   "group by album_id) main " +
+                   "order by ((0.5 * main.ave) + 10 * (1 - 0.5) * (1 - (EXP(-main.coun/5))))  desc limit 200";
         try (PreparedStatement preparedStatement = connection.prepareStatement(s)) {
             preparedStatement.setLong(1, guildId);
             ResultSet resultSet = preparedStatement.executeQuery();
@@ -415,10 +415,10 @@ public class SQLRYMDaoImpl implements SQLRYMDao {
     public List<ScoredAlbumRatings> getSelfRatingsScore(Connection connection, Short ratingNumber, long discordId) {
         List<ScoredAlbumRatings> returnList = new ArrayList<>();
         String s = "select  album_name,a.id, name,rating,(select avg(rating) from album_rating t  where t.album_id = a.album_id) as agg,(select count(*) from album_rating t  where t.album_id = a.album_id) as coun,c.url " +
-                "from album_rating a " +
-                "join artist b on a.artist_id = b.id " +
-                "join album c on a.album_id = c.id " +
-                " where a.discord_id = ? ";
+                   "from album_rating a " +
+                   "join artist b on a.artist_id = b.id " +
+                   "join album c on a.album_id = c.id " +
+                   " where a.discord_id = ? ";
         if (ratingNumber != null) {
             s += " and rating = ? ";
         } else {
@@ -455,8 +455,8 @@ public class SQLRYMDaoImpl implements SQLRYMDao {
     public RymStats getUserRymStatms(Connection connection, long discordId) {
         List<ScoredAlbumRatings> returnList = new ArrayList<>();
         String s = "select  count(*) as  coun,  avg(rating) as ave " +
-                "from album_rating a " +
-                "where discord_id = ? ";
+                   "from album_rating a " +
+                   "where discord_id = ? ";
         return getRymStats(connection, discordId, s);
 
     }
@@ -501,9 +501,9 @@ public class SQLRYMDaoImpl implements SQLRYMDao {
     @Override
     public RymStats getServerStats(Connection connection, long guildId) {
         String s = "select  count(*) as  coun,  avg(rating) as ave " +
-                "from album_rating a " +
-                "join user_guild c on a.discord_id = c.discord_id  " +
-                "where c.guild_id = ? ";
+                   "from album_rating a " +
+                   "join user_guild c on a.discord_id = c.discord_id  " +
+                   "where c.guild_id = ? ";
 
 
         return getRymStats(connection, guildId, s);
@@ -513,7 +513,7 @@ public class SQLRYMDaoImpl implements SQLRYMDao {
     @Override
     public RymStats getRYMBotStats(Connection connection) {
         String s = "select  count(*) as  coun,  avg(rating) as ave, ? as t " +
-                "from album_rating a";
+                   "from album_rating a";
 
 
         return getRymStats(connection, 1L, s);
@@ -523,13 +523,13 @@ public class SQLRYMDaoImpl implements SQLRYMDao {
     public List<AlbumPlays> unratedAlbums(Connection connection, long discordId) {
         List<AlbumPlays> returnList = new ArrayList<>();
         String sql = "select a.album_name, d.name, b.playnumber from album a join " +
-                "scrobbled_album b on a.id = b.album_id  " +
-                "join user c on b.lastfm_id = c.lastfm_id  " +
-                " join artist d on a.artist_id = d.id" +
-                " " +
-                "where c.discord_id  = ?" +
-                " and a.id not in (select album_id from album_rating where c.discord_id = ? ) " +
-                " order by playnumber desc ";
+                     "scrobbled_album b on a.id = b.album_id  " +
+                     "join user c on b.lastfm_id = c.lastfm_id  " +
+                     " join artist d on a.artist_id = d.id" +
+                     " " +
+                     "where c.discord_id  = ?" +
+                     " and a.id not in (select album_id from album_rating where c.discord_id = ? ) " +
+                     " order by playnumber desc ";
         try (
                 PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
             preparedStatement.setLong(1, discordId);
@@ -557,13 +557,13 @@ public class SQLRYMDaoImpl implements SQLRYMDao {
     @Override
     public RYMAlbumStats getServerAlbumStats(Connection connection, long guildId, long artistId, long albumId) {
         String s = "Select avg(c.rating),count(c.rating)  " +
-                "from user a join user_guild b on a.discord_id = b.discord_id " +
-                "  " +
-                "join album_rating c on b.discord_id = c.discord_id " +
-                "where c.artist_id = ?" +
-                "and b.guild_id = ? " +
-                "and c.album_id = ? " +
-                " order by  c.rating desc ";
+                   "from user a join user_guild b on a.discord_id = b.discord_id " +
+                   "  " +
+                   "join album_rating c on b.discord_id = c.discord_id " +
+                   "where c.artist_id = ?" +
+                   "and b.guild_id = ? " +
+                   "and c.album_id = ? " +
+                   " order by  c.rating desc ";
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(s)) {
             preparedStatement.setLong(1, artistId);

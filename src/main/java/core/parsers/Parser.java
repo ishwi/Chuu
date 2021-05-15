@@ -35,13 +35,6 @@ public abstract class Parser<T extends CommandParameters> {
         this.opts.addAll(Arrays.asList(opts));
     }
 
-
-    void setUpOptionals() {
-        //Do nothing
-    }
-
-    protected abstract void setUpErrorMessages();
-
     public static <Y> Pair<String[], Y> filterMessage(String[] ogMessage, Predicate<String> filter, Function<String, Y> mapper, Y yDefault) {
         Stream<String> secondStream = Arrays.stream(ogMessage).filter(filter);
         Y apply = yDefault;
@@ -53,6 +46,12 @@ public abstract class Parser<T extends CommandParameters> {
         return Pair.of(ogMessage, apply);
 
     }
+
+    void setUpOptionals() {
+        //Do nothing
+    }
+
+    protected abstract void setUpErrorMessages();
 
     public T parseMessage(Context e) throws LastFmException, InstanceNotFoundException {
         String[] subMessage = getSubMessage(e);

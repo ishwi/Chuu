@@ -10,10 +10,10 @@ public class ObscurityEntry extends LbEntry {
     @Override
     public String toStringWildcard() {
         return ". [" +
-                LinkUtils.cleanMarkdownCharacter(getDiscordName()) +
-                "](" + WILDCARD +
-                "): " + getEntryCount() +
-                " obscurity points\n";
+               LinkUtils.cleanMarkdownCharacter(getDiscordName()) +
+               "](" + WILDCARD +
+               "): " + getEntryCount() +
+               " obscurity points\n";
     }
 
 }

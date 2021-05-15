@@ -89,8 +89,8 @@ public class MultipleWhoIsTagCommand extends ConcurrentCommand<MultipleGenresPar
         String genre = genres.stream().map(WordUtils::capitalizeFully).collect(Collectors.joining(params.getMode() == SearchMode.EXCLUSIVE ? ", " : "| "));
 
         topInTag = e.isFromGuild()
-                ? db.getTopInTag(genres, e.getGuild().getIdLong(), 400, params.getMode())
-                : db.getTopInTag(genres, null, 400, params.getMode());
+                   ? db.getTopInTag(genres, e.getGuild().getIdLong(), 400, params.getMode())
+                   : db.getTopInTag(genres, null, 400, params.getMode());
         sendTopTags(e, params, genre, topInTag);
     }
 }

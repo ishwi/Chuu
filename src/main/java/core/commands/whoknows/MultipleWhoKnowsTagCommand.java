@@ -60,8 +60,8 @@ public class MultipleWhoKnowsTagCommand extends WhoKnowsBaseCommand<MultipleGenr
 
         WrapperReturnNowPlaying wrapperReturnNowPlaying =
                 whoKnowsMode.equals(WhoKnowsMode.IMAGE) ?
-                        this.db.getWhoKnowsTagSet(params.getGenres(), e.getGuild().getIdLong(), Integer.MAX_VALUE, null, mode) :
-                        this.db.getWhoKnowsTagSet(params.getGenres(), e.getGuild().getIdLong(), Integer.MAX_VALUE, null, mode);
+                this.db.getWhoKnowsTagSet(params.getGenres(), e.getGuild().getIdLong(), Integer.MAX_VALUE, null, mode) :
+                this.db.getWhoKnowsTagSet(params.getGenres(), e.getGuild().getIdLong(), Integer.MAX_VALUE, null, mode);
         if (wrapperReturnNowPlaying.getRows() == 0) {
             sendMessageQueue(e, "No one knows " + CommandUtil.cleanMarkdownCharacter(params.getGenres().stream().map(WordUtils::capitalizeFully).collect(Collectors.joining(","))));
             return null;

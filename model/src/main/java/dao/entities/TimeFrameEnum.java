@@ -54,6 +54,11 @@ public enum TimeFrameEnum {
         return EnumSet.allOf(TimeFrameEnum.class).stream().filter(t -> t.toString().equalsIgnoreCase(name)).findFirst().orElseThrow(IllegalArgumentException::new);
     }
 
+    public static String getDisplayString(String timefraeStr) {
+        return (timefraeStr
+                        .equals("overall") ? " " : " in the last " + TimeFrameEnum
+                .fromCompletePeriod(timefraeStr).toString().toLowerCase());
+    }
 
     // getter method
     private String getName() {
@@ -70,12 +75,6 @@ public enum TimeFrameEnum {
             case "d", "day", "daily" -> "day";
             default -> "7day";
         };
-    }
-
-    public static String getDisplayString(String timefraeStr) {
-        return (timefraeStr
-                .equals("overall") ? " " : " in the last " + TimeFrameEnum
-                .fromCompletePeriod(timefraeStr).toString().toLowerCase());
     }
 
     public String toValueString() {

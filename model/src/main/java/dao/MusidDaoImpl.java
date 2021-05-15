@@ -13,7 +13,7 @@ public class MusidDaoImpl implements MusicDao {
     @Override
     public void storeMetadata(Connection connection, String identifier, Metadata metadata) {
         String queryString = "INSERT INTO  metadata"
-                + " (url,artist,song,album )  VALUES ( ?,?,?,?) on duplicate key update artist  = values(artist), song = values(song), album = values(album)";
+                             + " (url,artist,song,album )  VALUES ( ?,?,?,?) on duplicate key update artist  = values(artist), song = values(song), album = values(album)";
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
 

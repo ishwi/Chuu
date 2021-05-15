@@ -8,5 +8,5 @@ import java.util.regex.Pattern;
 
 @FunctionalInterface
 interface FieldMatcher {
-	Boolean apply(MessageEmbed.Field a, String b, Pattern c, Predicate<Matcher> d);
+    Boolean apply(MessageEmbed.Field a, String b, Pattern c, Predicate<Matcher> d);
 }

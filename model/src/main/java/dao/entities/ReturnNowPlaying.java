@@ -4,6 +4,7 @@ import java.awt.*;
 import java.util.function.Supplier;
 
 public class ReturnNowPlaying {
+    String itemUrl;
     private String artist;
     private long discordId;
     private String discordName;
@@ -11,7 +12,6 @@ public class ReturnNowPlaying {
     private String lastFMId;
     private int playNumber;
     private String memoized;
-    String itemUrl;
     private Supplier<String> generateString;
 
     public ReturnNowPlaying(long discordId, String lastFMId, String artist, int playNumber) {
@@ -52,6 +52,10 @@ public class ReturnNowPlaying {
         return artist;
     }
 
+    public void setArtist(String artist) {
+        this.artist = artist;
+    }
+
     public String getLastFMId() {
         return lastFMId;
     }
@@ -60,17 +64,12 @@ public class ReturnNowPlaying {
         this.lastFMId = lastFMId;
     }
 
-
     public int getPlayNumber() {
         return playNumber;
     }
 
     public void setPlayNumber(int playNumber) {
         this.playNumber = playNumber;
-    }
-
-    public void setArtist(String artist) {
-        this.artist = artist;
     }
 
     public void setMemoized(String memoized) {

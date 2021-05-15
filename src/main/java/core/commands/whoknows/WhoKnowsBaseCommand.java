@@ -41,11 +41,6 @@ public abstract class WhoKnowsBaseCommand<T extends CommandParameters> extends C
     private final IPieableList<ReturnNowPlaying, T> pie;
 
 
-    @Override
-    public final CommandCategory initCategory() {
-        return CommandCategory.WHO_KNOWS;
-    }
-
     public WhoKnowsBaseCommand(ChuuService dao) {
         super(dao);
         if (this.parser instanceof DaoParser<?> p) {
@@ -70,6 +65,11 @@ public abstract class WhoKnowsBaseCommand<T extends CommandParameters> extends C
         } else {
             return WhoKnowsMode.IMAGE;
         }
+    }
+
+    @Override
+    public final CommandCategory initCategory() {
+        return CommandCategory.WHO_KNOWS;
     }
 
     @Override

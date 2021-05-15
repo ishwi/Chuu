@@ -29,31 +29,9 @@ public class TrackContext implements Serializable {
     private final long requester;
     private final long channelRequester;
 
-    public String getChannelRequesterStr() {
-        if (channelRequester != -1L)
-            return "<#" + channelRequester + ">";
-        else return "Unknown";
-    }
-
-    public String getRequesterStr() {
-        if (requester != -1L) return "<@" + requester + ">";
-        else return "Unknown";
-    }
-
     public TrackContext(long requester, long channelRequester) {
         this.requester = requester;
         this.channelRequester = channelRequester;
-    }
-
-    public void serialize(ByteArrayOutputStream stream) throws IOException {
-        var writer = new DataOutputStream(stream);
-        writer.writeInt(1);
-        // 1 => TrackContext
-        // 2 => DiscordFMTrackContext
-        // 3 => RadioTrackContext
-        writer.writeLong(requester);
-        writer.writeLong(channelRequester);
-        writer.close();// This invokes flush.
     }
 
     public static TrackContext deserialize(ByteArrayInputStream stream) throws IOException {
@@ -93,6 +71,28 @@ public class TrackContext implements Serializable {
         }
     }
 
+    public String getChannelRequesterStr() {
+        if (channelRequester != -1L)
+            return "<#" + channelRequester + ">";
+        else return "Unknown";
+    }
+
+    public String getRequesterStr() {
+        if (requester != -1L) return "<@" + requester + ">";
+        else return "Unknown";
+    }
+
+    public void serialize(ByteArrayOutputStream stream) throws IOException {
+        var writer = new DataOutputStream(stream);
+        writer.writeInt(1);
+        // 1 => TrackContext
+        // 2 => DiscordFMTrackContext
+        // 3 => RadioTrackContext
+        writer.writeLong(requester);
+        writer.writeLong(channelRequester);
+        writer.close();// This invokes flush.
+    }
+
     public long requester() {
         return requester;
     }
@@ -107,7 +107,7 @@ public class TrackContext implements Serializable {
         if (obj == null || obj.getClass() != this.getClass()) return false;
         var that = (TrackContext) obj;
         return this.requester == that.requester &&
-                this.channelRequester == that.channelRequester;
+               this.channelRequester == that.channelRequester;
     }
 
     @Override
@@ -118,8 +118,8 @@ public class TrackContext implements Serializable {
     @Override
     public String toString() {
         return "TrackContext[" +
-                "requester=" + requester + ", " +
-                "channelRequester=" + channelRequester + ']';
+               "requester=" + requester + ", " +
+               "channelRequester=" + channelRequester + ']';
     }
 
 }

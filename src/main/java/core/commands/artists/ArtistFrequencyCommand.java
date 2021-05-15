@@ -64,10 +64,10 @@ public class ArtistFrequencyCommand extends ResultWrappedCommand<ArtistPlays, Co
         }
 
         List<String> lines = list.stream().map(x -> ". [" +
-                CommandUtil.cleanMarkdownCharacter(x.getArtistName()) +
-                "](" + LinkUtils.getLastFmArtistUrl(x.getArtistName()) +
-                ") - " + x.getCount() +
-                " listeners \n").toList();
+                                                    CommandUtil.cleanMarkdownCharacter(x.getArtistName()) +
+                                                    "](" + LinkUtils.getLastFmArtistUrl(x.getArtistName()) +
+                                                    ") - " + x.getCount() +
+                                                    " listeners \n").toList();
         EmbedBuilder embedBuilder = initList(lines, e)
                 .setTitle("Artist's frequencies")
                 .setFooter(String.format("%s has %d different artists!%n", e.getGuild().getName(), wrapper.getRows()), null)

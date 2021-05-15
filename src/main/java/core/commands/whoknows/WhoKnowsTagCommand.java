@@ -33,8 +33,8 @@ public class WhoKnowsTagCommand extends WhoKnowsBaseCommand<GenreParameters> {
         CompletableFuture<Optional<ScrobbledArtist>> completableFuture = CompletableFuture.supplyAsync(() -> db.getTopInTag(params.getGenre(), e.getGuild().getIdLong()));
         WrapperReturnNowPlaying wrapperReturnNowPlaying =
                 whoKnowsMode.equals(WhoKnowsMode.IMAGE) ?
-                        this.db.whoKnowsGenre(params.getGenre(), e.getGuild().getIdLong()) :
-                        this.db.whoKnowsGenre(params.getGenre(), e.getGuild().getIdLong(), Integer.MAX_VALUE);
+                this.db.whoKnowsGenre(params.getGenre(), e.getGuild().getIdLong()) :
+                this.db.whoKnowsGenre(params.getGenre(), e.getGuild().getIdLong(), Integer.MAX_VALUE);
         if (wrapperReturnNowPlaying.getRows() == 0) {
             sendMessageQueue(e, "No one knows " + CommandUtil.cleanMarkdownCharacter(params.getGenre()));
             return null;
@@ -47,7 +47,6 @@ public class WhoKnowsTagCommand extends WhoKnowsBaseCommand<GenreParameters> {
         return "Who knows " + CommandUtil.cleanMarkdownCharacter(params.getGenre()) + " in " + baseTitle + "?";
 
     }
-
 
 
     @Override

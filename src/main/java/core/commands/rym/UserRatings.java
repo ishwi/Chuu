@@ -77,10 +77,10 @@ public class UserRatings extends ConcurrentCommand<RYMRatingParams> {
         List<String> stringList = new ArrayList<>();
         for (ScoredAlbumRatings x : myRatings) {
             String s = "# ***[" + CommandUtil.cleanMarkdownCharacter(x.getArtist()) + " - " + CommandUtil.cleanMarkdownCharacter(x.getName())
-                    +
-                    "](" + LinkUtils.getLastFmArtistAlbumUrl(x.getArtist(), x.getName()) +
-                    ")***\n\t" + String.format("Average: **%s** | # of Ratings: **%d**", formatter.format(x.getAverage() / 2f), x.getNumberOfRatings()) +
-                    "\n";
+                       +
+                       "](" + LinkUtils.getLastFmArtistAlbumUrl(x.getArtist(), x.getName()) +
+                       ")***\n\t" + String.format("Average: **%s** | # of Ratings: **%d**", formatter.format(x.getAverage() / 2f), x.getNumberOfRatings()) +
+                       "\n";
             stringList.add(s);
         }
 
@@ -104,10 +104,10 @@ public class UserRatings extends ConcurrentCommand<RYMRatingParams> {
                 indexer = 1;
             }
             s += indexer++ + ". ***[" + CommandUtil.cleanMarkdownCharacter(x.getArtist()) + " - " + CommandUtil.cleanMarkdownCharacter(x.getName())
-                    +
-                    "](" + LinkUtils.getLastFmArtistAlbumUrl(x.getArtist(), x.getName()) +
-                    ")***\n\t" + String.format("Average: **%s** | # of Ratings: **%d**", formatter.format(x.getAverage() / 2f), x.getNumberOfRatings()) +
-                    "\n";
+                 +
+                 "](" + LinkUtils.getLastFmArtistAlbumUrl(x.getArtist(), x.getName()) +
+                 ")***\n\t" + String.format("Average: **%s** | # of Ratings: **%d**", formatter.format(x.getAverage() / 2f), x.getNumberOfRatings()) +
+                 "\n";
             stringList.add(s);
         }
 

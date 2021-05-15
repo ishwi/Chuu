@@ -16,34 +16,34 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 public class NowPlayinCommandTest extends CommandTest {
-	@Override
-	public String giveCommandName() {
-		return "!np";
-	}
+    @Override
+    public String giveCommandName() {
+        return "!np";
+    }
 
-	@Test
-	@Override
-	public void nullParserReturned() {
-		NullReturnParsersTest.npParser(COMMAND_ALIAS);
-	}
+    @Test
+    @Override
+    public void nullParserReturned() {
+        NullReturnParsersTest.npParser(COMMAND_ALIAS);
+    }
 
-	@Test
-	public void normalUsage() {
-		Pattern compile = Pattern.compile("\\*\\*(.*?)\\*\\* - (.*?) \\| (.*)");
-		ConcurrentLastFM lastFM = LastFMFactory.getNewInstance();
-		try {
-			NowPlayingArtist pablopita = lastFM.getNowPlayingInfo(LastFMData.ofUser("pablopita"));
-			String header = pablopita.current() ? "Current:" : "Last:";
-			List<FieldRowMatcher> fieldRowMatchers = new ArrayList<>();
-			fieldRowMatchers.add(new FieldRowMatcher(header, compile));
+    @Test
+    public void normalUsage() {
+        Pattern compile = Pattern.compile("\\*\\*(.*?)\\*\\* - (.*?) \\| (.*)");
+        ConcurrentLastFM lastFM = LastFMFactory.getNewInstance();
+        try {
+            NowPlayingArtist pablopita = lastFM.getNowPlayingInfo(LastFMData.ofUser("pablopita"));
+            String header = pablopita.current() ? "Current:" : "Last:";
+            List<FieldRowMatcher> fieldRowMatchers = new ArrayList<>();
+            fieldRowMatchers.add(new FieldRowMatcher(header, compile));
 
-			EmbedWithFieldsUtils.testEmbedWithFields(COMMAND_ALIAS, null, fieldRowMatchers, Pattern
-					.compile("Now Playing:"), matcher -> true);
+            EmbedWithFieldsUtils.testEmbedWithFields(COMMAND_ALIAS, null, fieldRowMatchers, Pattern
+                    .compile("Now Playing:"), matcher -> true);
 
-		} catch (LastFmException e) {
-			e.printStackTrace();
-			System.out.println(" Last Fm Failed sorry :(");
-		}
+        } catch (LastFmException e) {
+            e.printStackTrace();
+            System.out.println(" Last Fm Failed sorry :(");
+        }
 
-	}
+    }
 }

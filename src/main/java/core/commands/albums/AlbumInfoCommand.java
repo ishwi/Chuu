@@ -56,10 +56,10 @@ public class AlbumInfoCommand extends AlbumPlaysCommand {
 
         EmbedBuilder embedBuilder = new ChuuEmbedBuilder();
         String tagsField = albumSummary.getTagList().isEmpty()
-                ? ""
-                : albumSummary.getTagList().stream()
-                .map(tag -> "[" + CommandUtil.cleanMarkdownCharacter(tag) + "](" + LinkUtils.getLastFmTagUrl(tag) + ")")
-                .collect(Collectors.joining(" - "));
+                           ? ""
+                           : albumSummary.getTagList().stream()
+                                   .map(tag -> "[" + CommandUtil.cleanMarkdownCharacter(tag) + "](" + LinkUtils.getLastFmTagUrl(tag) + ")")
+                                   .collect(Collectors.joining(" - "));
         StringBuilder trackList = new StringBuilder();
 
         MusicbrainzFullAlbumEntity albumInfo = mb.getAlbumInfo(albumSummary);

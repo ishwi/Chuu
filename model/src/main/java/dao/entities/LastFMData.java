@@ -7,10 +7,6 @@ import java.util.TimeZone;
 
 public class LastFMData {
 
-    private Long discordId;
-    private String name;
-    private long guildID;
-    private Role role;
     private final boolean privateUpdate;
     private final boolean imageNotify;
     private final WhoKnowsMode whoKnowsMode;
@@ -24,12 +20,16 @@ public class LastFMData {
     private final boolean showBotted;
     private final TimeZone timeZone;
     private final String token;
-    private String session;
     private final boolean scrobbling;
     private final EmbedColor embedColor;
     private final boolean ownTags;
     private final int artistThreshold;
     private final EnumSet<ChartOptions> chartOptions;
+    private Long discordId;
+    private String name;
+    private long guildID;
+    private Role role;
+    private String session;
 
     public LastFMData(String name, Long discordId, long guildID, boolean privateUpdate, boolean imageNotify, WhoKnowsMode whoKnowsMode, dao.entities.ChartMode chartMode, RemainingImagesMode remainingImagesMode, int defaultX, int defaultY, PrivacyMode privacyMode, boolean ratingNotify, boolean privateLastfmId, boolean showBotted, TimeZone timeZone, String token, String session, boolean scrobbling, EmbedColor embedColor, boolean ownTags, int artistThreshold, EnumSet<ChartOptions> chartOptions) {
         this.discordId = discordId;

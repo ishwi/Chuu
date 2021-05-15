@@ -18,12 +18,12 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class ParserAux {
-    private static final Pattern user = Pattern.compile("(.{2,32})#(\\d{4})");
     public static final Pattern discordId = Pattern.compile("\\d{17,}");
+    public static final Pattern digitMatcher = Pattern.compile("[1-9]([0-9]+)?");
+    private static final Pattern user = Pattern.compile("(.{2,32})#(\\d{4})");
     private static final Pattern lfm = Pattern.compile("lfm:(\\S+)");
     private static final Pattern userRaw = Pattern.compile("u:(\\S+)");
     private static final Pattern idParser = Pattern.compile("^(?:<(?:@!?|@&|#)(?<sid>[0-9]{17,21})>|(?<id>[0-9]{17,21}))$");
-    public static final Pattern digitMatcher = Pattern.compile("[1-9]([0-9]+)?");
     private final boolean doExpensiveSearch;
     private String[] message;
 
@@ -48,9 +48,6 @@ public class ParserAux {
             return Optional.of(value);
         }
         return Optional.empty();
-    }
-
-    public record Snowflake(long id) {
     }
 
     @NotNull User getOneUserPermissive(Context e, ChuuService dao) throws InstanceNotFoundException {
@@ -180,7 +177,6 @@ public class ParserAux {
             sample = e.getAuthor();
         return sample;
     }
-
 
     private LastFMData findUsername(Context event, User user, ChuuService dao) throws InstanceNotFoundException {
         if (event.isFromGuild() && this.doExpensiveSearch) {
@@ -342,8 +338,10 @@ public class ParserAux {
         return Optional.empty();
     }
 
-
     public String[] getMessage() {
         return message;
+    }
+
+    public record Snowflake(long id) {
     }
 }

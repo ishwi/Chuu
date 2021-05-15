@@ -10,11 +10,11 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public record UsageLogic(String commandName, List<Explanation> explanations, Set<OptionalEntity> optionals) {
+    private static final Pattern words = Pattern.compile("[\\w\\d]+\\s+[\\w\\d]+");
+
     private static boolean checkString(String str) {
         return str != null && !str.isBlank();
     }
-
-    private static final Pattern words = Pattern.compile("[\\w\\d]+\\s+[\\w\\d]+");
 
     public String getUsage() {
         StringBuilder a = new StringBuilder();

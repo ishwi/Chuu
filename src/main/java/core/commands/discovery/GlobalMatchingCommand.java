@@ -49,7 +49,7 @@ public class GlobalMatchingCommand extends ConcurrentCommand<NumberParameters<Ch
         Map<Integer, String> map = new HashMap<>(2);
         map.put(LIMIT_ERROR, "The number introduced must be positive and not very big");
         String s = "You can also introduce a number to vary the number of plays needed to award a match, " +
-                "defaults to 1";
+                   "defaults to 1";
         return new NumberParser<>(new OnlyUsernameParser(db),
                 null,
                 Integer.MAX_VALUE,
@@ -99,10 +99,10 @@ public class GlobalMatchingCommand extends ConcurrentCommand<NumberParameters<Ch
             PrivacyUtils.PrivateString privacy =
                     PrivacyUtils.getPublicString(s.getPrivacyMode(), s.getDiscordId(), s.getLastFmId(), c, e, found);
             return ". **[" +
-                    LinkUtils.cleanMarkdownCharacter(privacy.discordName()) +
-                    "](" + privacy.lastfmName() +
-                    ")** - " + s.getEntryCount() +
-                    " artists\n";
+                   LinkUtils.cleanMarkdownCharacter(privacy.discordName()) +
+                   "](" + privacy.lastfmName() +
+                   ")** - " + s.getEntryCount() +
+                   " artists\n";
         };
 
         List<Memoized<ArtistLbGlobalEntry, String>> strings = list.stream().map(x -> new Memoized<>(x, mapper)).toList();

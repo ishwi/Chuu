@@ -29,21 +29,20 @@ import java.util.Random;
 
 public class GraphicUtils {
 
-    static final Random ran = new Random();
-    static final File CacheDirectory;
     public static final BufferedImage noArtistImage;
     public static final Font NORMAL_FONT = new Font("Noto Sans", Font.PLAIN, 14);
-    private static final Font JAPANESE_FONT = new Font("Yu Gothic", Font.PLAIN, 14);
-    //private static final Font UNICODE_FONT = new Font("Sun-ExtA", Font.PLAIN, 14);
-    private static final Font KOREAN_FONT = new Font("Malgun Gothic", Font.PLAIN, 14);
-    private static final Font EMOJI_FONT = new Font("Symbola", Font.PLAIN, 14);
+    static final Random ran = new Random();
+    static final File CacheDirectory;
     static final Font EMOJI_FONT_BACKUP = new Font("Segoe UI Emoji", Font.PLAIN, 14);
     static final Font NAMARE_FONT = new Font("Nirmala UI semilight", Font.PLAIN, 14);
     static final Font HEBREW_FONT = new Font("Heebo Light", Font.PLAIN, 14);
     static final Font ARABIC_FONT = new Font("Noto Sans Arabic Light", Font.PLAIN, 14);
     static final Font JAPANESE_FIRST = new Font("Noto Sans CJK JP Light", Font.PLAIN, 14);
     static final Font THAI_FONT = new Font("Noto Sans Thai Light", Font.PLAIN, 14);
-
+    private static final Font JAPANESE_FONT = new Font("Yu Gothic", Font.PLAIN, 14);
+    //private static final Font UNICODE_FONT = new Font("Sun-ExtA", Font.PLAIN, 14);
+    private static final Font KOREAN_FONT = new Font("Malgun Gothic", Font.PLAIN, 14);
+    private static final Font EMOJI_FONT = new Font("Symbola", Font.PLAIN, 14);
     public static final Font[] palletes = new Font[]{JAPANESE_FIRST, JAPANESE_FONT, KOREAN_FONT, EMOJI_FONT, EMOJI_FONT_BACKUP, HEBREW_FONT, NAMARE_FONT, ARABIC_FONT, THAI_FONT};
 
     static {
@@ -355,7 +354,7 @@ public class GraphicUtils {
             int playPos = x + width - (rowHeight + stringWidth);
             int playEnd = playPos + stringWidth;
             g.drawString(plays, x + width - (rowHeight + metrics.stringWidth(plays)), yCounter + (margin - metrics
-                    .getAscent() / 2));
+                                                                                                                   .getAscent() / 2));
             g.drawImage(lastFmLogo, playEnd + 9, (int) (yCounter - metrics.getAscent() * 0.85), null);
             yCounter += rowHeight;
 

@@ -8,15 +8,15 @@ import java.util.regex.Pattern;
 
 public class EmbedWithFieldsUtils {
 
-	public static void testEmbedWithFields(String command, @Nullable Pattern noEmbedCase, List<FieldRowMatcher> fieldRowMatchers, Pattern title, Predicate<Matcher> titlePredicate) {
+    public static void testEmbedWithFields(String command, @Nullable Pattern noEmbedCase, List<FieldRowMatcher> fieldRowMatchers, Pattern title, Predicate<Matcher> titlePredicate) {
 
-		new EmbedTesterBuilder(command)
-				.titlePattern(title)
-				.titleMatch(titlePredicate)
-				.noEmbbed(noEmbedCase)
-				.fieldRowMatch(fieldRowMatchers)
-				.build().GeneralFunction();
+        new EmbedTesterBuilder(command)
+                .titlePattern(title)
+                .titleMatch(titlePredicate)
+                .noEmbbed(noEmbedCase)
+                .fieldRowMatch(fieldRowMatchers)
+                .build().GeneralFunction();
 
-	}
+    }
 
 }

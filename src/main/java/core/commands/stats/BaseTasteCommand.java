@@ -36,6 +36,12 @@ public abstract class BaseTasteCommand<T extends CommandParameters> extends Conc
         respondInPrivate = false;
     }
 
+    private static Optional<Color> getColor(Context e, long discordId) {
+        return Optional.ofNullable(e.getGuild().getMemberById(discordId))
+                .flatMap(t -> t.getRoles().stream().filter(z -> z.getColor() != null).findFirst())
+                .map(Role::getColor);
+    }
+
     @Override
     protected CommandCategory initCategory() {
         return CommandCategory.USER_STATS;
@@ -45,12 +51,6 @@ public abstract class BaseTasteCommand<T extends CommandParameters> extends Conc
 
     public abstract @Nullable
     String hasCustomUrl(T params);
-
-    private static Optional<Color> getColor(Context e, long discordId) {
-        return Optional.ofNullable(e.getGuild().getMemberById(discordId))
-                .flatMap(t -> t.getRoles().stream().filter(z -> z.getColor() != null).findFirst())
-                .map(Role::getColor);
-    }
 
     @Override
     protected void onCommand(Context e, @NotNull T params) throws LastFmException, InstanceNotFoundException {

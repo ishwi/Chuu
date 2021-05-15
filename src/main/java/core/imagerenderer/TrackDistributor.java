@@ -265,14 +265,14 @@ public class TrackDistributor {
 
             int i = g.getFontMetrics(fontMetadata.maxFont()).stringWidth(track.getName());
             GraphicUtils.drawStringNicely(g, fontMetadata, i1 - 25 - i, startingPoint +
-                            (TILE_SIZE - 7 - g.getFontMetrics(fontMetadata.maxFont()).getHeight()) / 2 + g.getFontMetrics(fontMetadata.maxFont()).getAscent()
+                                                                        (TILE_SIZE - 7 - g.getFontMetrics(fontMetadata.maxFont()).getHeight()) / 2 + g.getFontMetrics(fontMetadata.maxFont()).getAscent()
                     , dist);
 
             String plays = String.valueOf(track.getPlays());
             ogFont = g.getFont();
             g.setFont(fontMetadata.maxFont().deriveFont((float) FONT_SIZE));
             GraphicUtils.drawStringNicely(g, plays, i1 - 15 - rectWidth + 5, startingPoint +
-                            (TILE_SIZE - 7 - g.getFontMetrics(fontMetadata.maxFont()).getHeight()) / 2 + g.getFontMetrics(fontMetadata.maxFont()).getAscent()
+                                                                             (TILE_SIZE - 7 - g.getFontMetrics(fontMetadata.maxFont()).getHeight()) / 2 + g.getFontMetrics(fontMetadata.maxFont()).getAscent()
                     , dist);
             startingPoint += TILE_SIZE;
             g.setFont(ogFont);
@@ -319,14 +319,14 @@ public class TrackDistributor {
             g.fillRect(15, startingPoint, rectWidth, 38);
 
             GraphicUtils.drawStringNicely(g, fontMetadata, 25, startingPoint +
-                            (TILE_SIZE - 7 - g.getFontMetrics(fontMetadata.maxFont()).getHeight()) / 2 + g.getFontMetrics(fontMetadata.maxFont()).getAscent()
+                                                               (TILE_SIZE - 7 - g.getFontMetrics(fontMetadata.maxFont()).getHeight()) / 2 + g.getFontMetrics(fontMetadata.maxFont()).getAscent()
                     , dist);
             String plays = String.valueOf(track.getPlays());
             ogFont = g.getFont();
             g.setFont(fontMetadata.maxFont().deriveFont((float) FONT_SIZE));
             GraphicUtils.drawStringNicely(g, plays, 15 + rectWidth - g.getFontMetrics()
                             .stringWidth(plays) - 5, startingPoint +
-                            (TILE_SIZE - 7 - g.getFontMetrics(g.getFont()).getHeight()) / 2 + g.getFontMetrics().getAscent()
+                                                     (TILE_SIZE - 7 - g.getFontMetrics(g.getFont()).getHeight()) / 2 + g.getFontMetrics().getAscent()
                     , dist);
             startingPoint += TILE_SIZE;
             g.setFont(ogFont);

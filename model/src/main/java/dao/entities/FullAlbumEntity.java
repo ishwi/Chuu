@@ -7,8 +7,8 @@ public class FullAlbumEntity {
     private final String artist;
     private final String album;
     private final int totalPlayNumber;
-    private String albumUrl;
     private final String username;
+    private String albumUrl;
     private List<Track> trackList = new ArrayList<>();
     private String artistUrl;
     private String mbid;
@@ -48,6 +48,10 @@ public class FullAlbumEntity {
         return albumUrl == null || albumUrl.isBlank() ? null : albumUrl;
     }
 
+    public void setAlbumUrl(String albumUrl) {
+        this.albumUrl = albumUrl;
+    }
+
     public void addTrack(Track track) {
         trackList.add(track);
     }
@@ -81,9 +85,5 @@ public class FullAlbumEntity {
 
     public void setMbid(String mbid) {
         this.mbid = mbid;
-    }
-
-    public void setAlbumUrl(String albumUrl) {
-        this.albumUrl = albumUrl;
     }
 }

@@ -12,10 +12,10 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 abstract class TagService<T extends EntityInfo, Y extends ScrobbledArtist> implements ChuuRunnable {
+    private static final Pattern yearFilter = Pattern.compile("\\d{2,4}'?s?", Pattern.CASE_INSENSITIVE);
     final ChuuService dao;
     final ConcurrentLastFM lastFM;
     final Map<Genre, List<T>> genres;
-    private static final Pattern yearFilter = Pattern.compile("\\d{2,4}'?s?", Pattern.CASE_INSENSITIVE);
 
     public TagService(ChuuService dao, ConcurrentLastFM lastFM, List<T> items, String genre) {
         this(dao, lastFM, Map.of(new Genre(genre), items));

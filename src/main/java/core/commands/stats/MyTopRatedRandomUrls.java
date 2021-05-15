@@ -35,10 +35,10 @@ public class MyTopRatedRandomUrls extends ConcurrentCommand<ChuuDataParams> {
                 count = String.valueOf(x.getNumberOfRatings());
             }
             return ". ***[" + x.getUrl()
-                    +
-                    "](" + x.getUrl() +
-                    ")***\n\t" + String.format("Average: **%s** | # of Ratings: **%s**", average, count) +
-                    "\n";
+                   +
+                   "](" + x.getUrl() +
+                   ")***\n\t" + String.format("Average: **%s** | # of Ratings: **%s**", average, count) +
+                   "\n";
         }).toList();
         StringBuilder a = new StringBuilder();
         for (

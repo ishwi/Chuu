@@ -19,9 +19,6 @@ import java.util.function.Function;
 import java.util.regex.Pattern;
 
 public class GlobalArtistCommand extends CommandTest {
-    private String artistUrl;
-    private String commonArtist;
-    private ArrayList<FieldRowMatcher> basicList;
     private final BiFunction<String, List<FieldRowMatcher>, EmbedTester> artistgenerator = (artist, frm) ->
     {
         EmbedTesterBuilder embedTesterBuilder = new EmbedTesterBuilder(COMMAND_ALIAS + " " + artist);
@@ -31,7 +28,10 @@ public class GlobalArtistCommand extends CommandTest {
                 .fieldRowMatch(frm)
                 .build();
     };
+    private String artistUrl;
+    private String commonArtist;
     private final Function<List<FieldRowMatcher>, EmbedTester> generator = fieldRowMatchers -> this.artistgenerator.apply(commonArtist, fieldRowMatchers);
+    private ArrayList<FieldRowMatcher> basicList;
 
     @Override
     public String giveCommandName() {

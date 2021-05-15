@@ -1,2 +1,2 @@
-alter table user
-    add column `artist_threshold` int not null default 0;
+ALTER TABLE user
+    ADD COLUMN `artist_threshold` int NOT NULL DEFAULT 0;

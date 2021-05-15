@@ -75,10 +75,6 @@ public class CustomTimeFrame {
         return timeFrameEnum;
     }
 
-    public enum Type {
-        NORMAL, NATURAL, CUSTOM
-    }
-
     public boolean isNormal() {
         return switch (type) {
             case NORMAL -> true;
@@ -103,7 +99,6 @@ public class CustomTimeFrame {
             case CUSTOM -> getDisplayString();
         };
     }
-
 
     public String getDisplayString() {
         if (type == Type.NORMAL) {
@@ -139,5 +134,10 @@ public class CustomTimeFrame {
 
         return " from " + fromFormat + " to " + toFormat;
 
+    }
+
+
+    public enum Type {
+        NORMAL, NATURAL, CUSTOM
     }
 }

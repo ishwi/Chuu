@@ -154,12 +154,6 @@ public class InteractionAux {
         }
     }
 
-    public record ArtistAlbum(String artist, String album) {
-        public boolean empty() {
-            return artist == null || album == null;
-        }
-    }
-
     public static @Nullable Year parseYear(SlashCommandEvent e, Callback errorCallback) {
         Year year = Optional.ofNullable(e.getOption(YearExplanation.NAME)).map(OptionMapping::getAsLong).map(Long::intValue).map(Year::of).orElse(Year.now());
         if (Year.now().compareTo(year) < 0) {
@@ -167,6 +161,12 @@ public class InteractionAux {
             return null;
         }
         return year;
+    }
+
+    public record ArtistAlbum(String artist, String album) {
+        public boolean empty() {
+            return artist == null || album == null;
+        }
     }
 
 

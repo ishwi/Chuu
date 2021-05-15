@@ -19,8 +19,8 @@ public class AlbumInfoIgnoreMbid extends AlbumInfo {
         AlbumInfo albumInfo = (AlbumInfo) o;
 
         return ((getName().equals(albumInfo.getName())
-                || getName().equals("S/T")
-                || albumInfo.getName().equals("S/T")) && getArtist().equals(albumInfo.getArtist())) && (getMbid().equals(albumInfo.getMbid()));
+                 || getName().equals("S/T")
+                 || albumInfo.getName().equals("S/T")) && getArtist().equals(albumInfo.getArtist())) && (getMbid().equals(albumInfo.getMbid()));
     }
 
     @Override

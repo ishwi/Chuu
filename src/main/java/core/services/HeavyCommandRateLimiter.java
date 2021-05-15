@@ -19,7 +19,6 @@ public class HeavyCommandRateLimiter {
     private final static long MAX_SERVER = 4L;
     private final static long MAX_GLOBAL = 12L;
     private final static Map<Long, LocalDateTime> accesibleAgain = new HashMap<>();
-    private static LocalDateTime globalAccesibleAgain = LocalDateTime.now();
     private static final LoadingCache<Long, AtomicInteger> serverCache = CacheBuilder.newBuilder()
             .maximumSize(10000)
 
@@ -36,6 +35,7 @@ public class HeavyCommandRateLimiter {
                             return new AtomicInteger();
                         }
                     });
+    private static LocalDateTime globalAccesibleAgain = LocalDateTime.now();
     private static final LoadingCache<Boolean, AtomicInteger> globalCache = CacheBuilder.newBuilder()
             .maximumSize(10000)
             .expireAfterWrite(10, TimeUnit.MINUTES)

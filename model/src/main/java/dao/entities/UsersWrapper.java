@@ -9,10 +9,10 @@ import java.util.TimeZone;
 @JsonSerialize(using = UserExportSerializer.class)
 public class UsersWrapper {
     private final Role role;
+    private final TimeZone timeZone;
     private long discordID;
     private String lastFMName;
     private int timestamp;
-    private final TimeZone timeZone;
 
     public UsersWrapper(long discordID, String lastFMName, Role role, TimeZone timeZone) {
         this.discordID = discordID;

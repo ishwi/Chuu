@@ -61,10 +61,10 @@ public class RandomStateTest extends ExecutionContext implements RandomState {
     private final Guard messageInValidGuard = new Guard("!requiresIsMessageValid();");
     private final Guard urlUniqueGuard = new Guard("requiresIsUrlUnique();");
     private final Guard notUrlUniqueGuard = new Guard("!requiresIsUrlUnique();");
+    private final Random random = new Random();
     private boolean isMessageValid = true;
     private boolean isUrlUnique = false;
     private int additions = 0;
-    private final Random random = new Random();
 
     public boolean requiresIsMessageValid() {
         return isMessageValid;

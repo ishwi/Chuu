@@ -34,12 +34,11 @@ import java.util.stream.Collectors;
 import static core.Chuu.readToken;
 
 public class ImageTester {
+    private static final ConcurrentLastFM lastFM = LastFMFactory.getNewInstance();
     private static DiscogsApi discogsApi;
     private static Spotify spotify;
-    private final Map<String, Long> dbIdMap = new HashMap<>();
     private static ChuuService service;
-    private static final ConcurrentLastFM lastFM = LastFMFactory.getNewInstance();
-
+    private final Map<String, Long> dbIdMap = new HashMap<>();
     TemporalField weekOfYear = WeekFields.of(Locale.getDefault()).weekOfYear();
 
     @BeforeClass

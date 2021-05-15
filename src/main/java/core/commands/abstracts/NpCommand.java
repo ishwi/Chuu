@@ -38,13 +38,13 @@ public abstract class NpCommand extends ConcurrentCommand<NowPlayingParameters> 
         NowPlayingArtist np = params.getNowPlayingArtist();
         doSomethingWithArtist(np, e, params.getLastFMData().getDiscordId(), params.getLastFMData(), params);
         CompletableFuture.runAsync(() -> {
-            if (np.url() != null && !np.url().isBlank()) {
-                try {
-                    ScrobbledArtist scrobbledArtist = CommandUtil.onlyCorrection(db, np.artistName(), lastFM, true);
-                    long trackValidate = CommandUtil.trackValidate(db, scrobbledArtist, lastFM, np.songName());
-                    db.updateTrackImage(trackValidate, np.url());
-                } catch (LastFmException instanceNotFoundException) {
-                    Chuu.getLogger().warn(instanceNotFoundException.getMessage(), instanceNotFoundException);
+                    if (np.url() != null && !np.url().isBlank()) {
+                        try {
+                            ScrobbledArtist scrobbledArtist = CommandUtil.onlyCorrection(db, np.artistName(), lastFM, true);
+                            long trackValidate = CommandUtil.trackValidate(db, scrobbledArtist, lastFM, np.songName());
+                            db.updateTrackImage(trackValidate, np.url());
+                        } catch (LastFmException instanceNotFoundException) {
+                            Chuu.getLogger().warn(instanceNotFoundException.getMessage(), instanceNotFoundException);
                         }
                     }
                 }

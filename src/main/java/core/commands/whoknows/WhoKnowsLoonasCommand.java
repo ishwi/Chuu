@@ -374,10 +374,10 @@ public class WhoKnowsLoonasCommand extends WhoKnowsBaseCommand<LOONAParameters> 
 
     public String countString(ReturnNowPlaying returnNowPlaying) {
         return ". " +
-                "[" + CommandUtil.cleanMarkdownCharacter(returnNowPlaying.getArtist()) + "](" +
-                LinkUtils
-                        .getLastFmArtistUrl(returnNowPlaying.getArtist()) +
-                ") - " +
-                returnNowPlaying.getPlayNumber() + " listeners\n";
+               "[" + CommandUtil.cleanMarkdownCharacter(returnNowPlaying.getArtist()) + "](" +
+               LinkUtils
+                       .getLastFmArtistUrl(returnNowPlaying.getArtist()) +
+               ") - " +
+               returnNowPlaying.getPlayNumber() + " listeners\n";
     }
 }

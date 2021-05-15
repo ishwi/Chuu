@@ -62,7 +62,16 @@ public class InteractionBuilder {
                     WastedAlbumChartCommand.class,
                     WeeklyCommand.class,
                     DailyCommand.class);
-
+    private static final Predicate<MyCommand<?>> test = t -> {
+        try {
+            t.getParser().parseSlashLogic(null);
+            return true;
+        } catch (UnsupportedOperationException ex) {
+            return false;
+        } catch (Exception e) {
+            return true;
+        }
+    };
 
     @CheckReturnValue
     public static CommandUpdateAction setGlobalCommands(JDA jda) {
@@ -75,17 +84,6 @@ public class InteractionBuilder {
         CommandUpdateAction commandUpdateAction = guild.updateCommands();
         return fillAction(guild.getJDA(), commandUpdateAction);
     }
-
-    private static final Predicate<MyCommand<?>> test = t -> {
-        try {
-            t.getParser().parseSlashLogic(null);
-            return true;
-        } catch (UnsupportedOperationException ex) {
-            return false;
-        } catch (Exception e) {
-            return true;
-        }
-    };
 
     private static CommandUpdateAction fillAction(JDA jda, CommandUpdateAction commandUpdateAction) {
         List<? extends MyCommand<?>> myCommands = jda.getRegisteredListeners().stream()

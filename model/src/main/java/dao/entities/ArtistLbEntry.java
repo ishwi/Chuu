@@ -10,10 +10,10 @@ public class ArtistLbEntry extends LbEntry {
     @Override
     public String toStringWildcard() {
         return ". [" +
-                LinkUtils.cleanMarkdownCharacter(getDiscordName()) +
-                "](" + WILDCARD +
-                ") - " + getEntryCount() +
-                (getEntryCount() == 1 ? " artist" : " artists\n");
+               LinkUtils.cleanMarkdownCharacter(getDiscordName()) +
+               "](" + WILDCARD +
+               ") - " + getEntryCount() +
+               (getEntryCount() == 1 ? " artist" : " artists\n");
     }
 
 }

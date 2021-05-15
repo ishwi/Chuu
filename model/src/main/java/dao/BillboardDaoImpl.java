@@ -14,9 +14,9 @@ public class BillboardDaoImpl implements BillboardDao {
     @Override
     public Week getCurrentWeekId(Connection connection) {
         String queryString = "" +
-                "" +
-                "" +
-                " select * from (SELECT id,week_start,DATEDIFF(week_start,now()) as ord  from week ) main where ord >= -6 order by ord  limit 1";
+                             "" +
+                             "" +
+                             " select * from (SELECT id,week_start,DATEDIFF(week_start,now()) as ord  from week ) main where ord >= -6 order by ord  limit 1";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
             /* Fill "preparedStatement". */
 
@@ -42,15 +42,15 @@ public class BillboardDaoImpl implements BillboardDao {
         String streakFunction = doListeners ? "streak_billboard_track" : "streak_billboard_track_scrobbles";
         String queryString =
                 "SELECT \n" +
-                        "\ta.id,b.name,b.url,week_id,track_name," + metric + ",position,@t := a.id,@t2 := week_id,\n" +
-                        " (select min(position) from " + table + " t where t.artist_id = a.artist_id and t.guild_id = a.guild_id and t.track_name = a.track_name and week_id = a.week_id - 1   ) as last_week,\n" +
-                        "(select min(position) from " + table + " t where t.artist_id = a.artist_id and t.guild_id = a.guild_id and t.track_name = a.track_name ) as peak,\n" +
-                        streakFunction + "(a.id) as streak  \n" +
-                        "  from " + table + " a  join artist b on a.artist_id = b.id where guild_id = ? and week_id = ?  order by position asc ," + metric + " desc  \n" +
-                        "  \n" +
-                        "  \n" +
-                        "  \n" +
-                        "  ";
+                "\ta.id,b.name,b.url,week_id,track_name," + metric + ",position,@t := a.id,@t2 := week_id,\n" +
+                " (select min(position) from " + table + " t where t.artist_id = a.artist_id and t.guild_id = a.guild_id and t.track_name = a.track_name and week_id = a.week_id - 1   ) as last_week,\n" +
+                "(select min(position) from " + table + " t where t.artist_id = a.artist_id and t.guild_id = a.guild_id and t.track_name = a.track_name ) as peak,\n" +
+                streakFunction + "(a.id) as streak  \n" +
+                "  from " + table + " a  join artist b on a.artist_id = b.id where guild_id = ? and week_id = ?  order by position asc ," + metric + " desc  \n" +
+                "  \n" +
+                "  \n" +
+                "  \n" +
+                "  ";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
             /* Fill "preparedStatement". */
             int i = 1;
@@ -95,15 +95,15 @@ public class BillboardDaoImpl implements BillboardDao {
 
         String queryString =
                 "SELECT \n" +
-                        "\ta.id,b.name,b.url,week_id," + metric + ",position,@t := a.id,@t2 := week_id,\n" +
-                        " (select min(position) from " + table + " t where t.artist_id = a.artist_id and t.guild_id = a.guild_id  and week_id = a.week_id - 1   ) as last_week,\n" +
-                        "(select min(position) from " + table + " t where t.artist_id = a.artist_id and t.guild_id = a.guild_id ) as peak,\n" +
-                        streakFunction + "(a.id) as streak  \n" +
-                        "  from " + table + " a  join artist b on a.artist_id = b.id where guild_id = ? and week_id = ?  order by position asc ," + metric + " desc  \n" +
-                        "  \n" +
-                        "  \n" +
-                        "  \n" +
-                        "  ";
+                "\ta.id,b.name,b.url,week_id," + metric + ",position,@t := a.id,@t2 := week_id,\n" +
+                " (select min(position) from " + table + " t where t.artist_id = a.artist_id and t.guild_id = a.guild_id  and week_id = a.week_id - 1   ) as last_week,\n" +
+                "(select min(position) from " + table + " t where t.artist_id = a.artist_id and t.guild_id = a.guild_id ) as peak,\n" +
+                streakFunction + "(a.id) as streak  \n" +
+                "  from " + table + " a  join artist b on a.artist_id = b.id where guild_id = ? and week_id = ?  order by position asc ," + metric + " desc  \n" +
+                "  \n" +
+                "  \n" +
+                "  \n" +
+                "  ";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
             /* Fill "preparedStatement". */
             int i = 1;
@@ -147,15 +147,15 @@ public class BillboardDaoImpl implements BillboardDao {
 
         String queryString =
                 "SELECT \n" +
-                        "\ta.id,b.name,b.url,week_id," + metric + ",position,@t := a.id,@t2 := week_id,\n" +
-                        " (select min(position) from " + table + " t where t.artist_id = a.artist_id and week_id = a.week_id - 1   ) as last_week,\n" +
-                        "(select min(position) from " + table + " t where t.artist_id = a.artist_id ) as peak,\n" +
-                        streakFunction + "(a.id) as streak  \n" +
-                        "  from " + table + " a  join artist b on a.artist_id = b.id where week_id = ?  order by position asc ," + metric + " desc  \n" +
-                        "  \n" +
-                        "  \n" +
-                        "  \n" +
-                        "  ";
+                "\ta.id,b.name,b.url,week_id," + metric + ",position,@t := a.id,@t2 := week_id,\n" +
+                " (select min(position) from " + table + " t where t.artist_id = a.artist_id and week_id = a.week_id - 1   ) as last_week,\n" +
+                "(select min(position) from " + table + " t where t.artist_id = a.artist_id ) as peak,\n" +
+                streakFunction + "(a.id) as streak  \n" +
+                "  from " + table + " a  join artist b on a.artist_id = b.id where week_id = ?  order by position asc ," + metric + " desc  \n" +
+                "  \n" +
+                "  \n" +
+                "  \n" +
+                "  ";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
             /* Fill "preparedStatement". */
             preparedStatement.setInt(1, week_id);
@@ -180,18 +180,18 @@ public class BillboardDaoImpl implements BillboardDao {
 
         String queryString =
                 "SELECT \n" +
-                        "\ta.id,b.name,c.url,week_id,a.album_name," + metric + ",position,@t := a.id,@t2 := week_id,\n" +
-                        " (select min(position) from " + table + " t where t.artist_id = a.artist_id and t.guild_id = a.guild_id and t.album_name = a.album_name  and week_id = a.week_id - 1   ) as last_week,\n" +
-                        "(select min(position) from " + table + " t where t.artist_id = a.artist_id and  t.album_name = a.album_name and t.guild_id = a.guild_id ) as peak,\n" +
-                        streakFunction + "(a.id) as streak  \n" +
+                "\ta.id,b.name,c.url,week_id,a.album_name," + metric + ",position,@t := a.id,@t2 := week_id,\n" +
+                " (select min(position) from " + table + " t where t.artist_id = a.artist_id and t.guild_id = a.guild_id and t.album_name = a.album_name  and week_id = a.week_id - 1   ) as last_week,\n" +
+                "(select min(position) from " + table + " t where t.artist_id = a.artist_id and  t.album_name = a.album_name and t.guild_id = a.guild_id ) as peak,\n" +
+                streakFunction + "(a.id) as streak  \n" +
 
-                        "  from " + table + " a  join artist b on a.artist_id = b.id " +
-                        " left join album c on a.artist_id = c.artist_id and c.album_name = a.album_name" +
-                        " where guild_id = ? and week_id = ?  order by position asc ," + metric + " desc  \n" +
-                        "  \n" +
-                        "  \n" +
-                        "  \n" +
-                        "  ";
+                "  from " + table + " a  join artist b on a.artist_id = b.id " +
+                " left join album c on a.artist_id = c.artist_id and c.album_name = a.album_name" +
+                " where guild_id = ? and week_id = ?  order by position asc ," + metric + " desc  \n" +
+                "  \n" +
+                "  \n" +
+                "  \n" +
+                "  ";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
             /* Fill "preparedStatement". */
             int i = 1;
@@ -217,18 +217,18 @@ public class BillboardDaoImpl implements BillboardDao {
 
         String queryString =
                 "SELECT \n" +
-                        "\ta.id,b.name,c.url,week_id,a.album_name," + metric + ",position,@t := a.id,@t2 := week_id,\n" +
-                        " (select min(position) from " + table + " t where t.artist_id = a.artist_id and t.album_name = a.album_name  and week_id = a.week_id - 1   ) as last_week,\n" +
-                        "(select min(position) from " + table + " t where t.artist_id = a.artist_id and  t.album_name = a.album_name  ) as peak,\n" +
-                        streakFunction + "(a.id) as streak  \n" +
+                "\ta.id,b.name,c.url,week_id,a.album_name," + metric + ",position,@t := a.id,@t2 := week_id,\n" +
+                " (select min(position) from " + table + " t where t.artist_id = a.artist_id and t.album_name = a.album_name  and week_id = a.week_id - 1   ) as last_week,\n" +
+                "(select min(position) from " + table + " t where t.artist_id = a.artist_id and  t.album_name = a.album_name  ) as peak,\n" +
+                streakFunction + "(a.id) as streak  \n" +
 
-                        "  from " + table + " a  join artist b on a.artist_id = b.id " +
-                        " left join album c on a.artist_id = c.artist_id and c.album_name = a.album_name" +
-                        " where week_id = ?  order by position asc ," + metric + " desc  \n" +
-                        "  \n" +
-                        "  \n" +
-                        "  \n" +
-                        "  ";
+                "  from " + table + " a  join artist b on a.artist_id = b.id " +
+                " left join album c on a.artist_id = c.artist_id and c.album_name = a.album_name" +
+                " where week_id = ?  order by position asc ," + metric + " desc  \n" +
+                "  \n" +
+                "  \n" +
+                "  \n" +
+                "  ";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
             /* Fill "preparedStatement". */
             int i = 1;
@@ -422,7 +422,7 @@ public class BillboardDaoImpl implements BillboardDao {
 
         StringBuilder mySql =
                 new StringBuilder("INSERT ignore INTO  user_billboard_data_scrobbles" +
-                        "                  (week_id,artist_id,track_name,lastfm_id,album_name,timestamp) VALUES (?,?,?,?,?,?) ");
+                                  "                  (week_id,artist_id,track_name,lastfm_id,album_name,timestamp) VALUES (?,?,?,?,?,?) ");
 
         mySql.append(", (?,?,?,?,?,?)".repeat(Math.max(0, trackList.size() - 1)));
 
@@ -531,15 +531,15 @@ public class BillboardDaoImpl implements BillboardDao {
 
         String queryString =
                 "SELECT \n" +
-                        "\ta.id,b.name,b.url,week_id,track_name," + metric + ",position,@t := a.id,@t2 := week_id,\n" +
-                        " (select min(position) from " + table + " t where t.artist_id = a.artist_id  and t.track_name = a.track_name and week_id = a.week_id - 1   ) as last_week,\n" +
-                        "(select min(position) from " + table + " t where t.artist_id = a.artist_id and t.track_name = a.track_name ) as peak,\n" +
-                        streakFunction + "(a.id) as streak  \n" +
-                        "  from " + table + " a  join artist b on a.artist_id = b.id where week_id = ?  order by position asc ," + metric + " desc  \n" +
-                        "  \n" +
-                        "  \n" +
-                        "  \n" +
-                        "  ";
+                "\ta.id,b.name,b.url,week_id,track_name," + metric + ",position,@t := a.id,@t2 := week_id,\n" +
+                " (select min(position) from " + table + " t where t.artist_id = a.artist_id  and t.track_name = a.track_name and week_id = a.week_id - 1   ) as last_week,\n" +
+                "(select min(position) from " + table + " t where t.artist_id = a.artist_id and t.track_name = a.track_name ) as peak,\n" +
+                streakFunction + "(a.id) as streak  \n" +
+                "  from " + table + " a  join artist b on a.artist_id = b.id where week_id = ?  order by position asc ," + metric + " desc  \n" +
+                "  \n" +
+                "  \n" +
+                "  \n" +
+                "  ";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
             /* Fill "preparedStatement". */
             int i = 1;
@@ -749,8 +749,8 @@ public class BillboardDaoImpl implements BillboardDao {
     public void groupUserData(Connection connection, String lastfmId, int week_id) {
 
         StringBuilder sql = new StringBuilder("INSERT INTO  user_billboard_data" +
-                "                  (week_id,artist_id,track_name,lastfm_id,album_name,scrobble_count) select week_id,artist_id,track_name,lastfm_id,album_name,count(*) from " +
-                "user_billboard_data_scrobbles where week_id = ? and lastfm_id = ? group by artist_id,track_name");
+                                              "                  (week_id,artist_id,track_name,lastfm_id,album_name,scrobble_count) select week_id,artist_id,track_name,lastfm_id,album_name,count(*) from " +
+                                              "user_billboard_data_scrobbles where week_id = ? and lastfm_id = ? group by artist_id,track_name");
 
 
         try {

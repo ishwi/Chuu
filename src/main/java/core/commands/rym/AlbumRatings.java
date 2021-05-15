@@ -92,10 +92,10 @@ public class AlbumRatings extends ConcurrentCommand<ArtistAlbumParameters> {
         List<Rating> userRatings = ratingss.getUserRatings();
         String lastFmArtistAlbumUrl = LinkUtils.getLastFmArtistAlbumUrl(artist, album);
         List<String> stringList = userRatings.stream().filter(Rating::isSameGuild).map(x -> ". **[" +
-                getUserString(e, x.getDiscordId()) +
-                "](" + lastFmArtistAlbumUrl +
-                ")** - " + starFormatter.apply(x.getRating()) +
-                "\n").toList();
+                                                                                            getUserString(e, x.getDiscordId()) +
+                                                                                            "](" + lastFmArtistAlbumUrl +
+                                                                                            ")** - " + starFormatter.apply(x.getRating()) +
+                                                                                            "\n").toList();
         if (stringList.isEmpty()) {
             sendMessageQueue(e, String.format("**%s** by **%s** was not rated by anyone.", album, artist));
             return;

@@ -23,11 +23,17 @@ import dao.exceptions.ChuuServiceException;
 import java.util.concurrent.*;
 
 public final class Task {
-    private Future<?> task;
+    private static final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
     private final long delay;
     private final TimeUnit unit;
     private final Runnable runnable;
-    private static final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
+    private Future<?> task;
+
+    public Task(long delay, TimeUnit unit, Runnable runnable) {
+        this.delay = delay;
+        this.unit = unit;
+        this.runnable = runnable;
+    }
 
     public final boolean isRunning() {
         if (task == null) {
@@ -57,11 +63,5 @@ public final class Task {
             task.cancel(interrupt);
         }
         task = null;
-    }
-
-    public Task(long delay, TimeUnit unit, Runnable runnable) {
-        this.delay = delay;
-        this.unit = unit;
-        this.runnable = runnable;
     }
 }

@@ -62,14 +62,6 @@ public class GlobalStreakEntities extends StreakEntity {
         return getComboString(aString, description, combo.getaCounter(), combo.getCurrentArtist(), combo.getAlbCounter(), combo.getCurrentAlbum(), combo.gettCounter(), combo.getCurrentSong(), null);
     }
 
-    public static record DateHolder(Instant start, String date, String link) {
-    }
-
-    public void setDisplayer(Consumer<GlobalStreakEntities> displayer) {
-        this.displayer = displayer;
-    }
-
-
     public String getName() {
         if (calculatedDisplayName == null) {
             displayer.accept(this);
@@ -93,11 +85,18 @@ public class GlobalStreakEntities extends StreakEntity {
         return displayer;
     }
 
+    public void setDisplayer(Consumer<GlobalStreakEntities> displayer) {
+        this.displayer = displayer;
+    }
+
     public String getCalculatedDisplayName() {
         return calculatedDisplayName;
     }
 
     public void setCalculatedDisplayName(String calculatedDisplayName) {
         this.calculatedDisplayName = calculatedDisplayName;
+    }
+
+    public static record DateHolder(Instant start, String date, String link) {
     }
 }

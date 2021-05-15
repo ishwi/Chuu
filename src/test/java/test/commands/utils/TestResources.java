@@ -65,6 +65,14 @@ public class TestResources extends ExternalResource {
         dao.updateUserTimeStamp("guilleecs", Integer.MAX_VALUE, Integer.MAX_VALUE);
     }
 
+    public static void insertCommonArtistWithPlays(int plays) {
+        dao.insertNewUser(LastFMData.ofUser("guilleecs"));
+        ArrayList<ScrobbledArtist> scrobbledArtistData = new ArrayList<>();
+        scrobbledArtistData.add(new ScrobbledArtist("guilleecs", commonArtist, plays));
+        dao.insertArtistDataList(scrobbledArtistData, "guilleecs");
+        dao.updateUserTimeStamp("guilleecs", Integer.MAX_VALUE, Integer.MAX_VALUE);
+    }
+
     @Override
     protected void before() {
         if (!started.compareAndSet(false, true)) {
@@ -72,14 +80,6 @@ public class TestResources extends ExternalResource {
         }
         init();
         // Initialization code goes here
-    }
-
-    public static void insertCommonArtistWithPlays(int plays) {
-        dao.insertNewUser(LastFMData.ofUser("guilleecs"));
-        ArrayList<ScrobbledArtist> scrobbledArtistData = new ArrayList<>();
-        scrobbledArtistData.add(new ScrobbledArtist("guilleecs", commonArtist, plays));
-        dao.insertArtistDataList(scrobbledArtistData, "guilleecs");
-        dao.updateUserTimeStamp("guilleecs", Integer.MAX_VALUE, Integer.MAX_VALUE);
     }
 
     private void deleteAllMessage(TextChannel channel) {

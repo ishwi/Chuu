@@ -1,2 +1,2 @@
-alter table user
-    add column `own_tags` boolean not null default false;
+ALTER TABLE user
+    ADD COLUMN `own_tags` boolean NOT NULL DEFAULT FALSE;

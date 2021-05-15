@@ -25,11 +25,11 @@ class ThreadQueue implements Runnable {
     final AtomicInteger iterations;
     final Font START_FONT;
     private final boolean asideMode;
+    private final StringFitter titleFitter;
+    private final StringFitter subTitleFitter;
     int START_FONT_SIZE = 24;
     final Font JAPANESE_FONT = new Font("Yu Gothic", Font.PLAIN, START_FONT_SIZE);
     final Font KOREAN_FONT = new Font("Malgun Gothic", Font.PLAIN, START_FONT_SIZE);
-    private final StringFitter titleFitter;
-    private final StringFitter subTitleFitter;
     int lowerLimitStringSize = 14;
     int imageSize = 300;
 

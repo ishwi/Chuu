@@ -36,13 +36,6 @@ import java.util.*;
 
 public class ImportCommand extends ConcurrentCommand<UrlParameters> {
 
-    @FunctionalInterface
-    interface ImportFunctional {
-        Callback executeCallback(LastFMData a, StringBuilder b, Message message, EmbedBuilder embedBuilder, User user, int position, int[] errorCounter);
-
-    }
-
-
     private final ImportFunctional consumer = (u, m, message, embedBuilder, author, pos, errorCounter) -> () -> {
 
         embedBuilder.setDescription("Processing user #" + pos);
@@ -257,6 +250,12 @@ public class ImportCommand extends ConcurrentCommand<UrlParameters> {
             e.getAuthor().openPrivateChannel()
                     .flatMap(p -> complete.editMessage(embedBuilder.setDescription(description).build())).queue();
         }
+    }
+
+    @FunctionalInterface
+    interface ImportFunctional {
+        Callback executeCallback(LastFMData a, StringBuilder b, Message message, EmbedBuilder embedBuilder, User user, int position, int[] errorCounter);
+
     }
 
 }

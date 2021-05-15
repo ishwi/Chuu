@@ -1,6 +1,6 @@
 -- FOr the musicbrainz instance you must run the following functor creator.
 
-CREATE FUNCTION calculate_country(area bigint) RETURNS character as $$
+CREATE FUNCTION calculate_country(area bigint) RETURNS character AS $$
 
 (WITH RECURSIVE area_descendants AS (
     SELECT entity0 AS parent, entity1 AS descendant, 1 AS depth
@@ -20,12 +20,12 @@ CREATE FUNCTION calculate_country(area bigint) RETURNS character as $$
  FROM area_descendants ad
           JOIN iso_3166_1 iso ON iso.area = ad.parent);
 $$
-language sql;
+LANGUAGE SQL;
 
 -- and add this table
 
-create table country_lookup as
-select id, calculate_country(id) as country
-from area
-where type != 1;
+CREATE TABLE country_lookup AS
+SELECT id, calculate_country(id) AS country
+FROM area
+WHERE type != 1;
 

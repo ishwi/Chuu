@@ -141,7 +141,7 @@ public class UrlQueueReview extends ConcurrentCommand<CommandParameters> {
                         if (lastFMData1.isImageNotify()) {
                             r.getJDA().retrieveUserById(a.uploader(), false).flatMap(User::openPrivateChannel).queue(x ->
                                     x.sendMessage("Your image for " + a.artistName() + " has been approved:\n" +
-                                            "You can disable this automated message with the config command.\n" + a.url()).queue());
+                                                  "You can disable this automated message with the config command.\n" + a.url()).queue());
                         }
                     } catch (InstanceNotFoundException ignored) {
                         // Do nothing
@@ -168,12 +168,12 @@ public class UrlQueueReview extends ConcurrentCommand<CommandParameters> {
                     finalEmbed -> {
                         int reportCount = db.getQueueUrlCount();
                         String description = (navigationCounter.get() == 0) ? null :
-                                String.format("You have seen %d %s and decided to reject %d %s and to accept %d",
-                                        navigationCounter.get(),
-                                        CommandUtil.singlePlural(navigationCounter.get(), "image", "images"),
-                                        statDeclined.get(),
-                                        CommandUtil.singlePlural(statDeclined.get(), "image", "images"),
-                                        statAccepeted.get());
+                                             String.format("You have seen %d %s and decided to reject %d %s and to accept %d",
+                                                     navigationCounter.get(),
+                                                     CommandUtil.singlePlural(navigationCounter.get(), "image", "images"),
+                                                     statDeclined.get(),
+                                                     CommandUtil.singlePlural(statDeclined.get(), "image", "images"),
+                                                     statAccepeted.get());
                         String title;
                         if (navigationCounter.get() == 0) {
                             title = "There are no images in the queue";

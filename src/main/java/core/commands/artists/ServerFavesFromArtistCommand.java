@@ -81,7 +81,7 @@ public class ServerFavesFromArtistCommand extends ConcurrentCommand<ArtistParame
 
         StringBuilder a = new StringBuilder();
         List<String> s = songs.stream().map(g -> ". **[" + CommandUtil.cleanMarkdownCharacter(g.getAlbum()) + "](" + LinkUtils.getLastFMArtistTrack(g.getArtist(), g.getAlbum()) + ")** - " + g.getPlays() + " plays" +
-                "\n").toList();
+                                                 "\n").toList();
         for (int i = 0; i < s.size() && i < 10; i++) {
             String sb = s.get(i);
             a.append(i + 1).append(sb);

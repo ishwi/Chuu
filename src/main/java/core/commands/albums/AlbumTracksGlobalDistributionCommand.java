@@ -114,9 +114,9 @@ public class AlbumTracksGlobalDistributionCommand extends AlbumPlaysCommand {
                 case LIST -> {
                     StringBuilder a = new StringBuilder();
                     List<String> lines = fullAlbumEntity.getTrackList().stream().map(t -> ". " + "[" +
-                            CommandUtil.cleanMarkdownCharacter(t.getName()) +
-                            "](" + LinkUtils.getLastFMArtistTrack(artist, t.getName()) +
-                            ")" + " - " + t.getPlays() + CommandUtil.singlePlural(t.getPlays(), " play", " plays") + "\n").toList();
+                                                                                          CommandUtil.cleanMarkdownCharacter(t.getName()) +
+                                                                                          "](" + LinkUtils.getLastFMArtistTrack(artist, t.getName()) +
+                                                                                          ")" + " - " + t.getPlays() + CommandUtil.singlePlural(t.getPlays(), " play", " plays") + "\n").toList();
                     for (int i = 0; i < fullAlbumEntity.getTrackList().size() && i <= 20; i++) {
                         String s = lines.get(i);
                         a.append(i + 1).append(s);

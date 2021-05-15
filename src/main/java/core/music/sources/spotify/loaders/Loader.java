@@ -30,14 +30,14 @@ import java.util.regex.Pattern;
 
 public abstract class Loader {
 
-    public AudioItem doYoutubeSearch(AudioPlayerManager manager, String identifier) {
-        return youtubeAudioSourceManager.loadItem(manager, new AudioReference(identifier, null));
-    }
-
     protected final YoutubeAudioSourceManager youtubeAudioSourceManager;
 
     protected Loader(YoutubeAudioSourceManager youtubeAudioSourceManager) {
         this.youtubeAudioSourceManager = youtubeAudioSourceManager;
+    }
+
+    public AudioItem doYoutubeSearch(AudioPlayerManager manager, String identifier) {
+        return youtubeAudioSourceManager.loadItem(manager, new AudioReference(identifier, null));
     }
 
     public abstract Pattern pattern();
@@ -49,12 +49,12 @@ public abstract class Loader {
         return CompletableFuture.supplyAsync(() -> youtubeAudioSourceManager.loadItem(manager, new AudioReference(identifier, null)));
     }
 
-    record Metadata(String artist, String album, String song, String url) {
-    }
-
     protected void check(boolean condition, String message) {
         if (!condition) {
             throw new IllegalStateException(message);
         }
+    }
+
+    record Metadata(String artist, String album, String song, String url) {
     }
 }

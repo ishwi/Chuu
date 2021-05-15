@@ -120,8 +120,8 @@ public class ColorChartCommand extends OnlyChartCommand<ColorChartParams> {
                     capsule.setUrl(cover);
                     BufferedImage image = GraphicUtils.getImage(cover);
                     PreComputedChartEntity.ImageComparison comparison = params.getColors().size() > 1 ?
-                            PreComputedChartEntity.ImageComparison.AVERAGE_AND_DOMINANT_PALETTE :
-                            PreComputedChartEntity.ImageComparison.AVERAGE_AND_DOMINANT_PALETTE;
+                                                                        PreComputedChartEntity.ImageComparison.AVERAGE_AND_DOMINANT_PALETTE :
+                                                                        PreComputedChartEntity.ImageComparison.AVERAGE_AND_DOMINANT_PALETTE;
                     boolean isDarkToWhite = params.isInverse();
                     if (params.isSorted()) {
                         return new PreComputedPlays(capsule, image, isDarkToWhite, comparison);

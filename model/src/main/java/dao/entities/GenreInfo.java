@@ -6,6 +6,15 @@ public class GenreInfo {
     private final int reach;
     private final String string;
 
+    public GenreInfo(String name, int total, int reach, String string) {
+
+
+        this.name = name;
+        this.total = total;
+        this.reach = reach;
+        this.string = string;
+    }
+
     public String getName() {
         return name;
     }
@@ -20,14 +29,5 @@ public class GenreInfo {
 
     public String getString() {
         return string;
-    }
-
-    public GenreInfo(String name, int total, int reach, String string) {
-
-
-        this.name = name;
-        this.total = total;
-        this.reach = reach;
-        this.string = string;
     }
 }

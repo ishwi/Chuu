@@ -24,15 +24,14 @@ public enum GuildConfigType {
 
     CENSOR_CONVERS("censor-covers");
 
+    public static final Pattern number = Pattern.compile("\\d+");
     static final Pattern npMode = Pattern.compile("((" + "CLEAR|" +
                                                   EnumSet.allOf(NPMode.class).stream().filter(x -> !x.equals(NPMode.UNKNOWN)).map(NPMode::toString).collect(Collectors.joining("|")) +
                                                   ")[ |&,]*)+", Pattern.CASE_INSENSITIVE);
     static final Pattern overrideMode = Pattern.compile("(override|add|add[-_ ]end|empty)", Pattern.CASE_INSENSITIVE);
     static final Pattern overrideColorMode = Pattern.compile("(override|empty)", Pattern.CASE_INSENSITIVE);
     static final Pattern colorMode = Pattern.compile("(random|clear|role|.+)", Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
-
     private static final Map<String, GuildConfigType> ENUM_MAP;
-    public static final Pattern number = Pattern.compile("\\d+");
 
     static {
         ENUM_MAP = Stream.of(GuildConfigType.values())

@@ -18,8 +18,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class ObscurityLeaderboardCommand extends LeaderboardCommand<CommandParameters> {
-    private final AtomicInteger maxConcurrency = new AtomicInteger(4);
     public static final boolean disabled = true;
+    private final AtomicInteger maxConcurrency = new AtomicInteger(4);
 
 
     public ObscurityLeaderboardCommand(ChuuService dao) {

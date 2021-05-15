@@ -19,38 +19,38 @@ import test.commands.utils.TestResources;
 import java.util.regex.Pattern;
 
 public class FavesCommandTest extends CommandTest {
-	@Override
-	public String giveCommandName() {
-		return "!favs";
-	}
+    @Override
+    public String giveCommandName() {
+        return "!favs";
+    }
 
-	@Test
-	@Override
-	public void nullParserReturned() {
-		NullReturnParsersTest.artistTimeFrameParser(COMMAND_ALIAS);
-	}
+    @Test
+    @Override
+    public void nullParserReturned() {
+        NullReturnParsersTest.artistTimeFrameParser(COMMAND_ALIAS);
+    }
 
-	@Test
-	public void normalFunctionallity() {
-		String blacpink = TestResources.dao.getArtistUrl("BLACKPINK");
-		EmbedUtils
-				.testLeaderboardEmbed(COMMAND_ALIAS + " BLACKPINK", EmbedUtils.descriptionArtistRegexNoMarkDownLink, "${header}'s Top (.*) Tracks in (.*)",
-						false, false, blacpink, Pattern.compile("Coudnt't find your fav tracks of BLACPINK!"));
+    @Test
+    public void normalFunctionallity() {
+        String blacpink = TestResources.dao.getArtistUrl("BLACKPINK");
+        EmbedUtils
+                .testLeaderboardEmbed(COMMAND_ALIAS + " BLACKPINK", EmbedUtils.descriptionArtistRegexNoMarkDownLink, "${header}'s Top (.*) Tracks in (.*)",
+                        false, false, blacpink, Pattern.compile("Coudnt't find your fav tracks of BLACPINK!"));
 
-		String url2 = TestResources.dao.getArtistUrl("My Bloody Valentine");
+        String url2 = TestResources.dao.getArtistUrl("My Bloody Valentine");
 
-		EmbedUtils
-				.testLeaderboardEmbed(COMMAND_ALIAS + " My Bloody Valentine" + " w", EmbedUtils.descriptionArtistRegexNoMarkDownLink, "${header}'s Top (.*) Tracks in (.*)",
-						false, false, url2, Pattern
-								.compile("Coudnt't find your fav tracks of My Bloody Valentine in the last week!"));
-	}
+        EmbedUtils
+                .testLeaderboardEmbed(COMMAND_ALIAS + " My Bloody Valentine" + " w", EmbedUtils.descriptionArtistRegexNoMarkDownLink, "${header}'s Top (.*) Tracks in (.*)",
+                        false, false, url2, Pattern
+                                .compile("Coudnt't find your fav tracks of My Bloody Valentine in the last week!"));
+    }
 
-	@Test
-	public void edgeCasesParser() throws LastFmException {
-		ConcurrentLastFM newInstance = LastFMFactory.getNewInstance();
-		DiscogsApi discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
-		Spotify spotify = SpotifySingleton.getInstance();
-		NowPlayingArtist np = newInstance.getNowPlayingInfo(LastFMData.ofUser("pablopita"));
+    @Test
+    public void edgeCasesParser() throws LastFmException {
+        ConcurrentLastFM newInstance = LastFMFactory.getNewInstance();
+        DiscogsApi discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
+        Spotify spotify = SpotifySingleton.getInstance();
+        NowPlayingArtist np = newInstance.getNowPlayingInfo(LastFMData.ofUser("pablopita"));
         String artistUrl = CommandUtil
                 .getArtistImageUrl(TestResources.dao, np.artistName(), newInstance, discogsApi, spotify);
         EmbedUtils
@@ -66,6 +66,6 @@ public class FavesCommandTest extends CommandTest {
                                 .getAsMention(), EmbedUtils.descriptionArtistRegexNoMarkDownLink, "${header}'s Top (.*) Tracks in (.*)",
                         false, false, artistUrl, Pattern
                                 .compile("Coudnt't find your fav tracks of " + np.artistName() + " in the last week!"));
-	}
+    }
 }
 

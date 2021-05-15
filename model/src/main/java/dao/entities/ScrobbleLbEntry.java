@@ -11,9 +11,9 @@ public class ScrobbleLbEntry extends LbEntry {
     @Override
     public String toStringWildcard() {
         return ". [" +
-                LinkUtils.cleanMarkdownCharacter(getDiscordName()) +
-                "](" + WILDCARD +
-                "): " + getEntryCount() +
-                " scrobbles\n";
+               LinkUtils.cleanMarkdownCharacter(getDiscordName()) +
+               "](" + WILDCARD +
+               "): " + getEntryCount() +
+               " scrobbles\n";
     }
 }

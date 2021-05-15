@@ -59,7 +59,7 @@ public class ScrobblesSinceCommand extends ConcurrentCommand<DateParameters> {
 
         String ending = params.isAllTime() ? "" : String.format("since %s%s %d %s", mmmmD, CommandUtil.getDayNumberSuffix(date.getDayOfMonth()),
                 date.getYear(), date.getMinute() == 0 && date.getHour() == 0 && date.getSecond() == 0
-                        ? "" : date.format(DateTimeFormatter.ofPattern("HH:mm x")));
+                                ? "" : date.format(DateTimeFormatter.ofPattern("HH:mm x")));
         sendMessageQueue(e, String.format("%s has a total of %d scrobbles %s", username, i, ending));
     }
 

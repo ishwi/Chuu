@@ -31,7 +31,6 @@ public abstract class GlobalBaseWhoKnowCommand<T extends CommandParameters> exte
     }
 
 
-
     @Override
     BufferedImage doImage(T ap, WrapperReturnNowPlaying wrapperReturnNowPlaying) {
         Context e = ap.getE();

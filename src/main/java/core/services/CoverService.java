@@ -81,7 +81,6 @@ public class CoverService {
     }
 
 
-
     public Map<CoverItem, Integer> getCounts() {
         return bannedCovers.asMap().entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, t -> t.getValue().size()));
     }

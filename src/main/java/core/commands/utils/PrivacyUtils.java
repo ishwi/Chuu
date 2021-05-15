@@ -81,10 +81,6 @@ public class PrivacyUtils {
         };
     }
 
-    public record PrivateString(String discordName, String lastfmName) {
-    }
-
-
     public static String getPublicStr(PrivacyMode privacyMode, long discordId, String lastfmId, Context e) {
         return switch (privacyMode) {
             case DISCORD_NAME -> CommandUtil.getUserInfoNotStripped(e, discordId).getUsername();
@@ -92,6 +88,9 @@ public class PrivacyUtils {
             case LAST_NAME -> lastfmId + " (last.fm)";
             default -> "Unknown";
         };
+    }
+
+    public record PrivateString(String discordName, String lastfmName) {
     }
 
 }

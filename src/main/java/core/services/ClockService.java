@@ -24,11 +24,11 @@ import java.util.stream.Collectors;
 
 public class ClockService {
     public static final Function<TimeZone, Function<PreBillboardUserDataTimestamped, OffsetDateTime>> dateTimeFunctionComposer = (t) -> (x) -> x.getTimestamp().toInstant().atZone(t.toZoneId()).toOffsetDateTime();
+    final TemporalField weekOfYear = WeekFields.of(Locale.getDefault()).weekOfYear();
     private final ClockMode clockMode;
     private final List<PreBillboardUserDataTimestamped> data;
     private final TimeZone timeZone;
     private final Function<PreBillboardUserDataTimestamped, OffsetDateTime> dateTimeFunction;
-    final TemporalField weekOfYear = WeekFields.of(Locale.getDefault()).weekOfYear();
 
     public ClockService(ClockMode clockMode, List<PreBillboardUserDataTimestamped> data, TimeZone timeZone) {
         this.clockMode = clockMode;

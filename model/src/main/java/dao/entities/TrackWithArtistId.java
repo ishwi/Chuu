@@ -27,6 +27,10 @@ public class TrackWithArtistId extends Track implements Serializable {
         this(other.getArtist(), other.getName(), other.getPlays(), other.isLoved(), other.getDuration(), utc);
     }
 
+    public static long getSerialVersionUID() {
+        return serialVersionUID;
+    }
+
     public long getArtistId() {
         return artistId;
     }
@@ -66,10 +70,6 @@ public class TrackWithArtistId extends Track implements Serializable {
 
     public void setUtc(int utc) {
         this.utc = utc;
-    }
-
-    public static long getSerialVersionUID() {
-        return serialVersionUID;
     }
 
     public String getAlbumMbid() {

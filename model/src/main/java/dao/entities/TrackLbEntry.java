@@ -10,10 +10,10 @@ public class TrackLbEntry extends LbEntry {
     @Override
     public String toStringWildcard() {
         return ". [" +
-                LinkUtils.cleanMarkdownCharacter(getDiscordName()) +
-                "](" + WILDCARD +
-                ") - " + getEntryCount() +
-                (getEntryCount() == 1 ? " song" : " songs\n");
+               LinkUtils.cleanMarkdownCharacter(getDiscordName()) +
+               "](" + WILDCARD +
+               ") - " + getEntryCount() +
+               (getEntryCount() == 1 ? " song" : " songs\n");
     }
 
 }

@@ -86,7 +86,7 @@ public class GenreAlbumsCommands extends ChartableCommand<ChartableGenreParamete
             ArrayList<UrlCapsule> c = new ArrayList<>(queue);
             albums = c.stream()
                     .filter(x -> x.getMbid() != null
-                            && !x.getMbid().isBlank()
+                                 && !x.getMbid().isBlank()
                     )
                     .map(x -> new AlbumInfo(x.getMbid()))
                     .filter(o -> !albumInfos.contains(o))

@@ -80,15 +80,15 @@ public class SummaryArtistCommand extends ConcurrentCommand<ArtistParameters> {
         String username = getUserString(e, whom, data.getName());
         EmbedBuilder embedBuilder = new ChuuEmbedBuilder();
         String tagsField = summary.getTags().isEmpty()
-                ? ""
-                : summary.getTags().stream()
-                .map(tag -> "[" + CommandUtil.cleanMarkdownCharacter(tag) + "](" + LinkUtils.getLastFmTagUrl(tag) + ")")
-                .collect(Collectors.joining(" - "));
+                           ? ""
+                           : summary.getTags().stream()
+                                   .map(tag -> "[" + CommandUtil.cleanMarkdownCharacter(tag) + "](" + LinkUtils.getLastFmTagUrl(tag) + ")")
+                                   .collect(Collectors.joining(" - "));
 
         String similarField =
                 summary.getSimilars().isEmpty()
-                        ? ""
-                        : summary.getSimilars().stream()
+                ? ""
+                : summary.getSimilars().stream()
                         .map(art -> "[" + CommandUtil.cleanMarkdownCharacter(art) + "](" + LinkUtils.getLastFmArtistUrl(art) + ")")
                         .collect(Collectors.joining(" - "));
 
@@ -104,9 +104,9 @@ public class SummaryArtistCommand extends ConcurrentCommand<ArtistParameters> {
                     addField(String.format("%s's stats", CommandUtil.cleanMarkdownCharacter(e.getGuild().getName())), serverStats.toString(), true);
         }
         String lastFMStats = String.format("**%d** listeners%n", summary.getListeners()) +
-                String.format("**%d** plays%n", summary.getPlaycount());
+                             String.format("**%d** plays%n", summary.getPlaycount());
         String globalStats = String.format("**%d** listeners%n", globalArtistFrequencies) +
-                String.format("**%d** plays%n", globalArtistPlays);
+                             String.format("**%d** plays%n", globalArtistPlays);
         embedBuilder
                 .addField(String.format("%s's stats", CommandUtil.cleanMarkdownCharacter(e.getJDA().getSelfUser().getName())), globalStats, true)
                 .addField("Last.FM stats", lastFMStats, true)

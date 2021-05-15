@@ -43,7 +43,7 @@ public class MatchingArtistCommand extends ConcurrentCommand<NumberParameters<Ch
         Map<Integer, String> map = new HashMap<>(2);
         map.put(LIMIT_ERROR, "The number introduced must be positive and not very big");
         String s = "You can also introduce a number to vary the number of plays needed to award a match, " +
-                "defaults to 1";
+                   "defaults to 1";
         return new NumberParser<>(new OnlyUsernameParser(db),
                 null,
                 Integer.MAX_VALUE,

@@ -9,9 +9,8 @@ import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import org.apache.commons.lang3.ArrayUtils;
 
 public record NaturalTimeframeExplanation(NaturalTimeFrameEnum timeFrame) implements Explanation {
-    private static final OptionData optionData;
     public static final String NAME = "timeframe";
-
+    private static final OptionData optionData;
 
     static {
         optionData = new OptionData(OptionType.STRING, "timeframe", "the timeframe to use");

@@ -9,7 +9,6 @@ import java.util.stream.Collectors;
 public enum GayType {
     LGTBQ(6), BI(5), TRANS(5), NB(4), LESBIAN(5), ACE(4);
 
-    private final int columns;
     private static final Map<GayType, java.util.List<Color>> palettes;
 
     static {
@@ -56,6 +55,8 @@ public enum GayType {
                     throw new UnsupportedOperationException();
                 }));
     }
+
+    private final int columns;
 
     GayType(int i) {
         columns = i;

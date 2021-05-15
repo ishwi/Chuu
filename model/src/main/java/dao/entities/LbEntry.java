@@ -1,11 +1,11 @@
 package dao.entities;
 
 public abstract class LbEntry {
+    public static final String WILDCARD = "|template|to_be_replaced|";
     private final String lastFmId;
     private final long discordId;
     private final int entryCount;
     private String discordName;
-    public static final String WILDCARD = "|template|to_be_replaced|";
 
     public LbEntry(String user, long discordId, int entryCount) {
         this.lastFmId = user;

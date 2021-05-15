@@ -24,13 +24,14 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 public class RecommendationParser extends DaoParser<RecommendationsParams> {
-    private final int defaultCount;
     private static final OptionData recs;
 
     static {
         recs = new OptionData(OptionType.INTEGER, "number-of-recs", "Indicates the number of recommendations allowed. Defaults to 1");
         IntStream.range(1, 26).forEachOrdered(t -> recs.addChoice(String.valueOf(t), t));
     }
+
+    private final int defaultCount;
 
     public RecommendationParser(ChuuService dao) {
         this(dao, 1);

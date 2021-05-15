@@ -14,10 +14,10 @@ public class TagPlays {
     @Override
     public String toString() {
         return ". [" +
-                LinkUtils.cleanMarkdownCharacter(getTag()) +
-                "](" + LinkUtils.getLastFmArtistUrl(tag) +
-                ") - " + getCount() +
-                " plays\n";
+               LinkUtils.cleanMarkdownCharacter(getTag()) +
+               "](" + LinkUtils.getLastFmArtistUrl(tag) +
+               ") - " + getCount() +
+               " plays\n";
     }
 
     public String getTag() {

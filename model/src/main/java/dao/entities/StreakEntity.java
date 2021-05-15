@@ -10,8 +10,8 @@ public class StreakEntity {
     private final int albCounter;
     private final String currentSong;
     private final int tCounter;
-    private Instant streakStart;
     private final String url;
+    private Instant streakStart;
 
     public StreakEntity(String currentArtist, int aCounter, String currentAlbum, int albCounter, String currentSong, int tCounter, Instant streakStart, String url) {
         this.currentArtist = currentArtist;

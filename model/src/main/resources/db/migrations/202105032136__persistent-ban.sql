@@ -1,61 +1,61 @@
-create table botted
+CREATE TABLE botted
 (
-    id        bigint primary key auto_increment not null,
-    lastfm_id varchar(45) charset ascii         not null,
-    unique (lastfm_id)
+    id        bigint PRIMARY KEY AUTO_INCREMENT NOT NULL,
+    lastfm_id varchar(45) CHARSET ascii         NOT NULL,
+    UNIQUE (lastfm_id)
 );
-insert into botted(lastfm_id)
-select lastfm_id
-from user
-where botted_account = true;
+INSERT INTO botted(lastfm_id)
+SELECT lastfm_id
+FROM user
+WHERE botted_account = TRUE;
 
 
-create table image_blocked
+CREATE TABLE image_blocked
 (
-    id         bigint primary key auto_increment not null,
-    discord_id bigint                            not null,
-    unique (discord_id)
+    id         bigint PRIMARY KEY AUTO_INCREMENT NOT NULL,
+    discord_id bigint                            NOT NULL,
+    UNIQUE (discord_id)
 );
-insert into persistent_image_blocked(discord_id)
-select discord_id
-from user
-where role = 'IMAGE_BLOCKED';
+INSERT INTO persistent_image_blocked(discord_id)
+SELECT discord_id
+FROM user
+WHERE role = 'IMAGE_BLOCKED';
 
-create trigger botter
-    after INSERT
-    on botted
-    for each row
-    update user
-    set botted_account = true
-    where lastfm_id = NEW.lastfm_id;
+CREATE TRIGGER botter
+    AFTER INSERT
+    ON botted
+    FOR EACH ROW
+    UPDATE user
+    SET botted_account = TRUE
+    WHERE lastfm_id = new.lastfm_id;
 
-create trigger imaged
-    after INSERT
-    on image_blocked
-    for each row
-    update user
-    set role = 'IMAGE_BLOCKED'
-    where discord_id = NEW.discord_id;
+CREATE TRIGGER imaged
+    AFTER INSERT
+    ON image_blocked
+    FOR EACH ROW
+    UPDATE user
+    SET role = 'IMAGE_BLOCKED'
+    WHERE discord_id = new.discord_id;
 
 
-create table role_colour_server
+CREATE TABLE role_colour_server
 (
-    id               bigint primary key auto_increment not null,
-    guild_id         bigint                            not null,
-    colour           varchar(10)                       not null,
-    start_breakpoint int                               not null,
-    end_breakpoint   int                               not null,
-    role_id          bigint unique                     not null,
-    unique (guild_id, colour, start_breakpoint, end_breakpoint)
+    id               bigint PRIMARY KEY AUTO_INCREMENT NOT NULL,
+    guild_id         bigint                            NOT NULL,
+    colour           varchar(10)                       NOT NULL,
+    start_breakpoint int                               NOT NULL,
+    end_breakpoint   int                               NOT NULL,
+    role_id          bigint UNIQUE                     NOT NULL,
+    UNIQUE (guild_id, colour, start_breakpoint, end_breakpoint)
 );
-alter table user
-    add column chart_options bigint not null default 0;
-alter table randomlinks
-    drop constraint randomlinks_fk_guild,
-    drop column guild_id;
-alter table command_logs
-    add column success boolean;
-alter table command_logs
-    add column is_slash boolean;
+ALTER TABLE user
+    ADD COLUMN chart_options bigint NOT NULL DEFAULT 0;
+ALTER TABLE randomlinks
+    DROP CONSTRAINT randomlinks_fk_guild,
+    DROP COLUMN guild_id;
+ALTER TABLE command_logs
+    ADD COLUMN success boolean;
+ALTER TABLE command_logs
+    ADD COLUMN is_slash boolean;
 
 

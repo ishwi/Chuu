@@ -51,16 +51,16 @@ public class ScrobbledAlbum extends ScrobbledArtist {
         return album;
     }
 
-    public void setAlbumId(long albumId) {
-        this.albumId = albumId;
-    }
-
     public void setAlbum(String album) {
         this.album = album;
     }
 
     public long getAlbumId() {
         return albumId;
+    }
+
+    public void setAlbumId(long albumId) {
+        this.albumId = albumId;
     }
 
     @Override

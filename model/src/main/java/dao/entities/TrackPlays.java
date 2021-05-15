@@ -17,9 +17,9 @@ public class TrackPlays extends ArtistPlays {
     @Override
     public String toString() {
         return ". [" +
-                LinkUtils.cleanMarkdownCharacter(getArtistName() + " - " + track) +
-                "](" + LinkUtils.getLastFMArtistTrack(getArtistName(), track) +
-                ") - " + getCount() +
-                " plays\n";
+               LinkUtils.cleanMarkdownCharacter(getArtistName() + " - " + track) +
+               "](" + LinkUtils.getLastFMArtistTrack(getArtistName(), track) +
+               ") - " + getCount() +
+               " plays\n";
     }
 }

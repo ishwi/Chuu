@@ -42,6 +42,34 @@ public class ChartParserAux {
         this.permissive = permissive;
     }
 
+    public static int getYearFromDecade(int decade) {
+        int value = Year.now().getValue();
+        if (decade > 100) {
+            return decade;
+        }
+        int year;
+        if (decade <= value % 100) {
+            year = 2000 + decade;
+        } else {
+            year = 1900 + decade;
+        }
+        return year;
+    }
+
+    public static Point processString(String chartSize) throws InvalidChartValuesException {
+        String[] sizes = chartSize.split("[xX]");
+        String x = sizes[0];
+        String y = sizes[1];
+        if (x.equals("0") || y.equals("0")) {
+            throw new InvalidChartValuesException(x);
+        }
+        int x1 = Integer.parseInt(x);
+        int y1 = Integer.parseInt(y);
+        if (x1 * y1 > 400) {
+            throw new InvalidChartValuesException(x);
+        }
+        return new Point(x1, y1);
+    }
 
     public String[] getMessage() {
         return message;
@@ -92,7 +120,6 @@ public class ChartParserAux {
         }
     }
 
-
     NaturalTimeFrameEnum parseNaturalTimeFrame() {
         return getNaturalTimeFrameEnum(null);
     }
@@ -123,8 +150,8 @@ public class ChartParserAux {
         TimeFrameEnum timeFrame = defaultTimeFrame;
         Stream<String> secondStream = Arrays.stream(message).filter(s ->
                 !permissive
-                        ? nonPermissivePattern.matcher(s).matches()
-                        : pattern.matcher(s).matches());
+                ? nonPermissivePattern.matcher(s).matches()
+                : pattern.matcher(s).matches());
         Optional<String> opt2 = secondStream.findAny();
         if (opt2.isPresent()) {
             String permissiveString = !permissive ? opt2.get() : String.valueOf(opt2.get().charAt(0));
@@ -134,7 +161,6 @@ public class ChartParserAux {
         return timeFrame;
     }
 
-
     Year parseYear() {
         Year year = Year.now();
         Stream<String> firstStream = Arrays.stream(message).filter(s -> s.matches("\\d{4}"));
@@ -143,20 +169,6 @@ public class ChartParserAux {
             year = Year.of(Integer.parseInt(opt1.get()));
             message = Arrays.stream(message).filter(s -> !s.equals(opt1.get().trim())).toArray(String[]::new);
 
-        }
-        return year;
-    }
-
-    public static int getYearFromDecade(int decade) {
-        int value = Year.now().getValue();
-        if (decade > 100) {
-            return decade;
-        }
-        int year;
-        if (decade <= value % 100) {
-            year = 2000 + decade;
-        } else {
-            year = 1900 + decade;
         }
         return year;
     }
@@ -176,22 +188,6 @@ public class ChartParserAux {
         }
         Year year = parseYear();
         return getDecade(year.getValue());
-    }
-
-
-    public static Point processString(String chartSize) throws InvalidChartValuesException {
-        String[] sizes = chartSize.split("[xX]");
-        String x = sizes[0];
-        String y = sizes[1];
-        if (x.equals("0") || y.equals("0")) {
-            throw new InvalidChartValuesException(x);
-        }
-        int x1 = Integer.parseInt(x);
-        int y1 = Integer.parseInt(y);
-        if (x1 * y1 > 400) {
-            throw new InvalidChartValuesException(x);
-        }
-        return new Point(x1, y1);
     }
 
     @Nullable

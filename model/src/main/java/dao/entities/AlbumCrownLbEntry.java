@@ -11,10 +11,10 @@ public class AlbumCrownLbEntry extends LbEntry {
     @Override
     public String toStringWildcard() {
         return ". [" +
-                LinkUtils.cleanMarkdownCharacter(getDiscordName()) +
-                "](" + LbEntry.WILDCARD +
-                ") - " + getEntryCount() +
-                " album crowns\n";
+               LinkUtils.cleanMarkdownCharacter(getDiscordName()) +
+               "](" + LbEntry.WILDCARD +
+               ") - " + getEntryCount() +
+               " album crowns\n";
     }
 
 }

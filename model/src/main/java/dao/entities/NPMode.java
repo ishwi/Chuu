@@ -99,14 +99,13 @@ public enum NPMode {
         return modes;
     }
 
-    public String toString() {
-        return WordUtils.capitalizeFully(super.toString(), '-', '_').replaceAll("_", "-");
-    }
-
     public static String getListedName(Collection<NPMode> modes) {
         return modes.stream().filter(x -> !x.equals(UNKNOWN)).map(NPMode::toString).collect(Collectors.joining(" | "));
     }
 
+    public String toString() {
+        return WordUtils.capitalizeFully(super.toString(), '-', '_').replaceAll("_", "-");
+    }
 
     public String getHelpMessage() {
         return switch (this) {

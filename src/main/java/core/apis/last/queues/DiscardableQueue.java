@@ -13,13 +13,12 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 
 public class DiscardableQueue<T extends UrlCapsule> implements BlockingQueue<UrlCapsule> {
+    protected final LinkedBlockingQueue<CompletableFuture<?>> taskQueue;
     final boolean needsImages;
     private final int maxNumberOfElements;
     private final LinkedBlockingQueue<UrlCapsule> innerQueue;
-
     private final Function<UrlCapsule, T> factoryFunction;
     private final Predicate<T> discard;
-    protected final LinkedBlockingQueue<CompletableFuture<?>> taskQueue;
 
     public DiscardableQueue(Predicate<T> discard, Function<UrlCapsule, T> factoryFunction, int maxNumberOfElements) {
         this(maxNumberOfElements, factoryFunction, discard, true);

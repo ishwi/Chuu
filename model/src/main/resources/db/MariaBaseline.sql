@@ -2,12 +2,12 @@
 
 /*!40101 SET @saved_cs_client = @@character_set_client */;
 /*!40101 SET character_set_client = utf8mb4 */;
-CREATE TABLE if not exists `user`
+CREATE TABLE IF NOT EXISTS `user`
 (
     `lastfm_id`         varchar(45) CHARACTER SET ascii                                     NOT NULL,
     `discord_id`        bigint(20)                                                          NOT NULL,
-    `last_update`       timestamp                                                           NULL                             DEFAULT current_timestamp(),
-    `control_timestamp` timestamp                                                           NULL                             DEFAULT current_timestamp(),
+    `last_update`       timestamp                                                           NULL                             DEFAULT CURRENT_TIMESTAMP(),
+    `control_timestamp` timestamp                                                           NULL                             DEFAULT CURRENT_TIMESTAMP(),
     `role`              enum ('USER','IMAGE_BLOCKED','ADMIN') COLLATE utf8mb4_unicode_ci    NOT NULL                         DEFAULT 'USER',
     `private_update`    tinyint(1)                                                          NOT NULL                         DEFAULT 0,
     `notify_image`      tinyint(1)                                                          NOT NULL                         DEFAULT 1,
@@ -33,7 +33,7 @@ CREATE TABLE if not exists `user`
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_unicode_ci;
 
-CREATE TABLE if not exists `artist`
+CREATE TABLE IF NOT EXISTS `artist`
 (
     `id`                bigint(20)                              NOT NULL AUTO_INCREMENT,
     `name`              varchar(400) COLLATE utf8mb4_unicode_ci NOT NULL,
@@ -51,7 +51,7 @@ CREATE TABLE if not exists `artist`
 
 /*!40101 SET @saved_cs_client = @@character_set_client */;
 /*!40101 SET character_set_client = utf8mb4 */;
-CREATE TABLE if not exists `album`
+CREATE TABLE IF NOT EXISTS `album`
 (
     `id`           bigint(20)                              NOT NULL AUTO_INCREMENT,
     `artist_id`    bigint(20)                              DEFAULT NULL,
@@ -75,7 +75,7 @@ CREATE TABLE if not exists `album`
 
 /*!40101 SET @saved_cs_client = @@character_set_client */;
 /*!40101 SET character_set_client = utf8mb4 */;
-CREATE TABLE if not exists `user_guild`
+CREATE TABLE IF NOT EXISTS `user_guild`
 (
     `discord_id` bigint(20) NOT NULL,
     `guild_id`   bigint(20) NOT NULL,
@@ -86,7 +86,7 @@ CREATE TABLE if not exists `user_guild`
   COLLATE = utf8mb4_unicode_ci;
 /*!40101 SET @saved_cs_client = @@character_set_client */;
 /*!40101 SET character_set_client = utf8mb4 */;
-CREATE TABLE if not exists `track`
+CREATE TABLE IF NOT EXISTS `track`
 (
     `id`           bigint(20)                              NOT NULL AUTO_INCREMENT,
     `artist_id`    bigint(20)                              DEFAULT NULL,
@@ -111,7 +111,7 @@ CREATE TABLE if not exists `track`
 
 /*!40101 SET @saved_cs_client = @@character_set_client */;
 /*!40101 SET character_set_client = utf8mb4 */;
-CREATE TABLE if not exists `guild`
+CREATE TABLE IF NOT EXISTS `guild`
 (
     `guild_id`           bigint(20)                                         NOT NULL,
     `logo`               blob                                                                                                 DEFAULT NULL,
@@ -134,7 +134,7 @@ CREATE TABLE if not exists `guild`
 
 /*!40101 SET @saved_cs_client = @@character_set_client */;
 /*!40101 SET character_set_client = utf8mb4 */;
-CREATE TABLE if not exists `randomlinks`
+CREATE TABLE IF NOT EXISTS `randomlinks`
 (
     `discord_id` bigint(20) DEFAULT NULL,
     `guild_id`   bigint(20)                              NOT NULL,
@@ -164,7 +164,7 @@ CREATE TABLE `week`
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client = @@character_set_client */;
 /*!40101 SET character_set_client = utf8mb4 */;
-CREATE TABLE if not exists `album_crowns`
+CREATE TABLE IF NOT EXISTS `album_crowns`
 (
     `artist_id` bigint(20)                              NOT NULL,
     `discordid` bigint(20)                              NOT NULL,
@@ -183,7 +183,7 @@ CREATE TABLE if not exists `album_crowns`
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client = @@character_set_client */;
 /*!40101 SET character_set_client = utf8mb4 */;
-CREATE TABLE if not exists `album_rating`
+CREATE TABLE IF NOT EXISTS `album_rating`
 (
     `id`         bigint(20)  NOT NULL AUTO_INCREMENT,
     `artist_id`  bigint(20)                      DEFAULT NULL,
@@ -205,7 +205,7 @@ CREATE TABLE if not exists `album_rating`
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client = @@character_set_client */;
 /*!40101 SET character_set_client = utf8mb4 */;
-CREATE TABLE if not exists `album_tags`
+CREATE TABLE IF NOT EXISTS `album_tags`
 (
     `id`        bigint(20)   NOT NULL AUTO_INCREMENT,
     `artist_id` bigint(20)   NOT NULL,
@@ -221,7 +221,7 @@ CREATE TABLE if not exists `album_tags`
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client = @@character_set_client */;
 /*!40101 SET character_set_client = utf8mb4 */;
-CREATE TABLE if not exists `album_tracklist`
+CREATE TABLE IF NOT EXISTS `album_tracklist`
 (
     `id`       bigint(20) NOT NULL AUTO_INCREMENT,
     `album_id` bigint(20) NOT NULL,
@@ -237,13 +237,13 @@ CREATE TABLE if not exists `album_tracklist`
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client = @@character_set_client */;
 /*!40101 SET character_set_client = utf8mb4 */;
-CREATE TABLE if not exists `alt_url`
+CREATE TABLE IF NOT EXISTS `alt_url`
 (
     `id`         bigint(20)                       NOT NULL AUTO_INCREMENT,
     `artist_id`  bigint(20)                       NOT NULL,
     `url`        varchar(400) CHARACTER SET ascii NOT NULL,
     `discord_id` bigint(20)                                DEFAULT NULL,
-    `added_date` datetime                         NOT NULL DEFAULT current_timestamp(),
+    `added_date` datetime                         NOT NULL DEFAULT CURRENT_TIMESTAMP(),
     `score`      int(11)                          NOT NULL DEFAULT 0,
     PRIMARY KEY (`id`),
     UNIQUE KEY `uc_url` (`artist_id`, `url`),
@@ -260,13 +260,13 @@ CREATE TABLE if not exists `alt_url`
 /*!50003 SET @saved_sql_mode = @@sql_mode */;
 /*!50003 SET sql_mode = 'STRICT_TRANS_TABLES,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */;
 DELIMITER ;;
-/*!50003 CREATE TRIGGER if not exists alt_url_insert
+/*!50003 CREATE TRIGGER IF NOT EXISTS alt_url_insert
     AFTER INSERT
     ON alt_url
     FOR EACH ROW
 BEGIN
     IF ((SELECT url FROM artist WHERE id = new.artist_id) IS NULL) OR
-       (new.score > (SELECT max(alt_url.score) FROM alt_url WHERE artist_id = new.artist_id))
+       (new.score > (SELECT MAX(alt_url.score) FROM alt_url WHERE artist_id = new.artist_id))
     THEN
         UPDATE artist SET url = new.url WHERE id = new.artist_id;
     END IF;
@@ -285,22 +285,22 @@ DELIMITER ;
 /*!50003 SET @saved_sql_mode = @@sql_mode */;
 /*!50003 SET sql_mode = 'STRICT_TRANS_TABLES,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */;
 DELIMITER ;;
-/*!50003 CREATE TRIGGER if not exists alt_url_update
+/*!50003 CREATE TRIGGER IF NOT EXISTS alt_url_update
     AFTER UPDATE
     ON alt_url
     FOR EACH ROW
 BEGIN
-    declare current_score int;
-    declare current_url varchar(400);
+    DECLARE current_score int;
+    DECLARE current_url varchar(400);
 
-    set current_score = (SELECT max(a.score)
+    SET current_score = (SELECT MAX(a.score)
                          FROM alt_url a
                          WHERE a.artist_id = new.artist_id);
-    set current_url = (SELECT a.url
+    SET current_url = (SELECT a.url
                        FROM alt_url a
                        WHERE a.artist_id = new.artist_id
-                       order by score desc
-                       limit 1);
+                       ORDER BY score DESC
+                       LIMIT 1);
     IF ((SELECT url FROM artist b WHERE b.id = new.artist_id) = new.url) AND (new.score < current_score) THEN
         UPDATE artist SET url = current_url WHERE id = new.artist_id;
     ELSEIF (new.score >= current_score) THEN
@@ -321,7 +321,7 @@ DELIMITER ;
 /*!50003 SET @saved_sql_mode = @@sql_mode */;
 /*!50003 SET sql_mode = '' */;
 DELIMITER ;;
-/*!50003 CREATE TRIGGER if not exists alt_url_delete
+/*!50003 CREATE TRIGGER IF NOT EXISTS alt_url_delete
     AFTER DELETE
     ON alt_url
     FOR EACH ROW
@@ -342,7 +342,7 @@ DELIMITER ;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client = @@character_set_client */;
 /*!40101 SET character_set_client = utf8mb4 */;
-CREATE TABLE if not exists `artist_tags`
+CREATE TABLE IF NOT EXISTS `artist_tags`
 (
     `id`        bigint(20)   NOT NULL AUTO_INCREMENT,
     `artist_id` bigint(20)   NOT NULL,
@@ -357,7 +357,7 @@ CREATE TABLE if not exists `artist_tags`
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client = @@character_set_client */;
 /*!40101 SET character_set_client = utf8mb4 */;
-CREATE TABLE if not exists `audio_features`
+CREATE TABLE IF NOT EXISTS `audio_features`
 (
     `id`               bigint(20)                                                   NOT NULL AUTO_INCREMENT,
     `spotify_id`       varchar(40) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
@@ -379,7 +379,7 @@ CREATE TABLE if not exists `audio_features`
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client = @@character_set_client */;
 /*!40101 SET character_set_client = utf8mb4 */;
-CREATE TABLE if not exists `backup`
+CREATE TABLE IF NOT EXISTS `backup`
 (
     `id`           bigint(20) NOT NULL DEFAULT 0,
     `discord_id`   bigint(20) NOT NULL,
@@ -394,7 +394,7 @@ CREATE TABLE if not exists `backup`
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client = @@character_set_client */;
 /*!40101 SET character_set_client = utf8mb4 */;
-CREATE TABLE if not exists `banned_artist_tags`
+CREATE TABLE IF NOT EXISTS `banned_artist_tags`
 (
     `id`         bigint(20)   NOT NULL AUTO_INCREMENT,
     `tag`        varchar(100) NOT NULL,
@@ -406,7 +406,7 @@ CREATE TABLE if not exists `banned_artist_tags`
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client = @@character_set_client */;
 /*!40101 SET character_set_client = utf8mb4 */;
-CREATE TABLE if not exists `banned_tags`
+CREATE TABLE IF NOT EXISTS `banned_tags`
 (
     `id`  bigint(20)   NOT NULL AUTO_INCREMENT,
     `tag` varchar(100) NOT NULL,
@@ -417,7 +417,7 @@ CREATE TABLE if not exists `banned_tags`
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client = @@character_set_client */;
 /*!40101 SET character_set_client = utf8mb4 */;
-CREATE TABLE if not exists `command_guild_channel_disabled`
+CREATE TABLE IF NOT EXISTS `command_guild_channel_disabled`
 (
     `guild_id`     bigint(20)  NOT NULL,
     `channel_id`   bigint(20)  NOT NULL,
@@ -430,7 +430,7 @@ CREATE TABLE if not exists `command_guild_channel_disabled`
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client = @@character_set_client */;
 /*!40101 SET character_set_client = utf8mb4 */;
-CREATE TABLE if not exists `command_guild_disabled`
+CREATE TABLE IF NOT EXISTS `command_guild_disabled`
 (
     `guild_id`     bigint(20)  NOT NULL,
     `command_name` varchar(40) NOT NULL,
@@ -441,21 +441,21 @@ CREATE TABLE if not exists `command_guild_disabled`
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client = @@character_set_client */;
 /*!40101 SET character_set_client = utf8mb4 */;
-CREATE TABLE if not exists `command_logs`
+CREATE TABLE IF NOT EXISTS `command_logs`
 (
     `id`         bigint(20)  NOT NULL AUTO_INCREMENT,
     `discord_id` bigint(20)  NOT NULL,
     `guild_id`   bigint(20)           DEFAULT NULL,
     `command`    varchar(30) NOT NULL,
     `nanos`      bigint(20)  NOT NULL,
-    `moment`     datetime    NOT NULL DEFAULT utc_timestamp(),
+    `moment`     datetime    NOT NULL DEFAULT UTC_TIMESTAMP(),
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client = @@character_set_client */;
 /*!40101 SET character_set_client = utf8mb4 */;
-CREATE TABLE if not exists `corrected_tags`
+CREATE TABLE IF NOT EXISTS `corrected_tags`
 (
     `id`         bigint(20)   NOT NULL AUTO_INCREMENT,
     `invalid`    varchar(100) NOT NULL,
@@ -467,7 +467,7 @@ CREATE TABLE if not exists `corrected_tags`
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client = @@character_set_client */;
 /*!40101 SET character_set_client = utf8mb4 */;
-CREATE TABLE if not exists `corrections`
+CREATE TABLE IF NOT EXISTS `corrections`
 (
     `id`        bigint(20)                              NOT NULL AUTO_INCREMENT,
     `alias`     varchar(250) COLLATE utf8mb4_unicode_ci NOT NULL,
@@ -483,7 +483,7 @@ CREATE TABLE if not exists `corrections`
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client = @@character_set_client */;
 /*!40101 SET character_set_client = utf8mb4 */;
-CREATE TABLE if not exists `log_reported`
+CREATE TABLE IF NOT EXISTS `log_reported`
 (
     `id`       bigint(20) NOT NULL AUTO_INCREMENT,
     `reported` bigint(20) NOT NULL,
@@ -497,7 +497,7 @@ CREATE TABLE if not exists `log_reported`
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client = @@character_set_client */;
 /*!40101 SET character_set_client = utf8mb4 */;
-CREATE TABLE if not exists `log_tags`
+CREATE TABLE IF NOT EXISTS `log_tags`
 (
     `id`         bigint(20)   NOT NULL AUTO_INCREMENT,
     `tag`        varchar(100) NOT NULL,
@@ -508,7 +508,7 @@ CREATE TABLE if not exists `log_tags`
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client = @@character_set_client */;
 /*!40101 SET character_set_client = utf8mb4 */;
-CREATE TABLE if not exists `metadata`
+CREATE TABLE IF NOT EXISTS `metadata`
 (
     `url`    varchar(400) CHARACTER SET ascii NOT NULL,
     `artist` varchar(400)                     DEFAULT NULL,
@@ -539,7 +539,7 @@ CREATE TABLE `past_recommendations`
     `artist_id`   bigint(20) NOT NULL,
     `receiver_id` bigint(20) NOT NULL,
     `giver_id`    bigint(20) NOT NULL,
-    `rec_date`    datetime   NOT NULL DEFAULT current_timestamp(),
+    `rec_date`    datetime   NOT NULL DEFAULT CURRENT_TIMESTAMP(),
     `rating`      int(11)             DEFAULT NULL,
     PRIMARY KEY (`id`),
     UNIQUE KEY `artist_id` (`artist_id`, `giver_id`, `receiver_id`),
@@ -559,7 +559,7 @@ CREATE TABLE `queued_alias`
     `alias`      varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
     `artist_id`  bigint(20)                              NOT NULL,
     `discord_id` bigint(20)                              NOT NULL,
-    `added_date` datetime                                NOT NULL DEFAULT current_timestamp(),
+    `added_date` datetime                                NOT NULL DEFAULT CURRENT_TIMESTAMP(),
     PRIMARY KEY (`id`),
     KEY `queuedalias_fk_artsit` (`artist_id`),
     KEY `queuedalias_fk_discordid` (`discord_id`),
@@ -578,7 +578,7 @@ CREATE TABLE `queued_url`
     `url`        varchar(400) NOT NULL,
     `artist_id`  bigint(20)   NOT NULL,
     `discord_id` bigint(20)            DEFAULT NULL,
-    `added_date` datetime     NOT NULL DEFAULT current_timestamp(),
+    `added_date` datetime     NOT NULL DEFAULT CURRENT_TIMESTAMP(),
     PRIMARY KEY (`id`),
     UNIQUE KEY `artist_id` (`artist_id`, `url`),
     KEY `queued_url_fk_discordid` (`discord_id`),
@@ -621,7 +621,7 @@ CREATE TABLE `reported`
     `id`          bigint(20) NOT NULL AUTO_INCREMENT,
     `alt_id`      bigint(20) NOT NULL,
     `discord_id`  bigint(20) NOT NULL,
-    `report_date` datetime   NOT NULL DEFAULT current_timestamp(),
+    `report_date` datetime   NOT NULL DEFAULT CURRENT_TIMESTAMP(),
     PRIMARY KEY (`id`),
     UNIQUE KEY `alt_id` (`alt_id`, `discord_id`),
     KEY `reported_fk_user` (`discord_id`),
@@ -763,7 +763,7 @@ CREATE TABLE `top_combos`
     `artist_combo` int(11)             DEFAULT NULL,
     `album_combo`  int(11)             DEFAULT NULL,
     `track_combo`  int(11)             DEFAULT NULL,
-    `streak_start` timestamp  NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+    `streak_start` timestamp  NOT NULL DEFAULT CURRENT_TIMESTAMP() ON UPDATE CURRENT_TIMESTAMP(),
     PRIMARY KEY (`id`),
     UNIQUE KEY `combo_uniqueness` (`discord_id`, `artist_id`, `streak_start`)
 ) ENGINE = InnoDB
@@ -802,7 +802,7 @@ CREATE TABLE `user_billboard_data_scrobbles`
     `artist_id`  bigint(20)                               DEFAULT NULL,
     `track_name` varchar(400)                             DEFAULT NULL,
     `album_name` varchar(400)                             DEFAULT NULL,
-    `timestamp`  timestamp                       NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+    `timestamp`  timestamp                       NOT NULL DEFAULT CURRENT_TIMESTAMP() ON UPDATE CURRENT_TIMESTAMP(),
     PRIMARY KEY (`id`),
     KEY `user_billboard_data_scrobbles_artist_id` (`artist_id`),
     KEY `user_billboard_data_scrobbles_week_id` (`week_id`),
@@ -819,7 +819,7 @@ CREATE TABLE `user_info`
     `id`           bigint(20)                      NOT NULL AUTO_INCREMENT,
     `lastfm_id`    varchar(45) CHARACTER SET ascii NOT NULL,
     `profile_pic`  varchar(400) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-    `login_moment` timestamp                       NOT NULL                      DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+    `login_moment` timestamp                       NOT NULL                      DEFAULT CURRENT_TIMESTAMP() ON UPDATE CURRENT_TIMESTAMP(),
     PRIMARY KEY (`id`),
     UNIQUE KEY `lastfm_id` (`lastfm_id`),
     CONSTRAINT `user_info_fk_user` FOREIGN KEY (`lastfm_id`) REFERENCES `user` (`lastfm_id`) ON DELETE CASCADE ON UPDATE CASCADE
@@ -847,7 +847,7 @@ CREATE TABLE `vote`
     `alt_id`     bigint(20) NOT NULL,
     `discord_id` bigint(20) NOT NULL,
     `ispositive` tinyint(1) NOT NULL,
-    `added_date` datetime   NOT NULL DEFAULT current_timestamp(),
+    `added_date` datetime   NOT NULL DEFAULT CURRENT_TIMESTAMP(),
     PRIMARY KEY (`alt_id`, `discord_id`),
     KEY `vote_fk_user` (`discord_id`),
     CONSTRAINT `vote_fk_alt_url` FOREIGN KEY (`alt_id`) REFERENCES `alt_url` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
@@ -869,7 +869,7 @@ DELIMITER ;;
     ON vote
     FOR EACH ROW
 BEGIN
-    UPDATE alt_url SET score = score + if(new.ispositive, 1, -1) WHERE id = new.alt_id;
+    UPDATE alt_url SET score = score + IF(new.ispositive, 1, -1) WHERE id = new.alt_id;
 END */;;
 DELIMITER ;
 /*!50003 SET sql_mode = @saved_sql_mode */;
@@ -1198,7 +1198,7 @@ CREATE FUNCTION `streak_billboard_album_listeners`(bill_id bigint(20)) RETURNS i
                                  AND t.artist_id = b.artist_id
                                  AND t.guild_id = b.guild_id
                                  AND t.album_name = b.album_name)
-         SELECT count(*)
+         SELECT COUNT(*)
          FROM cte) ;;
 DELIMITER ;
 /*!50003 SET sql_mode = @saved_sql_mode */;
@@ -1235,7 +1235,7 @@ CREATE FUNCTION `streak_billboard_album_scrobbles`(bill_id bigint(20)) RETURNS i
                                  AND t.artist_id = b.artist_id
                                  AND t.guild_id = b.guild_id
                                  AND t.album_name = b.album_name)
-         SELECT count(*)
+         SELECT COUNT(*)
          FROM cte) ;;
 DELIMITER ;
 /*!50003 SET sql_mode = @saved_sql_mode */;
@@ -1269,7 +1269,7 @@ CREATE FUNCTION `streak_billboard_artist`(bill_id bigint(20)) RETURNS int(11)
                                       JOIN weekly_billboard_artist_listeners b ON b.week_id = t.week_id - 1
                                  AND t.artist_id = b.artist_id
                                  AND t.guild_id = b.guild_id)
-         SELECT count(*)
+         SELECT COUNT(*)
          FROM cte) ;;
 DELIMITER ;
 /*!50003 SET sql_mode = @saved_sql_mode */;
@@ -1303,7 +1303,7 @@ CREATE FUNCTION `streak_billboard_artist_scrobbles`(bill_id bigint(20)) RETURNS 
                                       JOIN weekly_billboard_artist_scrobbles b ON b.week_id = t.week_id - 1
                                  AND t.artist_id = b.artist_id
                                  AND t.guild_id = b.guild_id)
-         SELECT count(*)
+         SELECT COUNT(*)
          FROM cte) ;;
 DELIMITER ;
 /*!50003 SET sql_mode = @saved_sql_mode */;
@@ -1337,7 +1337,7 @@ CREATE FUNCTION `streak_billboard_global_track_scrobbles`(bill_id bigint(20)) RE
                                       JOIN weekly_billboard_global_scrobbles b ON b.week_id = t.week_id - 1
                                  AND t.artist_id = b.artist_id
                                  AND t.track_name = b.track_name)
-         SELECT count(*)
+         SELECT COUNT(*)
          FROM cte) ;;
 DELIMITER ;
 /*!50003 SET sql_mode = @saved_sql_mode */;
@@ -1374,7 +1374,7 @@ CREATE FUNCTION `streak_billboard_track`(bill_id bigint(20)) RETURNS int(11)
                                  AND t.artist_id = b.artist_id
                                  AND t.guild_id = b.guild_id
                                  AND t.track_name = b.track_name)
-         SELECT count(*)
+         SELECT COUNT(*)
          FROM cte) ;;
 DELIMITER ;
 /*!50003 SET sql_mode = @saved_sql_mode */;
@@ -1411,7 +1411,7 @@ CREATE FUNCTION `streak_billboard_track_scrobbles`(bill_id bigint(20)) RETURNS i
                                  AND t.artist_id = b.artist_id
                                  AND t.guild_id = b.guild_id
                                  AND t.track_name = b.track_name)
-         SELECT count(*)
+         SELECT COUNT(*)
          FROM cte) ;;
 DELIMITER ;
 /*!50003 SET sql_mode = @saved_sql_mode */;
@@ -1445,7 +1445,7 @@ CREATE FUNCTION `streak_global_billboard_album_listeners`(bill_id bigint(20)) RE
                                       JOIN weekly_billboard_album_global_listeners b ON b.week_id = t.week_id - 1
                                  AND t.artist_id = b.artist_id
                                  AND t.album_name = b.album_name)
-         SELECT count(*)
+         SELECT COUNT(*)
          FROM cte) ;;
 DELIMITER ;
 /*!50003 SET sql_mode = @saved_sql_mode */;
@@ -1479,7 +1479,7 @@ CREATE FUNCTION `streak_global_billboard_album_scrobbles`(bill_id bigint(20)) RE
                                       JOIN weekly_billboard_album_global_scrobbles b ON b.week_id = t.week_id - 1
                                  AND t.artist_id = b.artist_id
                                  AND t.album_name = b.album_name)
-         SELECT count(*)
+         SELECT COUNT(*)
          FROM cte) ;;
 DELIMITER ;
 /*!50003 SET sql_mode = @saved_sql_mode */;
@@ -1510,7 +1510,7 @@ CREATE FUNCTION `streak_global_billboard_artist`(bill_id bigint(20)) RETURNS int
                              FROM cte t
                                       JOIN weekly_billboard_artist_global_listeners b ON b.week_id = t.week_id - 1
                                  AND t.artist_id = b.artist_id)
-         SELECT count(*)
+         SELECT COUNT(*)
          FROM cte) ;;
 DELIMITER ;
 /*!50003 SET sql_mode = @saved_sql_mode */;
@@ -1542,7 +1542,7 @@ CREATE FUNCTION `streak_global_billboard_artist_scrobbles`(bill_id bigint(20)) R
                                       JOIN weekly_billboard_artist_global_scrobbles b ON b.week_id = t.week_id - 1
                                  AND t.artist_id = b.artist_id
                             )
-         SELECT count(*)
+         SELECT COUNT(*)
          FROM cte) ;;
 DELIMITER ;
 /*!50003 SET sql_mode = @saved_sql_mode */;
@@ -1576,7 +1576,7 @@ CREATE FUNCTION `streak_global_billboard_track`(bill_id bigint(20)) RETURNS int(
                                       JOIN weekly_billboard_global_listeners b ON b.week_id = t.week_id - 1
                                  AND t.artist_id = b.artist_id
                                  AND t.track_name = b.track_name)
-         SELECT count(*)
+         SELECT COUNT(*)
          FROM cte) ;;
 DELIMITER ;
 /*!50003 SET sql_mode = @saved_sql_mode */;

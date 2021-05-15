@@ -101,9 +101,9 @@ public class RandomLinkDetailsCommand extends ConcurrentCommand<RandomUrlParamet
         Function<RandomRating, String> mapper = (r) -> {
             var publicString = PrivacyUtils.getPublicString(r.privacyMode(), r.discordId(), r.lastfmId(), atomicInteger, e, ids);
             return ". **[" + publicString.discordName() +
-                    "](" + publicString.lastfmName() +
-                    ")** - " + starFormatter.apply(r.rating()) +
-                    "\n";
+                   "](" + publicString.lastfmName() +
+                   ")** - " + starFormatter.apply(r.rating()) +
+                   "\n";
         };
 
         List<Memoized<RandomRating, String>> z = randomUrl.ratings().stream().map(x -> new Memoized<>(x, mapper)).toList();

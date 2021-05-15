@@ -11,10 +11,10 @@ public class TrackCrownLbEntry extends LbEntry {
     @Override
     public String toStringWildcard() {
         return ". [" +
-                LinkUtils.cleanMarkdownCharacter(getDiscordName()) +
-                "](" + LbEntry.WILDCARD +
-                ") - " + getEntryCount() +
-                " track crowns\n";
+               LinkUtils.cleanMarkdownCharacter(getDiscordName()) +
+               "](" + LbEntry.WILDCARD +
+               ") - " + getEntryCount() +
+               " track crowns\n";
     }
 
 }
