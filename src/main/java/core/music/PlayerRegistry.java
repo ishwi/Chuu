@@ -26,7 +26,9 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 public class PlayerRegistry {
+    final Map<Long, MusicManager> registry = new ConcurrentHashMap<>(10);
     private final ExtendedAudioPlayerManager playerManager;
+    private final long playTimeout = TimeUnit.MINUTES.toMillis(2);
 
     public PlayerRegistry(ExtendedAudioPlayerManager playerManager) {
         this.playerManager = playerManager;
@@ -34,19 +36,14 @@ public class PlayerRegistry {
         executor.scheduleAtFixedRate(this::sweep, 3, 3, TimeUnit.MINUTES);
     }
 
-    final Map<Long, MusicManager> registry = new ConcurrentHashMap<>(10);
-
-    private final long playTimeout = TimeUnit.MINUTES.toMillis(2);
-
-
     public void sweep() {
         registry.values().stream().filter(it -> {
             // If guild null, or if connected, and not playing, and not queued for leave,
             // if last played >= IDLE_TIMEOUT minutes ago, and not 24/7 (all day) music, destroy/queue leave.
             Guild guild = it.getGuild();
             return guild == null || !guild.getAudioManager().isConnected() && it.isIdle() &&
-                    !it.isLeaveQueued() && System.currentTimeMillis() - it.getLastPlayedAt() > playTimeout &&
-                    !isAllDayMusic(it.getGuildId());
+                                    !it.isLeaveQueued() && System.currentTimeMillis() - it.getLastPlayedAt() > playTimeout &&
+                                    !isAllDayMusic(it.getGuildId());
         }).forEach(it -> {
             if (it.getGuild() == null) {
                 destroy(it.getGuildId());

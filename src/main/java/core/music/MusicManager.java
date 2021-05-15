@@ -20,22 +20,20 @@ package core.music;
 import com.sedmelluq.discord.lavaplayer.format.StandardAudioDataFormats;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.event.AudioEventAdapter;
-import com.sedmelluq.discord.lavaplayer.player.event.TrackStartEvent;
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackEndReason;
 import com.sedmelluq.discord.lavaplayer.track.playback.MutableAudioFrame;
 import core.Chuu;
-import core.apis.last.LastFMFactory;
+import core.apis.last.entities.Scrobble;
 import core.commands.Context;
 import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandUtil;
 import core.music.listeners.ScrobblerEventListener;
 import core.music.radio.PlaylistRadio;
 import core.music.radio.RadioTrackContext;
-import core.music.utils.RepeatOption;
-import core.music.utils.Task;
-import core.music.utils.TrackContext;
+import core.music.sources.youtube.webscrobbler.processers.Processed;
+import core.music.utils.*;
 import core.services.ColorService;
 import dao.entities.Metadata;
 import net.dv8tion.jda.api.Permission;
@@ -46,20 +44,56 @@ import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Array;
 import java.nio.ByteBuffer;
-import java.util.ArrayDeque;
-import java.util.Queue;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 public class MusicManager extends AudioEventAdapter implements AudioSendHandler {
 
 
     private final ExtendedAudioPlayerManager manager;
+    private final ScrobblerEventListener listener;
+    private final ScrobbleProcesser scrobbleProcesser;
+    private final long guildId;
+    private final AudioPlayer player;
+    private final Queue<String> queue = new ArrayDeque<>();
+    private final long lastVoteTime = 0L;
+    private final boolean isVotingToSkip = false;
+    private final boolean isVotingToPlay = false;
+    private final long lastPlayVoteTime = 0L;
+    // *----------- AudioSendHandler -----------*
+    private final ByteBuffer frameBuffer = ByteBuffer.allocate(StandardAudioDataFormats.DISCORD_OPUS.maximumChunkSize());
+    private final MutableAudioFrame lastFrame = genMut();
+    private List<Long> breakpoints;
     private RepeatOption repeatOption = RepeatOption.NONE;
     private RadioTrackContext radio = null;
-    private final ScrobblerEventListener listener;
-    private Metadata metadata;
-    private Metadata lastMetada;
+    private Scrobble scrobble;
+    private Scrobble lastScrobble;
+    private String dbAnnouncementChannel;
+    private TextChannel announcementChannel;
+    private Guild guild;
+    // Playback/Music related.
+    private AudioTrack lastTrack;
+    private AudioTrack currentTrack;
+    private long lastTimeAnnounced = 0L;
+    private long lastErrorAnnounced = 0L;
+    private long lastPlayedAt = 0L;
+    private long loops = 0L;
+    private Long channelId = null;
+    // Settings/internals.
+    private final Task leaveTask = new core.music.utils.Task(30, TimeUnit.SECONDS, this::destroy);
+
+    public MusicManager(long guildId, AudioPlayer player, ExtendedAudioPlayerManager manager) {
+        this.guildId = guildId;
+        this.player = player;
+        this.manager = manager;
+        this.scrobbleProcesser = Chuu.getScrobbleProcesser();
+        this.player.addListener(this);
+        this.player.setVolume(100);
+        listener = new ScrobblerEventListener(this);
+        player.addListener(listener);
+    }
 
     @Override
     public boolean canProvide() {
@@ -76,10 +110,39 @@ public class MusicManager extends AudioEventAdapter implements AudioSendHandler 
     public ByteBuffer provide20MsAudio() {
         ByteBuffer flip = frameBuffer.flip();
         lastFrame.setBuffer(flip);
+        if (this.breakpoints != null && !this.breakpoints.isEmpty()) {
+            long position = this.currentTrack.getPosition();
+            if (position > this.breakpoints.get(0)) {
+                long baseline = this.breakpoints.remove(0);
+                signalChapter(position, this.player.getPlayingTrack().getInfo().length, baseline);
+                System.out.println("Nueva chapter detectado");
+            }
+        }
         return flip;
     }
 
-    private final long guildId;
+    public void advance(long position) {
+        currentTrack.setPosition(currentTrack.getPosition() + position);
+
+    }
+
+    public void seekTo(long position) {
+        long startingPosition = currentTrack.getPosition();
+        if (position < startingPosition) {
+            Chuu.getLogger().warn("Trying to seek to the past!!");
+            return;
+        }
+        if (this.breakpoints != null && !this.breakpoints.isEmpty()) {
+            long baseline = this.breakpoints.remove(0);
+            signalChapter(startingPosition, this.player.getPlayingTrack().getInfo().length, baseline);
+            this.currentTrack.setPosition(position);
+            System.out.println("Nueva chapter detectado");
+            this.breakpoints = this.breakpoints.stream().filter(z -> z < position).toList();
+        } else {
+            // Last chapter
+            this.currentTrack.setPosition(position);
+        }
+    }
 
     public Guild getGuild() {
         if (guild == null) {
@@ -87,9 +150,6 @@ public class MusicManager extends AudioEventAdapter implements AudioSendHandler 
         }
         return guild;
     }
-
-    private String dbAnnouncementChannel;
-    private TextChannel announcementChannel;
 
     public TextChannel getAnnouncementChannel() {
         String dbAnnouncmentChannel = getDbAnnouncmentChannel();
@@ -107,6 +167,8 @@ public class MusicManager extends AudioEventAdapter implements AudioSendHandler 
     }
 
 
+    // ---------- End Properties ----------
+
     public Boolean isAlone() {
         GuildVoiceState voiceState = getGuild().getSelfMember().getVoiceState();
         if (voiceState == null) {
@@ -122,47 +184,9 @@ public class MusicManager extends AudioEventAdapter implements AudioSendHandler 
         return player.getPlayingTrack() == null && queue.isEmpty();
     }
 
-    private final AudioPlayer player;
-    private Guild guild;
-    private final Queue<String> queue = new ArrayDeque<>();
-
-
-    // Playback/Music related.
-    private AudioTrack lastTrack;
-    private AudioTrack currentTrack;
-    // Settings/internals.
-    private final Task leaveTask = new core.music.utils.Task(30, TimeUnit.SECONDS, this::destroy);
-
     public boolean isLeaveQueued() {
         return this.leaveTask.isRunning();
     }
-
-
-    private long lastTimeAnnounced = 0L;
-    private long lastErrorAnnounced = 0L;
-
-    private final long lastVoteTime = 0L;
-    private final boolean isVotingToSkip = false;
-    private final boolean isVotingToPlay = false;
-    private final long lastPlayVoteTime = 0L;
-    private long lastPlayedAt = 0L;
-
-    private long loops = 0L;
-
-
-    // ---------- End Properties ----------
-
-
-    public MusicManager(long guildId, AudioPlayer player, ExtendedAudioPlayerManager manager) {
-        this.guildId = guildId;
-        this.player = player;
-        this.manager = manager;
-        this.player.addListener(this);
-        this.player.setVolume(100);
-        listener = new ScrobblerEventListener(this, LastFMFactory.getNewInstance());
-        player.addListener(listener);
-    }
-
 
     public void enqueue(AudioTrack track, boolean isNext) {
         if (!player.startTrack(track, true)) {
@@ -230,6 +254,10 @@ public class MusicManager extends AudioEventAdapter implements AudioSendHandler 
         player.setPaused(false);
     }
 
+    public void nextChapter() {
+
+    }
+
     public void nextTrack() {
         if (repeatOption != RepeatOption.NONE) {
             if (currentTrack == null) {
@@ -257,11 +285,8 @@ public class MusicManager extends AudioEventAdapter implements AudioSendHandler 
             player.playTrack(decodedTrack);
             return;
         }
-        if (radio == null) {
-            return;
-        }
-        var radioTrack = radio.nextTrack();
-        if (radioTrack == null) {
+        CompletableFuture<AudioTrack> radioTrack;
+        if (radio == null || ((radioTrack = radio.nextTrack()) == null)) {
             player.stopTrack();
             return;
         }
@@ -288,28 +313,20 @@ public class MusicManager extends AudioEventAdapter implements AudioSendHandler 
         // Avoid spamming by just sending it if the last time it was announced was more than 10s ago.
         if (lastTimeAnnounced == 0L || lastTimeAnnounced + 10000 < System.currentTimeMillis()) {
             var reqData = track.getUserData(TrackContext.class);
-
-            StringBuilder a = new StringBuilder();
-            a.append("Now playing __**[").append(track.getInfo().title)
-                    .append("](").append(CommandUtil.cleanMarkdownCharacter(track.getInfo().uri)).append(")**__")
-                    .append(" requested by ").append("<@").append(reqData.requester()).append(">");
-            announcementChannel.sendMessage(new ChuuEmbedBuilder()
-                    .setDescription(a)
-                    .setColor(CommandUtil.pastelColor()).build()).queue(t -> lastTimeAnnounced = System.currentTimeMillis());
+            getScrobble().thenAccept(ts -> announcementChannel.sendMessage(new ChuuEmbedBuilder()
+                    .setDescription("Now playing __**%s**__ requested by <@%d>"
+                            .formatted(ts.toLink(track.getInfo().uri), reqData.requester()))
+                    .setColor(CommandUtil.pastelColor()).build()).queue(t -> lastTimeAnnounced = System.currentTimeMillis()));
         }
     }
 
-
     public void destroy() {
         Chuu.playerRegistry.destroy(guildId);
-//        Launcher.players.destroy(guildId)
     }
 
     public void cleanup() {
+        this.channelId = Optional.ofNullable(getGuild()).map(Guild::getAudioManager).map(AudioManager::getConnectedChannel).map(ISnowflake::getIdLong).orElse(null);
         player.destroy();
-//        dspFilter.clearFilters()
-//        queue.expire(4, TimeUnit.HOURS)
-
         closeAudioConnection();
     }
 
@@ -317,8 +334,9 @@ public class MusicManager extends AudioEventAdapter implements AudioSendHandler 
     public void onTrackEnd(AudioPlayer player, AudioTrack track, AudioTrackEndReason endReason) {
         lastPlayedAt = System.currentTimeMillis();
         this.lastTrack = track;
-        this.lastMetada = metadata;
-        this.metadata = null;
+        this.lastScrobble = scrobble;
+        this.breakpoints = Collections.emptyList();
+        this.scrobble = null;
 
         if (endReason.mayStartNext) {
             nextTrack();
@@ -338,7 +356,6 @@ public class MusicManager extends AudioEventAdapter implements AudioSendHandler 
         nextTrack();
     }
 
-
     public void onTrackException(AudioPlayer player, AudioTrack track, FriendlyException exception) {
         repeatOption = RepeatOption.NONE;
 
@@ -351,6 +368,7 @@ public class MusicManager extends AudioEventAdapter implements AudioSendHandler 
         if (System.currentTimeMillis() > lastErrorAnnounced + 5000) {
             channel.sendMessage(String.format("An unknown error occurred while playing **%s**:\n%s", track.getInfo().title, exception.getMessage())).queue((t) -> lastErrorAnnounced = System.currentTimeMillis());
         }
+        Chuu.getLogger().warn(exception.getMessage(), exception);
 
     }
 
@@ -365,21 +383,11 @@ public class MusicManager extends AudioEventAdapter implements AudioSendHandler 
 
         var announce = (currentTrack == null && track != null) || (currentTrack != null && !currentTrack.getIdentifier().equals(track.getIdentifier()));
         currentTrack = track;
-        if (currentTrack == null) {
-            metadata = null;
-        } else {
-            metadata = Chuu.getDao().getMetadata(track.getIdentifier()).orElse(null);
-        }
         if (announce) {
             announceNext(track);
         }
 
     }
-
-    // *----------- AudioSendHandler -----------*
-    private final ByteBuffer frameBuffer = ByteBuffer.allocate(StandardAudioDataFormats.DISCORD_OPUS.maximumChunkSize());
-    private final MutableAudioFrame lastFrame = genMut();
-
 
     private MutableAudioFrame genMut() {
         MutableAudioFrame mutableAudioFrame = new MutableAudioFrame();
@@ -486,24 +494,70 @@ public class MusicManager extends AudioEventAdapter implements AudioSendHandler 
         this.radio = radio;
     }
 
-    public Metadata getMetadata() {
-        return metadata;
-    }
-
-    public void setMetadata(Metadata metadata) {
-        this.metadata = metadata;
-        this.listener.hadleTrackStart(new TrackStartEvent(player, currentTrack), true);
-    }
 
     public int getScroobblers() {
         return this.listener.getScrooblersCount();
     }
 
-    public Metadata getLastMetada() {
-        return lastMetada;
+
+    public CompletableFuture<Scrobble> getScrobble(AudioTrack audioTrack) {
+        return this.getTrackScrobble(audioTrack).thenApply(z -> z.scrobble(audioTrack.getPosition(), audioTrack.getDuration()));
     }
 
-    public void setLastMetada(Metadata lastMetada) {
-        this.lastMetada = lastMetada;
+    public CompletableFuture<Scrobble> getScrobble() {
+        return getScrobble(player.getPlayingTrack());
+    }
+
+    private AudioTrack getLastValidTrack() {
+        return player.getPlayingTrack() == null ? currentTrack == null ? lastTrack : currentTrack : player.getPlayingTrack();
+    }
+
+    public CompletableFuture<TrackScrobble> getTrackScrobble() {
+        return CommandUtil.supplyLog(() -> scrobbleProcesser.processScrobble(null, getLastValidTrack())).thenApply(z -> {
+            this.scrobble = z.scrobble();
+            this.breakpoints = z.processeds()
+                    .stream()
+                    .skip(1)
+                    .dropWhile(l -> l.msStart() < player.getPlayingTrack().getPosition())
+                    .map(Processed::msStart).collect(Collectors.toCollection(ArrayList::new));
+            return z;
+        });
+    }
+
+    public CompletableFuture<TrackScrobble> getTrackScrobble(AudioTrack anyTrack) {
+        if (anyTrack == player.getPlayingTrack()) {
+            return getTrackScrobble();
+        }
+        return CommandUtil.supplyLog(() -> scrobbleProcesser.processScrobble(null, anyTrack)).thenApply(z -> {
+            this.scrobble = z.scrobble();
+            this.breakpoints = z.processeds().stream().skip(1)
+                    .dropWhile(l -> l.msStart() < anyTrack.getPosition())
+                    .map(Processed::msStart).collect(Collectors.toCollection(ArrayList::new));
+            return z;
+        });
+    }
+
+    public CompletableFuture<Void> setMetadata(Metadata metadata) {
+        return getTrackScrobble().thenAccept(z -> {
+            long remaining = currentTrack.getDuration() - currentTrack.getPosition();
+            if (z.processeds().size() > 1) {
+                TrackScrobble newInfo = this.scrobbleProcesser.setMetadata(metadata, currentTrack, z.uuid(), currentTrack.getPosition(), currentTrack.getDuration());
+                this.scrobble = newInfo.scrobble();
+                this.listener.signalMetadataChange(newInfo);
+            } else {
+                TrackScrobble newInfo = this.scrobbleProcesser.setMetadata(metadata, currentTrack, z.uuid());
+                this.listener.signalMetadataChange(newInfo);
+            }
+
+        });
+    }
+
+    public CompletableFuture<Void> signalChapter(long currentMs, long totalMs, long baseline) {
+        return getTrackScrobble().thenAccept(z ->
+                this.listener.signalChapterEnd(z, currentMs, totalMs, baseline));
+    }
+
+    public Long getChannelId() {
+        return channelId;
     }
 }

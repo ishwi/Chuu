@@ -19,23 +19,23 @@ package core.commands.music;
 
 import core.Chuu;
 import core.commands.Context;
-import core.commands.ContextMessageReceived;
-import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
-import core.parsers.NoOpParser;
+import core.parsers.MusicInputParser;
 import core.parsers.Parser;
-import core.parsers.params.CommandParameters;
+import core.parsers.params.WordParameter;
 import dao.ChuuService;
-import net.dv8tion.jda.api.entities.Message;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
 
-public class PlayNextCommand extends ConcurrentCommand<CommandParameters> {
+public class PlayNextCommand extends core.commands.abstracts.MusicCommand<WordParameter> {
 
 
     public PlayNextCommand(ChuuService dao) {
         super(dao);
+        requireManager = false;
+        requireVoiceState = true;
+
     }
 
     @Override
@@ -44,13 +44,13 @@ public class PlayNextCommand extends ConcurrentCommand<CommandParameters> {
     }
 
     @Override
-    public Parser<CommandParameters> initParser() {
-        return NoOpParser.INSTANCE;
+    public Parser<WordParameter> initParser() {
+        return new MusicInputParser();
     }
 
     @Override
     public String getDescription() {
-        return "Play";
+        return "Skips the current song and starts playing the new one";
     }
 
     @Override
@@ -60,35 +60,15 @@ public class PlayNextCommand extends ConcurrentCommand<CommandParameters> {
 
     @Override
     public String getName() {
-        return "pn";
+        return "Play next";
     }
 
     @Override
-    protected void onCommand(Context e, @NotNull CommandParameters params) {
-        if (e.getGuild().getSelfMember().getVoiceState() == null) {
-            sendMessageQueue(e, "I'm not on a voice channel");
-            return;
-        }
+    protected void onCommand(Context e, @NotNull WordParameter params) {
 
-        var botChannel = e.getGuild().getSelfMember().getVoiceState().getChannel();
-        if (e.getMember() == null || e.getMember().getVoiceState() == null || e.getMember().getVoiceState().getChannel() == null) {
-            sendMessageQueue(e, "You're not in a voice channel.");
-            return;
-        }
-        var userChannel = e.getMember().getVoiceState().getChannel();
+        var manager = Chuu.playerRegistry.get(e.getGuild());
 
-
-        if (botChannel != null && botChannel != userChannel) {
-            sendMessageQueue(e, "The bot is already playing music in another channel.");
-            return;
-        }
-
-        Message.Attachment attachment = (e instanceof ContextMessageReceived mes) ? mes.e().getMessage().getAttachments().stream().findFirst().orElse(null) : null;
-        boolean hasManager = Chuu.playerRegistry.contains(e.getGuild());
-        var newManager = Chuu.playerRegistry.get(e.getGuild());
-
-        String[] original = parser.getSubMessage(e);
-        MusicCommand.play(e, newManager, String.join(" ", original), false, true);
+        Enqueue.play(e, manager, params.getWord(), false, true);
 
     }
 

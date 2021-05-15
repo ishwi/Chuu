@@ -24,7 +24,6 @@ public class UpdaterDaoImpl extends BaseDAO implements UpdaterDao {
 
     @Override
     public void addSrobbledArtists(Connection con, List<ScrobbledArtist> scrobbledArtists) {
-        /* Create "queryString". */
 
         StringBuilder mySql =
                 new StringBuilder("INSERT INTO  scrobbled_artist" +
@@ -136,7 +135,6 @@ public class UpdaterDaoImpl extends BaseDAO implements UpdaterDao {
 
     @Override
     public long upsertUrl(Connection con, String url, long artistId, long discordId) {
-        /* Create "queryString". */
         String queryString = "INSERT INTO alt_url ( artist_id,url,discord_id)   VALUES (?, ?,?)  on duplicate key update id = id returning id";
         return insertArtistInfo(con, url, artistId, discordId, queryString);
     }
@@ -167,7 +165,6 @@ public class UpdaterDaoImpl extends BaseDAO implements UpdaterDao {
 
     @Override
     public void upsertArtistsDetails(Connection con, List<ScrobbledArtist> scrobbledArtists) {
-        /* Create "queryString". */
         StringBuilder queryString = new StringBuilder("INSERT  INTO  artist "
                                                       + " (name,url,correction_status)  VALUES (?, ?,?) ");
 
@@ -239,7 +236,6 @@ public class UpdaterDaoImpl extends BaseDAO implements UpdaterDao {
 
     @Override
     public void upsertSpotify(Connection con, String url, long artist_id, long discordId) {
-        /* Create "queryString". */
         String queryString = "INSERT INTO alt_url ( artist_id,url,discord_id)   VALUES (?, ?,?) on duplicate key update id = id returning id";
 
         insertArtistInfo(con, url, artist_id, discordId, queryString);

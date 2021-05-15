@@ -59,7 +59,6 @@ public class StopCommand extends MusicCommand<CommandParameters> {
         MusicManager manager = getManager(e);
         manager.setRadio(null);
         manager.getQueue().clear();
-        e.getGuild().getAudioManager().closeAudioConnection();
         Chuu.playerRegistry.destroy(e.getGuild().getIdLong());
         sendMessageQueue(e, ("Playback has been completely stopped."));
     }

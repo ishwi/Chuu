@@ -1,6 +1,7 @@
 package core.music.utils;
 
 import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioSourceManager;
+import core.music.sources.youtube.ChuuYTAudioSourceManager;
 
 public class YoutubeSearchManagerSingleton {
     private static YoutubeAudioSourceManager instance;
@@ -11,7 +12,7 @@ public class YoutubeSearchManagerSingleton {
 
     public static synchronized YoutubeAudioSourceManager getInstance() {
         if (instance == null) {
-            instance = new YoutubeAudioSourceManager(true);
+            instance = new ChuuYTAudioSourceManager(true);
         }
         return instance;
     }

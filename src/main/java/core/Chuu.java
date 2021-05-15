@@ -3,6 +3,7 @@ package core;
 import com.google.common.util.concurrent.RateLimiter;
 import com.sedmelluq.discord.lavaplayer.jdaudp.NativeAudioSendFactory;
 import core.apis.discogs.DiscogsSingleton;
+import core.apis.last.LastFMFactory;
 import core.apis.spotify.SpotifySingleton;
 import core.commands.Context;
 import core.commands.CustomInterfacedEventManager;
@@ -17,16 +18,16 @@ import core.interactions.InteractionBuilder;
 import core.music.ExtendedAudioPlayerManager;
 import core.music.PlayerRegistry;
 import core.music.listeners.VoiceListener;
+import core.music.scrobble.ScrobbleEventManager;
+import core.music.scrobble.StatusProcesser;
+import core.music.utils.ScrobbleProcesser;
 import core.otherlisteners.AwaitReady;
 import core.otherlisteners.ConstantListener;
 import core.scheduledtasks.ArtistMbidUpdater;
 import core.scheduledtasks.ImageUpdaterThread;
 import core.scheduledtasks.SpotifyUpdaterThread;
 import core.scheduledtasks.UpdaterThread;
-import core.services.ColorService;
-import core.services.CoverService;
-import core.services.MessageDeletionService;
-import core.services.MessageDisablingService;
+import core.services.*;
 import dao.ChuuService;
 import dao.entities.Metrics;
 import dao.exceptions.ChuuServiceException;
@@ -70,7 +71,12 @@ public class Chuu {
     public static final String DEFAULT_LASTFM_ID = "chuubot";
     private static final LongAdder lastFMMetric = new LongAdder();
     private static final Set<String> privateLastFms = new HashSet<>();
-
+    public static PlayerRegistry playerRegistry;
+    public static ExtendedAudioPlayerManager playerManager;
+    public static String chuuSess;
+    public static String ipv6Block;
+    public static long channelId;
+    public static long channel2Id;
     private static ShardManager shardManager;
     private static Logger logger;
     private static ScheduledExecutorService scheduledExecutorService;
@@ -80,12 +86,8 @@ public class Chuu {
     private static CoverService coverService;
     private static MessageDeletionService messageDeletionService;
     private static MessageDisablingService messageDisablingService = new MessageDisablingService();
-    public static PlayerRegistry playerRegistry;
-    public static ExtendedAudioPlayerManager playerManager;
-    public static String chuuSess;
-    public static String ipv6Block;
-    public static long channelId;
-    public static long channel2Id;
+    private static ScrobbleEventManager scrobbleEventManager;
+    private static ScrobbleProcesser scrobbleProcesser;
 
 
     public static ScheduledExecutorService getScheduledExecutorService() {
@@ -208,7 +210,9 @@ public class Chuu {
         coverService = new CoverService(dao);
         DiscogsSingleton.init(properties.getProperty("DC_SC"), properties.getProperty("DC_KY"));
         SpotifySingleton.init(properties.getProperty("client_ID"), properties.getProperty("client_Secret"));
-        playerManager = new ExtendedAudioPlayerManager();
+        scrobbleEventManager = new ScrobbleEventManager(new StatusProcesser(dao));
+        scrobbleProcesser = new ScrobbleProcesser(new AlbumFinder(dao, LastFMFactory.getNewInstance()));
+        playerManager = new ExtendedAudioPlayerManager(scrobbleEventManager, scrobbleProcesser);
         playerRegistry = new PlayerRegistry(playerManager);
         scheduledExecutorService = Executors.newScheduledThreadPool(4);
 
@@ -377,6 +381,14 @@ public class Chuu {
     public static String getRandomSong(String name) {
 
         return null;
+    }
+
+    public static ScrobbleEventManager getScrobbleEventManager() {
+        return scrobbleEventManager;
+    }
+
+    public static ScrobbleProcesser getScrobbleProcesser() {
+        return scrobbleProcesser;
     }
 
     public static CoverService getCoverService() {

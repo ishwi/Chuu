@@ -43,6 +43,8 @@ interface UserGuildDao {
 
     void addLogo(Connection con, long guildID, BufferedImage image);
 
+    boolean isFlagged(Connection con, String lastfm);
+
     void removeLogo(Connection connection, long guildId);
 
     InputStream findLogo(Connection connection, long guildID);
@@ -151,6 +153,8 @@ interface UserGuildDao {
 
     Map<Long, EmbedColor.EmbedColorType> getServerColorTypes(Connection connection);
 
+    void flagBottedDB(String lastfmId, Connection connection);
+
     void flagBotted(String lastfmId, Connection connection);
 
     void insertBannedCover(Connection connection, long albumId, String cover);
@@ -166,4 +170,9 @@ interface UserGuildDao {
     List<RoleColour> getRoles(Connection connection, long guildId);
 
     void addRole(Connection connection, long guildId, int first, int second, String rest, Color color, long roleId);
+
+    VoiceAnnouncement getGuildVoiceAnnouncement(Connection connection, long guildId);
+
+    void setGuildVoiceAnnouncement(Connection connection, long guildId, VoiceAnnouncement voiceAnnouncement);
+
 }

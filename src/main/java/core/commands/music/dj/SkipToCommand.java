@@ -70,8 +70,12 @@ public class SkipToCommand extends MusicCommand<NumberParameters<CommandParamete
     protected void onCommand(Context e, @NotNull NumberParameters<CommandParameters> params) {
         Long toIndex = params.getExtraParam();
         MusicManager manager = getManager(e);
-        if (toIndex == null || toIndex <= 0 || toIndex >= manager.getQueue().size()) {
+        if (toIndex == null || toIndex <= 0) {
             sendMessageQueue(e, "You need to specify the position of the track in the queue that you want to skip to.");
+            return;
+        }
+        if (toIndex >= manager.getQueue().size()) {
+            sendMessageQueue(e, "You wanted to skip to the %s position but there are only %s songs in the queue".formatted(toIndex + CommandUtil.getRank(toIndex), manager.getQueue().size()));
             return;
         }
         if (toIndex - 1 == 0) {
@@ -81,8 +85,8 @@ public class SkipToCommand extends MusicCommand<NumberParameters<CommandParamete
         for (int i = 0; i < toIndex - 1; i++) {
             manager.getQueue().remove();
         }
-        manager.nextTrack();
         sendMessageQueue(e, "Skipped **" + (toIndex - 1) + "** tracks.");
+        manager.nextTrack();
 
     }
 }

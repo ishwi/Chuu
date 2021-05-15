@@ -115,8 +115,8 @@ public class QueueCommand extends ConcurrentCommand<CommandParameters> {
 
         if (manager.getRadio() != null) {
             String b = "Currently streaming music from radio station " + manager.getRadio().getSource().getName() +
-                    ", requested by <@" + manager.getRadio().requester() +
-                    ">. When the queue is empty, random tracks from the station will be added.";
+                       ", requested by <@" + manager.getRadio().requester() +
+                       ">. When the queue is empty, random tracks from the station will be added.";
             embedBuilder.addField("Radio", b, false);
         }
         embedBuilder

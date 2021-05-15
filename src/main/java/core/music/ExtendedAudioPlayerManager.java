@@ -40,8 +40,10 @@ import com.sedmelluq.lava.extensions.youtuberotator.tools.ip.IpBlock;
 import com.sedmelluq.lava.extensions.youtuberotator.tools.ip.Ipv6Block;
 import com.sun.istack.Nullable;
 import core.Chuu;
+import core.music.scrobble.ScrobbleEventManager;
 import core.music.sources.bandcamp.CustomBandcampAudioSourceManager;
 import core.music.sources.spotify.SpotifyAudioSourceManager;
+import core.music.utils.ScrobbleProcesser;
 import core.music.utils.TrackContext;
 import core.music.utils.YoutubeSearchManagerSingleton;
 import org.json.JSONArray;
@@ -56,9 +58,9 @@ import java.util.Base64;
 import java.util.List;
 
 public class ExtendedAudioPlayerManager extends DefaultAudioPlayerManager {
-    private final String config = null;
 
-    public ExtendedAudioPlayerManager() {
+
+    public ExtendedAudioPlayerManager(ScrobbleEventManager scrobbleManager, ScrobbleProcesser scrobbleProcesser) {
         super();
         AudioConfiguration configuration = getConfiguration();
         configuration.setFilterHotSwapEnabled(true);
@@ -201,4 +203,6 @@ public class ExtendedAudioPlayerManager extends DefaultAudioPlayerManager {
             throw new UncheckedIOException(e);
         }
     }
+
+
 }

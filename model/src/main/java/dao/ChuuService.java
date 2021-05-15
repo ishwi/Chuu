@@ -208,7 +208,7 @@ public class ChuuService {
         try (Connection connection = dataSource.getConnection()) {
 
             try {
-                connection.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE);
+                connection.setTransactionIsolation(Connection.TRANSACTION_REPEATABLE_READ);
                 connection.setAutoCommit(false);
 
                 userGuildDao.insertUserData(connection, data);
@@ -216,7 +216,12 @@ public class ChuuService {
                     userGuildDao.addGuild(connection, data.getDiscordId(), data.getGuildID());
                 }
                 connection.commit();
-
+                String name = data.getName();
+                boolean flagged = userGuildDao.isFlagged(connection, name);
+                if (flagged) {
+                    userGuildDao.flagBottedDB(name, connection);
+                }
+                connection.commit();
             } catch (SQLException e) {
                 connection.rollback();
                 throw new ChuuServiceException(e);
@@ -446,6 +451,23 @@ public class ChuuService {
         try (Connection connection = dataSource.getConnection()) {
             connection.setReadOnly(true);
             return queriesDao.getGuildCrownThreshold(connection, guildId);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    public VoiceAnnouncement getGuildVoiceAnnouncement(long guildId) {
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setReadOnly(true);
+            return userGuildDao.getGuildVoiceAnnouncement(connection, guildId);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    public void setGuildVoiceAnnouncement(long guildId, VoiceAnnouncement voiceAnnouncement) {
+        try (Connection connection = dataSource.getConnection()) {
+            userGuildDao.setGuildVoiceAnnouncement(connection, guildId, voiceAnnouncement);
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }
@@ -1244,6 +1266,11 @@ public class ChuuService {
             LastFMData lastFmData = userGuildDao.findLastFmData(connection, userId);
             lastFmData.setName(lastFmID);
             userGuildDao.updateLastFmData(connection, lastFmData);
+            String name = lastFmData.getName();
+            boolean flagged = userGuildDao.isFlagged(connection, name);
+            if (flagged) {
+                userGuildDao.flagBottedDB(lastFmID, connection);
+            }
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }
@@ -1253,6 +1280,10 @@ public class ChuuService {
     public void changeDiscordId(long userId, String lastFmID) {
         try (Connection connection = dataSource.getConnection()) {
             userGuildDao.changeDiscordId(connection, userId, lastFmID);
+            boolean flagged = userGuildDao.isFlagged(connection, lastFmID);
+            if (flagged) {
+                userGuildDao.flagBottedDB(lastFmID, connection);
+            }
 
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
@@ -3881,6 +3912,15 @@ public class ChuuService {
         }
     }
 
+    public Optional<Album> findAlbumByTrackId(long trackId) {
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setReadOnly(true);
+            return trackDao.findAlbumFromTrack(connection, trackId);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
     public List<RoleColour> getRoles(long idLong) {
         try (Connection connection = dataSource.getConnection()) {
             connection.setReadOnly(true);
@@ -3896,8 +3936,6 @@ public class ChuuService {
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }
-
-
     }
 }
 

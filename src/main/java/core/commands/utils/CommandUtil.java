@@ -37,6 +37,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.Random;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Supplier;
 
 public class CommandUtil {
 
@@ -430,5 +431,13 @@ public class CommandUtil {
             return new GlobalStreakEntities.DateHolder(streakStart, date, link);
 
         }
+    }
+
+    public static <T> CompletableFuture<T> supplyLog(Supplier<T> supplier) {
+        return CompletableFuture.supplyAsync(supplier).whenComplete((u, ex) -> {
+            if (ex != null) {
+                Chuu.getLogger().warn(ex.getMessage(), ex);
+            }
+        });
     }
 }

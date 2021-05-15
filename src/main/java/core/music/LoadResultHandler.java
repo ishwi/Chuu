@@ -25,6 +25,7 @@ import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import core.Chuu;
 import core.commands.Context;
 import core.commands.utils.ChuuEmbedBuilder;
+import core.commands.utils.CommandUtil;
 import core.music.utils.TrackContext;
 import core.services.ColorService;
 import net.dv8tion.jda.api.managers.AudioManager;
@@ -32,18 +33,16 @@ import net.dv8tion.jda.api.managers.AudioManager;
 public class LoadResultHandler implements AudioLoadResultHandler {
 
 
+    private static final int MAX_LOAD_RETRIES = 2;
     private final String query;
-    private String identifier;
     private final MusicManager musicManager;
     private final TrackContext trackContext;
-    private static final int MAX_LOAD_RETRIES = 2;
     private final Boolean isNext;
     private final String footnote;
-
-    private Object settings;
     private final boolean premiumGuild = false;
-    private int retryCount = 0;
     private final Context e;
+    private Object settings;
+    private int retryCount = 0;
 
     public LoadResultHandler(String query, Context e, MusicManager musicManager, TrackContext trackContext, Boolean isNext, String footnote) {
 
@@ -75,7 +74,13 @@ public class LoadResultHandler implements AudioLoadResultHandler {
         musicManager.enqueue(track, isNext);
 
         if (!isImmediatePlay) {
-            e.sendMessage(" queued").queue();
+            musicManager.getScrobble(track).thenCompose(z -> e.sendMessage(new ChuuEmbedBuilder()
+                    .setColor(CommandUtil.pastelColor())
+                    .setDescription(
+                            "Queued __**[%s - %s%s](%s)**__".
+                                    formatted(z.song(), z.artist(), z.album() != null ? " | " + z.album() : "", track.getInfo().uri)
+                    ).build()).submit());
+
         }
     }
 
@@ -119,16 +124,17 @@ public class LoadResultHandler implements AudioLoadResultHandler {
 
     public void noMatches() {
 
-        if (retryCount < MAX_LOAD_RETRIES && identifier != null) {
+        if (retryCount < MAX_LOAD_RETRIES && query != null) {
             retryCount++;
-            Chuu.playerManager.loadItemOrdered(e.getGuild().getIdLong(), identifier, this);
+            Chuu.playerManager.loadItemOrdered(e.getGuild().getIdLong(), query, this);
             return;
         }
 
         if (musicManager.isIdle()) {
             musicManager.destroy();
         }
-        e.sendMessage(new ChuuEmbedBuilder().setColor(ColorService.computeColor(e)).setTitle("Load Results").setDescription("Nothing found by **" + identifier + "**").build()).queue();
+        e.sendMessage(new ChuuEmbedBuilder().setColor(ColorService.computeColor(e)).setTitle("Load Results")
+                .setDescription("Nothing found by **" + query + "**").build()).queue();
     }
 
     @Override

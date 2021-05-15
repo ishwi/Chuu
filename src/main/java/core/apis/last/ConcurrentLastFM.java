@@ -62,12 +62,13 @@ import java.util.stream.StreamSupport;
 
 
 public class ConcurrentLastFM {//implements LastFMService {
-    static final String BASE = "http://ws.audioscrobbler.com/2.0/";
     public static final String GET_ALBUMS = "?method=user.gettopalbums&user=";
     public static final String GET_WEEKLY_CHART_TRACK = "?method=user.getWeeklyTrackChart&user=";
     public static final String GET_WEEKLY_CHART_ARTIST = "?method=user.getWeeklyArtistChart&user=";
     public static final String GET_WEEKLY_CHART_ALBUM = "?method=user.getWeeklyAlbumChart&user=";
-
+    public static final String GET_ARTIST = "?method=user.gettopartists&user=";
+    public static final String GET_TOP_TRACKS = "?method=user.gettoptracks&user=";
+    static final String BASE = "http://ws.audioscrobbler.com/2.0/";
     static final String GET_LIBRARY = "?method=library.getartists&user=";
     static final String GET_USER = "?method=user.getinfo&user=";
     static final String ENDING = "&format=json";
@@ -75,10 +76,8 @@ public class ConcurrentLastFM {//implements LastFMService {
     static final String LOVED_TRACKS = "?method=user.getlovedtracks";
     static final String GET_NOW_PLAYINH = RECENT_TRACKS + "&limit=1&user=";
     static final String GET_ALL = RECENT_TRACKS + "&limit=1000&user=";
-    public static final String GET_ARTIST = "?method=user.gettopartists&user=";
     static final String GET_TRACKS = "?method=album.getinfo&username=";
     static final String GET_TRACK_INFO = "?method=track.getInfo&username=";
-    public static final String GET_TOP_TRACKS = "?method=user.gettoptracks&user=";
     static final String GET_CORRECTION = "?method=artist.getcorrection&artist=";
     static final String GET_ARTIST_ALBUMS = "?method=artist.gettopalbums&artist=";
     static final String GET_ARTIST_INFO = "?method=artist.getinfo&artist=";
@@ -90,11 +89,9 @@ public class ConcurrentLastFM {//implements LastFMService {
     static final String GET_TOKEN = "?method=auth.gettoken";
     static final String GET_SESSION = "?method=auth.getSession&token=";
     static final String UPDATE_NP = "?method=track.updateNowPlaying&token=";
-
-
+    private static final int SONG_AVERAGE_DURATION = 200;
     final String apiKey;
     final HttpClient client;
-    private static final int SONG_AVERAGE_DURATION = 200;
     private final @Nullable String secret;
     private final OAuthService oAuthService;
 
@@ -1870,7 +1867,8 @@ public class ConcurrentLastFM {//implements LastFMService {
     }
 
     public void flagNP(String sessionKey, Scrobble scrobble) throws LastFmException {
-        ScrobblePost scrobblePost = new ScrobblePost("track.updateNowPlaying", scrobble.artist(), scrobble.song(), scrobble.album(), null, null, null, null, null, apiKey.split("=")[1], sessionKey);
+        Integer duration = scrobble.duration() == null ? null : Math.toIntExact(scrobble.duration() / 1000);
+        ScrobblePost scrobblePost = new ScrobblePost("track.updateNowPlaying", scrobble.artist(), scrobble.song(), scrobble.album(), null, null, null, duration, null, apiKey.split("=")[1], sessionKey);
         JSONObject jsonObject = doPost(scrobblePost);
     }
 

@@ -40,13 +40,13 @@ import java.util.regex.Matcher;
 public abstract class MyCommand<T extends CommandParameters> implements EventListener {
     public final ConcurrentLastFM lastFM;
     protected final ChuuService db;
+    protected final Parser<T> parser;
     private final CommandCategory category;
     public boolean respondInPrivate = true;
     public boolean ephemeral = false;
     public boolean canAnswerFast = false;
-    protected boolean isLongRunningCommand = false;
-    protected final Parser<T> parser;
     public int order = Integer.MAX_VALUE;
+    protected boolean isLongRunningCommand = false;
 
     protected MyCommand(ChuuService db) {
         this.db = db;

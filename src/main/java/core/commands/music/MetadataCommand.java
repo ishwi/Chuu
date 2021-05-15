@@ -7,28 +7,21 @@ import core.commands.abstracts.MusicCommand;
 import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandUtil;
 import core.music.MusicManager;
-import core.music.sources.MetadataTrack;
 import core.parsers.NoOpParser;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
 import core.services.ColorService;
 import dao.ChuuService;
 import dao.entities.Metadata;
-import dao.entities.TriFunction;
 import net.dv8tion.jda.api.entities.Message;
 
 import javax.validation.constraints.NotNull;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 import java.util.regex.Pattern;
 
 public class MetadataCommand extends MusicCommand<CommandParameters> {
-    protected static final TriFunction<String, String, String, String> mapper = (artist, album, song) -> {
-        String s = album == null || album.isBlank() ? "" : "\nAlbum: **" + album + "**";
-        return String
-                .format("Artist: **%s**\nSong: **%s**%s", artist, song, s);
-    };
+
     private final Pattern metadataExpr = Pattern.compile("(?<!\\\\)\\s*-\\s*");
 
     public MetadataCommand(ChuuService dao) {
@@ -62,25 +55,16 @@ public class MetadataCommand extends MusicCommand<CommandParameters> {
         MusicManager manager = getManager(e);
         AudioTrack track = manager.getCurrentTrack();
         String identifier = track.getInfo().uri;
-        String album = null;
-        String url = null;
-        if (track instanceof MetadataTrack spo) {
-            album = spo.getAlbum();
-            url = spo.getImage();
-        }
+
         String cleanUri = CommandUtil.cleanMarkdownCharacter(identifier);
         String words = String.join(" ", message);
         if (words.length() == 0) {
-            Optional<Metadata> metadata = Optional.ofNullable(manager.getMetadata());
-            String finalUrl = url;
-            String finalAlbum = album;
-            metadata.ifPresentOrElse(meta -> e.sendMessage(new ChuuEmbedBuilder().setColor(ColorService.computeColor(e)).setThumbnail(meta.image()).setTitle("Current song metadata", identifier)
-                    .setDescription(mapper.apply(meta.artist(), meta.album(), meta.song())).build()).
-                    queue(), () ->
-                    e.sendMessage(new ChuuEmbedBuilder().setColor(ColorService.computeColor(e)).setThumbnail(finalUrl)
+            manager.getScrobble().thenAccept(scrobble ->
+                    e.sendMessage(new ChuuEmbedBuilder().setColor(ColorService.computeColor(e)).setThumbnail(scrobble.image())
                             .setTitle("Current song metadata", identifier)
-                            .setThumbnail(finalUrl)
-                            .setDescription(mapper.apply(track.getInfo().author, finalAlbum, track.getInfo().title))
+                            .setThumbnail(scrobble.image())
+                            .setFooter(scrobble.linelessReversed())
+                            .setDescription(scrobble.toLines())
                             .build()).queue());
             return;
         }
@@ -100,14 +84,13 @@ public class MetadataCommand extends MusicCommand<CommandParameters> {
             image = mes.e().getMessage().getAttachments().stream().filter(Message.Attachment::isImage).findFirst().map(Message.Attachment::getUrl).orElse(null);
         }
         Metadata metadata = new Metadata(artist, song, matchedAlbum, image);
-        manager.setMetadata(metadata);
         db.storeMetadata(identifier, metadata);
-        e.sendMessage(new ChuuEmbedBuilder().setColor(ColorService.computeColor(e)).setThumbnail(image)
-                .setTitle("Current song metadata", identifier)
-                .setDescription(mapper.apply(artist, matchedAlbum, song))
-                .build()).
-                queue();
-
-
+        String finalImage = image;
+        manager.setMetadata(metadata).thenCompose(v -> manager.getScrobble()).thenAccept(z ->
+                e.sendMessage(new ChuuEmbedBuilder().setColor(ColorService.computeColor(e)).setThumbnail(finalImage)
+                        .setAuthor("Metadata changed", identifier)
+                        .setDescription(z.toLines())
+                        .build()).
+                        queue());
     }
 }

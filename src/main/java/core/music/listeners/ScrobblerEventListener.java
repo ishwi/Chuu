@@ -4,43 +4,27 @@ import com.sedmelluq.discord.lavaplayer.player.event.AudioEvent;
 import com.sedmelluq.discord.lavaplayer.player.event.AudioEventListener;
 import com.sedmelluq.discord.lavaplayer.player.event.TrackEndEvent;
 import com.sedmelluq.discord.lavaplayer.player.event.TrackStartEvent;
-import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
-import com.sedmelluq.discord.lavaplayer.track.AudioTrackInfo;
 import core.Chuu;
-import core.apis.last.ConcurrentLastFM;
-import core.apis.last.entities.Scrobble;
-import core.exceptions.LastFmException;
 import core.music.MusicManager;
-import core.music.sources.MetadataTrack;
-import dao.ChuuService;
-import dao.entities.LastFMData;
-import dao.entities.Metadata;
+import core.music.scrobble.ExtraParamsChapter;
+import core.music.scrobble.ScrobbleEventManager;
+import core.music.scrobble.ScrobbleStates;
+import core.music.scrobble.ScrobbleStatus;
+import core.music.utils.TrackScrobble;
 import net.dv8tion.jda.api.entities.GuildVoiceState;
-import net.dv8tion.jda.api.entities.ISnowflake;
 import net.dv8tion.jda.api.entities.VoiceChannel;
 
 import java.time.Instant;
-import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
-import java.util.*;
-import java.util.concurrent.*;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.stream.Collectors;
 
 public class ScrobblerEventListener implements AudioEventListener {
     private final MusicManager musicManager;
-    private final ChuuService db;
-    private final ConcurrentLastFM lastFM;
-    private final static ScheduledExecutorService scheduledThreadPoolExecutor = Executors.newSingleThreadScheduledExecutor();
-    private final List<ScheduledFuture<?>> todo = new ArrayList<>();
-    private final Map<AudioTrack, Instant> startMap = new HashMap<>();
+    private final ScrobbleEventManager scrobbleManager;
     private int scrooblersCount = 0;
 
-    public ScrobblerEventListener(MusicManager musicManager, ConcurrentLastFM lastFM) {
+    public ScrobblerEventListener(MusicManager musicManager) {
         this.musicManager = musicManager;
-        this.lastFM = lastFM;
+        this.scrobbleManager = Chuu.getScrobbleEventManager();
 
-        db = Chuu.getDao();
     }
 
     @Override
@@ -58,109 +42,48 @@ public class ScrobblerEventListener implements AudioEventListener {
 
     }
 
+    private VoiceChannel getCurrentChannelEnd() {
+        if (musicManager.getChannelId() != null) {
+            return musicManager.getGuild().getVoiceChannelById(musicManager.getChannelId());
+        } else return getCurrentChannel();
+    }
+
+    private VoiceChannel getCurrentChannel() {
+        GuildVoiceState voiceState = musicManager.getGuild().getSelfMember().getVoiceState();
+        if (voiceState == null || !voiceState.inVoiceChannel() || voiceState.getChannel() == null)
+            return null;
+        return voiceState.getChannel();
+    }
+
+    public void signalChapterEnd(TrackScrobble current, long ms, long fms, long baseLine) {
+        this.scrobbleManager
+                .submitEvent(new ScrobbleStatus(ScrobbleStates.CHAPTER_CHANGE, current, this::getCurrentChannel, musicManager.getGuildId(), Instant.now(), (a, b) -> {
+                }, new ExtraParamsChapter(ms, fms, baseLine)));
+    }
+
+    public void signalMetadataChange(TrackScrobble newMetadata) {
+        this.scrobbleManager.submitEvent(new ScrobbleStatus(ScrobbleStates.METADATA_CHANGE, newMetadata, this::getCurrentChannel, musicManager.getGuildId(), Instant.now(), (a, b) -> {
+        }));
+    }
+
     public void hadleTrackStart(TrackStartEvent event, boolean inmediato) {
-        if (event.track.getDuration() == Long.MAX_VALUE) {
-            return;
-        }
-        this.startMap.put(event.track, OffsetDateTime.now(ZoneOffset.UTC).toInstant());
-        AtomicBoolean done = new AtomicBoolean(false);
-        Runnable runnable = () -> {
-            try {
-                if (done.get()) {
-                    this.todo.forEach(x -> x.cancel(false));
-                    this.todo.clear();
-                    return;
-                }
-                AudioTrack playingTrack = event.player.getPlayingTrack();
-                GuildVoiceState voiceState = musicManager.getGuild().getSelfMember().getVoiceState();
-                if (voiceState == null || !voiceState.inVoiceChannel() || voiceState.getChannel() == null)
-                    return;
-                VoiceChannel channel = voiceState.getChannel();
-                List<Long> voiceMembers = channel.getMembers().stream().mapToLong(ISnowflake::getIdLong).boxed().toList();
-                Set<LastFMData> scrobbleableUsers = db.findScrobbleableUsers(channel.getGuild().getIdLong()).stream().filter(x -> voiceMembers.contains(x.getDiscordId())).collect(Collectors.toSet());
-
-
-                Scrobble scrobble = obtainScrobble(playingTrack, false);
-
-                if (Chuu.chuuSess != null) {
-                    lastFM.flagNP(Chuu.chuuSess, scrobble);
-                }
-                for (LastFMData data : scrobbleableUsers) {
-                    lastFM.flagNP(data.getSession(), scrobble);
-
-                }
-                done.set(true);
-                scrooblersCount = scrobbleableUsers.size();
-                this.todo.forEach(x -> x.cancel(false));
-                this.todo.clear();
-            } catch (LastFmException exception) {
-                Chuu.getLogger().warn(exception.getMessage(), exception);
-                this.todo.forEach(x -> x.cancel(false));
-                this.todo.clear();
-            }
-        };
-        CompletableFuture.delayedExecutor(inmediato ? 1 : 3, TimeUnit.SECONDS).execute(() -> {
-            ScheduledFuture<?> scheduledFuture = scheduledThreadPoolExecutor.scheduleAtFixedRate(runnable, 0, 10, TimeUnit.SECONDS);
-            todo.add(scheduledFuture);
-            CompletableFuture.delayedExecutor(event.track.getDuration() - 5, TimeUnit.MILLISECONDS).execute(() -> scheduledFuture.cancel(true));
-        });
+        Instant start = Instant.now();
+        this.musicManager.getTrackScrobble(event.track).thenAccept(z ->
+                this.scrobbleManager.submitEvent(new ScrobbleStatus(ScrobbleStates.SCROBBLING, z, this::getCurrentChannel, musicManager.getGuildId(), start, (status, lastFMData) ->
+                        this.scrooblersCount = lastFMData.size()
+                )));
 
     }
 
-    private void handleTrackEnd(TrackEndEvent event) throws LastFmException {
-        Instant start = Optional.ofNullable(this.startMap.remove(event.track)).orElse(Instant.now());
-        long seconds = Instant.now().getEpochSecond() - start.getEpochSecond();
-        if (seconds < 30 || (seconds < (event.track.getDuration() / 1000) / 2 && seconds < 4 * 60)) {
-            Chuu.getLogger().info("Didnt scrobble {}: Duration {}", event.track.getIdentifier(), seconds);
-            return;
-        }
-        try {
-            AudioTrack playingTrack = event.track;
-            GuildVoiceState voiceState = musicManager.getGuild().getSelfMember().getVoiceState();
-            assert voiceState != null && voiceState.inVoiceChannel() && voiceState.getChannel() != null;
-            VoiceChannel channel = voiceState.getChannel();
-            if (channel == null) {
-                return;
-            }
-            List<Long> membersId = channel.getMembers().stream().mapToLong(ISnowflake::getIdLong).boxed().toList();
-            Set<LastFMData> scrobbleableUsers = db.findScrobbleableUsers(channel.getGuild().getIdLong()).stream().filter(x -> membersId.contains(x.getDiscordId())).collect(Collectors.toSet());
-
-            Scrobble scrobble = obtainScrobble(playingTrack, true);
-
-            for (LastFMData data : scrobbleableUsers) {
-                lastFM.scrobble(data.getSession(), scrobble, start);
-            }
-            if (Chuu.chuuSess != null) {
-                lastFM.scrobble(Chuu.chuuSess, scrobble, start);
-            }
-
-        } finally {
-            scrooblersCount = 0;
-            this.todo.forEach(x -> x.cancel(true));
-            this.todo.clear();
-        }
-    }
-
-    private Scrobble obtainScrobble(AudioTrack playingTrack, boolean hasEnded) {
-        Metadata metadata = hasEnded ? musicManager.getLastMetada() : musicManager.getMetadata();
-        String album = null;
-        String image = null;
-        if (playingTrack instanceof MetadataTrack spo) {
-            album = spo.getAlbum();
-            image = spo.getImage();
-        }
-        Integer duration = null;
-        if (playingTrack.getDuration() != Long.MAX_VALUE) {
-            duration = Math.toIntExact((playingTrack.getDuration() / 1000));
-        }
-        AudioTrackInfo info = playingTrack.getInfo();
-        String title = metadata != null ? metadata.song() : info.title;
-        String author = metadata != null ? metadata.artist() : info.author;
-        album = metadata != null ? metadata.album() : album;
-        image = metadata != null ? metadata.image() : image;
-        return new Scrobble(author, album, title, image, duration);
+    private void handleTrackEnd(TrackEndEvent event) {
+        Instant end = Instant.now();
+        this.musicManager.getTrackScrobble(event.track).thenAccept(z ->
+                this.scrobbleManager.submitEvent(new ScrobbleStatus(ScrobbleStates.FINISHED, z, this::getCurrentChannelEnd, musicManager.getGuildId(), end, (status, lastFMData) ->
+                        scrooblersCount = lastFMData.size()
+                )));
 
     }
+
 
     public int getScrooblersCount() {
         return scrooblersCount;

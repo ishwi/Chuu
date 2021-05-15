@@ -37,14 +37,14 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
                              " WHERE  a.lastfm_id = ?" +
                              " AND playnumber >= ?" +
                              " AND  playnumber >= ALL" +
-                             "       (SELECT max(b.playnumber) " +
+                             "       (SELECT MAX(b.playnumber) " +
                              " FROM " +
                              "(SELECT in_a.artist_id,in_a.playnumber" +
                              " FROM scrobbled_artist in_a  " +
                              " JOIN " +
                              " user in_b" +
                              " ON in_a.lastfm_id = in_b.lastfm_id" +
-                             " where ? or not in_b.botted_account " +
+                             " WHERE ? OR NOT in_b.botted_account " +
                              "   ) AS b" +
                              " WHERE b.artist_id = a.artist_id" +
                              " GROUP BY artist_id)" +
@@ -87,7 +87,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
                              "       ON a.lastfm_id = b.lastfm_id " +
                              "       WHERE  a.playnumber > 2 " +
                              "       GROUP BY a.artist_id " +
-                             "       HAVING count( *) = 1) temp " +
+                             "       HAVING COUNT( *) = 1) temp " +
                              " JOIN artist a ON temp.artist_id = a.id " +
                              "WHERE temp.lastfm_id = ? AND temp.playnumber > 1 " +
                              " ORDER BY temp.playnumber DESC ";
@@ -302,23 +302,23 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
     public List<LbEntry> matchingArtistCount(Connection connection, long userId, long guildId, Long threshold) {
 
         String queryString = """
-                        select discord_id,lastfm_id,count(*) as orden
-                        from
-                                (select artist_id,a.lastfm_id,b.discord_id from scrobbled_artist a
-                                        join user b
-                                        on a.lastfm_id = b.lastfm_id
-                                        join user_guild c
-                                        on c.discord_id = b.discord_id
-                                        where c.guild_id = ?
-                                and b.discord_id != ?) main
+                        SELECT discord_id,lastfm_id,COUNT(*) AS orden
+                        FROM
+                                (SELECT artist_id,a.lastfm_id,b.discord_id FROM scrobbled_artist a
+                                        JOIN user b
+                                        ON a.lastfm_id = b.lastfm_id
+                                        JOIN user_guild c
+                                        ON c.discord_id = b.discord_id
+                                        WHERE c.guild_id = ?
+                                AND b.discord_id != ?) main
 
 
-                        where main.artist_id in
-                        (Select artist_id from scrobbled_artist a join user b on a.lastfm_id = b.lastfm_id where
+                        WHERE main.artist_id IN
+                        (SELECT artist_id FROM scrobbled_artist a JOIN user b ON a.lastfm_id = b.lastfm_id WHERE
                         discord_id = ?
                 	)
-                        group by lastfm_id,discord_id
-                        order by orden desc;
+                        GROUP BY lastfm_id,discord_id
+                        ORDER BY orden DESC;
                 """;
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
             int i = 1;
@@ -348,7 +348,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
     @Override
     public List<VotingEntity> getAllArtistImages(Connection connection, long artistId) {
         List<VotingEntity> returnedList = new ArrayList<>();
-        String queryString = " Select a.id,a.url,a.score,a.discord_id,a.added_date,b.name,b.id,(select count(*) from vote where alt_id = a.id) as totalVotes from alt_url a join artist b on a.artist_id = b.id  where a.artist_id = ? order by a.score desc , added_date asc ";
+        String queryString = " SELECT a.id,a.url,a.score,a.discord_id,a.added_date,b.name,b.id,(SELECT COUNT(*) FROM vote WHERE alt_id = a.id) AS totalvotes FROM alt_url a JOIN artist b ON a.artist_id = b.id  WHERE a.artist_id = ? ORDER BY a.score DESC , added_date ASC ";
         try (
                 PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
             preparedStatement.setLong(1, artistId);
@@ -375,7 +375,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
 
     @Override
     public Boolean hasUserVotedImage(Connection connection, long urlId, long discordId) {
-        String queryString = "Select ispositive from vote where alt_id = ? and discord_id = ? ";
+        String queryString = "SELECT ispositive FROM vote WHERE alt_id = ? AND discord_id = ? ";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
             preparedStatement.setLong(1, urlId);
             preparedStatement.setLong(2, discordId);
@@ -523,8 +523,8 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
                     FROM   (SELECT temp_2.name                                    AS name,\s
                                    temp_2.artist_id                               AS artist,\s
                                    temp_2.playnumber                              AS plays,\s
-                                   Max(inn.playnumber)                            AS maxPlays,\s
-                                   (SELECT Count(*)\s
+                                   MAX(inn.playnumber)                            AS maxplays,\s
+                                   (SELECT COUNT(*)\s
                                     FROM   scrobbled_artist b\s
                                            JOIN user d\s
                                              ON b.lastfm_id = d.lastfm_id\s
@@ -532,22 +532,22 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
                                              ON d.discord_id = c.discord_id\s
                                     WHERE  c.guild_id = ?\s
                                            AND artist_id = temp_2.artist_id\s
-                                           AND temp_2.playnumber <= b.playnumber) rank,\s
-                                   Count(*)                                       AS total\s
+                                           AND temp_2.playnumber <= b.playnumber) RANK,\s
+                                   COUNT(*)                                       AS total\s
                             FROM   (SELECT b.*\s
                                     FROM   scrobbled_artist b\s
-                                           JOIN user d\s
+                                           JOIN USER d\s
                                              ON b.lastfm_id = d.lastfm_id\s
                                            JOIN user_guild c\s
                                              ON d.discord_id = c.discord_id\s
                                     WHERE  c.guild_id = ?) inn\s
                                    JOIN (SELECT artist_id,\s
-                                                inn_c.name AS name,\s
+                                                inn_c.name AS NAME,\s
                                                 playnumber\s
                                          FROM   scrobbled_artist inn_a\s
                                                 JOIN artist inn_c\s
                                                   ON inn_a.artist_id = inn_c.id\s
-                                                JOIN user inn_b\s
+                                                JOIN USER inn_b\s
                                                   ON inn_a.lastfm_id = inn_b.lastfm_id\s
                                                 JOIN user_guild c\s
                                                   ON inn_b.discord_id = c.discord_id\s
@@ -556,32 +556,32 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
                                      ON temp_2.artist_id = inn.artist_id\s
                             GROUP  BY temp_2.artist_id\s
                             ORDER  BY temp_2.playnumber DESC) main\s
-                    WHERE(? and rank = 2 or ((not ?) and
-                                            ? and rank != 1 or\s
-                                            not ? and not ?)) and (maxPlays - plays < ?) LIMIT  500\s""";
+                    WHERE(? AND RANK = 2 OR ((NOT ?) AND
+                                            ? AND RANK != 1 OR\s
+                                            NOT ? AND NOT ?)) AND (maxplays - plays < ?) LIMIT  500\s""";
         } else {
             guildQuery = """
-                    Select * from (SELECT temp_2.name as name, temp_2.artist_id as artist ,\s
-                           temp_2.playnumber as plays,\s
-                           Max(inn.playnumber) as maxPlays,\s
-                           (SELECT Count(*)\s
+                    SELECT * FROM (SELECT temp_2.name AS name, temp_2.artist_id AS artist ,\s
+                           temp_2.playnumber AS plays,\s
+                           MAX(inn.playnumber) AS maxplays,\s
+                           (SELECT COUNT(*)\s
                             FROM   scrobbled_artist b\s
                             WHERE  artist_id = temp_2.artist_id\s
-                                   AND temp_2.playnumber <= b.playnumber) as rank, count(*) as total
+                                   AND temp_2.playnumber <= b.playnumber) AS RANK, COUNT(*) AS total
                     FROM   scrobbled_artist inn\s
-                           JOIN (SELECT artist_id,inn_c.name as name,
+                           JOIN (SELECT artist_id,inn_c.name AS NAME,
                                         playnumber\s
                                  FROM   scrobbled_artist inn_a\s
-                                          join artist inn_c on inn_a.artist_id = inn_c.id                    \s
-                                           JOIN user inn_b\s
+                                          JOIN artist inn_c ON inn_a.artist_id = inn_c.id                    \s
+                                           JOIN USER inn_b\s
                                           ON inn_a.lastfm_id = inn_b.lastfm_id\s
                                  WHERE  inn_b.discord_id = ?) temp_2\s
                              ON temp_2.artist_id = inn.artist_id\s
                     GROUP  BY temp_2.artist_id\s
                     ORDER  BY temp_2.playnumber DESC\s
-                    ) main  where (? and rank = 2 or ((not ?) and
-                                            ? and rank != 1 or\s
-                                            not ? and not ?))  and (maxPlays - plays < ?)  limit 500;""";
+                    ) main  WHERE (? AND RANK = 2 OR ((NOT ?) AND
+                                            ? AND RANK != 1 OR\s
+                                            NOT ? AND NOT ?))  AND (maxplays - plays < ?)  LIMIT 500;""";
         }
 
 
@@ -760,7 +760,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
                              " JOIN artist a2 ON a.artist_id = a2.id " +
                              "       WHERE c.guild_id = ? AND a.playnumber > 2 " +
                              "       GROUP BY a.artist_id " +
-                             "       HAVING count( *) = 1) temp " +
+                             "       HAVING COUNT( *) = 1) temp " +
                              "WHERE temp.lastfm_id = ? AND temp.playnumber > 1 " +
                              " ORDER BY temp.playnumber DESC ";
 
@@ -801,7 +801,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
                              " JOIN artist a2 ON a3.artist_id = a2.id " +
                              "       WHERE c.guild_id = ? AND a.playnumber > 2 " +
                              "       GROUP BY a.artist_id " +
-                             "       HAVING count( *) = 1) temp " +
+                             "       HAVING COUNT( *) = 1) temp " +
                              "WHERE temp.lastfm_id = ? AND temp.playnumber > 1 " +
                              " ORDER BY temp.playnumber DESC ";
 
@@ -843,7 +843,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
                              " JOIN artist a2 ON a3.artist_id = a2.id " +
                              "       WHERE c.guild_id = ? AND a.playnumber > 2 " +
                              "       GROUP BY a.artist_id " +
-                             "       HAVING count( *) = 1) temp " +
+                             "       HAVING COUNT( *) = 1) temp " +
                              "WHERE temp.lastfm_id = ? AND temp.playnumber > 1 " +
                              " ORDER BY temp.playnumber DESC ";
 
@@ -881,7 +881,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
 
         String queryString =
                 "SELECT c.name  , a.playnumber,b.playnumber ," +
-                "((a.playnumber * b.playnumber)/(abs(a.playnumber-b.playnumber)+1))  *" +
+                "((a.playnumber * b.playnumber)/(ABS(a.playnumber-b.playnumber)+1))  *" +
                 " (((a.playnumber + b.playnumber)) * 2.5) * " +
                 " IF((a.playnumber > 10 * b.playnumber OR b.playnumber > 10 * a.playnumber) AND LEAST(a.playnumber,b.playnumber) < 400 ,0.01,2) " +
                 "media ," +
@@ -995,7 +995,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
                              " WHERE  b.lastfm_id = ?" +
                              " AND playnumber >= ? " +
                              " AND  playnumber >= ALL" +
-                             "       (SELECT max(b.playnumber) " +
+                             "       (SELECT MAX(b.playnumber) " +
                              " FROM " +
                              "(SELECT in_a.artist_id,in_a.playnumber" +
                              " FROM scrobbled_artist in_a  " +
@@ -1055,7 +1055,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
         List<ScrobbledArtist> list = new ArrayList<>();
         int count = 0;
         int i = 1;
-        try (PreparedStatement preparedStatement1 = connection.prepareStatement(normalQUery + queryBody + " GROUP BY artist_id  ORDER BY orden DESC  limit ?")) {
+        try (PreparedStatement preparedStatement1 = connection.prepareStatement(normalQUery + queryBody + " GROUP BY artist_id  ORDER BY orden DESC  LIMIT ?")) {
             if (guildID != null)
                 preparedStatement1.setLong(i++, guildID);
 
@@ -1228,13 +1228,13 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
 
     @Override
     public List<ScrobbledTrack> getUserTracksWithTag(Connection connection, long discordId, String genre, int limit) {
-        String queryString = "SELECT a.id as track_id, c.id,track_name,c.name,a.mbid as artist_mbid,c.mbid,a.url,d.playnumber " +
+        String queryString = "SELECT a.id AS track_id, c.id,track_name,c.name,a.mbid AS artist_mbid,c.mbid,a.url,d.playnumber " +
                              "FROM track a " +
-                             "join artist c on a.artist_id = c.id " +
-                             "join scrobbled_track d on a.id = d.track_id " +
-                             "join user e on d.lastfm_id = e.lastfm_id  " +
-                             "join  track_tags b on a.id = b.track_id " +
-                             "WHERE tag = ? and e.discord_id = ? order by playnumber desc limit ?";
+                             "JOIN artist c ON a.artist_id = c.id " +
+                             "JOIN scrobbled_track d ON a.id = d.track_id " +
+                             "JOIN user e ON d.lastfm_id = e.lastfm_id  " +
+                             "JOIN  track_tags b ON a.id = b.track_id " +
+                             "WHERE tag = ? AND e.discord_id = ? ORDER BY playnumber DESC LIMIT ?";
         List<ScrobbledTrack> returnInfoes = new ArrayList<>();
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
 
@@ -1310,7 +1310,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
     @Override
     public List<CommandUsage> getUserCommands(Connection connection, long discordId) {
         ArrayList<CommandUsage> returnList = new ArrayList<>();
-        String queryString = "SELECT count(*),command  FROM command_logs WHERE discord_id = ? group by command order by count(*) desc ";
+        String queryString = "SELECT COUNT(*),command  FROM command_logs WHERE discord_id = ? GROUP BY command ORDER BY COUNT(*) DESC ";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
             preparedStatement.setLong(1, discordId);
 
@@ -1331,7 +1331,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
     @Override
     public List<UserCount> getServerCommandsLb(Connection connection, long guildId) {
         ArrayList<UserCount> returnList = new ArrayList<>();
-        String queryString = "SELECT count(*),a.discord_id,c.lastfm_id  FROM command_logs a join user_guild b on a.discord_id = b.discord_id join user c on b.discord_id = c.discord_id  WHERE b.guild_id = ? group by a.discord_id order by count(*) desc ";
+        String queryString = "SELECT COUNT(*),a.discord_id,c.lastfm_id  FROM command_logs a JOIN user_guild b ON a.discord_id = b.discord_id JOIN user c ON b.discord_id = c.discord_id  WHERE b.guild_id = ? GROUP BY a.discord_id ORDER BY COUNT(*) DESC ";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
             preparedStatement.setLong(1, guildId);
 
@@ -1352,7 +1352,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
 
     @Override
     public Optional<Rank<PrivacyUserCount>> getGlobalPosition(Connection connection, long discordId) {
-        String queryString = "select * from (SELECT count(*),a.discord_id,c.lastfm_id,c.privacy_mode  FROM command_logs a  join user c on a.discord_id = c.discord_id group by a.discord_id order by count(*) desc ) main where main.discord_id = ?  ";
+        String queryString = "SELECT * FROM (SELECT COUNT(*),a.discord_id,c.lastfm_id,c.privacy_mode  FROM command_logs a  JOIN user c ON a.discord_id = c.discord_id GROUP BY a.discord_id ORDER BY COUNT(*) DESC ) main WHERE main.discord_id = ?  ";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
             preparedStatement.setLong(1, discordId);
 
@@ -1373,7 +1373,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
     @Override
     public List<PrivacyUserCount> getGlobalCommands(Connection connection) {
         ArrayList<PrivacyUserCount> returnList = new ArrayList<>();
-        String queryString = "SELECT count(*),a.discord_id,c.lastfm_id,c.privacy_mode  FROM command_logs a  join user c on a.discord_id = c.discord_id group by a.discord_id order by count(*) desc limit 1000  ";
+        String queryString = "SELECT COUNT(*),a.discord_id,c.lastfm_id,c.privacy_mode  FROM command_logs a  JOIN user c ON a.discord_id = c.discord_id GROUP BY a.discord_id ORDER BY COUNT(*) DESC LIMIT 1000  ";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
             /* Execute query. */
             ResultSet resultSet = preparedStatement.executeQuery();
@@ -1392,7 +1392,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
 
     @Override
     public int userArtistCount(Connection con, String whom, int threshold) {
-        String queryString = "SELECT count(*) AS numb FROM scrobbled_artist WHERE scrobbled_artist.lastfm_id= ? and playNumber >= ?";
+        String queryString = "SELECT COUNT(*) AS numb FROM scrobbled_artist WHERE scrobbled_artist.lastfm_id= ? AND playnumber >= ?";
         try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {
             int i = 1;
             preparedStatement.setString(i++, whom);
@@ -1521,11 +1521,10 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
                                         WHERE a.url IS NOT NULL
                                         AND a.url != ''
                                     ORDER BY RAND()
-                                    LIMIT 1) rando)
-                        ORDER BY RAND()
+                                    LIMIT 15) rando)
+                        ORDER BY summa desc,RAND()
                         LIMIT 1;""";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
-
             ResultSet resultSet = preparedStatement.executeQuery();
             if (!resultSet.next())
                 return null;
@@ -1701,11 +1700,11 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
                              " FROM  scrobbled_album  a" +
                              " JOIN user b ON a.lastfm_id = b.lastfm_id " +
                              " JOIN album a2 ON a.album_id = a2.id " +
-                             " join artist d on a2.artist_id = d.id " +
+                             " JOIN artist d ON a2.artist_id = d.id " +
                              " WHERE  b.lastfm_id = ?" +
                              " AND playnumber >= ? " +
                              " AND  playnumber >= ALL" +
-                             "       (SELECT max(b.playnumber) " +
+                             "       (SELECT MAX(b.playnumber) " +
                              " FROM " +
                              "(SELECT in_a.album_id,in_a.playnumber" +
                              " FROM scrobbled_album in_a  " +
@@ -1797,27 +1796,27 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
                 \tPOW(((b/ (other_plays_on_my_artists)) * (unique_coefficient + 1)),0.4) AS total
                 \t\tFROM (
 
-                \tSELECT (SELECT sum(a.playnumber) * count(*) FROM\s
+                \tSELECT (SELECT SUM(a.playnumber) * COUNT(*) FROM\s
                 \tscrobbled_artist a\s
                 \tWHERE lastfm_id = main.lastfm_id) AS b , \s
-                \t\t   (SELECT COALESCE(Sum(a.playnumber), 1)\s
+                \t\t   (SELECT COALESCE(SUM(a.playnumber), 1)\s
                 \t\t\tFROM   scrobbled_artist a\s
                  WHERE  lastfm_id != main.lastfm_id\s
                    AND a.artist_id IN (SELECT artist_id\s
                    FROM   artist\s
                    WHERE  lastfm_id = main.lastfm_id)) AS\s
                    other_plays_on_my_artists,\s
-                   (SELECT Count(*) / (SELECT Count(*) + 1\s
+                   (SELECT COUNT(*) / (SELECT COUNT(*) + 1\s
                    FROM   scrobbled_artist a\s
                 \t\t\t\t\t\t\t   WHERE  lastfm_id = main.lastfm_id) * (\s
-                \t\t\t\t   COALESCE(Sum(playnumber\s
+                \t\t\t\t   COALESCE(SUM(playnumber\s
                 \t\t\t\t\t\t\t), 1) )\s
                 \t\t\tFROM   (SELECT artist_id,\s
                 \t\t\t\t\t\t   playnumber,\s
                 \t\t\t\t\t\t   a.lastfm_id\s
                 \t\t\t\t\tFROM   scrobbled_artist a\s
                 \t\t\t\t\tGROUP  BY a.artist_id\s
-                \t\t\t\t\tHAVING Count(*) = 1) temp\s
+                \t\t\t\t\tHAVING COUNT(*) = 1) temp\s
                 \t\t\tWHERE  temp.lastfm_id = main.lastfm_id\s
                 \t\t\t\t   AND temp.playnumber > 1)\s
                 \t\t   AS unique_coefficient                     \s
@@ -1884,7 +1883,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
         String queryString = """
                 SELECT  playnumber AS ord, discord_id, l.lastfm_id, l.botted_account
                  FROM  scrobbled_artist ar
-                  	 	 JOIN user l ON ar.lastfm_id = l.lastfm_id         WHERE  ar.artist_id = ?    and   (? or not l.botted_account or l.discord_id = ? )            ORDER BY  playnumber DESC""";
+                  	 	 JOIN user l ON ar.lastfm_id = l.lastfm_id         WHERE  ar.artist_id = ?    AND   (? OR NOT l.botted_account OR l.discord_id = ? )            ORDER BY  playnumber DESC""";
 
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
@@ -2123,10 +2122,10 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
                              "       ON a.lastfm_id = b.lastfm_id " +
                              "       JOIN user_guild c ON b.discord_id = c.discord_id " +
                              " JOIN album a2 ON a.album_id = a2.id " +
-                             " join artist a3 on a2.artist_id = a3.id " +
+                             " JOIN artist a3 ON a2.artist_id = a3.id " +
                              "       WHERE c.guild_id = ? AND a.playnumber > 2 " +
                              "       GROUP BY a.album_id " +
-                             "       HAVING count( *) = 1) temp " +
+                             "       HAVING COUNT( *) = 1) temp " +
                              "WHERE temp.lastfm_id = ? AND temp.playnumber > 1 " +
                              " ORDER BY temp.playnumber DESC ";
 
@@ -2159,20 +2158,20 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
 
     @Override
     public BotStats getBotStats(Connection connection) {
-        String queryString = "Select (Select count(*) from user) as user_count," +
-                             " (Select count(*) from guild) guild_count," +
-                             " (select table_rows from  information_schema.TABLES WHERE TABLES.TABLE_SCHEMA = 'lastfm' and TABLE_NAME = 'artist') artist_count," +
-                             "(select table_rows from  information_schema.TABLES WHERE TABLES.TABLE_SCHEMA = 'lastfm' and TABLE_NAME = 'album') album_count," +
-                             "(select sum(playnumber) from scrobbled_artist) scrobbled_count," +
-                             "(select table_rows from  information_schema.TABLES WHERE TABLES.TABLE_SCHEMA = 'lastfm' and TABLE_NAME = 'album_rating' ) rym_count," +
-                             " (select avg(rating) from album_rating ) rym_avg," +
-                             " (select count(*) from past_recommendations) recommedation_count," +
-                             " (Select count(*) from corrections) correction_count, " +
-                             "(select count(*) from randomlinks) random_count," +
-                             " (select table_rows from  information_schema.TABLES WHERE TABLES.TABLE_SCHEMA = 'lastfm' and TABLE_NAME = 'alt_url') image_count, " +
-                             "(select count(*) from vote) vote_count," +
-                             "(select count(*) from user_guild) set_count," +
-                             "(select  value from metrics where id = 5) as api_count";
+        String queryString = "SELECT (SELECT COUNT(*) FROM user) AS user_count," +
+                             " (SELECT COUNT(*) FROM guild) guild_count," +
+                             " (SELECT table_rows FROM  information_schema.tables WHERE tables.table_schema = 'lastfm' AND table_name = 'artist') artist_count," +
+                             "(SELECT table_rows FROM  information_schema.tables WHERE tables.table_schema = 'lastfm' AND table_name = 'album') album_count," +
+                             "(SELECT SUM(playnumber) FROM scrobbled_artist) scrobbled_count," +
+                             "(SELECT table_rows FROM  information_schema.tables WHERE tables.table_schema = 'lastfm' AND table_name = 'album_rating' ) rym_count," +
+                             " (SELECT AVG(rating) FROM album_rating ) rym_avg," +
+                             " (SELECT COUNT(*) FROM past_recommendations) recommedation_count," +
+                             " (SELECT COUNT(*) FROM corrections) correction_count, " +
+                             "(SELECT COUNT(*) FROM randomlinks) random_count," +
+                             " (SELECT table_rows FROM  information_schema.tables WHERE tables.table_schema = 'lastfm' AND table_name = 'alt_url') image_count, " +
+                             "(SELECT COUNT(*) FROM vote) vote_count," +
+                             "(SELECT COUNT(*) FROM user_guild) set_count," +
+                             "(SELECT  value FROM metrics WHERE id = 5) AS api_count";
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
             ResultSet resultSet = preparedStatement.executeQuery();
@@ -2206,7 +2205,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
 
     @Override
     public long getUserAlbumCount(Connection con, long discordId) {
-        String queryString = "SELECT count(*) AS numb FROM scrobbled_album a join user b on a.lastfm_id = b.lastfm_id WHERE b.discord_id= ? ";
+        String queryString = "SELECT COUNT(*) AS numb FROM scrobbled_album a JOIN user b ON a.lastfm_id = b.lastfm_id WHERE b.discord_id= ? ";
         try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {
             int i = 1;
             preparedStatement.setLong(i, discordId);
@@ -2228,8 +2227,8 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
     public List<StreakEntity> getUserStreaks(long discordId, Connection connection) {
         List<StreakEntity> returnList = new ArrayList<>();
         String queryString = "SELECT artist_combo,album_combo,track_combo,b.name,c.album_name,track_name,streak_start " +
-                             "FROM top_combos a join artist b on a.artist_id = b.id left join album c on a.album_id = c.id where " +
-                             "discord_id = ? order by  artist_combo desc,album_combo desc, track_combo desc ";
+                             "FROM top_combos a JOIN artist b ON a.artist_id = b.id LEFT JOIN album c ON a.album_id = c.id WHERE " +
+                             "discord_id = ? ORDER BY  artist_combo DESC,album_combo DESC, track_combo DESC ";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
             int i = 1;
             preparedStatement.setLong(1, discordId);
@@ -2312,11 +2311,11 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
     @Override
     public String getReverseCorrection(Connection connection, String correction) {
 
-        String queryString = "select alias,min(a.id)  as ird " +
-                             "from corrections a join artist b on a.artist_id = b.id  join scrobbled_artist c on b.id = c.artist_id" +
-                             " where b.name = ? " +
-                             "order by ird desc " +
-                             "limit 1";
+        String queryString = "SELECT alias,MIN(a.id)  AS ird " +
+                             "FROM corrections a JOIN artist b ON a.artist_id = b.id  JOIN scrobbled_artist c ON b.id = c.artist_id" +
+                             " WHERE b.name = ? " +
+                             "ORDER BY ird DESC " +
+                             "LIMIT 1";
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
             int i = 1;
@@ -2441,10 +2440,10 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
         List<ScoredAlbumRatings> returnList = new ArrayList<>();
 
         String s = """
-                select *  from (select  count(*) as  coun,  avg(rating) as ave, a.url
-                from random_links_ratings a
-                join user_guild d on a.discord_id = d.discord_id
-                where guild_id = ? group by a.url) main order by ((0.5 * main.ave) + 10 * (1 - 0.5) * (1 - (EXP(-main.coun/5)))) desc limit 200""";
+                SELECT *  FROM (SELECT  COUNT(*) AS  coun,  AVG(rating) AS ave, a.url
+                FROM random_links_ratings a
+                JOIN user_guild d ON a.discord_id = d.discord_id
+                WHERE guild_id = ? GROUP BY a.url) main ORDER BY ((0.5 * main.ave) + 10 * (1 - 0.5) * (1 - (EXP(-main.coun/5)))) DESC LIMIT 200""";
         try (PreparedStatement preparedStatement = connection.prepareStatement(s)) {
             preparedStatement.setLong(1, guildId);
             ResultSet resultSet = preparedStatement.executeQuery();
@@ -2463,13 +2462,13 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
         List<ScoredAlbumRatings> returnList = new ArrayList<>();
 
         String s = """
-                select * from
-                (select  count(*) as  coun,  avg(rating) as ave, a.url
-                from random_links_ratings a\s
-                where discord_id  = ?\s
-                group by a.url) main
-                order by ((0.5 * main.ave) + 10 * (1 - 0.5) * (1 - (EXP(-main.coun/5))))
-                desc limit 200""";
+                SELECT * FROM
+                (SELECT  COUNT(*) AS  coun,  AVG(rating) AS ave, a.url
+                FROM random_links_ratings a\s
+                WHERE discord_id  = ?\s
+                GROUP BY a.url) main
+                ORDER BY ((0.5 * main.ave) + 10 * (1 - 0.5) * (1 - (EXP(-main.coun/5))))
+                DESC LIMIT 200""";
         try (PreparedStatement preparedStatement = connection.prepareStatement(s)) {
             preparedStatement.setLong(1, discordId);
             ResultSet resultSet = preparedStatement.executeQuery();
@@ -2488,12 +2487,12 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
         List<ScoredAlbumRatings> returnList = new ArrayList<>();
 
         String s = """
-                select *  from
-                (select  count(*) as  coun,  avg(rating) as ave, a.url
-                from random_links_ratings a
-                group by a.url) main
-                order by ((0.5 * main.ave) + 10 * (1 - 0.5) * (1 - (EXP(-main.coun/5))))
-                desc limit 200""";
+                SELECT *  FROM
+                (SELECT  COUNT(*) AS  coun,  AVG(rating) AS ave, a.url
+                FROM random_links_ratings a
+                GROUP BY a.url) main
+                ORDER BY ((0.5 * main.ave) + 10 * (1 - 0.5) * (1 - (EXP(-main.coun/5))))
+                DESC LIMIT 200""";
         try (PreparedStatement preparedStatement = connection.prepareStatement(s)) {
             ResultSet resultSet = preparedStatement.executeQuery();
             getScoredAlbums(returnList, resultSet);
@@ -2509,12 +2508,12 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
     public List<ScoredAlbumRatings> getUserTopRatedUrlsByEveryoneElse(Connection connection, long discordId) {
         List<ScoredAlbumRatings> returnList = new ArrayList<>();
 
-        String s = "select *  from (select  count(a.discord_id) as  coun,  avg(rating) as ave, b.url " +
-                   "from random_links_ratings a " +
-                   "right join randomlinks b on a.url = b.url  " +
-                   " where b.discord_id = ? " +
-                   "group by b.url) main " +
-                   "order by ((0.5 * main.ave) + 10 * (1 - 0.5) * (1 - (EXP(-main.coun/5))))  desc limit 200";
+        String s = "SELECT *  FROM (SELECT  COUNT(a.discord_id) AS  coun,  AVG(rating) AS ave, b.url " +
+                   "FROM random_links_ratings a " +
+                   "RIGHT JOIN randomlinks b ON a.url = b.url  " +
+                   " WHERE b.discord_id = ? " +
+                   "GROUP BY b.url) main " +
+                   "ORDER BY ((0.5 * main.ave) + 10 * (1 - 0.5) * (1 - (EXP(-main.coun/5))))  DESC LIMIT 200";
         try (PreparedStatement preparedStatement = connection.prepareStatement(s)) {
             preparedStatement.setLong(1, discordId);
             ResultSet resultSet = preparedStatement.executeQuery();
@@ -2532,7 +2531,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
 
         Set<String> returnList = new HashSet<>();
 
-        String s = "select lastfm_id from user where private_lastfm";
+        String s = "SELECT lastfm_id FROM user WHERE private_lastfm";
         try (PreparedStatement preparedStatement = connection.prepareStatement(s)) {
             ResultSet resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
@@ -2599,7 +2598,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
         List<ScrobbledAlbum> list = new ArrayList<>();
         int count = 0;
         int i = 1;
-        try (PreparedStatement preparedStatement1 = connection.prepareStatement(normalQUery + queryBody + " GROUP BY album_id,url  ORDER BY orden DESC  limit ?")) {
+        try (PreparedStatement preparedStatement1 = connection.prepareStatement(normalQUery + queryBody + " GROUP BY album_id,url  ORDER BY orden DESC  LIMIT ?")) {
             if (guildID != null)
                 preparedStatement1.setLong(i++, guildID);
 
@@ -2668,7 +2667,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
         List<ScrobbledAlbum> list = new ArrayList<>();
         int count = 0;
         int i = 1;
-        try (PreparedStatement preparedStatement1 = connection.prepareStatement(normalQUery + queryBody + " GROUP BY album_id  ORDER BY orden DESC  limit ?")) {
+        try (PreparedStatement preparedStatement1 = connection.prepareStatement(normalQUery + queryBody + " GROUP BY album_id  ORDER BY orden DESC  LIMIT ?")) {
             if (guildID != null)
                 preparedStatement1.setLong(i++, guildID);
 
@@ -2805,7 +2804,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
     @Override
     public Set<String> getBannedTags(Connection connection) {
         Set<String> bannedTags = new HashSet<>();
-        String queryString = "Select tag from banned_tags";
+        String queryString = "SELECT tag FROM banned_tags";
         try (
                 PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
             ResultSet resultSet = preparedStatement.executeQuery();
@@ -2825,13 +2824,13 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
 
     @Override
     public List<ScrobbledAlbum> getUserAlbumsWithTag(Connection connection, long discordId, String tag, int limit) {
-        String queryString = "SELECT a.id as album_id, c.id,album_name,c.name,a.mbid,c.mbid as artist_mbid,a.url,d.playnumber  " +
+        String queryString = "SELECT a.id AS album_id, c.id,album_name,c.name,a.mbid,c.mbid AS artist_mbid,a.url,d.playnumber  " +
                              "FROM album a " +
-                             "join artist c on a.artist_id = c.id " +
-                             "join scrobbled_album d on a.id = d.album_id " +
-                             "join user e on d.lastfm_id = e.lastfm_id  " +
-                             "join  album_tags b on a.id = b.album_id " +
-                             "WHERE tag = ? and e.discord_id = ? order by playnumber desc limit ? ";
+                             "JOIN artist c ON a.artist_id = c.id " +
+                             "JOIN scrobbled_album d ON a.id = d.album_id " +
+                             "JOIN user e ON d.lastfm_id = e.lastfm_id  " +
+                             "JOIN  album_tags b ON a.id = b.album_id " +
+                             "WHERE tag = ? AND e.discord_id = ? ORDER BY playnumber DESC LIMIT ? ";
         List<ScrobbledAlbum> returnInfoes = new ArrayList<>();
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
 
@@ -2907,7 +2906,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
     @Override
     public List<ScrobbledArtist> getUserArtistsWithMBID(Connection connection, String lastfmId) {
         List<ScrobbledArtist> scrobbledAlbums = new ArrayList<>();
-        String s = "select name,b.url,b.mbid,a.playnumber  from scrobbled_artist a join artist b on a.artist_id = b.id where a.lastfm_id = ? and b.mbid is not null and mbid <> '' order by a.playnumber desc";
+        String s = "SELECT name,b.url,b.mbid,a.playnumber  FROM scrobbled_artist a JOIN artist b ON a.artist_id = b.id WHERE a.lastfm_id = ? AND b.mbid IS NOT NULL AND mbid <> '' ORDER BY a.playnumber DESC";
         try (PreparedStatement preparedStatement = connection.prepareStatement(s)) {
             preparedStatement.setString(1, lastfmId);
             ResultSet resultSet = preparedStatement.executeQuery();
@@ -2933,10 +2932,10 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
     public List<ScrobbledArtist> getUserArtistWithTag(Connection connection, long discordId, String genre, int limit) {
         String queryString = "SELECT c.name,c.url,c.id,d.playnumber " +
                              "FROM artist c " +
-                             "join scrobbled_artist d on c.id = d.artist_id " +
-                             "join user e on d.lastfm_id = e.lastfm_id  " +
-                             "join  artist_tags b on c.id = b.artist_id " +
-                             "WHERE  tag = ? and e.discord_id = ? order by playnumber desc limit ? ";
+                             "JOIN scrobbled_artist d ON c.id = d.artist_id " +
+                             "JOIN user e ON d.lastfm_id = e.lastfm_id  " +
+                             "JOIN  artist_tags b ON c.id = b.artist_id " +
+                             "WHERE  tag = ? AND e.discord_id = ? ORDER BY playnumber DESC LIMIT ? ";
         List<ScrobbledArtist> returnInfoes = new ArrayList<>();
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
 
@@ -3229,7 +3228,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
     @Override
     public Set<Pair<String, String>> getArtistBannedTags(Connection connection) {
         Set<Pair<String, String>> bannedTags = new HashSet<>();
-        String queryString = "Select tag,name from banned_artist_tags a join artist b on a.artist_id = b.id";
+        String queryString = "SELECT tag,name FROM banned_artist_tags a JOIN artist b ON a.artist_id = b.id";
         try (
                 PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
             ResultSet resultSet = preparedStatement.executeQuery();
@@ -3330,11 +3329,11 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
                              " FROM  scrobbled_track a" +
                              " JOIN user b ON a.lastfm_id = b.lastfm_id " +
                              " JOIN track a2 ON a.track_id = a2.id " +
-                             " join artist d on a2.artist_id = d.id " +
+                             " JOIN artist d ON a2.artist_id = d.id " +
                              " WHERE  b.lastfm_id = ?" +
                              " AND playnumber >= ? " +
                              " AND  playnumber >= ALL" +
-                             "       (SELECT max(b.playnumber) " +
+                             "       (SELECT MAX(b.playnumber) " +
                              " FROM " +
                              "(SELECT in_a.track_id,in_a.playnumber" +
                              " FROM scrobbled_track in_a  " +
@@ -3426,7 +3425,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
 
         String queryString =
                 "SELECT c.album_name  , a.playnumber,b.playnumber ," +
-                "((a.playnumber * b.playnumber)/(abs(a.playnumber-b.playnumber)+1))  *" +
+                "((a.playnumber * b.playnumber)/(ABS(a.playnumber-b.playnumber)+1))  *" +
                 " (((a.playnumber + b.playnumber)) * 2.5) * " +
                 " IF((a.playnumber > 10 * b.playnumber OR b.playnumber > 10 * a.playnumber) AND LEAST(a.playnumber,b.playnumber) < 400 ,0.01,2) " +
                 "media ," +
@@ -3435,12 +3434,12 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
                 "(SELECT album_id,playnumber " +
                 "FROM scrobbled_album " +
                 "JOIN user b ON scrobbled_album.lastfm_id = b.lastfm_id " +
-                "WHERE b.lastfm_id = ? and scrobbled_album.artist_id = ? ) a " +
+                "WHERE b.lastfm_id = ? AND scrobbled_album.artist_id = ? ) a " +
                 "JOIN " +
                 "(SELECT album_id,playnumber " +
                 "FROM scrobbled_album " +
                 " JOIN user b ON scrobbled_album.lastfm_id = b.lastfm_id " +
-                " WHERE b.lastfm_id = ? and scrobbled_album.artist_id = ?) b " +
+                " WHERE b.lastfm_id = ? AND scrobbled_album.artist_id = ?) b " +
                 "ON a.album_id=b.album_id " +
                 "JOIN album c " +
                 "ON c.id=b.album_id" +
@@ -3485,25 +3484,25 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
 
         String queryString =
                 "SELECT c.track_name  , a.playnumber,b.playnumber ," +
-                "((a.playnumber * b.playnumber)/(abs(a.playnumber-b.playnumber)+1))  *" +
+                "((a.playnumber * b.playnumber)/(ABS(a.playnumber-b.playnumber)+1))  *" +
                 " (((a.playnumber + b.playnumber)) * 2.5) * " +
                 " IF((a.playnumber > 10 * b.playnumber OR b.playnumber > 10 * a.playnumber) AND LEAST(a.playnumber,b.playnumber) < 400 ,0.01,2) " +
                 "media ," +
-                " coalesce(c.url,d.url) as url " +
+                " COALESCE(c.url,d.url) AS url " +
                 "FROM " +
                 "(SELECT track_id,playnumber " +
                 "FROM scrobbled_track " +
                 "JOIN user b ON scrobbled_track.lastfm_id = b.lastfm_id " +
-                "WHERE b.lastfm_id = ? and scrobbled_track.artist_id = ? ) a " +
+                "WHERE b.lastfm_id = ? AND scrobbled_track.artist_id = ? ) a " +
                 "JOIN " +
                 "(SELECT track_id,playnumber " +
                 "FROM scrobbled_track " +
                 " JOIN user b ON scrobbled_track.lastfm_id = b.lastfm_id " +
-                " WHERE b.lastfm_id = ? and scrobbled_track.artist_id = ?) b " +
+                " WHERE b.lastfm_id = ? AND scrobbled_track.artist_id = ?) b " +
                 "ON a.track_id=b.track_id " +
                 "JOIN track c " +
                 "ON c.id=b.track_id " +
-                " left join album d on c.album_id =d.id " +
+                " LEFT JOIN album d ON c.album_id =d.id " +
                 " ORDER BY media DESC";
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
@@ -3545,25 +3544,25 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
 
         String queryString =
                 "SELECT c.track_name  , a.playnumber,b.playnumber ," +
-                "((a.playnumber * b.playnumber)/(abs(a.playnumber-b.playnumber)+1))  *" +
+                "((a.playnumber * b.playnumber)/(ABS(a.playnumber-b.playnumber)+1))  *" +
                 " (((a.playnumber + b.playnumber)) * 2.5) * " +
                 " IF((a.playnumber > 10 * b.playnumber OR b.playnumber > 10 * a.playnumber) AND LEAST(a.playnumber,b.playnumber) < 400 ,0.01,2) " +
                 "media ," +
-                " coalesce(c.url,d.url) as url " +
+                " COALESCE(c.url,d.url) AS url " +
                 "FROM " +
                 "(SELECT track_id,playnumber " +
-                "FROM scrobbled_track a join track c on a.track_id = c.id " +
+                "FROM scrobbled_track a JOIN track c ON a.track_id = c.id " +
                 "JOIN user b ON a.lastfm_id = b.lastfm_id " +
-                "WHERE b.lastfm_id = ? and c.album_id = ? ) a " +
+                "WHERE b.lastfm_id = ? AND c.album_id = ? ) a " +
                 "JOIN " +
                 "(SELECT track_id,playnumber " +
-                "FROM scrobbled_track a join track c on a.track_id = c.id " +
+                "FROM scrobbled_track a JOIN track c ON a.track_id = c.id " +
                 " JOIN user b ON a.lastfm_id = b.lastfm_id " +
-                " WHERE b.lastfm_id = ? and c.album_id = ?) b " +
+                " WHERE b.lastfm_id = ? AND c.album_id = ?) b " +
                 "ON a.track_id=b.track_id " +
                 "JOIN track c " +
                 "ON c.id=b.track_id " +
-                " left join album d on c.album_id =d.id " +
+                " LEFT JOIN album d ON c.album_id =d.id " +
                 " ORDER BY media DESC";
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
@@ -3608,18 +3607,18 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
                              " JOIN user b ON a.lastfm_id = b.lastfm_id" +
                              " JOIN album c ON " +
                              " a.album_id = c.id" +
-                             " join artist d on c.artist_id = d.id " +
+                             " JOIN artist d ON c.artist_id = d.id " +
                              " WHERE  a.lastfm_id = ?" +
                              " AND playnumber >= ?" +
                              " AND  playnumber >= ALL" +
-                             "       (SELECT max(b.playnumber) " +
+                             "       (SELECT MAX(b.playnumber) " +
                              " FROM " +
                              "(SELECT in_a.album_id,in_a.playnumber" +
                              " FROM scrobbled_album in_a  " +
                              " JOIN " +
                              " user in_b" +
                              " ON in_a.lastfm_id = in_b.lastfm_id" +
-                             " where ? or not in_b.botted_account " +
+                             " WHERE ? OR NOT in_b.botted_account " +
                              "   ) AS b" +
                              " WHERE b.album_id = a.album_id" +
                              " GROUP BY album_id)" +
@@ -3662,18 +3661,18 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
                              " JOIN user b ON a.lastfm_id = b.lastfm_id" +
                              " JOIN track c ON " +
                              " a.track_id = c.id" +
-                             " join artist d on c.artist_id = d.id " +
+                             " JOIN artist d ON c.artist_id = d.id " +
                              " WHERE  a.lastfm_id = ?" +
                              " AND playnumber >= ?" +
                              " AND  playnumber >= ALL" +
-                             "       (SELECT max(b.playnumber) " +
+                             "       (SELECT MAX(b.playnumber) " +
                              " FROM " +
                              "(SELECT in_a.track_id,in_a.playnumber" +
                              " FROM scrobbled_track in_a  " +
                              " JOIN " +
                              " user in_b" +
                              " ON in_a.lastfm_id = in_b.lastfm_id" +
-                             " where ? or not in_b.botted_account " +
+                             " WHERE ? OR NOT in_b.botted_account " +
                              "   ) AS b" +
                              " WHERE b.track_id = a.track_id" +
                              " GROUP BY track_id)" +
@@ -3718,22 +3717,22 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
                              " JOIN user b ON a.lastfm_id = b.lastfm_id" +
                              " JOIN track c ON " +
                              " a.track_id = c.id" +
-                             " join artist d on c.artist_id = d.id " +
+                             " JOIN artist d ON c.artist_id = d.id " +
                              " WHERE  a.lastfm_id = ?" +
-                             " and d.id = ?  " +
+                             " AND d.id = ?  " +
 
                              " AND playnumber >= ?" +
                              " AND  playnumber >= ALL" +
-                             "       (SELECT max(b.playnumber) " +
+                             "       (SELECT MAX(b.playnumber) " +
                              " FROM " +
                              "(SELECT in_a.track_id,in_a.playnumber" +
                              " FROM scrobbled_track in_a  " +
                              " JOIN " +
                              " user in_b" +
                              " ON in_a.lastfm_id = in_b.lastfm_id" +
-                             " join track in_c on in_a.track_id = in_c.id " +
-                             " where ? or not in_b.botted_account  " +
-                             " and in_c.artist_id = ? " +
+                             " JOIN track in_c ON in_a.track_id = in_c.id " +
+                             " WHERE ? OR NOT in_b.botted_account  " +
+                             " AND in_c.artist_id = ? " +
                              "   ) AS b" +
                              " WHERE b.track_id = a.track_id" +
                              " GROUP BY track_id)" +
@@ -3776,10 +3775,10 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
                              " FROM  scrobbled_track a" +
                              " JOIN user b ON a.lastfm_id = b.lastfm_id " +
                              " JOIN track a2 ON a.track_id = a2.id " +
-                             " WHERE  b.lastfm_id = ? and a2.artist_id = ? " +
+                             " WHERE  b.lastfm_id = ? AND a2.artist_id = ? " +
                              " AND playnumber >= ? " +
                              " AND  playnumber >= ALL" +
-                             "       (SELECT max(b.playnumber) " +
+                             "       (SELECT MAX(b.playnumber) " +
                              " FROM " +
                              "(SELECT in_a.track_id,in_a.playnumber" +
                              " FROM scrobbled_track in_a  " +
@@ -3788,8 +3787,8 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
                              " ON in_a.lastfm_id = in_b.lastfm_id " +
                              " NATURAL JOIN " +
                              " user_guild in_c " +
-                             " join track in_d on in_a.track_id = in_d.id " +
-                             " WHERE guild_id = ? and in_d.artist_id = ? " +
+                             " JOIN track in_d ON in_a.track_id = in_d.id " +
+                             " WHERE guild_id = ? AND in_d.artist_id = ? " +
                              "   ) AS b" +
                              "" +
                              " WHERE b.track_id = a.track_id" +
@@ -3828,7 +3827,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
     @Override
     public Optional<String> findArtistUrlAbove(Connection connection, long artistId, int upvotes) {
         Set<Pair<String, String>> bannedTags = new HashSet<>();
-        String queryString = "Select url from alt_url a where artist_id = ? and score > ? order by rand()";
+        String queryString = "SELECT url FROM alt_url a WHERE artist_id = ? AND score > ? ORDER BY RAND()";
         try (
                 PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
             preparedStatement.setLong(1, artistId);
@@ -3846,7 +3845,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
 
     @Override
     public Optional<Instant> getLastScrobbled(Connection connection, String lastfmId, long artistId, String song, boolean skipToday) {
-        String queryString = "Select  timestamp  from user_billboard_data_scrobbles  where artist_id = ? and lastfm_id = ? and track_name = ? and (not ? || timestamp  <= now() - interval  1 day) order by timestamp  desc limit 1";
+        String queryString = "SELECT  timestamp  FROM user_billboard_data_scrobbles  WHERE artist_id = ? AND lastfm_id = ? AND track_name = ? AND (NOT ? || timestamp  <= NOW() - INTERVAL  1 DAY) ORDER BY timestamp  DESC LIMIT 1";
         try (
                 PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
             preparedStatement.setLong(1, artistId);
@@ -3868,7 +3867,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
 
     @Override
     public Optional<Instant> getFirstScrobbled(Connection connection, String lastfmId, long artistId, String song) {
-        String queryString = "Select  timestamp  from user_billboard_data_scrobbles  where artist_id = ? and lastfm_id = ? and track_name = ?  order by timestamp  asc limit 1";
+        String queryString = "SELECT  timestamp  FROM user_billboard_data_scrobbles  WHERE artist_id = ? AND lastfm_id = ? AND track_name = ?  ORDER BY timestamp  ASC LIMIT 1";
         try (
                 PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
             preparedStatement.setLong(1, artistId);
@@ -3889,7 +3888,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
 
     @Override
     public Optional<Instant> getLastScrobbledArtist(Connection connection, String lastfmId, long artistId, boolean skipToday) {
-        String queryString = "Select  timestamp  from user_billboard_data_scrobbles  where artist_id = ? and lastfm_id = ? and (not ? ||  timestamp  <= (now() - interval  1 day))  order by timestamp  desc limit 1";
+        String queryString = "SELECT  timestamp  FROM user_billboard_data_scrobbles  WHERE artist_id = ? AND lastfm_id = ? AND (NOT ? ||  timestamp  <= (NOW() - INTERVAL  1 DAY))  ORDER BY timestamp  DESC LIMIT 1";
         try (
                 PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
             preparedStatement.setLong(1, artistId);
@@ -3909,8 +3908,8 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
     public int getCurrentCombo(Connection connection, String lastfm_id, long artistId) {
 
         String queryString = """
-                SELECT count(*)
-                 FROM user_billboard_data_scrobbles a where `timestamp` > (select  max(`timestamp`) from user_billboard_data_scrobbles where artist_id != ?  && lastfm_id = ?  )  and lastfm_id = ?
+                SELECT COUNT(*)
+                 FROM user_billboard_data_scrobbles a WHERE `timestamp` > (SELECT  MAX(`timestamp`) FROM user_billboard_data_scrobbles WHERE artist_id != ?  && lastfm_id = ?  )  AND lastfm_id = ?
                  """;
 
 
@@ -3936,7 +3935,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
 
     @Override
     public Optional<Instant> getFirstScrobbledArtist(Connection connection, String lastfmId, long artistId) {
-        String queryString = "Select  timestamp  from user_billboard_data_scrobbles  where artist_id = ? and lastfm_id = ?   order by timestamp  asc limit 1";
+        String queryString = "SELECT  timestamp  FROM user_billboard_data_scrobbles  WHERE artist_id = ? AND lastfm_id = ?   ORDER BY timestamp  ASC LIMIT 1";
         try (
                 PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
             preparedStatement.setLong(1, artistId);
@@ -3982,8 +3981,8 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
     @Override
     public List<ScrobbledArtist> regexArtist(Connection connection, String regex, long userId) {
         List<ScrobbledArtist> scrobbledAlbums = new ArrayList<>();
-        String s = "select name,b.url,b.mbid,a.playnumber  from scrobbled_artist a join artist b on a.artist_id = b.id join user c on a.lastfm_id = c.lastfm_id    " +
-                   "where c.discord_id  = ? and b.name regexp ? order by a.playnumber desc";
+        String s = "SELECT name,b.url,b.mbid,a.playnumber  FROM scrobbled_artist a JOIN artist b ON a.artist_id = b.id JOIN user c ON a.lastfm_id = c.lastfm_id    " +
+                   "WHERE c.discord_id  = ? AND b.name REGEXP ? ORDER BY a.playnumber DESC";
         try (PreparedStatement preparedStatement = connection.prepareStatement(s)) {
             preparedStatement.setLong(1, userId);
             preparedStatement.setString(2, regex);
@@ -4010,9 +4009,9 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
     @Override
     public List<ScrobbledAlbum> regexAlbum(Connection connection, String regex, long userId) {
         List<ScrobbledAlbum> scrobbledAlbums = new ArrayList<>();
-        String s = "select b.album_name,c.name,b.url,b.mbid,a.playnumber  " +
-                   "from scrobbled_album a join album b on a.album_id = b.id join artist c on a.artist_id = c.id  join user d on a.lastfm_id = d.lastfm_id  " +
-                   "where d.discord_id = ? and b.album_name regexp  ? order by a.playnumber desc";
+        String s = "SELECT b.album_name,c.name,b.url,b.mbid,a.playnumber  " +
+                   "FROM scrobbled_album a JOIN album b ON a.album_id = b.id JOIN artist c ON a.artist_id = c.id  JOIN user d ON a.lastfm_id = d.lastfm_id  " +
+                   "WHERE d.discord_id = ? AND b.album_name REGEXP  ? ORDER BY a.playnumber DESC";
         try (PreparedStatement preparedStatement = connection.prepareStatement(s)) {
             preparedStatement.setLong(1, userId);
             preparedStatement.setString(2, regex);
@@ -4040,9 +4039,9 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
     public List<ScrobbledTrack> regexTrack(Connection connection, String regex, long userId) {
         List<ScrobbledTrack> scrobbledTracks = new ArrayList<>();
 
-        String mySql = "Select b.id,d.id,c.id,c.name,d.album_name,b.duration,b.track_name,coalesce(b.url,d.url,c.url),a.playnumber,a.loved " +
-                       "from scrobbled_track a join track b on a.track_id = b.id join artist c on b.artist_id = c.id left join album d on b.album_id = d.id join user e on a.lastfm_id = e.lastfm_id " +
-                       "where e.discord_id = ? and b.track_name regexp  ? order by playnumber desc";
+        String mySql = "SELECT b.id,d.id,c.id,c.name,d.album_name,b.duration,b.track_name,COALESCE(b.url,d.url,c.url),a.playnumber,a.loved " +
+                       "FROM scrobbled_track a JOIN track b ON a.track_id = b.id JOIN artist c ON b.artist_id = c.id LEFT JOIN album d ON b.album_id = d.id JOIN user e ON a.lastfm_id = e.lastfm_id " +
+                       "WHERE e.discord_id = ? AND b.track_name REGEXP  ? ORDER BY playnumber DESC";
         try
                 (PreparedStatement preparedStatement = connection.prepareStatement(mySql)) {
             preparedStatement.setLong(1, userId);
@@ -4100,7 +4099,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
         List<ScrobbledAlbum> list = new ArrayList<>();
         int count = 0;
         int i = 1;
-        try (PreparedStatement preparedStatement1 = connection.prepareStatement(normalQUery + queryBody + " GROUP BY album_id  ORDER BY orden DESC  limit ?")) {
+        try (PreparedStatement preparedStatement1 = connection.prepareStatement(normalQUery + queryBody + " GROUP BY album_id  ORDER BY orden DESC  LIMIT ?")) {
             if (guildID != null)
                 preparedStatement1.setLong(i++, guildID);
 
@@ -4212,7 +4211,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
 
     @Override
     public int userAlbumCount(Connection connection, String lastfmId, int threshold) {
-        String queryString = "SELECT count(*) AS numb FROM scrobbled_album WHERE scrobbled_album.lastfm_id= ? and playNumber >= ?";
+        String queryString = "SELECT COUNT(*) AS numb FROM scrobbled_album WHERE scrobbled_album.lastfm_id= ? AND playnumber >= ?";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
             int i = 1;
             preparedStatement.setString(i++, lastfmId);
@@ -4234,7 +4233,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
 
     @Override
     public int userTrackCount(Connection connection, String lastfmId, int threshold) {
-        String queryString = "SELECT count(*) AS numb FROM scrobbled_track WHERE scrobbled_track.lastfm_id= ? and playNumber >= ?";
+        String queryString = "SELECT COUNT(*) AS numb FROM scrobbled_track WHERE scrobbled_track.lastfm_id= ? AND playnumber >= ?";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
             int i = 1;
             preparedStatement.setString(i++, lastfmId);
@@ -4293,7 +4292,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
     @Override
     public ListValuedMap<CoverItem, String> getBannedCovers(Connection connection) {
         ListValuedMap<CoverItem, String> resultMap = new ArrayListValuedHashMap<>();
-        String queryString = "SELECT album_id,replacement_cover,b.album_name,c.name  FROM banned_cover a join album b on a.album_id = b.id join artist c on b.artist_id = c.id ";
+        String queryString = "SELECT album_id,replacement_cover,b.album_name,c.name  FROM banned_cover a JOIN album b ON a.album_id = b.id JOIN artist c ON b.artist_id = c.id ";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
             int i = 1;
             /* Execute query. */
@@ -4324,7 +4323,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
                              "       ON a.lastfm_id = b.lastfm_id " +
                              "       WHERE  a.playnumber > 2 " +
                              "       GROUP BY a.artist_id " +
-                             "       HAVING count( *) = 1) temp " +
+                             "       HAVING COUNT( *) = 1) temp " +
                              " JOIN album a2 ON temp.album_id = a2.id " +
                              " JOIN artist a ON a2.artist_id = a.id " +
                              "WHERE temp.lastfm_id = ? AND temp.playnumber > 1 " +
@@ -4365,7 +4364,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
                              "       ON a.lastfm_id = b.lastfm_id " +
                              "       WHERE  a.playnumber > 2 " +
                              "       GROUP BY a.artist_id " +
-                             "       HAVING count( *) = 1) temp " +
+                             "       HAVING COUNT( *) = 1) temp " +
                              " JOIN track a2 ON temp.track_id = a2.id " +
                              " JOIN artist a ON a2.artist_id = a.id " +
                              "WHERE temp.lastfm_id = ? AND temp.playnumber > 1 " +
@@ -4398,6 +4397,18 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
 
     }
 
+    private void getScoredAlbums(List<ScoredAlbumRatings> returnList, ResultSet resultSet) throws SQLException {
+
+        while (resultSet.next()) {
+            long count = resultSet.getLong(1);
+            double average = resultSet.getDouble(2);
+            String url = resultSet.getString(3);
+            returnList.add(new ScoredAlbumRatings(0, "", url, count, average, ""));
+
+        }
+    }
+
+
     public enum Order {
         ASC, DESC;
 
@@ -4409,18 +4420,6 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
             };
         }
 
-    }
-
-
-    private void getScoredAlbums(List<ScoredAlbumRatings> returnList, ResultSet resultSet) throws SQLException {
-
-        while (resultSet.next()) {
-            long count = resultSet.getLong(1);
-            double average = resultSet.getDouble(2);
-            String url = resultSet.getString(3);
-            returnList.add(new ScoredAlbumRatings(0, "", url, count, average, ""));
-
-        }
     }
 
 }

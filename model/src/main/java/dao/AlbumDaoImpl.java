@@ -342,7 +342,6 @@ public class AlbumDaoImpl extends BaseDAO implements AlbumDao {
 
     @Override
     public void addSrobbledAlbums(Connection con, List<ScrobbledAlbum> scrobbledAlbums) {
-        /* Create "queryString". */
 
         StringBuilder mySql =
                 new StringBuilder("INSERT INTO  scrobbled_album" +

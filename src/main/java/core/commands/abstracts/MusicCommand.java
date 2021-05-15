@@ -2,18 +2,17 @@ package core.commands.abstracts;
 
 import core.Chuu;
 import core.commands.Context;
-import core.commands.ContextMessageReceived;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.music.MusicManager;
 import core.parsers.params.CommandParameters;
 import dao.ChuuService;
 import net.dv8tion.jda.api.entities.GuildVoiceState;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.function.Function;
 
 public abstract class MusicCommand<T extends CommandParameters> extends ConcurrentCommand<T> {
+    protected static final Function<Character, String> PLAY_MESSAGE = (s) -> "\uD83C\uDFB6 `" + s + "play (song/url)` in a voice channel to start playing some music!";
     protected boolean sameChannel = false;
     protected boolean requirePlayingTrack = false;
     protected boolean requireManager = true;
@@ -31,13 +30,13 @@ public abstract class MusicCommand<T extends CommandParameters> extends Concurre
     }
 
     @Override
-    public void onMessageReceived(MessageReceivedEvent e) {
-        if (check(new ContextMessageReceived(e))) {
-            super.onMessageReceived(e);
+    protected boolean handleCommand(Context e) {
+        if (check(e)) {
+            return super.handleCommand(e);
         }
+        return true;
     }
 
-    private static final Function<Character, String> PLAY_MESSAGE = (s) -> "\uD83C\uDFB6 `" + s + "play (song/url)` in a voice channel to start playing some music!";
 
     public MusicManager getManager(Context e) {
         return Chuu.playerRegistry.getExisting(e.getGuild().getIdLong());

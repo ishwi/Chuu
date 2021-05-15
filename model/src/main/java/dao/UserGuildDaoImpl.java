@@ -44,7 +44,6 @@ public class UserGuildDaoImpl implements UserGuildDao {
 
     @Override
     public void insertUserData(Connection con, LastFMData lastFMData) {
-        /* Create "queryString". */
         String queryString = "INSERT INTO  user"
                              + " (lastfm_id, discord_id) " + " VALUES (?, ?) ON DUPLICATE KEY UPDATE lastfm_id=" + "?";
 
@@ -69,9 +68,8 @@ public class UserGuildDaoImpl implements UserGuildDao {
 
     @Override
     public void insertTempUser(Connection con, long discordId, String token) {
-        /* Create "queryString". */
         String queryString = "INSERT INTO  pending_login"
-                             + " (discord_id,token ) " + " VALUES ( ?,?) on duplicate key update token  = values(token)";
+                             + " (discord_id,token ) " + " VALUES ( ?,?) ON DUPLICATE KEY UPDATE token  = VALUES(token)";
 
         try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {
 
@@ -94,7 +92,6 @@ public class UserGuildDaoImpl implements UserGuildDao {
     @Override
     public LastFMData findLastFmData(Connection con, long discordId) throws InstanceNotFoundException {
 
-        /* Create "queryString". */
         String queryString = "SELECT   discord_id, lastfm_id,role,private_update,notify_image,chart_mode,whoknows_mode,remaining_mode,default_x, default_y,privacy_mode,notify_rating,private_lastfm,timezone,show_botted,token,sess,scrobbling,color,own_tags,artist_threshold,chart_options FROM user WHERE discord_id = ?";
 
         try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {
@@ -197,7 +194,6 @@ public class UserGuildDaoImpl implements UserGuildDao {
 
     @Override
     public void updateLastFmData(Connection con, LastFMData lastFMData) {
-        /* Create "queryString". */
         String queryString = "UPDATE user SET lastfm_id= ? WHERE discord_id = ?";
 
         try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {
@@ -222,7 +218,6 @@ public class UserGuildDaoImpl implements UserGuildDao {
 
     @Override
     public void removeUser(Connection con, Long discordId) {
-        /* Create "queryString". */
         String queryString = "DELETE FROM  user WHERE discord_id = ?";
 
         deleteIdLong(con, discordId, queryString);
@@ -250,7 +245,6 @@ public class UserGuildDaoImpl implements UserGuildDao {
 
     @Override
     public void removeUserGuild(Connection con, long discordId, long guildId) {
-        /* Create "queryString". */
         String queryString = "DELETE FROM  user_guild  WHERE discord_id = ? AND guild_id = ?";
 
         try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {
@@ -290,7 +284,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
 
     @Override
     public List<UsersWrapper> getAllNonPrivate(Connection connection, long guildId) {
-        String queryString = "SELECT a.discord_id, a.lastfm_id,a.role,a.timezone,a.last_update FROM user a JOIN (SELECT discord_id FROM user_guild WHERE guild_id = ? ) b ON a.discord_id = b.discord_id where a.private_update = false";
+        String queryString = "SELECT a.discord_id, a.lastfm_id,a.role,a.timezone,a.last_update FROM user a JOIN (SELECT discord_id FROM user_guild WHERE guild_id = ? ) b ON a.discord_id = b.discord_id WHERE a.private_update = FALSE";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
 
             /* Fill "preparedStatement". */
@@ -340,7 +334,6 @@ public class UserGuildDaoImpl implements UserGuildDao {
 
     @Override
     public void addGuild(Connection con, long userId, long guildId) {
-        /* Create "queryString". */
         String queryString = "INSERT IGNORE INTO  user_guild"
                              + " ( discord_id,guild_id) " + " VALUES (?, ?) ";
 
@@ -391,8 +384,27 @@ public class UserGuildDaoImpl implements UserGuildDao {
     }
 
     @Override
+    public boolean isFlagged(Connection con, String lastfm) {
+        String queryString = "SELECT * FROM botted  WHERE lastfm_id = ?";
+
+        try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {
+
+            int i = 1;
+            preparedStatement.setString(i, lastfm);
+
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            return resultSet.next();
+
+
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+
+    }
+
+    @Override
     public void removeLogo(Connection connection, long guildId) {
-        /* Create "queryString". */
         String queryString = "UPDATE  guild SET logo = NULL WHERE guild_id = ?";
 
         deleteIdLong(connection, guildId, queryString);
@@ -400,7 +412,6 @@ public class UserGuildDaoImpl implements UserGuildDao {
 
     @Override
     public InputStream findLogo(Connection connection, long guildID) {
-        /* Create "queryString". */
         String queryString = "SELECT logo FROM guild WHERE guild_id = ?";
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
@@ -556,7 +567,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
 
     @Override
     public void removeRateLimit(Connection connection, long discordId) {
-        String queryString = "DELETE from rate_limited where discord_id = ? ";
+        String queryString = "DELETE FROM rate_limited WHERE discord_id = ? ";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
             preparedStatement.setLong(1, discordId);
             /* Fill "preparedStatement". */
@@ -619,7 +630,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
 
     @Override
     public void insertChannelCommandStatus(Connection connection, long discordId, long channelId, String commandName, boolean enabled) {
-        String queryString = "INSERT ignore INTO  command_guild_channel_disabled"
+        String queryString = "INSERT IGNORE INTO  command_guild_channel_disabled"
                              + " (guild_id,channel_id,command_name,enabled) VALUES (?, ?,? , ? ) ";
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
@@ -639,7 +650,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
     @Override
     public void deleteChannelCommandStatus(Connection connection, long discordId, long channelId, String commandName) {
         String queryString = "DELETE FROM command_guild_channel_disabled"
-                             + " WHERE guild_id = ? and channel_id = ? and command_name = ? ";
+                             + " WHERE guild_id = ? AND channel_id = ? AND command_name = ? ";
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
 
@@ -686,7 +697,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
 
     @Override
     public MultiValuedMap<Pair<Long, Long>, String> initServerChannelsCommandStatuses(Connection connection, boolean enabled) {
-        String queryString = "SELECT guild_id,channel_id,command_name FROM command_guild_channel_disabled where enabled = ? ";
+        String queryString = "SELECT guild_id,channel_id,command_name FROM command_guild_channel_disabled WHERE enabled = ? ";
         MultiValuedMap<Pair<Long, Long>, String> map = new HashSetValuedHashMap<>();
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
 
@@ -811,8 +822,8 @@ public class UserGuildDaoImpl implements UserGuildDao {
 
     @Override
     public GuildProperties getGuild(Connection connection, long discordId) throws InstanceNotFoundException {
-        String queryString = "select " +
-                             "guild_id,prefix,crown_threshold,whoknows_mode,chart_mode,remaining_mode,delete_message,disabled_warning,override_reactions,allow_reactions,color,allow_covers,override_color from guild where guild_id = ? ";
+        String queryString = "SELECT " +
+                             "guild_id,prefix,crown_threshold,whoknows_mode,chart_mode,remaining_mode,delete_message,disabled_warning,override_reactions,allow_reactions,color,allow_covers,override_color FROM guild WHERE guild_id = ? ";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
 
             /* Fill "preparedStatement". */
@@ -860,8 +871,8 @@ public class UserGuildDaoImpl implements UserGuildDao {
                              "a.notify_rating, " +
                              " private_lastfm," +
                              "timezone, " +
-                             "show_botted, token, sess,scrobbling,ifnull(c.color,a.color),allow_covers,own_tags,chart_options " +
-                             "FROM user a join guild c" +
+                             "show_botted, token, sess,scrobbling,IFNULL(c.color,a.color),allow_covers,own_tags,chart_options " +
+                             "FROM user a JOIN guild c" +
 
                              " WHERE a.discord_id = ? AND  c.guild_id = ? ";
 
@@ -961,7 +972,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
 
     @Override
     public boolean isUserServerBanned(Connection connection, long userId, long guildID) {
-        String queryString = "select exists( select guild_id,discord_id from server_blocked where guild_id = ? and discord_id = ?)";
+        String queryString = "SELECT EXISTS( SELECT guild_id,discord_id FROM server_blocked WHERE guild_id = ? AND discord_id = ?)";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
 
             /* Fill "preparedStatement". */
@@ -988,7 +999,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
 
     @Override
     public long getNPRaw(Connection connection, long discordId) {
-        String queryString = "select  np_mode from user where discord_id = ? ";
+        String queryString = "SELECT  np_mode FROM user WHERE discord_id = ? ";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
 
             /* Fill "preparedStatement". */
@@ -1023,7 +1034,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
 
     @Override
     public long getServerNPRaw(Connection connection, long guildId) {
-        String queryString = "select  np_mode from guild where guild_id = ? ";
+        String queryString = "SELECT  np_mode FROM guild WHERE guild_id = ? ";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
 
             /* Fill "preparedStatement". */
@@ -1075,7 +1086,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
 
     @Override
     public TimeZone getTimezone(Connection connection, long userId) {
-        String queryString = "Select timezone from user WHERE discord_id = ?";
+        String queryString = "SELECT timezone FROM user WHERE discord_id = ?";
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
 
@@ -1150,7 +1161,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
 
     @Override
     public CommandStats getCommandStats(long discordId, Connection connection) {
-        String queryString = "select  (select count(*) from command_logs where discord_id = ?), (select count(*) from alt_url where discord_id = ? )";
+        String queryString = "SELECT  (SELECT COUNT(*) FROM command_logs WHERE discord_id = ?), (SELECT COUNT(*) FROM alt_url WHERE discord_id = ? )";
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
 
@@ -1174,7 +1185,6 @@ public class UserGuildDaoImpl implements UserGuildDao {
 
     @Override
     public Set<LastFMData> findScrobbleableUsers(Connection con, long guildId) {
-        /* Create "queryString". */
         Set<LastFMData> lastFMData = new HashSet<>();
         String queryString = "SELECT discord_id, lastfm_id,role,private_update,notify_image,chart_mode,whoknows_mode,remaining_mode,default_x, default_y,privacy_mode,notify_rating,private_lastfm,timezone,show_botted,token,sess,scrobbling,color,own_tags,artist_threshold,chart_options FROM user a natural  join user_guild b where b.guild_id = ? and sess is not null and scrobbling = true ";
 
@@ -1220,7 +1230,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
     @Override
     public void clearServerReactions(Connection connection, long guildId) {
         Set<Long> returnSet = new HashSet<>();
-        try (PreparedStatement preparedStatement = connection.prepareStatement("delete from server_reactions where guild_id = ? ")) {
+        try (PreparedStatement preparedStatement = connection.prepareStatement("DELETE FROM server_reactions WHERE guild_id = ? ")) {
 
             preparedStatement.setLong(1, guildId);
             preparedStatement.executeUpdate();
@@ -1233,7 +1243,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
     @Override
     public void clearUserReacts(Connection connection, long userId) {
         Set<Long> returnSet = new HashSet<>();
-        try (PreparedStatement preparedStatement = connection.prepareStatement("delete from user_reactions where discord_id = ? ")) {
+        try (PreparedStatement preparedStatement = connection.prepareStatement("DELETE FROM user_reactions WHERE discord_id = ? ")) {
 
             preparedStatement.setLong(1, userId);
             preparedStatement.executeUpdate();
@@ -1246,7 +1256,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
     @Override
     public List<String> getServerReactions(Connection connection, long guildId) {
         List<String> results = new ArrayList<>();
-        String queryString = "select reaction from server_reactions where guild_id = ? order by position asc";
+        String queryString = "SELECT reaction FROM server_reactions WHERE guild_id = ? ORDER BY position ASC";
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
             int i = 1;
@@ -1265,7 +1275,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
     @Override
     public List<String> getUserReacts(Connection connection, long userId) {
         List<String> results = new ArrayList<>();
-        String queryString = "select reaction from user_reactions where discord_id = ? order by position asc";
+        String queryString = "SELECT reaction FROM user_reactions WHERE discord_id = ? ORDER BY position ASC";
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
             int i = 1;
@@ -1284,7 +1294,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
     @Override
     public Map<Long, Color[]> getServerWithPalette(Connection connection) {
         Map<Long, Color[]> map = new HashMap<>();
-        String queryString = "select guild_id,color from guild where color is not null and color <> 'ROLE'";
+        String queryString = "SELECT guild_id,color FROM guild WHERE color IS NOT NULL AND color <> 'ROLE'";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
             int i = 1;
             ResultSet resultSet = preparedStatement.executeQuery();
@@ -1304,7 +1314,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
     @Override
     public Map<Long, Color[]> getUsersWithPalette(Connection connection) {
         Map<Long, Color[]> map = new HashMap<>();
-        String queryString = "select discord_id,color from user where color is not null and color <> 'ROLE'";
+        String queryString = "SELECT discord_id,color FROM user WHERE color IS NOT NULL AND color <> 'ROLE'";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
             int i = 1;
             ResultSet resultSet = preparedStatement.executeQuery();
@@ -1353,8 +1363,21 @@ public class UserGuildDaoImpl implements UserGuildDao {
     }
 
     @Override
+    public void flagBottedDB(String lastfmId, Connection connection) {
+        String queryString = "UPDATE user SET botted_account = TRUE WHERE lastfm_id = ?";
+
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+            preparedStatement.setString(1, lastfmId);
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+
+    @Override
     public void flagBotted(String lastfmId, Connection connection) {
-        String queryString = "insert ignore botted(lastfm_id) values (?)";
+        String queryString = "INSERT IGNORE botted(lastfm_id) VALUES (?)";
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
             preparedStatement.setString(1, lastfmId);
@@ -1366,7 +1389,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
 
     @Override
     public void insertBannedCover(Connection connection, long albumId, String cover) {
-        String queryString = "insert into banned_cover(album_id,replacement_cover) values (?,?)";
+        String queryString = "INSERT INTO banned_cover(album_id,replacement_cover) VALUES (?,?)";
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
 
@@ -1380,7 +1403,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
 
     @Override
     public void removeBannedCover(Connection connection, long albumId, String cover) {
-        String queryString = "delete from  banned_cover where album_id = ? and replacement_cover =? ";
+        String queryString = "DELETE FROM  banned_cover WHERE album_id = ? AND replacement_cover =? ";
 
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
@@ -1395,7 +1418,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
 
     @Override
     public void insertServerCustomUrl(Connection connection, long altId, long guildId, long artistId) {
-        String queryString = "insert into artist_custom_images(alt_id,guild_id,artist_id) values (?,?,?) on duplicate key update alt_id = values(alt_id)";
+        String queryString = "INSERT INTO artist_custom_images(alt_id,guild_id,artist_id) VALUES (?,?,?) ON DUPLICATE KEY UPDATE alt_id = VALUES(alt_id)";
 
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
@@ -1420,7 +1443,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
 
     @Override
     public Set<Long> getServerBlocked(Connection connection, long guildId) {
-        String queryString = "Select discord_id from  server_blocked where guild_id = ? ";
+        String queryString = "SELECT discord_id FROM  server_blocked WHERE guild_id = ? ";
         Set<Long> rest = new HashSet<>();
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
 
@@ -1447,9 +1470,9 @@ public class UserGuildDaoImpl implements UserGuildDao {
     public List<RoleColour> getRoles(Connection connection, long guildId) {
         String queryString = """
                 SELECT id,guild_id,colour,start_breakpoint,end_breakpoint,role_id
-                from role_colour_server
-                where guild_id = ?
-                order by start_breakpoint asc,end_breakpoint asc
+                FROM role_colour_server
+                WHERE guild_id = ?
+                ORDER BY start_breakpoint ASC,end_breakpoint ASC
                 """;
         List<RoleColour> roles = new ArrayList<>();
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
@@ -1497,6 +1520,56 @@ public class UserGuildDaoImpl implements UserGuildDao {
 
             preparedStatement.executeUpdate();
 
+
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    @Override
+    public VoiceAnnouncement getGuildVoiceAnnouncement(Connection connection, long guildId) {
+        String queryString = """
+                SELECT announcement_id,announcement_enabled
+                FROM guild
+                WHERE guild_id = ?
+                """;
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+            int i = 1;
+            preparedStatement.setLong(i, guildId);
+
+
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            if (resultSet.next()) {
+                long channelId = resultSet.getLong(i++);
+                boolean enabled = resultSet.getBoolean(i);
+                return new VoiceAnnouncement(channelId == 0 ? null : channelId, enabled);
+            }
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+        return new VoiceAnnouncement(null, false);
+
+    }
+
+    @Override
+    public void setGuildVoiceAnnouncement(Connection connection, long guildId, VoiceAnnouncement voiceAnnouncement) {
+
+        String queryString = """
+                UPDATE  guild
+                SET announcement_id = ? ,announcement_enabled = ?
+                WHERE guild_id = ?
+                """;
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+            int i = 1;
+            if (voiceAnnouncement.channelId() == null) {
+                preparedStatement.setNull(1, Types.BIGINT);
+            } else {
+                preparedStatement.setLong(1, voiceAnnouncement.channelId());
+            }
+            preparedStatement.setBoolean(i++, voiceAnnouncement.enabled());
+            preparedStatement.setLong(i, guildId);
+            preparedStatement.executeUpdate();
 
         } catch (SQLException e) {
             throw new ChuuServiceException(e);

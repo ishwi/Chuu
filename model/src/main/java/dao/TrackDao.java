@@ -39,6 +39,8 @@ public interface TrackDao {
 
     void fillIdsMbids(Connection connection, List<ScrobbledTrack> list);
 
+    Optional<Album> findAlbumFromTrack(Connection connection, long trackId);
+
     Optional<FullAlbumEntity> getAlbumTrackList(Connection connection, long albumId, String lastfmId);
 
     List<ScrobbledTrack> getUserTopTracks(Connection connection, String lastfmid);

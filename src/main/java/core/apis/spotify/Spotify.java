@@ -98,6 +98,21 @@ public class Spotify {
         }).filter(Objects::nonNull).toList();
     }
 
+    public Optional<dao.entities.Album> findAlbum(String artist, String song) {
+        try {
+            Paging<Track> trackPaging = searchSong(artist, song);
+            if (trackPaging.getItems().length == 0)
+                return Optional.empty();
+            return Arrays.stream(trackPaging.getItems()).filter(t -> t.getAlbum() != null).findFirst().flatMap(z -> {
+                String image = Arrays.stream(z.getAlbum().getImages()).findFirst().map(Image::getUrl).orElse(null);
+                return Optional.of(new dao.entities.Album(-1, -1, z.getAlbum().getName(), image, null, null, z.getAlbum().getId()));
+            });
+        } catch (ParseException | SpotifyWebApiException | IOException e) {
+            e.printStackTrace();
+            return Optional.empty();
+        }
+    }
+
     public String getAlbumLink(String artist, String album) {
         String returned = null;
         try {
