@@ -8,7 +8,7 @@ import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.requests.RestAction;
-import net.dv8tion.jda.api.requests.restaction.InteractionWebhookAction;
+import net.dv8tion.jda.api.requests.restaction.WebhookMessageAction;
 
 import javax.annotation.Nullable;
 import java.io.InputStream;
@@ -89,7 +89,7 @@ public final record ContextSlashReceived(SlashCommandEvent e) implements Context
 
     @Override
     public void doSendImage(byte[] img, String format, @Nullable EmbedBuilder embedBuilder) {
-        InteractionWebhookAction interactionWebhookAction = e.getHook().sendFile(img, "cat." + format);
+        WebhookMessageAction interactionWebhookAction = e.getHook().sendFile(img, "cat." + format);
         if (embedBuilder != null) {
             interactionWebhookAction = interactionWebhookAction.addEmbeds(embedBuilder.build());
         }
