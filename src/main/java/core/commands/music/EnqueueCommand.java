@@ -30,10 +30,10 @@ import dao.ChuuService;
 import javax.validation.constraints.NotNull;
 import java.util.List;
 
-public class Enqueue extends core.commands.abstracts.MusicCommand<WordParameter> {
+public class EnqueueCommand extends core.commands.abstracts.MusicCommand<WordParameter> {
 
 
-    public Enqueue(ChuuService dao) {
+    public EnqueueCommand(ChuuService dao) {
         super(dao);
         requireManager = false;
         requireVoiceState = true;

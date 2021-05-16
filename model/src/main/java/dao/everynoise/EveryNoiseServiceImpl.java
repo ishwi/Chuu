@@ -1,17 +1,15 @@
 package dao.everynoise;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectReader;
 import dao.SimpleDataSource;
-import dao.entities.NoiseGenre;
 import dao.exceptions.ChuuServiceException;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class EveryNoiseServiceImpl implements EveryNoiseService {
@@ -34,20 +32,51 @@ public class EveryNoiseServiceImpl implements EveryNoiseService {
     }
 
     @Override
-    public List<Release> releasesOfGenre(LocalDate localDate, NoiseGenre genre) {
-        if (localDate.getDayOfWeek() != DayOfWeek.FRIDAY) {
-            return new ArrayList<>();
-        }
+    public List<Release> releasesOfGenre(NoiseGenre genre) {
         try (Connection connection = ds.getConnection()) {
             connection.setReadOnly(true);
-            return everyNoiseDAO.releasesOfGenre(connection, localDate, genre);
+            return everyNoiseDAO.releasesOfGenre(connection, genre);
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }
     }
 
     @Override
-    public List<NoiseGenre> listAll() {
+    public List<Release> allValidReleases() {
+        try (Connection connection = ds.getConnection()) {
+            connection.setReadOnly(true);
+            return everyNoiseDAO.allValidRelease(connection);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    @Override
+    public Map<NoiseGenreReleases, Integer> releasesByCount() {
+        try (Connection connection = ds.getConnection()) {
+            connection.setReadOnly(true);
+            ObjectReader objectReader = new ObjectMapper().readerForListOf(Release.class);
+            return everyNoiseDAO.releasesByCount(connection)
+                    .entrySet().stream()
+                    .collect(Collectors.toMap(z -> {
+                        NoiseGenreJSON key = z.getKey();
+                        List<Release> releases;
+                        try {
+                            // Probably doing something wrong here????
+                            // TODO
+                            releases = objectReader.readValue("[" + key.jsonReleases() + "]");
+                        } catch (JsonProcessingException e) {
+                            releases = Collections.emptyList();
+                        }
+                        return new NoiseGenreReleases(key.genre(), key.playlist(), releases);
+                    }, Map.Entry::getValue, (a, b) -> a, LinkedHashMap::new));
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    @Override
+    public List<NoiseGenre> listAllGenres() {
         try (Connection connection = ds.getConnection()) {
             connection.setReadOnly(true);
             return everyNoiseDAO.listAll(connection);
@@ -79,6 +108,16 @@ public class EveryNoiseServiceImpl implements EveryNoiseService {
                 return;
             }
             everyNoiseDAO.insertGenres(connection, genres);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    @Override
+    public Optional<NoiseGenre> findExactMatch(String genre) {
+        try (Connection connection = ds.getConnection()) {
+            connection.setReadOnly(true);
+            return everyNoiseDAO.findExactMatch(connection, genre);
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }

@@ -54,7 +54,7 @@ public class TrackSearchCommand extends ListCommand<ScrobbledTrack, UserStringPa
 
     @Override
     public List<ScrobbledTrack> getList(UserStringParameters params) {
-        String value = params.getValue();
+        String value = params.getInput();
         LastFMData lastFMData = params.getLastFMData();
         return db.regexTrack(lastFMData.getDiscordId(), value);
     }
@@ -62,7 +62,7 @@ public class TrackSearchCommand extends ListCommand<ScrobbledTrack, UserStringPa
     @Override
     public void printList(List<ScrobbledTrack> list, UserStringParameters params) {
         Context e = params.getE();
-        String value = params.getValue();
+        String value = params.getInput();
         String abbreviate = StringUtils.abbreviate(value, 120);
         DiscordUserDisplay uInfo = CommandUtil.getUserInfoConsideringGuildOrNot(e, params.getLastFMData().getDiscordId());
         if (list.isEmpty()) {

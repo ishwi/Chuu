@@ -1,7 +1,7 @@
 package core.music.everynoise;
 
 import core.apis.lyrics.TextSplitter;
-import dao.entities.NoiseGenre;
+import dao.everynoise.NoiseGenre;
 import dao.everynoise.ReleaseWithGenres;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;

@@ -11,7 +11,6 @@ import java.util.Set;
 public interface SQLRYMDao {
     void setServerTempTable(Connection connection, List<RYMImportRating> ratings);
 
-    Map<Long, Long> findArtists(Connection connection);
 
     Map<Long, Long> findArtistsByLocalizedJoinedNames(Connection connection);
 

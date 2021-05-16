@@ -4,14 +4,15 @@ import core.commands.Context;
 import dao.entities.LastFMData;
 
 public class UserStringParameters extends ChuuDataParams {
-    private final String value;
+    private final String input;
 
-    public UserStringParameters(Context e, LastFMData lastFMData, String value) {
+    public UserStringParameters(Context e, LastFMData lastFMData, String input) {
         super(e, lastFMData);
-        this.value = value;
+        this.input = input;
     }
 
-    public String getValue() {
-        return value;
+
+    public String getInput() {
+        return input;
     }
 }

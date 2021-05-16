@@ -62,7 +62,7 @@ public class PlayNextCommand extends core.commands.abstracts.MusicCommand<WordPa
 
         var manager = Chuu.playerRegistry.get(e.getGuild());
 
-        Enqueue.play(e, manager, params.getWord(), false, true);
+        EnqueueCommand.play(e, manager, params.getWord(), false, true);
 
     }
 

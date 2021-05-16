@@ -1,10 +1,7 @@
 package dao;
 
 import dao.entities.*;
-import dao.everynoise.EveryNoiseService;
-import dao.everynoise.EveryNoiseServiceImpl;
-import dao.everynoise.Release;
-import dao.everynoise.ReleaseWithGenres;
+import dao.everynoise.*;
 import dao.exceptions.ChuuServiceException;
 import dao.exceptions.DuplicateInstanceException;
 import dao.exceptions.InstanceNotFoundException;
@@ -3950,15 +3947,31 @@ public class ChuuService implements EveryNoiseService {
     }
 
     @Override
-    public List<Release> releasesOfGenre(LocalDate localDate, NoiseGenre genre) {
-        return everyNoiseService.releasesOfGenre(localDate, genre);
+    public Optional<NoiseGenre> findExactMatch(String genre) {
+        return everyNoiseService.findExactMatch(genre);
     }
 
     @Override
-    public List<NoiseGenre> listAll() {
-        return everyNoiseService.listAll();
-
+    public List<Release> releasesOfGenre(NoiseGenre genre) {
+        return everyNoiseService.releasesOfGenre(genre);
     }
+
+    @Override
+    public List<Release> allValidReleases() {
+        return everyNoiseService.allValidReleases();
+    }
+
+    @Override
+    public Map<NoiseGenreReleases, Integer> releasesByCount() {
+        return everyNoiseService.releasesByCount();
+    }
+
+
+    @Override
+    public List<NoiseGenre> listAllGenres() {
+        return everyNoiseService.listAllGenres();
+    }
+
 
     @Override
     public void insertReleases(List<ReleaseWithGenres> release, LocalDate week) {

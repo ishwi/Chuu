@@ -6,6 +6,7 @@ import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
 import core.otherlisteners.Confirmator;
+import core.otherlisteners.util.ConfirmatorItem;
 import core.parsers.NoOpParser;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
@@ -95,28 +96,27 @@ public class TagWithYearCommand extends ConcurrentCommand<CommandParameters> {
         EmbedBuilder embedBuilder = new ChuuEmbedBuilder()
                 .setTitle("Year confirmation")
                 .setDescription(String.format("%s, want to tag the album **%s** of **%s** with the year **%s**?", userString, album, artist, year));
+        List<ConfirmatorItem> items = List.of(new ConfirmatorItem("\u2714", who -> {
+            if (lastFMData.getRole() == Role.ADMIN) {
+                return who.clear().setTitle(String.format("%s - %s was tagged as a %s album", artist, album, year));
+            } else {
+                return who.clear().setTitle("Your submission was passed to the mod team");
+            }
+        }, (z) -> {
+            if (lastFMData.getRole() == Role.ADMIN) {
+                db.insertAlbumsOfYear(List.of(new AlbumInfo(album, artist)), parse);
+            } else {
+                TextChannel textChannelById = Chuu.getShardManager().getTextChannelById(Chuu.channelId);
+                if (textChannelById != null)
+                    textChannelById.sendMessage(new ChuuEmbedBuilder().setTitle("Year submission")
+                            .setDescription("Artist: **" + artist + "**\nAlbum: **" + album + "**\nYear: **" + year + "**\nAuthor: " + e.getAuthor().getIdLong()).build()).flatMap(q ->
+                            q.addReaction("\u2714").flatMap(t -> q.addReaction("\u274c"))
+                    ).queue();
+            }
+        }), new ConfirmatorItem("\u274c", who -> who.clear().setTitle(String.format("Didn't tag %s - %s", artist, album)),
+                (z) -> {
+                }));
         e.sendMessage(embedBuilder.build())
-                .queue(queu -> new Confirmator(embedBuilder, queu, idLong,
-                        () -> {
-                            if (lastFMData.getRole() == Role.ADMIN) {
-                                db.insertAlbumsOfYear(List.of(new AlbumInfo(album, artist)), parse);
-                            } else {
-                                TextChannel textChannelById = Chuu.getShardManager().getTextChannelById(Chuu.channelId);
-                                if (textChannelById != null)
-                                    textChannelById.sendMessage(new ChuuEmbedBuilder().setTitle("Year submission")
-                                            .setDescription("Artist: **" + artist + "**\nAlbum: **" + album + "**\nYear: **" + year + "**\nAuthor: " + e.getAuthor().getIdLong()).build()).flatMap(q ->
-                                            q.addReaction("U+2714").flatMap(t -> q.addReaction("U+274c"))
-                                    ).queue();
-                            }
-                        }, () -> {
-                },
-                        who -> {
-                            if (lastFMData.getRole() == Role.ADMIN) {
-                                return who.clear().setTitle(String.format("%s - %s was tagged as a %s album", artist, album, year));
-                            } else {
-                                return who.clear().setTitle("Your submission was passed to the mod team");
-                            }
-                        },
-                        who -> who.clear().setTitle(String.format("Didn't tag %s - %s", artist, album))));
+                .queue(mes -> new Confirmator(embedBuilder, mes, idLong, items));
     }
 }

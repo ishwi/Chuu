@@ -54,7 +54,7 @@ public class ArtistSearchCommand extends ListCommand<ScrobbledArtist, UserString
 
     @Override
     public List<ScrobbledArtist> getList(UserStringParameters params) {
-        String value = params.getValue();
+        String value = params.getInput();
         LastFMData lastFMData = params.getLastFMData();
         return db.regexArtist(lastFMData.getDiscordId(), value);
     }
@@ -62,7 +62,7 @@ public class ArtistSearchCommand extends ListCommand<ScrobbledArtist, UserString
     @Override
     public void printList(List<ScrobbledArtist> list, UserStringParameters params) {
         Context e = params.getE();
-        String value = params.getValue();
+        String value = params.getInput();
         DiscordUserDisplay uInfo = CommandUtil.getUserInfoConsideringGuildOrNot(e, params.getLastFMData().getDiscordId());
         String abbreviate = StringUtils.abbreviate(value, 120);
 
