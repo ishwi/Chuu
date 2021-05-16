@@ -10,6 +10,7 @@ import core.parsers.NoOpParser;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
 import core.services.ColorService;
+import core.services.ScheduledService;
 import dao.ChuuService;
 import dao.entities.PresenceInfo;
 import dao.utils.LinkUtils;
@@ -20,7 +21,6 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 public class FeaturedCommand extends ConcurrentCommand<CommandParameters> {
@@ -30,13 +30,12 @@ public class FeaturedCommand extends ConcurrentCommand<CommandParameters> {
 
     private PresenceInfo currentPresence;
 
-    public FeaturedCommand(ChuuService dao, ScheduledExecutorService scheduledManager) {
+    public FeaturedCommand(ChuuService dao, ScheduledService scheduledService) {
         super(dao);
         currentPresence = new PresenceInfo(DEFAULT_ARTIST, DEFAULT_URL, Long.MAX_VALUE, 1);
-        scheduledManager.scheduleAtFixedRate(() -> {
+        scheduledService.addSchedule(() -> {
             try {
                 PresenceInfo presenceInfo;
-
                 presenceInfo = db.getRandomArtistWithUrl();
                 Chuu.updatePresence(presenceInfo.getArtist());
                 this.currentPresence = presenceInfo;

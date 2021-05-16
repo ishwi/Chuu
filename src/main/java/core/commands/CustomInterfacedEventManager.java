@@ -66,7 +66,7 @@ public class CustomInterfacedEventManager implements IEventManager {
             }
         }
         if (listener instanceof ReactionListener reactionListener) {
-            ScheduledFuture<?> schedule = Chuu.getScheduledExecutorService().schedule((() -> {
+            ScheduledFuture<?> schedule = Chuu.getScheduledService().addSchedule((() -> {
                 reactionaries.remove(reactionListener);
                 reactionListener.dispose();
             }), reactionListener.getActiveSeconds(), TimeUnit.SECONDS);
@@ -201,7 +201,7 @@ public class CustomInterfacedEventManager implements IEventManager {
     public void refreshReactionay(ReactionListener reactionListener, long seconds) {
         ScheduledFuture<?> scheduledFuture = this.reactionaries.get(reactionListener);
         if (scheduledFuture != null && scheduledFuture.cancel(false)) {
-            this.reactionaries.put(reactionListener, Chuu.getScheduledExecutorService().schedule((() -> {
+            this.reactionaries.put(reactionListener, Chuu.getScheduledService().addSchedule((() -> {
                 reactionaries.remove(reactionListener);
                 otherListeners.remove(reactionListener);
                 reactionListener.dispose();

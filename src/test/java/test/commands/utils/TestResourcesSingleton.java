@@ -20,7 +20,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.time.OffsetDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -97,7 +100,7 @@ public class TestResourcesSingleton extends ExternalResource {
                 e.printStackTrace();
             }
 
-            Chuu.setupBot(true, Arrays.stream(args).anyMatch(x -> x.equalsIgnoreCase("no-global")));
+            Chuu.setupBot(true, false);
             ogJDA = Chuu.getShardManager().getShards().get(0);
 
             Guild testing_server = testerJDA.getGuildById(properties.getProperty("TESTING_SERVER"));

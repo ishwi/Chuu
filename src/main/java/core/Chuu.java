@@ -23,10 +23,6 @@ import core.music.scrobble.StatusProcesser;
 import core.music.utils.ScrobbleProcesser;
 import core.otherlisteners.AwaitReady;
 import core.otherlisteners.ConstantListener;
-import core.scheduledtasks.ArtistMbidUpdater;
-import core.scheduledtasks.ImageUpdaterThread;
-import core.scheduledtasks.SpotifyUpdaterThread;
-import core.scheduledtasks.UpdaterThread;
 import core.services.*;
 import dao.ChuuService;
 import dao.entities.Metrics;
@@ -58,7 +54,6 @@ import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.LongAdder;
@@ -79,7 +74,6 @@ public class Chuu {
     public static long channel2Id;
     private static ShardManager shardManager;
     private static Logger logger;
-    private static ScheduledExecutorService scheduledExecutorService;
     private static Map<Long, RateLimiter> ratelimited;
     private static Map<Long, Character> prefixMap;
     private static ChuuService dao;
@@ -88,11 +82,7 @@ public class Chuu {
     private static MessageDisablingService messageDisablingService = new MessageDisablingService();
     private static ScrobbleEventManager scrobbleEventManager;
     private static ScrobbleProcesser scrobbleProcesser;
-
-
-    public static ScheduledExecutorService getScheduledExecutorService() {
-        return scheduledExecutorService;
-    }
+    private static ScheduledService scheduledService;
 
 
     public static void addGuildPrefix(long guildId, Character prefix) {
@@ -214,23 +204,26 @@ public class Chuu {
         scrobbleProcesser = new ScrobbleProcesser(new AlbumFinder(dao, LastFMFactory.getNewInstance()));
         playerManager = new ExtendedAudioPlayerManager(scrobbleEventManager, scrobbleProcesser);
         playerRegistry = new PlayerRegistry(playerManager);
-        scheduledExecutorService = Executors.newScheduledThreadPool(4);
 
+        scheduledService = new ScheduledService(Executors.newScheduledThreadPool(4), dao);
+        scheduledService.setScheduled();
         // Needs these three references
         HelpCommand help = new HelpCommand(dao);
         AdministrativeCommand commandAdministrator = new AdministrativeCommand(dao);
         PrefixCommand prefixCommand = new PrefixCommand(dao);
         TagWithYearCommand tagWithYearCommand = new TagWithYearCommand(dao);
         EvalCommand evalCommand = new EvalCommand(dao);
-        FeaturedCommand featuredCommand = new FeaturedCommand(dao, scheduledExecutorService);
+        FeaturedCommand featuredCommand = new FeaturedCommand(dao, scheduledService);
 
         // Logs every fime minutes the api calls
-        scheduledExecutorService.scheduleAtFixedRate(() -> {
+        scheduledService.addSchedule(() -> {
             long l = lastFMMetric.longValue();
             lastFMMetric.reset();
             dao.updateMetric(Metrics.LASTFM_PETITIONS, l);
             logger.info("Made {} petitions in the last 5 minutes", l);
         }, 5, 5, TimeUnit.MINUTES);
+
+
         ratelimited = dao.getRateLimited().entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, y -> RateLimiter.create(y.getValue())));
 
 
@@ -255,6 +248,7 @@ public class Chuu {
                 .addEventListeners(evalCommand)
                 .addEventListeners(help.registerCommand(commandAdministrator))
                 .addEventListeners(help.registerCommand(prefixCommand))
+                .addEventListeners(help.registerCommand(featuredCommand))
                 .addEventListeners(new VoiceListener())
                 .addEventListeners(help.registerCommand(tagWithYearCommand))
                 .addEventListeners(help.registerCommand(featuredCommand))
@@ -270,7 +264,6 @@ public class Chuu {
                     if (!doDbCleanUp) {
                         commandAdministrator.onStartup(shardManager);
                     }
-                    shardManager.addEventListener(help.registerCommand(new FeaturedCommand(dao, scheduledExecutorService)));
                     updatePresence("Chuu");
                 }));
 
@@ -280,14 +273,7 @@ public class Chuu {
 
             messageDeletionService = new MessageDeletionService(dao.getServersWithDeletableMessages());
             shardManager = builder.build();
-            scheduledExecutorService.scheduleAtFixedRate(
-                    new UpdaterThread(dao, true), 0, 120,
-                    TimeUnit.SECONDS);
 
-            scheduledExecutorService.scheduleAtFixedRate(new ImageUpdaterThread(dao), 20, 12, TimeUnit.MINUTES);
-            scheduledExecutorService.scheduleAtFixedRate(
-                    new SpotifyUpdaterThread(dao), 5, 5, TimeUnit.MINUTES);
-            scheduledExecutorService.scheduleAtFixedRate(new ArtistMbidUpdater(dao), 10, 3600, TimeUnit.MINUTES);
         } catch (LoginException e) {
             Chuu.getLogger().warn(e.getMessage(), e);
             throw new ChuuServiceException(e);
@@ -395,27 +381,12 @@ public class Chuu {
         return coverService;
     }
 
+    public static ScheduledService getScheduledService() {
+        return scheduledService;
+    }
+
     public static boolean isLoaded() {
         return shardManager.getShardsRunning() == shardManager.getShardsTotal();
     }
-/*
-    public static MemberCachePolicy cacheMember = Chuu::caching;
 
-    public static boolean caching(Member l) {
-        Chuu.logger.warn("testing user " + l.getEffectiveName());
-
-        Member prevOccurence = l.getGuild().getMemberCache().getElementById(l.getId());
-        if (prevOccurence != null) {
-            Chuu.logger.warn("Member already on cache " + l.getEffectiveName());
-            return true;
-        }
-        try {
-            dao.findLastFMData(l.getUser().getIdLong());
-            Chuu.logger.warn("Member added " + l.getEffectiveName());
-            return true;
-        } catch (InstanceNotFoundException exception) {
-            Chuu.logger.warn("Rejected " + l.getEffectiveName());
-            return false;
-        }
-    }*/
 }

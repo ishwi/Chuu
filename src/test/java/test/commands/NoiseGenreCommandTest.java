@@ -5,7 +5,7 @@ import test.commands.parsers.NullReturnParsersTest;
 import test.commands.utils.CommandTest;
 import test.commands.utils.ImageUtils;
 
-public class GenreCommandTest extends CommandTest {
+public class NoiseGenreCommandTest extends CommandTest {
     @Override
     public String giveCommandName() {
         return "!genre";

@@ -536,7 +536,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
                                    COUNT(*)                                       AS total\s
                             FROM   (SELECT b.*\s
                                     FROM   scrobbled_artist b\s
-                                           JOIN USER d\s
+                                           JOIN `user` d\s
                                              ON b.lastfm_id = d.lastfm_id\s
                                            JOIN user_guild c\s
                                              ON d.discord_id = c.discord_id\s
@@ -547,7 +547,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
                                          FROM   scrobbled_artist inn_a\s
                                                 JOIN artist inn_c\s
                                                   ON inn_a.artist_id = inn_c.id\s
-                                                JOIN USER inn_b\s
+                                                JOIN `user` inn_b\s
                                                   ON inn_a.lastfm_id = inn_b.lastfm_id\s
                                                 JOIN user_guild c\s
                                                   ON inn_b.discord_id = c.discord_id\s
@@ -573,7 +573,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
                                         playnumber\s
                                  FROM   scrobbled_artist inn_a\s
                                           JOIN artist inn_c ON inn_a.artist_id = inn_c.id                    \s
-                                           JOIN USER inn_b\s
+                                           JOIN `user` inn_b\s
                                           ON inn_a.lastfm_id = inn_b.lastfm_id\s
                                  WHERE  inn_b.discord_id = ?) temp_2\s
                              ON temp_2.artist_id = inn.artist_id\s
@@ -1522,7 +1522,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
                                         AND a.url != ''
                                     ORDER BY RAND()
                                     LIMIT 15) rando)
-                        ORDER BY summa desc,RAND()
+                        ORDER BY summa DESC,RAND()
                         LIMIT 1;""";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
             ResultSet resultSet = preparedStatement.executeQuery();

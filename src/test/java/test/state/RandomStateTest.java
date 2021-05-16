@@ -202,8 +202,7 @@ public class RandomStateTest extends ExecutionContext implements RandomState {
     @Override
     public void e_addUrlFromUnique() {
         String url = repeatedQueue.poll();
-        RandomUrlEntity e = new RandomUrlEntity(url, TestResources.developerId, TestResources.channelWorker.getGuild()
-                .getIdLong());
+        RandomUrlEntity e = new RandomUrlEntity(url, TestResources.developerId);
         Assert.assertTrue(TestResources.dao.addToRandomPool(e));
         additions++;
     }
@@ -211,7 +210,7 @@ public class RandomStateTest extends ExecutionContext implements RandomState {
     @Override
     public void e_addUrlFromValid() {
         String url = formatQueue.poll();
-        RandomUrlEntity e = new RandomUrlEntity(url, 1L, 1L);
+        RandomUrlEntity e = new RandomUrlEntity(url, 1L);
         Assert.assertTrue(TestResources.dao.addToRandomPool(e));
         additions++;
     }

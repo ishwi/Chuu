@@ -1,6 +1,10 @@
 package dao;
 
 import dao.entities.*;
+import dao.everynoise.EveryNoiseService;
+import dao.everynoise.EveryNoiseServiceImpl;
+import dao.everynoise.Release;
+import dao.everynoise.ReleaseWithGenres;
 import dao.exceptions.ChuuServiceException;
 import dao.exceptions.DuplicateInstanceException;
 import dao.exceptions.InstanceNotFoundException;
@@ -29,7 +33,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-public class ChuuService {
+public class ChuuService implements EveryNoiseService {
     private final Logger logger = LoggerFactory.getLogger(ChuuService.class);
     private final SimpleDataSource dataSource;
     private final SQLQueriesDao queriesDao;
@@ -44,6 +48,7 @@ public class ChuuService {
     private final BillboardDao billboardDao;
     private final DiscoveralDao discoveralDao;
     private final MusicDao musicDao;
+    private final EveryNoiseService everyNoiseService;
 
     public ChuuService(SimpleDataSource dataSource) {
 
@@ -58,6 +63,7 @@ public class ChuuService {
         this.billboardDao = new BillboardDaoImpl();
         this.discoveralDao = new DiscoveralDaoImpl();
         musicDao = new MusidDaoImpl();
+        this.everyNoiseService = new EveryNoiseServiceImpl(dataSource);
     }
 
     public ChuuService() {
@@ -73,6 +79,7 @@ public class ChuuService {
         this.billboardDao = new BillboardDaoImpl();
         this.discoveralDao = new DiscoveralDaoImpl();
         musicDao = new MusidDaoImpl();
+        this.everyNoiseService = new EveryNoiseServiceImpl(dataSource);
     }
 
     public void updateUserTimeStamp(String lastFmName, Integer timestamp, Integer timestampControl) {
@@ -3936,6 +3943,32 @@ public class ChuuService {
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }
+    }
+
+    @Override
+    public List<NoiseGenre> findMatchingGenre(String genre) {
+        return everyNoiseService.findMatchingGenre(genre);
+    }
+
+    @Override
+    public List<Release> releasesOfGenre(LocalDate localDate, NoiseGenre genre) {
+        return everyNoiseService.releasesOfGenre(localDate, genre);
+    }
+
+    @Override
+    public List<NoiseGenre> listAll() {
+        return everyNoiseService.listAll();
+
+    }
+
+    @Override
+    public void insertReleases(List<ReleaseWithGenres> release, LocalDate week) {
+        everyNoiseService.insertReleases(release, week);
+    }
+
+    @Override
+    public void insertGenres(List<NoiseGenre> genres) {
+        everyNoiseService.insertGenres(genres);
     }
 }
 
