@@ -10,6 +10,7 @@ import com.sedmelluq.discord.lavaplayer.track.AudioItem;
 import com.sedmelluq.discord.lavaplayer.track.AudioReference;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackInfo;
 import core.music.sources.youtube.webscrobbler.ChuuTrackLoader;
+import core.music.sources.youtube.webscrobbler.ChuuYoutubeAudioTrack;
 import core.music.sources.youtube.webscrobbler.processers.ChuuAudioTrackInfo;
 import core.music.sources.youtube.webscrobbler.processers.ChuuYoutubeTrackDetails;
 

@@ -1,6 +1,7 @@
-package core.services;
+package core.services.tags;
 
 import core.apis.last.ConcurrentLastFM;
+import core.services.ChuuRunnable;
 import dao.ChuuService;
 import dao.entities.EntityInfo;
 import dao.entities.Genre;

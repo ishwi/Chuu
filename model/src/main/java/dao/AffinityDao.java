@@ -1,4 +1,4 @@
-package dao.musicbrainz;
+package dao;
 
 import dao.entities.Affinity;
 import dao.entities.ArtistLbGlobalEntry;

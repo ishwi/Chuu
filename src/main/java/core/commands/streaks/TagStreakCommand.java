@@ -16,7 +16,7 @@ import core.parsers.params.ChuuDataParams;
 import core.services.AlbumValidator;
 import core.services.ColorService;
 import core.services.TrackValidator;
-import core.services.tracklist.TagStorer;
+import core.services.tags.TagStorer;
 import dao.ChuuService;
 import dao.entities.*;
 import dao.utils.LinkUtils;

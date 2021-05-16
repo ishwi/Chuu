@@ -1,7 +1,8 @@
-package core.services;
+package core.services.tags;
 
 import core.apis.last.ConcurrentLastFM;
 import core.exceptions.LastFmException;
+import core.services.TrackValidator;
 import dao.ChuuService;
 import dao.entities.Genre;
 import dao.entities.ScrobbledTrack;

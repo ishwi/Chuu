@@ -1,4 +1,4 @@
-package core.music.sources.youtube.webscrobbler;
+package core.music.sources.youtube.webscrobbler.processers;
 
 import java.util.LinkedHashMap;
 import java.util.Map;

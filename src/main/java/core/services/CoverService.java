@@ -1,7 +1,5 @@
 package core.services;
 
-import core.apis.last.ConcurrentLastFM;
-import core.apis.last.LastFMFactory;
 import core.commands.Context;
 import core.commands.utils.CommandUtil;
 import dao.ChuuService;
@@ -23,7 +21,6 @@ public class CoverService {
     private final ListValuedMap<CoverItem, String> bannedCovers;
     private final ListValuedMap<Long, String> bannedCoversById;
     private final Set<Long> guildsAcceptingAll;
-    private final ConcurrentLastFM lastFM;
     private final ChuuService db;
 
     public CoverService(ChuuService db) {
@@ -31,7 +28,6 @@ public class CoverService {
         guildsAcceptingAll = db.getGuildsAcceptingCovers();
         bannedCoversById = new ArrayListValuedHashMap<>();
         bannedCovers.asMap().forEach((key, value) -> bannedCoversById.putAll(key.albumId(), value));
-        lastFM = LastFMFactory.getNewInstance();
         this.db = db;
     }
 

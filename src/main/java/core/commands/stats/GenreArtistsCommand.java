@@ -14,7 +14,7 @@ import core.exceptions.LastFmException;
 import core.parsers.ChartableParser;
 import core.parsers.GenreChartParser;
 import core.parsers.params.ChartableGenreParameters;
-import core.services.TagArtistService;
+import core.services.tags.TagArtistService;
 import dao.ChuuService;
 import dao.entities.*;
 import dao.musicbrainz.MusicBrainzService;

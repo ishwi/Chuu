@@ -9,7 +9,7 @@ import core.parsers.explanation.StrictUserExplanation;
 import core.parsers.explanation.util.Explanation;
 import core.parsers.params.GenreParameters;
 import core.services.NPService;
-import core.services.tracklist.TagStorer;
+import core.services.tags.TagStorer;
 import dao.ChuuService;
 import dao.entities.LastFMData;
 import dao.entities.NowPlayingArtist;

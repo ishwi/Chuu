@@ -2,7 +2,6 @@ package dao;
 
 import dao.entities.*;
 import dao.exceptions.ChuuServiceException;
-import dao.musicbrainz.AffinityDao;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

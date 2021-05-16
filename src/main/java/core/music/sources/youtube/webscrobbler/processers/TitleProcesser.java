@@ -1,7 +1,6 @@
 package core.music.sources.youtube.webscrobbler.processers;
 
 import com.sedmelluq.discord.lavaplayer.tools.JsonBrowser;
-import core.music.sources.youtube.webscrobbler.YoutubeFilters;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;

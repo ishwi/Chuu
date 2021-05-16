@@ -1,12 +1,9 @@
-package core.services.tracklist;
+package core.services.tags;
 
 import core.apis.last.ConcurrentLastFM;
 import core.apis.last.entities.chartentities.TopEntity;
 import core.commands.utils.CommandUtil;
 import core.exceptions.LastFmException;
-import core.services.TagAlbumService;
-import core.services.TagArtistService;
-import core.services.TrackTagService;
 import dao.ChuuService;
 import dao.entities.AlbumInfo;
 import dao.entities.ArtistInfo;

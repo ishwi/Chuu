@@ -14,7 +14,7 @@ import core.commands.Context;
 import core.commands.utils.CommandUtil;
 import core.commands.utils.PrivacyUtils;
 import core.exceptions.LastFmException;
-import core.services.tracklist.TagStorer;
+import core.services.tags.TagStorer;
 import dao.ChuuService;
 import dao.entities.*;
 import dao.exceptions.InstanceNotFoundException;

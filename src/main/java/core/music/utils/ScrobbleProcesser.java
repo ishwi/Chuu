@@ -2,11 +2,11 @@ package core.music.utils;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
-import com.sedmelluq.discord.lavaplayer.source.youtube.ChuuYoutubeAudioTrack;
 import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackInfo;
 import core.music.sources.MetadataTrack;
+import core.music.sources.youtube.webscrobbler.ChuuYoutubeAudioTrack;
 import core.music.sources.youtube.webscrobbler.processers.ChuuAudioTrackInfo;
 import core.music.sources.youtube.webscrobbler.processers.Processed;
 import core.services.AlbumFinder;

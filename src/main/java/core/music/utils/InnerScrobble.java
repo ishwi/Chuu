@@ -2,9 +2,9 @@ package core.music.utils;
 
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackInfo;
 import core.apis.last.entities.Scrobble;
-import core.music.sources.youtube.webscrobbler.YoutubeFilters;
 import core.music.sources.youtube.webscrobbler.processers.ChuuAudioTrackInfo;
 import core.music.sources.youtube.webscrobbler.processers.Processed;
+import core.music.sources.youtube.webscrobbler.processers.YoutubeFilters;
 import dao.entities.Metadata;
 
 import java.util.List;

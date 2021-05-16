@@ -8,7 +8,7 @@ import core.commands.utils.CommandUtil;
 import core.exceptions.LastFmException;
 import core.parsers.params.ArtistAlbumParameters;
 import core.services.ColorService;
-import core.services.TagAlbumService;
+import core.services.tags.TagAlbumService;
 import dao.ChuuService;
 import dao.entities.*;
 import dao.musicbrainz.MusicBrainzService;

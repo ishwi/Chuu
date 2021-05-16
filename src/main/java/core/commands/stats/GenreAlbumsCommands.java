@@ -12,7 +12,7 @@ import core.parsers.ChartableParser;
 import core.parsers.GenreChartParser;
 import core.parsers.params.ChartableGenreParameters;
 import core.parsers.utils.CustomTimeFrame;
-import core.services.TagAlbumService;
+import core.services.tags.TagAlbumService;
 import dao.ChuuService;
 import dao.entities.*;
 import dao.musicbrainz.MusicBrainzService;

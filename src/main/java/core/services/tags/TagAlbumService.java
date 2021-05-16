@@ -1,4 +1,4 @@
-package core.services;
+package core.services.tags;
 
 import core.apis.last.ConcurrentLastFM;
 import core.commands.utils.CommandUtil;

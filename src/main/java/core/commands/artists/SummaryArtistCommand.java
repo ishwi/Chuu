@@ -14,7 +14,7 @@ import core.parsers.ArtistParser;
 import core.parsers.Parser;
 import core.parsers.params.ArtistParameters;
 import core.services.ColorService;
-import core.services.TagArtistService;
+import core.services.tags.TagArtistService;
 import dao.ChuuService;
 import dao.entities.*;
 import dao.musicbrainz.MusicBrainzService;
