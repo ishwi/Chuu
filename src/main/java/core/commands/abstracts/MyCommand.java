@@ -29,6 +29,7 @@ import net.dv8tion.jda.api.hooks.EventListener;
 import net.dv8tion.jda.api.requests.ErrorResponse;
 import net.dv8tion.jda.api.requests.RestAction;
 
+import javax.annotation.CheckReturnValue;
 import javax.validation.constraints.NotNull;
 import java.awt.image.BufferedImage;
 import java.time.Instant;
@@ -257,6 +258,7 @@ public abstract class MyCommand<T extends CommandParameters> implements EventLis
         e.sendMessageQueue(message);
     }
 
+    @CheckReturnValue
     protected RestAction<Message> sendMessage(Context e, String message) {
         return e.sendMessage(message);
     }

@@ -17,60 +17,81 @@
  */
 package core.music.radio;
 
+import com.sedmelluq.discord.lavaplayer.tools.DataFormatTools;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
+import dao.everynoise.Release;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
 
-public class RandomRadioTrackContext extends RadioTrackContext {
-    private final RandomRadio source;
+public class ReleaseRadioTrackContext extends RadioTrackContext {
+    private final String release;
+    private final String artist;
     private final String uri;
-    private final long currentSourcer;
+    private final String genre;
+    private final String genreUri;
 
-    public RandomRadioTrackContext(RadioTrackContext other, RandomRadio source, String uri, long currentSourcer) {
-        super(other);
-        this.source = source;
-        this.uri = uri;
-        this.currentSourcer = currentSourcer;
-    }
-
-    public RandomRadioTrackContext(long requester, long channelRequester, RadioSource source, long currentSourcer, String currrentUri) {
+    public ReleaseRadioTrackContext(long requester, long channelRequester, RadioSource source, String release, String artist, String uri, String genre, String genreUri) {
         super(requester, channelRequester, source);
-        this.source = (RandomRadio) source;
-        this.currentSourcer = currentSourcer;
-        this.uri = currrentUri;
+        this.release = release;
+        this.artist = artist;
+        this.uri = uri;
+        this.genre = genre;
+        this.genreUri = genreUri;
     }
+
+    public ReleaseRadioTrackContext(RadioTrackContext other, Release release, String genre, String genreUri) {
+        super(other);
+        this.release = release.release();
+        this.artist = release.artist();
+        this.uri = release.uri();
+        this.genre = genre;
+        this.genreUri = genreUri;
+
+    }
+
 
     public CompletableFuture<AudioTrack> nextTrack() {
-        return source.nextTrack(this);
+        return getSource().nextTrack(this);
     }
 
-    @Override
     public void serialize(ByteArrayOutputStream stream) throws IOException {
         var writer = new DataOutputStream(stream);
-        writer.writeInt(4);
+        writer.writeInt(5);
         // 1 => TrackContext
         // 2 => DiscordFMTrackContext
         // 3 => RadioTrackContext
         // 4 => RandomRadioTrackContext
+        // 5 => GenreTrackContext
         writer.writeLong(requester());
         writer.writeLong(channelRequester());
-        writer.writeLong(source.guildId());
-        writer.writeBoolean(source.onlyServer());
-        writer.writeLong(currentSourcer);
-        writer.writeUTF(uri);
+        writer.writeUTF(genre);
+        writer.writeUTF(genreUri);
+        DataFormatTools.writeNullableText(writer, release);
+        DataFormatTools.writeNullableText(writer, artist);
+        DataFormatTools.writeNullableText(writer, uri);
         writer.close();// This invokes flush.
     }
 
+    public String getRelease() {
+        return release;
+    }
+
+    public String getArtist() {
+        return artist;
+    }
 
     public String getUri() {
         return uri;
     }
 
-    public long getCurrentSourcer() {
-        return currentSourcer;
+    public String getGenre() {
+        return genre;
     }
 
+    public String getGenreUri() {
+        return genreUri;
+    }
 }

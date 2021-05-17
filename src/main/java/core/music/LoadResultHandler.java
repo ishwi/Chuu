@@ -72,11 +72,12 @@ public class LoadResultHandler implements AudioLoadResultHandler {
         musicManager.enqueue(track, isNext);
 
         if (!isImmediatePlay) {
-            musicManager.getScrobble(track).thenCompose(z -> e.sendMessage(new ChuuEmbedBuilder(e)
-                    .setDescription(
-                            "Queued __**[%s - %s%s](%s)**__".
-                                    formatted(z.song(), z.artist(), z.album() != null ? " | " + z.album() : "", track.getInfo().uri)
-                    ).build()).submit());
+            musicManager.getScrobble(track).thenCompose(z ->
+                    e.sendMessage(new ChuuEmbedBuilder(e)
+                            .setDescription(
+                                    "Queued __**[%s - %s%s](%s)**__".
+                                            formatted(z.song(), z.artist(), z.album() != null ? " | " + z.album() : "", track.getInfo().uri)
+                            ).build()).submit());
 
         }
     }

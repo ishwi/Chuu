@@ -25,12 +25,15 @@ import core.commands.abstracts.MusicCommand;
 import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandUtil;
 import core.music.MusicManager;
+import core.music.radio.RadioTrackContext;
+import core.music.radio.Station;
 import core.music.utils.TrackContext;
 import core.parsers.NoOpParser;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
 import dao.ChuuService;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.MessageEmbed;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
@@ -75,10 +78,12 @@ public class NpVoiceCommand extends MusicCommand<CommandParameters> {
             EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e)
                     .setTitle("Now Playing", playingTrack.getInfo().uri);
             if (manager.getRadio() != null) {
-                String b = "Currently streaming music from radio station " + manager.getRadio().getSource().getName() +
-                           ", requested by @<" + manager.getRadio().requester() +
-                           ">. When the queue is empty, random tracks from the station will be added.";
+                String b = "Currently streaming music from radio station **" + manager.getRadio().getSource().getName() +
+                           "**. When the queue is empty, random tracks from the station will be added.";
                 embedBuilder.addField("Radio", b, false);
+                RadioTrackContext radio = manager.getRadio();
+                MessageEmbed.Field field = Station.getField(playingTrack.getUserData(RadioTrackContext.class), e);
+                embedBuilder.addField(field);
             }
 
             String description = z.toLines();

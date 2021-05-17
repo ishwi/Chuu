@@ -290,7 +290,15 @@ public class MusicManager extends AudioEventAdapter implements AudioSendHandler 
             player.stopTrack();
             return;
         }
-        radioTrack.thenCompose(it -> {
+        radioTrack.orTimeout(3, TimeUnit.SECONDS).whenComplete((audioTrack, throwable) -> {
+            if (throwable != null) {
+                if (player.getPlayingTrack() != null) {
+                    player.stopTrack();
+                    getCurrentRequestChannel().sendMessage("Couldn't get a new song from the radio: " + radio.getSource().getName() + "\nStopping playback").queue();
+                }
+            }
+            System.out.println(audioTrack);
+        }).thenCompose(it -> {
             if (radio.getSource() instanceof PlaylistRadio || it == null || lastTrack == null || !it.getIdentifier().equals(lastTrack.getIdentifier())) {
                 return CompletableFuture.completedFuture(it);
             }

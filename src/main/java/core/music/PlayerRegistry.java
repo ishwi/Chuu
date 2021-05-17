@@ -57,7 +57,7 @@ public class PlayerRegistry {
 
 
     public synchronized MusicManager get(Guild guild) {
-        return registry.computeIfAbsent(guild.getIdLong(), (k) -> new MusicManager(k, playerManager.createPlayer(), this.playerManager, new VoiceAnnounceService(Chuu.getDao())));
+        return registry.computeIfAbsent(guild.getIdLong(), (k) -> new MusicManager(k, playerManager.createPlayer(), this.playerManager, new VoiceAnnounceService(Chuu.getDb())));
     }
 
     public MusicManager getExisting(long id) {

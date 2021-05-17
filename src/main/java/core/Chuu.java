@@ -76,7 +76,7 @@ public class Chuu {
     private static Logger logger;
     private static Map<Long, RateLimiter> ratelimited;
     private static Map<Long, Character> prefixMap;
-    private static ChuuService dao;
+    private static ChuuService db;
     private static CoverService coverService;
     private static MessageDeletionService messageDeletionService;
     private static MessageDisablingService messageDisablingService = new MessageDisablingService();
@@ -194,37 +194,37 @@ public class Chuu {
         channel2Id = Long.parseLong(channel2);
         chuuSess = properties.getProperty("LASTFM_BOT_SESSION_KEY");
         ipv6Block = properties.getProperty("IPV6_BLOCK");
-        dao = new ChuuService();
-        prefixMap = initPrefixMap(dao);
-        ColorService.init(dao);
-        coverService = new CoverService(dao);
+        db = new ChuuService();
+        prefixMap = initPrefixMap(db);
+        ColorService.init(db);
+        coverService = new CoverService(db);
         DiscogsSingleton.init(properties.getProperty("DC_SC"), properties.getProperty("DC_KY"));
         SpotifySingleton.init(properties.getProperty("client_ID"), properties.getProperty("client_Secret"));
-        scrobbleEventManager = new ScrobbleEventManager(new StatusProcesser(dao));
-        scrobbleProcesser = new ScrobbleProcesser(new AlbumFinder(dao, LastFMFactory.getNewInstance()));
+        scrobbleEventManager = new ScrobbleEventManager(new StatusProcesser(db));
+        scrobbleProcesser = new ScrobbleProcesser(new AlbumFinder(db, LastFMFactory.getNewInstance()));
         playerManager = new ExtendedAudioPlayerManager(scrobbleEventManager, scrobbleProcesser);
         playerRegistry = new PlayerRegistry(playerManager);
 
-        scheduledService = new ScheduledService(Executors.newScheduledThreadPool(4), dao);
+        scheduledService = new ScheduledService(Executors.newScheduledThreadPool(4), db);
         scheduledService.setScheduled();
         // Needs these three references
-        HelpCommand help = new HelpCommand(dao);
-        AdministrativeCommand commandAdministrator = new AdministrativeCommand(dao);
-        PrefixCommand prefixCommand = new PrefixCommand(dao);
-        TagWithYearCommand tagWithYearCommand = new TagWithYearCommand(dao);
-        EvalCommand evalCommand = new EvalCommand(dao);
-        FeaturedCommand featuredCommand = new FeaturedCommand(dao, scheduledService);
+        HelpCommand help = new HelpCommand(db);
+        AdministrativeCommand commandAdministrator = new AdministrativeCommand(db);
+        PrefixCommand prefixCommand = new PrefixCommand(db);
+        TagWithYearCommand tagWithYearCommand = new TagWithYearCommand(db);
+        EvalCommand evalCommand = new EvalCommand(db);
+        FeaturedCommand featuredCommand = new FeaturedCommand(db, scheduledService);
 
         // Logs every fime minutes the api calls
         scheduledService.addSchedule(() -> {
             long l = lastFMMetric.longValue();
             lastFMMetric.reset();
-            dao.updateMetric(Metrics.LASTFM_PETITIONS, l);
+            db.updateMetric(Metrics.LASTFM_PETITIONS, l);
             logger.info("Made {} petitions in the last 5 minutes", l);
         }, 5, 5, TimeUnit.MINUTES);
 
 
-        ratelimited = dao.getRateLimited().entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, y -> RateLimiter.create(y.getValue())));
+        ratelimited = db.getRateLimited().entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, y -> RateLimiter.create(y.getValue())));
 
 
         MessageAction.setDefaultMentions(EnumSet.noneOf(Message.MentionType.class));
@@ -252,10 +252,10 @@ public class Chuu {
                 .addEventListeners(new VoiceListener())
                 .addEventListeners(help.registerCommand(tagWithYearCommand))
                 .addEventListeners(help.registerCommand(featuredCommand))
-                .addEventListeners(new ConstantListener(channelId, dao))
+                .addEventListeners(new ConstantListener(channelId, db))
                 .addEventListeners((Object[]) scanListeners(help))
                 .addEventListeners(new AwaitReady(counter, (ShardManager shard) -> {
-                    messageDisablingService = new MessageDisablingService(shard, dao);
+                    messageDisablingService = new MessageDisablingService(shard, db);
                     prefixCommand.onStartup(shard);
                     if (installGlobalCommands) {
                         InteractionBuilder.setGlobalCommands(shard.getShardById(0)).queue();
@@ -269,9 +269,9 @@ public class Chuu {
 
 
         try {
-            initPrivateLastfms(dao);
+            initPrivateLastfms(db);
 
-            messageDeletionService = new MessageDeletionService(dao.getServersWithDeletableMessages());
+            messageDeletionService = new MessageDeletionService(db.getServersWithDeletableMessages());
             shardManager = builder.build();
 
         } catch (LoginException e) {
@@ -292,7 +292,7 @@ public class Chuu {
                     .filter(x -> x.extendsSuperclass("core.commands.abstracts.MyCommand"))
                     .map(x -> {
                         try {
-                            return (MyCommand<?>) x.loadClass().getConstructor(ChuuService.class).newInstance(dao);
+                            return (MyCommand<?>) x.loadClass().getConstructor(ChuuService.class).newInstance(db);
                         } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
                             throw new ChuuServiceException(e);
                         }
@@ -352,8 +352,8 @@ public class Chuu {
         return shardManager;
     }
 
-    public static ChuuService getDao() {
-        return dao;
+    public static ChuuService getDb() {
+        return db;
     }
 
     public static MessageDeletionService getMessageDeletionService() {

@@ -28,6 +28,10 @@ import java.util.concurrent.CompletableFuture;
 public class RadioTrackContext extends TrackContext {
     private final RadioSource source;
 
+    public RadioTrackContext(RadioTrackContext other) {
+        super(other.requester(), other.channelRequester());
+        this.source = other.source;
+    }
 
     public RadioTrackContext(long requester, long channelRequester, RadioSource source) {
         super(requester, channelRequester);
@@ -38,6 +42,7 @@ public class RadioTrackContext extends TrackContext {
         return source.nextTrack(this);
     }
 
+    @Override
     public void serialize(ByteArrayOutputStream stream) throws IOException {
         var writer = new DataOutputStream(stream);
         writer.writeInt(3);

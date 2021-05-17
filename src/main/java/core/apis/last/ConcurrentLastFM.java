@@ -99,7 +99,7 @@ public class ConcurrentLastFM {//implements LastFMService {
         this.apiKey = "&api_key=" + apikey;
         this.secret = secret;
         this.client = ClientSingleton.getInstance();
-        this.oAuthService = new OAuthService(Chuu.getDao(), this);
+        this.oAuthService = new OAuthService(Chuu.getDb(), this);
 
     }
 
@@ -600,7 +600,7 @@ public class ConcurrentLastFM {//implements LastFMService {
                     String s = validatedArtist.get(track.getArtist());
                     if (s == null) {
                         try {
-                            s = Chuu.getDao().getReverseCorrection(track.getArtist());
+                            s = Chuu.getDb().getReverseCorrection(track.getArtist());
                             validatedArtist.put(track.getArtist(), s);
                         } catch (Exception ignored) {
                         }

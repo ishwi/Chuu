@@ -21,7 +21,7 @@ public class ChartUtil {
         if (timeFrameEnum.getType() == CustomTimeFrame.Type.NORMAL) {
             return new TimeFrameParser(lastFM, username, chartParameters, topEntity, timeFrameEnum.getTimeFrameEnum()).obtainParse();
         } else {
-            return new CustomTimeFrameParser(lastFM, username, chartParameters, topEntity, timeFrameEnum, Chuu.getDao()).obtainParse();
+            return new CustomTimeFrameParser(lastFM, username, chartParameters, topEntity, timeFrameEnum, Chuu.getDb()).obtainParse();
         }
     }
 

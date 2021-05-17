@@ -25,7 +25,7 @@ public class NPService {
         if (user.getName() == null) {
             throw new InstanceNotFoundException(user.getDiscordId());
         }
-        this.db = Chuu.getDao();
+        this.db = Chuu.getDb();
     }
 
     public NPUpdate getNowPlayingBoth() throws InstanceNotFoundException, LastFmException {

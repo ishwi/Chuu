@@ -32,7 +32,7 @@ public class UserStringParser extends DaoParser<UserStringParameters> {
         User oneUser = parserAux.getOneUser(e, dao);
         words = parserAux.getMessage();
         LastFMData lastfmFromID = findLastfmFromID(oneUser, e);
-        String join = String.join("", words);
+        String join = String.join(" ", words);
         if (!allowEmpty && join.isBlank()) {
             sendError("Need at least one word!", e);
             return null;

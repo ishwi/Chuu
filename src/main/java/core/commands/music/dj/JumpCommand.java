@@ -62,7 +62,7 @@ public class JumpCommand extends MusicCommand<MinutesParameters> {
         MusicManager manager = getManager(e);
         AudioTrack track = manager.getPlayer().getPlayingTrack();
         if (!track.isSeekable()) {
-            sendMessage(e, "Current song doesn't support seeking :pensive:");
+            sendMessageQueue(e, "Current song doesn't support seeking :pensive:");
             return;
         }
         int hours = params.getHours();

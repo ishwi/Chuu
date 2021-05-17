@@ -62,7 +62,7 @@ public enum GuildConfigType {
                 x -> {
                     String key = x.getKey();
                     return switch (x.getValue()) {
-                        case CROWNS_THRESHOLD -> String.format("**%s** -> %d", key, guildProperties.crown_threshold());
+                        case CROWNS_THRESHOLD -> String.format("**%s** \u279C %d", key, guildProperties.crown_threshold());
                         case CHART_MODE -> {
                             ChartMode chartMode = guildProperties.chartMode();
                             String mode;
@@ -71,7 +71,7 @@ public enum GuildConfigType {
                             } else {
                                 mode = chartMode.toString();
                             }
-                            yield String.format("**%s** -> %s", key, mode);
+                            yield String.format("**%s** \u279C %s", key, mode);
                         }
                         case COLOR -> {
                             EmbedColor embedColor = guildProperties.embedColor();
@@ -81,7 +81,7 @@ public enum GuildConfigType {
                             } else {
                                 mode = embedColor.toString();
                             }
-                            yield String.format("**%s** -> %s", key, mode);
+                            yield String.format("**%s** \u279C %s", key, mode);
                         }
 
                         case WHOKNOWS_MODE -> {
@@ -93,7 +93,7 @@ public enum GuildConfigType {
                             } else {
                                 whoknowsmode = modes.toString();
                             }
-                            yield String.format("**%s** -> %s", key, whoknowsmode);
+                            yield String.format("**%s** \u279C %s", key, whoknowsmode);
                         }
                         case REMAINING_MODE -> {
                             String whoknowsmode;
@@ -104,13 +104,13 @@ public enum GuildConfigType {
                             } else {
                                 whoknowsmode = modes2.toString();
                             }
-                            yield String.format("**%s** -> %s", key, whoknowsmode);
+                            yield String.format("**%s** \u279C %s", key, whoknowsmode);
                         }
-                        case ALLOW_NP_REACTIONS -> String.format("**%s** -> %s", key, guildProperties.allowReactions());
-                        case OVERRIDE_NP_REACTIONS -> String.format("**%s** -> %s", key, guildProperties.overrideReactions().toString());
-                        case OVERRIDE_COLOR -> String.format("**%s** -> %s", key, guildProperties.overrideColorReactions().toString());
-                        case DELETE_MESSAGE -> String.format("**%s** -> %s", key, guildProperties.deleteMessages());
-                        case SHOW_DISABLED_WARNING -> String.format("**%s** -> %s", key, guildProperties.showWarnings());
+                        case ALLOW_NP_REACTIONS -> String.format("**%s** \u279C %s", key, guildProperties.allowReactions());
+                        case OVERRIDE_NP_REACTIONS -> String.format("**%s** \u279C %s", key, guildProperties.overrideReactions().toString());
+                        case OVERRIDE_COLOR -> String.format("**%s** \u279C %s", key, guildProperties.overrideColorReactions().toString());
+                        case DELETE_MESSAGE -> String.format("**%s** \u279C %s", key, guildProperties.deleteMessages());
+                        case SHOW_DISABLED_WARNING -> String.format("**%s** \u279C %s", key, guildProperties.showWarnings());
                         case NP -> {
                             EnumSet<NPMode> npModes = dao.getServerNPModes(guildId);
                             String strModes;
@@ -119,18 +119,18 @@ public enum GuildConfigType {
                             } else {
                                 strModes = NPMode.getListedName(npModes);
                             }
-                            yield String.format("**%s** -> %s", key, strModes);
+                            yield String.format("**%s** \u279C %s", key, strModes);
                         }
                         case VOICE_ANNOUNCEMENT_CHANNEL, VOICE_ANNOUNCEMENT_ENABLED -> {
                             VoiceAnnounceService voiceAnnounceService = new VoiceAnnounceService(dao);
                             VoiceAnnouncement voiceAnnouncement = voiceAnnounceService.getVoiceAnnouncement(guildId);
                             if (x.getValue() == VOICE_ANNOUNCEMENT_CHANNEL) {
-                                yield String.format("**%s** -> %s", key, voiceAnnouncement.channelId() == null ? "None" : "<#" + voiceAnnouncement.channelId() + ">");
+                                yield String.format("**%s** \u279C %s", key, voiceAnnouncement.channelId() == null ? "None" : "<#" + voiceAnnouncement.channelId() + ">");
                             } else {
-                                yield String.format("**%s** -> %s", key, voiceAnnouncement.enabled());
+                                yield String.format("**%s** \u279C %s", key, voiceAnnouncement.enabled());
                             }
                         }
-                        case CENSOR_CONVERS -> String.format("**%s** -> %s", key, !guildProperties.censorCovers());
+                        case CENSOR_CONVERS -> String.format("**%s** \u279C %s", key, !guildProperties.censorCovers());
                     };
                 }).collect(Collectors.joining("\n"));
 

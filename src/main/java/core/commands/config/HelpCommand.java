@@ -98,7 +98,7 @@ public class HelpCommand extends ConcurrentCommand<WordParameter> {
 
     @Override
     public List<String> getAliases() {
-        return Collections.singletonList("help");
+        return List.of("help", "h");
     }
 
     @Override

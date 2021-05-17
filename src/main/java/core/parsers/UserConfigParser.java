@@ -29,7 +29,7 @@ public class UserConfigParser extends DaoParser<UserConfigParameters> {
         char prefix = CommandUtil.getMessagePrefix(e);
         if (words.length == 1) {
             String line = Arrays.stream(UserConfigType.values()).filter(x -> x.getCommandName().equalsIgnoreCase(words[0])).map(x ->
-                    String.format("\t**%s** -> %s", x.getCommandName(), x.getExplanation())).collect(Collectors.joining("\n"));
+                    String.format("\t**%s** \u279C %s", x.getCommandName(), x.getExplanation())).collect(Collectors.joining("\n"));
             if (line.isBlank()) {
                 line = Arrays.stream(UserConfigType.values()).map(UserConfigType::getCommandName).collect(Collectors.joining(", "));
                 sendError(words[0] + " is not a valid configuration, use one of the following:\n\t" + line, e);
@@ -67,7 +67,7 @@ public class UserConfigParser extends DaoParser<UserConfigParameters> {
 
     @Override
     public List<Explanation> getUsages() {
-        String line = Arrays.stream(UserConfigType.values()).map(x -> String.format("\t**%s** -> %s", x.getCommandName(), x.getExplanation())).collect(Collectors.joining("\n"));
+        String line = Arrays.stream(UserConfigType.values()).map(x -> String.format("\t**%s** \u279C %s", x.getCommandName(), x.getExplanation())).collect(Collectors.joining("\n"));
         String usage = "Possible values:\n" + line;
         return Collections.singletonList(() -> new ExplanationLineType("Command with argument", usage, OptionType.STRING));
     }

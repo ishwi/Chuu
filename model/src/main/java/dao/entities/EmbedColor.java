@@ -58,7 +58,7 @@ public record EmbedColor(dao.entities.EmbedColor.EmbedColorType type, List<Strin
         return switch (type) {
             case RANDOM -> "Random Colour";
             case ROLE -> "Role Colour";
-            case COLOURS -> "one of -> " + String.join(" | ", colorList);
+            case COLOURS -> "one of \u279C " + String.join(" | ", colorList);
         };
 
     }

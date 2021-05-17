@@ -75,7 +75,7 @@ public class Eval {
                 sendMessageQueue(e, "<https://support.last.fm/t/user-gettopalbums-not-returning-album-artwork-with-high-values-of-limit>");
             }
         }
-        core.Chuu.getShardManager().getGuildById(682909819702738967L).getJDA().addEventListener(new A(core.Chuu.getDao()));
+        core.Chuu.getShardManager().getGuildById(682909819702738967L).getJDA().addEventListener(new A(core.Chuu.getDb()));
 
 
         core.Chuu.getShardManager().getGuildCache().stream().mapToLong(t -> t.getMembers().size()).sum();

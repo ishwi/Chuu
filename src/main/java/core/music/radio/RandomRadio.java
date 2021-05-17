@@ -1,8 +1,5 @@
 package core.music.radio;
 
-import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
-import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
-import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import core.Chuu;
 import dao.entities.RandomUrlEntity;
@@ -10,17 +7,14 @@ import dao.entities.RandomUrlEntity;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicInteger;
 
-public class RandomRadio implements RadioSource {
-    private final String name;
-    private final long guildId;
-    private final boolean onlyServer;
+public final record RandomRadio(String name, long guildId, boolean onlyServer) implements RadioSource {
 
-    public RandomRadio(String name, long guildId, boolean onlyServer) {
-        this.name = name;
-        this.guildId = guildId;
-        this.onlyServer = onlyServer;
+    public RandomRadio(long guildId, boolean onlyServer) {
+        this("Random radio", guildId, onlyServer);
     }
 
     @Override
@@ -31,21 +25,20 @@ public class RandomRadio implements RadioSource {
     @Override
     public CompletableFuture<AudioTrack> nextTrack(RadioTrackContext context) {
 
-        return this.nextTrack0(context, 1);
+        return this.nextTrack0(context, new AtomicInteger(1));
     }
 
     @Override
     public void serialize(ByteArrayOutputStream stream) throws IOException {
         var writer = new DataOutputStream(stream);
-        writer.writeInt(3);
-        writer.writeUTF(name);
+        writer.writeInt(4);
         writer.writeLong(guildId);
         writer.writeBoolean(onlyServer);
         writer.close(); // This invokes flush.
     }
 
-    private CompletableFuture<AudioTrack> nextTrack0(RadioTrackContext context, int attempts) {
-        if (attempts > 3) {
+    private CompletableFuture<AudioTrack> nextTrack0(RadioTrackContext context, AtomicInteger attempts) {
+        if (attempts.get() > 3) {
             return CompletableFuture.completedFuture(null);
         }
 
@@ -54,43 +47,16 @@ public class RandomRadio implements RadioSource {
         do {
             youtubeSkipAttemps++;
             if (onlyServer && guildId != -1L) {
-                randomUrl = Chuu.getDao().getRandomUrlFromServer(guildId);
+                randomUrl = Chuu.getDb().getRandomUrlFromServer(guildId);
             } else {
-                randomUrl = Chuu.getDao().getRandomUrl();
+                randomUrl = Chuu.getDb().getRandomUrl();
             }
         } while (randomUrl.url().startsWith("https://www.youtube.com") && youtubeSkipAttemps <= 5);
 
         var future = new CompletableFuture<AudioTrack>();
 
-        Chuu.playerManager.loadItemOrdered(this, randomUrl.url(), new AudioLoadResultHandler() {
-            @Override
-            public void trackLoaded(AudioTrack track) {
-                track.setUserData(context);
-
-                future.complete(track);
-            }
-
-            @Override
-            public void playlistLoaded(AudioPlaylist playlist) {
-                trackLoaded(playlist.getTracks().get(0));
-            }
-
-            @Override
-            public void noMatches() {
-                future.complete(null);
-
-            }
-
-            @Override
-            public void loadFailed(FriendlyException exception) {
-                if (attempts >= 3) {
-                    future.complete(null);
-                } else {
-                    nextTrack0(context, attempts + 1);
-                }
-            }
-        });
-
+        RandomUrlEntity finalRandomUrl = randomUrl;
+        Chuu.playerManager.loadItemOrdered(this, randomUrl.url(), RetriableLoader.getLoader(future, true, () -> new RandomRadioTrackContext(context, this, finalRandomUrl.url(), finalRandomUrl.discordId()), context, attempts, this::nextTrack0, new HashSet<>()));
         return future;
     }
 }
