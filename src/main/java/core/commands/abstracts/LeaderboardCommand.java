@@ -6,7 +6,6 @@ import core.commands.utils.CommandUtil;
 import core.commands.utils.PrivacyUtils;
 import core.otherlisteners.Reactionary;
 import core.parsers.params.CommandParameters;
-import core.services.ColorService;
 import dao.ChuuService;
 import dao.entities.LbEntry;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -27,8 +26,7 @@ public abstract class LeaderboardCommand<T extends CommandParameters> extends Li
         Context e = params.getE();
         list.forEach(cl -> cl.setDiscordName(getUserString(e, cl.getDiscordId(), cl.getLastFmId())));
 
-        EmbedBuilder embedBuilder = new ChuuEmbedBuilder().setColor(ColorService.computeColor(e))
-                .setThumbnail(e.getGuild().getIconUrl());
+        EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e).setThumbnail(e.getGuild().getIconUrl());
         StringBuilder a = new StringBuilder();
 
         if (list.isEmpty()) {

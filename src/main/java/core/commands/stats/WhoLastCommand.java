@@ -15,7 +15,6 @@ import core.otherlisteners.Reactionary;
 import core.parsers.ArtistParser;
 import core.parsers.Parser;
 import core.parsers.params.ArtistParameters;
-import core.services.ColorService;
 import dao.ChuuService;
 import dao.entities.Memoized;
 import dao.entities.ScrobbledArtist;
@@ -51,7 +50,7 @@ public class WhoLastCommand extends ConcurrentCommand<ArtistParameters> {
 
         List<Memoized<UserListened, String>> strings = firsts.stream().map(t -> new Memoized<>(t, toMemoize)).toList();
 
-        EmbedBuilder embedBuilder = new ChuuEmbedBuilder();
+        EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e);
         StringBuilder builder = new StringBuilder();
 
 
@@ -66,8 +65,7 @@ public class WhoLastCommand extends ConcurrentCommand<ArtistParameters> {
         String usable = CommandUtil.cleanMarkdownCharacter(e.getGuild().getName());
         embedBuilder.setTitle("Who listened " + (isFirst ? "first" : "last") + " to " + params.getScrobbledArtist().getArtist() + " in " + usable).
                 setThumbnail(CommandUtil.noImageUrl(params.getScrobbledArtist().getUrl())).setDescription(builder)
-                .setFooter(strings.size() + CommandUtil.singlePlural(strings.size(), " listener", " listeners"))
-                .setColor(ColorService.computeColor(e));
+                .setFooter(strings.size() + CommandUtil.singlePlural(strings.size(), " listener", " listeners"));
         e.sendMessage(embedBuilder.build())
                 .queue(message1 ->
                         new Reactionary<>(strings, message1, embedBuilder));

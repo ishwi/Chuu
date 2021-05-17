@@ -19,7 +19,6 @@ import core.otherlisteners.Reactionary;
 import core.parsers.DaoParser;
 import core.parsers.OptionalEntity;
 import core.parsers.params.CommandParameters;
-import core.services.ColorService;
 import dao.ChuuService;
 import dao.entities.ReturnNowPlaying;
 import dao.entities.WKMode;
@@ -136,7 +135,7 @@ public abstract class WhoKnowsBaseCommand<T extends CommandParameters> extends C
     }
 
     void doList(T ap, WrapperReturnNowPlaying wrapperReturnNowPlaying) {
-        EmbedBuilder embedBuilder = new ChuuEmbedBuilder();
+        EmbedBuilder embedBuilder = new ChuuEmbedBuilder(ap.getE());
         StringBuilder builder = new StringBuilder();
 
         Context e = ap.getE();
@@ -155,8 +154,7 @@ public abstract class WhoKnowsBaseCommand<T extends CommandParameters> extends C
             usable = e.getJDA().getSelfUser().getName();
         }
         embedBuilder.setTitle(getTitle(ap, usable)).
-                setThumbnail(CommandUtil.noImageUrl(wrapperReturnNowPlaying.getUrl())).setDescription(builder)
-                .setColor(ColorService.computeColor(e));
+                setThumbnail(CommandUtil.noImageUrl(wrapperReturnNowPlaying.getUrl())).setDescription(builder);
         e.sendMessage(embedBuilder.build())
                 .queue(message1 ->
                         new Reactionary<>(wrapperReturnNowPlaying

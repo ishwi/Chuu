@@ -14,7 +14,6 @@ import core.parsers.TimerFrameParser;
 import core.parsers.params.ChartParameters;
 import core.parsers.params.TimeFrameParameters;
 import core.parsers.utils.CustomTimeFrame;
-import core.services.ColorService;
 import dao.ChuuService;
 import dao.entities.DiscordUserDisplay;
 import dao.entities.LastFMData;
@@ -73,9 +72,8 @@ public class UserResumeCommand extends ConcurrentCommand<TimeFrameParameters> {
         LocalDateTime localDateTime = time.toLocalDate(1);
         int i = lastFM.scrobblesSince(name, localDateTime.atOffset(ZoneOffset.UTC));
         DiscordUserDisplay info = CommandUtil.getUserInfoConsideringGuildOrNot(e, params.getLastFMData().getDiscordId());
-        EmbedBuilder embedBuilder = new ChuuEmbedBuilder()
+        EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e)
                 .setTitle(info.getUsername() + "'s summary" + time.getDisplayString())
-                .setColor(ColorService.computeColor(e))
                 .setThumbnail(info.getUrlImage())
                 .addField("Total scrobbles:", i + " scrobbles", false)
                 .addField("Total songs:", trackCount + " songs", true)

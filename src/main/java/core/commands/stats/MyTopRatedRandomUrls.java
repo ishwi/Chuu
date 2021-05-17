@@ -9,7 +9,6 @@ import core.otherlisteners.Reactionary;
 import core.parsers.OnlyUsernameParser;
 import core.parsers.Parser;
 import core.parsers.params.ChuuDataParams;
-import core.services.ColorService;
 import dao.ChuuService;
 import dao.entities.DiscordUserDisplay;
 import dao.entities.ScoredAlbumRatings;
@@ -47,10 +46,9 @@ public class MyTopRatedRandomUrls extends ConcurrentCommand<ChuuDataParams> {
             a.append(i + 1).append(list.get(i));
         }
 
-        EmbedBuilder embedBuilder = new ChuuEmbedBuilder()
+        EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e)
                 .setDescription(a).setTitle(title)
-                .setThumbnail(url)
-                .setColor(ColorService.computeColor(e));
+                .setThumbnail(url);
 
         e.sendMessage(embedBuilder.build()).
                 queue(message ->

@@ -84,7 +84,7 @@ public class ClockCommand extends ConcurrentCommand<ChuuDataParams> {
         long maxSize = e.isFromGuild() ? e.getGuild().getMaxFileSize() : Message.MAX_FILE_SIZE;
 
         if (bytes.length < maxSize) {
-            EmbedBuilder embed = new ChuuEmbedBuilder();
+            EmbedBuilder embed = new ChuuEmbedBuilder(e);
             embed.setImage("attachment://cat.gif").setDescription("");
             e.doSendImage(bytes, ".gif", null);
 

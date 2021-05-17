@@ -15,7 +15,6 @@ import core.parsers.ArtistParser;
 import core.parsers.OptionalEntity;
 import core.parsers.Parser;
 import core.parsers.params.ArtistParameters;
-import core.services.ColorService;
 import dao.ChuuService;
 import dao.entities.GlobalCrown;
 import dao.entities.LastFMData;
@@ -84,8 +83,7 @@ public class GlobalArtistCommand extends ConcurrentCommand<ArtistParameters> {
         Optional<GlobalCrown> yourPosition = globalArtistRanking.stream().filter(x -> x.getDiscordId() == userId).findFirst();
         int totalPeople = globalArtistRanking.size();
         int totalPlays = globalArtistRanking.stream().mapToInt(GlobalCrown::getPlaycount).sum();
-        EmbedBuilder embedBuilder = new ChuuEmbedBuilder()
-                .setColor(ColorService.computeColor(e));
+        EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e);
 
         if (yourPosition.isPresent()) {
             GlobalCrown globalCrown = yourPosition.get();
@@ -107,13 +105,13 @@ public class GlobalArtistCommand extends ConcurrentCommand<ArtistParameters> {
                     if (globalArtistRanking.get(0).isBootedAccount()) {
                         embedBuilder.addField("Plays for global crown:", String.valueOf((globalArtistRanking.get(0).getPlaycount() - globalCrown.getPlaycount() + 1)), true);
                     }
-                    embedBuilder.addField("Plays for global crown:", String.valueOf((globalArtistRanking.get(0).getPlaycount() - globalCrown.getPlaycount() + 1)), true);
-                    embedBuilder.addField("Your Plays:", String.valueOf(globalCrown.getPlaycount()), true);
+                    embedBuilder.addField("Plays for global crown:", String.valueOf((globalArtistRanking.get(0).getPlaycount() - globalCrown.getPlaycount() + 1)), true)
+                            .addField("Your Plays:", String.valueOf(globalCrown.getPlaycount()), true);
 
                 } else {
-                    embedBuilder.addField("Plays to rank up:", String.valueOf((globalArtistRanking.get(position - 2).getPlaycount() - globalCrown.getPlaycount() + 1)), true);
-                    embedBuilder.addField("Plays for first position:", String.valueOf((globalArtistRanking.get(0).getPlaycount() - globalCrown.getPlaycount() + 1)), true);
-                    embedBuilder.addField("Your Plays:", String.valueOf(globalCrown.getPlaycount()), false);
+                    embedBuilder.addField("Plays to rank up:", String.valueOf((globalArtistRanking.get(position - 2).getPlaycount() - globalCrown.getPlaycount() + 1)), true)
+                            .addField("Plays for first position:", String.valueOf((globalArtistRanking.get(0).getPlaycount() - globalCrown.getPlaycount() + 1)), true)
+                            .addField("Your Plays:", String.valueOf(globalCrown.getPlaycount()), false);
                 }
 
             } else {
@@ -140,10 +138,9 @@ public class GlobalArtistCommand extends ConcurrentCommand<ArtistParameters> {
         String globalStats = String.format("**%d** listeners%n", totalPeople) +
                              String.format("**%d** plays%n", totalPlays);
         embedBuilder
-                .addField(String.format("%s's stats", CommandUtil.cleanMarkdownCharacter(e.getJDA().getSelfUser().getName())), globalStats, true);
-
-        embedBuilder.setImage(validable.getUrl());
-        embedBuilder.setTitle("Who knows " + artist + " globally?");
+                .addField(String.format("%s's stats", CommandUtil.cleanMarkdownCharacter(e.getJDA().getSelfUser().getName())), globalStats, true)
+                .setImage(validable.getUrl())
+                .setTitle("Who knows " + artist + " globally?");
         e.sendMessage(embedBuilder.build()).queue();
 
     }

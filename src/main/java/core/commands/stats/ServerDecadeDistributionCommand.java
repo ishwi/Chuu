@@ -9,7 +9,6 @@ import core.otherlisteners.Reactionary;
 import core.parsers.NoOpParser;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
-import core.services.ColorService;
 import dao.ChuuService;
 
 import javax.validation.constraints.NotNull;
@@ -66,10 +65,9 @@ public class ServerDecadeDistributionCommand extends ConcurrentCommand<CommandPa
             a.append(i + 1).append(s);
         }
 
-        var embedBuilder = new ChuuEmbedBuilder()
+        var embedBuilder = new ChuuEmbedBuilder(e)
                 .setDescription(a)
                 .setAuthor(String.format("%s's years", e.getGuild().getName()), null, e.getGuild().getIconUrl())
-                .setColor(ColorService.computeColor(e))
                 .setFooter("%s has albums from %d different %s".formatted(CommandUtil.markdownLessString(e.getGuild().getName()), counts.size(), CommandUtil.singlePlural(counts.size(), "decade", "decades")), null);
 
         e.sendMessage(embedBuilder.build()).queue(m ->

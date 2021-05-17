@@ -14,7 +14,6 @@ import core.parsers.OptionalEntity;
 import core.parsers.Parser;
 import core.parsers.params.ChuuDataParams;
 import core.services.AlbumValidator;
-import core.services.ColorService;
 import core.services.TrackValidator;
 import core.services.tags.TagStorer;
 import dao.ChuuService;
@@ -133,9 +132,8 @@ public class TagStreakCommand extends ConcurrentCommand<ChuuDataParams> {
         String userName = userInformation.getUsername();
         String userUrl = userInformation.getUrlImage();
 
-        EmbedBuilder embedBuilder = new ChuuEmbedBuilder()
+        EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e)
                 .setAuthor(String.format("%s's current tag streak", CommandUtil.markdownLessUserString(userName, discordID, e)), CommandUtil.getLastFmUser(lastfmId), userUrl)
-                .setColor(ColorService.computeColor(e))
                 .setDescription(tags.stream().limit(5).collect(Collectors.joining()));
         e.sendMessage(embedBuilder.build()).
                 queue(m -> new Reactionary<>(tags, m, 5, embedBuilder, false));

@@ -4,10 +4,14 @@ CREATE TABLE botted
     lastfm_id varchar(45) CHARSET ascii         NOT NULL,
     UNIQUE (lastfm_id)
 );
-INSERT INTO botted(lastfm_id)
-SELECT lastfm_id
-FROM user
-WHERE botted_account = TRUE;
+INSERT INTO
+    botted(lastfm_id)
+SELECT
+    lastfm_id
+FROM
+    user
+WHERE
+    botted_account = TRUE;
 
 
 CREATE TABLE image_blocked
@@ -16,26 +20,34 @@ CREATE TABLE image_blocked
     discord_id bigint                            NOT NULL,
     UNIQUE (discord_id)
 );
-INSERT INTO persistent_image_blocked(discord_id)
-SELECT discord_id
-FROM user
-WHERE role = 'IMAGE_BLOCKED';
+INSERT INTO
+    persistent_image_blocked(discord_id)
+SELECT
+    discord_id
+FROM
+    user
+WHERE
+    role = 'IMAGE_BLOCKED';
 
 CREATE TRIGGER botter
     AFTER INSERT
     ON botted
     FOR EACH ROW
     UPDATE user
-    SET botted_account = TRUE
-    WHERE lastfm_id = new.lastfm_id;
+    SET
+        botted_account = TRUE
+    WHERE
+        lastfm_id = new.lastfm_id;
 
 CREATE TRIGGER imaged
     AFTER INSERT
     ON image_blocked
     FOR EACH ROW
     UPDATE user
-    SET role = 'IMAGE_BLOCKED'
-    WHERE discord_id = new.discord_id;
+    SET
+        role = 'IMAGE_BLOCKED'
+    WHERE
+        discord_id = new.discord_id;
 
 
 CREATE TABLE role_colour_server

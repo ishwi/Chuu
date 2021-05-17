@@ -9,7 +9,6 @@ import core.parsers.Parser;
 import core.parsers.UsernameAndNpQueryParser;
 import core.parsers.params.ExtraParameters;
 import core.parsers.params.WordParameter;
-import core.services.ColorService;
 import dao.ChuuService;
 import net.dv8tion.jda.api.entities.User;
 
@@ -52,8 +51,7 @@ public class RymSearchCommand extends ConcurrentCommand<ExtraParameters<WordPara
 
         String query = params.getInnerParams().getWord();
         String url = rymSearch.searchUrl(query);
-        e.sendMessage(new ChuuEmbedBuilder().setColor(ColorService.computeColor(e))
-                .setAuthor("RYM search for: \"" + query.replaceAll("\"", "") + "\"", url)
+        e.sendMessage(new ChuuEmbedBuilder(e).setAuthor("RYM search for: \"" + query.replaceAll("\"", "") + "\"", url)
                 .setTitle("\t<:rym:820111349690531850> Click here to view the results", url).build()).queue();
     }
 

@@ -72,10 +72,8 @@ public class NpVoiceCommand extends MusicCommand<CommandParameters> {
             Scrobble z = l.scrobble(playingTrack.getPosition(), playingTrack.getDuration());
             var index = l.mapDuration(playingTrack.getPosition(), playingTrack.getDuration());
             long fakePosition = index.duration();
-
-            EmbedBuilder embedBuilder = new ChuuEmbedBuilder()
-                    .setTitle("Now Playing", playingTrack.getInfo().uri)
-                    .setColor(CommandUtil.pastelColor());
+            EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e)
+                    .setTitle("Now Playing", playingTrack.getInfo().uri);
             if (manager.getRadio() != null) {
                 String b = "Currently streaming music from radio station " + manager.getRadio().getSource().getName() +
                            ", requested by @<" + manager.getRadio().requester() +

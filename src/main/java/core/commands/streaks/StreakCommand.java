@@ -16,7 +16,6 @@ import core.parsers.OnlyUsernameParser;
 import core.parsers.OptionalEntity;
 import core.parsers.Parser;
 import core.parsers.params.ChuuDataParams;
-import core.services.ColorService;
 import dao.ChuuService;
 import dao.entities.DiscordUserDisplay;
 import dao.entities.LastFMData;
@@ -107,7 +106,7 @@ public class StreakCommand extends ConcurrentCommand<ChuuDataParams> {
         int artistPlays = db.getArtistPlays(artist.getArtistId(), lastfmId);
         String aString = CommandUtil.cleanMarkdownCharacter(artist.getArtist());
         StringBuilder description = new StringBuilder();
-        EmbedBuilder embedBuilder = new ChuuEmbedBuilder()
+        EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e)
                 .setAuthor(String.format("%s 's current listening streak", CommandUtil.markdownLessUserString(userName, discordID, e)), CommandUtil.getLastFmUser(lastfmId), userUrl)
                 .setThumbnail(CommandUtil.noImageUrl(artist.getUrl()))
                 .setDescription("");
@@ -157,7 +156,6 @@ public class StreakCommand extends ConcurrentCommand<ChuuDataParams> {
         }
 
         embedBuilder.setDescription(description)
-                .setColor(ColorService.computeColor(e))
                 .setFooter(String.format("%s has played %s %d %s!", CommandUtil.markdownLessUserString(userName, discordID, e), artist.getArtist(), artistPlays, CommandUtil.singlePlural(artistPlays, "time", "times")));
         e.sendMessage(embedBuilder.build()).
                 queue();

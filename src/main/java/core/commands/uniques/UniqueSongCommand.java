@@ -9,7 +9,6 @@ import core.otherlisteners.Reactionary;
 import core.parsers.OnlyUsernameParser;
 import core.parsers.Parser;
 import core.parsers.params.ChuuDataParams;
-import core.services.ColorService;
 import dao.ChuuService;
 import dao.entities.DiscordUserDisplay;
 import dao.entities.TrackPlays;
@@ -71,8 +70,7 @@ public class UniqueSongCommand extends ConcurrentCommand<ChuuDataParams> {
 
         DiscordUserDisplay userInfo = CommandUtil.getUserInfoConsideringGuildOrNot(e, resultWrapper.getDiscordId());
 
-        EmbedBuilder embedBuilder = new ChuuEmbedBuilder().setColor(ColorService.computeColor(e))
-                .setDescription(a)
+        EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e).setDescription(a)
                 .setAuthor(String.format("%s's%s unique songs", userInfo.getUsername(), isGlobal() ? " global" : ""), CommandUtil.getLastFmUser(lastFmName), userInfo.getUrlImage())
                 .setFooter(String.format("%s has %d%s unique songs!%n", CommandUtil.markdownLessUserString(userInfo.getUsername(), resultWrapper.getDiscordId(), e), rows, isGlobal() ? " global" : ""), null);
 

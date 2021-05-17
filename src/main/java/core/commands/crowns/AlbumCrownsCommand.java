@@ -10,7 +10,6 @@ import core.parsers.OnlyUsernameParser;
 import core.parsers.Parser;
 import core.parsers.params.ChuuDataParams;
 import core.parsers.params.NumberParameters;
-import core.services.ColorService;
 import dao.ChuuService;
 import dao.entities.AlbumPlays;
 import dao.entities.ArtistPlays;
@@ -84,9 +83,8 @@ public class AlbumCrownsCommand extends ConcurrentCommand<NumberParameters<ChuuD
             ArtistPlays g = resultWrapper.get(i);
             a.append(i + 1).append(g.toString());
         }
-        EmbedBuilder embedBuilder = new ChuuEmbedBuilder()
+        EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e)
                 .setDescription(a)
-                .setColor(ColorService.computeColor(e))
                 .setTitle(String.format("%s's album crowns", name), CommandUtil.getLastFmUser(uniqueDataUniqueWrapper.getLastFmId()))
                 .setFooter(String.format("%s has %d album crowns!!%n", CommandUtil.markdownLessUserString(name, innerParams.getLastFMData().getDiscordId(), e), resultWrapper.size()), null)
                 .setThumbnail(url);

@@ -17,7 +17,6 @@ import core.parsers.TimerFrameParser;
 import core.parsers.params.NumberParameters;
 import core.parsers.params.TimeFrameParameters;
 import core.parsers.utils.CustomTimeFrame;
-import core.services.ColorService;
 import core.services.tags.TagAlbumService;
 import core.services.tags.TagArtistService;
 import dao.ChuuService;
@@ -195,9 +194,8 @@ public class GenreCommand extends ConcurrentCommand<NumberParameters<TimeFramePa
             for (int i = 0; i < 10 && i < lines.size(); i++) {
                 a.append(i + 1).append(lines.get(i));
             }
-            EmbedBuilder embedBuilder = new ChuuEmbedBuilder();
-            embedBuilder.setDescription(a)
-                    .setColor(ColorService.computeColor(e))
+            EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e)
+                    .setDescription(a)
                     .setTitle(usableString + "'s genres")
                     .setFooter(usableString + " has " + lines.size() + " found genres" + timeframe.getDisplayString(), null)
                     .setThumbnail(urlImage);

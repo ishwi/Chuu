@@ -5,7 +5,6 @@ import core.commands.utils.ChuuEmbedBuilder;
 import core.imagerenderer.GraphicUtils;
 import core.imagerenderer.util.pie.IPieableList;
 import core.parsers.params.CommandParameters;
-import core.services.ColorService;
 import dao.ChuuService;
 import net.dv8tion.jda.api.EmbedBuilder;
 import org.knowm.xchart.PieChart;
@@ -38,15 +37,14 @@ public abstract class PieableListCommand<T, Y extends CommandParameters> extends
 
     public abstract void doPie(T data, Y parameters);
 
-    public EmbedBuilder initList(List<String> strList, Context event) {
+    public EmbedBuilder initList(List<String> strList, Context e) {
         StringBuilder a = new StringBuilder();
         for (int i = 0, size = strList.size(); i < 10 && i < size; i++) {
             String text = strList.get(i);
             a.append(i + 1).append(text);
         }
-        EmbedBuilder embedBuilder = new ChuuEmbedBuilder();
-        embedBuilder.setDescription(a);
-        return embedBuilder.setColor(ColorService.computeColor(event));
+        return new ChuuEmbedBuilder(e)
+                .setDescription(a);
     }
 
     public void doPie(PieChart pieChart, Y chartParameters, int count) {

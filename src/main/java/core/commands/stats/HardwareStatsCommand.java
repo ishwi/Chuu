@@ -7,7 +7,6 @@ import core.commands.utils.CommandCategory;
 import core.parsers.NoOpParser;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
-import core.services.ColorService;
 import dao.BotStats;
 import dao.ChuuService;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -53,9 +52,8 @@ public class HardwareStatsCommand extends ConcurrentCommand<CommandParameters> {
         int mb = 1024 * 1024;
         Runtime instance = Runtime.getRuntime();
         long l = (instance.totalMemory() - instance.freeMemory()) / mb;
-        EmbedBuilder embedBuilder = new ChuuEmbedBuilder()
+        EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e)
                 .setTitle(e.getJDA().getSelfUser().getName() + "'s stats")
-                .setColor(ColorService.computeColor(e))
                 .addField("**Registered users:**", "**" + botStats.userCount() + "**", true)
                 .addField("**Number of Servers:**", "**" + botStats.guildCount() + "**", true)
                 .addField("**Total setted users:**", "**" + botStats.setCount() + "**", true)

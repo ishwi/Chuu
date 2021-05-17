@@ -34,7 +34,6 @@ import core.music.radio.PlaylistRadio;
 import core.music.radio.RadioTrackContext;
 import core.music.sources.youtube.webscrobbler.processers.Processed;
 import core.music.utils.*;
-import core.services.ColorService;
 import core.services.VoiceAnnounceService;
 import dao.entities.Metadata;
 import dao.entities.VoiceAnnouncement;
@@ -215,7 +214,7 @@ public class MusicManager extends AudioEventAdapter implements AudioSendHandler 
             audioManager.setSendingHandler(this);
             audioManager.openAudioConnection(channel);
 
-            e.sendMessage(new ChuuEmbedBuilder().setColor(ColorService.computeColor(e)).setTitle("Music Playback").setDescription("Joining channel <#" + channel.getId() + ">").build()).queue();
+            e.sendMessage(new ChuuEmbedBuilder(e).setTitle("Music Playback").setDescription("Joining channel <#" + channel.getId() + ">").build()).queue();
 
             return true;
         }
@@ -314,7 +313,7 @@ public class MusicManager extends AudioEventAdapter implements AudioSendHandler 
         // Avoid spamming by just sending it if the last time it was announced was more than 10s ago.
         if (lastTimeAnnounced == 0L || lastTimeAnnounced + 10000 < System.currentTimeMillis()) {
             var reqData = track.getUserData(TrackContext.class);
-            getScrobble().thenAccept(ts -> announcementChannel.sendMessage(new ChuuEmbedBuilder()
+            getScrobble().thenAccept(ts -> announcementChannel.sendMessage(new ChuuEmbedBuilder(true)
                     .setDescription("Now playing __**%s**__ requested by <@%d>"
                             .formatted(ts.toLink(track.getInfo().uri), reqData.requester()))
                     .setColor(CommandUtil.pastelColor()).build()).queue(t -> lastTimeAnnounced = System.currentTimeMillis()));

@@ -13,7 +13,6 @@ import core.parsers.OptionalEntity;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
 import core.parsers.params.NumberParameters;
-import core.services.ColorService;
 import dao.ChuuService;
 import dao.entities.GlobalStreakEntities;
 import dao.entities.Memoized;
@@ -132,11 +131,10 @@ public class TopCombosCommand extends ConcurrentCommand<NumberParameters<Command
             a.append(i + 1).append(z.get(i).toString());
         }
 
-        EmbedBuilder embedBuilder = new ChuuEmbedBuilder()
+        EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e)
                 .
                         setAuthor(String.format("%s's Top streaks", CommandUtil.cleanMarkdownCharacter(title)))
                 .setThumbnail(CommandUtil.noImageUrl(validUrl))
-                .setColor(ColorService.computeColor(e))
                 .setDescription(a)
                 .setFooter(String.format("%s has a total of %d %s!", CommandUtil.cleanMarkdownCharacter(title), topStreaks.size(), CommandUtil.singlePlural(topStreaks.size(), "streak", "streaks")));
         e.sendMessage(embedBuilder.build()).queue(message1 ->

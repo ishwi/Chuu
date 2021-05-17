@@ -12,7 +12,6 @@ import core.otherlisteners.Reactionary;
 import core.parsers.OnlyUsernameParser;
 import core.parsers.Parser;
 import core.parsers.params.ChuuDataParams;
-import core.services.ColorService;
 import dao.ChuuService;
 import dao.entities.CommandUsage;
 import dao.entities.DiscordUserDisplay;
@@ -88,9 +87,8 @@ public class TopCommandsCommand extends ConcurrentCommand<ChuuDataParams> {
         }
 
 
-        EmbedBuilder embedBuilder = new ChuuEmbedBuilder()
+        EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e)
                 .setDescription(a)
-                .setColor(ColorService.computeColor(e))
                 .setAuthor(uInfo.getUsername() + "'s commands", PrivacyUtils.getLastFmUser(params.getLastFMData().getName()), uInfo.getUrlImage());
         e.sendMessage(embedBuilder.build()).queue(message1 ->
                 new Reactionary<>(strings, message1, embedBuilder));

@@ -5,7 +5,6 @@ import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
-import core.commands.utils.CommandUtil;
 import core.exceptions.LastFmException;
 import core.otherlisteners.Reactionary;
 import core.parsers.Parser;
@@ -68,7 +67,7 @@ public class EveryNoiseCommand extends ConcurrentCommand<UserStringParameters> {
         for (int i = 0; i < 20 && i < strings.size(); i++) {
             a.append(strings.get(i));
         }
-        ChuuEmbedBuilder eb = new ChuuEmbedBuilder();
+        ChuuEmbedBuilder eb = new ChuuEmbedBuilder(e);
         String title = "Everynoise genres";
         String footer = "";
         if (isSearchResult) {
@@ -79,7 +78,6 @@ public class EveryNoiseCommand extends ConcurrentCommand<UserStringParameters> {
         }
         eb.setDescription(a)
                 .setAuthor(title, "https://everynoise.com/", "https://pbs.twimg.com/profile_images/3736544396/e0d7d0c8f2781c40b5f870df441e670c_400x400.png")
-                .setColor(CommandUtil.pastelColor())
                 .setFooter("You can click the genre for a playlist!\n" + footer, null);
 
         e.sendMessage(eb.build()).queue(message ->

@@ -12,7 +12,6 @@ import core.otherlisteners.Reactionary;
 import core.parsers.OnlyUsernameParser;
 import core.parsers.Parser;
 import core.parsers.params.ChuuDataParams;
-import core.services.ColorService;
 import dao.ChuuService;
 import dao.entities.Memoized;
 import dao.entities.PrivacyUserCount;
@@ -124,9 +123,8 @@ public class GlobalCommandsIssuedCommand extends ConcurrentCommand<ChuuDataParam
             a.append(i + 1).append(strings.get(i));
         }
 
-        EmbedBuilder embedBuilder = new ChuuEmbedBuilder()
+        EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e)
                 .setDescription(a)
-                .setColor(ColorService.computeColor(e))
                 .setAuthor(e.getJDA().getSelfUser().getName() + "'s spammers", null, e.getGuild().getIconUrl());
         if (rank.isPresent()) {
             Rank<PrivacyUserCount> me = rank.get();

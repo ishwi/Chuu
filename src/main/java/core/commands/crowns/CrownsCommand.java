@@ -10,7 +10,6 @@ import core.parsers.OnlyUsernameParser;
 import core.parsers.Parser;
 import core.parsers.params.ChuuDataParams;
 import core.parsers.params.NumberParameters;
-import core.services.ColorService;
 import dao.ChuuService;
 import dao.entities.ArtistPlays;
 import dao.entities.DiscordUserDisplay;
@@ -90,9 +89,8 @@ public class CrownsCommand extends ConcurrentCommand<NumberParameters<ChuuDataPa
         }
 
 
-        EmbedBuilder embedBuilder = new ChuuEmbedBuilder()
+        EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e)
                 .setDescription(a)
-                .setColor(ColorService.computeColor(e))
                 .setTitle(String.format("%s's %scrowns", userName, getTitle()), CommandUtil.getLastFmUser(uniqueDataUniqueWrapper.getLastFmId()))
                 .setFooter(String.format("%s has %d %scrowns!!%n", CommandUtil.markdownLessUserString(userName, uniqueDataUniqueWrapper.getDiscordId(), e), resultWrapper.size(), getTitle()), null)
                 .setThumbnail(userUrl);

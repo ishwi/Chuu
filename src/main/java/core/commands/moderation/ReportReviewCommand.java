@@ -93,7 +93,7 @@ public class ReportReviewCommand extends ConcurrentCommand<CommandParameters> {
         AtomicInteger statBan = new AtomicInteger(0);
         AtomicInteger navigationCounter = new AtomicInteger(0);
         AtomicInteger statIgnore = new AtomicInteger(0);
-        EmbedBuilder embedBuilder = new ChuuEmbedBuilder().setTitle("Reports Review");
+        EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e).setTitle("Reports Review");
         // TODO :DD
         long maxId;
         ReportEntity nextReport = db.getNextReport(Long.MAX_VALUE, new HashSet<>());

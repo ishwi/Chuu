@@ -9,7 +9,6 @@ import core.commands.utils.CommandUtil;
 import core.parsers.Parser;
 import core.parsers.RecommendationParser;
 import core.parsers.params.RecommendationsParams;
-import core.services.ColorService;
 import dao.ChuuService;
 import dao.entities.Affinity;
 import dao.entities.DiscordUserDisplay;
@@ -118,11 +117,10 @@ public class RecommendationCommand extends ConcurrentCommand<RecommendationsPara
                     s.append((String.format("%d. [%s](%s): %d plays%n", artistNum, CommandUtil.cleanMarkdownCharacter(rec.getArtist()), LinkUtils.getLastFmArtistUrl(rec.getArtist()), rec.getCount())));
                     artistNum++;
                 }
-                EmbedBuilder embedBuilder = new ChuuEmbedBuilder();
+                EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e);
 
                 embedBuilder.setTitle(String.format("%s recommendations for %s", giver, receiver))
                         .setThumbnail(giverUI.getUrlImage())
-                        .setColor(ColorService.computeColor(e))
                         .setDescription(s);
                 e.sendMessage(embedBuilder.build()).queue();
             }

@@ -11,7 +11,6 @@ import core.otherlisteners.Reactionary;
 import core.parsers.AffinityParser;
 import core.parsers.Parser;
 import core.parsers.params.AffinityParameters;
-import core.services.ColorService;
 import dao.ChuuService;
 import dao.entities.Affinity;
 import dao.entities.DiscordUserDisplay;
@@ -97,10 +96,9 @@ public class AffinityCommand extends ConcurrentCommand<AffinityParameters> {
             stringBuilder.append(i + 1).append(text);
         }
         DiscordUserDisplay uInfo = CommandUtil.getUserInfoConsideringGuildOrNot(e, e.getAuthor().getIdLong());
-        EmbedBuilder embedBuilder = new ChuuEmbedBuilder()
+        EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e)
                 .setDescription(stringBuilder)
                 .setTitle(uInfo.getUsername() + "'s soulmates in " + CommandUtil.cleanMarkdownCharacter(e.getGuild().getName()))
-                .setColor(ColorService.computeColor(e))
                 .setFooter(String.format("%s's affinity using a threshold of %d plays!%n", CommandUtil.markdownLessString(uInfo.getUsername()), ap.getThreshold()), null)
                 .setThumbnail(e.getGuild().getIconUrl());
         e.sendMessage(embedBuilder.build()).queue(message1 ->

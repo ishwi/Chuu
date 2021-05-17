@@ -25,9 +25,7 @@ import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import core.Chuu;
 import core.commands.Context;
 import core.commands.utils.ChuuEmbedBuilder;
-import core.commands.utils.CommandUtil;
 import core.music.utils.TrackContext;
-import core.services.ColorService;
 import net.dv8tion.jda.api.managers.AudioManager;
 
 public class LoadResultHandler implements AudioLoadResultHandler {
@@ -74,8 +72,7 @@ public class LoadResultHandler implements AudioLoadResultHandler {
         musicManager.enqueue(track, isNext);
 
         if (!isImmediatePlay) {
-            musicManager.getScrobble(track).thenCompose(z -> e.sendMessage(new ChuuEmbedBuilder()
-                    .setColor(CommandUtil.pastelColor())
+            musicManager.getScrobble(track).thenCompose(z -> e.sendMessage(new ChuuEmbedBuilder(e)
                     .setDescription(
                             "Queued __**[%s - %s%s](%s)**__".
                                     formatted(z.song(), z.artist(), z.album() != null ? " | " + z.album() : "", track.getInfo().uri)
@@ -110,7 +107,7 @@ public class LoadResultHandler implements AudioLoadResultHandler {
         }
 
         var ignored = pendingEnqueue.size() - added;
-        e.sendMessage(new ChuuEmbedBuilder().setColor(ColorService.computeColor(e)).setTitle("Music Queue")
+        e.sendMessage(new ChuuEmbedBuilder(e).setTitle("Music Queue")
                 .setDescription("Added **" + added + "** tracks to queue from playlist **" + playlist.getName() + "**")
                 .setFooter(footnote).build()).queue();
     }
@@ -119,7 +116,7 @@ public class LoadResultHandler implements AudioLoadResultHandler {
         if (musicManager.isIdle()) {
             musicManager.destroy();
         }
-        e.sendMessage(new ChuuEmbedBuilder().setColor(ColorService.computeColor(e)).setTitle("Load Results").setDescription("Unable to load the track:\n`" + exception.getMessage() + "`").build()).queue();
+        e.sendMessage(new ChuuEmbedBuilder(e).setTitle("Load Results").setDescription("Unable to load the track:\n`" + exception.getMessage() + "`").build()).queue();
     }
 
     public void noMatches() {
@@ -133,7 +130,7 @@ public class LoadResultHandler implements AudioLoadResultHandler {
         if (musicManager.isIdle()) {
             musicManager.destroy();
         }
-        e.sendMessage(new ChuuEmbedBuilder().setColor(ColorService.computeColor(e)).setTitle("Load Results")
+        e.sendMessage(new ChuuEmbedBuilder(e).setTitle("Load Results")
                 .setDescription("Nothing found by **" + query + "**").build()).queue();
     }
 
@@ -142,8 +139,7 @@ public class LoadResultHandler implements AudioLoadResultHandler {
         if (musicManager.isIdle()) {
             musicManager.destroy();
         }
-        e.sendMessage(new ChuuEmbedBuilder()
-                .setColor(ColorService.computeColor(e))
+        e.sendMessage(new ChuuEmbedBuilder(e)
                 .setTitle("Load Results")
                 .setDescription("Unable to load the track:\n`" + exception.getMessage() + "`").build()).queue();
     }

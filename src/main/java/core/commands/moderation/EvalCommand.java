@@ -117,11 +117,11 @@ public class EvalCommand extends ConcurrentCommand<CommandParameters> {
 
             ecl.loadClass("core.commands.Eval").getMethod("run", EvalContext.class).invoke(null, evalContext);
         } catch (CompilationException noSuchMethodException) {
-            EmbedBuilder embedBuilder = new ChuuEmbedBuilder().addField("Code", "```java\n" + StringUtils.abbreviate(source, 1000) + "\n```\n", false);
+            EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e).addField("Code", "```java\n" + StringUtils.abbreviate(source, 1000) + "\n```\n", false);
             noSuchMethodException.getDiagnostics().forEach(z -> embedBuilder.addField(String.valueOf(z.getLineNumber()), StringUtils.abbreviate(z.toString(), 1000), false));
             e.sendMessage(embedBuilder.build()).queue();
         } catch (Exception ex2) {
-            e.sendMessage(new ChuuEmbedBuilder().setDescription("```\n" + StringUtils.abbreviate(ExceptionUtils.getStackTrace(ExceptionUtils.getRootCause(ex2)), 2000) + "```").addField("Code", "```java\n" + StringUtils.abbreviate(source, 1000) + "\n```\n", false).build()).queue();
+            e.sendMessage(new ChuuEmbedBuilder(e).setDescription("```\n" + StringUtils.abbreviate(ExceptionUtils.getStackTrace(ExceptionUtils.getRootCause(ex2)), 2000) + "```").addField("Code", "```java\n" + StringUtils.abbreviate(source, 1000) + "\n```\n", false).build()).queue();
         }
 
     }

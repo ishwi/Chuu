@@ -102,11 +102,10 @@ public class ReleasesEveryNoiseCommand extends ConcurrentCommand<UserStringParam
         for (int i = 0; i < 5 && i < strings.size(); i++) {
             a.append(strings.get(i));
         }
-        ChuuEmbedBuilder eb = new ChuuEmbedBuilder();
+        ChuuEmbedBuilder eb = new ChuuEmbedBuilder(e);
         String title = "Genres with releases";
         eb.setDescription(a)
                 .setAuthor(title, "https://everynoise.com/", "https://pbs.twimg.com/profile_images/3736544396/e0d7d0c8f2781c40b5f870df441e670c_400x400.png")
-                .setColor(CommandUtil.pastelColor())
                 .setFooter("There are  " + strings.size() + " unique genres with releases");
 
         e.sendMessage(eb.build()).queue(finalMessage ->
@@ -125,7 +124,7 @@ public class ReleasesEveryNoiseCommand extends ConcurrentCommand<UserStringParam
                 int counter = 1;
                 List<ConfirmatorItem> reacts = new ArrayList<>();
                 StringBuilder description = new StringBuilder();
-                var eb = new ChuuEmbedBuilder().setTitle("Multiple genres found").setFooter("Please disambiguate choosing the appropiate emote");
+                var eb = new ChuuEmbedBuilder(e).setTitle("Multiple genres found").setFooter("Please disambiguate choosing the appropiate emote");
                 for (NoiseGenre noiseGenre : matchingGenre) {
                     //  48 is 0x0030 -> which is 0 || 0x0031 is 1 ...
                     String s = new String(new int[]{48 + counter++}, 0, 1);
@@ -152,7 +151,7 @@ public class ReleasesEveryNoiseCommand extends ConcurrentCommand<UserStringParam
             if (message == null) {
                 sendMessageQueue(e, "Couldn't find any release searching by `%s`".formatted(input));
             } else {
-                message.editMessage(new ChuuEmbedBuilder().setTitle("Didn't find any new release by " + input).build()).queue();
+                message.editMessage(new ChuuEmbedBuilder(e).setTitle("Didn't find any new release by " + input).build()).queue();
             }
             return;
         }
@@ -161,15 +160,14 @@ public class ReleasesEveryNoiseCommand extends ConcurrentCommand<UserStringParam
         for (int i = 0; i < 10 && i < strings.size(); i++) {
             a.append(strings.get(i));
         }
-        ChuuEmbedBuilder eb = new ChuuEmbedBuilder();
+        ChuuEmbedBuilder eb = new ChuuEmbedBuilder(e);
         String title = WordUtils.capitalize(input) + " releases";
         String footer = "";
         if (releases.size() > 10) {
             eb.setFooter("Found " + releases.size() + " " + input + " releases ");
         }
         eb.setDescription(a)
-                .setAuthor(title, "https://everynoise.com/", "https://pbs.twimg.com/profile_images/3736544396/e0d7d0c8f2781c40b5f870df441e670c_400x400.png")
-                .setColor(CommandUtil.pastelColor());
+                .setAuthor(title, "https://everynoise.com/", "https://pbs.twimg.com/profile_images/3736544396/e0d7d0c8f2781c40b5f870df441e670c_400x400.png");
         RestAction<Message> messageRestAction;
         if (message == null) {
             messageRestAction = e.sendMessage(eb.build());

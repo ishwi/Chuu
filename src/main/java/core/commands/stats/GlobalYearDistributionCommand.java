@@ -9,7 +9,6 @@ import core.otherlisteners.Reactionary;
 import core.parsers.NoOpParser;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
-import core.services.ColorService;
 import dao.ChuuService;
 
 import javax.validation.constraints.NotNull;
@@ -68,10 +67,9 @@ public class GlobalYearDistributionCommand extends ConcurrentCommand<CommandPara
         }
         String name = e.getJDA().getSelfUser().getName();
 
-        var embedBuilder = new ChuuEmbedBuilder()
+        var embedBuilder = new ChuuEmbedBuilder(e)
                 .setDescription(a)
                 .setAuthor(String.format("%s's years", name), null, e.getJDA().getSelfUser().getAvatarUrl())
-                .setColor(ColorService.computeColor(e))
                 .setFooter("%s has albums from %d different %s".formatted(CommandUtil.markdownLessString(name), yearCount.size(), CommandUtil.singlePlural(yearCount.size(), "year", "years")), null);
 
         e.sendMessage(embedBuilder.build()).queue(m ->

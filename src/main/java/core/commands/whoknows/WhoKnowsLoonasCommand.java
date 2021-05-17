@@ -10,7 +10,6 @@ import core.otherlisteners.Reactionary;
 import core.parsers.LOOONAParser;
 import core.parsers.Parser;
 import core.parsers.params.LOONAParameters;
-import core.services.ColorService;
 import dao.ChuuService;
 import dao.entities.*;
 import dao.utils.LinkUtils;
@@ -306,7 +305,7 @@ public class WhoKnowsLoonasCommand extends WhoKnowsBaseCommand<LOONAParameters> 
     }
 
     void doList(LOONAParameters ap, WrapperReturnNowPlaying wrapperReturnNowPlaying) {
-        EmbedBuilder embedBuilder = new ChuuEmbedBuilder();
+        EmbedBuilder embedBuilder = new ChuuEmbedBuilder(ap.getE());
         StringBuilder builder = new StringBuilder();
 
         Context e = ap.getE();
@@ -326,8 +325,7 @@ public class WhoKnowsLoonasCommand extends WhoKnowsBaseCommand<LOONAParameters> 
             usable = e.getJDA().getSelfUser().getName();
         }
         embedBuilder.setTitle(getTitle(ap, usable)).
-                setThumbnail(CommandUtil.noImageUrl(wrapperReturnNowPlaying.getUrl())).setDescription(builder)
-                .setColor(ColorService.computeColor(e));
+                setThumbnail(CommandUtil.noImageUrl(wrapperReturnNowPlaying.getUrl())).setDescription(builder);
         e.sendMessage(embedBuilder.build())
                 .queue(message1 ->
                         new Reactionary<>(wrapperReturnNowPlaying

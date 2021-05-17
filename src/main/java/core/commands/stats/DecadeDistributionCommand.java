@@ -15,7 +15,6 @@ import core.parsers.TimerFrameParser;
 import core.parsers.params.ChartParameters;
 import core.parsers.params.TimeFrameParameters;
 import core.parsers.utils.CustomTimeFrame;
-import core.services.ColorService;
 import dao.ChuuService;
 import dao.entities.AlbumInfo;
 import dao.entities.DiscordUserDisplay;
@@ -91,10 +90,9 @@ public class DecadeDistributionCommand extends ConcurrentCommand<TimeFrameParame
             a.append(i + 1).append(s);
         }
 
-        var embedBuilder = new ChuuEmbedBuilder()
+        var embedBuilder = new ChuuEmbedBuilder(e)
                 .setDescription(a)
                 .setAuthor(String.format("%s's years%s", uInfo.getUsername(), params.getTime().getDisplayString()), CommandUtil.getLastFmUser(params.getLastFMData().getName()), uInfo.getUrlImage())
-                .setColor(ColorService.computeColor(e))
                 .setFooter("%s has albums from %d different %s".formatted(CommandUtil.markdownLessString(uInfo.getUsername()), counts.size(), CommandUtil.singlePlural(counts.size(), "decade", "decades")), null);
 
         e.sendMessage(embedBuilder.build()).queue(m ->

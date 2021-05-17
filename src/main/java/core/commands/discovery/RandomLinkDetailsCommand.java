@@ -10,7 +10,6 @@ import core.otherlisteners.Reactionary;
 import core.parsers.Parser;
 import core.parsers.RandomAlbumParser;
 import core.parsers.params.RandomUrlParameters;
-import core.services.ColorService;
 import dao.ChuuService;
 import dao.entities.*;
 import dao.exceptions.InstanceNotFoundException;
@@ -114,9 +113,8 @@ public class RandomLinkDetailsCommand extends ConcurrentCommand<RandomUrlParamet
             a.append(i + 1).append(z.get(i).toString());
         }
         NumberFormat formatter = new DecimalFormat("#0.##");
-        EmbedBuilder embedBuilder = new ChuuEmbedBuilder()
+        EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e)
                 .setTitle(randomUrl.url() + " details", randomUrl.url())
-                .setColor(ColorService.computeColor(e))
                 .setDescription(a)
                 .setFooter("Has been rated by %d %s | average: %s%nSubmited by %s".formatted(randomUrl.count(), CommandUtil.singlePlural(randomUrl.count(), "person", "people"), formatter.format(randomUrl.avg()),
                         own == null ? "" : PrivacyUtils.getPublicString(own.getPrivacyMode(), own.getDiscordId(), own.getName(), new AtomicInteger(0), e, ids).discordName()

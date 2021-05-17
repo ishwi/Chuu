@@ -11,7 +11,6 @@ import core.otherlisteners.Reactionary;
 import core.parsers.NoOpParser;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
-import core.services.ColorService;
 import dao.ChuuService;
 import dao.entities.Memoized;
 import dao.entities.UserCount;
@@ -75,9 +74,8 @@ public class ServerCommandsIssuedCommand extends ConcurrentCommand<CommandParame
             a.append(i + 1).append(strings.get(i));
         }
 
-        EmbedBuilder embedBuilder = new ChuuEmbedBuilder()
+        EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e)
                 .setDescription(a)
-                .setColor(ColorService.computeColor(e))
                 .setAuthor(e.getGuild().getName() + "'s spammers", null, e.getGuild().getIconUrl());
         e.sendMessage(embedBuilder.build()).queue(message1 ->
                 new Reactionary<>(strings, message1, embedBuilder));

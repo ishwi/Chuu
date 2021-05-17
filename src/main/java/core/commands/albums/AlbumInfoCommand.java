@@ -7,7 +7,6 @@ import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.exceptions.LastFmException;
 import core.parsers.params.ArtistAlbumParameters;
-import core.services.ColorService;
 import core.services.tags.TagAlbumService;
 import dao.ChuuService;
 import dao.entities.*;
@@ -54,7 +53,7 @@ public class AlbumInfoCommand extends AlbumPlaysCommand {
         FullAlbumEntityExtended albumSummary = lastFM.getAlbumSummary(lastFMData, artist.getArtist(), album);
         String username = getUserString(e, who, lastFMData.getName());
 
-        EmbedBuilder embedBuilder = new ChuuEmbedBuilder();
+        EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e);
         String tagsField = albumSummary.getTagList().isEmpty()
                            ? ""
                            : albumSummary.getTagList().stream()
@@ -95,7 +94,6 @@ public class AlbumInfoCommand extends AlbumPlaysCommand {
         }
         embedBuilder.setImage(
                 Chuu.getCoverService().getCover(albumSummary.getArtist(), albumSummary.getAlbum(), albumSummary.getAlbumUrl(), e))
-                .setColor(ColorService.computeColor(e))
                 .setThumbnail(artist.getUrl());
         e.sendMessage(embedBuilder.build()).queue();
         if (!albumSummary.getTagList().isEmpty()) {

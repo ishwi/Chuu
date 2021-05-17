@@ -160,7 +160,7 @@ public class TopArtistComboCommand extends ConcurrentCommand<NumberParameters<Ar
             a.append(i + 1).append(z.get(i).toString());
         }
 
-        EmbedBuilder embedBuilder = new ChuuEmbedBuilder()
+        EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e)
                 .
                         setAuthor(String.format("%s's top streaks in %s ", scrobbledArtist.getArtist(), CommandUtil.cleanMarkdownCharacter(title)))
                 .setThumbnail(scrobbledArtist.getUrl())

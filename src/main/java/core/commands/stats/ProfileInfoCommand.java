@@ -17,7 +17,6 @@ import core.parsers.OnlyUsernameParser;
 import core.parsers.OptionalEntity;
 import core.parsers.Parser;
 import core.parsers.params.ChuuDataParams;
-import core.services.ColorService;
 import core.services.UserInfoService;
 import dao.ChuuService;
 import dao.entities.CommandStats;
@@ -128,9 +127,8 @@ public class ProfileInfoCommand extends ConcurrentCommand<ChuuDataParams> {
             sb.append("Favourite album: ").append(entity.topAlbum().getAlbum()).append("\n");
         }
 
-        EmbedBuilder embedBuilder = new ChuuEmbedBuilder()
+        EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e)
                 .setAuthor(entity.lastmId() + "'s profile", PrivacyUtils.getLastFmUser(entity.lastmId()), entity.imageUrl())
-                .setColor(ColorService.computeColor(e))
                 .setDescription(sb)
                 .setFooter("Account created on " + entity.date());
 

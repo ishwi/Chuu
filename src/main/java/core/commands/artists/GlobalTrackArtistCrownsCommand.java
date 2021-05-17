@@ -16,7 +16,6 @@ import core.parsers.OptionalEntity;
 import core.parsers.Parser;
 import core.parsers.params.ArtistParameters;
 import core.parsers.params.NumberParameters;
-import core.services.ColorService;
 import dao.ChuuService;
 import dao.entities.DiscordUserDisplay;
 import dao.entities.ScrobbledArtist;
@@ -115,9 +114,8 @@ public class GlobalTrackArtistCrownsCommand extends ConcurrentCommand<NumberPara
         }
 
 
-        EmbedBuilder embedBuilder = new ChuuEmbedBuilder()
+        EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e)
                 .setDescription(a)
-                .setColor(ColorService.computeColor(e))
                 .setAuthor(String.format("%s's %scrowns", userName, getTitle(scrobbledArtist)), CommandUtil.getLastFmUser(uniqueDataUniqueWrapper.getLastFmId()), userInformation.getUrlImage())
                 .setThumbnail(scrobbledArtist.getUrl())
                 .setFooter(String.format("%s has %d %scrowns!!%n", CommandUtil.markdownLessUserString(userName, uniqueDataUniqueWrapper.getDiscordId(), e), resultWrapper.size(), getTitle(scrobbledArtist)), null);

@@ -52,7 +52,7 @@ public class GenreInfoCommand extends ConcurrentCommand<GenreParameters> {
 
         String genre = params.getGenre();
         GenreInfo genreInfo = lastFM.getGenreInfo(genre);
-        EmbedBuilder embedBuilder = new ChuuEmbedBuilder();
+        EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e);
         String substring = genreInfo.getString() != null && !genreInfo.getString().isBlank() ? genreInfo.getString().substring(0, Math.min(1024, genreInfo.getString().length())) : "";
         embedBuilder.setTitle("Information about " + genreInfo.getName())
                 .addField("Usage of the genre:", String.valueOf(genreInfo.getTotal()), false)

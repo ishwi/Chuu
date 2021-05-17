@@ -18,7 +18,6 @@ import core.parsers.params.NumberParameters;
 import core.parsers.params.TimeFrameParameters;
 import core.parsers.utils.CustomTimeFrame;
 import core.scheduledtasks.ArtistMbidUpdater;
-import core.services.ColorService;
 import dao.ChuuService;
 import dao.entities.*;
 import dao.musicbrainz.MusicBrainzService;
@@ -145,10 +144,9 @@ public class CountryCommand extends ConcurrentCommand<NumberParameters<TimeFrame
             }
             DiscordUserDisplay uInfo = CommandUtil.getUserInfoNotStripped(params.getE(), discordId);
 
-            var embedBuilder = new ChuuEmbedBuilder()
+            var embedBuilder = new ChuuEmbedBuilder(e)
                     .setDescription(a)
                     .setAuthor(String.format("%s's countries", uInfo.getUsername()), PrivacyUtils.getLastFmUser(user.getName()), uInfo.getUrlImage())
-                    .setColor(ColorService.computeColor(e))
                     .setFooter("%s has artist from %d different %s".formatted(uInfo.getUsername(), lines.size(), CommandUtil.singlePlural(lines.size(), "country", "countries")), null);
 
             e.sendMessage(embedBuilder.build()).queue(m ->

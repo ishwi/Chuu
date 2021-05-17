@@ -11,7 +11,6 @@ import core.commands.utils.CommandUtil;
 import core.parsers.NoOpParser;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
-import core.services.ColorService;
 import core.services.MessageDisablingService;
 import dao.ChuuService;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -78,8 +77,7 @@ public class DisabledStatusCommand extends ConcurrentCommand<CommandParameters> 
                 .filter(x -> disabledServerCommands.contains(x.getValue()))
                 .collect(Collectors.groupingBy(x -> channelMap.get(x.getKey().getRight()),
                         Collectors.mapping(Map.Entry::getValue, Collectors.toList())));
-        EmbedBuilder embedBuilder = new ChuuEmbedBuilder().setColor(ColorService.computeColor(e))
-                .setThumbnail(e.getGuild().getIconUrl());
+        EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e).setThumbnail(e.getGuild().getIconUrl());
         StringBuilder a = new StringBuilder();
 
         Map<GuildChannel, StringBuilder> fieldBuilder = new HashMap<>();

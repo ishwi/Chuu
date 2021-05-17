@@ -12,7 +12,6 @@ import core.parsers.OptionalEntity;
 import core.parsers.Parser;
 import core.parsers.params.ChuuDataParams;
 import core.parsers.params.NumberParameters;
-import core.services.ColorService;
 import dao.ChuuService;
 import dao.entities.Affinity;
 import dao.entities.LastFMData;
@@ -137,10 +136,9 @@ public class GlobalRecommendationCommand extends ConcurrentCommand<NumberParamet
                 for (ScrobbledArtist rec : recs) {
                     s.append((String.format("# [%s](%s): %d plays%n", CommandUtil.cleanMarkdownCharacter(rec.getArtist()), LinkUtils.getLastFmArtistUrl(rec.getArtist()), rec.getCount())));
                 }
-                EmbedBuilder embedBuilder = new ChuuEmbedBuilder();
+                EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e);
 
                 embedBuilder.setTitle(String.format("%s recommendations for %s", giver, receiver))
-                        .setColor(ColorService.computeColor(e))
                         .setDescription(s);
                 e.sendMessage(embedBuilder.build()).queue();
             }

@@ -14,7 +14,6 @@ import core.otherlisteners.Reactionary;
 import core.parsers.ArtistAlbumParser;
 import core.parsers.Parser;
 import core.parsers.params.ArtistAlbumParameters;
-import core.services.ColorService;
 import dao.ChuuService;
 import dao.entities.FullAlbumEntityExtended;
 import dao.entities.Rating;
@@ -77,7 +76,7 @@ public class AlbumRatings extends ConcurrentCommand<ArtistAlbumParameters> {
 
     @Override
     protected void onCommand(Context e, @javax.validation.constraints.NotNull ArtistAlbumParameters params) throws LastFmException {
-        EmbedBuilder embedBuilder = new ChuuEmbedBuilder();
+        EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e);
 
         ScrobbledArtist scrobbledArtist = new ScrobbledArtist(params.getArtist(), 0, null);
         CommandUtil.validate(db, scrobbledArtist, lastFM, discogsApi, spotify, false, !params.isNoredirect());
@@ -120,7 +119,6 @@ public class AlbumRatings extends ConcurrentCommand<ArtistAlbumParameters> {
                         , userRatings.size(),
                         CommandUtil.singlePlural(userRatings.size(), "person", "people")))
                 .setThumbnail(chuu)
-                .setColor(ColorService.computeColor(e))
                 .setDescription(a + "\n" + name + "\n" + global);
 
         e.sendMessage(embedBuilder.build()).queue(message1 ->

@@ -10,7 +10,6 @@ import core.otherlisteners.Reactionary;
 import core.parsers.NoOpParser;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
-import core.services.ColorService;
 import core.services.CoverService;
 import dao.ChuuService;
 import dao.entities.CoverItem;
@@ -63,9 +62,8 @@ public class AltCoverListCommand extends ConcurrentCommand<CommandParameters> {
         }
 
 
-        EmbedBuilder embedBuilder = new ChuuEmbedBuilder()
+        EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e)
                 .setDescription(a)
-                .setColor(ColorService.computeColor(e))
                 .setTitle("Alt covers");
 
         e.sendMessage(embedBuilder.build()).queue(message1 ->

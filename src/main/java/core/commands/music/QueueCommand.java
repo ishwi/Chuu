@@ -29,7 +29,6 @@ import core.otherlisteners.Reactionary;
 import core.parsers.NoOpParser;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
-import core.services.ColorService;
 import dao.ChuuService;
 import net.dv8tion.jda.api.EmbedBuilder;
 import org.apache.commons.lang3.tuple.Pair;
@@ -98,7 +97,7 @@ public class QueueCommand extends MusicCommand<CommandParameters> {
                     }
                     return "`[%s]` %s\n".formatted(CommandUtil.getTimestamp(tr.getDuration()), item);
                 }).toList();
-        EmbedBuilder eb = new ChuuEmbedBuilder()
+        EmbedBuilder eb = new ChuuEmbedBuilder(e)
                 .setAuthor("Music Queue", null, np.scrobble().image())
                 .addField("Now Playing", np.scrobble(current.getPosition(), current.getDuration()).toLink(current.getInfo().uri), false);
 
@@ -119,8 +118,7 @@ public class QueueCommand extends MusicCommand<CommandParameters> {
         }
 
 
-        eb.addField("Repeating", manager.getRepeatOption().getEmoji(), true)
-                .setColor(ColorService.computeColor(e));
+        eb.addField("Repeating", manager.getRepeatOption().getEmoji(), true);
         e.sendMessage(eb.build()).queue(m -> new Reactionary<>(str, m, 10, eb, false, true));
     }
 
@@ -134,7 +132,7 @@ public class QueueCommand extends MusicCommand<CommandParameters> {
         }
         Queue<String> queue = manager.getQueue();
         long length = 0L;
-        EmbedBuilder embedBuilder = new ChuuEmbedBuilder();
+        EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e);
         StringBuilder stringBuilder = new StringBuilder();
         List<String> str = new ArrayList<>();
         List<CompletableFuture<Pair<AudioTrack, TrackScrobble>>> completableFutures = queue.stream()

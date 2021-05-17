@@ -12,7 +12,6 @@ import core.parsers.OptionalEntity;
 import core.parsers.Parser;
 import core.parsers.params.ChuuDataParams;
 import core.parsers.params.NumberParameters;
-import core.services.ColorService;
 import dao.ChuuService;
 import dao.entities.CrownableArtist;
 import dao.entities.DiscordUserDisplay;
@@ -77,8 +76,7 @@ public class CrownableCommand extends ListCommand<CrownableArtist, NumberParamet
         }
         boolean isServer = outerParmams.hasOptional("server") && e.isFromGuild();
 
-        EmbedBuilder embedBuilder = new ChuuEmbedBuilder().setColor(ColorService.computeColor(e))
-                .setThumbnail(isServer ? e.getGuild().getIconUrl() : e.getJDA().getSelfUser().getAvatarUrl());
+        EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e).setThumbnail(isServer ? e.getGuild().getIconUrl() : e.getJDA().getSelfUser().getAvatarUrl());
         StringBuilder a = new StringBuilder();
         List<String> lines = list.stream().map(x ->
                 String.format(". [%s](%s) - **%d**/**%d** with **%d plays** %s%n",

@@ -10,7 +10,6 @@ import core.otherlisteners.Validator;
 import core.parsers.NoOpParser;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
-import core.services.ColorService;
 import dao.ChuuService;
 import dao.ImageQueue;
 import dao.entities.LastFMData;
@@ -105,7 +104,7 @@ public class UrlQueueReview extends ConcurrentCommand<CommandParameters> {
         AtomicInteger statDeclined = new AtomicInteger(0);
         AtomicInteger navigationCounter = new AtomicInteger(0);
         AtomicInteger statAccepeted = new AtomicInteger(0);
-        EmbedBuilder embedBuilder = new ChuuEmbedBuilder().setTitle("Image Queue Review");
+        EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e).setTitle("Image Queue Review");
         long maxId;
         ImageQueue nextQueue = db.getNextQueue(Long.MAX_VALUE, new HashSet<>());
         if (nextQueue == null) {
@@ -157,7 +156,7 @@ public class UrlQueueReview extends ConcurrentCommand<CommandParameters> {
                 if (banned) {
                     TextChannel textChannelById = Chuu.getShardManager().getTextChannelById(Chuu.channel2Id);
                     if (textChannelById != null)
-                        textChannelById.sendMessage(new ChuuEmbedBuilder().setTitle("Banned user for adding pics")
+                        textChannelById.sendMessage(new ChuuEmbedBuilder(e).setTitle("Banned user for adding pics")
                                 .setDescription("User: **%s**\n".formatted(User.fromId(a.uploader()).getAsMention())).build()).queue();
                 }
                 statDeclined.getAndIncrement();
@@ -187,7 +186,7 @@ public class UrlQueueReview extends ConcurrentCommand<CommandParameters> {
                                 .clearFields()
                                 .setDescription(description)
                                 .setFooter(String.format("There are %d %s left to review", reportCount, CommandUtil.singlePlural(reportCount, "image", "images")))
-                                .setColor(ColorService.computeColor(e));
+                                .setColor(CommandUtil.pastelColor());
                     },
                     () -> db.getNextQueue(maxId, skippedIds),
                     builder.apply(e.getJDA(), totalReports, navigationCounter::get)

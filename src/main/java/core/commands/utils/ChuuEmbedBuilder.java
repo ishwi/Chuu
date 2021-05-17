@@ -1,10 +1,11 @@
 package core.commands.utils;
 
+import core.commands.Context;
+import core.services.ColorService;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.internal.utils.Checks;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
 import java.util.regex.Pattern;
@@ -12,16 +13,14 @@ import java.util.regex.Pattern;
 public class ChuuEmbedBuilder extends EmbedBuilder {
     private static final Pattern linkMatcher = Pattern.compile("\\[([^\\[\\]]*)]\\(.*?\\)");
 
-    public ChuuEmbedBuilder() {
+    public ChuuEmbedBuilder(Context e) {
+        setColor(ColorService.computeColor(e));
     }
 
-    public ChuuEmbedBuilder(@Nullable EmbedBuilder builder) {
-        super(builder);
+    public ChuuEmbedBuilder(boolean acknowledgeNoImages) {
+        setColor(CommandUtil.pastelColor());
     }
 
-    public ChuuEmbedBuilder(@Nullable MessageEmbed embed) {
-        super(embed);
-    }
 
     @NotNull
     @Override

@@ -61,7 +61,7 @@ public class UnsetCommand extends ConcurrentCommand<CommandParameters> {
         String userString = getUserString(e, idLong);
         DiscordUserDisplay uInfo = CommandUtil.getUserInfoNotStripped(e, idLong);
 
-        EmbedBuilder embedBuilder = new ChuuEmbedBuilder()
+        EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e)
                 .setColor(Color.RED)
                 .setAuthor("User Deletion Confirmation", PrivacyUtils.getLastFmUser(data.getName()), uInfo.getUrlImage())
                 .setFooter("Unsetting doesn't fix any issue that might exist with scrobbles and will delete all your info including pictures submitted!")

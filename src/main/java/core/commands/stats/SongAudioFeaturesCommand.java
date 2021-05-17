@@ -14,7 +14,6 @@ import core.exceptions.LastFmException;
 import core.parsers.ArtistSongParser;
 import core.parsers.Parser;
 import core.parsers.params.ArtistAlbumParameters;
-import core.services.ColorService;
 import core.services.SpotifyTrackService;
 import dao.ChuuService;
 import dao.entities.DiscordUserDisplay;
@@ -101,9 +100,8 @@ public class SongAudioFeaturesCommand extends ConcurrentCommand<ArtistAlbumParam
         int s = audioFeatures.size();
         DiscordUserDisplay userInfoNotStripped = CommandUtil.getUserInfoNotStripped(e, params.getLastFMData().getDiscordId());
         AudioFeatures audioFeature = audioFeatures.get(0);
-        EmbedBuilder embedBuilder = new ChuuEmbedBuilder()
+        EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e)
                 .setAuthor("Audio features for " + scrobbledTrack.getName() + " by " + scrobbledTrack.getArtist(), PrivacyUtils.getLastFmUser(lastFMData.getName()), userInfoNotStripped.getUrlImage())
-                .setColor(ColorService.computeColor(e))
                 .addField("Happiness:", df.format(audioFeature.getValence() / s), true)
                 .addField("Acousticness:", df.format(audioFeature.getAcousticness() / s), true)
                 .addField("Danceability:", df.format(audioFeature.getDanceability() / s), true)

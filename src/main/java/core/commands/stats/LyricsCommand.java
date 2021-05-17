@@ -18,7 +18,6 @@ import core.otherlisteners.Reactionary;
 import core.parsers.ArtistSongParser;
 import core.parsers.Parser;
 import core.parsers.params.ArtistAlbumParameters;
-import core.services.ColorService;
 import dao.ChuuService;
 import dao.entities.ScrobbledArtist;
 import dao.utils.LinkUtils;
@@ -97,9 +96,8 @@ public class LyricsCommand extends ConcurrentCommand<ArtistAlbumParameters> {
             desc += "\n1" + "/" + pages.size();
         }
         String urlImage = CommandUtil.getUserInfoNotStripped(e, params.getLastFMData().getDiscordId()).getUrlImage();
-        EmbedBuilder embedBuilder = new ChuuEmbedBuilder();
-        embedBuilder.setDescription(desc)
-                .setColor(ColorService.computeColor(e))
+        EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e)
+                .setDescription(desc)
                 .setAuthor(String.format("%s - %s", correctedArtist, song), LinkUtils.getLastFMArtistTrack(correctedArtist, song), urlImage)
                 .setFooter(String.format("Lyrics found for %s - %s", correctedArtist, song))
                 .setThumbnail(lyrics.getImageUrl() == null ? url : lyrics.getImageUrl());

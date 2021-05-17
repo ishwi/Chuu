@@ -56,7 +56,6 @@ public class SQLRYMDaoImpl implements SQLRYMDao {
     }
 
 
-
     @Override
     public Map<Long, Long> findArtistsByLocalizedJoinedNames(Connection connection) {
         HashMap<Long, Long> returnedMap = new HashMap<>();

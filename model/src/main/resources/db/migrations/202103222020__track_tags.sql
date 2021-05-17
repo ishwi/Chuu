@@ -1,7 +1,9 @@
 DELETE
-FROM artist_tags
-WHERE artist_id IN (SELECT artist_id FROM artist_tags GROUP BY artist_id HAVING COUNT(*) > 30)
-  AND tag IN (SELECT tag FROM album_tags WHERE artist_id = artist_tags.artist_id GROUP BY tag HAVING COUNT(*) < 6);
+FROM
+    artist_tags
+WHERE
+        artist_id IN (SELECT artist_id FROM artist_tags GROUP BY artist_id HAVING COUNT(*) > 30)
+  AND   tag IN (SELECT tag FROM album_tags WHERE artist_id = artist_tags.artist_id GROUP BY tag HAVING COUNT(*) < 6);
 
 
 CREATE INDEX track_name ON track (track_name);

@@ -79,7 +79,7 @@ public class AliasReviewCommand extends ConcurrentCommand<CommandParameters> {
             return;
         }
 
-        EmbedBuilder embedBuilder = new ChuuEmbedBuilder();
+        EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e);
 
         try {
 

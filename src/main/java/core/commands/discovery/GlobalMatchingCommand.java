@@ -12,7 +12,6 @@ import core.parsers.OnlyUsernameParser;
 import core.parsers.Parser;
 import core.parsers.params.ChuuDataParams;
 import core.parsers.params.NumberParameters;
-import core.services.ColorService;
 import dao.ChuuService;
 import dao.entities.ArtistLbGlobalEntry;
 import dao.entities.DiscordUserDisplay;
@@ -84,8 +83,7 @@ public class GlobalMatchingCommand extends ConcurrentCommand<NumberParameters<Ch
         String url = userInformation.getUrlImage();
         String usableName = userInformation.getUsername();
 
-        EmbedBuilder embedBuilder = new ChuuEmbedBuilder().setColor(ColorService.computeColor(e))
-                .setThumbnail(url);
+        EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e).setThumbnail(url);
         Set<Long> found;
         if (e.isFromGuild()) {
             found = db.getAll(e.getGuild().getIdLong()).stream().map(UsersWrapper::getDiscordID).collect(Collectors.toSet());

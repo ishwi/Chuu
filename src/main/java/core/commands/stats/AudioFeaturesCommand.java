@@ -12,7 +12,6 @@ import core.commands.utils.PrivacyUtils;
 import core.parsers.OnlyUsernameParser;
 import core.parsers.Parser;
 import core.parsers.params.ChuuDataParams;
-import core.services.ColorService;
 import core.services.SpotifyTrackService;
 import dao.ChuuService;
 import dao.entities.DiscordUserDisplay;
@@ -102,9 +101,8 @@ public class AudioFeaturesCommand extends ConcurrentCommand<ChuuDataParams> {
         int s = audioFeatures.size();
         DiscordUserDisplay userInfoNotStripped = CommandUtil.getUserInfoNotStripped(e, params.getLastFMData().getDiscordId());
         AudioFeatures audioFeature = reduce.get();
-        EmbedBuilder embedBuilder = new ChuuEmbedBuilder()
+        EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e)
                 .setAuthor("Audio features for " + userInfoNotStripped.getUsername(), PrivacyUtils.getLastFmUser(lastFMData.getName()), userInfoNotStripped.getUrlImage())
-                .setColor(ColorService.computeColor(e))
                 .addField("Happiness:", df.format(audioFeature.getValence() / s), true)
                 .addField("Acousticness:", df.format(audioFeature.getAcousticness() / s), true)
                 .addField("Danceability:", df.format(audioFeature.getDanceability() / s), true)

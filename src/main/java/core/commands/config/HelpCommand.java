@@ -110,7 +110,7 @@ public class HelpCommand extends ConcurrentCommand<WordParameter> {
     protected void onCommand(Context e, @NotNull WordParameter params) {
         Character prefix = Chuu.getCorrespondingPrefix(e);
         if (params.hasOptional("all")) {
-            e.sendMessage(new ChuuEmbedBuilder().setDescription(new StringBuilder()
+            e.sendMessage(new ChuuEmbedBuilder(e).setDescription(new StringBuilder()
                     .append(e.getAuthor()))
                     .build(), e.getAuthor()).queue();
             e.getAuthor().openPrivateChannel().queue(privateChannel -> sendPrivate(privateChannel, e));
@@ -173,7 +173,7 @@ public class HelpCommand extends ConcurrentCommand<WordParameter> {
     }
 
     public void sendEmbed(Context e) {
-        EmbedBuilder embedBuilder = new ChuuEmbedBuilder();
+        EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e);
         Character correspondingPrefix = Chuu.getCorrespondingPrefix(e);
         for (Map.Entry<CommandCategory, SortedSet<MyCommand<?>>> a : categoryMap.entrySet()) {
             StringBuilder s = new StringBuilder();

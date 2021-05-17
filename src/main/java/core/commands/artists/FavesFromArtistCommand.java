@@ -15,7 +15,6 @@ import core.otherlisteners.Reactionary;
 import core.parsers.ArtistTimeFrameParser;
 import core.parsers.Parser;
 import core.parsers.params.ArtistTimeFrameParameters;
-import core.services.ColorService;
 import dao.ChuuService;
 import dao.entities.DiscordUserDisplay;
 import dao.entities.ScrobbledArtist;
@@ -99,10 +98,9 @@ public class FavesFromArtistCommand extends ConcurrentCommand<ArtistTimeFramePar
             String sb = s.get(i);
             a.append(i + 1).append(sb);
         }
-        EmbedBuilder embedBuilder = new ChuuEmbedBuilder()
+        EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e)
                 .setDescription(a)
                 .setAuthor(String.format("%s's top %s tracks%s", userString, who.getArtist(), timeframew.getDisplayString()), PrivacyUtils.getLastFmArtistUserUrl(who.getArtist(), lastFmName), uInfo.getUrlImage())
-                .setColor(ColorService.computeColor(e))
                 .setThumbnail(CommandUtil.noImageUrl(who.getUrl()));
         if (ai.size() > 10) {
             embedBuilder.setFooter(userString + " has listened to " + s.size() + " different " + who.getArtist() + " songs!");

@@ -10,7 +10,6 @@ import core.parsers.OnlyUsernameParser;
 import core.parsers.Parser;
 import core.parsers.params.ChuuDataParams;
 import core.parsers.params.NumberParameters;
-import core.services.ColorService;
 import dao.ChuuService;
 import dao.entities.DiscordUserDisplay;
 import dao.entities.TrackPlays;
@@ -84,9 +83,8 @@ TrackCrownsCommand extends ConcurrentCommand<NumberParameters<ChuuDataParams>> {
             TrackPlays g = resultWrapper.get(i);
             a.append(i + 1).append(g.toString());
         }
-        EmbedBuilder embedBuilder = new ChuuEmbedBuilder()
+        EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e)
                 .setDescription(a)
-                .setColor(ColorService.computeColor(e))
                 .setTitle(String.format("%s's track crowns", name), CommandUtil.getLastFmUser(uniqueDataUniqueWrapper.getLastFmId()))
                 .setFooter(String.format("%s has %d track crowns!!%n", CommandUtil.markdownLessUserString(name, innerParams.getLastFMData().getDiscordId(), e), resultWrapper.size()), null)
                 .setThumbnail(url);

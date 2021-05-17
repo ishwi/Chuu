@@ -13,7 +13,6 @@ import core.parsers.FileParser;
 import core.parsers.Parser;
 import core.parsers.params.UrlParameters;
 import core.parsers.utils.CustomTimeFrame;
-import core.services.ColorService;
 import dao.ChuuService;
 import dao.entities.*;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -201,8 +200,7 @@ public class ImportCommand extends ConcurrentCommand<UrlParameters> {
         }
 //        PrivateChannel privateChannel = e.getAuthor().openPrivateChannel().complete();
 
-        EmbedBuilder embedBuilder = new ChuuEmbedBuilder().setColor(ColorService.computeColor(e))
-                .setTitle("Import In Progress")
+        EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e).setTitle("Import In Progress")
                 .setFooter("Total users to import: " + arr.length())
                 .setThumbnail("https://cdnjs.cloudflare.com/ajax/libs/prettyPhoto/3.1.6/images/prettyPhoto/dark_rounded/loader.gif");
         Message complete = e.sendMessage(embedBuilder.build()).complete();

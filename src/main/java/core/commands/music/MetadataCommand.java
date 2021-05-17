@@ -10,7 +10,6 @@ import core.music.MusicManager;
 import core.parsers.NoOpParser;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
-import core.services.ColorService;
 import dao.ChuuService;
 import dao.entities.Metadata;
 import net.dv8tion.jda.api.entities.Message;
@@ -60,7 +59,7 @@ public class MetadataCommand extends MusicCommand<CommandParameters> {
         String words = String.join(" ", message);
         if (words.length() == 0) {
             manager.getScrobble().thenAccept(scrobble ->
-                    e.sendMessage(new ChuuEmbedBuilder().setColor(ColorService.computeColor(e)).setThumbnail(scrobble.image())
+                    e.sendMessage(new ChuuEmbedBuilder(e).setThumbnail(scrobble.image())
                             .setTitle("Current song metadata", identifier)
                             .setThumbnail(scrobble.image())
                             .setFooter(scrobble.linelessReversed())
@@ -87,7 +86,7 @@ public class MetadataCommand extends MusicCommand<CommandParameters> {
         db.storeMetadata(identifier, metadata);
         String finalImage = image;
         manager.setMetadata(metadata).thenCompose(v -> manager.getScrobble()).thenAccept(z ->
-                e.sendMessage(new ChuuEmbedBuilder().setColor(ColorService.computeColor(e)).setThumbnail(finalImage)
+                e.sendMessage(new ChuuEmbedBuilder(e).setThumbnail(finalImage)
                         .setAuthor("Metadata changed", identifier)
                         .setDescription(z.toLines())
                         .build()).

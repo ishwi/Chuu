@@ -14,7 +14,6 @@ import core.otherlisteners.Reactionary;
 import core.parsers.ArtistParser;
 import core.parsers.Parser;
 import core.parsers.params.ArtistParameters;
-import core.services.ColorService;
 import dao.ChuuService;
 import dao.entities.ScrobbledArtist;
 import dao.exceptions.InstanceNotFoundException;
@@ -88,9 +87,8 @@ public class TagsCommand extends ConcurrentCommand<ArtistParameters> {
         }
 
 
-        EmbedBuilder embedBuilder = new ChuuEmbedBuilder()
+        EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e)
                 .setDescription(a)
-                .setColor(ColorService.computeColor(e))
                 .setAuthor(correctedArtist + "'s tags", LinkUtils.getLastFmArtistUrl(scrobbledArtist.getArtist()), scrobbledArtist.getUrl());
         e.sendMessage(embedBuilder.build()).queue(message1 ->
                 new Reactionary<>(artistTags, message1, embedBuilder));

@@ -11,7 +11,6 @@ import core.otherlisteners.Reactionary;
 import core.parsers.OnlyUsernameParser;
 import core.parsers.Parser;
 import core.parsers.params.ChuuDataParams;
-import core.services.ColorService;
 import dao.ChuuService;
 import dao.entities.CountWrapper;
 import dao.entities.DiscordUserDisplay;
@@ -71,8 +70,7 @@ public class LovedCommand extends ConcurrentCommand<ChuuDataParams> {
         for (int i = 0; i < lines.size() && i < 10; i++) {
             a.append(lines.get(i));
         }
-        EmbedBuilder embedBuilder = new ChuuEmbedBuilder().setColor(ColorService.computeColor(e))
-                .setAuthor("%s's loved songs".formatted(uInfo.getUsername()), PrivacyUtils.getLastFmUser(userName) + "/loved", uInfo.getUrlImage())
+        EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e).setAuthor("%s's loved songs".formatted(uInfo.getUsername()), PrivacyUtils.getLastFmUser(userName) + "/loved", uInfo.getUrlImage())
                 .setDescription(a)
                 .setFooter("%d total %s loved".formatted(wrapper.getRows(), CommandUtil.singlePlural(wrapper.getRows(), "song", "songs")));
         e.sendMessage(embedBuilder.build()).queue(message ->

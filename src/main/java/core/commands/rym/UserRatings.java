@@ -9,7 +9,6 @@ import core.otherlisteners.Reactionary;
 import core.parsers.Parser;
 import core.parsers.RYMRatingParser;
 import core.parsers.params.RYMRatingParams;
-import core.services.ColorService;
 import dao.ChuuService;
 import dao.entities.DiscordUserDisplay;
 import dao.entities.RymStats;
@@ -72,7 +71,7 @@ public class UserRatings extends ConcurrentCommand<RYMRatingParams> {
         Context e = params.getE();
         NumberFormat formatter = new DecimalFormat("#0.##");
         DiscordUserDisplay userInfoConsideringGuildOrNot = CommandUtil.getUserInfoConsideringGuildOrNot(e, params.getLastFMData().getDiscordId());
-        EmbedBuilder embedBuilder = new ChuuEmbedBuilder().
+        EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e).
                 setTitle(userInfoConsideringGuildOrNot.getUsername() + "'s albums rated with a **" + formatter.format(params.getRating() / 2f) + "**");
         List<String> stringList = new ArrayList<>();
         for (ScoredAlbumRatings x : myRatings) {
@@ -91,7 +90,7 @@ public class UserRatings extends ConcurrentCommand<RYMRatingParams> {
         Context e = params.getE();
         NumberFormat formatter = new DecimalFormat("#0.##");
         DiscordUserDisplay userInfoConsideringGuildOrNot = CommandUtil.getUserInfoConsideringGuildOrNot(e, params.getLastFMData().getDiscordId());
-        EmbedBuilder embedBuilder = new ChuuEmbedBuilder().
+        EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e).
                 setTitle(userInfoConsideringGuildOrNot.getUsername() + "'s rating overview");
         List<String> stringList = new ArrayList<>();
         double prevRating = -1d;
@@ -122,7 +121,6 @@ public class UserRatings extends ConcurrentCommand<RYMRatingParams> {
         }
         RymStats stats = db.getUserRymStatms(params.getLastFMData().getDiscordId());
         embedBuilder
-                .setColor(ColorService.computeColor(e))
                 .setThumbnail(userInfoConsideringGuildOrNot.getUrlImage())
                 .setFooter(userInfoConsideringGuildOrNot.getUsername() + " has rated " + stats.getNumberOfRatings() + " albums with an average of " + formatter.format(stats.getAverage() / 2f))
                 .setDescription(a);

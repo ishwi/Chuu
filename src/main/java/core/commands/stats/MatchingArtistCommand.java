@@ -12,7 +12,6 @@ import core.parsers.OnlyUsernameParser;
 import core.parsers.Parser;
 import core.parsers.params.ChuuDataParams;
 import core.parsers.params.NumberParameters;
-import core.services.ColorService;
 import dao.ChuuService;
 import dao.entities.DiscordUserDisplay;
 import dao.entities.LbEntry;
@@ -78,8 +77,7 @@ public class MatchingArtistCommand extends ConcurrentCommand<NumberParameters<Ch
         String url = userInformation.getUrlImage();
         String usableName = userInformation.getUsername();
 
-        EmbedBuilder embedBuilder = new ChuuEmbedBuilder().setColor(ColorService.computeColor(e))
-                .setThumbnail(url);
+        EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e).setThumbnail(url);
         StringBuilder a = new StringBuilder();
 
         if (list.isEmpty()) {

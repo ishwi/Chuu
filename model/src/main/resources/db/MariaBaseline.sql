@@ -293,12 +293,18 @@ BEGIN
     DECLARE current_score int;
     DECLARE current_url varchar(400);
 
-    SET current_score = (SELECT MAX(a.score)
-                         FROM alt_url a
-                         WHERE a.artist_id = new.artist_id);
-    SET current_url = (SELECT a.url
-                       FROM alt_url a
-                       WHERE a.artist_id = new.artist_id
+    SET current_score = (SELECT
+                             MAX(a.score)
+                         FROM
+                             alt_url a
+                         WHERE
+                             a.artist_id = new.artist_id);
+    SET current_url = (SELECT
+                           a.url
+                       FROM
+                           alt_url a
+                       WHERE
+                           a.artist_id = new.artist_id
                        ORDER BY score DESC
                        LIMIT 1);
     IF ((SELECT url FROM artist b WHERE b.id = new.artist_id) = new.url) AND (new.score < current_score) THEN
@@ -328,8 +334,10 @@ DELIMITER ;;
 BEGIN
     IF (old.url = (SELECT url FROM artist WHERE id = old.artist_id)) THEN
         UPDATE artist
-        SET url = (SELECT url FROM alt_url WHERE alt_url.artist_id = old.artist_id ORDER BY alt_url.score DESC LIMIT 1)
-        WHERE id = old.artist_id;
+        SET
+            url = (SELECT url FROM alt_url WHERE alt_url.artist_id = old.artist_id ORDER BY alt_url.score DESC LIMIT 1)
+        WHERE
+            id = old.artist_id;
     END IF;
 END */;;
 DELIMITER ;
@@ -1181,25 +1189,34 @@ DELIMITER ;;
 CREATE FUNCTION `streak_billboard_album_listeners`(bill_id bigint(20)) RETURNS int(11)
     DETERMINISTIC
     RETURN
-        (WITH RECURSIVE cte (week_id, artist_id, guild_id, album_name) AS
-                            (SELECT week_id,
-                                    artist_id,
-                                    guild_id,
-                                    album_name
-                             FROM weekly_billboard_album_listeners
-                             WHERE id = bill_id
-                             UNION ALL
-                             SELECT b.week_id,
-                                    b.artist_id,
-                                    b.guild_id,
-                                    b.album_name
-                             FROM cte t
-                                      JOIN weekly_billboard_album_listeners b ON b.week_id = t.week_id - 1
-                                 AND t.artist_id = b.artist_id
-                                 AND t.guild_id = b.guild_id
-                                 AND t.album_name = b.album_name)
-         SELECT COUNT(*)
-         FROM cte) ;;
+        (WITH
+             RECURSIVE
+             cte (week_id, artist_id, guild_id, album_name) AS
+                 (SELECT
+                      week_id,
+                      artist_id,
+                      guild_id,
+                      album_name
+                  FROM
+                      weekly_billboard_album_listeners
+                  WHERE
+                      id = bill_id
+                  UNION ALL
+                  SELECT
+                      b.week_id,
+                      b.artist_id,
+                      b.guild_id,
+                      b.album_name
+                  FROM
+                      cte t
+                          JOIN weekly_billboard_album_listeners b ON b.week_id = t.week_id - 1
+                          AND t.artist_id = b.artist_id
+                          AND t.guild_id = b.guild_id
+                          AND t.album_name = b.album_name)
+         SELECT
+             COUNT(*)
+         FROM
+             cte) ;;
 DELIMITER ;
 /*!50003 SET sql_mode = @saved_sql_mode */;
 /*!50003 SET character_set_client = @saved_cs_client */;
@@ -1218,25 +1235,34 @@ DELIMITER ;;
 CREATE FUNCTION `streak_billboard_album_scrobbles`(bill_id bigint(20)) RETURNS int(11)
     DETERMINISTIC
     RETURN
-        (WITH RECURSIVE cte (week_id, artist_id, guild_id, album_name) AS
-                            (SELECT week_id,
-                                    artist_id,
-                                    guild_id,
-                                    album_name
-                             FROM weekly_billboard_album_scrobbles
-                             WHERE id = bill_id
-                             UNION ALL
-                             SELECT b.week_id,
-                                    b.artist_id,
-                                    b.guild_id,
-                                    b.album_name
-                             FROM cte t
-                                      JOIN weekly_billboard_album_scrobbles b ON b.week_id = t.week_id - 1
-                                 AND t.artist_id = b.artist_id
-                                 AND t.guild_id = b.guild_id
-                                 AND t.album_name = b.album_name)
-         SELECT COUNT(*)
-         FROM cte) ;;
+        (WITH
+             RECURSIVE
+             cte (week_id, artist_id, guild_id, album_name) AS
+                 (SELECT
+                      week_id,
+                      artist_id,
+                      guild_id,
+                      album_name
+                  FROM
+                      weekly_billboard_album_scrobbles
+                  WHERE
+                      id = bill_id
+                  UNION ALL
+                  SELECT
+                      b.week_id,
+                      b.artist_id,
+                      b.guild_id,
+                      b.album_name
+                  FROM
+                      cte t
+                          JOIN weekly_billboard_album_scrobbles b ON b.week_id = t.week_id - 1
+                          AND t.artist_id = b.artist_id
+                          AND t.guild_id = b.guild_id
+                          AND t.album_name = b.album_name)
+         SELECT
+             COUNT(*)
+         FROM
+             cte) ;;
 DELIMITER ;
 /*!50003 SET sql_mode = @saved_sql_mode */;
 /*!50003 SET character_set_client = @saved_cs_client */;
@@ -1255,22 +1281,31 @@ DELIMITER ;;
 CREATE FUNCTION `streak_billboard_artist`(bill_id bigint(20)) RETURNS int(11)
     DETERMINISTIC
     RETURN
-        (WITH RECURSIVE cte (week_id, artist_id, guild_id) AS
-                            (SELECT week_id,
-                                    artist_id,
-                                    guild_id
-                             FROM weekly_billboard_artist_listeners
-                             WHERE id = bill_id
-                             UNION ALL
-                             SELECT b.week_id,
-                                    b.artist_id,
-                                    b.guild_id
-                             FROM cte t
-                                      JOIN weekly_billboard_artist_listeners b ON b.week_id = t.week_id - 1
-                                 AND t.artist_id = b.artist_id
-                                 AND t.guild_id = b.guild_id)
-         SELECT COUNT(*)
-         FROM cte) ;;
+        (WITH
+             RECURSIVE
+             cte (week_id, artist_id, guild_id) AS
+                 (SELECT
+                      week_id,
+                      artist_id,
+                      guild_id
+                  FROM
+                      weekly_billboard_artist_listeners
+                  WHERE
+                      id = bill_id
+                  UNION ALL
+                  SELECT
+                      b.week_id,
+                      b.artist_id,
+                      b.guild_id
+                  FROM
+                      cte t
+                          JOIN weekly_billboard_artist_listeners b ON b.week_id = t.week_id - 1
+                          AND t.artist_id = b.artist_id
+                          AND t.guild_id = b.guild_id)
+         SELECT
+             COUNT(*)
+         FROM
+             cte) ;;
 DELIMITER ;
 /*!50003 SET sql_mode = @saved_sql_mode */;
 /*!50003 SET character_set_client = @saved_cs_client */;
@@ -1289,22 +1324,31 @@ DELIMITER ;;
 CREATE FUNCTION `streak_billboard_artist_scrobbles`(bill_id bigint(20)) RETURNS int(11)
     DETERMINISTIC
     RETURN
-        (WITH RECURSIVE cte (week_id, artist_id, guild_id) AS
-                            (SELECT week_id,
-                                    artist_id,
-                                    guild_id
-                             FROM weekly_billboard_artist_scrobbles
-                             WHERE id = bill_id
-                             UNION ALL
-                             SELECT b.week_id,
-                                    b.artist_id,
-                                    b.guild_id
-                             FROM cte t
-                                      JOIN weekly_billboard_artist_scrobbles b ON b.week_id = t.week_id - 1
-                                 AND t.artist_id = b.artist_id
-                                 AND t.guild_id = b.guild_id)
-         SELECT COUNT(*)
-         FROM cte) ;;
+        (WITH
+             RECURSIVE
+             cte (week_id, artist_id, guild_id) AS
+                 (SELECT
+                      week_id,
+                      artist_id,
+                      guild_id
+                  FROM
+                      weekly_billboard_artist_scrobbles
+                  WHERE
+                      id = bill_id
+                  UNION ALL
+                  SELECT
+                      b.week_id,
+                      b.artist_id,
+                      b.guild_id
+                  FROM
+                      cte t
+                          JOIN weekly_billboard_artist_scrobbles b ON b.week_id = t.week_id - 1
+                          AND t.artist_id = b.artist_id
+                          AND t.guild_id = b.guild_id)
+         SELECT
+             COUNT(*)
+         FROM
+             cte) ;;
 DELIMITER ;
 /*!50003 SET sql_mode = @saved_sql_mode */;
 /*!50003 SET character_set_client = @saved_cs_client */;
@@ -1323,22 +1367,31 @@ DELIMITER ;;
 CREATE FUNCTION `streak_billboard_global_track_scrobbles`(bill_id bigint(20)) RETURNS int(11)
     DETERMINISTIC
     RETURN
-        (WITH RECURSIVE cte (week_id, artist_id, track_name) AS
-                            (SELECT week_id,
-                                    artist_id,
-                                    track_name
-                             FROM weekly_billboard_global_scrobbles
-                             WHERE id = bill_id
-                             UNION ALL
-                             SELECT b.week_id,
-                                    b.artist_id,
-                                    b.track_name
-                             FROM cte t
-                                      JOIN weekly_billboard_global_scrobbles b ON b.week_id = t.week_id - 1
-                                 AND t.artist_id = b.artist_id
-                                 AND t.track_name = b.track_name)
-         SELECT COUNT(*)
-         FROM cte) ;;
+        (WITH
+             RECURSIVE
+             cte (week_id, artist_id, track_name) AS
+                 (SELECT
+                      week_id,
+                      artist_id,
+                      track_name
+                  FROM
+                      weekly_billboard_global_scrobbles
+                  WHERE
+                      id = bill_id
+                  UNION ALL
+                  SELECT
+                      b.week_id,
+                      b.artist_id,
+                      b.track_name
+                  FROM
+                      cte t
+                          JOIN weekly_billboard_global_scrobbles b ON b.week_id = t.week_id - 1
+                          AND t.artist_id = b.artist_id
+                          AND t.track_name = b.track_name)
+         SELECT
+             COUNT(*)
+         FROM
+             cte) ;;
 DELIMITER ;
 /*!50003 SET sql_mode = @saved_sql_mode */;
 /*!50003 SET character_set_client = @saved_cs_client */;
@@ -1357,25 +1410,34 @@ DELIMITER ;;
 CREATE FUNCTION `streak_billboard_track`(bill_id bigint(20)) RETURNS int(11)
     DETERMINISTIC
     RETURN
-        (WITH RECURSIVE cte (week_id, artist_id, guild_id, track_name) AS
-                            (SELECT week_id,
-                                    artist_id,
-                                    guild_id,
-                                    track_name
-                             FROM weekly_billboard_listeners
-                             WHERE id = bill_id
-                             UNION ALL
-                             SELECT b.week_id,
-                                    b.artist_id,
-                                    b.guild_id,
-                                    b.track_name
-                             FROM cte t
-                                      JOIN weekly_billboard_listeners b ON b.week_id = t.week_id - 1
-                                 AND t.artist_id = b.artist_id
-                                 AND t.guild_id = b.guild_id
-                                 AND t.track_name = b.track_name)
-         SELECT COUNT(*)
-         FROM cte) ;;
+        (WITH
+             RECURSIVE
+             cte (week_id, artist_id, guild_id, track_name) AS
+                 (SELECT
+                      week_id,
+                      artist_id,
+                      guild_id,
+                      track_name
+                  FROM
+                      weekly_billboard_listeners
+                  WHERE
+                      id = bill_id
+                  UNION ALL
+                  SELECT
+                      b.week_id,
+                      b.artist_id,
+                      b.guild_id,
+                      b.track_name
+                  FROM
+                      cte t
+                          JOIN weekly_billboard_listeners b ON b.week_id = t.week_id - 1
+                          AND t.artist_id = b.artist_id
+                          AND t.guild_id = b.guild_id
+                          AND t.track_name = b.track_name)
+         SELECT
+             COUNT(*)
+         FROM
+             cte) ;;
 DELIMITER ;
 /*!50003 SET sql_mode = @saved_sql_mode */;
 /*!50003 SET character_set_client = @saved_cs_client */;
@@ -1394,25 +1456,34 @@ DELIMITER ;;
 CREATE FUNCTION `streak_billboard_track_scrobbles`(bill_id bigint(20)) RETURNS int(11)
     DETERMINISTIC
     RETURN
-        (WITH RECURSIVE cte (week_id, artist_id, guild_id, track_name) AS
-                            (SELECT week_id,
-                                    artist_id,
-                                    guild_id,
-                                    track_name
-                             FROM weekly_billboard_scrobbles
-                             WHERE id = bill_id
-                             UNION ALL
-                             SELECT b.week_id,
-                                    b.artist_id,
-                                    b.guild_id,
-                                    b.track_name
-                             FROM cte t
-                                      JOIN weekly_billboard_scrobbles b ON b.week_id = t.week_id - 1
-                                 AND t.artist_id = b.artist_id
-                                 AND t.guild_id = b.guild_id
-                                 AND t.track_name = b.track_name)
-         SELECT COUNT(*)
-         FROM cte) ;;
+        (WITH
+             RECURSIVE
+             cte (week_id, artist_id, guild_id, track_name) AS
+                 (SELECT
+                      week_id,
+                      artist_id,
+                      guild_id,
+                      track_name
+                  FROM
+                      weekly_billboard_scrobbles
+                  WHERE
+                      id = bill_id
+                  UNION ALL
+                  SELECT
+                      b.week_id,
+                      b.artist_id,
+                      b.guild_id,
+                      b.track_name
+                  FROM
+                      cte t
+                          JOIN weekly_billboard_scrobbles b ON b.week_id = t.week_id - 1
+                          AND t.artist_id = b.artist_id
+                          AND t.guild_id = b.guild_id
+                          AND t.track_name = b.track_name)
+         SELECT
+             COUNT(*)
+         FROM
+             cte) ;;
 DELIMITER ;
 /*!50003 SET sql_mode = @saved_sql_mode */;
 /*!50003 SET character_set_client = @saved_cs_client */;
@@ -1431,22 +1502,31 @@ DELIMITER ;;
 CREATE FUNCTION `streak_global_billboard_album_listeners`(bill_id bigint(20)) RETURNS int(11)
     DETERMINISTIC
     RETURN
-        (WITH RECURSIVE cte (week_id, artist_id, album_name) AS
-                            (SELECT week_id,
-                                    artist_id,
-                                    album_name
-                             FROM weekly_billboard_album_global_listeners
-                             WHERE id = bill_id
-                             UNION ALL
-                             SELECT b.week_id,
-                                    b.artist_id,
-                                    b.album_name
-                             FROM cte t
-                                      JOIN weekly_billboard_album_global_listeners b ON b.week_id = t.week_id - 1
-                                 AND t.artist_id = b.artist_id
-                                 AND t.album_name = b.album_name)
-         SELECT COUNT(*)
-         FROM cte) ;;
+        (WITH
+             RECURSIVE
+             cte (week_id, artist_id, album_name) AS
+                 (SELECT
+                      week_id,
+                      artist_id,
+                      album_name
+                  FROM
+                      weekly_billboard_album_global_listeners
+                  WHERE
+                      id = bill_id
+                  UNION ALL
+                  SELECT
+                      b.week_id,
+                      b.artist_id,
+                      b.album_name
+                  FROM
+                      cte t
+                          JOIN weekly_billboard_album_global_listeners b ON b.week_id = t.week_id - 1
+                          AND t.artist_id = b.artist_id
+                          AND t.album_name = b.album_name)
+         SELECT
+             COUNT(*)
+         FROM
+             cte) ;;
 DELIMITER ;
 /*!50003 SET sql_mode = @saved_sql_mode */;
 /*!50003 SET character_set_client = @saved_cs_client */;
@@ -1465,22 +1545,31 @@ DELIMITER ;;
 CREATE FUNCTION `streak_global_billboard_album_scrobbles`(bill_id bigint(20)) RETURNS int(11)
     DETERMINISTIC
     RETURN
-        (WITH RECURSIVE cte (week_id, artist_id, album_name) AS
-                            (SELECT week_id,
-                                    artist_id,
-                                    album_name
-                             FROM weekly_billboard_album_global_scrobbles
-                             WHERE id = bill_id
-                             UNION ALL
-                             SELECT b.week_id,
-                                    b.artist_id,
-                                    b.album_name
-                             FROM cte t
-                                      JOIN weekly_billboard_album_global_scrobbles b ON b.week_id = t.week_id - 1
-                                 AND t.artist_id = b.artist_id
-                                 AND t.album_name = b.album_name)
-         SELECT COUNT(*)
-         FROM cte) ;;
+        (WITH
+             RECURSIVE
+             cte (week_id, artist_id, album_name) AS
+                 (SELECT
+                      week_id,
+                      artist_id,
+                      album_name
+                  FROM
+                      weekly_billboard_album_global_scrobbles
+                  WHERE
+                      id = bill_id
+                  UNION ALL
+                  SELECT
+                      b.week_id,
+                      b.artist_id,
+                      b.album_name
+                  FROM
+                      cte t
+                          JOIN weekly_billboard_album_global_scrobbles b ON b.week_id = t.week_id - 1
+                          AND t.artist_id = b.artist_id
+                          AND t.album_name = b.album_name)
+         SELECT
+             COUNT(*)
+         FROM
+             cte) ;;
 DELIMITER ;
 /*!50003 SET sql_mode = @saved_sql_mode */;
 /*!50003 SET character_set_client = @saved_cs_client */;
@@ -1499,19 +1588,28 @@ DELIMITER ;;
 CREATE FUNCTION `streak_global_billboard_artist`(bill_id bigint(20)) RETURNS int(11)
     DETERMINISTIC
     RETURN
-        (WITH RECURSIVE cte (week_id, artist_id) AS
-                            (SELECT week_id,
-                                    artist_id
-                             FROM weekly_billboard_artist_global_listeners
-                             WHERE id = bill_id
-                             UNION ALL
-                             SELECT b.week_id,
-                                    b.artist_id
-                             FROM cte t
-                                      JOIN weekly_billboard_artist_global_listeners b ON b.week_id = t.week_id - 1
-                                 AND t.artist_id = b.artist_id)
-         SELECT COUNT(*)
-         FROM cte) ;;
+        (WITH
+             RECURSIVE
+             cte (week_id, artist_id) AS
+                 (SELECT
+                      week_id,
+                      artist_id
+                  FROM
+                      weekly_billboard_artist_global_listeners
+                  WHERE
+                      id = bill_id
+                  UNION ALL
+                  SELECT
+                      b.week_id,
+                      b.artist_id
+                  FROM
+                      cte t
+                          JOIN weekly_billboard_artist_global_listeners b ON b.week_id = t.week_id - 1
+                          AND t.artist_id = b.artist_id)
+         SELECT
+             COUNT(*)
+         FROM
+             cte) ;;
 DELIMITER ;
 /*!50003 SET sql_mode = @saved_sql_mode */;
 /*!50003 SET character_set_client = @saved_cs_client */;
@@ -1530,20 +1628,29 @@ DELIMITER ;;
 CREATE FUNCTION `streak_global_billboard_artist_scrobbles`(bill_id bigint(20)) RETURNS int(11)
     DETERMINISTIC
     RETURN
-        (WITH RECURSIVE cte (week_id, artist_id) AS
-                            (SELECT week_id,
-                                    artist_id
-                             FROM weekly_billboard_artist_global_scrobbles
-                             WHERE id = bill_id
-                             UNION ALL
-                             SELECT b.week_id,
-                                    b.artist_id
-                             FROM cte t
-                                      JOIN weekly_billboard_artist_global_scrobbles b ON b.week_id = t.week_id - 1
-                                 AND t.artist_id = b.artist_id
-                            )
-         SELECT COUNT(*)
-         FROM cte) ;;
+        (WITH
+             RECURSIVE
+             cte (week_id, artist_id) AS
+                 (SELECT
+                      week_id,
+                      artist_id
+                  FROM
+                      weekly_billboard_artist_global_scrobbles
+                  WHERE
+                      id = bill_id
+                  UNION ALL
+                  SELECT
+                      b.week_id,
+                      b.artist_id
+                  FROM
+                      cte t
+                          JOIN weekly_billboard_artist_global_scrobbles b ON b.week_id = t.week_id - 1
+                          AND t.artist_id = b.artist_id
+                 )
+         SELECT
+             COUNT(*)
+         FROM
+             cte) ;;
 DELIMITER ;
 /*!50003 SET sql_mode = @saved_sql_mode */;
 /*!50003 SET character_set_client = @saved_cs_client */;
@@ -1562,22 +1669,31 @@ DELIMITER ;;
 CREATE FUNCTION `streak_global_billboard_track`(bill_id bigint(20)) RETURNS int(11)
     DETERMINISTIC
     RETURN
-        (WITH RECURSIVE cte (week_id, artist_id, track_name) AS
-                            (SELECT week_id,
-                                    artist_id,
-                                    track_name
-                             FROM weekly_billboard_global_listeners
-                             WHERE id = bill_id
-                             UNION ALL
-                             SELECT b.week_id,
-                                    b.artist_id,
-                                    b.track_name
-                             FROM cte t
-                                      JOIN weekly_billboard_global_listeners b ON b.week_id = t.week_id - 1
-                                 AND t.artist_id = b.artist_id
-                                 AND t.track_name = b.track_name)
-         SELECT COUNT(*)
-         FROM cte) ;;
+        (WITH
+             RECURSIVE
+             cte (week_id, artist_id, track_name) AS
+                 (SELECT
+                      week_id,
+                      artist_id,
+                      track_name
+                  FROM
+                      weekly_billboard_global_listeners
+                  WHERE
+                      id = bill_id
+                  UNION ALL
+                  SELECT
+                      b.week_id,
+                      b.artist_id,
+                      b.track_name
+                  FROM
+                      cte t
+                          JOIN weekly_billboard_global_listeners b ON b.week_id = t.week_id - 1
+                          AND t.artist_id = b.artist_id
+                          AND t.track_name = b.track_name)
+         SELECT
+             COUNT(*)
+         FROM
+             cte) ;;
 DELIMITER ;
 /*!50003 SET sql_mode = @saved_sql_mode */;
 /*!50003 SET character_set_client = @saved_cs_client */;

@@ -13,7 +13,6 @@ import core.exceptions.LastFmException;
 import core.parsers.ArtistParser;
 import core.parsers.Parser;
 import core.parsers.params.ArtistParameters;
-import core.services.ColorService;
 import core.services.tags.TagArtistService;
 import dao.ChuuService;
 import dao.entities.*;
@@ -78,7 +77,7 @@ public class SummaryArtistCommand extends ConcurrentCommand<ArtistParameters> {
         long globalArtistFrequencies = db.getGlobalArtistFrequencies(scrobbledArtist.getArtistId());
 
         String username = getUserString(e, whom, data.getName());
-        EmbedBuilder embedBuilder = new ChuuEmbedBuilder();
+        EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e);
         String tagsField = summary.getTags().isEmpty()
                            ? ""
                            : summary.getTags().stream()
@@ -126,8 +125,8 @@ public class SummaryArtistCommand extends ConcurrentCommand<ArtistParameters> {
         embedBuilder.addField("Tags:", tagsField, false)
                 .addField("Similars:", similarField, false)
                 .addField("Bio:", CommandUtil.cleanMarkdownCharacter(summary.getSummary()), false)
-                .setImage(scrobbledArtist.getUrl())
-                .setColor(ColorService.computeColor(e));
+                .setImage(scrobbledArtist.getUrl());
+
         e.sendMessage(embedBuilder.build()).queue();
         if (!summary.getTags().isEmpty()) {
             executor.submit(new TagArtistService(db, lastFM, summary.getTags(), new ArtistInfo(scrobbledArtist.getUrl(), summary.getArtistname(), summary.getMbid())));

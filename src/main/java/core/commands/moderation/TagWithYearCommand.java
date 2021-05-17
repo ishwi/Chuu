@@ -93,7 +93,7 @@ public class TagWithYearCommand extends ConcurrentCommand<CommandParameters> {
         String artist = content[0].trim().replaceAll("\\\\-", "-");
         String album = content[1].trim().replaceAll("\\\\-", "-");
         String userString = getUserString(e, idLong);
-        EmbedBuilder embedBuilder = new ChuuEmbedBuilder()
+        EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e)
                 .setTitle("Year confirmation")
                 .setDescription(String.format("%s, want to tag the album **%s** of **%s** with the year **%s**?", userString, album, artist, year));
         List<ConfirmatorItem> items = List.of(new ConfirmatorItem("\u2714", who -> {
@@ -108,7 +108,7 @@ public class TagWithYearCommand extends ConcurrentCommand<CommandParameters> {
             } else {
                 TextChannel textChannelById = Chuu.getShardManager().getTextChannelById(Chuu.channelId);
                 if (textChannelById != null)
-                    textChannelById.sendMessage(new ChuuEmbedBuilder().setTitle("Year submission")
+                    textChannelById.sendMessage(new ChuuEmbedBuilder(e).setTitle("Year submission")
                             .setDescription("Artist: **" + artist + "**\nAlbum: **" + album + "**\nYear: **" + year + "**\nAuthor: " + e.getAuthor().getIdLong()).build()).flatMap(q ->
                             q.addReaction("\u2714").flatMap(t -> q.addReaction("\u274c"))
                     ).queue();

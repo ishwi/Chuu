@@ -9,7 +9,6 @@ import core.otherlisteners.Reactionary;
 import core.parsers.OnlyUsernameParser;
 import core.parsers.Parser;
 import core.parsers.params.ChuuDataParams;
-import core.services.ColorService;
 import dao.ChuuService;
 import dao.entities.AlbumPlays;
 import dao.entities.DiscordUserDisplay;
@@ -70,12 +69,11 @@ public class UnratedAlbums extends ListCommand<AlbumPlays, ChuuDataParams> {
 
         char prefix = CommandUtil.getMessagePrefix(e);
 
-        EmbedBuilder embedBuilder = new ChuuEmbedBuilder();
-        embedBuilder.setDescription(a);
-        embedBuilder.setColor(ColorService.computeColor(e));
-        embedBuilder.setTitle(dp.getUsername() + "'s Unrated Albums");
-        embedBuilder.setFooter("You can link your rym account using " + prefix + "rymimport\n You have " + list.size() + " unrated albums", null);
-        embedBuilder.setThumbnail(dp.getUrlImage());
+        EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e)
+                .setDescription(a)
+                .setTitle(dp.getUsername() + "'s Unrated Albums")
+                .setFooter("You can link your rym account using " + prefix + "rymimport\n You have " + list.size() + " unrated albums", null)
+                .setThumbnail(dp.getUrlImage());
         e.sendMessage(embedBuilder.build()).queue(message1 ->
                 new Reactionary<>(list, message1, embedBuilder));
     }

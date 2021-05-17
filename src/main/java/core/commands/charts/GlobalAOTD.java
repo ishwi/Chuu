@@ -82,7 +82,7 @@ public class GlobalAOTD extends ChartableCommand<ChartYearRangeParameters> {
         String name = params.getE().getJDA().getSelfUser().getName();
         return embedBuilder.setAuthor(name + titleInit,
                 null, params.getE().getJDA().getSelfUser().getAvatarUrl())
-                .setFooter(CommandUtil.markdownLessString(name) + footerText).setColor(CommandUtil.randomColor(params.getE()));
+                .setFooter(CommandUtil.markdownLessString(name) + footerText);
     }
 
     @Override

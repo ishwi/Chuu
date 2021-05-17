@@ -10,7 +10,6 @@ import core.otherlisteners.Reactionary;
 import core.parsers.Parser;
 import core.parsers.UserStringParser;
 import core.parsers.params.UserStringParameters;
-import core.services.ColorService;
 import dao.ChuuService;
 import dao.entities.DiscordUserDisplay;
 import dao.entities.LastFMData;
@@ -83,8 +82,7 @@ public class AlbumSearchCommand extends ListCommand<ScrobbledAlbum, UserStringPa
         }
 
         String title = uInfo.getUsername() + "'s albums that match " + abbreviate;
-        EmbedBuilder embedBuilder = new ChuuEmbedBuilder().setColor(ColorService.computeColor(e))
-                .setAuthor(title, PrivacyUtils.getLastFmUser(params.getLastFMData().getName()), uInfo.getUrlImage())
+        EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e).setAuthor(title, PrivacyUtils.getLastFmUser(params.getLastFMData().getName()), uInfo.getUrlImage())
                 .setFooter(list.size() + " matching albums!")
                 .setDescription(a);
         e.sendMessage(embedBuilder.build()).queue(mes ->

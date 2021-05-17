@@ -14,7 +14,6 @@ import core.exceptions.*;
 import core.imagerenderer.ChartQuality;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
-import core.services.ColorService;
 import core.services.HeavyCommandRateLimiter;
 import dao.ChuuService;
 import dao.exceptions.InstanceNotFoundException;
@@ -198,8 +197,7 @@ public abstract class MyCommand<T extends CommandParameters> implements EventLis
                             .getLastFMName())));
             s = s.replaceFirst("prefix_to_be_used_yep_yep", Matcher.quoteReplacement(String.valueOf(CommandUtil.getMessagePrefix(e))));
 
-            MessageEmbed build = new ChuuEmbedBuilder()
-                    .setColor(ColorService.computeColor(e))
+            MessageEmbed build = new ChuuEmbedBuilder(e)
                     .setDescription(s).build();
             if (e instanceof ContextMessageReceived mes) {
                 mes.e().getChannel().sendMessage(build).reference(mes.e().getMessage()).queue();

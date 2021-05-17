@@ -14,7 +14,6 @@ import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
 import core.parsers.params.NumberParameters;
 import core.services.BillboardHoarder;
-import core.services.ColorService;
 import dao.ChuuService;
 import dao.entities.BillboardEntity;
 import dao.entities.UsersWrapper;
@@ -168,7 +167,7 @@ public class BillboardCommand extends ConcurrentCommand<NumberParameters<Command
 
     protected void doBillboard(Context e, NumberParameters<CommandParameters> params, boolean doListeners, List<BillboardEntity> entities, LocalDateTime weekStart, LocalDateTime weekBeggining, String name) {
         if (params.hasOptional("list")) {
-            EmbedBuilder embedBuilder = new ChuuEmbedBuilder();
+            EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e);
             List<String> artistAliases = entities
                     .stream().map(x -> String.format(". **[%s](%s):**\n Rank: %d | Previous Week: %s | Peak: %s | Weeks on top: %s | %s: %d\n",
                             x.getArtist() == null ? CommandUtil.cleanMarkdownCharacter(x.getName()) : CommandUtil.cleanMarkdownCharacter(x.getName() + " - " + x.getArtist()),
@@ -187,7 +186,6 @@ public class BillboardCommand extends ConcurrentCommand<NumberParameters<Command
             }
 
             embedBuilder.setTitle("Billboard Top 100 " + getTitle() + "from " + name)
-                    .setColor(ColorService.computeColor(e))
                     .setDescription(a);
             e.sendMessage(embedBuilder.build()).queue(message1 ->
                     new Reactionary<>(artistAliases, message1, embedBuilder));

@@ -96,7 +96,7 @@ public class VotingCommand extends ConcurrentCommand<ArtistParameters> {
             return;
         }
         String correctedArtist = CommandUtil.cleanMarkdownCharacter(allArtistImages.get(0).getArtist());
-        EmbedBuilder embedBuilder = new ChuuEmbedBuilder()
+        EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e)
                 .setTitle(correctedArtist + " Images");
 
         AtomicInteger counter = new AtomicInteger(0);

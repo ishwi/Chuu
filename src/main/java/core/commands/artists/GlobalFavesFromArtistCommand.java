@@ -15,7 +15,6 @@ import core.otherlisteners.Reactionary;
 import core.parsers.ArtistParser;
 import core.parsers.Parser;
 import core.parsers.params.ArtistParameters;
-import core.services.ColorService;
 import dao.ChuuService;
 import dao.entities.AlbumUserPlays;
 import dao.entities.ScrobbledArtist;
@@ -85,11 +84,10 @@ public class GlobalFavesFromArtistCommand extends ConcurrentCommand<ArtistParame
             String sb = s.get(i);
             a.append(i + 1).append(sb);
         }
-        EmbedBuilder embedBuilder = new ChuuEmbedBuilder()
+        EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e)
                 .setDescription(a)
                 .setFooter(userString + " users have listened to " + s.size() + " different " + who.getArtist() + " songs!")
                 .setAuthor(String.format("%s's top %s tracks", userString, who.getArtist()), PrivacyUtils.getLastFmArtistUserUrl(who.getArtist(), lastFmName), e.getJDA().getSelfUser().getAvatarUrl())
-                .setColor(ColorService.computeColor(e))
                 .setThumbnail(CommandUtil.noImageUrl(who.getUrl()));
         e.sendMessage(embedBuilder.build()).queue(mes ->
                 new Reactionary<>(s, mes, embedBuilder));

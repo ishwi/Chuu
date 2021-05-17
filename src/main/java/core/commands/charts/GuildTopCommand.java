@@ -80,9 +80,9 @@ public class GuildTopCommand extends ChartableCommand<ChartSizeParameters> {
             a.append(i + 1).append(urlCapsules.get(i).toEmbedDisplay());
         }
         Guild guild = params.getE().getGuild();
-        EmbedBuilder embedBuilder = configEmbed(new ChuuEmbedBuilder()
+        EmbedBuilder embedBuilder = configEmbed(new ChuuEmbedBuilder(params.getE())
                 .setDescription(a)
-                .setColor(CommandUtil.randomColor(params.getE()))
+
                 .setThumbnail(guild.getIconUrl()), params, count);
         params.getE().sendMessage(embedBuilder.build()).queue(message1 ->
                 new Reactionary<>(urlCapsules, message1, embedBuilder));
@@ -95,7 +95,7 @@ public class GuildTopCommand extends ChartableCommand<ChartSizeParameters> {
         String name = params.getE().getGuild().getName();
         return embedBuilder.setAuthor(name + titleInit,
                 null, params.getE().getGuild().getIconUrl())
-                .setFooter(CommandUtil.markdownLessString(name) + footerText).setColor(CommandUtil.randomColor(params.getE()));
+                .setFooter(CommandUtil.markdownLessString(name) + footerText);
     }
 
     @Override

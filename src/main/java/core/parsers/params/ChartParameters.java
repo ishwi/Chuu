@@ -125,7 +125,7 @@ public class ChartParameters extends CommandParameters {
     public EmbedBuilder initEmbed(String titleInit, EmbedBuilder embedBuilder, String footerText, String lastfmid) {
         DiscordUserDisplay uInfo = CommandUtil.getUserInfoNotStripped(getE(), getDiscordId());
         return embedBuilder.setAuthor(uInfo.getUsername() + titleInit + this.getTimeFrameEnum().getDisplayString(), CommandUtil.getLastFmUser(lastfmid), uInfo.getUrlImage())
-                .setFooter(CommandUtil.markdownLessString(uInfo.getUsername()) + footerText + this.getTimeFrameEnum().getDisplayString()).setColor(CommandUtil.randomColor(getE()));
+                .setFooter(CommandUtil.markdownLessString(uInfo.getUsername()) + footerText + this.getTimeFrameEnum().getDisplayString());
     }
 
 

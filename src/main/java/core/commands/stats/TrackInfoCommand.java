@@ -10,7 +10,6 @@ import core.exceptions.LastFmException;
 import core.parsers.ArtistSongParser;
 import core.parsers.Parser;
 import core.parsers.params.ArtistAlbumParameters;
-import core.services.ColorService;
 import core.services.tags.TrackTagService;
 import dao.ChuuService;
 import dao.entities.LastFMData;
@@ -58,7 +57,7 @@ public class TrackInfoCommand extends AlbumPlaysCommand {
 
 
         String username = getUserString(e, who, lastFMData.getName());
-        EmbedBuilder embedBuilder = new ChuuEmbedBuilder();
+        EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e);
         String tagsField = trackInfo.getTags().isEmpty()
                            ? ""
                            : trackInfo.getTags().stream()
@@ -87,7 +86,6 @@ public class TrackInfoCommand extends AlbumPlaysCommand {
                         , true);
 
         embedBuilder.setImage(trackInfo.getImageUrl() == null || trackInfo.getImageUrl().isBlank() ? null : trackInfo.getImageUrl())
-                .setColor(ColorService.computeColor(e))
                 .setThumbnail(artist.getUrl());
         e.sendMessage(embedBuilder.build()).
 

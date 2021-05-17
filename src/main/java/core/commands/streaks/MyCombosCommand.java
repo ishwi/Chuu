@@ -10,7 +10,6 @@ import core.parsers.OnlyUsernameParser;
 import core.parsers.OptionalEntity;
 import core.parsers.Parser;
 import core.parsers.params.ChuuDataParams;
-import core.services.ColorService;
 import dao.ChuuService;
 import dao.entities.DiscordUserDisplay;
 import dao.entities.GlobalStreakEntities;
@@ -88,10 +87,9 @@ public class MyCombosCommand extends ConcurrentCommand<ChuuDataParams> {
             maxSize.incrementAndGet();
         }
 
-        EmbedBuilder embedBuilder = new ChuuEmbedBuilder()
+        EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e)
                 .setAuthor(String.format("%s's streaks", CommandUtil.markdownLessUserString(userName, discordID, e)), CommandUtil.getLastFmUser(params.getLastFMData().getName()), userUrl)
                 .setThumbnail(CommandUtil.noImageUrl(userUrl))
-                .setColor(ColorService.computeColor(e))
                 .setDescription(a)
                 .setFooter(String.format("%s has a total of %d %s!", CommandUtil.markdownLessUserString(userName, discordID, e), streaks.size(), CommandUtil.singlePlural(streaks.size(), "streak", "streaks")));
         e.sendMessage(embedBuilder.build()).queue(message1 ->

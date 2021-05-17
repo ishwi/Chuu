@@ -125,7 +125,7 @@ public abstract class ChartableCommand<T extends ChartParameters> extends Concur
                 .generateCollageThreaded(x, minx, queue, chartQuality, params.isAside() || params.chartMode().equals(ChartMode.IMAGE_ASIDE) || params.chartMode().equals(ChartMode.IMAGE_ASIDE_INFO));
 
         boolean info = params.chartMode().equals(ChartMode.IMAGE_INFO) || params.chartMode().equals(ChartMode.IMAGE_ASIDE_INFO);
-        sendImage(image, e, chartQuality, info ? configEmbed(new ChuuEmbedBuilder(), params, size) : null);
+        sendImage(image, e, chartQuality, info ? configEmbed(new ChuuEmbedBuilder(e), params, size) : null);
     }
 
 
@@ -173,9 +173,8 @@ public abstract class ChartableCommand<T extends ChartParameters> extends Concur
         }
         DiscordUserDisplay userInfoConsideringGuildOrNot = CommandUtil.getUserInfoConsideringGuildOrNot(params.getE(), params.getDiscordId());
 
-        EmbedBuilder embedBuilder = configEmbed(new ChuuEmbedBuilder()
+        EmbedBuilder embedBuilder = configEmbed(new ChuuEmbedBuilder(params.getE())
                 .setDescription(a)
-                .setColor(CommandUtil.randomColor(params.getE()))
                 .setThumbnail(userInfoConsideringGuildOrNot.getUrlImage()), params, count);
         params.getE().sendMessage(embedBuilder.build()).queue(message1 ->
                 new Reactionary<>(urlCapsules, message1, embedBuilder));

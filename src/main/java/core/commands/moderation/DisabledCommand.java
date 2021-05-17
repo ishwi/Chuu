@@ -12,7 +12,6 @@ import core.otherlisteners.Reactionary;
 import core.parsers.DisabledCommandParser;
 import core.parsers.Parser;
 import core.parsers.params.DisabledCommandParameters;
-import core.services.ColorService;
 import core.services.MessageDisablingService;
 import dao.ChuuService;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -119,9 +118,8 @@ public class DisabledCommand extends ConcurrentCommand<DisabledCommandParameters
         if (pages.size() != 1) {
             desc += "\n1" + "/" + pages.size();
         }
-        EmbedBuilder embedBuilder = new ChuuEmbedBuilder();
-        embedBuilder.setDescription(desc)
-                .setColor(ColorService.computeColor(e));
+        EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e)
+                .setDescription(desc);
         e.sendMessage(embedBuilder.build()).queue(message1 ->
                 new Reactionary<>(pages, message1, 1, embedBuilder, false, true));
     }
