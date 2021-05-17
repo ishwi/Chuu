@@ -11,11 +11,16 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiFunction;
 import java.util.function.Supplier;
 
 public class RetriableLoader {
-    public static AudioLoadResultHandler getLoader(CompletableFuture<AudioTrack> future, boolean randomizePlaylist, Supplier<TrackContext> contextSupplier, RadioTrackContext context, AtomicInteger attempts, BiFunction<RadioTrackContext, AtomicInteger, ?> retrier, Set<String> previousIdentifiers) {
+    public static AudioLoadResultHandler getLoader(CompletableFuture<AudioTrack> future, boolean randomizePlaylist, Supplier<TrackContext> contextSupplier, RadioTrackContext context, AtomicInteger attempts, BiFunction<RadioTrackContext, AtomicInteger, CompletableFuture<AudioTrack>> retrier, Set<String> previousIdentifiers) {
+        return getLoader(future, randomizePlaylist, contextSupplier, context, attempts, retrier, previousIdentifiers, null);
+    }
+
+    public static AudioLoadResultHandler getLoader(CompletableFuture<AudioTrack> future, boolean randomizePlaylist, Supplier<TrackContext> contextSupplier, RadioTrackContext context, AtomicInteger attempts, BiFunction<RadioTrackContext, AtomicInteger, CompletableFuture<AudioTrack>> retrier, Set<String> previousIdentifiers, AtomicReference<AudioPlaylist> ref) {
         return new AudioLoadResultHandler() {
             @Override
             public void trackLoaded(AudioTrack track) {
@@ -28,6 +33,9 @@ public class RetriableLoader {
             public void playlistLoaded(AudioPlaylist playlist) {
                 AudioTrack track;
                 int counter = 0;
+                if (ref != null) {
+                    ref.compareAndExchange(null, playlist);
+                }
                 List<AudioTrack> tracks = playlist.getTracks();
                 do {
 
@@ -58,10 +66,12 @@ public class RetriableLoader {
                     future.obtrudeException(new FriendlyException("", FriendlyException.Severity.COMMON, null));
                 } else {
                     int i = attempts.incrementAndGet();
-                    retrier.apply(context, attempts);
+                    retrier.apply(context, attempts)
+                            .thenAccept(future::complete);
                 }
             }
         };
     }
+
 
 }

@@ -64,7 +64,7 @@ public class TrackContext implements Serializable {
                 }
                 case 6 -> {
                     var source = new GenreRadio(reader.readUTF(), reader.readUTF());
-                    yield new GenreRadioTrackContext(requester, requestedChannel, source, source.genre(), source.uri());
+                    yield new GenreRadioTrackContext(requester, requestedChannel, source, source.genre(), source.uri(), reader.readInt(), reader.readInt());
                 }
                 default -> throw new IllegalArgumentException("Invalid contextType $contextType!");
             };

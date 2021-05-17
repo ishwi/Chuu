@@ -28,17 +28,23 @@ import java.util.concurrent.CompletableFuture;
 public class GenreRadioTrackContext extends RadioTrackContext {
     private final String genre;
     private final String uri;
+    private final int size;
+    private final int index;
 
-    public GenreRadioTrackContext(long requester, long channelRequester, RadioSource source, String genre, String uri) {
+    public GenreRadioTrackContext(long requester, long channelRequester, RadioSource source, String genre, String uri, int size, int index) {
         super(requester, channelRequester, source);
         this.genre = genre;
         this.uri = uri;
+        this.size = size;
+        this.index = index;
     }
 
-    public GenreRadioTrackContext(RadioTrackContext other, NoiseGenre genre) {
+    public GenreRadioTrackContext(RadioTrackContext other, NoiseGenre genre, int size, int index) {
         super(other);
         this.genre = genre.name();
         this.uri = genre.uri();
+        this.size = size;
+        this.index = index;
     }
 
 
@@ -59,6 +65,8 @@ public class GenreRadioTrackContext extends RadioTrackContext {
         writer.writeLong(channelRequester());
         writer.writeUTF(genre);
         writer.writeUTF(uri);
+        writer.writeInt(size);
+        writer.writeInt(index);
         writer.close();// This invokes flush.
     }
 
@@ -68,5 +76,13 @@ public class GenreRadioTrackContext extends RadioTrackContext {
 
     public String getUri() {
         return uri;
+    }
+
+    public int getSize() {
+        return size;
+    }
+
+    public int getIndex() {
+        return index;
     }
 }

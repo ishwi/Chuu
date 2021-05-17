@@ -39,7 +39,7 @@ public class EveryNoiseCommand extends ConcurrentCommand<UserStringParameters> {
 
     @Override
     public List<String> getAliases() {
-        return List.of("everynoise", "findgenre", "noise", "every", "en");
+        return List.of("everynoise", "findgenre", "noise", "every", "en", "new");
     }
 
     @Override

@@ -24,7 +24,7 @@ public class GenreDisambiguator {
         Optional<NoiseGenre> exactMatch = db.findExactMatch(input);
         NoiseGenre theOne;
         if (exactMatch.isEmpty()) {
-            List<NoiseGenre> matchingGenre = db.findMatchingGenre(input).stream().limit(5).toList();
+            List<NoiseGenre> matchingGenre = db.findMatchingGenre(input).stream().limit(7).toList();
             if (matchingGenre.isEmpty()) {
                 e.sendMessageQueue("Couldn't find any genre searching by " + input);
                 return;

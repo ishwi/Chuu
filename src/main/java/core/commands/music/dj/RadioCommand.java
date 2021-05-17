@@ -100,7 +100,7 @@ public class RadioCommand extends MusicCommand<EnumParameters<Station>> {
                 if (element == Station.RELEASES) {
                     factory = (s) -> new ReleaseRadioTrackContext(e.getAuthor().getIdLong(), e.getChannel().getIdLong(), new ReleaseRadio(s.name(), s.uri()), null, null, null, s.name(), s.uri());
                 } else {
-                    factory = (s) -> new GenreRadioTrackContext(e.getAuthor().getIdLong(), e.getChannel().getIdLong(), new GenreRadio(s.name(), s.uri()), s.name(), s.uri());
+                    factory = (s) -> new GenreRadioTrackContext(e.getAuthor().getIdLong(), e.getChannel().getIdLong(), new GenreRadio(s.name(), s.uri()), s.name(), s.uri(), -1, 1);
                 }
                 new GenreDisambiguator(db).disambiguate(e, input, z -> new Params(musicManager, factory.apply(z)), this::buildEmbed);
                 yield null;

@@ -41,6 +41,7 @@ import com.sedmelluq.lava.extensions.youtuberotator.tools.ip.Ipv6Block;
 import com.sun.istack.Nullable;
 import core.Chuu;
 import core.music.scrobble.ScrobbleEventManager;
+import core.music.sources.attachments.DiscordAttachmentAudioSourceManager;
 import core.music.sources.bandcamp.CustomBandcampAudioSourceManager;
 import core.music.sources.spotify.SpotifyAudioSourceManager;
 import core.music.utils.ScrobbleProcesser;
@@ -81,8 +82,8 @@ public class ExtendedAudioPlayerManager extends DefaultAudioPlayerManager {
                 new VimeoAudioSourceManager(),
                 new TwitchStreamAudioSourceManager(),
                 new BeamAudioSourceManager(),
-                new HttpAudioSourceManager()
-
+                new HttpAudioSourceManager(),
+                new DiscordAttachmentAudioSourceManager()
         );
 
 

@@ -3,9 +3,11 @@ package core.music.radio;
 import core.Chuu;
 import core.apis.spotify.SpotifyUtils;
 import core.commands.Context;
+import core.commands.utils.CommandUtil;
 import core.commands.utils.PrivacyUtils;
 import dao.entities.LastFMData;
 import net.dv8tion.jda.api.entities.MessageEmbed;
+import org.apache.commons.lang3.StringUtils;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -37,7 +39,7 @@ public enum Station {
         @Override
         public <T extends RadioTrackContext> MessageEmbed.Field fieldFunction(T item, Context e) {
             ReleaseRadioTrackContext context = (ReleaseRadioTrackContext) item;
-            return new MessageEmbed.Field("%s releases".formatted(context.getGenre()), "Releases from the genre [%s](%s).\nBrowse all the genre release @ [everynoise.com](%s)".formatted(context.getGenre(), SpotifyUtils.getPlaylistLink(context.getGenreUri()), URLEncoder.encode(RELEASES_URL.formatted(context.getGenre()), StandardCharsets.UTF_8)), false);
+            return new MessageEmbed.Field("%s releases".formatted(StringUtils.capitalize(context.getGenre())), "Releases from the genre [%s](%s).\nBrowse all the genre release @ [everynoise.com](%s)".formatted(context.getGenre(), SpotifyUtils.getPlaylistLink(context.getGenreUri()), RELEASES_URL.formatted(URLEncoder.encode(context.getGenre(), StandardCharsets.UTF_8))), false);
         }
 
 
@@ -45,7 +47,13 @@ public enum Station {
         @Override
         public <T extends RadioTrackContext> MessageEmbed.Field fieldFunction(T item, Context e) {
             GenreRadioTrackContext context = (GenreRadioTrackContext) item;
-            return new MessageEmbed.Field("Exploring %s".formatted(context.getGenre()), "Browsing the genre [%s](%s).".formatted(context.getGenre(), SpotifyUtils.getPlaylistLink(context.getUri())), false);
+            String followup = "";
+            if (context.getSize() != -1) {
+                followup = "%nStation has %s tracks. Have listened to %d".formatted(context.getSize(), context.getIndex());
+            } else if (context.getIndex() > 1) {
+                followup = "%nHave listened to %d %s".formatted(context.getIndex(), CommandUtil.singlePlural(context.getIndex(), "song", "songs"));
+            }
+            return new MessageEmbed.Field("Exploring %s".formatted(context.getGenre()), "Browsing the genre [%s](%s).%s".formatted(context.getGenre(), SpotifyUtils.getPlaylistLink(context.getUri()), followup), false);
         }
 
 
@@ -81,6 +89,9 @@ public enum Station {
     }
 
     public static MessageEmbed.Field getField(RadioTrackContext t, Context e) {
+        if (t == null) {
+            return null;
+        }
         return EnumSet.allOf(Station.class).stream().filter(z -> z.clazz.equals(t.getClass())).map(z -> z.fieldFunction(t, e)).findFirst().orElse(null);
     }
 

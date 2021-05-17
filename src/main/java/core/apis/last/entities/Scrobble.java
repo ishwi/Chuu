@@ -1,5 +1,7 @@
 package core.apis.last.entities;
 
+import core.commands.utils.CommandUtil;
+
 public record Scrobble(String artist, String album, String song, String image, Long duration) {
     public String toLines() {
         String s = album == null || album.isBlank() ? "" : "\nAlbum: **" + album + "**";
@@ -8,7 +10,7 @@ public record Scrobble(String artist, String album, String song, String image, L
     }
 
     public String toLink(String uri) {
-        return "[%s](%s)".formatted(lineless(), uri);
+        return "[%s](%s)".formatted(lineless(), CommandUtil.cleanMarkdownCharacter(uri));
     }
 
     public String lineless() {

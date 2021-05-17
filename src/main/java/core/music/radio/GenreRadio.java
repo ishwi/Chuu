@@ -1,5 +1,7 @@
 package core.music.radio;
 
+import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
+import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import core.Chuu;
 import core.apis.spotify.SpotifyUtils;
@@ -14,16 +16,34 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
-public final record GenreRadio(String name, String genre, String uri, ChuuService db,
-                               Set<String> previousIdentifier) implements RadioSource {
+public final class GenreRadio implements RadioSource {
+    private final String name;
+    private final String genre;
+    private final String uri;
+    private final ChuuService db;
+    private final Set<String> previousIdentifier;
+    private final AtomicReference<AudioPlaylist> ref = new AtomicReference<>();
+    private int songCount = -1;
+    private int index = 1;
+
+
+    public GenreRadio(String name, String genre, String uri, ChuuService db,
+                      Set<String> previousIdentifier) {
+        this.name = name;
+        this.genre = genre;
+        this.uri = uri;
+        this.db = db;
+        this.previousIdentifier = previousIdentifier;
+    }
 
     public GenreRadio(String name, String genre, String uri, ChuuService db) {
         this(name, genre, uri, db, new HashSet<>());
     }
 
     public GenreRadio(String genre, String uri) {
-        this("EveryNoise genres", genre, uri, Chuu.getDb());
+        this("everynoise genres", genre, uri, Chuu.getDb());
     }
 
     @Override
@@ -62,8 +82,39 @@ public final record GenreRadio(String name, String genre, String uri, ChuuServic
         NoiseGenre genre = matchingGenre.get();
 
         var future = new CompletableFuture<AudioTrack>();
-        Chuu.playerManager.loadItemOrdered(this, SpotifyUtils.getPlaylistLink(genre.uri()), RetriableLoader.getLoader(future, true,
-                () -> new GenreRadioTrackContext(context, genre), context, attempts, this::nextTrack0, this.previousIdentifier));
+        AudioLoadResultHandler loader = RetriableLoader.getLoader(future, true,
+                () -> {
+                    AudioPlaylist audioPlaylist = this.ref.get();
+                    this.songCount = audioPlaylist != null ? audioPlaylist.getTracks().size() : -1;
+                    return new GenreRadioTrackContext(context, genre, songCount, this.index++);
+                }, context, attempts, this::nextTrack0, this.previousIdentifier, ref);
+        if (this.ref.get() != null) {
+            loader.playlistLoaded(this.ref.get());
+        } else {
+            Chuu.playerManager.loadItemOrdered(this, SpotifyUtils.getPlaylistLink(genre.uri()), loader);
+        }
         return future;
     }
+
+    public String name() {
+        return name;
+    }
+
+    public String genre() {
+        return genre;
+    }
+
+    public String uri() {
+        return uri;
+    }
+
+    public ChuuService db() {
+        return db;
+    }
+
+    public Set<String> previousIdentifier() {
+        return previousIdentifier;
+    }
+
+
 }

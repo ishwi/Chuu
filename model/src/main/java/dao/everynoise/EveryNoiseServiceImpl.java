@@ -63,8 +63,15 @@ public class EveryNoiseServiceImpl implements EveryNoiseService {
                         List<Release> releases;
                         try {
                             // Probably doing something wrong here????
+                            // Windows returns and jsonobject
+                            // debian returns a jsonArray??? idek
                             // TODO
-                            releases = objectReader.readValue("[" + key.jsonReleases() + "]");
+                            if (!key.jsonReleases().startsWith("[")) {
+                                releases = objectReader.readValue("[" + key.jsonReleases() + "]");
+                            } else {
+                                releases = objectReader.readValue(key.jsonReleases());
+
+                            }
                         } catch (JsonProcessingException e) {
                             releases = Collections.emptyList();
                         }

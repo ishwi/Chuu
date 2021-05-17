@@ -290,7 +290,7 @@ public class MusicManager extends AudioEventAdapter implements AudioSendHandler 
             player.stopTrack();
             return;
         }
-        radioTrack.orTimeout(3, TimeUnit.SECONDS).whenComplete((audioTrack, throwable) -> {
+        radioTrack.whenComplete((audioTrack, throwable) -> {
             if (throwable != null) {
                 if (player.getPlayingTrack() != null) {
                     player.stopTrack();

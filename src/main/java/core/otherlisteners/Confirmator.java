@@ -55,6 +55,7 @@ public class Confirmator extends ReactionListener {
     public void dispose() {
         if (!this.wasThisCalled.get()) {
             this.message.editMessage(timeoutCallback.apply(who).build()).queue();
+            this.clearReacts();
         } else {
             if (runLastEmbed && this.didConfirm.get() != null) {
                 ConfirmatorItem item = this.emoteMap.get(this.didConfirm.get());

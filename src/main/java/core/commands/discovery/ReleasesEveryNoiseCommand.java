@@ -84,7 +84,7 @@ public class ReleasesEveryNoiseCommand extends ConcurrentCommand<UserStringParam
             Integer count = z.getValue();
             String releases = z.getKey().releases().stream().limit(2).map(l -> "%s[%s - %s](%s)".formatted(tab, l.artist(), l.release(), SpotifyUtils.getAlbumLink(l.uri()))).collect(Collectors.joining("\n"));
             if (releases.isBlank()) {
-                releases += tab + "-";
+                releases += tab;
             }
             if (key.releases().size() > 2) {
                 releases += "\n" + tab + "...";
