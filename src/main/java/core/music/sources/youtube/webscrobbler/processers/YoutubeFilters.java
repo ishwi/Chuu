@@ -47,7 +47,7 @@ public class YoutubeFilters {
         // (Official Track Stream)
         filters.put(Pattern.compile("\\((of+icial\\s*)?(track\\s*)?stream\\)", Pattern.CASE_INSENSITIVE), "");
         // (official)? (music)? video
-        filters.put(Pattern.compile("\\((of+icial\\s*)?(music|art)?\\s*video\\)", Pattern.CASE_INSENSITIVE), "");
+        filters.put(Pattern.compile("\\((of+icial\\s*)?(music|art)?\\s*video(clip)?\\)", Pattern.CASE_INSENSITIVE), "");
         // (official)? (music)? audio
         filters.put(Pattern.compile("\\((of+icial\\s*)?(music|art)?\\s*audio\\)", Pattern.CASE_INSENSITIVE), "");
         // (ALBUM TRACK)
@@ -67,9 +67,9 @@ public class YoutubeFilters {
         // video clip officiel or video clip official
         filters.put(Pattern.compile("(vid[\u00E9e]o)?\\s?clip\\sof+ici[ae]l", Pattern.CASE_INSENSITIVE), "");
         // offizielles
-        filters.put(Pattern.compile("of+iziel+es\\s*video", Pattern.CASE_INSENSITIVE), "");
+        filters.put(Pattern.compile("of+iziel+es\\s*video(clip)?", Pattern.CASE_INSENSITIVE), "");
         // video clip
-        filters.put(Pattern.compile("vid[\u00E9e]o\\s?clip", Pattern.CASE_INSENSITIVE), "");
+        filters.put(Pattern.compile("\\(?vid[\u00E9e]o\\s?clip\\)?", Pattern.CASE_INSENSITIVE), "");
         // clip
         filters.put(Pattern.compile("\\sclip", Pattern.CASE_INSENSITIVE), "");
         // Full Album

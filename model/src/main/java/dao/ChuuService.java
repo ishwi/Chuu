@@ -1264,6 +1264,7 @@ public class ChuuService implements EveryNoiseService {
                 throw new DuplicateInstanceException(lastFmID);
             } catch (InstanceNotFoundException ignored) {
             }
+            connection.setAutoCommit(true);
             updaterDao.deleteAllArtists(connection, lastFmID);
             updaterDao.clearSess(connection, lastFmID);
             LastFMData lastFmData = userGuildDao.findLastFmData(connection, userId);

@@ -548,14 +548,14 @@ public class MusicManager extends AudioEventAdapter implements AudioSendHandler 
     public CompletableFuture<Void> setMetadata(Metadata metadata) {
         return getTrackScrobble().thenAccept(z -> {
             long remaining = currentTrack.getDuration() - currentTrack.getPosition();
+            TrackScrobble newInfo;
             if (z.processeds().size() > 1) {
-                TrackScrobble newInfo = this.scrobbleProcesser.setMetadata(metadata, currentTrack, z.uuid(), currentTrack.getPosition(), currentTrack.getDuration());
+                newInfo = this.scrobbleProcesser.setMetadata(metadata, currentTrack, z.uuid(), currentTrack.getPosition(), currentTrack.getDuration());
                 this.scrobble = newInfo.scrobble();
-                this.listener.signalMetadataChange(newInfo);
             } else {
-                TrackScrobble newInfo = this.scrobbleProcesser.setMetadata(metadata, currentTrack, z.uuid());
-                this.listener.signalMetadataChange(newInfo);
+                newInfo = this.scrobbleProcesser.setMetadata(metadata, currentTrack, z.uuid());
             }
+            this.listener.signalMetadataChange(newInfo);
 
         });
     }
