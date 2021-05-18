@@ -480,7 +480,6 @@ public class ConcurrentLastFM {//implements LastFMService {
     public SecondsTimeFrameCount getMinutesWastedOnMusic(LastFMData user, TimeFrameEnum timeFrameEnum) throws LastFmException {
         String period = timeFrameEnum.toApiFormat();
         String url = BASE + GET_TOP_TRACKS + user.getName() + apiKey + ENDING + "&period=" + period + "&limit=1000";
-        int SONG_AVERAGE_LENGTH_SECONDS = 200;
         int page = 1;
         int total = 1;
         TimeFrameEnum timeFrame = TimeFrameEnum.fromCompletePeriod(period);
@@ -489,7 +488,7 @@ public class ConcurrentLastFM {//implements LastFMService {
             List<Track> listTopTrack = getListTopTrack(user, TimeFrameEnum.DAY);
             int secondCounter = 0;
             for (Track track : listTopTrack) {
-                secondCounter += track.getDuration() == 0 ? SONG_AVERAGE_LENGTH_SECONDS * track.getPlays() : track.getDuration() * track.getPlays();
+                secondCounter += track.getDuration() == 0 ? SONG_AVERAGE_DURATION * track.getPlays() : track.getDuration() * track.getPlays();
             }
             returned.setCount(listTopTrack.size());
             returned.setSeconds(secondCounter);
@@ -512,9 +511,9 @@ public class ConcurrentLastFM {//implements LastFMService {
             JSONArray arr = obj.getJSONArray("track");
             seconds += StreamSupport.stream(arr.spliterator(), false).mapToInt(x -> {
                 JSONObject jsonObj = ((JSONObject) x);
-                int duration = jsonObj.getInt("duration");
+                int duration = parseDuration(jsonObj, true);
                 int frequency = jsonObj.getInt("playcount");
-                return duration == 0 ? SONG_AVERAGE_LENGTH_SECONDS * frequency : duration * frequency;
+                return duration * frequency;
             }).sum();
 
 
@@ -550,9 +549,8 @@ public class ConcurrentLastFM {//implements LastFMService {
             for (int i = 0; i < arr.length(); i++) {
                 JSONObject jsonObj = (arr.getJSONObject(i));
                 String name = jsonObj.getString("name");
-                int duration = jsonObj.getInt("duration");
+                int duration = parseDuration(jsonObj, true);
                 int frequency = jsonObj.getInt("playcount");
-                duration = duration == 0 ? SONG_AVERAGE_DURATION : duration;
                 String artist_name = jsonObj.getJSONObject("artist").getString("name");
 
                 trackList.put(new Track(artist_name, name, 0, false, 0), duration);
@@ -922,9 +920,8 @@ public class ConcurrentLastFM {//implements LastFMService {
                 JSONArray image = jsonObj.getJSONArray("image");
                 JSONObject bigImage = image.getJSONObject(image.length() - 1);
                 String imageUrl = bigImage.getString("#text");
-                int duration = jsonObj.getInt("duration");
+                int duration = parseDuration(jsonObj, true);
                 int frequency = jsonObj.getInt("playcount");
-                duration = duration == 0 ? 200 : duration;
                 JSONObject artist = jsonObj.getJSONObject("artist");
                 String artistName = artist.getString("name");
                 String artistMbid = artist.getString("mbid");
@@ -933,6 +930,16 @@ public class ConcurrentLastFM {//implements LastFMService {
             }
         }
         return list;
+    }
+
+    public JSONArray getFMArr(JSONObject root, String key) {
+        JSONArray arr = root.optJSONArray(key);
+        if (arr == null) {
+            JSONObject t = root.getJSONObject(key);
+            arr = new JSONArray(List.of(t));
+        }
+        return arr;
+
     }
 
     @NotNull
@@ -1059,8 +1066,9 @@ public class ConcurrentLastFM {//implements LastFMService {
 
         int playCount = obj.getInt("userplaycount");
         FullAlbumEntity fae = new FullAlbumEntity(correctedArtist, correctedAlbum, playCount, imageUrl, user.getName());
-        if (obj.has("tracks")) {
-            JSONArray arr = obj.getJSONObject("tracks").getJSONArray("track");
+        JSONObject tracks = obj.optJSONObject("tracks");
+        if (tracks != null) {
+            JSONArray arr = getFMArr(tracks, "track");
             for (int i = 0; i < arr.length(); i++) {
                 JSONObject trackObj = arr.getJSONObject(i);
                 String trackName = trackObj.getString("name");
@@ -1239,16 +1247,27 @@ public class ConcurrentLastFM {//implements LastFMService {
             mbid = globalJson.getString("mbid");
         }
         String artistName = globalJson.getString("name");
-        JSONArray artistArray = globalJson.getJSONObject("similar").getJSONArray("artist");
-        JSONArray tagsArray = globalJson.getJSONObject("tags").getJSONArray("tag");
-        List<String> similars = StreamSupport.stream(artistArray.spliterator(), false).map(JSONObject.class::cast)
-                .map(x -> x.getString("name")).toList();
-        List<String> tags = StreamSupport.stream(tagsArray.spliterator(), false).map(JSONObject.class::cast)
-                .map(x -> x.getString("name")).toList();
+        JSONObject similar = globalJson.optJSONObject("similar");
+        List<String> similars;
+        if (similar != null) {
+            JSONArray artistArray = getFMArr(similar, "artist");
+            similars = StreamSupport.stream(artistArray.spliterator(), false).map(JSONObject.class::cast)
+                    .map(x -> x.getString("name")).toList();
+        } else {
+            similars = Collections.emptyList();
+        }
+        List<String> tags = parseTags(globalJson);
 
-        String summary = globalJson.getJSONObject("bio").getString("summary");
-        int i = summary.indexOf("<a");
-        summary = summary.substring(0, i);
+
+        JSONObject bio = globalJson.optJSONObject("bio");
+        String summary;
+        if (bio != null) {
+            String field = bio.getString("summary");
+            int i = field.indexOf("<a");
+            summary = field.substring(0, i);
+        } else {
+            summary = "";
+        }
 
         return new ArtistSummary(userPlayCount, listeners, playcount, similars, tags, summary, artistName, mbid);
 
@@ -1460,7 +1479,7 @@ public class ConcurrentLastFM {//implements LastFMService {
     public List<Track> getListTopTrack(LastFMData user, TimeFrameEnum timeframe) throws LastFmException {
 
         if (timeframe == TimeFrameEnum.DAY) {
-            return getDailyT(TopEntity.ARTIST, user, capsule -> new Track(capsule.getArtistName(), capsule.getAlbumName(), capsule.getPlays(), false, 200), Integer.MAX_VALUE);
+            return getDailyT(TopEntity.ARTIST, user, capsule -> new Track(capsule.getArtistName(), capsule.getAlbumName(), capsule.getPlays(), false, SONG_AVERAGE_DURATION), Integer.MAX_VALUE);
         }
         List<Track> trackList = new ArrayList<>();
         String url = BASE + GET_TOP_TRACKS + user.getName() + apiKey + ENDING + "&period=" + timeframe.toApiFormat() + "&limit=1000";
@@ -1475,9 +1494,8 @@ public class ConcurrentLastFM {//implements LastFMService {
         for (int i = 0; i < arr.length(); i++) {
             JSONObject jsonObj = (arr.getJSONObject(i));
             String name = jsonObj.getString("name");
-            int duration = jsonObj.getInt("duration");
+            int duration = parseDuration(jsonObj, true);
             int frequency = jsonObj.getInt("playcount");
-            duration = duration == 0 ? 200 : duration;
             String artist_name = jsonObj.getJSONObject("artist").getString("name");
 
             trackList.add(new Track(artist_name, name, frequency, false, duration));
@@ -1486,6 +1504,7 @@ public class ConcurrentLastFM {//implements LastFMService {
         return trackList;
 
     }
+
 
     public FullAlbumEntityExtended getAlbumSummary(LastFMData user, String artist, String album) throws
             LastFmException {
@@ -1496,41 +1515,56 @@ public class ConcurrentLastFM {//implements LastFMService {
         String correctedAlbum = obj.getString("name");
         String mbid = obj.optString("mbid");
         String image_url = images.getJSONObject(images.length() - 1).getString("#text");
-        int playCount;
-        if (!obj.has("userplaycount")) {
-            playCount = 0;
-        } else {
-            playCount = obj.getInt("userplaycount");
-        }
+
+        int playCount = obj.optInt("userplaycount", 0);
         int totalPlayCount = obj.getInt("playcount");
         int listeners = obj.getInt("listeners");
 
         int duration = 0;
 
+        List<String> tags = parseTags(obj);
 
-        JSONArray tagsArray = obj.getJSONObject("tags").getJSONArray("tag");
-        List<String> tags = StreamSupport.stream(tagsArray.spliterator(), false).map(JSONObject.class::cast)
-                .map(x -> x.getString("name")).toList();
-//TODO MBIZ
         FullAlbumEntityExtended fae = new FullAlbumEntityExtended(correctedArtist, correctedAlbum, playCount, image_url, user.getName(), listeners, totalPlayCount);
         fae.setMbid(mbid);
         fae.setTagList(tags);
         if (obj.has("tracks")) {
-            JSONArray arr = obj.getJSONObject("tracks").getJSONArray("track");
+            JSONArray arr = getFMArr(obj.getJSONObject("tracks"), "track");
             for (int i = 0; i < arr.length(); i++) {
                 JSONObject trackObj = arr.getJSONObject(i);
                 String trackName = trackObj.getString("name");
-                int duration1 = trackObj.getInt("duration");
-                duration += duration1;
-                Track track = new Track(correctedArtist, trackName, 0, false, duration1);
+                int trackLength = parseDuration(trackObj, false);
+                Track track = new Track(correctedArtist, trackName, 0, false, trackLength);
                 track.setPosition(trackObj.getJSONObject("@attr").getInt("rank"));
-
-
+                duration += trackLength;
                 fae.addTrack(track);
             }
         }
         fae.setTotalDuration(duration);
         return fae;
+    }
+
+
+    private int parseDuration(JSONObject root, boolean useAverage) {
+        int duration = root.optInt("duration", useAverage ? SONG_AVERAGE_DURATION : 0);
+        if (duration == 0 && useAverage) {
+            return SONG_AVERAGE_DURATION;
+        }
+        return duration;
+    }
+
+    private List<String> parseTags(JSONObject obj, String parentKey) {
+        JSONObject tagsObj = obj.optJSONObject(parentKey);
+        if (tagsObj != null) {
+            JSONArray tagsArray = getFMArr(tagsObj, "tag");
+            return StreamSupport.stream(tagsArray.spliterator(), false).map(JSONObject.class::cast)
+                    .map(x -> x.getString("name")).toList();
+        } else {
+            return Collections.emptyList();
+        }
+    }
+
+    private List<String> parseTags(JSONObject obj) {
+        return parseTags(obj, "tags");
     }
 
     public TrackExtended getTrackInfoExtended(LastFMData user, String artist, String song) throws
@@ -1555,13 +1589,12 @@ public class ConcurrentLastFM {//implements LastFMService {
         String mbid = obj.optString("mbid");
 
         String reTrackName = obj.getString("name");
-        boolean userloved = obj.has("userlover") && obj.getInt("userloved") != 0;
-        int duration = obj.getInt("duration") / 1000;
+        boolean userloved = obj.has("userloved") && obj.getInt("userloved") != 0;
+        int duration = parseDuration(obj, false) / 1000;
         String reArtist = obj.getJSONObject("artist").getString("name");
-        JSONArray tagsArray = obj.getJSONObject("toptags").getJSONArray("tag");
 
-        List<String> tags = StreamSupport.stream(tagsArray.spliterator(), false).map(JSONObject.class::cast)
-                .map(x -> x.getString("name")).toList();
+
+        List<String> tags = parseTags(obj, "toptags");
         String albumName = null;
         if ((obj).has("album")) {
             albumName = obj.getJSONObject("album").getString("title");

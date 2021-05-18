@@ -79,11 +79,12 @@ public class TrackInfoCommand extends AlbumPlaysCommand {
 
                 .addField("Listeners:", String.valueOf(trackInfo.getListeners()), true)
                 .addField("Scrobbles:", String.valueOf(trackInfo.getTotalPlayCount()), true)
-                .addField("Tags:", tagsField, false)
-
-                .addField("Duration:",
-                        (String.format("%02d:%02d minutes", trackInfo.getDuration() / 60, trackInfo.getDuration() % 60))
-                        , true);
+                .addField("Tags:", tagsField, false);
+        if (trackInfo.getDuration() != 0) {
+            embedBuilder.addField("Duration:",
+                    (String.format("%02d:%02d minutes", trackInfo.getDuration() / 60, trackInfo.getDuration() % 60))
+                    , true);
+        }
 
         embedBuilder.setImage(trackInfo.getImageUrl() == null || trackInfo.getImageUrl().isBlank() ? null : trackInfo.getImageUrl())
                 .setThumbnail(artist.getUrl());
