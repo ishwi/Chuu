@@ -17,11 +17,11 @@ public class EveryNoiseDAOImpl implements EveryNoiseDAO {
 
     @Override
     public List<NoiseGenre> fuzzyMatch(Connection connection, String genre) {
-        String sql = "SELECT genre,playlist FROM every_noise_genre a  WHERE soundex_match_all(?,genre, ' ')";
+        String sql = "SELECT genre,playlist FROM every_noise_genre a  WHERE soundex_match_all(?,genre, ' ') or ";
         List<NoiseGenre> genres = new ArrayList<>();
         String[] split = genre.split("\\s+");
         String matches = Arrays.stream(split).map(z ->
-                "or match(genre) against (?  in natural language mode) "
+                " match(genre) against (?  in natural language mode) "
         ).collect(Collectors.joining(" or ")) + " order by levenshtein(?,genre) ";
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql + matches)) {
             int i = 1;

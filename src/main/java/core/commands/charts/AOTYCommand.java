@@ -9,7 +9,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public class AOTYCommand extends AOTYBaseCommand {
-    private static final int CUSTOM_SEARCH_SPACE = 1620;
+    private static final int CUSTOM_SEARCH_SPACE = 1500;
 
     public AOTYCommand(ChuuService dao) {
         super(dao);

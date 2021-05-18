@@ -58,7 +58,7 @@ public class GlobalStreakEntities extends StreakEntity {
         String discordName = LinkUtils.markdownLessString(getName());
         GlobalStreakEntities combo = this;
         String aString = LinkUtils.cleanMarkdownCharacter(combo.getCurrentArtist());
-        StringBuilder description = new StringBuilder("" + discordName + "\n");
+        StringBuilder description = new StringBuilder(" " + discordName + "\n");
         return getComboString(aString, description, combo.getaCounter(), combo.getCurrentArtist(), combo.getAlbCounter(), combo.getCurrentAlbum(), combo.gettCounter(), combo.getCurrentSong(), null);
     }
 

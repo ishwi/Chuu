@@ -82,7 +82,7 @@ public class NPModeSetterCommand extends ConcurrentCommand<EnumListParameters<NP
             modes = db.getNPModes(e.getAuthor().getIdLong());
             String strMode = NPMode.getListedName(modes);
             sendMessageQueue(e,
-                    "Do `" + CommandUtil.getMessagePrefix(e) + " help` for a list of all options.\n" +
+                    "Do `" + CommandUtil.getMessagePrefix(e) + "npc help` for a list of all options.\n" +
                     "Current modes: " +
                     strMode);
         } else {

@@ -435,8 +435,8 @@ public class ConcurrentLastFM {//implements LastFMService {
         int size = 0;
         int page = 1;
         if (requestedSize >= 1000) {
-            if (entity == TopEntity.ALBUM) {
-                url += "&limit=540";
+            if (entity == TopEntity.ALBUM && y == 100) {
+                url += "&limit=500";
             } else {
                 url += "&limit=1000";
             }
@@ -1099,7 +1099,7 @@ public class ConcurrentLastFM {//implements LastFMService {
         if (obj.has("userloved")) {
             userloved = obj.getInt("userloved") != 0;
         }
-        int duration = obj.getInt("duration");
+        int duration = parseDuration(obj, false);
         String reArtist = obj.getJSONObject("artist").getString("name");
 
         Track track = new Track(reArtist, reTrackName, userplaycount, userloved, duration);
@@ -1202,7 +1202,7 @@ public class ConcurrentLastFM {//implements LastFMService {
 
                 if (artistName.equalsIgnoreCase(artist) || correction.equalsIgnoreCase(artistName)) {
                     String trackName = trackObj.getString("name");
-                    int duration = trackObj.getInt("duration");
+                    int duration = parseDuration(trackObj, false);
                     Track track = new Track(artist, trackName, userplaycount, false, duration);
                     trackList.add(track);
                     if (trackList.size() == SIZE_LIMIT)

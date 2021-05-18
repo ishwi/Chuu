@@ -134,8 +134,8 @@ public class GenreArtistsCommand extends ChartableCommand<ChartableGenreParamete
         DiscordUserDisplay discordUserDisplay = CommandUtil.getUserInfoNotStripped(params.getE(), params.getDiscordId());
         String us = CommandUtil.markdownLessString(discordUserDisplay.getUsername());
         String s = "Showing %s top %d %s artists".formatted(us, count, params.getGenreParameters().getGenre());
-        embedBuilder.setFooter(us + params.getTimeFrameEnum().getDisplayString() + footerText);
-        return embedBuilder;
+        return embedBuilder
+                .setFooter("%s has listened to %d %s artists%s%s".formatted(us, count, params.getGenreParameters().getGenre(), params.getTimeFrameEnum().getDisplayString(), footerText));
     }
 
     @Override

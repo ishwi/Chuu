@@ -89,9 +89,9 @@ public class RainbowChartCommand extends OnlyChartCommand<RainbowParams> {
         int count;
         int y = (int) (param.getY() * 1.4);
         int x = (int) (param.getX() * 1.4);
-        if (y * x > 540) {
-            y = 1000;
-            x = 1;
+        if (y * x >= 500) {
+            x = 10;
+            y = 100;
         }
         if (param.isArtist()) {
             queue = new ArtistQueue(db, discogsApi, spotifyApi, true);

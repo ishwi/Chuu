@@ -74,7 +74,6 @@ public class GayCommand extends OnlyChartCommand<GayParams> {
                                     .filter(x -> x.getRight() < finalStrictThreshold).min(Comparator.comparingDouble(Pair::getRight));
                             return Pair.of(rainbowColor, min);
                         }
-
                 ).filter(x -> x.getRight().isPresent())
                 //Only taking into account those that are below the threshold
                 .map(x -> {
@@ -145,7 +144,7 @@ public class GayCommand extends OnlyChartCommand<GayParams> {
                     ChartUtil.getParser(params.getTimeFrameEnum(), TopEntity.ARTIST, params, lastFM, params.getUser()),
                     queue);
         } else {
-            count = lastFM.getChart(params.getUser(), params.getTimeFrameEnum(), 2700, 1, TopEntity.ALBUM, ChartUtil.getParser(params.getTimeFrameEnum(), TopEntity.ALBUM, params, lastFM, params.getUser()), queue);
+            count = lastFM.getChart(params.getUser(), params.getTimeFrameEnum(), 25, 100, TopEntity.ALBUM, ChartUtil.getParser(params.getTimeFrameEnum(), TopEntity.ALBUM, params, lastFM, params.getUser()), queue);
         }
 
         List<UrlCapsule> holding = new ArrayList<>();
@@ -198,7 +197,7 @@ public class GayCommand extends OnlyChartCommand<GayParams> {
     @Override
     public EmbedBuilder configEmbed(EmbedBuilder embedBuilder, GayParams params, int count) {
 
-        return params.initEmbed("'s pride chart", embedBuilder, "UwU", params.getUser().getName());
+        return params.initEmbed("'s pride chart", embedBuilder, "UwU ", params.getUser().getName());
 
     }
 

@@ -1,7 +1,5 @@
 package core.commands.charts;
 
-import core.apis.discogs.DiscogsApi;
-import core.apis.discogs.DiscogsSingleton;
 import core.apis.last.entities.chartentities.*;
 import core.commands.Context;
 import core.commands.utils.CommandUtil;
@@ -30,14 +28,12 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class AOTYBaseCommand extends ChartableCommand<ChartYearParameters> {
-    private final DiscogsApi discogsApi;
     private final MusicBrainzService mb;
     public int searchSpace = 100;
 
 
     public AOTYBaseCommand(ChuuService dao) {
         super(dao);
-        discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
         mb = MusicBrainzServiceSingleton.getInstance();
     }
 
@@ -110,7 +106,7 @@ public class AOTYBaseCommand extends ChartableCommand<ChartYearParameters> {
             }
 
 
-            lastFM.getChart(param.getUser(), param.getTimeFrameEnum(), this.searchSpace, 1, TopEntity.ALBUM, parser, queue);
+            lastFM.getChart(param.getUser(), param.getTimeFrameEnum(), this.searchSpace / 100, 100, TopEntity.ALBUM, parser, queue);
             //List of obtained elements
 
 
