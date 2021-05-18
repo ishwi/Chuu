@@ -22,6 +22,7 @@ public class UniqueAlbumCommand extends ConcurrentCommand<ChuuDataParams> {
     public UniqueAlbumCommand(ChuuService dao) {
         super(dao);
         this.respondInPrivate = false;
+        isLongRunningCommand = true;
 
     }
 

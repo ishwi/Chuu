@@ -18,6 +18,8 @@ public class TrackCrownsLeaderboardCommand extends LeaderboardCommand<NumberPara
 
     public TrackCrownsLeaderboardCommand(ChuuService dao) {
         super(dao);
+        isLongRunningCommand = true;
+
     }
 
     @Override

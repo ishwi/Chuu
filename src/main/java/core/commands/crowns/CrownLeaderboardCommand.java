@@ -19,6 +19,7 @@ public class CrownLeaderboardCommand extends LeaderboardCommand<NumberParameters
     public CrownLeaderboardCommand(ChuuService dao) {
         super(dao);
         this.respondInPrivate = false;
+        isLongRunningCommand = true;
 
     }
 

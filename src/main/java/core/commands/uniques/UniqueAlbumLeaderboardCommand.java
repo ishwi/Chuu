@@ -13,6 +13,8 @@ import java.util.List;
 public class UniqueAlbumLeaderboardCommand extends LeaderboardCommand<CommandParameters> {
     public UniqueAlbumLeaderboardCommand(ChuuService dao) {
         super(dao);
+        isLongRunningCommand = true;
+
     }
 
 

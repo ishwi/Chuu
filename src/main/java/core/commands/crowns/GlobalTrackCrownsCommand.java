@@ -17,6 +17,8 @@ public class GlobalTrackCrownsCommand extends CrownsCommand {
     public GlobalTrackCrownsCommand(ChuuService dao) {
         super(dao);
         this.respondInPrivate = true;
+        isLongRunningCommand = true;
+
     }
 
     @Override

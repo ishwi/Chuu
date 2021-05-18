@@ -22,6 +22,7 @@ public class UniqueSongCommand extends ConcurrentCommand<ChuuDataParams> {
     public UniqueSongCommand(ChuuService dao) {
         super(dao);
         this.respondInPrivate = false;
+        isLongRunningCommand = true;
 
     }
 
