@@ -15,7 +15,7 @@ import core.otherlisteners.Reactionary;
 import core.parsers.ArtistParser;
 import core.parsers.Parser;
 import core.parsers.params.ArtistParameters;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.AlbumUserPlays;
 import dao.entities.ScrobbledArtist;
 import dao.utils.LinkUtils;
@@ -30,7 +30,7 @@ public class ServerFavesFromArtistCommand extends ConcurrentCommand<ArtistParame
     private final DiscogsApi discogs;
     private final Spotify spotify;
 
-    public ServerFavesFromArtistCommand(ChuuService dao) {
+    public ServerFavesFromArtistCommand(ServiceView dao) {
         super(dao);
         respondInPrivate = false;
         this.discogs = DiscogsSingleton.getInstanceUsingDoubleLocking();

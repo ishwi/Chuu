@@ -11,7 +11,7 @@ import core.otherlisteners.Reactionary;
 import core.parsers.NoOpParser;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.Memoized;
 import dao.entities.UserCount;
 import dao.exceptions.InstanceNotFoundException;
@@ -23,7 +23,7 @@ import java.util.function.Function;
 
 public class ServerCommandsIssuedCommand extends ConcurrentCommand<CommandParameters> {
 
-    public ServerCommandsIssuedCommand(ChuuService dao) {
+    public ServerCommandsIssuedCommand(ServiceView dao) {
         super(dao);
         this.respondInPrivate = false;
     }

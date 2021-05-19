@@ -9,7 +9,7 @@ import core.commands.utils.PrivacyUtils;
 import core.parsers.OnlyUsernameParser;
 import core.parsers.Parser;
 import core.parsers.params.ChuuDataParams;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.DiscordUserDisplay;
 import net.dv8tion.jda.api.EmbedBuilder;
 
@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.Map;
 
 public class CurveCommand extends ConcurrentCommand<ChuuDataParams> {
-    public CurveCommand(ChuuService dao) {
+    public CurveCommand(ServiceView dao) {
         super(dao);
     }
 

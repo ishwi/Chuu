@@ -8,7 +8,7 @@ import core.commands.utils.CommandCategory;
 import core.parsers.NoOpParser;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.UsersWrapper;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
@@ -23,7 +23,7 @@ import java.util.List;
 
 public class UserExportCommand extends ConcurrentCommand<CommandParameters> {
 
-    public UserExportCommand(ChuuService dao) {
+    public UserExportCommand(ServiceView dao) {
         super(dao);
         this.respondInPrivate = false;
     }

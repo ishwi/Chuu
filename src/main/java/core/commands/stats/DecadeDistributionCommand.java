@@ -15,7 +15,7 @@ import core.parsers.TimerFrameParser;
 import core.parsers.params.ChartParameters;
 import core.parsers.params.TimeFrameParameters;
 import core.parsers.utils.CustomTimeFrame;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.AlbumInfo;
 import dao.entities.DiscordUserDisplay;
 import dao.entities.LastFMData;
@@ -32,7 +32,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 public class DecadeDistributionCommand extends ConcurrentCommand<TimeFrameParameters> {
 
 
-    public DecadeDistributionCommand(ChuuService dao) {
+    public DecadeDistributionCommand(ServiceView dao) {
         super(dao);
 
     }

@@ -11,7 +11,7 @@ import core.parsers.ArtistParser;
 import core.parsers.OptionalEntity;
 import core.parsers.Parser;
 import core.parsers.params.ArtistParameters;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.ScrobbledArtist;
 import dao.entities.WhoKnowsMode;
 import dao.entities.WrapperReturnNowPlaying;
@@ -24,7 +24,7 @@ public class WhoKnowsCommand extends WhoKnowsBaseCommand<ArtistParameters> {
     private final DiscogsApi discogsApi;
     private final Spotify spotify;
 
-    public WhoKnowsCommand(ChuuService dao) {
+    public WhoKnowsCommand(ServiceView dao) {
         super(dao);
         this.discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
         this.spotify = SpotifySingleton.getInstance();

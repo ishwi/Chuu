@@ -12,7 +12,7 @@ import core.commands.Context;
 import core.commands.utils.CommandUtil;
 import core.exceptions.LastFmException;
 import core.parsers.params.ChartParameters;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.CountWrapper;
 import dao.entities.DiscordUserDisplay;
 
@@ -23,7 +23,7 @@ public abstract class ArtistAbleCommand<T extends ChartParameters> extends Chart
     final Spotify spotifyApi;
 
 
-    public ArtistAbleCommand(ChuuService dao) {
+    public ArtistAbleCommand(ServiceView dao) {
         super(dao);
         discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
         spotifyApi = SpotifySingleton.getInstance();

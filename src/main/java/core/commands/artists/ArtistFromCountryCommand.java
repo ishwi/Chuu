@@ -23,7 +23,7 @@ import core.parsers.OptionalEntity;
 import core.parsers.Parser;
 import core.parsers.params.ChartParameters;
 import core.parsers.params.CountryParameters;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.ArtistUserPlays;
 import dao.entities.DiscordUserDisplay;
 import dao.entities.LastFMData;
@@ -49,7 +49,7 @@ public class ArtistFromCountryCommand extends ConcurrentCommand<CountryParameter
 
     private final MusicBrainzService mb;
 
-    public ArtistFromCountryCommand(ChuuService dao) {
+    public ArtistFromCountryCommand(ServiceView dao) {
         super(dao);
         mb = MusicBrainzServiceSingleton.getInstance();
         discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();

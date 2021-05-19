@@ -14,7 +14,7 @@ import core.parsers.TimerFrameParser;
 import core.parsers.params.ChartParameters;
 import core.parsers.params.TimeFrameParameters;
 import core.parsers.utils.CustomTimeFrame;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.DiscordUserDisplay;
 import dao.entities.LastFMData;
 import dao.entities.TimeFrameEnum;
@@ -28,7 +28,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 public class UserResumeCommand extends ConcurrentCommand<TimeFrameParameters> {
-    public UserResumeCommand(ChuuService dao) {
+    public UserResumeCommand(ServiceView dao) {
         super(dao);
     }
 

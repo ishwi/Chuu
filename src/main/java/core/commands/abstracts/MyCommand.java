@@ -16,6 +16,7 @@ import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
 import core.services.HeavyCommandRateLimiter;
 import dao.ChuuService;
+import dao.ServiceView;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
@@ -42,17 +43,23 @@ public abstract class MyCommand<T extends CommandParameters> implements EventLis
     protected final ChuuService db;
     protected final Parser<T> parser;
     private final CommandCategory category;
+    private final boolean isLongRunningCommand;
     public boolean respondInPrivate = true;
     public boolean ephemeral = false;
     public boolean canAnswerFast = false;
     public int order = Integer.MAX_VALUE;
-    protected boolean isLongRunningCommand = false;
 
-    protected MyCommand(ChuuService db) {
-        this.db = db;
+    protected MyCommand(ServiceView serviceview, boolean isLongRunningCommand) {
+        this.isLongRunningCommand = isLongRunningCommand;
         lastFM = LastFMFactory.getNewInstance();
+        this.db = serviceview.getView(isLongRunningCommand);
         this.parser = initParser();
         this.category = initCategory();
+    }
+
+    protected MyCommand(ServiceView serviceview) {
+        this(serviceview, false);
+
     }
 
     private static void logCommand(ChuuService service, Context e, MyCommand<?> command, long exectTime, boolean success, boolean isNormalCommand) {
@@ -63,7 +70,6 @@ public abstract class MyCommand<T extends CommandParameters> implements EventLis
                 exectTime,
                 Instant.now(),
                 success, isNormalCommand);
-
     }
 
     protected abstract CommandCategory initCategory();
@@ -73,7 +79,6 @@ public abstract class MyCommand<T extends CommandParameters> implements EventLis
     public final Parser<T> getParser() {
         return parser;
     }
-
 
     public abstract String getDescription();
 
@@ -97,21 +102,8 @@ public abstract class MyCommand<T extends CommandParameters> implements EventLis
             event.deferReply(ephemeral).queue();
         }
         ContextSlashReceived ctx = new ContextSlashReceived(event);
-        if (isLongRunningCommand) {
-            HeavyCommandRateLimiter.RateLimited rateLimited = HeavyCommandRateLimiter.checkRateLimit(ctx);
-            switch (rateLimited) {
-                case SERVER -> {
-                    sendMessageQueue(ctx, "This command takes a while to execute so it cannot be executed in this server more than 4 times per 10 minutes.\n" + "Usable again in: " + rateLimited.remainingTime(ctx));
-                    return;
-                }
-                case GLOBAL -> {
-                    sendMessageQueue(ctx, "This command takes a while to execute so it cannot be executed more than 12 times per 10 minutes.\n" + "Usable again in: " + rateLimited.remainingTime(ctx));
-                    return;
-                }
+        doCommand(ctx);
 
-            }
-        }
-        measureTime(ctx);
     }
 
     /**
@@ -126,6 +118,10 @@ public abstract class MyCommand<T extends CommandParameters> implements EventLis
             sendMessageQueue(ctx, "This command only works in a server");
             return;
         }
+        doCommand(ctx);
+    }
+
+    private void doCommand(Context ctx) {
         if (isLongRunningCommand) {
             HeavyCommandRateLimiter.RateLimited rateLimited = HeavyCommandRateLimiter.checkRateLimit(ctx);
             switch (rateLimited) {
@@ -240,12 +236,11 @@ public abstract class MyCommand<T extends CommandParameters> implements EventLis
 
     protected abstract void onCommand(Context e, @NotNull T params) throws LastFmException, InstanceNotFoundException;
 
-
-    public String getUserString(Context e, long discordId) {
+    protected final String getUserString(Context e, long discordId) {
         return getUserString(e, discordId, "Unknown");
     }
 
-    public String getUserString(Context e, long discordId, String replacement) {
+    protected String getUserString(Context e, long discordId, String replacement) {
         try {
             return CommandUtil.getUserInfoConsideringGuildOrNot(e, discordId).getUsername();
         } catch (Exception ex) {
@@ -254,7 +249,7 @@ public abstract class MyCommand<T extends CommandParameters> implements EventLis
 
     }
 
-    public void sendMessageQueue(Context e, String message) {
+    protected void sendMessageQueue(Context e, String message) {
         e.sendMessageQueue(message);
     }
 
@@ -263,15 +258,15 @@ public abstract class MyCommand<T extends CommandParameters> implements EventLis
         return e.sendMessage(message);
     }
 
-    public void sendImage(BufferedImage image, Context e) {
+    protected final void sendImage(BufferedImage image, Context e) {
         e.sendImage(image);
     }
 
-    protected void sendImage(BufferedImage image, Context e, ChartQuality chartQuality) {
+    protected final void sendImage(BufferedImage image, Context e, ChartQuality chartQuality) {
         e.sendImage(image, chartQuality);
     }
 
-    protected void sendImage(BufferedImage image, Context e, ChartQuality chartQuality, EmbedBuilder
+    protected final void sendImage(BufferedImage image, Context e, ChartQuality chartQuality, EmbedBuilder
             embedBuilder) {
         e.sendImage(image, chartQuality, embedBuilder);
     }

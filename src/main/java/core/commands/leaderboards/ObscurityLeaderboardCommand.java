@@ -8,7 +8,7 @@ import core.commands.utils.CommandUtil;
 import core.parsers.NoOpParser;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.LbEntry;
 import net.dv8tion.jda.api.entities.Message;
 
@@ -22,9 +22,8 @@ public class ObscurityLeaderboardCommand extends LeaderboardCommand<CommandParam
     private final AtomicInteger maxConcurrency = new AtomicInteger(4);
 
 
-    public ObscurityLeaderboardCommand(ChuuService dao) {
-        super(dao);
-        isLongRunningCommand = true;
+    public ObscurityLeaderboardCommand(ServiceView dao) {
+        super(dao, true);
     }
 
 

@@ -5,7 +5,7 @@ import core.music.everynoise.EveryNoiseScrapper;
 import core.parsers.NoOpParser;
 import core.parsers.params.CommandParameters;
 import core.services.EveryNoiseScrapperService;
-import dao.ChuuService;
+import dao.ServiceView;
 import org.openjdk.jmh.annotations.Param;
 
 import java.awt.image.BufferedImage;
@@ -41,7 +41,7 @@ public class Eval {
         );
         core.Chuu.getShardManager().getTextChannelById(693124899220226178L).sendMessage("https:" + "//github.com/ishwi/Chuu").queue();
         class A extends core.commands.abstracts.ConcurrentCommand<core.parsers.params.CommandParameters> {
-            public A(ChuuService dao) {
+            public A(ServiceView dao) {
                 super(dao);
             }
 

@@ -6,7 +6,7 @@ import core.commands.utils.CommandCategory;
 import core.parsers.Parser;
 import core.parsers.UrlParser;
 import core.parsers.params.UrlParameters;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.RYMImportRating;
 import dao.exceptions.InstanceNotFoundException;
 import org.apache.commons.text.StringEscapeUtils;
@@ -63,7 +63,7 @@ public class RYMDumpImportCommand extends ConcurrentCommand<UrlParameters> {
         }
     };
 
-    public RYMDumpImportCommand(ChuuService dao) {
+    public RYMDumpImportCommand(ServiceView dao) {
         super(dao);
     }
 

@@ -8,7 +8,7 @@ import core.parsers.ChartYearParser;
 import core.parsers.ChartableParser;
 import core.parsers.OptionalEntity;
 import core.parsers.params.ChartYearParameters;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.*;
 import dao.musicbrainz.MusicBrainzService;
 import dao.musicbrainz.MusicBrainzServiceSingleton;
@@ -32,7 +32,7 @@ public class AOTYBaseCommand extends ChartableCommand<ChartYearParameters> {
     public int searchSpace = 100;
 
 
-    public AOTYBaseCommand(ChuuService dao) {
+    public AOTYBaseCommand(ServiceView dao) {
         super(dao);
         mb = MusicBrainzServiceSingleton.getInstance();
     }

@@ -13,7 +13,7 @@ import core.imagerenderer.GraphicUtils;
 import core.parsers.ChartableParser;
 import core.parsers.ColorChartParser;
 import core.parsers.params.ColorChartParams;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.CountWrapper;
 import dao.entities.TimeFrameEnum;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -56,7 +56,7 @@ public class ColorChartCommand extends OnlyChartCommand<ColorChartParams> {
                        < (params.isStrict() ? STRICT_ERROR : ERROR_MATCHING);
             });
 
-    public ColorChartCommand(ChuuService dao) {
+    public ColorChartCommand(ServiceView dao) {
         super(dao);
         discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
         spotifyApi = SpotifySingleton.getInstance();

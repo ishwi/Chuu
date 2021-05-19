@@ -13,7 +13,7 @@ import core.parsers.GenreChartParser;
 import core.parsers.params.ChartableGenreParameters;
 import core.parsers.utils.CustomTimeFrame;
 import core.services.tags.TagAlbumService;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.*;
 import dao.musicbrainz.MusicBrainzService;
 import dao.musicbrainz.MusicBrainzServiceSingleton;
@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
 public class GenreAlbumsCommands extends ChartableCommand<ChartableGenreParameters> {
     private final MusicBrainzService mb;
 
-    public GenreAlbumsCommands(ChuuService dao) {
+    public GenreAlbumsCommands(ServiceView dao) {
         super(dao);
         mb = MusicBrainzServiceSingleton.getInstance();
     }
@@ -76,7 +76,7 @@ public class GenreAlbumsCommands extends ChartableCommand<ChartableGenreParamete
         } else {
             queue = new ArrayBlockingQueue<>(4000);
 
-            lastFM.getChart(user, custom, 4000, 1,
+            lastFM.getChart(user, custom, 4000, 100,
                     TopEntity.ALBUM,
                     ChartUtil.getParser(custom, TopEntity.ALBUM, params, lastFM, user), queue);
 

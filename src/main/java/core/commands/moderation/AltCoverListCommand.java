@@ -11,7 +11,7 @@ import core.parsers.NoOpParser;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
 import core.services.CoverService;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.CoverItem;
 import net.dv8tion.jda.api.EmbedBuilder;
 
@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Map;
 
 public class AltCoverListCommand extends ConcurrentCommand<CommandParameters> {
-    public AltCoverListCommand(ChuuService dao) {
+    public AltCoverListCommand(ServiceView dao) {
         super(dao);
     }
 

@@ -4,7 +4,7 @@ import core.commands.Context;
 import core.commands.utils.CommandCategory;
 import core.parsers.params.CommandParameters;
 import core.parsers.params.NumberParameters;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.BillboardEntity;
 import dao.entities.Week;
 
@@ -19,7 +19,7 @@ public class GlobalBillboardCommand extends BillboardCommand {
     public static final AtomicBoolean settingUp = new AtomicBoolean(false);
 
 
-    public GlobalBillboardCommand(ChuuService dao) {
+    public GlobalBillboardCommand(ServiceView dao) {
 
         super(dao);
         respondInPrivate = false;

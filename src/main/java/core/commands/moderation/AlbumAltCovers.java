@@ -12,7 +12,7 @@ import core.parsers.ArtistAlbumParser;
 import core.parsers.Parser;
 import core.parsers.params.ArtistAlbumParameters;
 import core.services.AlbumValidator;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.ScrobbledAlbum;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
@@ -32,7 +32,7 @@ public class AlbumAltCovers extends ConcurrentCommand<ArtistAlbumParameters> {
                     .setImage(CommandUtil.noImageUrl(votingEntity))
                     .setColor(CommandUtil.pastelColor());
 
-    public AlbumAltCovers(ChuuService dao) {
+    public AlbumAltCovers(ServiceView dao) {
         super(dao);
     }
 

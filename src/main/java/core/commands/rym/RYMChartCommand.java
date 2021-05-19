@@ -10,7 +10,7 @@ import core.parsers.ChartableParser;
 import core.parsers.OnlyChartSizeParser;
 import core.parsers.OptionalEntity;
 import core.parsers.params.ChartSizeParameters;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.CountWrapper;
 import dao.entities.DiscordUserDisplay;
 import dao.entities.ScoredAlbumRatings;
@@ -25,7 +25,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 public class RYMChartCommand extends ChartableCommand<ChartSizeParameters> {
-    public RYMChartCommand(ChuuService dao) {
+    public RYMChartCommand(ServiceView dao) {
         super(dao);
     }
 

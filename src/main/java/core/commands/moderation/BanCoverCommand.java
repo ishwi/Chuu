@@ -10,7 +10,7 @@ import core.parsers.Parser;
 import core.parsers.params.ArtistAlbumUrlParameters;
 import core.services.AlbumValidator;
 import core.services.CoverService;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.CoverItem;
 import dao.entities.LastFMData;
 import dao.entities.Role;
@@ -26,7 +26,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public class BanCoverCommand extends ConcurrentCommand<ArtistAlbumUrlParameters> {
-    public BanCoverCommand(ChuuService dao) {
+    public BanCoverCommand(ServiceView dao) {
         super(dao);
     }
 

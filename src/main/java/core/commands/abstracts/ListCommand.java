@@ -3,16 +3,19 @@ package core.commands.abstracts;
 import core.commands.Context;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
-import dao.ChuuService;
+import dao.ServiceView;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
 
 public abstract class ListCommand<T, Y extends CommandParameters> extends ConcurrentCommand<Y> {
 
+    public ListCommand(ServiceView dao, boolean isLongRunningCommand) {
+        super(dao, isLongRunningCommand);
+    }
 
-    public ListCommand(ChuuService dao) {
-        super(dao);
+    public ListCommand(ServiceView dao) {
+        this(dao, false);
     }
 
     @Override

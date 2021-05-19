@@ -9,7 +9,7 @@ import core.parsers.NoOpParser;
 import core.parsers.OptionalEntity;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.TagPlays;
 import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -21,10 +21,9 @@ import java.util.List;
 public class ServerTagsCommand extends PieableListCommand<List<TagPlays>, CommandParameters> {
     public final PieableListResultWrapper<TagPlays, CommandParameters> pie;
 
-    public ServerTagsCommand(ChuuService dao) {
-        super(dao);
+    public ServerTagsCommand(ServiceView dao) {
+        super(dao, true);
         this.respondInPrivate = false;
-        isLongRunningCommand = true;
         this.pie = new PieableListResultWrapper<>(this.parser,
                 TagPlays::getTag,
                 TagPlays::getCount);

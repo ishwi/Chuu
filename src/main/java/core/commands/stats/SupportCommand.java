@@ -6,13 +6,13 @@ import core.commands.utils.CommandCategory;
 import core.parsers.NoOpParser;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
-import dao.ChuuService;
+import dao.ServiceView;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
 
 public class SupportCommand extends MyCommand<CommandParameters> {
-    public SupportCommand(ChuuService dao) {
+    public SupportCommand(ServiceView dao) {
         super(dao);
     }
 

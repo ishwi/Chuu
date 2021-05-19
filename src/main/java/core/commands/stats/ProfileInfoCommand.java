@@ -18,7 +18,7 @@ import core.parsers.OptionalEntity;
 import core.parsers.Parser;
 import core.parsers.params.ChuuDataParams;
 import core.services.UserInfoService;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.CommandStats;
 import dao.entities.ProfileEntity;
 import dao.entities.UserInfo;
@@ -36,7 +36,7 @@ public class ProfileInfoCommand extends ConcurrentCommand<ChuuDataParams> {
     private final Spotify spotify;
     private final DiscogsApi discogsApi;
 
-    public ProfileInfoCommand(ChuuService dao) {
+    public ProfileInfoCommand(ServiceView dao) {
         super(dao);
         this.discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
         this.spotify = SpotifySingleton.getInstance();

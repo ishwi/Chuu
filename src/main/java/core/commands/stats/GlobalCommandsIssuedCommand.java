@@ -12,7 +12,7 @@ import core.otherlisteners.Reactionary;
 import core.parsers.OnlyUsernameParser;
 import core.parsers.Parser;
 import core.parsers.params.ChuuDataParams;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.Memoized;
 import dao.entities.PrivacyUserCount;
 import dao.entities.Rank;
@@ -32,7 +32,7 @@ import java.util.stream.Collectors;
 
 public class GlobalCommandsIssuedCommand extends ConcurrentCommand<ChuuDataParams> {
 
-    public GlobalCommandsIssuedCommand(ChuuService dao) {
+    public GlobalCommandsIssuedCommand(ServiceView dao) {
         super(dao);
     }
 

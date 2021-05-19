@@ -11,7 +11,7 @@ import core.parsers.OnlyUsernameParser;
 import core.parsers.OptionalEntity;
 import core.parsers.Parser;
 import core.parsers.params.ChuuDataParams;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.*;
 import net.dv8tion.jda.api.EmbedBuilder;
 import org.apache.commons.collections4.MultiValuedMap;
@@ -26,7 +26,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class WeeklyCommand extends ConcurrentCommand<ChuuDataParams> {
 
-    public WeeklyCommand(ChuuService dao) {
+    public WeeklyCommand(ServiceView dao) {
         super(dao);
     }
 

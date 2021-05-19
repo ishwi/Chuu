@@ -9,7 +9,7 @@ import core.parsers.Parser;
 import core.parsers.TimerFrameParser;
 import core.parsers.params.TimeFrameParameters;
 import core.parsers.utils.CustomTimeFrame;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.ScoredAlbumRatings;
 import dao.entities.ScrobbledAlbum;
 import dao.entities.TimeFrameEnum;
@@ -19,7 +19,7 @@ import java.util.List;
 
 
 public class DiscoveredAlbumRatioCommand extends ConcurrentCommand<TimeFrameParameters> {
-    public DiscoveredAlbumRatioCommand(ChuuService dao) {
+    public DiscoveredAlbumRatioCommand(ServiceView dao) {
         super(dao);
     }
 

@@ -11,7 +11,7 @@ import core.music.radio.*;
 import core.parsers.EnumParser;
 import core.parsers.Parser;
 import core.parsers.params.EnumParameters;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.everynoise.NoiseGenre;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
@@ -28,7 +28,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class RadioCommand extends MusicCommand<EnumParameters<Station>> {
-    public RadioCommand(ChuuService dao) {
+    public RadioCommand(ServiceView dao) {
         super(dao);
         respondInPrivate = false;
         requireManager = false;

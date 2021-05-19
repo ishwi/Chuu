@@ -7,7 +7,7 @@ import core.parsers.EmojeParser;
 import core.parsers.OptionalEntity;
 import core.parsers.Parser;
 import core.parsers.params.EmotiParameters;
-import dao.ChuuService;
+import dao.ServiceView;
 import net.dv8tion.jda.api.Permission;
 
 import javax.validation.constraints.NotNull;
@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 import static core.commands.utils.ReactValidation.validateEmotes;
 
 public class NpReactionsServerCommand extends ConcurrentCommand<EmotiParameters> {
-    public NpReactionsServerCommand(ChuuService dao) {
+    public NpReactionsServerCommand(ServiceView dao) {
         super(dao);
     }
 

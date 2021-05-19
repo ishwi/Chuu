@@ -7,7 +7,7 @@ import core.commands.utils.CommandCategory;
 import core.parsers.Parser;
 import core.parsers.PrefixParser;
 import core.parsers.params.CharacterParameters;
-import dao.ChuuService;
+import dao.ServiceView;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.sharding.ShardManager;
 
@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.Map;
 
 public class PrefixCommand extends ConcurrentCommand<CharacterParameters> {
-    public PrefixCommand(ChuuService dao) {
+    public PrefixCommand(ServiceView dao) {
         super(dao);
         respondInPrivate = false;
     }

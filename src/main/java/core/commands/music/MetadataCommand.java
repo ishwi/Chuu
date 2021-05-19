@@ -10,7 +10,7 @@ import core.music.MusicManager;
 import core.parsers.NoOpParser;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.Metadata;
 import net.dv8tion.jda.api.entities.Message;
 
@@ -23,7 +23,7 @@ public class MetadataCommand extends MusicCommand<CommandParameters> {
 
     private final Pattern metadataExpr = Pattern.compile("(?<!\\\\)\\s*-\\s*");
 
-    public MetadataCommand(ChuuService dao) {
+    public MetadataCommand(ServiceView dao) {
         super(dao);
         requirePlayingTrack = true;
     }

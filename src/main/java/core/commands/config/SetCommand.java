@@ -13,7 +13,7 @@ import core.parsers.Parser;
 import core.parsers.SetParser;
 import core.parsers.params.WordParameter;
 import core.parsers.utils.CustomTimeFrame;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.*;
 import dao.exceptions.DuplicateInstanceException;
 import dao.exceptions.InstanceNotFoundException;
@@ -29,7 +29,7 @@ import java.util.Optional;
 import java.util.TimeZone;
 
 public class SetCommand extends ConcurrentCommand<WordParameter> {
-    public SetCommand(ChuuService dao) {
+    public SetCommand(ServiceView dao) {
         super(dao);
         this.respondInPrivate = false;
 

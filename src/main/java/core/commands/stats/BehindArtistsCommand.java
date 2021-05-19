@@ -11,7 +11,7 @@ import core.parsers.Parser;
 import core.parsers.TwoUsersParser;
 import core.parsers.params.NumberParameters;
 import core.parsers.params.TwoUsersParamaters;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.DiscordUserDisplay;
 import dao.entities.StolenCrown;
 import dao.entities.StolenCrownWrapper;
@@ -26,7 +26,7 @@ import java.util.Map;
 import static core.parsers.ExtraParser.LIMIT_ERROR;
 
 public class BehindArtistsCommand extends ConcurrentCommand<NumberParameters<TwoUsersParamaters>> {
-    public BehindArtistsCommand(ChuuService dao) {
+    public BehindArtistsCommand(ServiceView dao) {
         super(dao);
     }
 

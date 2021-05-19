@@ -13,7 +13,7 @@ import core.parsers.FileParser;
 import core.parsers.Parser;
 import core.parsers.params.UrlParameters;
 import core.parsers.utils.CustomTimeFrame;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.*;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
@@ -140,7 +140,7 @@ public class ImportCommand extends ConcurrentCommand<UrlParameters> {
     };
 
 
-    public ImportCommand(ChuuService dao) {
+    public ImportCommand(ServiceView dao) {
         super(dao);
         this.respondInPrivate = false;
     }

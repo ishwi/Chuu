@@ -10,7 +10,7 @@ import core.otherlisteners.util.ConfirmatorItem;
 import core.parsers.NoOpParser;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.AlbumInfo;
 import dao.entities.LastFMData;
 import dao.entities.Role;
@@ -27,7 +27,7 @@ import java.util.regex.Pattern;
 public class TagWithYearCommand extends ConcurrentCommand<CommandParameters> {
 
 
-    public TagWithYearCommand(ChuuService dao) {
+    public TagWithYearCommand(ServiceView dao) {
         super(dao);
     }
 

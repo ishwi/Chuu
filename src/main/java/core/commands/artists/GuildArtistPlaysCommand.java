@@ -12,7 +12,7 @@ import core.exceptions.LastFmException;
 import core.parsers.ArtistParser;
 import core.parsers.Parser;
 import core.parsers.params.ArtistParameters;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.LastFMData;
 import dao.entities.ScrobbledArtist;
 
@@ -23,7 +23,7 @@ public class GuildArtistPlaysCommand extends ConcurrentCommand<ArtistParameters>
     private final DiscogsApi discogsApi;
     private final Spotify spotify;
 
-    public GuildArtistPlaysCommand(ChuuService dao) {
+    public GuildArtistPlaysCommand(ServiceView dao) {
         super(dao);
         this.spotify = SpotifySingleton.getInstance();
         this.discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();

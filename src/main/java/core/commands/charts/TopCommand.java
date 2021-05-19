@@ -13,7 +13,7 @@ import core.parsers.OnlyChartSizeParser;
 import core.parsers.OptionalEntity;
 import core.parsers.params.ChartSizeParameters;
 import core.parsers.utils.CustomTimeFrame;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.CountWrapper;
 import dao.entities.DiscordUserDisplay;
 import dao.entities.TimeFrameEnum;
@@ -26,7 +26,7 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
 public class TopCommand extends ArtistAbleCommand<ChartSizeParameters> {
-    public TopCommand(ChuuService dao) {
+    public TopCommand(ServiceView dao) {
         super(dao);
     }
 

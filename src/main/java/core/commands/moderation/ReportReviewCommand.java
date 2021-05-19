@@ -11,7 +11,7 @@ import core.parsers.NoOpParser;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
 import core.services.ColorService;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.LastFMData;
 import dao.entities.ReportEntity;
 import dao.entities.Role;
@@ -49,7 +49,7 @@ public class ReportReviewCommand extends ConcurrentCommand<CommandParameters> {
                     .setImage(CommandUtil.noImageUrl(reportEntity.getUrl()))
                     .setColor(CommandUtil.pastelColor());
 
-    public ReportReviewCommand(ChuuService dao) {
+    public ReportReviewCommand(ServiceView dao) {
         super(dao);
     }
 

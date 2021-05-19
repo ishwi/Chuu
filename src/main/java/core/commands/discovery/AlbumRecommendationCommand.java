@@ -14,7 +14,7 @@ import core.parsers.Parser;
 import core.parsers.RecommendationParser;
 import core.parsers.params.RecommendationsParams;
 import core.parsers.utils.CustomTimeFrame;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.*;
 import dao.exceptions.InstanceNotFoundException;
 import dao.musicbrainz.MusicBrainzService;
@@ -31,7 +31,7 @@ public class AlbumRecommendationCommand extends ConcurrentCommand<Recommendation
     private final MusicBrainzService mb;
     private final Spotify spotify;
 
-    public AlbumRecommendationCommand(ChuuService dao) {
+    public AlbumRecommendationCommand(ServiceView dao) {
         super(dao);
         this.mb = MusicBrainzServiceSingleton.getInstance();
         spotify = SpotifySingleton.getInstance();

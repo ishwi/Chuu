@@ -24,13 +24,13 @@ import core.music.MusicManager;
 import core.parsers.NoOpParser;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
-import dao.ChuuService;
+import dao.ServiceView;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
 
 public class StopCommand extends MusicCommand<CommandParameters> {
-    public StopCommand(ChuuService dao) {
+    public StopCommand(ServiceView dao) {
         super(dao);
     }
 

@@ -14,7 +14,7 @@ import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
 import core.parsers.params.NumberParameters;
 import core.services.BillboardHoarder;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.BillboardEntity;
 import dao.entities.UsersWrapper;
 import dao.entities.Week;
@@ -38,7 +38,7 @@ public class BillboardCommand extends ConcurrentCommand<NumberParameters<Command
     private final static ConcurrentSkipListSet<Long> inProcessSets = new ConcurrentSkipListSet<>();
 
 
-    public BillboardCommand(ChuuService dao) {
+    public BillboardCommand(ServiceView dao) {
 
         super(dao);
         respondInPrivate = false;

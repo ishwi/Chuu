@@ -9,7 +9,7 @@ import core.otherlisteners.Reactionary;
 import core.parsers.Parser;
 import core.parsers.RYMRatingParser;
 import core.parsers.params.RYMRatingParams;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.DiscordUserDisplay;
 import dao.entities.RymStats;
 import dao.entities.ScoredAlbumRatings;
@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class UserRatings extends ConcurrentCommand<RYMRatingParams> {
-    public UserRatings(ChuuService dao) {
+    public UserRatings(ServiceView dao) {
         super(dao);
     }
 

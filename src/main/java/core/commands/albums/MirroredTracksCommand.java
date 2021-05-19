@@ -11,7 +11,7 @@ import core.parsers.params.ArtistAlbumParameters;
 import core.services.AlbumValidator;
 import core.services.UserInfoService;
 import core.services.tracklist.UserTrackListService;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.*;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.entities.User;
@@ -23,7 +23,7 @@ import java.util.Optional;
 
 public class MirroredTracksCommand extends AlbumPlaysCommand {
 
-    public MirroredTracksCommand(ChuuService dao) {
+    public MirroredTracksCommand(ServiceView dao) {
 
         super(dao);
     }

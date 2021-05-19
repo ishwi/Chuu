@@ -10,7 +10,7 @@ import core.otherlisteners.Reactionary;
 import core.parsers.Parser;
 import core.parsers.UserStringParser;
 import core.parsers.params.UserStringParameters;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.everynoise.NoiseGenre;
 import dao.exceptions.InstanceNotFoundException;
 
@@ -18,7 +18,7 @@ import javax.validation.constraints.NotNull;
 import java.util.List;
 
 public class EveryNoiseCommand extends ConcurrentCommand<UserStringParameters> {
-    public EveryNoiseCommand(ChuuService dao) {
+    public EveryNoiseCommand(ServiceView dao) {
         super(dao);
     }
 

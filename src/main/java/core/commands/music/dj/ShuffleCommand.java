@@ -23,7 +23,7 @@ import core.music.MusicManager;
 import core.parsers.NoOpParser;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
-import dao.ChuuService;
+import dao.ServiceView;
 
 import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
@@ -32,7 +32,7 @@ import java.util.List;
 import java.util.Queue;
 
 public class ShuffleCommand extends MusicCommand<CommandParameters> {
-    public ShuffleCommand(ChuuService dao) {
+    public ShuffleCommand(ServiceView dao) {
         super(dao);
         sameChannel = true;
         requirePlayingTrack = true;

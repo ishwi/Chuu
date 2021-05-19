@@ -25,7 +25,7 @@
 //import java.util.OptionalLong;
 //
 //public class ServerArtistUrlCommand extends ConcurrentCommand<ArtistUrlParameters> {
-//    public ServerArtistUrlCommand(ChuuService dao) {
+//    public ServerArtistUrlCommand(ServiceView dao) {
 //        super(dao);
 //    }
 //

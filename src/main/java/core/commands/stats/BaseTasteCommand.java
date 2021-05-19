@@ -11,7 +11,7 @@ import core.imagerenderer.TasteRenderer;
 import core.otherlisteners.Reactionary;
 import core.parsers.params.CommandParameters;
 import core.services.UserInfoService;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.*;
 import dao.exceptions.InstanceNotFoundException;
 import dao.utils.LinkUtils;
@@ -30,7 +30,7 @@ public abstract class BaseTasteCommand<T extends CommandParameters> extends Conc
     boolean thumbnailPerRow = false;
 
 
-    public BaseTasteCommand(ChuuService dao) {
+    public BaseTasteCommand(ServiceView dao) {
         super(dao);
         respondInPrivate = false;
     }

@@ -8,7 +8,7 @@ import core.parsers.ChartableParser;
 import core.parsers.OnlyChartSizeParser;
 import core.parsers.OptionalEntity;
 import core.parsers.params.ChartSizeParameters;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.*;
 import net.dv8tion.jda.api.EmbedBuilder;
 import org.knowm.xchart.PieChart;
@@ -23,7 +23,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 public class GuildTopTracksCommand extends GuildTopCommand {
-    public GuildTopTracksCommand(ChuuService dao) {
+    public GuildTopTracksCommand(ServiceView dao) {
         super(dao);
     }
 

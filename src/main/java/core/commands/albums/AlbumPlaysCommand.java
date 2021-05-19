@@ -12,7 +12,7 @@ import core.exceptions.LastFmException;
 import core.parsers.ArtistAlbumParser;
 import core.parsers.Parser;
 import core.parsers.params.ArtistAlbumParameters;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.LastFMData;
 import dao.entities.ScrobbledArtist;
 import dao.exceptions.InstanceNotFoundException;
@@ -26,7 +26,7 @@ public class AlbumPlaysCommand extends ConcurrentCommand<ArtistAlbumParameters> 
     private final DiscogsApi discogsApi;
     private final Spotify spotify;
 
-    public AlbumPlaysCommand(ChuuService dao) {
+    public AlbumPlaysCommand(ServiceView dao) {
         super(dao);
         this.discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
         this.spotify = SpotifySingleton.getInstance();

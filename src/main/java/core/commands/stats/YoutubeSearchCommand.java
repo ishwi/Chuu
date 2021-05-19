@@ -15,7 +15,7 @@ import core.parsers.Parser;
 import core.parsers.UsernameAndNpQueryParser;
 import core.parsers.params.ExtraParameters;
 import core.parsers.params.WordParameter;
-import dao.ChuuService;
+import dao.ServiceView;
 import net.dv8tion.jda.api.entities.User;
 
 import javax.validation.constraints.NotNull;
@@ -27,7 +27,7 @@ public class YoutubeSearchCommand extends ConcurrentCommand<ExtraParameters<Word
     private final YoutubeSearch optionalSearch;
     private final YoutubeAudioSourceManager audioSourceManager;
 
-    public YoutubeSearchCommand(ChuuService dao) {
+    public YoutubeSearchCommand(ServiceView dao) {
         super(dao);
         optionalSearch = new InvidousSearch();
         audioSourceManager = YoutubeSearchManagerSingleton.getInstance();

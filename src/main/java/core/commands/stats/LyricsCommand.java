@@ -18,7 +18,7 @@ import core.otherlisteners.Reactionary;
 import core.parsers.ArtistSongParser;
 import core.parsers.Parser;
 import core.parsers.params.ArtistAlbumParameters;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.ScrobbledArtist;
 import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -33,7 +33,7 @@ public class LyricsCommand extends ConcurrentCommand<ArtistAlbumParameters> {
     private final Spotify spotifyApi;
 
 
-    public LyricsCommand(ChuuService dao) {
+    public LyricsCommand(ServiceView dao) {
         super(dao);
         evanLyrics = new EvanLyrics();
         discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();

@@ -5,7 +5,7 @@ import core.commands.utils.CommandUtil;
 import core.parsers.GenreParser;
 import core.parsers.Parser;
 import core.parsers.params.GenreParameters;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.ScrobbledArtist;
 import dao.entities.WhoKnowsMode;
 import dao.entities.WrapperReturnNowPlaying;
@@ -17,7 +17,7 @@ import java.util.concurrent.CompletableFuture;
 import static core.commands.whoknows.MultipleWhoKnowsTagCommand.formatTag;
 
 public class WhoKnowsTagCommand extends WhoKnowsBaseCommand<GenreParameters> {
-    public WhoKnowsTagCommand(ChuuService dao) {
+    public WhoKnowsTagCommand(ServiceView dao) {
         super(dao);
     }
 

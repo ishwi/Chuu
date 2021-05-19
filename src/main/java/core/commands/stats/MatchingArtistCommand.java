@@ -12,7 +12,7 @@ import core.parsers.OnlyUsernameParser;
 import core.parsers.Parser;
 import core.parsers.params.ChuuDataParams;
 import core.parsers.params.NumberParameters;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.DiscordUserDisplay;
 import dao.entities.LbEntry;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -27,7 +27,7 @@ import static core.parsers.ExtraParser.LIMIT_ERROR;
 public class MatchingArtistCommand extends ConcurrentCommand<NumberParameters<ChuuDataParams>> {
 
 
-    public MatchingArtistCommand(ChuuService dao) {
+    public MatchingArtistCommand(ServiceView dao) {
         super(dao);
         this.respondInPrivate = false;
     }

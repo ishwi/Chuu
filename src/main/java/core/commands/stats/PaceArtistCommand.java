@@ -20,7 +20,7 @@ import core.parsers.params.ArtistTimeFrameParameters;
 import core.parsers.params.ChartParameters;
 import core.parsers.params.NumberParameters;
 import core.parsers.utils.CustomTimeFrame;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.LastFMData;
 import dao.entities.ScrobbledArtist;
 import dao.entities.TimeFrameEnum;
@@ -48,7 +48,7 @@ public class PaceArtistCommand extends ConcurrentCommand<NumberParameters<Artist
     private final DiscogsApi discogsApi;
     private final Spotify spotify;
 
-    public PaceArtistCommand(ChuuService dao) {
+    public PaceArtistCommand(ServiceView dao) {
         super(dao);
         discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
         spotify = SpotifySingleton.getInstance();

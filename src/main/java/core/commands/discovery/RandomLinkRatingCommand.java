@@ -9,7 +9,7 @@ import core.parsers.Parser;
 import core.parsers.RandomAlbumParser;
 import core.parsers.params.NumberParameters;
 import core.parsers.params.RandomUrlParameters;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.LastFMData;
 import dao.entities.PrivacyMode;
 import dao.entities.RandomUrlEntity;
@@ -24,7 +24,7 @@ import java.util.Map;
 import static core.parsers.ExtraParser.LIMIT_ERROR;
 
 public class RandomLinkRatingCommand extends ConcurrentCommand<NumberParameters<RandomUrlParameters>> {
-    public RandomLinkRatingCommand(ChuuService dao) {
+    public RandomLinkRatingCommand(ServiceView dao) {
         super(dao);
     }
 

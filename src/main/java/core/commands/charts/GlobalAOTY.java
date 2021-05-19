@@ -8,7 +8,7 @@ import core.imagerenderer.util.pie.PieSetUp;
 import core.parsers.ChartYearParser;
 import core.parsers.ChartableParser;
 import core.parsers.params.ChartYearParameters;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.CountWrapper;
 import dao.entities.ResultWrapper;
 import dao.entities.ScrobbledAlbum;
@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 
 public class GlobalAOTY extends ChartableCommand<ChartYearParameters> {
 
-    public GlobalAOTY(ChuuService dao) {
+    public GlobalAOTY(ServiceView dao) {
         super(dao);
     }
 

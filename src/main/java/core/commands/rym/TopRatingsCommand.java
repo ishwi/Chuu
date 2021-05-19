@@ -9,7 +9,7 @@ import core.otherlisteners.Reactionary;
 import core.parsers.NoOpParser;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.RymStats;
 import dao.entities.ScoredAlbumRatings;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -20,7 +20,7 @@ import java.util.List;
 
 public class TopRatingsCommand extends ListCommand<ScoredAlbumRatings, CommandParameters> {
 
-    public TopRatingsCommand(ChuuService dao) {
+    public TopRatingsCommand(ServiceView dao) {
         super(dao);
     }
 

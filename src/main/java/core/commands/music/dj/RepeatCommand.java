@@ -24,13 +24,13 @@ import core.music.utils.RepeatOption;
 import core.parsers.EnumParser;
 import core.parsers.Parser;
 import core.parsers.params.EnumParameters;
-import dao.ChuuService;
+import dao.ServiceView;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
 
 public class RepeatCommand extends MusicCommand<EnumParameters<RepeatOption>> {
-    public RepeatCommand(ChuuService dao) {
+    public RepeatCommand(ServiceView dao) {
         super(dao);
         sameChannel = true;
         requirePlayer = true;

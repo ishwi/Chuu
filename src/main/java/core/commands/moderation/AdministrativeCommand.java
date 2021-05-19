@@ -8,7 +8,7 @@ import core.commands.utils.CommandUtil;
 import core.parsers.Parser;
 import core.parsers.UrlParser;
 import core.parsers.params.UrlParameters;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.LastFMData;
 import dao.entities.UsersWrapper;
 import dao.exceptions.InstanceNotFoundException;
@@ -50,7 +50,7 @@ public class AdministrativeCommand extends ConcurrentCommand<UrlParameters> {
                     new LinkedBlockingQueue<>(250), (r, executor1) -> Chuu.getLogger().warn("Disarded thread on executor2")));
 
 
-    public AdministrativeCommand(ChuuService dao) {
+    public AdministrativeCommand(ServiceView dao) {
         super(dao);
     }
 

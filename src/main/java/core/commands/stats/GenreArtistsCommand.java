@@ -15,7 +15,7 @@ import core.parsers.ChartableParser;
 import core.parsers.GenreChartParser;
 import core.parsers.params.ChartableGenreParameters;
 import core.services.tags.TagArtistService;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.*;
 import dao.musicbrainz.MusicBrainzService;
 import dao.musicbrainz.MusicBrainzServiceSingleton;
@@ -32,7 +32,7 @@ import java.util.stream.Collectors;
 public class GenreArtistsCommand extends ChartableCommand<ChartableGenreParameters> {
     private final MusicBrainzService mb;
 
-    public GenreArtistsCommand(ChuuService dao) {
+    public GenreArtistsCommand(ServiceView dao) {
         super(dao);
         mb = MusicBrainzServiceSingleton.getInstance();
     }

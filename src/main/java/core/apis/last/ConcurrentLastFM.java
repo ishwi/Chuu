@@ -1521,12 +1521,10 @@ public class ConcurrentLastFM {//implements LastFMService {
         int listeners = obj.getInt("listeners");
 
         int duration = 0;
-
         List<String> tags = parseTags(obj);
-
-        FullAlbumEntityExtended fae = new FullAlbumEntityExtended(correctedArtist, correctedAlbum, playCount, image_url, user.getName(), listeners, totalPlayCount);
+        String sumamry = parseBio(obj, "wiki");
+        FullAlbumEntityExtended fae = new FullAlbumEntityExtended(correctedArtist, correctedAlbum, playCount, image_url, user.getName(), listeners, totalPlayCount, tags, sumamry);
         fae.setMbid(mbid);
-        fae.setTagList(tags);
         if (obj.has("tracks")) {
             JSONArray arr = getFMArr(obj.getJSONObject("tracks"), "track");
             for (int i = 0; i < arr.length(); i++) {
@@ -1948,6 +1946,23 @@ public class ConcurrentLastFM {//implements LastFMService {
 
         }
 
+    }
+
+    private String parseBio(JSONObject root) {
+        return parseBio(root, "bio");
+    }
+
+    private String parseBio(JSONObject root, String key) {
+        JSONObject bio = root.optJSONObject(key);
+        String summary;
+        if (bio != null) {
+            String field = bio.getString("summary");
+            int i = field.indexOf("<a");
+            summary = field.substring(0, i);
+        } else {
+            summary = "";
+        }
+        return summary;
     }
 
 

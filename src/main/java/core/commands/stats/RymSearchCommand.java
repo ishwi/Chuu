@@ -9,7 +9,7 @@ import core.parsers.Parser;
 import core.parsers.UsernameAndNpQueryParser;
 import core.parsers.params.ExtraParameters;
 import core.parsers.params.WordParameter;
-import dao.ChuuService;
+import dao.ServiceView;
 import net.dv8tion.jda.api.entities.User;
 
 import javax.validation.constraints.NotNull;
@@ -19,7 +19,7 @@ import java.util.List;
 public class RymSearchCommand extends ConcurrentCommand<ExtraParameters<WordParameter, User>> {
     private final RYMSearch rymSearch;
 
-    public RymSearchCommand(ChuuService dao) {
+    public RymSearchCommand(ServiceView dao) {
         super(dao);
         rymSearch = new RYMSearch();
 

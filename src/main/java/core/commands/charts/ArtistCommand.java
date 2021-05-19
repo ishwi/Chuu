@@ -5,7 +5,7 @@ import core.commands.utils.CommandUtil;
 import core.parsers.ChartParser;
 import core.parsers.ChartableParser;
 import core.parsers.params.ChartParameters;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.DiscordUserDisplay;
 import net.dv8tion.jda.api.EmbedBuilder;
 import org.knowm.xchart.PieChart;
@@ -15,7 +15,7 @@ import java.util.List;
 
 public class ArtistCommand extends ArtistAbleCommand<ChartParameters> {
 
-    public ArtistCommand(ChuuService dao) {
+    public ArtistCommand(ServiceView dao) {
         super(dao);
     }
 

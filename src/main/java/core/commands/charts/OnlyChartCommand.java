@@ -5,7 +5,7 @@ import core.commands.Context;
 import core.exceptions.LastFmException;
 import core.imagerenderer.util.pie.IPieableList;
 import core.parsers.params.ChartParameters;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.CountWrapper;
 import org.knowm.xchart.PieChart;
 
@@ -13,7 +13,7 @@ import javax.validation.constraints.NotNull;
 import java.util.concurrent.BlockingQueue;
 
 public abstract class OnlyChartCommand<T extends ChartParameters> extends ChartableCommand<T> {
-    public OnlyChartCommand(ChuuService dao) {
+    public OnlyChartCommand(ServiceView dao) {
         super(dao);
     }
 

@@ -14,7 +14,7 @@ import core.parsers.exceptions.InvalidChartValuesException;
 import core.parsers.params.UserConfigParameters;
 import core.parsers.params.UserConfigType;
 import core.services.ColorService;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.*;
 import dao.exceptions.InstanceNotFoundException;
 import org.apache.commons.text.WordUtils;
@@ -28,7 +28,7 @@ import java.util.Locale;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class UserConfigCommand extends ConcurrentCommand<UserConfigParameters> {
-    public UserConfigCommand(ChuuService dao) {
+    public UserConfigCommand(ServiceView dao) {
         super(dao);
     }
 

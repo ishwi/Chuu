@@ -11,7 +11,7 @@ import core.parsers.OnlyUsernameParser;
 import core.parsers.Parser;
 import core.parsers.params.ChuuDataParams;
 import core.parsers.params.NumberParameters;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.LastFMData;
 import dao.entities.NowPlayingArtist;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -26,7 +26,7 @@ import static core.parsers.ExtraParser.LIMIT_ERROR;
 
 public class RecentListCommand extends ConcurrentCommand<NumberParameters<ChuuDataParams>> {
 
-    public RecentListCommand(ChuuService dao) {
+    public RecentListCommand(ServiceView dao) {
         super(dao);
     }
 

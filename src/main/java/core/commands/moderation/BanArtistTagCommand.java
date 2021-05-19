@@ -8,7 +8,7 @@ import core.exceptions.LastFmException;
 import core.parsers.NoOpParser;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.LastFMData;
 import dao.entities.Role;
 import dao.entities.ScrobbledArtist;
@@ -20,7 +20,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class BanArtistTagCommand extends ConcurrentCommand<CommandParameters> {
-    public BanArtistTagCommand(ChuuService dao) {
+    public BanArtistTagCommand(ServiceView dao) {
         super(dao);
     }
 

@@ -7,7 +7,7 @@ import core.commands.utils.CommandUtil;
 import core.parsers.NoOpParser;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.UsersWrapper;
 import net.dv8tion.jda.api.Permission;
 
@@ -17,7 +17,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public class IndexCommand extends ConcurrentCommand<CommandParameters> {
-    public IndexCommand(ChuuService dao) {
+    public IndexCommand(ServiceView dao) {
         super(dao);
         this.respondInPrivate = false;
     }

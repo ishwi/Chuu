@@ -12,7 +12,7 @@ import core.parsers.OptionalEntity;
 import core.parsers.Parser;
 import core.parsers.params.ChuuDataParams;
 import core.parsers.params.NumberParameters;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.Affinity;
 import dao.entities.LastFMData;
 import dao.entities.PrivacyMode;
@@ -30,8 +30,8 @@ import java.util.TreeMap;
 import static core.parsers.ExtraParser.LIMIT_ERROR;
 
 public class GlobalRecommendationCommand extends ConcurrentCommand<NumberParameters<ChuuDataParams>> {
-    public GlobalRecommendationCommand(ChuuService dao) {
-        super(dao);
+    public GlobalRecommendationCommand(ServiceView dao) {
+        super(dao, true);
     }
 
     @Override

@@ -12,7 +12,7 @@ import core.otherlisteners.Reactionary;
 import core.parsers.Parser;
 import core.parsers.UserStringParser;
 import core.parsers.params.UserStringParameters;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.everynoise.NoiseGenreReleases;
 import dao.everynoise.Release;
 import dao.exceptions.InstanceNotFoundException;
@@ -32,7 +32,7 @@ import java.util.stream.Collectors;
 public class ReleasesEveryNoiseCommand extends ConcurrentCommand<UserStringParameters> {
     public static final String RELEASES_URL = "https://everynoise.com/new_releases_by_genre.cgi?genre=%s&region=GB&albumsonly=true&hidedupes=on";
 
-    public ReleasesEveryNoiseCommand(ChuuService dao) {
+    public ReleasesEveryNoiseCommand(ServiceView dao) {
         super(dao);
     }
 

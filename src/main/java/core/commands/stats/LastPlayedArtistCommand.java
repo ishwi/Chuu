@@ -9,7 +9,7 @@ import core.parsers.ArtistParser;
 import core.parsers.OptionalEntity;
 import core.parsers.Parser;
 import core.parsers.params.ArtistParameters;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.LastFMData;
 import dao.entities.ScrobbledArtist;
 
@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Optional;
 
 public class LastPlayedArtistCommand extends ConcurrentCommand<ArtistParameters> {
-    public LastPlayedArtistCommand(ChuuService dao) {
+    public LastPlayedArtistCommand(ServiceView dao) {
         super(dao);
     }
 

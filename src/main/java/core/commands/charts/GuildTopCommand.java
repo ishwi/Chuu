@@ -11,7 +11,7 @@ import core.parsers.ChartableParser;
 import core.parsers.OnlyChartSizeParser;
 import core.parsers.OptionalEntity;
 import core.parsers.params.ChartSizeParameters;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.*;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
 
 public class GuildTopCommand extends ChartableCommand<ChartSizeParameters> {
 
-    public GuildTopCommand(ChuuService dao) {
+    public GuildTopCommand(ServiceView dao) {
         super(dao);
         this.respondInPrivate = false;
     }

@@ -6,7 +6,7 @@ import core.parsers.OptionalEntity;
 import core.parsers.Parser;
 import core.parsers.params.ChuuDataParams;
 import core.parsers.params.NumberParameters;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.ArtistPlays;
 import dao.entities.UniqueWrapper;
 
@@ -14,10 +14,9 @@ import java.util.Arrays;
 import java.util.List;
 
 public class GlobalCrownsCommand extends CrownsCommand {
-    public GlobalCrownsCommand(ChuuService dao) {
-        super(dao);
+    public GlobalCrownsCommand(ServiceView dao) {
+        super(dao, true);
         this.respondInPrivate = true;
-        isLongRunningCommand = true;
     }
 
     @Override

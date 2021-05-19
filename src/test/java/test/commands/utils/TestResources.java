@@ -101,7 +101,7 @@ public class TestResources extends ExternalResource {
 
     private void init() {
         if (!setUp) {
-            dao = new ChuuService();
+            dao = new ChuuService(null);
 
             Properties properties = new Properties();
             try (InputStream in = Chuu.class.getResourceAsStream("/tester.properties")) {

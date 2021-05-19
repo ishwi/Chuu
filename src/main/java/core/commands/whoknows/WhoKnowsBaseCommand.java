@@ -19,7 +19,7 @@ import core.otherlisteners.Reactionary;
 import core.parsers.DaoParser;
 import core.parsers.OptionalEntity;
 import core.parsers.params.CommandParameters;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.ReturnNowPlaying;
 import dao.entities.WKMode;
 import dao.entities.WhoKnowsMode;
@@ -40,7 +40,7 @@ public abstract class WhoKnowsBaseCommand<T extends CommandParameters> extends C
     private final IPieableList<ReturnNowPlaying, T> pie;
 
 
-    public WhoKnowsBaseCommand(ChuuService dao) {
+    public WhoKnowsBaseCommand(ServiceView dao) {
         super(dao);
         if (this.parser instanceof DaoParser<?> p) {
             p.setExpensiveSearch(true);

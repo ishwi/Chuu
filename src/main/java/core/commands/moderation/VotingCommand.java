@@ -11,7 +11,7 @@ import core.parsers.ArtistParser;
 import core.parsers.Parser;
 import core.parsers.params.ArtistParameters;
 import core.services.ColorService;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.*;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -49,7 +49,7 @@ public class VotingCommand extends ConcurrentCommand<ArtistParameters> {
                     .setImage(CommandUtil.noImageUrl(votingEntity.getUrl()))
                     .setColor(CommandUtil.pastelColor());
 
-    public VotingCommand(ChuuService dao) {
+    public VotingCommand(ServiceView dao) {
         super(dao);
     }
 

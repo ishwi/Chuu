@@ -7,7 +7,7 @@ import core.commands.utils.PrivacyUtils;
 import core.parsers.EnumParser;
 import core.parsers.Parser;
 import core.parsers.params.EnumParameters;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.LastFMData;
 import dao.entities.PrivacyMode;
 import dao.exceptions.InstanceNotFoundException;
@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class PrivacySetterCommand extends ConcurrentCommand<EnumParameters<PrivacyMode>> {
-    public PrivacySetterCommand(ChuuService dao) {
+    public PrivacySetterCommand(ServiceView dao) {
         super(dao);
     }
 

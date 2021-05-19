@@ -10,7 +10,7 @@ import core.parsers.OnlyUsernameParser;
 import core.parsers.Parser;
 import core.parsers.params.ChuuDataParams;
 import core.parsers.params.NumberParameters;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.DiscordUserDisplay;
 import dao.entities.TrackPlays;
 import dao.entities.UniqueWrapper;
@@ -24,7 +24,7 @@ import static core.parsers.NumberParser.generateThresholdParser;
 
 public class
 TrackCrownsCommand extends ConcurrentCommand<NumberParameters<ChuuDataParams>> {
-    public TrackCrownsCommand(ChuuService dao) {
+    public TrackCrownsCommand(ServiceView dao) {
         super(dao);
         this.respondInPrivate = false;
     }

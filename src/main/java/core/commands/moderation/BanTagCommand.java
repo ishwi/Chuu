@@ -6,7 +6,7 @@ import core.commands.utils.CommandCategory;
 import core.parsers.NoOpParser;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.LastFMData;
 import dao.entities.Role;
 import dao.exceptions.InstanceNotFoundException;
@@ -15,7 +15,7 @@ import javax.validation.constraints.NotNull;
 import java.util.List;
 
 public class BanTagCommand extends ConcurrentCommand<CommandParameters> {
-    public BanTagCommand(ChuuService dao) {
+    public BanTagCommand(ServiceView dao) {
         super(dao);
     }
 

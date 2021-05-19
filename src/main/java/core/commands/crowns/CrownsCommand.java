@@ -10,7 +10,7 @@ import core.parsers.OnlyUsernameParser;
 import core.parsers.Parser;
 import core.parsers.params.ChuuDataParams;
 import core.parsers.params.NumberParameters;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.ArtistPlays;
 import dao.entities.DiscordUserDisplay;
 import dao.entities.UniqueWrapper;
@@ -23,11 +23,14 @@ import java.util.List;
 import static core.parsers.NumberParser.generateThresholdParser;
 
 public class CrownsCommand extends ConcurrentCommand<NumberParameters<ChuuDataParams>> {
-    public CrownsCommand(ChuuService dao) {
-        super(dao);
-        this.respondInPrivate = false;
+    public CrownsCommand(ServiceView dao) {
+        this(dao, false);
     }
 
+    public CrownsCommand(ServiceView dao, boolean isLongRunningCommand) {
+        super(dao, isLongRunningCommand);
+        this.respondInPrivate = false;
+    }
 
     @Override
     protected CommandCategory initCategory() {

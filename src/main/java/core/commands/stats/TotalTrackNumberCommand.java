@@ -9,7 +9,7 @@ import core.parsers.OnlyUsernameParser;
 import core.parsers.Parser;
 import core.parsers.params.ChuuDataParams;
 import core.parsers.params.NumberParameters;
-import dao.ChuuService;
+import dao.ServiceView;
 
 import javax.validation.constraints.NotNull;
 import java.util.HashMap;
@@ -19,7 +19,7 @@ import java.util.Map;
 import static core.parsers.ExtraParser.LIMIT_ERROR;
 
 public class TotalTrackNumberCommand extends ConcurrentCommand<NumberParameters<ChuuDataParams>> {
-    public TotalTrackNumberCommand(ChuuService dao) {
+    public TotalTrackNumberCommand(ServiceView dao) {
         super(dao);
     }
 

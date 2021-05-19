@@ -8,7 +8,7 @@ import core.commands.utils.CommandCategory;
 import core.parsers.Parser;
 import core.parsers.RateLimitParser;
 import core.parsers.params.RateLimitParams;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.LastFMData;
 import dao.entities.Role;
 import dao.exceptions.InstanceNotFoundException;
@@ -19,7 +19,7 @@ import java.util.Map;
 
 @SuppressWarnings("UnstableApiUsage")
 public class RateLimitCommand extends ConcurrentCommand<RateLimitParams> {
-    public RateLimitCommand(ChuuService dao) {
+    public RateLimitCommand(ServiceView dao) {
         super(dao);
     }
 

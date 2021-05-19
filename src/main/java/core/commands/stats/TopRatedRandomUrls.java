@@ -8,7 +8,7 @@ import core.parsers.NoOpParser;
 import core.parsers.OptionalEntity;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.DiscordUserDisplay;
 import dao.entities.ScoredAlbumRatings;
 
@@ -16,7 +16,7 @@ import javax.validation.constraints.NotNull;
 import java.util.List;
 
 public class TopRatedRandomUrls extends ConcurrentCommand<CommandParameters> {
-    public TopRatedRandomUrls(ChuuService dao) {
+    public TopRatedRandomUrls(ServiceView dao) {
         super(dao);
     }
 

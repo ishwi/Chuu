@@ -59,7 +59,7 @@ public class Confirmator extends ReactionListener {
         } else {
             if (runLastEmbed && this.didConfirm.get() != null) {
                 ConfirmatorItem item = this.emoteMap.get(this.didConfirm.get());
-                this.message.editMessage(item.builder().apply(who).build()).queue(z -> item.callback().accept(z));
+                this.message.editMessage(item.builder().apply(who).build()).queue();
             }
         }
         clearReacts();

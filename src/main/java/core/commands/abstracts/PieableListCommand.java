@@ -3,9 +3,8 @@ package core.commands.abstracts;
 import core.commands.Context;
 import core.commands.utils.ChuuEmbedBuilder;
 import core.imagerenderer.GraphicUtils;
-import core.imagerenderer.util.pie.IPieableList;
 import core.parsers.params.CommandParameters;
-import dao.ChuuService;
+import dao.ServiceView;
 import net.dv8tion.jda.api.EmbedBuilder;
 import org.knowm.xchart.PieChart;
 
@@ -16,13 +15,15 @@ import java.awt.image.BufferedImage;
 import java.util.List;
 
 public abstract class PieableListCommand<T, Y extends CommandParameters> extends ConcurrentCommand<Y> {
-    public final IPieableList<T, Y> pie;
 
-    protected PieableListCommand(ChuuService dao) {
-        super(dao);
-        this.pie = null;
+    protected PieableListCommand(ServiceView dao) {
+        this(dao, false);
     }
 
+    public PieableListCommand(ServiceView dao, boolean isLongRunningCommand) {
+        super(dao, isLongRunningCommand);
+
+    }
 
     @Override
     protected void onCommand(Context e, @NotNull Y params) {

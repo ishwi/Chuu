@@ -27,7 +27,7 @@ import core.parsers.NumberParser;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
 import core.parsers.params.NumberParameters;
-import dao.ChuuService;
+import dao.ServiceView;
 
 import javax.validation.constraints.NotNull;
 import java.util.HashMap;
@@ -40,7 +40,7 @@ public class VolumeCommand extends MusicCommand<NumberParameters<CommandParamete
     private static final long MAX_VOLUME = 250;
     private static final int TOTAL_BLOCKS = 20;
 
-    public VolumeCommand(ChuuService dao) {
+    public VolumeCommand(ServiceView dao) {
         super(dao);
     }
 

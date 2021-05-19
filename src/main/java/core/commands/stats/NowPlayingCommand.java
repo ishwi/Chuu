@@ -11,7 +11,7 @@ import core.commands.utils.CommandUtil;
 import core.exceptions.LastFmException;
 import core.parsers.params.NowPlayingParameters;
 import core.services.NPModeBuilder;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.*;
 import dao.exceptions.InstanceNotFoundException;
 import dao.musicbrainz.MusicBrainzService;
@@ -37,7 +37,7 @@ public class NowPlayingCommand extends NpCommand {
     private final Spotify spotifyApi;
     private final MusicBrainzService mb;
 
-    public NowPlayingCommand(ChuuService dao) {
+    public NowPlayingCommand(ServiceView dao) {
         super(dao);
         discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
         spotifyApi = SpotifySingleton.getInstance();

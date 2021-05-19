@@ -9,7 +9,7 @@ import core.otherlisteners.Reactionary;
 import core.parsers.NoOpParser;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
-import dao.ChuuService;
+import dao.ServiceView;
 
 import javax.validation.constraints.NotNull;
 import java.util.Comparator;
@@ -19,7 +19,7 @@ import java.util.Map;
 public class ServerDecadeDistributionCommand extends ConcurrentCommand<CommandParameters> {
 
 
-    public ServerDecadeDistributionCommand(ChuuService dao) {
+    public ServerDecadeDistributionCommand(ServiceView dao) {
         super(dao);
         respondInPrivate = true;
 

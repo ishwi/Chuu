@@ -26,7 +26,7 @@ import core.parsers.NumberParser;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
 import core.parsers.params.NumberParameters;
-import dao.ChuuService;
+import dao.ServiceView;
 
 import javax.validation.constraints.NotNull;
 import java.util.HashMap;
@@ -36,7 +36,7 @@ import java.util.Map;
 import static core.parsers.ExtraParser.LIMIT_ERROR;
 
 public class SkipToCommand extends MusicCommand<NumberParameters<CommandParameters>> {
-    public SkipToCommand(ChuuService dao) {
+    public SkipToCommand(ServiceView dao) {
         super(dao);
     }
 

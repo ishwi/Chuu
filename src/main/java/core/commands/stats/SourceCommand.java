@@ -6,7 +6,7 @@ import core.commands.utils.CommandCategory;
 import core.parsers.NoOpParser;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
-import dao.ChuuService;
+import dao.ServiceView;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
@@ -15,7 +15,7 @@ public class SourceCommand extends ConcurrentCommand<CommandParameters> {
     private static final String REPO_URL = "https://github.com/ishwi/discordBot";
 
 
-    public SourceCommand(ChuuService dao) {
+    public SourceCommand(ServiceView dao) {
         super(dao);
     }
 

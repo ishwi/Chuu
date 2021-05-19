@@ -10,7 +10,7 @@ import core.parsers.Parser;
 import core.parsers.TwoUsersParser;
 import core.parsers.params.NumberParameters;
 import core.parsers.params.TwoUsersParamaters;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.DiscordUserDisplay;
 import dao.entities.StolenCrown;
 import dao.entities.StolenCrownWrapper;
@@ -23,7 +23,7 @@ import java.util.List;
 import static core.parsers.NumberParser.generateThresholdParser;
 
 public class CrownsStolenCommand extends ConcurrentCommand<NumberParameters<TwoUsersParamaters>> {
-    public CrownsStolenCommand(ChuuService dao) {
+    public CrownsStolenCommand(ServiceView dao) {
         super(dao);
         this.respondInPrivate = false;
     }

@@ -6,7 +6,7 @@ import core.parsers.NoOpParser;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
 import core.parsers.params.NumberParameters;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.LbEntry;
 
 import java.util.Arrays;
@@ -16,9 +16,8 @@ import static core.parsers.NumberParser.generateThresholdParser;
 
 public class TrackCrownsLeaderboardCommand extends LeaderboardCommand<NumberParameters<CommandParameters>> {
 
-    public TrackCrownsLeaderboardCommand(ChuuService dao) {
-        super(dao);
-        isLongRunningCommand = true;
+    public TrackCrownsLeaderboardCommand(ServiceView dao) {
+        super(dao, true);
 
     }
 

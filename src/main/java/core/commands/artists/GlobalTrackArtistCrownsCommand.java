@@ -16,7 +16,7 @@ import core.parsers.OptionalEntity;
 import core.parsers.Parser;
 import core.parsers.params.ArtistParameters;
 import core.parsers.params.NumberParameters;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.DiscordUserDisplay;
 import dao.entities.ScrobbledArtist;
 import dao.entities.TrackPlays;
@@ -33,7 +33,7 @@ public class GlobalTrackArtistCrownsCommand extends ConcurrentCommand<NumberPara
     private final DiscogsApi discogsApi;
     private final Spotify spotifyApi;
 
-    public GlobalTrackArtistCrownsCommand(ChuuService dao) {
+    public GlobalTrackArtistCrownsCommand(ServiceView dao) {
         super(dao);
         this.respondInPrivate = false;
         this.discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();

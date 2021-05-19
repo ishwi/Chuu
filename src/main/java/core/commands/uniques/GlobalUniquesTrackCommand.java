@@ -1,7 +1,7 @@
 package core.commands.uniques;
 
 import core.commands.utils.CommandCategory;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.TrackPlays;
 import dao.entities.UniqueWrapper;
 
@@ -9,10 +9,9 @@ import java.util.Arrays;
 import java.util.List;
 
 public class GlobalUniquesTrackCommand extends UniqueSongCommand {
-    public GlobalUniquesTrackCommand(ChuuService dao) {
+    public GlobalUniquesTrackCommand(ServiceView dao) {
         super(dao);
         this.respondInPrivate = true;
-        isLongRunningCommand = true;
 
     }
 

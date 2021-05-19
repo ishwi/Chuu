@@ -8,7 +8,7 @@ import core.commands.Context;
 import core.commands.utils.CommandUtil;
 import core.exceptions.LastFmException;
 import core.parsers.params.ChartGroupParameters;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.CountWrapper;
 import dao.entities.DiscordUserDisplay;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -19,7 +19,7 @@ import java.util.List;
 public class WastedChartCommand extends GroupingChartCommand {
 
 
-    public WastedChartCommand(ChuuService dao) {
+    public WastedChartCommand(ServiceView dao) {
         super(dao);
     }
 

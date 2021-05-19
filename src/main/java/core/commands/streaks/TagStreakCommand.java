@@ -16,7 +16,7 @@ import core.parsers.params.ChuuDataParams;
 import core.services.AlbumValidator;
 import core.services.TrackValidator;
 import core.services.tags.TagStorer;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.*;
 import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -31,7 +31,7 @@ import java.util.stream.Collectors;
  */
 public class TagStreakCommand extends ConcurrentCommand<ChuuDataParams> {
 
-    public TagStreakCommand(ChuuService dao) {
+    public TagStreakCommand(ServiceView dao) {
         super(dao);
     }
 

@@ -13,7 +13,7 @@ import core.parsers.OnlyUsernameParser;
 import core.parsers.Parser;
 import core.parsers.params.ChuuDataParams;
 import core.services.SpotifyTrackService;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.DiscordUserDisplay;
 import dao.entities.LastFMData;
 import dao.entities.ScrobbledTrack;
@@ -31,7 +31,7 @@ import java.util.stream.Collectors;
 public class AudioFeaturesCommand extends ConcurrentCommand<ChuuDataParams> {
     private final Spotify spotify;
 
-    public AudioFeaturesCommand(ChuuService dao) {
+    public AudioFeaturesCommand(ServiceView dao) {
         super(dao);
         this.spotify = SpotifySingleton.getInstance();
     }

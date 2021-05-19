@@ -20,7 +20,7 @@ import core.parsers.params.ChartParameters;
 import core.parsers.params.CommandParameters;
 import core.parsers.params.TimeFrameParameters;
 import core.parsers.utils.CustomTimeFrame;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.*;
 import dao.musicbrainz.MusicBrainzService;
 import dao.musicbrainz.MusicBrainzServiceSingleton;
@@ -41,7 +41,7 @@ public class LanguageCommand extends ConcurrentCommand<TimeFrameParameters> {
     private final MusicBrainzService mb;
     private final IPieableMap<Language, Long, CommandParameters> iPie;
 
-    public LanguageCommand(ChuuService dao) {
+    public LanguageCommand(ServiceView dao) {
         super(dao);
         this.mb = MusicBrainzServiceSingleton.getInstance();
         iPie = new IPieableLanguage(getParser());

@@ -9,7 +9,7 @@ import core.otherlisteners.Reactionary;
 import core.parsers.OnlyUsernameParser;
 import core.parsers.Parser;
 import core.parsers.params.ChuuDataParams;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.ArtistPlays;
 import dao.entities.DiscordUserDisplay;
 import dao.entities.UniqueWrapper;
@@ -20,8 +20,12 @@ import java.util.Collections;
 import java.util.List;
 
 public class UniqueCommand extends ConcurrentCommand<ChuuDataParams> {
-    public UniqueCommand(ChuuService dao) {
-        super(dao);
+    public UniqueCommand(ServiceView dao) {
+        this(dao, false);
+    }
+
+    public UniqueCommand(ServiceView dao, boolean isLongRunningCommand) {
+        super(dao, isLongRunningCommand);
         this.respondInPrivate = false;
 
     }

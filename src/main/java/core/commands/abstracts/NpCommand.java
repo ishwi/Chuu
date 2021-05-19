@@ -8,7 +8,7 @@ import core.exceptions.LastFmException;
 import core.parsers.NpParser;
 import core.parsers.Parser;
 import core.parsers.params.NowPlayingParameters;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.LastFMData;
 import dao.entities.NowPlayingArtist;
 import dao.entities.ScrobbledArtist;
@@ -19,7 +19,7 @@ import java.util.concurrent.CompletableFuture;
 public abstract class NpCommand extends ConcurrentCommand<NowPlayingParameters> {
 
 
-    protected NpCommand(ChuuService dao) {
+    protected NpCommand(ServiceView dao) {
         super(dao);
     }
 

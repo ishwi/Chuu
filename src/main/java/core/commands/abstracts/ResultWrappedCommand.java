@@ -3,7 +3,7 @@ package core.commands.abstracts;
 import core.commands.Context;
 import core.imagerenderer.util.pie.PieableListResultWrapper;
 import core.parsers.params.CommandParameters;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.ResultWrapper;
 import org.knowm.xchart.PieChart;
 
@@ -12,7 +12,7 @@ import javax.validation.constraints.NotNull;
 public abstract class ResultWrappedCommand<T, Y extends CommandParameters> extends PieableListCommand<ResultWrapper<T>, Y> {
     public PieableListResultWrapper<T, Y> pie;
 
-    protected ResultWrappedCommand(ChuuService dao) {
+    protected ResultWrappedCommand(ServiceView dao) {
         super(dao);
         this.pie = null;
     }

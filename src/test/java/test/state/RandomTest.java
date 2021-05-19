@@ -11,11 +11,11 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public class RandomTest {
-    ChuuService dao = new ChuuService();
+    ChuuService dao = new ChuuService(null);
 
     @Test
     public void name() {
-        ChuuService dao = new ChuuService();
+        ChuuService dao = new ChuuService(null);
         Map<RandomUrlEntity, Integer> test = new HashMap<>();
         for (int i = 0; i < 10000; i++) {
             RandomUrlEntity randomUrl = dao.getRandomUrl();

@@ -3,7 +3,7 @@ package core.commands.charts;
 import core.parsers.ChartSmartYearParser;
 import core.parsers.ChartableParser;
 import core.parsers.params.ChartYearParameters;
-import dao.ChuuService;
+import dao.ServiceView;
 
 import java.util.Arrays;
 import java.util.List;
@@ -11,7 +11,7 @@ import java.util.List;
 public class AOTYCommand extends AOTYBaseCommand {
     private static final int CUSTOM_SEARCH_SPACE = 1500;
 
-    public AOTYCommand(ChuuService dao) {
+    public AOTYCommand(ServiceView dao) {
         super(dao);
         this.searchSpace = CUSTOM_SEARCH_SPACE;
     }

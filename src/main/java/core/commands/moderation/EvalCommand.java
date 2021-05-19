@@ -13,7 +13,7 @@ import core.commands.utils.EvalContext;
 import core.parsers.NoOpParser;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
-import dao.ChuuService;
+import dao.ServiceView;
 import net.dv8tion.jda.api.EmbedBuilder;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
@@ -43,7 +43,7 @@ public class EvalCommand extends ConcurrentCommand<CommandParameters> {
     private static final Pattern emmbed = Pattern.compile("```(:?java)?[\\s\\S]*```");
     private static Long ownerId = null;
 
-    public EvalCommand(ChuuService dao) {
+    public EvalCommand(ServiceView dao) {
 
         super(dao);
     }

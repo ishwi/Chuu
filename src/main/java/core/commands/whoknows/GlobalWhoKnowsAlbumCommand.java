@@ -7,14 +7,14 @@ import core.exceptions.LastFmException;
 import core.parsers.ArtistAlbumParser;
 import core.parsers.Parser;
 import core.parsers.params.ArtistAlbumParameters;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.*;
 
 import java.util.Arrays;
 import java.util.List;
 
 public class GlobalWhoKnowsAlbumCommand extends GlobalBaseWhoKnowCommand<ArtistAlbumParameters> {
-    public GlobalWhoKnowsAlbumCommand(ChuuService dao) {
+    public GlobalWhoKnowsAlbumCommand(ServiceView dao) {
         super(dao);
     }
 

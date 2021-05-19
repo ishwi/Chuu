@@ -8,7 +8,7 @@ import core.exceptions.LastFmException;
 import core.parsers.Parser;
 import core.parsers.TimerFrameParser;
 import core.parsers.params.TimeFrameParameters;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.SecondsTimeFrameCount;
 import dao.entities.TimeFrameEnum;
 
@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.stream.Stream;
 
 public class TimeSpentCommand extends ConcurrentCommand<TimeFrameParameters> {
-    public TimeSpentCommand(ChuuService dao) {
+    public TimeSpentCommand(ServiceView dao) {
         super(dao);
     }
 

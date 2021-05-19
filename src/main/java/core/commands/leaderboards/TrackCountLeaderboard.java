@@ -7,7 +7,7 @@ import core.parsers.NumberParser;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
 import core.parsers.params.NumberParameters;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.LbEntry;
 
 import java.util.HashMap;
@@ -17,7 +17,7 @@ import java.util.Map;
 import static core.parsers.ExtraParser.LIMIT_ERROR;
 
 public class TrackCountLeaderboard extends LeaderboardCommand<NumberParameters<CommandParameters>> {
-    public TrackCountLeaderboard(ChuuService dao) {
+    public TrackCountLeaderboard(ServiceView dao) {
         super(dao);
     }
 

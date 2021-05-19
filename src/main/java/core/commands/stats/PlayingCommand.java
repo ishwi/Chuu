@@ -13,7 +13,7 @@ import core.parsers.NoOpParser;
 import core.parsers.OptionalEntity;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.LastFMData;
 import dao.entities.NowPlayingArtist;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -30,7 +30,7 @@ public class PlayingCommand extends ConcurrentCommand<CommandParameters> {
     private final LoadingCache<Long, LocalDateTime> controlAccess;
     private final LoadingCache<Long, LocalDateTime> serverControlAccess;
 
-    public PlayingCommand(ChuuService dao) {
+    public PlayingCommand(ServiceView dao) {
         super(dao);
 
         this.respondInPrivate = false;

@@ -6,7 +6,7 @@ import core.commands.utils.CommandCategory;
 import core.parsers.Parser;
 import core.parsers.TimezoneParser;
 import core.parsers.params.TimezoneParams;
-import dao.ChuuService;
+import dao.ServiceView;
 
 import javax.validation.constraints.NotNull;
 import java.time.Instant;
@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.TimeZone;
 
 public class TimezoneCommand extends ConcurrentCommand<TimezoneParams> {
-    public TimezoneCommand(ChuuService dao) {
+    public TimezoneCommand(ServiceView dao) {
         super(dao);
     }
 

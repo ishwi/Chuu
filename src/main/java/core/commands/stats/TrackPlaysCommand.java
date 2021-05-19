@@ -8,7 +8,7 @@ import core.exceptions.LastFmException;
 import core.parsers.ArtistSongParser;
 import core.parsers.Parser;
 import core.parsers.params.ArtistAlbumParameters;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.LastFMData;
 import dao.entities.ScrobbledArtist;
 import dao.entities.Track;
@@ -16,7 +16,7 @@ import dao.entities.Track;
 import java.util.List;
 
 public class TrackPlaysCommand extends AlbumPlaysCommand {
-    public TrackPlaysCommand(ChuuService dao) {
+    public TrackPlaysCommand(ServiceView dao) {
         super(dao);
     }
 

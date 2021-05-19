@@ -7,7 +7,7 @@ import core.exceptions.LastFmException;
 import core.parsers.ArtistAlbumParser;
 import core.parsers.Parser;
 import core.parsers.params.ArtistAlbumParameters;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.*;
 
 import java.util.*;
@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 
 public class WhoKnowsAlbumCommand extends WhoKnowsBaseCommand<ArtistAlbumParameters> {
 
-    public WhoKnowsAlbumCommand(ChuuService dao) {
+    public WhoKnowsAlbumCommand(ServiceView dao) {
         super(dao);
     }
 

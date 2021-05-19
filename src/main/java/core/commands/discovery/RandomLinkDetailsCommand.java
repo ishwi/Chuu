@@ -10,7 +10,7 @@ import core.otherlisteners.Reactionary;
 import core.parsers.Parser;
 import core.parsers.RandomAlbumParser;
 import core.parsers.params.RandomUrlParameters;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.*;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
 import static core.commands.rym.AlbumRatings.getStartsFromScore;
 
 public class RandomLinkDetailsCommand extends ConcurrentCommand<RandomUrlParameters> {
-    public RandomLinkDetailsCommand(ChuuService dao) {
+    public RandomLinkDetailsCommand(ServiceView dao) {
         super(dao);
     }
 

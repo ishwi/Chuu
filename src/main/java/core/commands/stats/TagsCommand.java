@@ -14,7 +14,7 @@ import core.otherlisteners.Reactionary;
 import core.parsers.ArtistParser;
 import core.parsers.Parser;
 import core.parsers.params.ArtistParameters;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.ScrobbledArtist;
 import dao.exceptions.InstanceNotFoundException;
 import dao.utils.LinkUtils;
@@ -29,7 +29,7 @@ public class TagsCommand extends ConcurrentCommand<ArtistParameters> {
     private final Spotify spotify;
     private final DiscogsApi discogsApi;
 
-    public TagsCommand(ChuuService dao) {
+    public TagsCommand(ServiceView dao) {
         super(dao);
         this.spotify = SpotifySingleton.getInstance();
         this.discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();

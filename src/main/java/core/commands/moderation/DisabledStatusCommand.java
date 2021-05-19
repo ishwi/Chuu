@@ -12,7 +12,7 @@ import core.parsers.NoOpParser;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
 import core.services.MessageDisablingService;
-import dao.ChuuService;
+import dao.ServiceView;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.GuildChannel;
 import net.dv8tion.jda.api.entities.ISnowflake;
@@ -26,7 +26,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public class DisabledStatusCommand extends ConcurrentCommand<CommandParameters> {
-    public DisabledStatusCommand(ChuuService dao) {
+    public DisabledStatusCommand(ServiceView dao) {
         super(dao);
         respondInPrivate = false;
     }

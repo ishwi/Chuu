@@ -10,7 +10,7 @@ import core.parsers.OnlyUsernameParser;
 import core.parsers.Parser;
 import core.parsers.params.ChuuDataParams;
 import core.parsers.params.NumberParameters;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.AlbumPlays;
 import dao.entities.ArtistPlays;
 import dao.entities.DiscordUserDisplay;
@@ -24,7 +24,7 @@ import java.util.List;
 import static core.parsers.NumberParser.generateThresholdParser;
 
 public class AlbumCrownsCommand extends ConcurrentCommand<NumberParameters<ChuuDataParams>> {
-    public AlbumCrownsCommand(ChuuService dao) {
+    public AlbumCrownsCommand(ServiceView dao) {
         super(dao);
         this.respondInPrivate = false;
     }

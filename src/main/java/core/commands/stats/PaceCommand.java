@@ -8,7 +8,7 @@ import core.parsers.PaceParser;
 import core.parsers.Parser;
 import core.parsers.params.NaturalTimeParams;
 import core.parsers.params.NumberParameters;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.LastFMData;
 import dao.entities.NaturalTimeFrameEnum;
 import dao.entities.UserInfo;
@@ -33,7 +33,7 @@ import static core.parsers.ExtraParser.LIMIT_ERROR;
  * Credits: to lfmwhoknows bot owner for the idea
  */
 public class PaceCommand extends ConcurrentCommand<NumberParameters<NumberParameters<NaturalTimeParams>>> {
-    public PaceCommand(ChuuService dao) {
+    public PaceCommand(ServiceView dao) {
         super(dao);
 
     }

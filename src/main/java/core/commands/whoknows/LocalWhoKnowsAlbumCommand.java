@@ -11,7 +11,7 @@ import core.parsers.ArtistAlbumParser;
 import core.parsers.OptionalEntity;
 import core.parsers.Parser;
 import core.parsers.params.ArtistAlbumParameters;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.*;
 
 import java.util.Arrays;
@@ -25,7 +25,7 @@ public class LocalWhoKnowsAlbumCommand extends WhoKnowsBaseCommand<ArtistAlbumPa
     private final Spotify spotify;
     private final DiscogsApi discogsApi;
 
-    public LocalWhoKnowsAlbumCommand(ChuuService dao) {
+    public LocalWhoKnowsAlbumCommand(ServiceView dao) {
         super(dao);
         respondInPrivate = false;
         this.discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();

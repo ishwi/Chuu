@@ -9,7 +9,7 @@ import core.otherlisteners.Reactionary;
 import core.parsers.OnlyUsernameParser;
 import core.parsers.Parser;
 import core.parsers.params.ChuuDataParams;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.AlbumPlays;
 import dao.entities.DiscordUserDisplay;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -17,7 +17,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import java.util.List;
 
 public class UnratedAlbums extends ListCommand<AlbumPlays, ChuuDataParams> {
-    public UnratedAlbums(ChuuService dao) {
+    public UnratedAlbums(ServiceView dao) {
         super(dao);
     }
 

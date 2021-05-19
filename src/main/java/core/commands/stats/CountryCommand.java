@@ -18,7 +18,7 @@ import core.parsers.params.NumberParameters;
 import core.parsers.params.TimeFrameParameters;
 import core.parsers.utils.CustomTimeFrame;
 import core.scheduledtasks.ArtistMbidUpdater;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.*;
 import dao.musicbrainz.MusicBrainzService;
 import dao.musicbrainz.MusicBrainzServiceSingleton;
@@ -34,7 +34,7 @@ import static core.parsers.ExtraParser.LIMIT_ERROR;
 public class CountryCommand extends ConcurrentCommand<NumberParameters<TimeFrameParameters>> {
     private final MusicBrainzService musicBrainz;
 
-    public CountryCommand(ChuuService dao) {
+    public CountryCommand(ServiceView dao) {
         super(dao);
         this.musicBrainz = MusicBrainzServiceSingleton.getInstance();
 

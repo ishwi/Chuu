@@ -15,7 +15,7 @@ import core.otherlisteners.Reactionary;
 import core.parsers.ArtistTimeFrameParser;
 import core.parsers.Parser;
 import core.parsers.params.ArtistTimeFrameParameters;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.DiscordUserDisplay;
 import dao.entities.ScrobbledArtist;
 import dao.entities.TimeFrameEnum;
@@ -32,7 +32,7 @@ public class FavesFromArtistCommand extends ConcurrentCommand<ArtistTimeFramePar
     private final DiscogsApi discogs;
     private final Spotify spotify;
 
-    public FavesFromArtistCommand(ChuuService dao) {
+    public FavesFromArtistCommand(ServiceView dao) {
         super(dao);
         respondInPrivate = true;
         this.discogs = DiscogsSingleton.getInstanceUsingDoubleLocking();

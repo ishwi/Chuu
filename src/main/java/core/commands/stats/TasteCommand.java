@@ -13,7 +13,7 @@ import core.parsers.TwoUsersTimeframeParser;
 import core.parsers.params.ChartParameters;
 import core.parsers.params.TwoUsersTimeframeParamaters;
 import core.parsers.utils.CustomTimeFrame;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.*;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -26,7 +26,7 @@ import static java.lang.Math.abs;
 public class TasteCommand extends BaseTasteCommand<TwoUsersTimeframeParamaters> {
     private final Map<Long, Pair<Integer, Integer>> timeFrameMap = new ConcurrentHashMap<>();
 
-    public TasteCommand(ChuuService dao) {
+    public TasteCommand(ServiceView dao) {
         super(dao);
         order = 8;
     }

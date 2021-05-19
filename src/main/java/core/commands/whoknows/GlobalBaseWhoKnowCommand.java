@@ -9,7 +9,7 @@ import core.imagerenderer.ChartQuality;
 import core.imagerenderer.WhoKnowsMaker;
 import core.parsers.OptionalEntity;
 import core.parsers.params.CommandParameters;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.*;
 import net.dv8tion.jda.api.EmbedBuilder;
 
@@ -21,7 +21,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 public abstract class GlobalBaseWhoKnowCommand<T extends CommandParameters> extends WhoKnowsBaseCommand<T> {
-    public GlobalBaseWhoKnowCommand(ChuuService dao) {
+    public GlobalBaseWhoKnowCommand(ServiceView dao) {
         super(dao);
         this.respondInPrivate = true;
         parser.addOptional(new OptionalEntity("nobotted", "discard users that have been manually flagged as potentially botted accounts"));

@@ -15,7 +15,7 @@ import core.otherlisteners.Reactionary;
 import core.parsers.ArtistParser;
 import core.parsers.Parser;
 import core.parsers.params.ArtistParameters;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.Memoized;
 import dao.entities.ScrobbledArtist;
 import dao.entities.UserListened;
@@ -30,7 +30,7 @@ public class WhoLastCommand extends ConcurrentCommand<ArtistParameters> {
     private final DiscogsApi discogsApi;
     private final Spotify spotify;
 
-    public WhoLastCommand(ChuuService dao) {
+    public WhoLastCommand(ServiceView dao) {
         super(dao);
         this.discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
         this.spotify = SpotifySingleton.getInstance();

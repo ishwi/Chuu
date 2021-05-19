@@ -11,7 +11,7 @@ import core.otherlisteners.Reactionary;
 import core.parsers.OnlyUsernameParser;
 import core.parsers.Parser;
 import core.parsers.params.ChuuDataParams;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.CountWrapper;
 import dao.entities.DiscordUserDisplay;
 import dao.entities.TrackWithArtistId;
@@ -25,7 +25,7 @@ import java.time.ZoneId;
 import java.util.List;
 
 public class LovedCommand extends ConcurrentCommand<ChuuDataParams> {
-    public LovedCommand(ChuuService dao) {
+    public LovedCommand(ServiceView dao) {
         super(dao);
     }
 

@@ -7,7 +7,7 @@ import core.commands.utils.CommandUtil;
 import core.parsers.ArtistSongParser;
 import core.parsers.Parser;
 import core.parsers.params.ArtistAlbumParameters;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.LastFMData;
 import dao.entities.ScrobbledArtist;
 
@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.Optional;
 
 public class FirstPlayedCommand extends AlbumPlaysCommand {
-    public FirstPlayedCommand(ChuuService dao) {
+    public FirstPlayedCommand(ServiceView dao) {
         super(dao);
     }
 

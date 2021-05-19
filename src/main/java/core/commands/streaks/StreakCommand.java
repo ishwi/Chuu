@@ -16,7 +16,7 @@ import core.parsers.OnlyUsernameParser;
 import core.parsers.OptionalEntity;
 import core.parsers.Parser;
 import core.parsers.params.ChuuDataParams;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.DiscordUserDisplay;
 import dao.entities.LastFMData;
 import dao.entities.ScrobbledArtist;
@@ -39,7 +39,7 @@ public class StreakCommand extends ConcurrentCommand<ChuuDataParams> {
     private final DiscogsApi discogsApi;
     private final Spotify spotifyApi;
 
-    public StreakCommand(ChuuService dao) {
+    public StreakCommand(ServiceView dao) {
         super(dao);
         discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
         spotifyApi = SpotifySingleton.getInstance();

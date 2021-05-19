@@ -6,17 +6,20 @@ import core.commands.utils.CommandUtil;
 import core.commands.utils.PrivacyUtils;
 import core.otherlisteners.Reactionary;
 import core.parsers.params.CommandParameters;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.LbEntry;
 import net.dv8tion.jda.api.EmbedBuilder;
 
 import java.util.List;
 
 public abstract class LeaderboardCommand<T extends CommandParameters> extends ListCommand<LbEntry, T> {
-
-    public LeaderboardCommand(ChuuService dao) {
-        super(dao);
+    public LeaderboardCommand(ServiceView dao, boolean isLongRunningCommand) {
+        super(dao, isLongRunningCommand);
         this.respondInPrivate = false;
+    }
+
+    public LeaderboardCommand(ServiceView dao) {
+        this(dao, false);
     }
 
     public abstract String getEntryName(T params);

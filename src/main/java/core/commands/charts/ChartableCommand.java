@@ -19,7 +19,7 @@ import core.otherlisteners.Reactionary;
 import core.parsers.ChartableParser;
 import core.parsers.DaoParser;
 import core.parsers.params.ChartParameters;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.ChartMode;
 import dao.entities.CountWrapper;
 import dao.entities.DiscordUserDisplay;
@@ -40,7 +40,7 @@ import java.util.concurrent.CompletableFuture;
 public abstract class ChartableCommand<T extends ChartParameters> extends ConcurrentCommand<T> {
     public final IPieableList<UrlCapsule, ChartParameters> pie;
 
-    public ChartableCommand(ChuuService dao) {
+    public ChartableCommand(ServiceView dao) {
         super(dao);
         this.pie = getPie();
         ((DaoParser<?>) getParser()).setExpensiveSearch(true);

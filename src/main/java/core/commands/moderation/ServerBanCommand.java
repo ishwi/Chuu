@@ -6,14 +6,14 @@ import core.commands.utils.CommandCategory;
 import core.parsers.OnlyUsernameParser;
 import core.parsers.Parser;
 import core.parsers.params.ChuuDataParams;
-import dao.ChuuService;
+import dao.ServiceView;
 import net.dv8tion.jda.api.Permission;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
 
 public class ServerBanCommand extends ConcurrentCommand<ChuuDataParams> {
-    public ServerBanCommand(ChuuService dao) {
+    public ServerBanCommand(ServiceView dao) {
         super(dao);
         respondInPrivate = false;
     }

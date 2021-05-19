@@ -7,14 +7,14 @@ import core.commands.utils.CommandUtil;
 import core.parsers.OnlyUsernameParser;
 import core.parsers.Parser;
 import core.parsers.params.ChuuDataParams;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.LastFMData;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
 
 public class ScrooblingCommand extends ConcurrentCommand<ChuuDataParams> {
-    public ScrooblingCommand(ChuuService dao) {
+    public ScrooblingCommand(ServiceView dao) {
         super(dao);
     }
 

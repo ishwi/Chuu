@@ -14,7 +14,7 @@ import core.exceptions.LastFmException;
 import core.parsers.ChartGroupParser;
 import core.parsers.ChartableParser;
 import core.parsers.params.ChartGroupParameters;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.CountWrapper;
 import dao.entities.DiscordUserDisplay;
 import dao.entities.TimeFrameEnum;
@@ -28,7 +28,7 @@ public class WastedTrackCommand extends ChartableCommand<ChartGroupParameters> {
     final DiscogsApi discogsApi;
     final Spotify spotifyApi;
 
-    public WastedTrackCommand(ChuuService dao) {
+    public WastedTrackCommand(ServiceView dao) {
         super(dao);
         discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
         spotifyApi = SpotifySingleton.getInstance();

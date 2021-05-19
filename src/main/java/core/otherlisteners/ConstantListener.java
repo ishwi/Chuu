@@ -27,9 +27,6 @@ public record ConstantListener(long channelId, ChuuService service) implements E
         if (idLong != channelId || e.getUser() == null || e.getUser().isBot()) {
             return;
         }
-        if (e.getReaction().getReactionEmote().getAsCodepoints().equals(REJECT)) {
-            return;
-        }
         e.getChannel().retrieveMessageById(e.getMessageId()).queue(x -> {
             if (e.getReaction().getReactionEmote().getAsCodepoints().equals(REJECT)) {
                 x.delete().queue();

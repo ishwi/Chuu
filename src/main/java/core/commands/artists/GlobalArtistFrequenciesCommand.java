@@ -10,7 +10,7 @@ import core.otherlisteners.Reactionary;
 import core.parsers.NoOpParser;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.ArtistPlays;
 import dao.entities.ResultWrapper;
 import dao.utils.LinkUtils;
@@ -21,7 +21,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public class GlobalArtistFrequenciesCommand extends ResultWrappedCommand<ArtistPlays, CommandParameters> {
-    public GlobalArtistFrequenciesCommand(ChuuService dao) {
+    public GlobalArtistFrequenciesCommand(ServiceView dao) {
         super(dao);
         this.pie = new PieableListResultWrapper<>(initParser(),
                 ArtistPlays::getArtistName,

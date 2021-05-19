@@ -19,7 +19,7 @@ import core.parsers.params.TimeFrameParameters;
 import core.parsers.utils.CustomTimeFrame;
 import core.services.tags.TagAlbumService;
 import core.services.tags.TagArtistService;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.*;
 import dao.musicbrainz.MusicBrainzService;
 import dao.musicbrainz.MusicBrainzServiceSingleton;
@@ -45,7 +45,7 @@ public class GenreCommand extends ConcurrentCommand<NumberParameters<TimeFramePa
 
     private final IPieableMap<Genre, Integer, NumberParameters<TimeFrameParameters>> pieable;
 
-    public GenreCommand(ChuuService dao) {
+    public GenreCommand(ServiceView dao) {
         super(dao);
         this.musicBrainz = MusicBrainzServiceSingleton.getInstance();
         pieable = new IPieableMap<>() {

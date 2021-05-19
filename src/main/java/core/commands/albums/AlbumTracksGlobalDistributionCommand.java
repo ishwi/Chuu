@@ -18,7 +18,7 @@ import core.parsers.params.ArtistAlbumParameters;
 import core.services.AlbumValidator;
 import core.services.tracklist.GlobalTracklistService;
 import core.services.tracklist.TracklistService;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.FullAlbumEntity;
 import dao.entities.ScrobbledAlbum;
 import dao.entities.ScrobbledArtist;
@@ -37,7 +37,7 @@ import java.util.Optional;
 public class AlbumTracksGlobalDistributionCommand extends AlbumPlaysCommand {
     private final IPieableList<Track, ArtistAlbumParameters> pie;
 
-    public AlbumTracksGlobalDistributionCommand(ChuuService dao) {
+    public AlbumTracksGlobalDistributionCommand(ServiceView dao) {
         super(dao);
         this.pie = new PieableListTrack(this.getParser());
         DaoParser<?> parser = (DaoParser<?>) this.getParser();

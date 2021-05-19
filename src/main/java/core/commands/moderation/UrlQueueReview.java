@@ -10,8 +10,8 @@ import core.otherlisteners.Validator;
 import core.parsers.NoOpParser;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
-import dao.ChuuService;
 import dao.ImageQueue;
+import dao.ServiceView;
 import dao.entities.LastFMData;
 import dao.entities.Role;
 import dao.entities.TriFunction;
@@ -48,7 +48,7 @@ public class UrlQueueReview extends ConcurrentCommand<CommandParameters> {
                     .setImage(CommandUtil.noImageUrl(reportEntity.url()))
                     .setColor(CommandUtil.pastelColor()));
 
-    public UrlQueueReview(ChuuService dao) {
+    public UrlQueueReview(ServiceView dao) {
         super(dao);
     }
 

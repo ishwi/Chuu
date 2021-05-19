@@ -25,7 +25,7 @@ import core.music.utils.TrackContext;
 import core.parsers.MusicInputParser;
 import core.parsers.Parser;
 import core.parsers.params.WordParameter;
-import dao.ChuuService;
+import dao.ServiceView;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
@@ -33,7 +33,7 @@ import java.util.List;
 public class EnqueueCommand extends core.commands.abstracts.MusicCommand<WordParameter> {
 
 
-    public EnqueueCommand(ChuuService dao) {
+    public EnqueueCommand(ServiceView dao) {
         super(dao);
         requireManager = false;
         requireVoiceState = true;

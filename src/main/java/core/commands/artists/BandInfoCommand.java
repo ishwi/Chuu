@@ -20,7 +20,7 @@ import core.parsers.ArtistParser;
 import core.parsers.OptionalEntity;
 import core.parsers.Parser;
 import core.parsers.params.ArtistParameters;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.*;
 import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -41,7 +41,7 @@ public class BandInfoCommand extends ConcurrentCommand<ArtistParameters> {
     private final Spotify spotify;
     private final PieableListBand pie;
 
-    public BandInfoCommand(ChuuService dao) {
+    public BandInfoCommand(ServiceView dao) {
         super(dao);
         this.discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
         this.spotify = SpotifySingleton.getInstance();

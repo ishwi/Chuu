@@ -24,13 +24,13 @@ import core.music.MusicManager;
 import core.parsers.MinutesParser;
 import core.parsers.Parser;
 import core.parsers.params.MinutesParameters;
-import dao.ChuuService;
+import dao.ServiceView;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
 
 public class JumpCommand extends MusicCommand<MinutesParameters> {
-    public JumpCommand(ChuuService dao) {
+    public JumpCommand(ServiceView dao) {
         super(dao);
         sameChannel = true;
         requirePlayingTrack = true;

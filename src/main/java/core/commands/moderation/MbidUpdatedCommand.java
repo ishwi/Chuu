@@ -8,7 +8,7 @@ import core.parsers.OnlyUsernameParser;
 import core.parsers.Parser;
 import core.parsers.params.ChuuDataParams;
 import core.scheduledtasks.ArtistMbidUpdater;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.LastFMData;
 import dao.entities.Role;
 import dao.entities.ScrobbledArtist;
@@ -19,7 +19,7 @@ import java.util.List;
 
 public class MbidUpdatedCommand extends ConcurrentCommand<ChuuDataParams> {
 
-    public MbidUpdatedCommand(ChuuService dao) {
+    public MbidUpdatedCommand(ServiceView dao) {
         super(dao);
     }
 

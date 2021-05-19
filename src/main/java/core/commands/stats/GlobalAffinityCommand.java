@@ -12,7 +12,7 @@ import core.parsers.OnlyUsernameParser;
 import core.parsers.Parser;
 import core.parsers.params.ChuuDataParams;
 import core.parsers.params.NumberParameters;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.Affinity;
 import dao.entities.DiscordUserDisplay;
 import dao.entities.LastFMData;
@@ -29,8 +29,8 @@ import static core.parsers.ExtraParser.LIMIT_ERROR;
 
 public class GlobalAffinityCommand extends ConcurrentCommand<NumberParameters<ChuuDataParams>> {
 
-    public GlobalAffinityCommand(ChuuService dao) {
-        super(dao);
+    public GlobalAffinityCommand(ServiceView dao) {
+        super(dao, true);
         this.respondInPrivate = false;
     }
 

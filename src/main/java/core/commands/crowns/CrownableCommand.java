@@ -12,7 +12,7 @@ import core.parsers.OptionalEntity;
 import core.parsers.Parser;
 import core.parsers.params.ChuuDataParams;
 import core.parsers.params.NumberParameters;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.CrownableArtist;
 import dao.entities.DiscordUserDisplay;
 import dao.utils.LinkUtils;
@@ -26,7 +26,7 @@ import static core.parsers.ExtraParser.LIMIT_ERROR;
 
 public class CrownableCommand extends ListCommand<CrownableArtist, NumberParameters<ChuuDataParams>> {
 
-    public CrownableCommand(ChuuService dao) {
+    public CrownableCommand(ServiceView dao) {
         super(dao);
     }
 

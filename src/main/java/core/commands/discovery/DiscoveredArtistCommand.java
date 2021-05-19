@@ -12,7 +12,7 @@ import core.parsers.ChartParser;
 import core.parsers.ChartableParser;
 import core.parsers.OptionalEntity;
 import core.parsers.params.ChartParameters;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.CountWrapper;
 import dao.entities.DiscordUserDisplay;
 import dao.entities.ScrobbledArtist;
@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
 
 public class DiscoveredArtistCommand extends ChartableCommand<ChartParameters> {
 
-    public DiscoveredArtistCommand(ChuuService dao) {
+    public DiscoveredArtistCommand(ServiceView dao) {
         super(dao);
     }
 

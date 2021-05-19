@@ -8,7 +8,7 @@ import core.commands.utils.CommandUtil;
 import core.parsers.EnumListParser;
 import core.parsers.Parser;
 import core.parsers.params.EnumListParameters;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.NPMode;
 
 import javax.validation.constraints.NotNull;
@@ -33,7 +33,7 @@ public class NPModeSetterCommand extends ConcurrentCommand<EnumListParameters<NP
         return modes;
     };
 
-    public NPModeSetterCommand(ChuuService dao) {
+    public NPModeSetterCommand(ServiceView dao) {
         super(dao);
     }
 

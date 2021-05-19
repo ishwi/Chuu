@@ -10,7 +10,7 @@ import core.parsers.Parser;
 import core.parsers.params.ChuuDataParams;
 import core.services.BillboardHoarder;
 import core.services.ClockService;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.PreBillboardUserDataTimestamped;
 import dao.entities.UpdaterUserWrapper;
 import dao.entities.Week;
@@ -25,7 +25,7 @@ import java.util.TimeZone;
 
 public class ClockCommand extends ConcurrentCommand<ChuuDataParams> {
 
-    public ClockCommand(ChuuService dao) {
+    public ClockCommand(ServiceView dao) {
         super(dao);
     }
 

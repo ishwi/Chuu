@@ -13,7 +13,7 @@ import core.parsers.params.ChuuDataParams;
 import core.parsers.utils.CustomTimeFrame;
 import core.services.UpdaterHoarder;
 import core.services.UpdaterService;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.*;
 import dao.exceptions.InstanceNotFoundException;
 
@@ -28,7 +28,7 @@ public class UpdateCommand extends ConcurrentCommand<ChuuDataParams> {
 
     public final AtomicInteger maxConcurrency = new AtomicInteger(5);
 
-    public UpdateCommand(ChuuService dao) {
+    public UpdateCommand(ServiceView dao) {
         super(dao);
         order = 6;
     }

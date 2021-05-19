@@ -7,14 +7,14 @@ import core.commands.utils.CommandUtil;
 import core.parsers.OnlyUsernameParser;
 import core.parsers.Parser;
 import core.parsers.params.ChuuDataParams;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.DiscordUserDisplay;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
 
 public class LastFmLinkCommand extends ConcurrentCommand<ChuuDataParams> {
-    public LastFmLinkCommand(ChuuService dao) {
+    public LastFmLinkCommand(ServiceView dao) {
         super(dao);
     }
 

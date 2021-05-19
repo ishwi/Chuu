@@ -26,7 +26,7 @@ import core.parsers.HelpParser;
 import core.parsers.OptionalEntity;
 import core.parsers.Parser;
 import core.parsers.params.WordParameter;
-import dao.ChuuService;
+import dao.ServiceView;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Message;
@@ -51,7 +51,7 @@ public class HelpCommand extends ConcurrentCommand<WordParameter> {
     };
 
 
-    public HelpCommand(ChuuService dao) {
+    public HelpCommand(ServiceView dao) {
         super(dao);
         categoryMap = new TreeMap<>(Comparator.comparingInt(CommandCategory::getOrder));
         registerCommand(this);

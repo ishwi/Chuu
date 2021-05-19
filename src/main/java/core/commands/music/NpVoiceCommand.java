@@ -31,7 +31,7 @@ import core.music.utils.TrackContext;
 import core.parsers.NoOpParser;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
-import dao.ChuuService;
+import dao.ServiceView;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 
@@ -40,7 +40,7 @@ import java.util.List;
 
 
 public class NpVoiceCommand extends MusicCommand<CommandParameters> {
-    public NpVoiceCommand(ChuuService dao) {
+    public NpVoiceCommand(ServiceView dao) {
         super(dao);
         requirePlayingTrack = true;
         requirePlayer = true;

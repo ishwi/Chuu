@@ -7,7 +7,7 @@ import core.exceptions.LastFmException;
 import core.parsers.ChartDecadeParser;
 import core.parsers.ChartableParser;
 import core.parsers.params.ChartYearRangeParameters;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.*;
 import dao.musicbrainz.MusicBrainzService;
 import dao.musicbrainz.MusicBrainzServiceSingleton;
@@ -27,7 +27,7 @@ public class AOTDCommand extends ChartableCommand<ChartYearRangeParameters> {
     private final MusicBrainzService mb;
     private final int searchSpace = 1500;
 
-    public AOTDCommand(ChuuService dao) {
+    public AOTDCommand(ServiceView dao) {
         super(dao);
         mb = MusicBrainzServiceSingleton.getInstance();
 

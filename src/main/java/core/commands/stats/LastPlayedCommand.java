@@ -8,7 +8,7 @@ import core.parsers.ArtistSongParser;
 import core.parsers.OptionalEntity;
 import core.parsers.Parser;
 import core.parsers.params.ArtistAlbumParameters;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.LastFMData;
 import dao.entities.ScrobbledArtist;
 
@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Optional;
 
 public class LastPlayedCommand extends AlbumPlaysCommand {
-    public LastPlayedCommand(ChuuService dao) {
+    public LastPlayedCommand(ServiceView dao) {
         super(dao);
     }
 

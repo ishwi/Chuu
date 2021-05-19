@@ -25,13 +25,13 @@ import core.music.utils.TrackScrobble;
 import core.parsers.NoOpParser;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
-import dao.ChuuService;
+import dao.ServiceView;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
 
 public class SkipChapterCommand extends MusicCommand<CommandParameters> {
-    public SkipChapterCommand(ChuuService dao) {
+    public SkipChapterCommand(ServiceView dao) {
         super(dao);
         sameChannel = true;
         requirePlayingTrack = true;

@@ -8,14 +8,14 @@ import core.parsers.GenreParser;
 import core.parsers.OptionalEntity;
 import core.parsers.Parser;
 import core.parsers.params.GenreParameters;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.ScrobbledArtist;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
 
 public class WhoIsTagCommand extends ConcurrentCommand<GenreParameters> {
-    public WhoIsTagCommand(ChuuService dao) {
+    public WhoIsTagCommand(ServiceView dao) {
         super(dao);
     }
 

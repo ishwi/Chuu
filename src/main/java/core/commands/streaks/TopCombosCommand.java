@@ -13,7 +13,7 @@ import core.parsers.OptionalEntity;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
 import core.parsers.params.NumberParameters;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.GlobalStreakEntities;
 import dao.entities.Memoized;
 import dao.entities.UsersWrapper;
@@ -35,7 +35,7 @@ import static core.parsers.ExtraParser.LIMIT_ERROR;
 
 public class TopCombosCommand extends ConcurrentCommand<NumberParameters<CommandParameters>> {
 
-    public TopCombosCommand(ChuuService dao) {
+    public TopCombosCommand(ServiceView dao) {
         super(dao);
     }
 

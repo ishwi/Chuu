@@ -22,7 +22,7 @@ import core.commands.Context;
 import core.parsers.MusicInputParser;
 import core.parsers.Parser;
 import core.parsers.params.WordParameter;
-import dao.ChuuService;
+import dao.ServiceView;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
@@ -30,7 +30,7 @@ import java.util.List;
 public class PlayNextCommand extends core.commands.abstracts.MusicCommand<WordParameter> {
 
 
-    public PlayNextCommand(ChuuService dao) {
+    public PlayNextCommand(ServiceView dao) {
         super(dao);
         requireManager = false;
         requireVoiceState = true;

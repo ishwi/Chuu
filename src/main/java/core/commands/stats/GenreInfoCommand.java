@@ -8,7 +8,7 @@ import core.exceptions.LastFmException;
 import core.parsers.GenreParser;
 import core.parsers.Parser;
 import core.parsers.params.GenreParameters;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.GenreInfo;
 import dao.entities.NowPlayingArtist;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -17,7 +17,7 @@ import javax.validation.constraints.NotNull;
 import java.util.List;
 
 public class GenreInfoCommand extends ConcurrentCommand<GenreParameters> {
-    public GenreInfoCommand(ChuuService dao) {
+    public GenreInfoCommand(ServiceView dao) {
         super(dao);
     }
 

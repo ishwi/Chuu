@@ -15,7 +15,7 @@ import core.parsers.ArtistParser;
 import core.parsers.OptionalEntity;
 import core.parsers.Parser;
 import core.parsers.params.ArtistParameters;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.GlobalCrown;
 import dao.entities.LastFMData;
 import dao.entities.PrivacyMode;
@@ -32,7 +32,7 @@ public class GlobalArtistCommand extends ConcurrentCommand<ArtistParameters> {
     private final DiscogsApi discogsApi;
     private final Spotify spotify;
 
-    public GlobalArtistCommand(ChuuService dao) {
+    public GlobalArtistCommand(ServiceView dao) {
         super(dao);
         this.discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
         this.spotify = SpotifySingleton.getInstance();

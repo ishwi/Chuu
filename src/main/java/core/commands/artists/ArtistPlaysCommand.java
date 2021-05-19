@@ -8,7 +8,7 @@ import core.exceptions.LastFmException;
 import core.parsers.ArtistParser;
 import core.parsers.Parser;
 import core.parsers.params.ArtistParameters;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.ArtistSummary;
 import dao.entities.LastFMData;
 import dao.entities.ScrobbledArtist;
@@ -17,7 +17,7 @@ import javax.validation.constraints.NotNull;
 import java.util.List;
 
 public class ArtistPlaysCommand extends ConcurrentCommand<ArtistParameters> {
-    public ArtistPlaysCommand(ChuuService dao) {
+    public ArtistPlaysCommand(ServiceView dao) {
         super(dao);
     }
 

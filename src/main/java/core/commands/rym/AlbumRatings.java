@@ -14,7 +14,7 @@ import core.otherlisteners.Reactionary;
 import core.parsers.ArtistAlbumParser;
 import core.parsers.Parser;
 import core.parsers.params.ArtistAlbumParameters;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.FullAlbumEntityExtended;
 import dao.entities.Rating;
 import dao.entities.ScrobbledArtist;
@@ -31,7 +31,7 @@ public class AlbumRatings extends ConcurrentCommand<ArtistAlbumParameters> {
     private final DiscogsApi discogsApi;
     private final Spotify spotify;
 
-    public AlbumRatings(ChuuService dao) {
+    public AlbumRatings(ServiceView dao) {
         super(dao);
         discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
         spotify = SpotifySingleton.getInstance();

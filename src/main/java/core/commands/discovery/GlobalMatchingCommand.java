@@ -12,7 +12,7 @@ import core.parsers.OnlyUsernameParser;
 import core.parsers.Parser;
 import core.parsers.params.ChuuDataParams;
 import core.parsers.params.NumberParameters;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.ArtistLbGlobalEntry;
 import dao.entities.DiscordUserDisplay;
 import dao.entities.Memoized;
@@ -34,8 +34,8 @@ import static core.parsers.ExtraParser.LIMIT_ERROR;
 public class GlobalMatchingCommand extends ConcurrentCommand<NumberParameters<ChuuDataParams>> {
 
 
-    public GlobalMatchingCommand(ChuuService dao) {
-        super(dao);
+    public GlobalMatchingCommand(ServiceView dao) {
+        super(dao, true);
     }
 
     @Override

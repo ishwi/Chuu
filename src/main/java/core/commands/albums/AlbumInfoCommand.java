@@ -8,7 +8,7 @@ import core.commands.utils.CommandUtil;
 import core.exceptions.LastFmException;
 import core.parsers.params.ArtistAlbumParameters;
 import core.services.tags.TagAlbumService;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.*;
 import dao.musicbrainz.MusicBrainzService;
 import dao.musicbrainz.MusicBrainzServiceSingleton;
@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 public class AlbumInfoCommand extends AlbumPlaysCommand {
     private final MusicBrainzService mb;
 
-    public AlbumInfoCommand(ChuuService dao) {
+    public AlbumInfoCommand(ServiceView dao) {
         super(dao);
         mb = MusicBrainzServiceSingleton.getInstance();
     }

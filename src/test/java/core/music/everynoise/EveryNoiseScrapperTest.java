@@ -1,7 +1,7 @@
 package core.music.everynoise;
 
 import core.apis.lyrics.TextSplitter;
-import dao.SimpleDataSource;
+import dao.MbizDatasource;
 import dao.everynoise.EveryNoiseServiceImpl;
 import dao.everynoise.ReleaseWithGenres;
 import org.jsoup.Jsoup;
@@ -73,7 +73,7 @@ public class EveryNoiseScrapperTest {
 
     @Test
     public void out() {
-        EveryNoiseServiceImpl everyNoiseService = new EveryNoiseServiceImpl(new SimpleDataSource(true));
+        EveryNoiseServiceImpl everyNoiseService = new EveryNoiseServiceImpl(new MbizDatasource(true));
         ReleaseWithGenres e1 = new ReleaseWithGenres("artist1", "release2", "uri", Set.of("tanci", "glass"));
         ReleaseWithGenres e2 = new ReleaseWithGenres("artist2", "release3", "uri", Set.of("tanci", "classical bassoon"));
         LocalDate week = LocalDate.now().with(TemporalAdjusters.previous(DayOfWeek.FRIDAY));

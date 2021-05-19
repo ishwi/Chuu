@@ -1,7 +1,7 @@
 package core.commands.uniques;
 
 import core.commands.utils.CommandCategory;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.ArtistPlays;
 import dao.entities.UniqueWrapper;
 
@@ -9,10 +9,9 @@ import java.util.Arrays;
 import java.util.List;
 
 public class GlobalUniquesCommand extends UniqueCommand {
-    public GlobalUniquesCommand(ChuuService dao) {
-        super(dao);
+    public GlobalUniquesCommand(ServiceView dao) {
+        super(dao, true);
         this.respondInPrivate = true;
-        isLongRunningCommand = true;
 
     }
 

@@ -16,7 +16,7 @@ import core.parsers.ChartParser;
 import core.parsers.ChartableParser;
 import core.parsers.OptionalEntity;
 import core.parsers.params.ChartParameters;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.CountWrapper;
 import dao.entities.DiscordUserDisplay;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -33,7 +33,7 @@ public class UserTopTrackCommand extends ChartableCommand<ChartParameters> {
     private final Spotify spotifyApi;
 
 
-    public UserTopTrackCommand(ChuuService dao) {
+    public UserTopTrackCommand(ServiceView dao) {
         super(dao);
         discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
         spotifyApi = SpotifySingleton.getInstance();

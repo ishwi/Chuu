@@ -4,7 +4,7 @@ import core.commands.utils.CommandUtil;
 import core.parsers.MultipleArtistsParser;
 import core.parsers.Parser;
 import core.parsers.params.MultiArtistParameters;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.ReturnNowPlaying;
 import dao.entities.WhoKnowsMode;
 import dao.entities.WrapperReturnNowPlaying;
@@ -16,7 +16,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public class MultipleWhoKnowsCommand extends WhoKnowsBaseCommand<MultiArtistParameters> {
-    public MultipleWhoKnowsCommand(ChuuService dao) {
+    public MultipleWhoKnowsCommand(ServiceView dao) {
         super(dao);
     }
 

@@ -3,7 +3,7 @@ package dao.everynoise;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
-import dao.SimpleDataSource;
+import dao.CommonDatasource;
 import dao.exceptions.ChuuServiceException;
 
 import java.sql.Connection;
@@ -13,10 +13,10 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class EveryNoiseServiceImpl implements EveryNoiseService {
-    private final SimpleDataSource ds;
+    private final CommonDatasource ds;
     private final EveryNoiseDAO everyNoiseDAO;
 
-    public EveryNoiseServiceImpl(SimpleDataSource ds) {
+    public EveryNoiseServiceImpl(CommonDatasource ds) {
         this.ds = ds;
         this.everyNoiseDAO = new EveryNoiseDAOImpl();
     }

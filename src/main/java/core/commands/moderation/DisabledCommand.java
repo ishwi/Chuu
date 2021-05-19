@@ -13,7 +13,7 @@ import core.parsers.DisabledCommandParser;
 import core.parsers.Parser;
 import core.parsers.params.DisabledCommandParameters;
 import core.services.MessageDisablingService;
-import dao.ChuuService;
+import dao.ServiceView;
 import net.dv8tion.jda.api.EmbedBuilder;
 
 import javax.validation.constraints.NotNull;
@@ -25,7 +25,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class DisabledCommand extends ConcurrentCommand<DisabledCommandParameters> {
-    public DisabledCommand(ChuuService dao) {
+    public DisabledCommand(ServiceView dao) {
         super(dao);
         respondInPrivate = false;
     }

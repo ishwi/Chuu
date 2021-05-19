@@ -6,7 +6,7 @@ import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.imagerenderer.BandRendered;
 import core.parsers.params.ArtistParameters;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.AlbumUserPlays;
 import dao.entities.ArtistAlbums;
 import dao.entities.ScrobbledArtist;
@@ -17,7 +17,7 @@ import java.awt.image.BufferedImage;
 import java.util.List;
 
 public class BandInfoServerCommand extends BandInfoCommand {
-    public BandInfoServerCommand(ChuuService dao) {
+    public BandInfoServerCommand(ServiceView dao) {
         super(dao);
         this.respondInPrivate = false;
     }

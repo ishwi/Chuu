@@ -10,7 +10,7 @@ import core.otherlisteners.Validator;
 import core.parsers.NoOpParser;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.AliasEntity;
 import dao.entities.LastFMData;
 import dao.entities.Role;
@@ -36,7 +36,7 @@ public class AliasReviewCommand extends ConcurrentCommand<CommandParameters> {
                     .addField("Added:", aliasEntity.getDateTime().atOffset(ZoneOffset.UTC).format(DateTimeFormatter.ofPattern("yyyy-dd-mm HH:mm 'UTC'")), false)
                     .setColor(CommandUtil.pastelColor());
 
-    public AliasReviewCommand(ChuuService dao) {
+    public AliasReviewCommand(ServiceView dao) {
         super(dao);
     }
 

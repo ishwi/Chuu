@@ -12,7 +12,7 @@ import core.parsers.OnlyUsernameParser;
 import core.parsers.Parser;
 import core.parsers.params.ChuuDataParams;
 import core.parsers.params.NumberParameters;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.DiscordUserDisplay;
 import dao.entities.LastFMData;
 import dao.entities.TrackWithArtistId;
@@ -31,7 +31,7 @@ import java.util.Optional;
 import static core.parsers.ExtraParser.LIMIT_ERROR;
 
 public class MilestoneCommand extends ConcurrentCommand<NumberParameters<ChuuDataParams>> {
-    public MilestoneCommand(ChuuService dao) {
+    public MilestoneCommand(ServiceView dao) {
         super(dao);
     }
 

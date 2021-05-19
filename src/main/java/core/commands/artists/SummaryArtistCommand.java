@@ -14,7 +14,7 @@ import core.parsers.ArtistParser;
 import core.parsers.Parser;
 import core.parsers.params.ArtistParameters;
 import core.services.tags.TagArtistService;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.*;
 import dao.musicbrainz.MusicBrainzService;
 import dao.musicbrainz.MusicBrainzServiceSingleton;
@@ -32,7 +32,7 @@ public class SummaryArtistCommand extends ConcurrentCommand<ArtistParameters> {
     private final DiscogsApi discogsApi;
     private final MusicBrainzService mb;
 
-    public SummaryArtistCommand(ChuuService dao) {
+    public SummaryArtistCommand(ServiceView dao) {
         super(dao);
         this.discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
         this.mb = MusicBrainzServiceSingleton.getInstance();

@@ -14,7 +14,7 @@ import core.imagerenderer.GraphicUtils;
 import core.parsers.ChartableParser;
 import core.parsers.GayParser;
 import core.parsers.params.GayParams;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.CountWrapper;
 import dao.entities.DiscordUserDisplay;
 import dao.entities.GayType;
@@ -90,7 +90,7 @@ public class GayCommand extends OnlyChartCommand<GayParams> {
 
     };
 
-    public GayCommand(ChuuService dao) {
+    public GayCommand(ServiceView dao) {
         super(dao);
         discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
         spotify = SpotifySingleton.getInstance();

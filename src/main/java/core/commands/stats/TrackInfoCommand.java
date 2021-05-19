@@ -11,7 +11,7 @@ import core.parsers.ArtistSongParser;
 import core.parsers.Parser;
 import core.parsers.params.ArtistAlbumParameters;
 import core.services.tags.TrackTagService;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.LastFMData;
 import dao.entities.ScrobbledArtist;
 import dao.entities.TrackInfo;
@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class TrackInfoCommand extends AlbumPlaysCommand {
-    public TrackInfoCommand(ChuuService dao) {
+    public TrackInfoCommand(ServiceView dao) {
         super(dao);
     }
 

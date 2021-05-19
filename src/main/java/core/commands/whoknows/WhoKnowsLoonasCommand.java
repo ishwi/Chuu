@@ -10,7 +10,7 @@ import core.otherlisteners.Reactionary;
 import core.parsers.LOOONAParser;
 import core.parsers.Parser;
 import core.parsers.params.LOONAParameters;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.*;
 import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -45,7 +45,7 @@ public class WhoKnowsLoonasCommand extends WhoKnowsBaseCommand<LOONAParameters> 
         refreshLOONAS();
     }
 
-    public WhoKnowsLoonasCommand(ChuuService dao) {
+    public WhoKnowsLoonasCommand(ServiceView dao) {
         super(dao);
         parser.removeOptional("pie");
         parser.removeOptional("list");

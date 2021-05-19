@@ -11,7 +11,7 @@ import core.otherlisteners.Reactionary;
 import core.parsers.AffinityParser;
 import core.parsers.Parser;
 import core.parsers.params.AffinityParameters;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.Affinity;
 import dao.entities.DiscordUserDisplay;
 import dao.entities.LastFMData;
@@ -30,8 +30,8 @@ import java.util.List;
 public class AffinityCommand extends ConcurrentCommand<AffinityParameters> {
     public static final int DEFAULT_THRESHOLD = 30;
 
-    public AffinityCommand(ChuuService dao) {
-        super(dao);
+    public AffinityCommand(ServiceView dao) {
+        super(dao, true);
         this.respondInPrivate = false;
     }
 

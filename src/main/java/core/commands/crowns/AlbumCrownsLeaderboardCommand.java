@@ -6,7 +6,7 @@ import core.parsers.NoOpParser;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
 import core.parsers.params.NumberParameters;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.LbEntry;
 
 import java.util.Arrays;
@@ -16,7 +16,7 @@ import static core.parsers.NumberParser.generateThresholdParser;
 
 public class AlbumCrownsLeaderboardCommand extends LeaderboardCommand<NumberParameters<CommandParameters>> {
 
-    public AlbumCrownsLeaderboardCommand(ChuuService dao) {
+    public AlbumCrownsLeaderboardCommand(ServiceView dao) {
         super(dao);
     }
 

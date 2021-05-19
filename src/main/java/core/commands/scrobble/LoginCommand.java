@@ -10,7 +10,7 @@ import core.exceptions.LastFmException;
 import core.parsers.NoOpParser;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.LastFMData;
 import dao.exceptions.DuplicateInstanceException;
 import dao.exceptions.InstanceNotFoundException;
@@ -26,7 +26,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class LoginCommand extends ConcurrentCommand<CommandParameters> {
     private final SetCommand setCommand;
 
-    public LoginCommand(ChuuService dao) {
+    public LoginCommand(ServiceView dao) {
         super(dao);
         this.setCommand = new SetCommand(dao);
     }

@@ -1,7 +1,7 @@
 package core.commands.uniques;
 
 import core.commands.utils.CommandCategory;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.AlbumPlays;
 import dao.entities.UniqueWrapper;
 
@@ -9,11 +9,9 @@ import java.util.Arrays;
 import java.util.List;
 
 public class GlobalUniquesAlbumCommand extends UniqueAlbumCommand {
-    public GlobalUniquesAlbumCommand(ChuuService dao) {
+    public GlobalUniquesAlbumCommand(ServiceView dao) {
         super(dao);
         this.respondInPrivate = true;
-        isLongRunningCommand = true;
-
     }
 
     @Override

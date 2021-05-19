@@ -8,7 +8,7 @@ import core.imagerenderer.util.pie.PieSetUp;
 import core.parsers.ChartYearParser;
 import core.parsers.ChartableParser;
 import core.parsers.params.ChartYearParameters;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.CountWrapper;
 import dao.entities.ResultWrapper;
 import dao.entities.ScrobbledAlbum;
@@ -30,7 +30,7 @@ public class ServerAOTY extends ChartableCommand<ChartYearParameters> {
 
     private final MusicBrainzService mb;
 
-    public ServerAOTY(ChuuService dao) {
+    public ServerAOTY(ServiceView dao) {
         super(dao);
         mb = MusicBrainzServiceSingleton.getInstance();
 

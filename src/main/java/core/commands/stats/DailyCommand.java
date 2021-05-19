@@ -9,7 +9,7 @@ import core.exceptions.LastFmException;
 import core.parsers.OnlyUsernameParser;
 import core.parsers.Parser;
 import core.parsers.params.ChuuDataParams;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.LastFMData;
 import dao.entities.SecondsTimeFrameCount;
 import dao.entities.TimeFrameEnum;
@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.Map;
 
 public class DailyCommand extends ConcurrentCommand<ChuuDataParams> {
-    public DailyCommand(ChuuService dao) {
+    public DailyCommand(ServiceView dao) {
         super(dao);
     }
 

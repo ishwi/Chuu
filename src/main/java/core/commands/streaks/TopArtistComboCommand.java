@@ -18,7 +18,7 @@ import core.parsers.OptionalEntity;
 import core.parsers.Parser;
 import core.parsers.params.ArtistParameters;
 import core.parsers.params.NumberParameters;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.*;
 import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -42,7 +42,7 @@ public class TopArtistComboCommand extends ConcurrentCommand<NumberParameters<Ar
     private final Spotify spotify;
 
 
-    public TopArtistComboCommand(ChuuService dao) {
+    public TopArtistComboCommand(ServiceView dao) {
         super(dao);
         discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
         spotify = SpotifySingleton.getInstance();

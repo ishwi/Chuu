@@ -23,13 +23,13 @@ import core.music.MusicManager;
 import core.parsers.NoOpParser;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
-import dao.ChuuService;
+import dao.ServiceView;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
 
 public class ResumeCommand extends MusicCommand<CommandParameters> {
-    public ResumeCommand(ChuuService dao) {
+    public ResumeCommand(ServiceView dao) {
         super(dao);
         sameChannel = true;
         requirePlayingTrack = true;

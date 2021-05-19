@@ -8,7 +8,7 @@ import core.exceptions.LastFmException;
 import core.parsers.DateParser;
 import core.parsers.Parser;
 import core.parsers.params.DateParameters;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.LastFMData;
 import dao.exceptions.InstanceNotFoundException;
 
@@ -19,7 +19,7 @@ import java.util.List;
 
 public class ScrobblesSinceCommand extends ConcurrentCommand<DateParameters> {
 
-    public ScrobblesSinceCommand(ChuuService dao) {
+    public ScrobblesSinceCommand(ServiceView dao) {
         super(dao);
     }
 

@@ -10,7 +10,7 @@ import core.parsers.NoOpParser;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
 import core.services.ScheduledService;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.PresenceInfo;
 import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -29,7 +29,7 @@ public class FeaturedCommand extends ConcurrentCommand<CommandParameters> {
 
     private PresenceInfo currentPresence;
 
-    public FeaturedCommand(ChuuService dao, ScheduledService scheduledService) {
+    public FeaturedCommand(ServiceView dao, ScheduledService scheduledService) {
         super(dao);
         currentPresence = new PresenceInfo(DEFAULT_ARTIST, DEFAULT_URL, Long.MAX_VALUE, 1);
         scheduledService.addSchedule(() -> {

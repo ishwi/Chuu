@@ -9,7 +9,7 @@ import core.otherlisteners.Reactionary;
 import core.parsers.OnlyUsernameParser;
 import core.parsers.Parser;
 import core.parsers.params.ChuuDataParams;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.DiscordUserDisplay;
 import dao.entities.ScoredAlbumRatings;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -18,7 +18,7 @@ import javax.validation.constraints.NotNull;
 import java.util.List;
 
 public class MyTopRatedRandomUrls extends ConcurrentCommand<ChuuDataParams> {
-    public MyTopRatedRandomUrls(ChuuService dao) {
+    public MyTopRatedRandomUrls(ServiceView dao) {
         super(dao);
     }
 

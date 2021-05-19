@@ -6,7 +6,7 @@ import core.commands.Context;
 import core.commands.abstracts.NpCommand;
 import core.commands.utils.CommandUtil;
 import core.parsers.params.NowPlayingParameters;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.LastFMData;
 import dao.entities.NowPlayingArtist;
 import net.dv8tion.jda.api.MessageBuilder;
@@ -17,7 +17,7 @@ import java.util.List;
 public class NPSpotifyCommand extends NpCommand {
     private final Spotify spotify;
 
-    public NPSpotifyCommand(ChuuService dao) {
+    public NPSpotifyCommand(ServiceView dao) {
         super(dao);
         this.spotify = SpotifySingleton.getInstance();
 

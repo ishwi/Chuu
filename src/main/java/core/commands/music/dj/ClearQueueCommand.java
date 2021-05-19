@@ -24,14 +24,14 @@ import core.music.MusicManager;
 import core.parsers.NoOpParser;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
-import dao.ChuuService;
+import dao.ServiceView;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.Queue;
 
 public class ClearQueueCommand extends MusicCommand<CommandParameters> {
-    public ClearQueueCommand(ChuuService dao) {
+    public ClearQueueCommand(ServiceView dao) {
         super(dao);
         sameChannel = true;
     }

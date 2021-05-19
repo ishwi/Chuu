@@ -10,7 +10,7 @@ import core.otherlisteners.Reactionary;
 import core.parsers.Parser;
 import core.parsers.UserStringParser;
 import core.parsers.params.UserStringParameters;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.DiscordUserDisplay;
 import dao.entities.LastFMData;
 import dao.entities.ScrobbledArtist;
@@ -21,7 +21,7 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.List;
 
 public class ArtistSearchCommand extends ListCommand<ScrobbledArtist, UserStringParameters> {
-    public ArtistSearchCommand(ChuuService dao) {
+    public ArtistSearchCommand(ServiceView dao) {
         super(dao);
     }
 

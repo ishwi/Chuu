@@ -8,7 +8,7 @@ import core.parsers.NoOpParser;
 import core.parsers.OptionalEntity;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
-import dao.ChuuService;
+import dao.ServiceView;
 import net.dv8tion.jda.api.requests.RestAction;
 
 import javax.validation.constraints.NotNull;
@@ -17,7 +17,7 @@ import java.util.List;
 
 public class RefreshSlashCommand extends ConcurrentCommand<CommandParameters> {
 
-    public RefreshSlashCommand(ChuuService dao) {
+    public RefreshSlashCommand(ServiceView dao) {
         super(dao);
     }
 

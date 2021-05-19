@@ -44,7 +44,7 @@ public class ImageTester {
     @BeforeClass
     public static void beforeClass() throws Exception {
         Properties properties = readToken();
-        service = new ChuuService();
+        service = new ChuuService(null);
         DiscogsSingleton.init(properties.getProperty("DC_SC"), properties.getProperty("DC_KY"));
         SpotifySingleton.init(properties.getProperty("client_ID"), properties.getProperty("client_Secret"));
         discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();

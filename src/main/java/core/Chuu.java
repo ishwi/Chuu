@@ -24,7 +24,10 @@ import core.music.utils.ScrobbleProcesser;
 import core.otherlisteners.AwaitReady;
 import core.otherlisteners.ConstantListener;
 import core.services.*;
+import dao.ChuuDatasource;
 import dao.ChuuService;
+import dao.LongExecutorChuuDatasource;
+import dao.ServiceView;
 import dao.entities.Metrics;
 import dao.exceptions.ChuuServiceException;
 import io.github.classgraph.ClassGraph;
@@ -76,7 +79,7 @@ public class Chuu {
     private static Logger logger;
     private static Map<Long, RateLimiter> ratelimited;
     private static Map<Long, Character> prefixMap;
-    private static ChuuService db;
+    private static ServiceView db;
     private static CoverService coverService;
     private static MessageDeletionService messageDeletionService;
     private static MessageDisablingService messageDisablingService = new MessageDisablingService();
@@ -194,18 +197,18 @@ public class Chuu {
         channel2Id = Long.parseLong(channel2);
         chuuSess = properties.getProperty("LASTFM_BOT_SESSION_KEY");
         ipv6Block = properties.getProperty("IPV6_BLOCK");
-        db = new ChuuService();
-        prefixMap = initPrefixMap(db);
-        ColorService.init(db);
-        coverService = new CoverService(db);
+        db = new ServiceView(new ChuuService(new ChuuDatasource()), new ChuuService(new LongExecutorChuuDatasource()));
+        ChuuService nor = db.normalService();
+        prefixMap = initPrefixMap(nor);
+        ColorService.init(nor);
+        coverService = new CoverService(nor);
         DiscogsSingleton.init(properties.getProperty("DC_SC"), properties.getProperty("DC_KY"));
         SpotifySingleton.init(properties.getProperty("client_ID"), properties.getProperty("client_Secret"));
-        scrobbleEventManager = new ScrobbleEventManager(new StatusProcesser(db));
-        scrobbleProcesser = new ScrobbleProcesser(new AlbumFinder(db, LastFMFactory.getNewInstance()));
+        scrobbleEventManager = new ScrobbleEventManager(new StatusProcesser(nor));
+        scrobbleProcesser = new ScrobbleProcesser(new AlbumFinder(nor, LastFMFactory.getNewInstance()));
         playerManager = new ExtendedAudioPlayerManager(scrobbleEventManager, scrobbleProcesser);
         playerRegistry = new PlayerRegistry(playerManager);
-
-        scheduledService = new ScheduledService(Executors.newScheduledThreadPool(4), db);
+        scheduledService = new ScheduledService(Executors.newScheduledThreadPool(4), db.normalService());
         scheduledService.setScheduled();
         // Needs these three references
         HelpCommand help = new HelpCommand(db);
@@ -219,12 +222,12 @@ public class Chuu {
         scheduledService.addSchedule(() -> {
             long l = lastFMMetric.longValue();
             lastFMMetric.reset();
-            db.updateMetric(Metrics.LASTFM_PETITIONS, l);
+            nor.updateMetric(Metrics.LASTFM_PETITIONS, l);
             logger.info("Made {} petitions in the last 5 minutes", l);
         }, 5, 5, TimeUnit.MINUTES);
 
 
-        ratelimited = db.getRateLimited().entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, y -> RateLimiter.create(y.getValue())));
+        ratelimited = nor.getRateLimited().entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, y -> RateLimiter.create(y.getValue())));
 
 
         MessageAction.setDefaultMentions(EnumSet.noneOf(Message.MentionType.class));
@@ -252,10 +255,10 @@ public class Chuu {
                 .addEventListeners(new VoiceListener())
                 .addEventListeners(help.registerCommand(tagWithYearCommand))
                 .addEventListeners(help.registerCommand(featuredCommand))
-                .addEventListeners(new ConstantListener(channelId, db))
+                .addEventListeners(new ConstantListener(channelId, nor))
                 .addEventListeners((Object[]) scanListeners(help))
                 .addEventListeners(new AwaitReady(counter, (ShardManager shard) -> {
-                    messageDisablingService = new MessageDisablingService(shard, db);
+                    messageDisablingService = new MessageDisablingService(shard, nor);
                     prefixCommand.onStartup(shard);
                     if (installGlobalCommands) {
                         InteractionBuilder.setGlobalCommands(shard.getShardById(0)).queue();
@@ -269,9 +272,8 @@ public class Chuu {
 
 
         try {
-            initPrivateLastfms(db);
-
-            messageDeletionService = new MessageDeletionService(db.getServersWithDeletableMessages());
+            initPrivateLastfms(db.normalService());
+            messageDeletionService = new MessageDeletionService(db.normalService().getServersWithDeletableMessages());
             shardManager = builder.build();
 
         } catch (LoginException e) {
@@ -292,7 +294,7 @@ public class Chuu {
                     .filter(x -> x.extendsSuperclass("core.commands.abstracts.MyCommand"))
                     .map(x -> {
                         try {
-                            return (MyCommand<?>) x.loadClass().getConstructor(ChuuService.class).newInstance(db);
+                            return (MyCommand<?>) x.loadClass().getConstructor(ServiceView.class).newInstance(db);
                         } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
                             throw new ChuuServiceException(e);
                         }
@@ -353,7 +355,7 @@ public class Chuu {
     }
 
     public static ChuuService getDb() {
-        return db;
+        return db.normalService();
     }
 
     public static MessageDeletionService getMessageDeletionService() {

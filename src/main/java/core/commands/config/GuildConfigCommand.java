@@ -15,7 +15,7 @@ import core.parsers.params.GuildConfigParams;
 import core.parsers.params.GuildConfigType;
 import core.services.ColorService;
 import core.services.VoiceAnnounceService;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.*;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.Permission;
@@ -29,7 +29,7 @@ import java.util.List;
 import java.util.Optional;
 
 public class GuildConfigCommand extends ConcurrentCommand<GuildConfigParams> {
-    public GuildConfigCommand(ChuuService dao) {
+    public GuildConfigCommand(ServiceView dao) {
         super(dao);
         this.respondInPrivate = false;
     }

@@ -8,7 +8,7 @@ import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.exceptions.LastFmException;
 import core.parsers.params.ArtistParameters;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.LastFMData;
 import dao.entities.ResultWrapper;
 import dao.entities.ScrobbledArtist;
@@ -20,7 +20,7 @@ public class TasteTrackCommand extends TasteArtistCommand {
     private final DiscogsApi discogsApi;
     private final Spotify spotifyApi;
 
-    public TasteTrackCommand(ChuuService dao) {
+    public TasteTrackCommand(ServiceView dao) {
         super(dao);
         this.discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
         this.spotifyApi = SpotifySingleton.getInstance();

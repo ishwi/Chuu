@@ -8,7 +8,7 @@ import core.imagerenderer.util.pie.PieSetUp;
 import core.parsers.ChartDecadeParser;
 import core.parsers.ChartableParser;
 import core.parsers.params.ChartYearRangeParameters;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.CountWrapper;
 import dao.entities.ResultWrapper;
 import dao.entities.ScrobbledAlbum;
@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 public class ServerAOTD extends ChartableCommand<ChartYearRangeParameters> {
 
 
-    public ServerAOTD(ChuuService dao) {
+    public ServerAOTD(ServiceView dao) {
         super(dao);
         respondInPrivate = false;
 

@@ -12,7 +12,7 @@ import core.otherlisteners.Reactionary;
 import core.parsers.OnlyUsernameParser;
 import core.parsers.Parser;
 import core.parsers.params.ChuuDataParams;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.CommandUsage;
 import dao.entities.DiscordUserDisplay;
 import dao.entities.LastFMData;
@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
 public class TopCommandsCommand extends ConcurrentCommand<ChuuDataParams> {
     private static Map<String, String> aliasMap;
 
-    public TopCommandsCommand(ChuuService dao) {
+    public TopCommandsCommand(ServiceView dao) {
         super(dao);
     }
 

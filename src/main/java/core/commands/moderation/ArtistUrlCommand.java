@@ -9,7 +9,7 @@ import core.exceptions.LastFmException;
 import core.parsers.ArtistUrlParser;
 import core.parsers.Parser;
 import core.parsers.params.ArtistUrlParameters;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.LastFMData;
 import dao.entities.Role;
 import dao.entities.ScrobbledArtist;
@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.OptionalLong;
 
 public class ArtistUrlCommand extends ConcurrentCommand<ArtistUrlParameters> {
-    public ArtistUrlCommand(ChuuService dao) {
+    public ArtistUrlCommand(ServiceView dao) {
         super(dao);
     }
 

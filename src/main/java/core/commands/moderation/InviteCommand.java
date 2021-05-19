@@ -6,7 +6,7 @@ import core.commands.utils.CommandCategory;
 import core.parsers.NoOpParser;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
-import dao.ChuuService;
+import dao.ServiceView;
 import net.dv8tion.jda.api.Permission;
 
 import javax.validation.constraints.NotNull;
@@ -17,7 +17,7 @@ import java.util.List;
 public class InviteCommand extends ConcurrentCommand<CommandParameters> {
     private static final long PERMISSIONS = 387136;
 
-    public InviteCommand(ChuuService dao) {
+    public InviteCommand(ServiceView dao) {
         super(dao);
     }
 

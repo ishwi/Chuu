@@ -5,14 +5,14 @@ import core.commands.utils.CommandCategory;
 import core.parsers.NoOpParser;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.LbEntry;
 
 import java.util.Collections;
 import java.util.List;
 
 public class UniqueLeaderboardCommand extends LeaderboardCommand<CommandParameters> {
-    public UniqueLeaderboardCommand(ChuuService dao) {
+    public UniqueLeaderboardCommand(ServiceView dao) {
         super(dao);
     }
 

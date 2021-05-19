@@ -5,15 +5,14 @@ import core.commands.utils.CommandCategory;
 import core.parsers.NoOpParser;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.LbEntry;
 
 import java.util.List;
 
 public class UniqueAlbumLeaderboardCommand extends LeaderboardCommand<CommandParameters> {
-    public UniqueAlbumLeaderboardCommand(ChuuService dao) {
-        super(dao);
-        isLongRunningCommand = true;
+    public UniqueAlbumLeaderboardCommand(ServiceView dao) {
+        super(dao, true);
 
     }
 

@@ -9,7 +9,7 @@ import core.otherlisteners.Reactionary;
 import core.parsers.NoOpParser;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.ArtistPlays;
 import dao.entities.ResultWrapper;
 import dao.utils.LinkUtils;
@@ -20,7 +20,7 @@ import java.util.List;
 
 public class TotalArtistPlayCountCommand extends ResultWrappedCommand<ArtistPlays, CommandParameters> {
 
-    public TotalArtistPlayCountCommand(ChuuService dao) {
+    public TotalArtistPlayCountCommand(ServiceView dao) {
         super(dao);
         this.pie = new PieableListResultWrapper<>(getParser(),
                 ArtistPlays::getArtistName,

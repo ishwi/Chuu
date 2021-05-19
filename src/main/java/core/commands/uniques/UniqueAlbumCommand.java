@@ -9,7 +9,7 @@ import core.otherlisteners.Reactionary;
 import core.parsers.OnlyUsernameParser;
 import core.parsers.Parser;
 import core.parsers.params.ChuuDataParams;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.AlbumPlays;
 import dao.entities.DiscordUserDisplay;
 import dao.entities.UniqueWrapper;
@@ -19,11 +19,9 @@ import javax.validation.constraints.NotNull;
 import java.util.List;
 
 public class UniqueAlbumCommand extends ConcurrentCommand<ChuuDataParams> {
-    public UniqueAlbumCommand(ChuuService dao) {
-        super(dao);
+    public UniqueAlbumCommand(ServiceView dao) {
+        super(dao, true);
         this.respondInPrivate = false;
-        isLongRunningCommand = true;
-
     }
 
     @Override

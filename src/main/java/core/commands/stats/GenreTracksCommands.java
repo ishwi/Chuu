@@ -13,7 +13,7 @@ import core.parsers.GenreChartParser;
 import core.parsers.OptionalEntity;
 import core.parsers.params.ChartableGenreParameters;
 import core.parsers.utils.CustomTimeFrame;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.*;
 import net.dv8tion.jda.api.EmbedBuilder;
 import org.knowm.xchart.PieChart;
@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
 
 public class GenreTracksCommands extends ChartableCommand<ChartableGenreParameters> {
 
-    public GenreTracksCommands(ChuuService dao) {
+    public GenreTracksCommands(ServiceView dao) {
         super(dao);
     }
 

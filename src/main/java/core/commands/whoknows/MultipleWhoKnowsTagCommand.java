@@ -6,7 +6,7 @@ import core.commands.utils.CommandUtil;
 import core.parsers.MultipleGenresParser;
 import core.parsers.Parser;
 import core.parsers.params.MultipleGenresParameters;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.*;
 import dao.exceptions.InstanceNotFoundException;
 import org.apache.commons.text.WordUtils;
@@ -19,7 +19,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 public class MultipleWhoKnowsTagCommand extends WhoKnowsBaseCommand<MultipleGenresParameters> {
-    public MultipleWhoKnowsTagCommand(ChuuService dao) {
+    public MultipleWhoKnowsTagCommand(ServiceView dao) {
         super(dao);
     }
 

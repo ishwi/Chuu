@@ -9,7 +9,7 @@ import core.exceptions.LastFmException;
 import core.parsers.Parser;
 import core.parsers.TwoArtistsParser;
 import core.parsers.params.TwoArtistParams;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.ArtistSummary;
 import dao.entities.LastFMData;
 import dao.entities.Role;
@@ -21,7 +21,7 @@ import java.util.List;
 
 public class AliasCommand extends ConcurrentCommand<TwoArtistParams> {
 
-    public AliasCommand(ChuuService dao) {
+    public AliasCommand(ServiceView dao) {
         super(dao);
     }
 

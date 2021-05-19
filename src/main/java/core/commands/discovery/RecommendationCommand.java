@@ -9,7 +9,7 @@ import core.commands.utils.CommandUtil;
 import core.parsers.Parser;
 import core.parsers.RecommendationParser;
 import core.parsers.params.RecommendationsParams;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.Affinity;
 import dao.entities.DiscordUserDisplay;
 import dao.entities.LastFMData;
@@ -24,7 +24,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 public class RecommendationCommand extends ConcurrentCommand<RecommendationsParams> {
-    public RecommendationCommand(ChuuService dao) {
+    public RecommendationCommand(ServiceView dao) {
         super(dao);
         this.respondInPrivate = false;
     }

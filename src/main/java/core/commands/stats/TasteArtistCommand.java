@@ -12,7 +12,7 @@ import core.parsers.ArtistParser;
 import core.parsers.OptionalEntity;
 import core.parsers.Parser;
 import core.parsers.params.ArtistParameters;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.*;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.entities.User;
@@ -25,7 +25,7 @@ public class TasteArtistCommand extends BaseTasteCommand<ArtistParameters> {
     private final DiscogsApi discogsApi;
     private final Spotify spotifyApi;
 
-    public TasteArtistCommand(ChuuService dao) {
+    public TasteArtistCommand(ServiceView dao) {
         super(dao);
         this.discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
         this.spotifyApi = SpotifySingleton.getInstance();

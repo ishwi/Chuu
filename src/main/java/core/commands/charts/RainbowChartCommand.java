@@ -14,7 +14,7 @@ import core.imagerenderer.GraphicUtils;
 import core.parsers.ChartableParser;
 import core.parsers.RainbowParser;
 import core.parsers.params.RainbowParams;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.CountWrapper;
 import dao.entities.DiscordUserDisplay;
 import dao.entities.TimeFrameEnum;
@@ -34,7 +34,7 @@ public class RainbowChartCommand extends OnlyChartCommand<RainbowParams> {
     private final DiscogsApi discogsApi;
     private final Spotify spotifyApi;
 
-    public RainbowChartCommand(ChuuService dao) {
+    public RainbowChartCommand(ServiceView dao) {
         super(dao);
         discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
         spotifyApi = SpotifySingleton.getInstance();

@@ -29,7 +29,7 @@ import core.otherlisteners.Reactionary;
 import core.parsers.NoOpParser;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
-import dao.ChuuService;
+import dao.ServiceView;
 import net.dv8tion.jda.api.EmbedBuilder;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -41,7 +41,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 public class QueueCommand extends MusicCommand<CommandParameters> {
-    public QueueCommand(ChuuService dao) {
+    public QueueCommand(ServiceView dao) {
         super(dao);
         requirePlayingTrack = true;
         requirePlayer = true;

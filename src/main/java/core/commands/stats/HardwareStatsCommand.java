@@ -8,7 +8,7 @@ import core.parsers.NoOpParser;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
 import dao.BotStats;
-import dao.ChuuService;
+import dao.ServiceView;
 import net.dv8tion.jda.api.EmbedBuilder;
 
 import javax.validation.constraints.NotNull;
@@ -16,7 +16,7 @@ import java.text.DecimalFormat;
 import java.util.List;
 
 public class HardwareStatsCommand extends ConcurrentCommand<CommandParameters> {
-    public HardwareStatsCommand(ChuuService dao) {
+    public HardwareStatsCommand(ServiceView dao) {
         super(dao);
     }
 

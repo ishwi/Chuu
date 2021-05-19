@@ -6,7 +6,7 @@ import core.exceptions.LastFmException;
 import core.parsers.ArtistParser;
 import core.parsers.Parser;
 import core.parsers.params.ArtistParameters;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.PrivacyMode;
 import dao.entities.ScrobbledArtist;
 import dao.entities.WhoKnowsMode;
@@ -16,7 +16,7 @@ import java.util.List;
 
 public class GlobalWhoKnowsCommand extends GlobalBaseWhoKnowCommand<ArtistParameters> {
 
-    public GlobalWhoKnowsCommand(ChuuService dao) {
+    public GlobalWhoKnowsCommand(ServiceView dao) {
         super(dao);
 
     }

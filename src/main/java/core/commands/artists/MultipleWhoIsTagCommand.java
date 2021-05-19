@@ -11,7 +11,7 @@ import core.parsers.OptionalEntity;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
 import core.parsers.params.MultipleGenresParameters;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.ScrobbledArtist;
 import dao.entities.SearchMode;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -23,7 +23,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public class MultipleWhoIsTagCommand extends ConcurrentCommand<MultipleGenresParameters> {
-    public MultipleWhoIsTagCommand(ChuuService dao) {
+    public MultipleWhoIsTagCommand(ServiceView dao) {
         super(dao);
     }
 

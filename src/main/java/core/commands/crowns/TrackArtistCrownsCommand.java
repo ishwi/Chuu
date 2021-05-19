@@ -4,7 +4,7 @@ import core.commands.artists.GlobalTrackArtistCrownsCommand;
 import core.commands.utils.CommandCategory;
 import core.parsers.params.ArtistParameters;
 import core.parsers.params.NumberParameters;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.ScrobbledArtist;
 import dao.entities.TrackPlays;
 import dao.entities.UniqueWrapper;
@@ -13,7 +13,7 @@ import java.util.List;
 
 public class TrackArtistCrownsCommand extends GlobalTrackArtistCrownsCommand {
 
-    public TrackArtistCrownsCommand(ChuuService dao) {
+    public TrackArtistCrownsCommand(ServiceView dao) {
         super(dao);
         this.respondInPrivate = false;
     }

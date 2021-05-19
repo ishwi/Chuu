@@ -1,13 +1,13 @@
 package core.commands.billboard;
 
 import core.commands.Context;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.BillboardEntity;
 
 import java.util.List;
 
 public class BillboardArtistCommand extends BillboardCommand {
-    public BillboardArtistCommand(ChuuService dao) {
+    public BillboardArtistCommand(ServiceView dao) {
         super(dao);
     }
 

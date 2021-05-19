@@ -7,7 +7,7 @@ import core.commands.utils.CommandUtil;
 import core.parsers.Parser;
 import core.parsers.RandomAlbumParser;
 import core.parsers.params.RandomUrlParameters;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.LastFMData;
 import dao.entities.PrivacyMode;
 import dao.entities.RandomUrlEntity;
@@ -18,7 +18,7 @@ import java.util.Collections;
 import java.util.List;
 
 public class RandomAlbumCommand extends ConcurrentCommand<RandomUrlParameters> {
-    public RandomAlbumCommand(ChuuService dao) {
+    public RandomAlbumCommand(ServiceView dao) {
         super(dao);
     }
 

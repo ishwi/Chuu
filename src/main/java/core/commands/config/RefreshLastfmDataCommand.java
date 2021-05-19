@@ -7,7 +7,7 @@ import core.exceptions.LastFmException;
 import core.parsers.OnlyUsernameParser;
 import core.parsers.Parser;
 import core.parsers.params.ChuuDataParams;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.UserInfo;
 
 import javax.validation.constraints.NotNull;
@@ -15,7 +15,7 @@ import java.util.List;
 
 public class RefreshLastfmDataCommand extends ConcurrentCommand<ChuuDataParams> {
 
-    public RefreshLastfmDataCommand(ChuuService dao) {
+    public RefreshLastfmDataCommand(ServiceView dao) {
         super(dao);
     }
 

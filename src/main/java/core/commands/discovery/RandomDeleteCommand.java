@@ -6,7 +6,7 @@ import core.commands.utils.CommandCategory;
 import core.parsers.Parser;
 import core.parsers.RandomAlbumParser;
 import core.parsers.params.RandomUrlParameters;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.LastFMData;
 import dao.entities.RandomUrlDetails;
 import dao.entities.Role;
@@ -17,7 +17,7 @@ import javax.validation.constraints.NotNull;
 import java.util.List;
 
 public class RandomDeleteCommand extends ConcurrentCommand<RandomUrlParameters> {
-    public RandomDeleteCommand(ChuuService dao) {
+    public RandomDeleteCommand(ServiceView dao) {
         super(dao);
     }
 

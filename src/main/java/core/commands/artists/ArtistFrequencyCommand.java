@@ -9,7 +9,7 @@ import core.otherlisteners.Reactionary;
 import core.parsers.NoOpParser;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.ArtistPlays;
 import dao.entities.ResultWrapper;
 import dao.utils.LinkUtils;
@@ -21,7 +21,7 @@ import java.util.List;
 
 public class ArtistFrequencyCommand extends ResultWrappedCommand<ArtistPlays, CommandParameters> {
 
-    public ArtistFrequencyCommand(ChuuService dao) {
+    public ArtistFrequencyCommand(ServiceView dao) {
         super(dao);
         this.respondInPrivate = false;
         this.pie = new PieableListResultWrapper<>(this.getParser(),

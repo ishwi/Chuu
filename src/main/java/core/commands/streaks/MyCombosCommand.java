@@ -10,7 +10,7 @@ import core.parsers.OnlyUsernameParser;
 import core.parsers.OptionalEntity;
 import core.parsers.Parser;
 import core.parsers.params.ChuuDataParams;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.DiscordUserDisplay;
 import dao.entities.GlobalStreakEntities;
 import dao.entities.StreakEntity;
@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 
 
 public class MyCombosCommand extends ConcurrentCommand<ChuuDataParams> {
-    public MyCombosCommand(ChuuService dao) {
+    public MyCombosCommand(ServiceView dao) {
         super(dao);
     }
 

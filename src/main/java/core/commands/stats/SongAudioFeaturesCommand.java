@@ -15,7 +15,7 @@ import core.parsers.ArtistSongParser;
 import core.parsers.Parser;
 import core.parsers.params.ArtistAlbumParameters;
 import core.services.SpotifyTrackService;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.DiscordUserDisplay;
 import dao.entities.LastFMData;
 import dao.entities.ScrobbledArtist;
@@ -32,7 +32,7 @@ import java.util.concurrent.CompletableFuture;
 public class SongAudioFeaturesCommand extends ConcurrentCommand<ArtistAlbumParameters> {
     private final Spotify spotify;
 
-    public SongAudioFeaturesCommand(ChuuService dao) {
+    public SongAudioFeaturesCommand(ServiceView dao) {
         super(dao);
         this.spotify = SpotifySingleton.getInstance();
     }

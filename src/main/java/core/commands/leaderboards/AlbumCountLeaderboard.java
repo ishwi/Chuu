@@ -7,7 +7,7 @@ import core.parsers.NumberParser;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
 import core.parsers.params.NumberParameters;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.LbEntry;
 
 import java.util.HashMap;
@@ -17,7 +17,7 @@ import java.util.Map;
 import static core.parsers.ExtraParser.LIMIT_ERROR;
 
 public class AlbumCountLeaderboard extends LeaderboardCommand<NumberParameters<CommandParameters>> {
-    public AlbumCountLeaderboard(ChuuService dao) {
+    public AlbumCountLeaderboard(ServiceView dao) {
         super(dao);
     }
 

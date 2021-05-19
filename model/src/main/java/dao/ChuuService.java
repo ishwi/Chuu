@@ -31,7 +31,7 @@ import java.util.stream.Collectors;
 
 public class ChuuService implements EveryNoiseService {
     private final Logger logger = LoggerFactory.getLogger(ChuuService.class);
-    private final SimpleDataSource dataSource;
+    private final CommonDatasource dataSource;
     private final SQLQueriesDao queriesDao;
     private final AffinityDao affinityDao;
 
@@ -46,8 +46,7 @@ public class ChuuService implements EveryNoiseService {
     private final MusicDao musicDao;
     private final EveryNoiseService everyNoiseService;
 
-    public ChuuService(SimpleDataSource dataSource) {
-
+    public ChuuService(CommonDatasource dataSource) {
         this.dataSource = dataSource;
         this.albumDao = new AlbumDaoImpl();
         this.queriesDao = new SQLQueriesDaoImpl();
@@ -62,21 +61,6 @@ public class ChuuService implements EveryNoiseService {
         this.everyNoiseService = new EveryNoiseServiceImpl(dataSource);
     }
 
-    public ChuuService() {
-
-        this.dataSource = new SimpleDataSource(true);
-        this.rymDao = new SQLRYMDaoImpl();
-        this.albumDao = new AlbumDaoImpl();
-        this.queriesDao = new SQLQueriesDaoImpl();
-        this.affinityDao = new AffinityDaoImpl();
-        this.userGuildDao = new UserGuildDaoImpl();
-        this.updaterDao = new UpdaterDaoImpl();
-        this.trackDao = new TrackDaoImpl();
-        this.billboardDao = new BillboardDaoImpl();
-        this.discoveralDao = new DiscoveralDaoImpl();
-        musicDao = new MusidDaoImpl();
-        this.everyNoiseService = new EveryNoiseServiceImpl(dataSource);
-    }
 
     public void updateUserTimeStamp(String lastFmName, Integer timestamp, Integer timestampControl) {
         try (Connection connection = dataSource.getConnection()) {

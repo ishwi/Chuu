@@ -1,7 +1,7 @@
 package dao.musicbrainz;
 
 import com.neovisionaries.i18n.CountryCode;
-import dao.SimpleDataSource;
+import dao.MbizDatasource;
 import dao.entities.*;
 import dao.exceptions.ChuuServiceException;
 import org.apache.commons.collections4.MultiValuedMap;
@@ -13,11 +13,11 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class MusicBrainzServiceImpl implements MusicBrainzService {
-    private final SimpleDataSource dataSource;
+    private final MbizDatasource dataSource;
     private final MbizQueriesDao mbizQueriesDao;
 
     public MusicBrainzServiceImpl() {
-        this.dataSource = new SimpleDataSource(false);
+        this.dataSource = new MbizDatasource(false);
         mbizQueriesDao = new MbizQueriesDaoImpl();
     }
 

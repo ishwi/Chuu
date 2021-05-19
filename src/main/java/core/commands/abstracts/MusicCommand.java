@@ -6,7 +6,7 @@ import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.music.MusicManager;
 import core.parsers.params.CommandParameters;
-import dao.ChuuService;
+import dao.ServiceView;
 import net.dv8tion.jda.api.entities.GuildVoiceState;
 
 import java.util.function.Function;
@@ -19,7 +19,7 @@ public abstract class MusicCommand<T extends CommandParameters> extends Concurre
     protected boolean requirePlayer = false;
     protected boolean requireVoiceState = false;
 
-    public MusicCommand(ChuuService dao) {
+    public MusicCommand(ServiceView dao) {
         super(dao);
         respondInPrivate = false;
     }

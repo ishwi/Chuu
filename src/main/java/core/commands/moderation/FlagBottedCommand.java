@@ -6,7 +6,7 @@ import core.commands.utils.CommandCategory;
 import core.parsers.Parser;
 import core.parsers.UserModerationParser;
 import core.parsers.params.ChuuDataParams;
-import dao.ChuuService;
+import dao.ServiceView;
 import dao.entities.LastFMData;
 import dao.entities.Role;
 import dao.exceptions.InstanceNotFoundException;
@@ -15,7 +15,7 @@ import javax.validation.constraints.NotNull;
 import java.util.List;
 
 public class FlagBottedCommand extends ConcurrentCommand<ChuuDataParams> {
-    public FlagBottedCommand(ChuuService dao) {
+    public FlagBottedCommand(ServiceView dao) {
         super(dao);
     }
 
