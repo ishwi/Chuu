@@ -186,10 +186,22 @@ public class Chuu {
         }
     }
 
-    private static void shutDownPreviousInstance(Callback callback) {
-        String[] arguments = ProcessHandle.current().info().arguments().orElse(args);
-        Optional<String> command = ProcessHandle.current().info().command();
-        ProcessHandle.allProcesses().filter(b -> b.info().arguments().map(z -> Arrays.equals(args, z)).orElse(false) && b.info().command().equals(command)).findFirst().ifPresentOrElse(processHandle -> {
+    public static void shutDownPreviousInstance(Callback callback) {
+        var a = ProcessHandle.current();
+
+        Optional<String[]> arguments = a.info().arguments();
+        assert arguments.isPresent();
+        String[] a_args = arguments.get();
+        var c = ProcessHandle.allProcesses().filter(z -> z.pid() != a.pid()).filter(z -> {
+            boolean present = z.info().arguments().isPresent();
+            if (!present) {
+                return false;
+            }
+            String[] strings = z.info().arguments().get();
+            return Arrays.equals(strings, a_args);
+        }).findFirst();
+
+        c.ifPresentOrElse(processHandle -> {
             getLogger().warn("Destroyed process with pid {} ", processHandle.pid());
             processHandle.destroy();
             callback.execute();
@@ -201,9 +213,10 @@ public class Chuu {
 
     }
 
-    private static void addAll(ShardManager shard, ChuuService service) {
+    public static void addAll(ShardManager shard, ChuuService service) {
 
         HelpCommand help = new HelpCommand(db);
+
         AdministrativeCommand commandAdministrator = new AdministrativeCommand(db);
         PrefixCommand prefixCommand = new PrefixCommand(db);
         TagWithYearCommand tagWithYearCommand = new TagWithYearCommand(db);
@@ -212,11 +225,11 @@ public class Chuu {
         shard.addEventListener(help.registerCommand(commandAdministrator));
         shard.addEventListener(help.registerCommand(prefixCommand));
         shard.addEventListener(help.registerCommand(featuredCommand));
-        shard.addEventListener(new VoiceListener());
         shard.addEventListener(help.registerCommand(tagWithYearCommand));
         shard.addEventListener(help.registerCommand(featuredCommand));
-        shard.addEventListener(new ConstantListener(channelId, service));
         shard.addEventListener((Object[]) scanListeners(help));
+        shard.addEventListener(new VoiceListener());
+        shard.addEventListener(new ConstantListener(channelId, service));
 
         prefixCommand.onStartup(shard);
         args = null;
@@ -244,6 +257,7 @@ public class Chuu {
                     .toArray(MyCommand<?>[]::new);
         } catch (Exception ex) {
             logger.error("There was an error while registering the commands!", ex);
+            logger.error(ex.getMessage(), ex);
             throw new ChuuServiceException(ex);
         }
     }
