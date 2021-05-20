@@ -16,12 +16,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class HeavyCommandRateLimiter {
 
-    private final static long MAX_SERVER = 4L;
-    private final static long MAX_GLOBAL = 12L;
+    private final static long MAX_SERVER = 15L;
+    private final static long MAX_GLOBAL = 50L;
     private final static Map<Long, LocalDateTime> accesibleAgain = new HashMap<>();
     private static final LoadingCache<Long, AtomicInteger> serverCache = CacheBuilder.newBuilder()
             .maximumSize(10000)
-
             .expireAfterWrite(10, TimeUnit.MINUTES)
             .removalListener(notification -> {
                 Object key = notification.getKey();

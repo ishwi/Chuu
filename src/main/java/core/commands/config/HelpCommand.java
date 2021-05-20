@@ -15,7 +15,6 @@
  */
 package core.commands.config;
 
-import core.Chuu;
 import core.apis.lyrics.TextSplitter;
 import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
@@ -108,7 +107,7 @@ public class HelpCommand extends ConcurrentCommand<WordParameter> {
 
     @Override
     protected void onCommand(Context e, @NotNull WordParameter params) {
-        Character prefix = Chuu.getCorrespondingPrefix(e);
+        Character prefix = e.getPrefix();
         if (params.hasOptional("all")) {
             e.sendMessage(new ChuuEmbedBuilder(e).setDescription(new StringBuilder()
                     .append(e.getAuthor()))
@@ -125,7 +124,7 @@ public class HelpCommand extends ConcurrentCommand<WordParameter> {
     }
 
     public void sendPrivate(MessageChannel channel, Context e) {
-        Character prefix = Chuu.getCorrespondingPrefix(e);
+        Character prefix = e.getPrefix();
         StringBuilder s = new StringBuilder();
         List<RestAction<Message>> messageActions = new ArrayList<>();
         s.append("A lot of commands accept different time frames which are the following:\n")
@@ -174,7 +173,7 @@ public class HelpCommand extends ConcurrentCommand<WordParameter> {
 
     public void sendEmbed(Context e) {
         EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e);
-        Character correspondingPrefix = Chuu.getCorrespondingPrefix(e);
+        Character correspondingPrefix = e.getPrefix();
         for (Map.Entry<CommandCategory, SortedSet<MyCommand<?>>> a : categoryMap.entrySet()) {
             StringBuilder s = new StringBuilder();
             CommandCategory key = a.getKey();

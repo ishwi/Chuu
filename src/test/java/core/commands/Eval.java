@@ -1,11 +1,13 @@
 package core.commands;
 
+import com.zaxxer.hikari.HikariDataSource;
 import core.commands.utils.EvalContext;
 import core.music.everynoise.EveryNoiseScrapper;
 import core.parsers.NoOpParser;
 import core.parsers.params.CommandParameters;
 import core.services.EveryNoiseScrapperService;
 import dao.ServiceView;
+import org.apache.commons.lang3.reflect.FieldUtils;
 import org.openjdk.jmh.annotations.Param;
 
 import java.awt.image.BufferedImage;
@@ -25,6 +27,9 @@ public class Eval {
 
     static BufferedImage deepCopy(BufferedImage bi) {
         EvalContext ctx = null;
+        var db = (ServiceView) FieldUtils.readStaticField(core.Chuu.class, "db", true);
+        var b = FieldUtils.readField(db.longService(), "dataSource", true);
+        ctx.sendMessage(((HikariDataSource) (FieldUtils.readField(b, "ds", true))).getHikariPoolMXBean().getActiveConnections());
         new EveryNoiseScrapperService(new EveryNoiseScrapper(), ctx.db()).scrapeReleases(LocalDate.now().with(TemporalAdjusters.previous(DayOfWeek.FRIDAY)).minusDays(7));
         ctx.jda().getRegisteredListeners().stream().filter(x -> x instanceof core.commands.moderation.UrlQueueReview).map(x -> (core.commands.moderation.UrlQueueReview) x).forEach(
                 x -> {

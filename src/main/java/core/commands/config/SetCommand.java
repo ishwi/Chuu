@@ -75,7 +75,7 @@ public class SetCommand extends ConcurrentCommand<WordParameter> {
             db.createGuild(guildID);
         }
 
-        String repeatedMessage = "That username is already registered. If you own the account pls use: **" + Chuu.getCorrespondingPrefix(e) + "login**\n" +
+        String repeatedMessage = "That username is already registered. If you own the account pls use: **" + e.getPrefix() + "login**\n" +
                                  "Any doubt you might have please contact the bot developers on the support server";
         boolean repeated;
         try {

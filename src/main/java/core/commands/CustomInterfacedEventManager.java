@@ -38,6 +38,7 @@ public class CustomInterfacedEventManager implements IEventManager {
     private final Map<String, MyCommand<?>> commandListeners = new HashMap<>();
     private final Map<Long, ConstantListener> constantListeners = new HashMap<>();
     private final Map<ReactionListener, ScheduledFuture<?>> reactionaries = new ConcurrentHashMap<>();
+    public boolean isReady;
     private AdministrativeCommand administrativeCommand;
     private VoiceListener voiceListener;
 
@@ -115,12 +116,17 @@ public class CustomInterfacedEventManager implements IEventManager {
                 return;
             }
             ContextMessageReceived ctx = new ContextMessageReceived(mes);
-            Character correspondingPrefix = Chuu.getCorrespondingPrefix(ctx);
+            Character correspondingPrefix = Chuu.prefixService.getCorrespondingPrefix(ctx);
             String contentRaw = mes.getMessage().getContentRaw();
-            if (mes.isFromGuild() && ((contentRaw.length() <= 1) || contentRaw.charAt(0) != correspondingPrefix)) {
+            if ((contentRaw.length() <= 1)) {
+                return;
+            }
+            if (mes.isFromGuild() && contentRaw.charAt(0) != correspondingPrefix) {
                 if (mes.getMessage().getMentionedUsers().contains(mes
                         .getJDA().getSelfUser()) && mes.getMessage().getType() != MessageType.INLINE_REPLY) {
-                    mes.getChannel().sendMessage("My prefix is: `" + Chuu.getCorrespondingPrefix(ctx) + "`").queue();
+                    if (mes.getMessage().getContentRaw().contains("prefix")) {
+                        mes.getChannel().sendMessage("My prefix is: `" + ctx.getPrefix() + "`").queue();
+                    }
                 }
                 return;
             }
@@ -148,7 +154,9 @@ public class CustomInterfacedEventManager implements IEventManager {
             }
 
         } else if (event instanceof SlashCommandEvent sce) {
-
+            if (!isReady) {
+                return;
+            }
             MyCommand<?> myCommand;
             if (sce.getSubcommandName() == null) {
                 myCommand = commandListeners.get(sce.getName().toLowerCase(Locale.ROOT));
@@ -162,7 +170,13 @@ public class CustomInterfacedEventManager implements IEventManager {
             }
         } else
             try {
-                if (event instanceof GuildMemberRemoveEvent || event instanceof GuildMemberJoinEvent || event instanceof GuildJoinEvent) {
+                if (!isReady) {
+                    if (event instanceof ReadyEvent) {
+                        for (EventListener listener : otherListeners) {
+                            listener.onEvent(event);
+                        }
+                    }
+                } else if (event instanceof GuildMemberRemoveEvent || event instanceof GuildMemberJoinEvent || event instanceof GuildJoinEvent) {
                     administrativeCommand.onEvent(event);
                 } else if (event instanceof MessageReactionAddEvent e3) {
                     ConstantListener c = constantListeners.get(e3.getChannel().getIdLong());
@@ -177,10 +191,6 @@ public class CustomInterfacedEventManager implements IEventManager {
 
                     this.voiceListener.onEvent(event);
 
-                } else if (event instanceof ReadyEvent) {
-                    for (EventListener listener : otherListeners) {
-                        listener.onEvent(event);
-                    }
                 }
             } catch (Throwable throwable) {
                 JDAImpl.LOG.error("One of the EventListeners had an uncaught exception", throwable);

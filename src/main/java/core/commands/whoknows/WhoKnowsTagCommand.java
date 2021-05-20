@@ -21,6 +21,10 @@ public class WhoKnowsTagCommand extends WhoKnowsBaseCommand<GenreParameters> {
         super(dao);
     }
 
+    public WhoKnowsTagCommand(ServiceView dao, boolean isLongRunningCommand) {
+        super(dao, true);
+    }
+
     @Override
     WhoKnowsMode getWhoknowsMode(GenreParameters params) {
         return getEffectiveMode(params.getLastFMData().getWhoKnowsMode(), params);

@@ -7,6 +7,7 @@ import core.commands.utils.CommandCategory;
 import core.parsers.Parser;
 import core.parsers.PrefixParser;
 import core.parsers.params.CharacterParameters;
+import core.services.PrefixService;
 import dao.ServiceView;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.sharding.ShardManager;
@@ -47,8 +48,9 @@ public class PrefixCommand extends ConcurrentCommand<CharacterParameters> {
 
 
         char newPrefix = params.getaChar();
-        db.addGuildPrefix(Chuu.getPrefixMap(), e.getGuild().getIdLong(), newPrefix);
-        Chuu.addGuildPrefix(e.getGuild().getIdLong(), newPrefix);
+        PrefixService prefixService = Chuu.prefixService;
+        db.addGuildPrefix(prefixService.getPrefixMap(), e.getGuild().getIdLong(), newPrefix);
+        prefixService.addGuildPrefix(e.getGuild().getIdLong(), newPrefix);
 
         sendMessageQueue(e, newPrefix + " is the new server prefix");
     }
@@ -60,7 +62,7 @@ public class PrefixCommand extends ConcurrentCommand<CharacterParameters> {
 
     public void onStartup(ShardManager jda) {
 
-        Map<Long, Character> prefixMap = Chuu.getPrefixMap();
+        Map<Long, Character> prefixMap = Chuu.prefixService.getPrefixMap();
         List<Guild> guilds = jda.getGuilds();
         for (Guild guild : guilds) {
             long guildId = guild.getIdLong();

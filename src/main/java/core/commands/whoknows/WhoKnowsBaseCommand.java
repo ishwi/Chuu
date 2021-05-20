@@ -39,9 +39,8 @@ public abstract class WhoKnowsBaseCommand<T extends CommandParameters> extends C
     final Spotify spotify;
     private final IPieableList<ReturnNowPlaying, T> pie;
 
-
-    public WhoKnowsBaseCommand(ServiceView dao) {
-        super(dao);
+    public WhoKnowsBaseCommand(ServiceView dao, boolean isLongRunningCommand) {
+        super(dao, isLongRunningCommand);
         if (this.parser instanceof DaoParser<?> p) {
             p.setExpensiveSearch(true);
             p.setAllowUnaothorizedUsers(true);
@@ -52,6 +51,11 @@ public abstract class WhoKnowsBaseCommand<T extends CommandParameters> extends C
         this.discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
         this.spotify = SpotifySingleton.getInstance();
         order = 2;
+    }
+
+    public WhoKnowsBaseCommand(ServiceView dao) {
+        this(dao, false);
+
     }
 
     public static WhoKnowsMode getEffectiveMode(WhoKnowsMode whoKnowsMode, CommandParameters chartParameters) {

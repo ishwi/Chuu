@@ -101,7 +101,7 @@ public class DisabledCommand extends ConcurrentCommand<DisabledCommandParameters
                 messageDisablingService.toggleCommandDisabledness(command, params.getGuildId(), messageAllowed, db);
             }
         }
-        Character prefix = Chuu.getCorrespondingPrefix(e);
+        char prefix = e.getPrefix();
         String allowedStr = allowedCommands.entrySet().stream()
                 .map(x -> {
                     String commands = x.getValue().stream()

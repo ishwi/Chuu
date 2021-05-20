@@ -84,10 +84,10 @@ public class GayParser extends ChartableParser<GayParams> {
 
     @Override
     public List<Explanation> getUsages() {
-        OptionData optionData = new OptionData(OptionType.STRING, "Flag", "Flag Type");
+        OptionData optionData = new OptionData(OptionType.STRING, "flag", "Flag to use");
         for (GayType value : GayType.values()) {
             optionData.addChoice(value.name(), value.name());
         }
-        return List.of(() -> new ExplanationLine("[LGTBQ,BI,TRANS,NB,LESBIAN,ACE]", null, optionData), () -> new ExplanationLineType("Number of columns", "If number of columns is not specified it defaults to 5 columns", OptionType.INTEGER), new FullTimeframeExplanation(defaultTFE), new PermissiveUserExplanation());
+        return List.of(() -> new ExplanationLine("[LGTBQ,BI,TRANS,NB,LESBIAN,ACE]", null, optionData), () -> new ExplanationLineType("columns", "If number of columns is not specified it defaults to 5 columns", OptionType.INTEGER), new FullTimeframeExplanation(defaultTFE), new PermissiveUserExplanation());
     }
 }

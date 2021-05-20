@@ -14,7 +14,6 @@ public final class MbizDatasource implements CommonDatasource {
 
     public MbizDatasource(boolean selector) {
         HikariConfig config = new HikariConfig(CONFIG);
-
         this.ds = new HikariDataSource(config);
 
     }

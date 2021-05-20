@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
 public class GenreTracksCommands extends ChartableCommand<ChartableGenreParameters> {
 
     public GenreTracksCommands(ServiceView dao) {
-        super(dao);
+        super(dao, true);
     }
 
     @Override

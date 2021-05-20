@@ -30,7 +30,7 @@ public class WastedAlbumChartCommand extends GroupingChartCommand {
     @Override
     public CountWrapper<GroupingQueue> processGroupedQueue(ChartGroupParameters params) throws LastFmException {
         BlockingQueue<UrlCapsule> albumQueu = new LinkedBlockingDeque<>();
-        int albumsQueried = lastFM.getChart(params.getUser(), params.getTimeFrameEnum(), 1499, 1, TopEntity.ALBUM, ChartUtil.getParser(params.getTimeFrameEnum(), TopEntity.ALBUM, ChartParameters.toListParams(), lastFM, params.getUser()), albumQueu);
+        int albumsQueried = lastFM.getChart(params.getUser(), params.getTimeFrameEnum(), 15, 100, TopEntity.ALBUM, ChartUtil.getParser(params.getTimeFrameEnum(), TopEntity.ALBUM, ChartParameters.toListParams(), lastFM, params.getUser()), albumQueu);
         List<UrlCapsule> albumList = new ArrayList<>(albumQueu.size());
         albumQueu.drainTo(albumList);
         GroupingQueue queue;

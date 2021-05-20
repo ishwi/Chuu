@@ -21,7 +21,7 @@ import java.util.List;
 
 public class UniqueCommand extends ConcurrentCommand<ChuuDataParams> {
     public UniqueCommand(ServiceView dao) {
-        this(dao, false);
+        this(dao, true);
     }
 
     public UniqueCommand(ServiceView dao, boolean isLongRunningCommand) {

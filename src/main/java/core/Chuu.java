@@ -5,7 +5,6 @@ import com.sedmelluq.discord.lavaplayer.jdaudp.NativeAudioSendFactory;
 import core.apis.discogs.DiscogsSingleton;
 import core.apis.last.LastFMFactory;
 import core.apis.spotify.SpotifySingleton;
-import core.commands.Context;
 import core.commands.CustomInterfacedEventManager;
 import core.commands.abstracts.MyCommand;
 import core.commands.config.HelpCommand;
@@ -28,6 +27,7 @@ import dao.ChuuDatasource;
 import dao.ChuuService;
 import dao.LongExecutorChuuDatasource;
 import dao.ServiceView;
+import dao.entities.Callback;
 import dao.entities.Metrics;
 import dao.exceptions.ChuuServiceException;
 import io.github.classgraph.ClassGraph;
@@ -38,7 +38,6 @@ import net.dv8tion.jda.api.events.guild.member.GuildMemberRemoveEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionAddEvent;
 import net.dv8tion.jda.api.events.message.priv.react.PrivateMessageReactionAddEvent;
-import net.dv8tion.jda.api.hooks.IEventManager;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.requests.restaction.MessageAction;
 import net.dv8tion.jda.api.sharding.DefaultShardManagerBuilder;
@@ -49,12 +48,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.security.auth.login.LoginException;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -75,10 +71,11 @@ public class Chuu {
     public static String ipv6Block;
     public static long channelId;
     public static long channel2Id;
+    public static PrefixService prefixService;
+    private static String[] args;
     private static ShardManager shardManager;
     private static Logger logger;
     private static Map<Long, RateLimiter> ratelimited;
-    private static Map<Long, Character> prefixMap;
     private static ServiceView db;
     private static CoverService coverService;
     private static MessageDeletionService messageDeletionService;
@@ -86,34 +83,6 @@ public class Chuu {
     private static ScrobbleEventManager scrobbleEventManager;
     private static ScrobbleProcesser scrobbleProcesser;
     private static ScheduledService scheduledService;
-
-
-    public static void addGuildPrefix(long guildId, Character prefix) {
-        if (prefix.equals(DEFAULT_PREFIX)) {
-            prefixMap.remove(guildId);
-        } else {
-            Character replace = prefixMap.replace(guildId, prefix);
-            if (replace == null) {
-                prefixMap.put(guildId, prefix);
-            }
-        }
-    }
-
-    //Returns if its disabled or enabled now
-
-
-    public static Character getCorrespondingPrefix(Context e) {
-        if (!e.isFromGuild())
-            return DEFAULT_PREFIX;
-        long id = e.getGuild().getIdLong();
-        Character character = prefixMap.get(id);
-        return character == null ? DEFAULT_PREFIX : character;
-
-    }
-
-    public static Map<Long, Character> getPrefixMap() {
-        return prefixMap;
-    }
 
     public static String getLastFmId(String lastfmId) {
         if (privateLastFms.contains(lastfmId)) {
@@ -126,56 +95,6 @@ public class Chuu {
         lastFMMetric.increment();
     }
 
-    public static void main(String[] args) throws InterruptedException {
-        if (System.getProperty("file.encoding").equals("UTF-8")) {
-            setupBot(Arrays.stream(args).anyMatch(x -> x.equalsIgnoreCase("stop-asking")), Arrays.stream(args).noneMatch(x -> x.equalsIgnoreCase("no-global")));
-        } else {
-            relaunchInUTF8();
-        }
-    }
-
-    private static void relaunchInUTF8() throws InterruptedException {
-        System.out.println("BotLauncher: We are not running in UTF-8 mode! This is a problem!");
-        System.out.println("BotLauncher: Relaunching in UTF-8 mode using -Dfile.encoding=UTF-8");
-
-        String[] command = new String[]{"java", "-Dfile.encoding=UTF-8", "--enable-preview", "-jar",
-                Chuu.getThisJarFile().getAbsolutePath()};
-
-        // Relaunches the bot using UTF-8 mode.
-        ProcessBuilder processBuilder = new ProcessBuilder(command);
-        processBuilder.inheritIO(); // Tells the new process to use the same command line as this one.
-        try {
-            Process process = processBuilder.start();
-            process.waitFor(); // We wait here until the actual bot stops. We do this so that we can keep using
-            // the same command line.
-            System.exit(process.exitValue());
-        } catch (IOException e) {
-            if (e.getMessage().contains("\"java\"")) {
-                System.out.println(
-                        "BotLauncher: There was an error relaunching the bot. We couldn't find Java to launch with.");
-                System.out.println(
-                        "BotLauncher: Attempted to relaunch using the command:\n   " + String.join(" ", command));
-                System.out.println(
-                        "BotLauncher: Make sure that you have Java properly set in your Operating System's PATH variable.");
-                System.out.println("BotLauncher: Stopping here.");
-            } else {
-                Chuu.getLogger().warn(e.getMessage(), e);
-            }
-        }
-    }
-
-    private static File getThisJarFile() {
-        // Gets the path of the currently running Jar file
-        String path = Chuu.class.getProtectionDomain().getCodeSource().getLocation().getPath();
-        String decodedPath = URLDecoder.decode(path, StandardCharsets.UTF_8);
-
-        // This is code especially written for running and testing this program in an
-        // IDE that doesn't compile to .jar when running.
-        if (!decodedPath.endsWith(".jar"))
-            return new File("Chuu.jar");
-        return new File(decodedPath); // We use File so that when we send the path to the ProcessBuilder, we will be
-        // using the proper System path formatting.
-    }
 
     private static Collection<GatewayIntent> getIntents() {
         EnumSet<GatewayIntent> gatewayIntents = GatewayIntent.fromEvents(GuildMemberRemoveEvent.class,
@@ -198,76 +117,61 @@ public class Chuu {
         chuuSess = properties.getProperty("LASTFM_BOT_SESSION_KEY");
         ipv6Block = properties.getProperty("IPV6_BLOCK");
         db = new ServiceView(new ChuuService(new ChuuDatasource()), new ChuuService(new LongExecutorChuuDatasource()));
-        ChuuService nor = db.normalService();
-        prefixMap = initPrefixMap(nor);
-        ColorService.init(nor);
-        coverService = new CoverService(nor);
+        ChuuService service = db.normalService();
+        prefixService = new PrefixService(service);
+        ColorService.init(service);
+        coverService = new CoverService(service);
         DiscogsSingleton.init(properties.getProperty("DC_SC"), properties.getProperty("DC_KY"));
         SpotifySingleton.init(properties.getProperty("client_ID"), properties.getProperty("client_Secret"));
-        scrobbleEventManager = new ScrobbleEventManager(new StatusProcesser(nor));
-        scrobbleProcesser = new ScrobbleProcesser(new AlbumFinder(nor, LastFMFactory.getNewInstance()));
+        scrobbleEventManager = new ScrobbleEventManager(new StatusProcesser(service));
+        scrobbleProcesser = new ScrobbleProcesser(new AlbumFinder(service, LastFMFactory.getNewInstance()));
         playerManager = new ExtendedAudioPlayerManager(scrobbleEventManager, scrobbleProcesser);
         playerRegistry = new PlayerRegistry(playerManager);
         scheduledService = new ScheduledService(Executors.newScheduledThreadPool(4), db.normalService());
         scheduledService.setScheduled();
         // Needs these three references
-        HelpCommand help = new HelpCommand(db);
-        AdministrativeCommand commandAdministrator = new AdministrativeCommand(db);
-        PrefixCommand prefixCommand = new PrefixCommand(db);
-        TagWithYearCommand tagWithYearCommand = new TagWithYearCommand(db);
-        EvalCommand evalCommand = new EvalCommand(db);
-        FeaturedCommand featuredCommand = new FeaturedCommand(db, scheduledService);
+
 
         // Logs every fime minutes the api calls
         scheduledService.addSchedule(() -> {
             long l = lastFMMetric.longValue();
             lastFMMetric.reset();
-            nor.updateMetric(Metrics.LASTFM_PETITIONS, l);
+            service.updateMetric(Metrics.LASTFM_PETITIONS, l);
             logger.info("Made {} petitions in the last 5 minutes", l);
         }, 5, 5, TimeUnit.MINUTES);
 
 
-        ratelimited = nor.getRateLimited().entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, y -> RateLimiter.create(y.getValue())));
+        ratelimited = service.getRateLimited().entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, y -> RateLimiter.create(y.getValue())));
 
 
         MessageAction.setDefaultMentions(EnumSet.noneOf(Message.MentionType.class));
         MessageAction.setDefaultMentionRepliedUser(false);
 
+        CustomInterfacedEventManager customManager = new CustomInterfacedEventManager(0);
+        EvalCommand evalCommand = new EvalCommand(db);
 
         AtomicInteger counter = new AtomicInteger(0);
-        IEventManager customManager = new CustomInterfacedEventManager(0);
         EnumSet<CacheFlag> cacheFlags = EnumSet.allOf(CacheFlag.class);
         DefaultShardManagerBuilder builder = DefaultShardManagerBuilder.create(getIntents())
                 .setChunkingFilter(ChunkingFilter.ALL)
                 .enableCache(CacheFlag.EMOTE, CacheFlag.VOICE_STATE)
                 .disableCache(CacheFlag.ACTIVITY, CacheFlag.CLIENT_STATUS, CacheFlag.ONLINE_STATUS)
                 .setAudioSendFactory(new NativeAudioSendFactory())
-
+                .addEventListeners(evalCommand)
                 .setBulkDeleteSplittingEnabled(false)
                 .setToken(properties.getProperty("DISCORD_TOKEN")).setAutoReconnect(true)
                 .setEventManagerProvider(a -> customManager)
-                .addEventListeners(help)
                 .setShardsTotal(-1)
-                .addEventListeners(evalCommand)
-                .addEventListeners(help.registerCommand(commandAdministrator))
-                .addEventListeners(help.registerCommand(prefixCommand))
-                .addEventListeners(help.registerCommand(featuredCommand))
-                .addEventListeners(new VoiceListener())
-                .addEventListeners(help.registerCommand(tagWithYearCommand))
-                .addEventListeners(help.registerCommand(featuredCommand))
-                .addEventListeners(new ConstantListener(channelId, nor))
-                .addEventListeners((Object[]) scanListeners(help))
                 .addEventListeners(new AwaitReady(counter, (ShardManager shard) -> {
-                    messageDisablingService = new MessageDisablingService(shard, nor);
-                    prefixCommand.onStartup(shard);
+                    messageDisablingService = new MessageDisablingService(shard, service);
                     if (installGlobalCommands) {
                         InteractionBuilder.setGlobalCommands(shard.getShardById(0)).queue();
                     }
-//                            .queue(t -> logger.warn("Finished with commands"));
-                    if (!doDbCleanUp) {
-                        commandAdministrator.onStartup(shardManager);
-                    }
-                    updatePresence("Chuu");
+                    shutDownPreviousInstance(() -> {
+                        addAll(shard, service);
+                        customManager.isReady = true;
+                        updatePresence("Chuu");
+                    });
                 }));
 
 
@@ -280,6 +184,42 @@ public class Chuu {
             Chuu.getLogger().warn(e.getMessage(), e);
             throw new ChuuServiceException(e);
         }
+    }
+
+    private static void shutDownPreviousInstance(Callback callback) {
+        String[] arguments = ProcessHandle.current().info().arguments().orElse(args);
+        Optional<String> command = ProcessHandle.current().info().command();
+        ProcessHandle.allProcesses().filter(b -> b.info().arguments().map(z -> Arrays.equals(args, z)).orElse(false) && b.info().command().equals(command)).findFirst().ifPresentOrElse(processHandle -> {
+            getLogger().warn("Destroyed process with pid {} ", processHandle.pid());
+            processHandle.destroy();
+            callback.execute();
+        }, () -> {
+            getLogger().warn("Didn't destroy any process!!!");
+            callback.execute();
+        });
+
+
+    }
+
+    private static void addAll(ShardManager shard, ChuuService service) {
+
+        HelpCommand help = new HelpCommand(db);
+        AdministrativeCommand commandAdministrator = new AdministrativeCommand(db);
+        PrefixCommand prefixCommand = new PrefixCommand(db);
+        TagWithYearCommand tagWithYearCommand = new TagWithYearCommand(db);
+        FeaturedCommand featuredCommand = new FeaturedCommand(db, scheduledService);
+        shard.addEventListener(help);
+        shard.addEventListener(help.registerCommand(commandAdministrator));
+        shard.addEventListener(help.registerCommand(prefixCommand));
+        shard.addEventListener(help.registerCommand(featuredCommand));
+        shard.addEventListener(new VoiceListener());
+        shard.addEventListener(help.registerCommand(tagWithYearCommand));
+        shard.addEventListener(help.registerCommand(featuredCommand));
+        shard.addEventListener(new ConstantListener(channelId, service));
+        shard.addEventListener((Object[]) scanListeners(help));
+
+        prefixCommand.onStartup(shard);
+        args = null;
     }
 
     private static MyCommand<?>[] scanListeners(HelpCommand help) {
@@ -320,14 +260,10 @@ public class Chuu {
         }
     }
 
-
     public static Logger getLogger() {
         return logger;
     }
 
-    private static Map<Long, Character> initPrefixMap(ChuuService dao) {
-        return (dao.getGuildPrefixes(Chuu.DEFAULT_PREFIX));
-    }
 
     public static Properties readToken() {
 
@@ -389,6 +325,15 @@ public class Chuu {
 
     public static boolean isLoaded() {
         return shardManager.getShardsRunning() == shardManager.getShardsTotal();
+    }
+
+    public static void main(String[] args) {
+        Chuu.args = args;
+        if (System.getProperty("file.encoding").equals("UTF-8")) {
+            setupBot(Arrays.stream(args).anyMatch(x -> x.equalsIgnoreCase("stop-asking")), Arrays.stream(args).noneMatch(x -> x.equalsIgnoreCase("no-global")));
+        } else {
+            throw new ChuuServiceException("Set up utf-8 pls");
+        }
     }
 
 }

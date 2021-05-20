@@ -126,11 +126,11 @@ public abstract class MyCommand<T extends CommandParameters> implements EventLis
             HeavyCommandRateLimiter.RateLimited rateLimited = HeavyCommandRateLimiter.checkRateLimit(ctx);
             switch (rateLimited) {
                 case SERVER -> {
-                    sendMessageQueue(ctx, "This command takes a while to execute so it cannot be executed in this server more than 4 times per 10 minutes.\n" + "Usable again in: " + rateLimited.remainingTime(ctx));
+                    sendMessageQueue(ctx, "This command takes a while to execute so it cannot be executed in this server more than 15 times per 10 minutes.\n" + "Usable again in: " + rateLimited.remainingTime(ctx));
                     return;
                 }
                 case GLOBAL -> {
-                    sendMessageQueue(ctx, "This command takes a while to execute so it cannot be executed more than 12 times per 10 minutes.\n" + "Usable again in: " + rateLimited.remainingTime(ctx));
+                    sendMessageQueue(ctx, "This command takes a while to execute so now is on a global cooldown.\n" + "Usable again in: " + rateLimited.remainingTime(ctx));
                     return;
                 }
 

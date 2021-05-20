@@ -40,11 +40,16 @@ import java.util.concurrent.CompletableFuture;
 public abstract class ChartableCommand<T extends ChartParameters> extends ConcurrentCommand<T> {
     public final IPieableList<UrlCapsule, ChartParameters> pie;
 
-    public ChartableCommand(ServiceView dao) {
-        super(dao);
+
+    public ChartableCommand(ServiceView dao, boolean isLongRunningCommand) {
+        super(dao, isLongRunningCommand);
         this.pie = getPie();
         ((DaoParser<?>) getParser()).setExpensiveSearch(true);
         order = 3;
+    }
+
+    public ChartableCommand(ServiceView dao) {
+        this(dao, false);
     }
 
 

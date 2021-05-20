@@ -59,7 +59,7 @@ public class NpVoiceCommand extends MusicCommand<CommandParameters> {
 
     @Override
     public List<String> getAliases() {
-        return List.of("voice", "current", "current", "npv", "song");
+        return List.of("voice", "current", "current", "npv", "song", "vc");
     }
 
     @Override

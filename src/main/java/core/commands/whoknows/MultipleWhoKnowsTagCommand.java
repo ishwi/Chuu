@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 
 public class MultipleWhoKnowsTagCommand extends WhoKnowsBaseCommand<MultipleGenresParameters> {
     public MultipleWhoKnowsTagCommand(ServiceView dao) {
-        super(dao);
+        super(dao, true);
     }
 
     @NotNull
