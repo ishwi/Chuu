@@ -32,7 +32,7 @@ public class RymSearchCommand extends ConcurrentCommand<ExtraParameters<WordPara
 
     @Override
     public Parser<ExtraParameters<WordParameter, User>> initParser() {
-        return new UsernameAndNpQueryParser(db, lastFM, (np) -> "\"" + np.artistName() + "\" \"" + np.albumName() + "\n");
+        return new UsernameAndNpQueryParser(db, lastFM, (np) -> np.artistName() + " " + np.albumName());
     }
 
     @Override
@@ -51,7 +51,7 @@ public class RymSearchCommand extends ConcurrentCommand<ExtraParameters<WordPara
 
         String query = params.getInnerParams().getWord();
         String url = rymSearch.searchUrl(query);
-        e.sendMessage(new ChuuEmbedBuilder(e).setAuthor("RYM search for: \"" + query.replaceAll("\"", "") + "\"", url)
+        e.sendMessage(new ChuuEmbedBuilder(e).setAuthor("Rateyourmusic search \u279C " + query, url)
                 .setTitle("\t<:rym:820111349690531850> Click here to view the results", url).build()).queue();
     }
 
