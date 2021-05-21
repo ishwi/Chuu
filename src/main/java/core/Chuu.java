@@ -56,6 +56,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.LongAdder;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 @SuppressWarnings("UnstableApiUsage")
@@ -107,7 +108,7 @@ public class Chuu {
         return gatewayIntents;
     }
 
-    public static void setupBot(boolean doDbCleanUp, boolean installGlobalCommands) {
+    public static void setupBot(boolean doDbCleanUp, boolean installGlobalCommands, boolean startRightAway) {
         logger = LoggerFactory.getLogger(Chuu.class);
         Properties properties = readToken();
         String channel = properties.getProperty("MODERATION_CHANNEL_ID");
@@ -157,25 +158,30 @@ public class Chuu {
                 .enableCache(CacheFlag.EMOTE, CacheFlag.VOICE_STATE)
                 .disableCache(CacheFlag.ACTIVITY, CacheFlag.CLIENT_STATUS, CacheFlag.ONLINE_STATUS)
                 .setAudioSendFactory(new NativeAudioSendFactory())
-                .addEventListeners(evalCommand)
                 .setBulkDeleteSplittingEnabled(false)
                 .setToken(properties.getProperty("DISCORD_TOKEN")).setAutoReconnect(true)
                 .setEventManagerProvider(a -> customManager)
+                .addEventListeners(evalCommand)
                 .setShardsTotal(-1)
                 .addEventListeners(new AwaitReady(counter, (ShardManager shard) -> {
                     messageDisablingService = new MessageDisablingService(shard, service);
                     if (installGlobalCommands) {
                         InteractionBuilder.setGlobalCommands(shard.getShardById(0)).queue();
                     }
-                    shutDownPreviousInstance(() -> {
-                        addAll(shard, service);
-                        customManager.isReady = true;
-                        updatePresence("Chuu");
-                    });
+                    if (!startRightAway) {
+                        shutDownPreviousInstance(() -> {
+                            addAll(db, shardManager::addEventListener);
+                            customManager.isReady = true;
+                        });
+                    }
+                    updatePresence("Chuu");
                 }));
 
-
         try {
+            if (startRightAway) {
+                addAll(db, builder::addEventListeners);
+                customManager.isReady = true;
+            }
             initPrivateLastfms(db.normalService());
             messageDeletionService = new MessageDeletionService(db.normalService().getServersWithDeletableMessages());
             shardManager = builder.build();
@@ -190,14 +196,18 @@ public class Chuu {
         var a = ProcessHandle.current();
 
         Optional<String[]> arguments = a.info().arguments();
-        assert arguments.isPresent();
-        String[] a_args = arguments.get();
+        if (arguments.isEmpty()) {
+            getLogger().warn("Args of current pid are empty???");
+            callback.execute();
+            return;
+        }
+        String[] a_args = Arrays.stream(arguments.get()).filter(z -> !z.endsWith(".jar")).toArray(String[]::new);
         var c = ProcessHandle.allProcesses().filter(z -> z.pid() != a.pid()).filter(z -> {
             boolean present = z.info().arguments().isPresent();
             if (!present) {
                 return false;
             }
-            String[] strings = z.info().arguments().get();
+            String[] strings = Arrays.stream(z.info().arguments().get()).filter(t -> !t.endsWith(".jar")).toArray(String[]::new);
             return Arrays.equals(strings, a_args);
         }).findFirst();
 
@@ -213,25 +223,25 @@ public class Chuu {
 
     }
 
-    public static void addAll(ShardManager shard, ChuuService service) {
 
+    public static void addAll(ServiceView db, Consumer<net.dv8tion.jda.api.hooks.EventListener> consumer) {
         HelpCommand help = new HelpCommand(db);
 
         AdministrativeCommand commandAdministrator = new AdministrativeCommand(db);
         PrefixCommand prefixCommand = new PrefixCommand(db);
         TagWithYearCommand tagWithYearCommand = new TagWithYearCommand(db);
         FeaturedCommand featuredCommand = new FeaturedCommand(db, scheduledService);
-        shard.addEventListener(help);
-        shard.addEventListener(help.registerCommand(commandAdministrator));
-        shard.addEventListener(help.registerCommand(prefixCommand));
-        shard.addEventListener(help.registerCommand(featuredCommand));
-        shard.addEventListener(help.registerCommand(tagWithYearCommand));
-        shard.addEventListener(help.registerCommand(featuredCommand));
-        shard.addEventListener((Object[]) scanListeners(help));
-        shard.addEventListener(new VoiceListener());
-        shard.addEventListener(new ConstantListener(channelId, service));
+        consumer.accept(help);
 
-        prefixCommand.onStartup(shard);
+        consumer.accept(help.registerCommand(commandAdministrator));
+        consumer.accept(help.registerCommand(prefixCommand));
+        consumer.accept(help.registerCommand(featuredCommand));
+        consumer.accept(help.registerCommand(tagWithYearCommand));
+        consumer.accept(help.registerCommand(featuredCommand));
+        MyCommand<?>[] myCommands = scanListeners(help);
+        Arrays.stream(myCommands).forEach(consumer);
+        consumer.accept(new VoiceListener());
+        consumer.accept(new ConstantListener(channelId, db.normalService()));
         args = null;
     }
 
@@ -344,7 +354,8 @@ public class Chuu {
     public static void main(String[] args) {
         Chuu.args = args;
         if (System.getProperty("file.encoding").equals("UTF-8")) {
-            setupBot(Arrays.stream(args).anyMatch(x -> x.equalsIgnoreCase("stop-asking")), Arrays.stream(args).noneMatch(x -> x.equalsIgnoreCase("no-global")));
+            setupBot(Arrays.stream(args).anyMatch(x -> x.equalsIgnoreCase("stop-asking")), Arrays.stream(args).noneMatch(x -> x.equalsIgnoreCase("no-global")),
+                    Arrays.stream(args).anyMatch(x -> x.equalsIgnoreCase("start-away")));
         } else {
             throw new ChuuServiceException("Set up utf-8 pls");
         }

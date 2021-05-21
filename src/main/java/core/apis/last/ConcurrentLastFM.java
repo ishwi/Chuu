@@ -187,7 +187,6 @@ public class ConcurrentLastFM {//implements LastFMService {
                     Chuu.getLogger().warn("LAST.FM Internal Error");
                 }
                 Chuu.getLogger().warn(e.getMessage(), e);
-                System.out.println("Reattempting request");
             }
             if (++counter == 2) {
                 throw new LastFMConnectionException("500");
@@ -277,7 +276,6 @@ public class ConcurrentLastFM {//implements LastFMService {
             String urlPage = url + "&page=" + page;
 
             ++page;
-            System.out.println(page + " :page             size: " + size);
 
             // Execute the method.
             JSONObject obj = doMethod(urlPage, new ExceptionEntity(user.getName()), user);
@@ -344,7 +342,6 @@ public class ConcurrentLastFM {//implements LastFMService {
             String urlPage = url + "&page=" + page;
 
             ++page;
-            System.out.println(page + " :page             size: " + size);
 
             JSONObject obj = doMethod(urlPage, new ExceptionEntity(userName.getName()), userName);
             obj = obj.getJSONObject("topalbums");
@@ -497,7 +494,6 @@ public class ConcurrentLastFM {//implements LastFMService {
         int count = 0;
         int seconds = 0;
         while (page <= total) {
-            System.out.println("Iteration :(");
 
             // Execute the method.
             JSONObject obj = doMethod(url + "&page=" + (page), new ExceptionEntity(user.getName()), user);
@@ -520,7 +516,6 @@ public class ConcurrentLastFM {//implements LastFMService {
         }
         returned.setCount(count);
         returned.setSeconds(seconds);
-        System.out.println(count);
         return returned;
 
     }
@@ -534,7 +529,6 @@ public class ConcurrentLastFM {//implements LastFMService {
         int total = 1;
         boolean doWhole = timeFrameEnum.equals(TimeFrameEnum.WEEK);
         while (page <= total && (doWhole || page <= 2)) {
-            System.out.println("Iteration :(");
 
             // Execute the method.
             JSONObject obj = doMethod(url + "&page=" + (page), new ExceptionEntity(user.getName()), user);
@@ -1938,7 +1932,6 @@ public class ConcurrentLastFM {//implements LastFMService {
                     Chuu.getLogger().warn("LAST.FM Internal Error");
                 }
                 Chuu.getLogger().warn(e.getMessage(), e);
-                System.out.println("Reattempting request");
             }
             if (++counter == 2) {
                 throw new LastFMConnectionException("500");

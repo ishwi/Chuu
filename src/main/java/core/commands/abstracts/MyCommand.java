@@ -133,7 +133,6 @@ public abstract class MyCommand<T extends CommandParameters> implements EventLis
                     sendMessageQueue(ctx, "This command takes a while to execute so now is on a global cooldown.\n" + "Usable again in: " + rateLimited.remainingTime(ctx));
                     return;
                 }
-
             }
         }
         measureTime(ctx);

@@ -43,7 +43,6 @@ public class DiscogsApi {
 
     private int doSearch(String query) throws DiscogsServiceException {
 
-        System.out.println("DOING SEARCH : " + query);
         query = URLEncoder.encode(query, StandardCharsets.UTF_8);
         String url = BASE_API + "database/search?q=" + query + "&type=artist&key=" + key + "&secret=" + secret;
 
@@ -95,7 +94,6 @@ public class DiscogsApi {
         try {
             if (slowness) {
                 TimeUnit.SECONDS.sleep(1);
-                System.out.println("RATE LIMITED");
             }
 
             HttpResponse<InputStream> send = httpClient.send(request, HttpResponse.BodyHandlers.ofInputStream());

@@ -118,7 +118,6 @@ public class MusicManager extends AudioEventAdapter implements AudioSendHandler 
             if (position > this.breakpoints.get(0)) {
                 long baseline = this.breakpoints.remove(0);
                 signalChapter(position, this.player.getPlayingTrack().getInfo().length, baseline);
-                System.out.println("Nueva chapter detectado");
             }
         }
         return flip;
@@ -139,7 +138,6 @@ public class MusicManager extends AudioEventAdapter implements AudioSendHandler 
             long baseline = this.breakpoints.remove(0);
             signalChapter(startingPosition, this.player.getPlayingTrack().getInfo().length, baseline);
             this.currentTrack.setPosition(position);
-            System.out.println("Nueva chapter detectado");
             this.breakpoints = this.breakpoints.stream().filter(z -> z < position).toList();
         } else {
             // Last chapter
@@ -297,7 +295,6 @@ public class MusicManager extends AudioEventAdapter implements AudioSendHandler 
                     getCurrentRequestChannel().sendMessage("Couldn't get a new song from the radio: " + radio.getSource().getName() + "\nStopping playback").queue();
                 }
             }
-            System.out.println(audioTrack);
         }).thenCompose(it -> {
             if (radio.getSource() instanceof PlaylistRadio || it == null || lastTrack == null || !it.getIdentifier().equals(lastTrack.getIdentifier())) {
                 return CompletableFuture.completedFuture(it);

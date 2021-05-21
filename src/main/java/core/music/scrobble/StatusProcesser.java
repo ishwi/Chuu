@@ -31,7 +31,6 @@ public class StatusProcesser {
 
 
     public void process(ScrobbleStatus next) throws Exception {
-        System.out.println("Recibido " + next.scrobbleStatus().name());
         ScrobbleStates scrobbleStatus = next.scrobbleStatus();
         switch (scrobbleStatus) {
             case SCROBBLING -> processStart(next);
@@ -65,7 +64,6 @@ public class StatusProcesser {
             overriden.put(genId(previous), previous);
         }
         Set<LastFMData> scrobbleableUsers = getUsers(status);
-        System.out.println("SIN USUARIOS para " + status);
 
         Scrobble scrobble;
         if (status.extraParams() instanceof ExtraParamsChapter epc) {
@@ -79,7 +77,6 @@ public class StatusProcesser {
         for (LastFMData data : scrobbleableUsers) {
             lastFM.flagNP(data.getSession(), scrobble);
         }
-        System.out.println("Flagged np for " + scrobbleableUsers.size() + " for " + scrobble.duration());
         status.callback().accept(status, scrobbleableUsers);
     }
 
@@ -95,8 +92,6 @@ public class StatusProcesser {
     private void processEnd(ScrobbleStatus status) throws LastFmException {
         ScrobbleStatus first = statuses.remove(genId(status));
         if (first == null) {
-            System.out.println("No hay anterior para " + status);
-            System.out.println(status);
             first = overriden.remove(genId(status));
             if (first == null) {
                 CompletableFuture.delayedExecutor(10, TimeUnit.SECONDS).execute(() -> {
@@ -121,9 +116,6 @@ public class StatusProcesser {
             return;
         }
         Set<LastFMData> scrobbleableUsers = getUsers(status);
-        if (scrobbleableUsers.isEmpty()) {
-            System.out.println("SIN USUARIOS para " + status);
-        }
 
         Scrobble scrobble;
         if (status.extraParams() instanceof ExtraParamsChapter epc) {

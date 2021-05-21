@@ -24,11 +24,9 @@ public class TrackGroupArtistQueue extends GroupingQueue {
     public BiFunction<UrlCapsule, UrlCapsule, UrlCapsule> reductorFunction() {
         return (urlCapsule, urlCapsule2) -> {
             urlCapsule.setPlays(urlCapsule.getPlays() + urlCapsule2.getPlays());
-            if (urlCapsule instanceof TrackDurationArtistChart capsule) {
-                if (urlCapsule2 instanceof TrackDurationArtistChart capsule2) {
-                    capsule.setSeconds(capsule.getSeconds() + capsule2.getSeconds());
-                    return capsule;
-                }
+            if (urlCapsule instanceof TrackDurationArtistChart capsule && urlCapsule2 instanceof TrackDurationArtistChart capsule2) {
+                capsule.setSeconds(capsule.getSeconds() + capsule2.getSeconds());
+                return capsule;
             }
             return urlCapsule;
         };

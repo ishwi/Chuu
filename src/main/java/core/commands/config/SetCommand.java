@@ -21,8 +21,6 @@ import net.dv8tion.jda.api.entities.MessageChannel;
 
 import javax.validation.constraints.NotNull;
 import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -175,9 +173,8 @@ public class SetCommand extends ConcurrentCommand<WordParameter> {
             e.sendMessage("The provided username doesn't exist anymore on last.fm, please re-set your account").queue();
         } catch (
                 Throwable ex) {
-            System.out.println("Error while updating " + lastFmID + LocalDateTime.now()
-                    .format(DateTimeFormatter.ISO_DATE));
-            Chuu.getLogger().warn(ex.getMessage(), ex);
+
+            Chuu.getLogger().warn("Error while updating an user: " + lastFmID, ex);
             db.updateUserTimeStamp(lastFmID, 954682307, null);
             e.sendMessage("Error downloading your library, try to run !update, try again later or contact bot admins if the error persists").queue();
         }

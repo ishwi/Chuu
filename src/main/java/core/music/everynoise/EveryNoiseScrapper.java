@@ -60,7 +60,6 @@ public class EveryNoiseScrapper {
         return pages.stream().map(page -> {
             try {
                 String formatted = GENRE_URL.formatted(page, week.format(DateTimeFormatter.BASIC_ISO_DATE));
-                System.out.println(formatted);
                 return Jsoup.connect(formatted).maxBodySize(0).get();
             } catch (IOException e) {
                 throw new UncheckedIOException(e);

@@ -30,6 +30,7 @@ public class AwaitReady implements EventListener {
     public void onEvent(@NotNull GenericEvent event) {
         if (event instanceof ReadyEvent e) {
             int i = counter.incrementAndGet();
+            Chuu.getLogger().info("Shard {} loading, total loaded {} / {}", e.getJDA().getShardInfo().getShardId(), i, e.getJDA().getShardInfo().getShardTotal());
             if (!inited.get() && i >= event.getJDA().getShardInfo().getShardTotal()) {
                 inited.set(true);
                 ShardManager jda = Chuu.getShardManager();

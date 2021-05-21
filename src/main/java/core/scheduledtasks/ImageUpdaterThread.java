@@ -26,25 +26,27 @@ public class ImageUpdaterThread implements Runnable {
     @Override
     public void run() {
         Set<ScrobbledArtist> artistData = dao.getNullUrls();
-        System.out.println("Found at lest " + artistData.size() + " null artist ");
+        Chuu.getLogger().info("Seraching for {} urls via discogs", artistData.size());
+        int counter = 0;
         for (ScrobbledArtist artistDatum : artistData) {
             String url;
-            System.out.println("Working with artist " + artistDatum.getArtist());
             try {
                 //We can get rate limited if we do it wihtout sleeping
-                Thread.sleep(100L);
+                Thread.sleep(10L);
                 url = discogsApi.findArtistImage(artistDatum.getArtist());
 
                 if (url == null || url.isEmpty()) {
                     dao.updateImageStatus(artistDatum.getArtistId(), "", true);
                 } else {
                     dao.upsertUrl(url, artistDatum.getArtistId());
-                    System.out.println("Upserting buddy");
                 }
+                counter++;
             } catch (DiscogsServiceException | InterruptedException e) {
                 Chuu.getLogger().warn(e.getMessage(), e);
             }
         }
+        Chuu.getLogger().info("Found {} urls in discogs out of {}", counter, artistData.size());
+
     }
 
 

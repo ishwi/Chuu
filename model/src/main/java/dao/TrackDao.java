@@ -28,6 +28,8 @@ public interface TrackDao {
 
     List<Track> getUserTopArtistTracks(Connection connection, String lastfmId, long artistId, int limit);
 
+    Map<ScrobbledArtist, Long> getUserTopArtistByDuration(Connection connection, String lastfmId, int limit);
+
     List<AlbumUserPlays> getServerTopArtistTracks(Connection connection, long guildId, long artistId, int limit);
 
 

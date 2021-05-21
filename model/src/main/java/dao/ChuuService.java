@@ -3967,5 +3967,15 @@ public class ChuuService implements EveryNoiseService {
     public void insertGenres(List<NoiseGenre> genres) {
         everyNoiseService.insertGenres(genres);
     }
+
+
+    public Map<ScrobbledArtist, Long> topArtistsByDuration(String lastfmId, int limit) {
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setReadOnly(true);
+            return trackDao.getUserTopArtistByDuration(connection, lastfmId, limit);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
 }
 

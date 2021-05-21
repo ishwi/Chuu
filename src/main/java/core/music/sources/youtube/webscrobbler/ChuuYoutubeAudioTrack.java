@@ -144,7 +144,7 @@ public class ChuuYoutubeAudioTrack extends YoutubeAudioTrack {
             this.newInfo = newInfo;
             this.cachedFormatWithUrl = details;
         } else {
-            System.out.println(":))))");
+            Chuu.getLogger().warn("Concurrency problem while intercepting track?? {} ", newInfo.identifier);
         }
     }
 

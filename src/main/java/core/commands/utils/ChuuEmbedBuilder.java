@@ -6,8 +6,10 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.internal.utils.Checks;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
+import java.awt.*;
 import java.util.regex.Pattern;
 
 public class ChuuEmbedBuilder extends EmbedBuilder {
@@ -21,6 +23,14 @@ public class ChuuEmbedBuilder extends EmbedBuilder {
         setColor(CommandUtil.pastelColor());
     }
 
+    @NotNull
+    @Override
+    public EmbedBuilder setColor(@Nullable Color color) {
+        if (color != null && color.equals(Color.white)) {
+            return super.setColor(new Color(254, 255, 255));
+        }
+        return super.setColor(color);
+    }
 
     @NotNull
     @Override

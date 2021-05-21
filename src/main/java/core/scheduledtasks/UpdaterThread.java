@@ -13,8 +13,6 @@ import dao.ChuuService;
 import dao.entities.*;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -55,11 +53,13 @@ public class UpdaterThread implements Runnable {
     @Override
     public void run() {
         try {
-            System.out.println("THREAD WORKING ) + " + LocalDateTime.now());
+
             UpdaterUserWrapper userWork;
 
             float chance = r.nextFloat();
             userWork = dao.getLessUpdated();
+            assert userWork != null;
+            Chuu.getLogger().info("Starting update thread on {}  |  control: {} | lastUpdate: {}", userWork.getLastFMName(), userWork.getTimestampControl(), userWork.getTimestamp());
             boolean removeFlag = true;
             try {
                 if (!UpdaterService.lockAndContinue(userWork.getLastFMName())) {
@@ -72,30 +72,26 @@ public class UpdaterThread implements Runnable {
                 try {
                     if (isIncremental && chance <= 0.995f) {
                         UpdaterHoarder updaterHoarder = new UpdaterHoarder(userWork, dao, lastFM, dao.findLastFMData(userWork.getDiscordID()));
-                        updaterHoarder.updateUser();
-                        System.out.println("Updated Info Incrementally of " + lastFMName
-                                           + LocalDateTime.now().format(DateTimeFormatter.ISO_DATE));
+                        int i = updaterHoarder.updateUser();
 
+                        Chuu.getLogger().info("Finished update on {} | items: {} ", userWork.getLastFMName(), i);
                     } else {
+                        Chuu.getLogger().info("Doing full update on thread ");
 
                         List<ScrobbledArtist> artistData = lastFM.getAllArtists(LastFMData.ofUserWrapper(userWork), CustomTimeFrame.ofTimeFrameEnum(TimeFrameEnum.ALL));
                         dao.insertArtistDataList(artistData, lastFMName);
-                        System.out.println(" Updated  ) " + lastFMName + " artists");
 
                         List<ScrobbledAlbum> albumData = lastFM.getAllAlbums(LastFMData.ofUserWrapper(userWork), CustomTimeFrame.ofTimeFrameEnum(TimeFrameEnum.ALL));
                         dao.albumUpdate(albumData, artistData, lastFMName);
-                        System.out.println(" Updated  ) " + lastFMName + " albums");
                         List<ScrobbledTrack> trackData = lastFM.getAllTracks(LastFMData.ofUserWrapper(userWork), CustomTimeFrame.ofTimeFrameEnum(TimeFrameEnum.ALL));
                         dao.trackUpdate(trackData, artistData, lastFMName);
-                        System.out.println(" Updated  ) " + lastFMName + " tracks");
-
+                        Chuu.getLogger().info("Finished full update on {}  ", userWork.getLastFMName());
                     }
                 } catch (LastFMNoPlaysException e) {
                     // dao.updateUserControlTimestamp(userWork.getLastFMName(),userWork.getTimestampControl());
                     dao.updateUserTimeStamp(lastFMName, userWork.getTimestamp(),
                             (int) (Instant.now().getEpochSecond() + 4000));
-                    System.out.println("No plays " + lastFMName
-                                       + LocalDateTime.now().format(DateTimeFormatter.ISO_DATE));
+                    Chuu.getLogger().info("Updating an user with no plays: {} ", userWork.getLastFMName());
                 } catch (LastFmEntityNotFoundException e) {
                     dao.removeUserCompletely(userWork.getDiscordID());
                 } catch (UnknownLastFmException ex) {
@@ -103,10 +99,9 @@ public class UpdaterThread implements Runnable {
                     if (code == 17) {
                         dao.updateUserTimeStamp(lastFMName, userWork.getTimestamp(),
                                 (int) (Instant.now().getEpochSecond() + 10000));
-                        Chuu.getLogger().warn("User {} code 17 while updateing ", lastFMName);
+                        Chuu.getLogger().warn("User {} code 17 while updating ", lastFMName);
                     } else {
-                        System.out.println("Error while updating" + LocalDateTime.now().format(DateTimeFormatter.ISO_DATE));
-                        Chuu.getLogger().warn(ex.getMessage(), ex);
+                        Chuu.getLogger().warn("Error while updating {} , Unknown code {} ", lastFMName, code, ex);
                     }
 
                 }
@@ -116,8 +111,7 @@ public class UpdaterThread implements Runnable {
                 }
             }
         } catch (Throwable e) {
-            System.out.println("Error while updating" + LocalDateTime.now().format(DateTimeFormatter.ISO_DATE));
-            Chuu.getLogger().warn(e.getMessage(), e);
+            Chuu.getLogger().warn("Error while updating thread: {}", e.getMessage(), e);
         }
 
     }

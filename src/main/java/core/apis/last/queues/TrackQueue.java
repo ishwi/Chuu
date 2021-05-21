@@ -26,7 +26,7 @@ public class TrackQueue extends ArtistQueue {
         if (item.getUrl() == null || item.getUrl().isBlank() || item.getUrl().equals(TrackGroupAlbumQueue.defaultTrackImage)) {
             return super.offer(item);
         }
-        return wrapper.offer(CompletableFuture.supplyAsync(() -> item));
+        return wrapper.offer(CompletableFuture.completedFuture(item));
     }
 
     public int setUp(int limit) {
