@@ -57,7 +57,7 @@ public class ColorService {
     }
 
     private static Color getServerMode(Context event, EmbedColor.EmbedColorType colorType) {
-        Color color = getColor(event, colorType, guildByColors);
+        Color color = getColor(event, colorType, guildByColors, event.getGuild().getIdLong());
         return color == null ? CommandUtil.pastelColor() : color;
     }
 
@@ -66,18 +66,18 @@ public class ColorService {
         if (colorType == null) {
             return null;
         }
-        return getColor(e, colorType, usersByColor);
+        return getColor(e, colorType, usersByColor, e.getAuthor().getIdLong());
     }
 
     @Nullable
-    private static Color getColor(Context e, EmbedColor.EmbedColorType colorType, Map<Long, Color[]> map) {
+    private static Color getColor(Context e, EmbedColor.EmbedColorType colorType, Map<Long, Color[]> map, long key) {
         return switch (colorType) {
             case RANDOM -> CommandUtil.pastelColor();
 
             case ROLE -> getmemberColour(e);
 
             case COLOURS -> {
-                Color[] byColor = map.get(e.getAuthor().getIdLong());
+                Color[] byColor = map.get(key);
                 if (byColor == null) {
                     Chuu.getLogger().warn("Null colours on {} by {} on {}", map, e.getAuthor(), e.getChannel());
                     yield null;
