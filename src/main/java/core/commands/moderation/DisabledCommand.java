@@ -71,6 +71,7 @@ public class DisabledCommand extends ConcurrentCommand<DisabledCommandParameters
             commandsToAllow = new ArrayList<>(Collections.singletonList(params.getCommand()));
         }
         // Wont accept this command
+        // TODO x is null
         commandsToAllow.removeIf(x -> x.getName().equals(this.getName()));
         StringBuilder s = new StringBuilder();
         String substring = "disable";

@@ -84,7 +84,7 @@ public class ProfileInfoCommand extends ConcurrentCommand<ChuuDataParams> {
         }
         int guildCrownThreshold = db.getGuildCrownThreshold(guildId);
         CommandStats commandStats = db.getCommandStats(discordId);
-        userInfo = new UserInfoService(db).getUserInfo(params.getLastFMData());
+        userInfo = new UserInfoService(db).maybeRefresh(params.getLastFMData());
         albumCount = db.getUserAlbumCount(discordId);
         int totalArtist = db.getUserArtistCount(lastFmName, 0);
         int randomCount = db.randomCount(discordId);

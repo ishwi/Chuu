@@ -20,6 +20,7 @@ import core.parsers.params.ArtistTimeFrameParameters;
 import core.parsers.params.ChartParameters;
 import core.parsers.params.NumberParameters;
 import core.parsers.utils.CustomTimeFrame;
+import core.services.UserInfoService;
 import dao.ServiceView;
 import dao.entities.LastFMData;
 import dao.entities.ScrobbledArtist;
@@ -90,7 +91,7 @@ public class PaceArtistCommand extends ConcurrentCommand<NumberParameters<Artist
 
 
         TimeFrameEnum time = params.getInnerParams().getTimeFrame();
-        LastFMData lastFMData = params.getInnerParams().getLastFMData();
+        LastFMData user = params.getInnerParams().getLastFMData();
         String artist = params.getInnerParams().getArtist();
         ScrobbledArtist scrobbledArtist = new ScrobbledArtist(artist, 0, null);
 
@@ -98,13 +99,13 @@ public class PaceArtistCommand extends ConcurrentCommand<NumberParameters<Artist
         BlockingQueue<UrlCapsule> queue = new DiscardableQueue<>(
                 x -> !x.getArtistName().equalsIgnoreCase(scrobbledArtist.getArtist())
                 , x -> x, 1);
-        String lastfm = lastFMData.getName();
-        lastFM.getChart(lastFMData,
+        String lastfm = user.getName();
+        lastFM.getChart(user,
                 new CustomTimeFrame(time),
                 1000,
                 1,
                 TopEntity.ARTIST,
-                ChartUtil.getParser(new CustomTimeFrame(time), TopEntity.ARTIST, ChartParameters.toListParams(), lastFM, lastFMData),
+                ChartUtil.getParser(new CustomTimeFrame(time), TopEntity.ARTIST, ChartParameters.toListParams(), lastFM, user),
                 queue);
         List<UrlCapsule> objects = new ArrayList<>();
         queue.drainTo(objects);
@@ -119,7 +120,7 @@ public class PaceArtistCommand extends ConcurrentCommand<NumberParameters<Artist
         if (time.equals(TimeFrameEnum.ALL)) {
             artistPlays = metricPlays;
         } else {
-            artistPlays = lastFM.getArtistSummary(scrobbledArtist.getArtist(), lastFMData).getUserPlayCount();
+            artistPlays = lastFM.getArtistSummary(scrobbledArtist.getArtist(), user).getUserPlayCount();
         }
         Long goal = params.getExtraParam();
         if (goal == null) {
@@ -127,8 +128,7 @@ public class PaceArtistCommand extends ConcurrentCommand<NumberParameters<Artist
 
         }
         final long unitNumber = 1;
-        List<UserInfo> holder = lastFM.getUserInfo(List.of(lastFMData.getName()), lastFMData);
-        UserInfo mainUser = holder.get(0);
+        UserInfo mainUser = new UserInfoService(db).refreshUserInfo(user);
         int unixtimestamp = mainUser.getUnixtimestamp();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd MMM yyyy");
         long totalUnits;
@@ -152,7 +152,7 @@ public class PaceArtistCommand extends ConcurrentCommand<NumberParameters<Artist
         totalUnits = between.apply(compareTime, now);
         double ratio = ((double) metricPlays) / totalUnits;
         double remainingUnits = (goal - artistPlays) / ratio;
-        String userString = getUserString(e, lastFMData.getDiscordId(), lastfm);
+        String userString = getUserString(e, user.getDiscordId(), lastfm);
 
         String timeFrame;
         if (time.equals(TimeFrameEnum.ALL)) timeFrame = " overall";

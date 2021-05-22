@@ -20,6 +20,7 @@ import core.parsers.params.AlbumTimeFrameParameters;
 import core.parsers.params.ChartParameters;
 import core.parsers.params.NumberParameters;
 import core.parsers.utils.CustomTimeFrame;
+import core.services.UserInfoService;
 import dao.ServiceView;
 import dao.entities.FullAlbumEntityExtended;
 import dao.entities.LastFMData;
@@ -131,8 +132,8 @@ public class PaceAlbumCommand extends ConcurrentCommand<NumberParameters<AlbumTi
 
         }
         final long unitNumber = 1;
-        List<UserInfo> holder = lastFM.getUserInfo(List.of(user.getName()), user);
-        UserInfo mainUser = holder.get(0);
+
+        UserInfo mainUser = new UserInfoService(db).refreshUserInfo(user);
         int unixtimestamp = mainUser.getUnixtimestamp();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd MMM yyyy");
         long totalUnits;

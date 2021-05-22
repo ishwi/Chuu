@@ -40,7 +40,7 @@ public class EvalCommand extends ConcurrentCommand<CommandParameters> {
             import core.Chuu.*;
             import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
             """;
-    private static final Pattern emmbed = Pattern.compile("```(:?java)?[\\s\\S]*```");
+    private static final Pattern emmbed = Pattern.compile("```(?:java)?[\\s\\S]*```");
     private static Long ownerId = null;
 
     public EvalCommand(ServiceView dao) {

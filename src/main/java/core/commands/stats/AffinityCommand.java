@@ -11,11 +11,11 @@ import core.otherlisteners.Reactionary;
 import core.parsers.AffinityParser;
 import core.parsers.Parser;
 import core.parsers.params.AffinityParameters;
+import core.services.UserInfoService;
 import dao.ServiceView;
 import dao.entities.Affinity;
 import dao.entities.DiscordUserDisplay;
 import dao.entities.LastFMData;
-import dao.entities.UserInfo;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.EmbedBuilder;
 
@@ -72,11 +72,11 @@ public class AffinityCommand extends ConcurrentCommand<AffinityParameters> {
     void doIndividual(AffinityParameters ap) throws LastFmException {
         Context e = ap.getE();
 
-        Affinity affinity = db.getAffinity(ap.getFirstLastfmId().getName(), ap.getSecondLastfmId().getName(), ap.getThreshold());
+        Affinity affinity = db.getAffinity(ap.getFirstUser().getName(), ap.getSecondUser().getName(), ap.getThreshold());
         DiscordUserDisplay first = CommandUtil.getUserInfoNotStripped(e, ap.getFirstDiscordID());
         DiscordUserDisplay second = CommandUtil.getUserInfoNotStripped(e, ap.getSecondDiscordID());
-        List<UserInfo> userInfo = lastFM.getUserInfo(List.of(ap.getFirstLastfmId().getName(), ap.getSecondLastfmId().getName()), ap.getFirstLastfmId());
-        BufferedImage bufferedImage = LoveMaker.calculateLove(affinity, first, userInfo.get(0).getImage(), userInfo.get(1).getImage(), second);
+        UserInfoService info = new UserInfoService(db);
+        BufferedImage bufferedImage = LoveMaker.calculateLove(affinity, first, info.maybeRefresh(ap.getFirstUser()).getImage(), info.maybeRefresh(ap.getSecondUser()).getImage(), second);
         sendImage(bufferedImage, e);
     }
 

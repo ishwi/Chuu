@@ -175,4 +175,6 @@ interface UserGuildDao {
 
     void setGuildVoiceAnnouncement(Connection connection, long guildId, VoiceAnnouncement voiceAnnouncement);
 
+    boolean shouldSendPermsAgain(Connection connection, long perms, long guildId);
+
 }

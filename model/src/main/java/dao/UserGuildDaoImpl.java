@@ -1575,6 +1575,29 @@ public class UserGuildDaoImpl implements UserGuildDao {
         }
     }
 
+    @Override
+    public boolean shouldSendPermsAgain(Connection connection, long perms, long guildId) {
+        String queryString = """
+                SELECT moment < (now() - INTERVAL 15 MINUTE)
+                FROM permission_errors
+                WHERE guild_id = ? AND permsission = ?
+                """;
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+            int i = 1;
+            preparedStatement.setLong(i, guildId);
+
+
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            if (resultSet.next()) {
+                return resultSet.getBoolean(0);
+            }
+            return true;
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
     private List<LastFMData> getServerData(Connection con, long guildId, String queryString) {
         List<LastFMData> lastFMData = new ArrayList<>();
         try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {

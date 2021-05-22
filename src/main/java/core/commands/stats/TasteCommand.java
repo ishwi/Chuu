@@ -83,7 +83,10 @@ public class TasteCommand extends BaseTasteCommand<TwoUsersTimeframeParamaters> 
                 int secondSize = lastFM.getChart(second, CustomTimeFrame.ofTimeFrameEnum(params.getTimeFrameEnum()),
                         1000, 1, TopEntity.ARTIST, ChartUtil.getParser(CustomTimeFrame.ofTimeFrameEnum(params.getTimeFrameEnum()), TopEntity.ARTIST, ChartParameters.toListParams(), lastFM, og), rQ);
                 HashSet<UrlCapsule> set = new HashSet<>(lQ);
-                Map<UrlCapsule, UrlCapsule> map = rQ.stream().collect(Collectors.toMap(x -> x, x -> x));
+                Map<UrlCapsule, UrlCapsule> map = rQ.stream().collect(Collectors.toMap(x -> x, x -> x, (z, x) -> {
+                    z.setPlays(z.getPlays() + x.getPlays());
+                    return z;
+                }));
                 record Holder(UrlCapsule first, UrlCapsule second, double total) {
 
                 }

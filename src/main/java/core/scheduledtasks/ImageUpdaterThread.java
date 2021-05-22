@@ -32,7 +32,7 @@ public class ImageUpdaterThread implements Runnable {
             String url;
             try {
                 //We can get rate limited if we do it wihtout sleeping
-                Thread.sleep(10L);
+                Thread.sleep(1000L);
                 url = discogsApi.findArtistImage(artistDatum.getArtist());
 
                 if (url == null || url.isEmpty()) {

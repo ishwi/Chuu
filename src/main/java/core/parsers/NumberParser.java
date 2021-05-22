@@ -24,8 +24,8 @@ import java.util.regex.Pattern;
  * @param <T> The parser that returns the type K
  **/
 public class NumberParser<K extends CommandParameters, T extends Parser<K>> extends ExtraParser<NumberParameters<K>, K, T, Long> {
-    private static final Pattern digitMatcher = Pattern.compile("[1-9]([0-9]+)?[kKmM]?");
-    private static final Pattern allow0 = Pattern.compile("[0-9]+[kKmM]?");
+    private static final Pattern digitMatcher = Pattern.compile("[1-9][0-9]{0,16}[kKmM]?");
+    private static final Pattern allow0 = Pattern.compile("[0-9]{1,17}[kKmM]?");
     private static final Predicate<String> predicate = digitMatcher.asMatchPredicate();
     private static final Function<Interactible, String> nameObtainer = s -> s.options().stream().filter(t -> t.getType() == OptionType.INTEGER).map(OptionData::getName).findFirst().orElse("number");
     private static final Function<String, Function<SlashCommandEvent, Long>> slash = s -> event ->

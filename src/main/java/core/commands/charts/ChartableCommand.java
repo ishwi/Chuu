@@ -72,6 +72,7 @@ public abstract class ChartableCommand<T extends ChartParameters> extends Concur
     @Override
     protected void onCommand(Context e, @NotNull T params) throws LastFmException {
 
+
         CountWrapper<BlockingQueue<UrlCapsule>> countWrapper = processQueue(params);
         BlockingQueue<UrlCapsule> urlCapsules = countWrapper.getResult();
         if (urlCapsules.isEmpty()) {
@@ -119,33 +120,34 @@ public abstract class ChartableCommand<T extends ChartParameters> extends Concur
                 chartQuality = ChartQuality.JPEG_SMALL;
         } else {
             if (e.getGuild().getMaxFileSize() == (50 << 20)) {
-                if (chartSize > 1000) {
+                if (chartSize > (45 * (50 / 8.)) && chartSize < 10000) {
                     chartQuality = ChartQuality.JPEG_BIG;
+                } else if (chartSize >= 10000) {
+                    chartQuality = ChartQuality.JPEG_SMALL;
                 }
-            } else if (chartSize > 4000) {
+            } else if (chartSize > (45 * (100 / 8.)) && chartSize < 20000) {
                 chartQuality = ChartQuality.JPEG_BIG;
+            } else {
+                chartQuality = ChartQuality.JPEG_SMALL;
             }
         }
         BufferedImage image = CollageMaker
                 .generateCollageThreaded(x, minx, queue, chartQuality, params.isAside() || params.chartMode().equals(ChartMode.IMAGE_ASIDE) || params.chartMode().equals(ChartMode.IMAGE_ASIDE_INFO));
-
         boolean info = params.chartMode().equals(ChartMode.IMAGE_INFO) || params.chartMode().equals(ChartMode.IMAGE_ASIDE_INFO);
         sendImage(image, e, chartQuality, info ? configEmbed(new ChuuEmbedBuilder(e), params, size) : null);
     }
 
 
     public void doImage(BlockingQueue<UrlCapsule> queue, int x, int y, T parameters, int size) {
-        CompletableFuture<Message> future = null;
         Context e = parameters.getE();
         if (queue.size() < x * y) {
             x = Math.max((int) Math.ceil(Math.sqrt(queue.size())), 1);
             //noinspection SuspiciousNameCombination
             y = x;
         }
-        if (x * y > 100) {
-            future = e.sendMessage("Going to take a while").submit();
-        }
+
         UrlCapsule first = queue.peek();
+        // Store some album covers
         if (first instanceof AlbumChart || first instanceof TrackDurationAlbumArtistChart) {
             queue.forEach(t -> t.setUrl(Chuu.getCoverService().getCover(t.getArtistName(), t.getAlbumName(), t.getUrl(), e)));
             if (CommandUtil.rand.nextFloat() >= 0.7f && first instanceof AlbumChart) {
@@ -164,9 +166,7 @@ public abstract class ChartableCommand<T extends ChartParameters> extends Concur
         }
 
         generateImage(queue, x, y, e, parameters, size);
-        // Store some album covers
 
-        CommandUtil.handleConditionalMessage(future);
     }
 
 

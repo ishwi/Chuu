@@ -66,11 +66,26 @@ public class RadioCommand extends MusicCommand<EnumParameters<Station>> {
             boolean falltrough = false;
             if (input != null) {
                 String finalInput = input.split("\\s+")[0];
-                Optional<Station> found = stations.stream().filter(z -> z.getAliases().stream().anyMatch(w -> w.equalsIgnoreCase(finalInput))).findFirst();
-                falltrough = found.isEmpty();
-                if (!falltrough) {
-                    element = found.get();
-                    input = input.replaceFirst(finalInput, "").strip();
+                if (finalInput.equalsIgnoreCase("stop")) {
+                    MusicManager existing = Chuu.playerRegistry.getExisting(e.getGuild());
+                    if (existing == null) {
+                        sendMessageQueue(e, "There's no music playing in this server!");
+                        return;
+                    }
+                    RadioTrackContext radio = existing.getRadio();
+                    if (radio == null) {
+                        sendMessageQueue(e, "There's no radio playing in this server!");
+                        return;
+                    }
+                    e.sendMessage(new ChuuEmbedBuilder(e).setTitle("Radio stopped").setDescription("No longer streaming random songs from " + radio.getSource().getName()).build()).queue();
+                    return;
+                } else {
+                    Optional<Station> found = stations.stream().filter(z -> z.getAliases().stream().anyMatch(w -> w.equalsIgnoreCase(finalInput))).findFirst();
+                    falltrough = found.isEmpty();
+                    if (!falltrough) {
+                        element = found.get();
+                        input = input.replaceFirst(finalInput, "").strip();
+                    }
                 }
             }
 
@@ -79,7 +94,7 @@ public class RadioCommand extends MusicCommand<EnumParameters<Station>> {
                 String str = stations.stream().filter(Station::isActive).map(z -> "__**%s**__  \u279C %s".formatted(WordUtils.capitalizeFully(z.name()), z.getDescription())).collect(Collectors.joining("\n"));
                 var eb = new ChuuEmbedBuilder(e).setDescription(str)
                         .setAuthor(e.getJDA().getSelfUser().getName() + "'s Radio stations", PrivacyUtils.getLastFmUser(Chuu.DEFAULT_LASTFM_ID), e.getJDA().getSelfUser().getAvatarUrl())
-                        .setFooter("Example: " + e.getPrefix() + "radio random");
+                        .setFooter("Do `" + e.getPrefix() + "radio stop` to cancel the radio\nExample: " + e.getPrefix() + "radio random");
                 if (falltrough) {
                     eb.setTitle("Didn't find any station with that name");
                 }
@@ -139,7 +154,7 @@ public class RadioCommand extends MusicCommand<EnumParameters<Station>> {
                 VoiceChannel channel = e.getMember().getVoiceState().getChannel();
 
                 if (e.getGuild().getAudioManager().getConnectedChannel() != null) {
-                    musicManager.moveAudioConnection(channel);
+                    musicManager.moveAudioConnection(channel, e.getChannel());
                 } else {
                     musicManager.openAudioConnection(channel, e);
                 }

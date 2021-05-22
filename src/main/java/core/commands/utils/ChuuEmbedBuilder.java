@@ -42,6 +42,16 @@ public class ChuuEmbedBuilder extends EmbedBuilder {
         return super.build();
     }
 
+    @NotNull
+    @Override
+    public EmbedBuilder setFooter(@Nullable String text, @Nullable String iconUrl) {
+        if (text != null) {
+            return super.setFooter(CommandUtil.cleanMarkdownCharacter(text), iconUrl);
+        }
+        return super.setFooter(null, iconUrl);
+    }
+
+
     @Nonnull
     public EmbedBuilder appendDescription(@Nonnull CharSequence description) {
         Checks.notNull(description, "description");

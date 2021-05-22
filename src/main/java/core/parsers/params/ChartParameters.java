@@ -112,9 +112,7 @@ public class ChartParameters extends CommandParameters {
 
     public boolean isAside() {
         ChartMode chartMode = chartMode();
-        return ((chartMode == ChartMode.IMAGE && hasOptional("aside")))
-               ||
-               chartMode == ChartMode.IMAGE_ASIDE && !isPie() && !isList();
+        return !isList() && !isPie() && (hasOptional("aside") || chartMode == ChartMode.IMAGE_ASIDE || chartMode == ChartMode.IMAGE_ASIDE_INFO);
     }
 
     public long getDiscordId() {

@@ -4,6 +4,7 @@ import core.commands.utils.CommandUtil;
 import dao.entities.NaturalTimeFrameEnum;
 import dao.entities.TimeFrameEnum;
 
+import javax.validation.constraints.NotNull;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.EnumSet;
@@ -38,7 +39,7 @@ public class CustomTimeFrame {
 
     }
 
-    public CustomTimeFrame(TimeFrameEnum timeFrameEnum) {
+    public CustomTimeFrame(@NotNull TimeFrameEnum timeFrameEnum) {
         this.timeFrameEnum = timeFrameEnum;
         this.count = -1;
         this.from = null;

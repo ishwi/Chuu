@@ -98,7 +98,7 @@ public class DateUtils {
 
     }
 
-    final BiFunction<String, DateTimeFormatter[], Optional<OffsetDateTime>> eval = (s, formatArray) ->
+    final BiFunction<String, DateTimeFormatter[], Optional<OffsetDateTime>> matcher = (s, formatArray) ->
             Arrays.stream(formatArray).map(x -> {
                 try {
                     TemporalAccessor parse = x.parse(s);
@@ -151,7 +151,7 @@ public class DateUtils {
         if (join.isBlank()) {
             return null;
         }
-        Optional<OffsetDateTime> apply = eval.apply(join.trim(), dateTimeFormatters);
+        Optional<OffsetDateTime> apply = matcher.apply(join.trim(), dateTimeFormatters);
         return new DateParsed(words, apply.orElse(null), OffsetDateTime.now());
     }
 
@@ -162,15 +162,16 @@ public class DateUtils {
         Matcher matcher = compile.matcher(join);
         if (matcher.matches()) {
             String from = matcher.group(1);
-            Optional<OffsetDateTime> apply = eval.apply(from.trim(), dateTimeFormatters);
+            Optional<OffsetDateTime> parsedFrom = this.matcher.apply(from.trim(), dateTimeFormatters);
 
             String to = matcher.group(2);
-            Optional<OffsetDateTime> apply2 = eval.apply(to.trim(), dateTimeFormatters);
+            Optional<OffsetDateTime> parsedTo = this.matcher.apply(to.trim(), dateTimeFormatters);
             words = join.replaceAll(from.trim() + "\\s+-\\s+" + to.trim(), "").split("\\s+");
             if (words.length == 1 && words[0].isBlank()) {
                 words = new String[]{};
             }
-            return new DateParsed(words, apply.orElse(null), apply2.orElse(null));
+
+            return new DateParsed(words, parsedFrom.orElse(null), parsedTo.orElse(OffsetDateTime.now()));
         }
         return null;
     }

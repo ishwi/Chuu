@@ -64,7 +64,7 @@ public class SummonCommand extends MusicCommand<ChannelParameters> {
         GuildChannel targetChannel = params.getGuildChannel();
         if (targetChannel instanceof VoiceChannel voiceChannel) {
             if (e.getGuild().getAudioManager().getConnectedChannel() != null) {
-                manager.moveAudioConnection(voiceChannel);
+                manager.moveAudioConnection(voiceChannel, e.getChannel());
             } else {
                 manager.openAudioConnection(voiceChannel, e);
             }

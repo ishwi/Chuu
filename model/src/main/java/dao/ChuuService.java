@@ -587,10 +587,14 @@ public class ChuuService implements EveryNoiseService {
 
     }
 
-    public long getDiscordIdFromLastfm(String lasFmName, long guildId) throws InstanceNotFoundException {
+    public long getDiscordIdFromLastfm(String fmName, long guildId) throws InstanceNotFoundException {
         try (Connection connection = dataSource.getConnection()) {
             connection.setReadOnly(true);
-            return userGuildDao.getDiscordIdFromLastFm(connection, lasFmName, guildId);
+            //Force collation
+            fmName = Normalizer.normalize(fmName, Normalizer.Form.NFD);
+            fmName = fmName.replaceAll("\\p{M}", "");
+
+            return userGuildDao.getDiscordIdFromLastFm(connection, fmName, guildId);
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
 
@@ -3973,6 +3977,15 @@ public class ChuuService implements EveryNoiseService {
         try (Connection connection = dataSource.getConnection()) {
             connection.setReadOnly(true);
             return trackDao.getUserTopArtistByDuration(connection, lastfmId, limit);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    public boolean shouldSendPermsAgain(long perms, long guildId) {
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setReadOnly(true);
+            return userGuildDao.shouldSendPermsAgain(connection, perms, guildId);
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }

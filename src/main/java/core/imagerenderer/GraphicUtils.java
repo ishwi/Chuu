@@ -8,7 +8,6 @@ import core.imagerenderer.util.fitter.StringFitter;
 import core.imagerenderer.util.fitter.StringFitterBuilder;
 import dao.entities.ReturnNowPlaying;
 import dao.entities.WrapperReturnNowPlaying;
-import dao.exceptions.ChuuServiceException;
 import org.imgscalr.Scalr;
 
 import javax.annotation.Nullable;
@@ -44,8 +43,11 @@ public class GraphicUtils {
     private static final Font KOREAN_FONT = new Font("Malgun Gothic", Font.PLAIN, 14);
     private static final Font EMOJI_FONT = new Font("Symbola", Font.PLAIN, 14);
     public static final Font[] palletes = new Font[]{JAPANESE_FIRST, JAPANESE_FONT, KOREAN_FONT, EMOJI_FONT, EMOJI_FONT_BACKUP, HEBREW_FONT, NAMARE_FONT, ARABIC_FONT, THAI_FONT};
+    private static final File walpepes;
 
     static {
+
+
         try (InputStream in = GraphicUtils.class.getResourceAsStream("/all.properties");
              InputStream in2 = WhoKnowsMaker.class.getResourceAsStream("/images/noArtistImage.png")) {
             if (in == null || in2 == null) {
@@ -54,6 +56,8 @@ public class GraphicUtils {
             Properties properties = new Properties();
             properties.load(in);
             String cache_folder = properties.getProperty("CACHE_FOLDER");
+            String path = properties.getProperty("WALLPAPER_FOLDER");
+            walpepes = new File(path);
             CacheDirectory = new File(cache_folder);
             assert CacheDirectory.isDirectory();
             noArtistImage = ImageIO.read(in2);
@@ -443,18 +447,15 @@ public class GraphicUtils {
         BufferedImage bim;
 
         Properties properties = new Properties();
-
-        try (InputStream in = TasteRenderer.class.getResourceAsStream("/" + "all.properties")) {
-            properties.load(in);
-            String path = properties.getProperty("WALLPAPER_FOLDER");
-            File dir = new File(path);
-            File[] files = dir.listFiles();
-
-            assert files != null;
-            File file;
-            do {
-                file = files[GraphicUtils.ran.nextInt(files.length)];
-            } while (file.isDirectory());
+        File[] files = walpepes.listFiles();
+        if (files == null) {
+            return;
+        }
+        File file;
+        do {
+            file = files[GraphicUtils.ran.nextInt(files.length)];
+        } while (file.isDirectory());
+        try {
             BufferedImage temp = ImageIO.read(file);
             if (temp != null) {
                 bim = cropImage(temp, SIZE_X, SIZE_Y);
@@ -463,7 +464,7 @@ public class GraphicUtils {
                 bim.flush();
             }
         } catch (IOException e) {
-            throw new ChuuServiceException(e);
+            Chuu.getLogger().info("Error reading file {} ", file.getName());
         }
 
     }

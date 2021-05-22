@@ -6,18 +6,18 @@ import dao.entities.LastFMData;
 
 public class AffinityParameters extends CommandParameters {
     private final boolean doServer;
-    private final LastFMData firstLastfmId;
-    private final LastFMData secondLastfmId;
+    private final LastFMData firstUser;
+    private final LastFMData secondUser;
     private final Long firstDiscordID;
     private final Long secondDiscordID;
     private final long threshold;
 
 
-    public AffinityParameters(Context e, boolean doServer, LastFMData firstLastfmId, LastFMData secondLastfmId, Long firstDiscordID, Long secondDiscordID, Long threshold) {
+    public AffinityParameters(Context e, boolean doServer, LastFMData firstUser, LastFMData secondLastfmId, Long firstDiscordID, Long secondDiscordID, Long threshold) {
         super(e);
         this.doServer = doServer;
-        this.firstLastfmId = firstLastfmId;
-        this.secondLastfmId = secondLastfmId;
+        this.firstUser = firstUser;
+        this.secondUser = secondLastfmId;
 
         this.firstDiscordID = firstDiscordID;
         this.secondDiscordID = secondDiscordID;
@@ -28,12 +28,12 @@ public class AffinityParameters extends CommandParameters {
         return doServer;
     }
 
-    public LastFMData getFirstLastfmId() {
-        return firstLastfmId;
+    public LastFMData getFirstUser() {
+        return firstUser;
     }
 
-    public LastFMData getSecondLastfmId() {
-        return secondLastfmId;
+    public LastFMData getSecondUser() {
+        return secondUser;
     }
 
     public Long getFirstDiscordID() {

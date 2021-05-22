@@ -98,7 +98,7 @@ public class RainbowChartCommand extends OnlyChartCommand<RainbowParams> {
             count = lastFM.getChart(param.getUser(), param.getTimeFrameEnum(), x,
                     y, TopEntity.ARTIST, ChartUtil.getParser(param.getTimeFrameEnum(), TopEntity.ARTIST, param, lastFM, param.getUser()), queue);
         } else {
-            queue = new ArrayBlockingQueue<>((int) (param.getX() * param.getY() * 2 * 1.4));
+            queue = new ArrayBlockingQueue<>((x * y));
             count = lastFM.getChart(param.getUser(), param.getTimeFrameEnum(), x, y, TopEntity.ALBUM,
                     ChartUtil.getParser(param.getTimeFrameEnum(), TopEntity.ALBUM, param, lastFM, param.getUser()), queue);
         }

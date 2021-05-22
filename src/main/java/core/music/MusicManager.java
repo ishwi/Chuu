@@ -152,7 +152,7 @@ public class MusicManager extends AudioEventAdapter implements AudioSendHandler 
         return guild;
     }
 
-    public TextChannel getAnnouncementChannel() {
+    public @Nullable TextChannel getAnnouncementChannel() {
         VoiceAnnouncement voiceAnnouncement = voiceAnnounceService.getVoiceAnnouncement(this.guildId);
         if (!voiceAnnouncement.enabled()) {
             return null;
@@ -218,13 +218,20 @@ public class MusicManager extends AudioEventAdapter implements AudioSendHandler 
         }
     }
 
+
     public void moveAudioConnection(VoiceChannel channel) {
+        moveAudioConnection(channel, getCurrentRequestChannel());
+    }
+
+    public void moveAudioConnection(VoiceChannel channel, @Nullable MessageChannel source) {
         Member selfMember = getGuild().getSelfMember();
         if (selfMember.getVoiceState() == null || !selfMember.getVoiceState().inVoiceChannel()) {
             destroy();
         }
         if (!selfMember.hasPermission(channel, Permission.VOICE_CONNECT)) {
-            getCurrentRequestChannel().sendMessage("I don't have permission to join `" + channel.getName() + "`.").queue();
+            if (source != null) {
+                source.sendMessage("I don't have permission to join `" + channel.getName() + "`.").queue();
+            }
             destroy();
             return;
         }
@@ -232,7 +239,9 @@ public class MusicManager extends AudioEventAdapter implements AudioSendHandler 
         player.setPaused(true);
         getGuild().getAudioManager().openAudioConnection(channel);
         player.setPaused(false);
-        getCurrentRequestChannel().sendMessage("Moved").queue();
+        if (source != null) {
+            source.sendMessage("Moved").queue();
+        }
 
     }
 
@@ -292,7 +301,7 @@ public class MusicManager extends AudioEventAdapter implements AudioSendHandler 
             if (throwable != null) {
                 if (player.getPlayingTrack() != null) {
                     player.stopTrack();
-                    getCurrentRequestChannel().sendMessage("Couldn't get a new song from the radio: " + radio.getSource().getName() + "\nStopping playback").queue();
+                    Optional.ofNullable(getCurrentRequestChannel()).ifPresent(z -> z.sendMessage("Couldn't get a new song from the radio: " + radio.getSource().getName() + "\nStopping playback").queue());
                 }
             }
         }).thenCompose(it -> {
@@ -468,7 +477,7 @@ public class MusicManager extends AudioEventAdapter implements AudioSendHandler 
         return loops;
     }
 
-    public TextChannel getCurrentRequestChannel() {
+    public @Nullable TextChannel getCurrentRequestChannel() {
         AudioTrack track = player.getPlayingTrack();
         if (track == null) {
             track = lastTrack;

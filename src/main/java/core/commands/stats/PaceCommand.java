@@ -8,6 +8,7 @@ import core.parsers.PaceParser;
 import core.parsers.Parser;
 import core.parsers.params.NaturalTimeParams;
 import core.parsers.params.NumberParameters;
+import core.services.UserInfoService;
 import dao.ServiceView;
 import dao.entities.LastFMData;
 import dao.entities.NaturalTimeFrameEnum;
@@ -79,8 +80,7 @@ public class PaceCommand extends ConcurrentCommand<NumberParameters<NumberParame
         NaturalTimeFrameEnum naturalTimeFrameEnum = naturalTimeParams.getTime();
 
 
-        List<UserInfo> holder = lastFM.getUserInfo(List.of(lastfmId), user);
-        UserInfo mainUser = holder.get(0);
+        UserInfo mainUser = new UserInfoService(db).refreshUserInfo(user);
         int playCount = mainUser.getPlayCount();
         String userString = getUserString(e, discordId, lastfmId);
         long unitNumber;
@@ -121,12 +121,13 @@ public class PaceCommand extends ConcurrentCommand<NumberParameters<NumberParame
         }
 
         // UTC was not working with last.fm smh
+
         ZonedDateTime now = LocalDateTime.now().atZone(ZoneOffset.ofHours(2));
         int timestamp = switch (naturalTimeFrameEnum) {
             case YEAR -> (int) now.minus(unitNumber, ChronoUnit.YEARS).toEpochSecond();
             case QUARTER -> (int) now.minus(unitNumber * 4, ChronoUnit.MONTHS).toEpochSecond();
             case MONTH -> (int) now.minus(unitNumber, ChronoUnit.MONTHS).toEpochSecond();
-            case ALL -> 0;
+            case ALL -> mainUser.getUnixtimestamp();
             case SEMESTER -> (int) now.minus(unitNumber * 6, ChronoUnit.MONTHS).toEpochSecond();
             case WEEK -> (int) now.minus(unitNumber, ChronoUnit.WEEKS).toEpochSecond();
             case DAY -> (int) now.minus(unitNumber, ChronoUnit.DAYS).toEpochSecond();
@@ -139,11 +140,9 @@ public class PaceCommand extends ConcurrentCommand<NumberParameters<NumberParame
             sendMessageQueue(e, userString + " hasn't played anything in the last " + unitNumber + " " + naturalTimeFrameEnum.toString().toLowerCase());
             return;
         }
-        int unixtimestamp = mainUser.getUnixtimestamp();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd MMM yyyy");
         long totalUnits;
 
-        timestamp = totalScrobbles == playCount ? unixtimestamp : timestamp;
         totalUnits = 0;
         int i = -1;
         List<ChronoUnit> chronoUnits = List.of(ChronoUnit.DAYS, ChronoUnit.HOURS, ChronoUnit.MINUTES, ChronoUnit.SECONDS);
@@ -167,9 +166,13 @@ public class PaceCommand extends ConcurrentCommand<NumberParameters<NumberParame
         String format = now.plus((long) remainingUnits, chronoUnits.get(i)).format(formatter);
         String unit = chronoUnits.get(i).name().toLowerCase();
         String s = String.format("**%s** has a rate of **%s** scrobbles per %s %s, so they are on pace to hit **%d** scrobbles on **%s**. (They currently have %d scrobbles)",
-                userString, new DecimalFormat("#0.00").format(ratio),
+                userString,
+                new DecimalFormat("#0.00").format(ratio),
                 unit.substring(0, unit.length() - 1),
-                timeFrame, goal, format, playCount);
+                timeFrame,
+                goal,
+                format,
+                playCount);
 
         sendMessageQueue(e, s);
     }

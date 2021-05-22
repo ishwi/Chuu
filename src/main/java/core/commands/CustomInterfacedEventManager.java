@@ -125,7 +125,7 @@ public class CustomInterfacedEventManager implements IEventManager {
                 if (mes.getMessage().getMentionedUsers().contains(mes
                         .getJDA().getSelfUser()) && mes.getMessage().getType() != MessageType.INLINE_REPLY) {
                     if (mes.getMessage().getContentRaw().contains("prefix")) {
-                        mes.getChannel().sendMessage("My prefix is: `" + ctx.getPrefix() + "`").queue();
+                        mes.getChannel().sendMessage("My prefix is: `" + correspondingPrefix + "`").queue();
                     }
                 }
                 return;

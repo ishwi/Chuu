@@ -26,6 +26,7 @@ import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.exceptions.ErrorResponseException;
+import net.dv8tion.jda.api.exceptions.InsufficientPermissionException;
 import net.dv8tion.jda.api.hooks.EventListener;
 import net.dv8tion.jda.api.requests.ErrorResponse;
 import net.dv8tion.jda.api.requests.RestAction;
@@ -208,6 +209,10 @@ public abstract class MyCommand<T extends CommandParameters> implements EventLis
                 Exception ex) {
             if (ex instanceof LastFMServiceException && ex.getMessage().equals("500")) {
                 parser.sendError("Last.fm is not working well atm :(", e);
+                return false;
+            }
+            if (ex instanceof InsufficientPermissionException ipe) {
+                parser.sendError("Couldn't execute the command because im missing the permission: **" + ipe.getPermission().getName() + "**", e);
                 return false;
             }
             parser.sendError("Internal Chuu Error", e);

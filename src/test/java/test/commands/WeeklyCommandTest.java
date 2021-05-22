@@ -29,7 +29,7 @@ public class WeeklyCommandTest extends CommandTest {
     public void normalWorkingTest() {
 
         Pattern pattern = Pattern
-                .compile("((?:Mon|Tues|Wed(?:nes)?|Thur(?:s)?|Fri|Sat(?:ur)?|Sun)(?:day)?), (\\d{1,2})/(\\d{1,2}): (\\d+) minutes, \\((\\d+):(\\d+)h\\) on (\\d+) track(:?s)?");
+                .compile("((?:Mon|Tues|Wed(?:nes)?|Thurs?|Fri|Sat(?:ur)?|Sun)(?:day)?), (\\d{1,2})/(\\d{1,2}): (\\d+) minutes, \\((\\d+):(\\d+)h\\) on (\\d+) tracks?");
         Predicate<Matcher> descriptionMatcher = matcher -> {
             List<String> daysOfWeek = Arrays
                     .asList("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday");

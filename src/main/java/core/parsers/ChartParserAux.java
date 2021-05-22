@@ -23,12 +23,12 @@ import static core.parsers.Parser.filterMessage;
 
 public class ChartParserAux {
     public static final Pattern chartSizePattern = Pattern.compile("\\d+[xX]\\d+");
-    private static final Pattern pattern = Pattern.compile("(:?[yqsmwad]|(:?(:?day|daily)?)|(:?year(:?ly)?|month(:?ly)?|quarter(:?ly)?|semester(:?ly)?|week(:?ly)?|alltime|all))", Pattern.CASE_INSENSITIVE);
-    private static final Pattern naturalPattern = Pattern.compile("(:?[yqsmwadh']|(:?year(:?ly)?(:?s)?(:?lies)?|month(:?ly)?(:?s)?(:?lies)?|quarter(:?ly)?(:?s)?(:?lies)?|semester(:?ly)?(:?s)?(:?lies)?|week(:?ly)?(:?s)?(:?lies)?|alltime|all|dai(:?ly)?(:?lies)?|day(:?s)?|" +
-                                                                  "hour(:?ly)?(:?s)?|min(:?ute)?(:?s)?|sec(:?ond)?(:?s)?|''))", Pattern.CASE_INSENSITIVE);
+    private static final Pattern pattern = Pattern.compile("([yqsmwad]|(?:day|daily)?|(?:year(?:ly)?|month(?:ly)?|quarter(?:ly)?|semester(?:ly)?|week(?:ly)?|alltime|all))", Pattern.CASE_INSENSITIVE);
+    private static final Pattern naturalPattern = Pattern.compile("([yqsmwadh']|(?:year(?:ly)?s?(?:lies)?|month(?:ly)?s?(?:lies)?|quarter(?:ly)?s?(?:lies)?|semester(?:ly)?s?(?:lies)?|week(?:ly)?s?(?:lies)?|alltime|all|dai(?:ly)?(?:lies)?|days?|" +
+                                                                  "hour(?:ly)?s?|min(?:ute)?s?|sec(?:ond)?s?|''))", Pattern.CASE_INSENSITIVE);
 
-    private static final Pattern naturalPatternWithCount = Pattern.compile("(:?(?<![\\w\\d])[yqsmwadh'](?![\\w\\d]+)|(:?year(:?ly)?(:?s)?(:?lies)?|month(:?ly)?(:?s)?(:?lies)?|quarter(:?ly)?(:?s)?(:?lies)?|semester(:?ly)?(:?s)?(:?lies)?|week(:?ly)?(:?s)?(:?lies)?|alltime|all|dai(:?ly)?(:?lies)?|day(:?s)?|" +
-                                                                           "hour(:?ly)?(:?s)?|min(:?ute)?(:?s)?|sec(:?ond)?(:?s)?|''))", Pattern.CASE_INSENSITIVE);
+    private static final Pattern naturalPatternWithCount = Pattern.compile("((?<![\\w\\d])[yqsmwadh'](?![\\w\\d]+)|(?:year(?:ly)?s?(?:lies)?|month(?:ly)?s?(?:lies)?|quarter(?:ly)?s?(?:lies)?|semester(?:ly)?s?(?:lies)?|week(?:ly)?s?(?:lies)?|alltime|all|dai(?:ly)?(?:lies)?|days?|" +
+                                                                           "hour(?:ly)?s?|min(?:ute)?s?|sec(?:ond)?s?|''))", Pattern.CASE_INSENSITIVE);
     private static final Pattern nonPermissivePattern = Pattern.compile("[yqsmwd]", Pattern.CASE_INSENSITIVE);
     private final boolean permissive;
     private String[] message;
@@ -113,6 +113,7 @@ public class ChartParserAux {
                 return new CustomTimeFrame(defaultTimeFrame);
             }
             message = dateParsed.remainingWords();
+            assert dateParsed.to() != null;
             if (dateParsed.from().isAfter(dateParsed.to())) {
                 throw new InvalidDateException();
             }
@@ -148,15 +149,15 @@ public class ChartParserAux {
 
     TimeFrameEnum parseTimeframe(TimeFrameEnum defaultTimeFrame) {
         TimeFrameEnum timeFrame = defaultTimeFrame;
-        Stream<String> secondStream = Arrays.stream(message).filter(s ->
+
+        Optional<String> parsed = Arrays.stream(message).filter(s ->
                 !permissive
                 ? nonPermissivePattern.matcher(s).matches()
-                : pattern.matcher(s).matches());
-        Optional<String> opt2 = secondStream.findAny();
-        if (opt2.isPresent()) {
-            String permissiveString = !permissive ? opt2.get() : String.valueOf(opt2.get().charAt(0));
+                : pattern.matcher(s).matches()).findAny();
+        if (parsed.isPresent()) {
+            String permissiveString = !permissive ? parsed.get() : String.valueOf(parsed.get().charAt(0));
             timeFrame = TimeFrameEnum.get(permissiveString);
-            message = Arrays.stream(message).filter(s -> !s.equals(opt2.get())).toArray(String[]::new);
+            message = Arrays.stream(message).filter(s -> !s.equals(parsed.get())).toArray(String[]::new);
         }
         return timeFrame;
     }

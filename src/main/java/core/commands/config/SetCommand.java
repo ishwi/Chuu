@@ -20,6 +20,8 @@ import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.entities.MessageChannel;
 
 import javax.validation.constraints.NotNull;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
@@ -57,13 +59,23 @@ public class SetCommand extends ConcurrentCommand<WordParameter> {
     protected void onCommand(Context e, @NotNull WordParameter params) throws LastFmException, InstanceNotFoundException {
 
 
-        String lastFmID = params.getWord();
+        String lastFmName = params.getWord();
         long guildID = e.getGuild().getIdLong();
         long userId = e.getAuthor().getIdLong();
         //Gets all users in this server
 
         try {
-            lastFM.getUserInfo(List.of(lastFmID), null);
+            try {
+                // Just a db check to avoid one api call
+                LastFMData byLastfmName = db.findByLastfmName(lastFmName);
+            } catch (InstanceNotFoundException ex) {
+                String encode = URLEncoder.encode(lastFmName, StandardCharsets.UTF_8);
+                if (!encode.equals(lastFmName)) {
+                    sendMessageQueue(e, "The provided username doesn't exist on last.fm, choose another one");
+                    return;
+                }
+                lastFM.getUserInfo(List.of(lastFmName), null);
+            }
         } catch (LastFmEntityNotFoundException | IllegalArgumentException ex) {
             sendMessageQueue(e, "The provided username doesn't exist on last.fm, choose another one");
             return;
@@ -77,7 +89,7 @@ public class SetCommand extends ConcurrentCommand<WordParameter> {
                                  "Any doubt you might have please contact the bot developers on the support server";
         boolean repeated;
         try {
-            LastFMData byLastfmName = db.findByLastfmName(lastFmID);
+            LastFMData byLastfmName = db.findByLastfmName(lastFmName);
             repeated = byLastfmName.getDiscordId() != userId;
         } catch (InstanceNotFoundException ex) {
             repeated = false;
@@ -87,7 +99,7 @@ public class SetCommand extends ConcurrentCommand<WordParameter> {
             sendMessageQueue(e, repeatedMessage);
             return;
         }
-        Optional<UsersWrapper> name = (guildlist.stream().filter(user -> user.getLastFMName().equals(lastFmID)).findFirst());
+        Optional<UsersWrapper> name = (guildlist.stream().filter(user -> user.getLastFMName().equals(lastFmName)).findFirst());
         //If name is already registered in this server
         if (name.isPresent()) {
             if (name.get().getDiscordID() != userId)
@@ -101,10 +113,10 @@ public class SetCommand extends ConcurrentCommand<WordParameter> {
         //User was already registered in this guild
         if (u.isPresent()) {
             //Registered with different username
-            if (!u.get().getLastFMName().equalsIgnoreCase(lastFmID)) {
+            if (!u.get().getLastFMName().equalsIgnoreCase(lastFmName)) {
                 sendMessageQueue(e, "Changing your username, might take a while");
                 try {
-                    db.changeLastFMName(userId, lastFmID);
+                    db.changeLastFMName(userId, lastFmName);
                 } catch (DuplicateInstanceException ex) {
                     sendMessageQueue(e, repeatedMessage);
                     return;
@@ -137,12 +149,12 @@ public class SetCommand extends ConcurrentCommand<WordParameter> {
                 queue(t -> e.getChannel().
                         sendTyping().
                         queue());
-        LastFMData lastFMData = new LastFMData(lastFmID, userId, Role.USER, false, true, WhoKnowsMode.IMAGE, ChartMode.IMAGE, RemainingImagesMode.IMAGE, ChartableParser.DEFAULT_X, ChartableParser.DEFAULT_Y, PrivacyMode.NORMAL, true, false, true, TimeZone.getDefault(), null, null, true, EmbedColor.defaultColor(), false, 0, ChartOptions.defaultMode());
+        LastFMData lastFMData = new LastFMData(lastFmName, userId, Role.USER, false, true, WhoKnowsMode.IMAGE, ChartMode.IMAGE, RemainingImagesMode.IMAGE, ChartableParser.DEFAULT_X, ChartableParser.DEFAULT_Y, PrivacyMode.NORMAL, true, false, true, TimeZone.getDefault(), null, null, true, EmbedColor.defaultColor(), false, 0, ChartOptions.defaultMode());
         lastFMData.setGuildID(guildID);
 
         db.insertNewUser(lastFMData);
 
-        setProcess(e, e.getChannel(), lastFmID, userId, lastFMData, e.getAuthor().getName());
+        setProcess(e, e.getChannel(), lastFmName, userId, lastFMData, e.getAuthor().getName());
 
     }
 
