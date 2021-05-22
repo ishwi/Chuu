@@ -29,6 +29,7 @@ public class WhoFirstCommand extends ConcurrentCommand<ArtistParameters> {
         super(dao);
         this.discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
         this.spotify = SpotifySingleton.getInstance();
+        this.respondInPrivate = false;
     }
 
     @Override

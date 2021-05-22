@@ -34,6 +34,7 @@ public class WhoLastCommand extends ConcurrentCommand<ArtistParameters> {
         super(dao);
         this.discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
         this.spotify = SpotifySingleton.getInstance();
+        respondInPrivate = false;
     }
 
     public static void handleUserListened(Context e, ArtistParameters params, List<UserListened> firsts, boolean isFirst) {

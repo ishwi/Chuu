@@ -78,13 +78,13 @@ public class FavesFromArtistCommand extends ConcurrentCommand<ArtistTimeFramePar
         if (timeframew.equals(TimeFrameEnum.ALL)) {
             ai = db.getTopArtistTracks(lastFmName, who.getArtistId(), Integer.MAX_VALUE);
             if (ai.isEmpty()) {
-                sendMessageQueue(e, ("Couldn't find your fav tracks of " + CommandUtil.cleanMarkdownCharacter(who.getArtist()) + timeframew.getDisplayString()));
+                sendMessageQueue(e, ("Couldn't find any track of " + CommandUtil.cleanMarkdownCharacter(who.getArtist()) + timeframew.getDisplayString()));
                 return;
             }
         } else {
             ai = lastFM.getTopArtistTracks(params.getLastFMData(), who.getArtist(), timeframew, artist);
             if (ai.isEmpty()) {
-                sendMessageQueue(e, ("Couldn't find your fav tracks in your top 5k songs (or you don't have any track with more than 3 plays) of " + CommandUtil.cleanMarkdownCharacter(who.getArtist()) + timeframew.getDisplayString() + "!"));
+                sendMessageQueue(e, ("Couldn't find any track in your top 5k  (or you don't have any track with more than 3 plays) of " + CommandUtil.cleanMarkdownCharacter(who.getArtist()) + timeframew.getDisplayString() + "!"));
                 return;
             }
         }
@@ -103,7 +103,7 @@ public class FavesFromArtistCommand extends ConcurrentCommand<ArtistTimeFramePar
                 .setAuthor(String.format("%s's top %s tracks%s", userString, who.getArtist(), timeframew.getDisplayString()), PrivacyUtils.getLastFmArtistUserUrl(who.getArtist(), lastFmName), uInfo.getUrlImage())
                 .setThumbnail(CommandUtil.noImageUrl(who.getUrl()));
         if (ai.size() > 10) {
-            embedBuilder.setFooter(userString + " has listened to " + s.size() + " different " + who.getArtist() + " songs!");
+            embedBuilder.setFooter("%s has listened to %d different %s songs!".formatted(userString, s.size(), who.getArtist()));
             e.sendMessage(embedBuilder.build()).queue(mes ->
                     new Reactionary<>(s, mes, embedBuilder));
         } else {

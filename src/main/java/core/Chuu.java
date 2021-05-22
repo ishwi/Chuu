@@ -165,9 +165,7 @@ public class Chuu {
                 .setShardsTotal(-1)
                 .addEventListeners(new AwaitReady(counter, (ShardManager shard) -> {
                     messageDisablingService = new MessageDisablingService(shard, service);
-                    if (installGlobalCommands) {
-                        InteractionBuilder.setGlobalCommands(shard.getShardById(0)).queue();
-                    }
+
                     if (!startRightAway) {
                         shutDownPreviousInstance(() -> {
                             addAll(db, shardManager::addEventListener);
@@ -175,6 +173,9 @@ public class Chuu {
                         });
                     }
                     updatePresence("Chuu");
+                    if (installGlobalCommands) {
+                        InteractionBuilder.setGlobalCommands(shard.getShardById(0)).queue();
+                    }
                 }));
 
         try {
@@ -301,9 +302,7 @@ public class Chuu {
     }
 
     public static void updatePresence(String artist) {
-
         Chuu.shardManager.getShards().forEach(x -> x.getPresence().setActivity(Activity.playing(artist + " | !help for help")));
-
     }
 
     public static Map<Long, RateLimiter> getRatelimited() {
