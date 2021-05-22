@@ -35,6 +35,7 @@ public sealed interface Context permits ContextMessageReceived, ContextSlashRece
 
     char getPrefix();
 
+    String toLog();
 
     long getId();
 

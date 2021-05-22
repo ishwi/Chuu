@@ -10,6 +10,7 @@ import net.dv8tion.jda.api.requests.restaction.MessageAction;
 
 import java.io.InputStream;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public final record ContextMessageReceived(MessageReceivedEvent e) implements Context {
     @Override
@@ -50,6 +51,12 @@ public final record ContextMessageReceived(MessageReceivedEvent e) implements Co
     @Override
     public char getPrefix() {
         return e.getMessage().getContentRaw().charAt(0);
+    }
+
+    @Override
+    public String toLog() {
+        return "%s -> %s | attachments -> %s".formatted(e.getAuthor().getIdLong(), e.getMessage().getContentRaw(),
+                e.getMessage().getAttachments().stream().map(Message.Attachment::getUrl).collect(Collectors.joining(", ")));
     }
 
     @Override

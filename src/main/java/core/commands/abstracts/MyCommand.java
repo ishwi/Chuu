@@ -211,7 +211,8 @@ public abstract class MyCommand<T extends CommandParameters> implements EventLis
                 return false;
             }
             parser.sendError("Internal Chuu Error", e);
-            Chuu.getLogger().warn(ex.getMessage(), ex);
+
+            Chuu.getLogger().warn("Internal Chuu error happened handling command {} | {} ", getName(), e.toLog(), ex);
         }
         if (e.isFromGuild())
             deleteMessage(e, e.getGuild().getIdLong());

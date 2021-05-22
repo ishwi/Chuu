@@ -13,6 +13,7 @@ import net.dv8tion.jda.api.requests.restaction.WebhookMessageAction;
 import javax.annotation.Nullable;
 import java.io.InputStream;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public final record ContextSlashReceived(SlashCommandEvent e) implements Context {
     @Override
@@ -54,6 +55,11 @@ public final record ContextSlashReceived(SlashCommandEvent e) implements Context
     @Override
     public char getPrefix() {
         return '/';
+    }
+
+    @Override
+    public String toLog() {
+        return "%s -> /%s | %s".formatted(e.getUser(), e.getCommandPath(), e.getOptions().stream().map(OptionMapping::toString).collect(Collectors.joining(", ")));
     }
 
     @Override
