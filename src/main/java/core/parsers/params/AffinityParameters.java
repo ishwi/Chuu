@@ -10,7 +10,7 @@ public class AffinityParameters extends CommandParameters {
     private final LastFMData secondLastfmId;
     private final Long firstDiscordID;
     private final Long secondDiscordID;
-    private final Long threshold;
+    private final long threshold;
 
 
     public AffinityParameters(Context e, boolean doServer, LastFMData firstLastfmId, LastFMData secondLastfmId, Long firstDiscordID, Long secondDiscordID, Long threshold) {
@@ -44,7 +44,7 @@ public class AffinityParameters extends CommandParameters {
         return secondDiscordID;
     }
 
-    public Long getThreshold() {
+    public long getThreshold() {
         return threshold;
     }
 }

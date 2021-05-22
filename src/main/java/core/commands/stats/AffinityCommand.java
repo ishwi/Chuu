@@ -85,7 +85,15 @@ public class AffinityCommand extends ConcurrentCommand<AffinityParameters> {
         LastFMData ogData = db.findLastFMData(e.getAuthor().getIdLong());
         List<Affinity> serverAff = db.getServerAffinity(ogData.getName(), e.getGuild().getIdLong(), ap.getThreshold()).stream()
                 .sorted(Comparator.comparing(Affinity::getAffinity).reversed()).toList();
-
+        if (serverAff.isEmpty()) {
+            if (ap.getThreshold() != DEFAULT_THRESHOLD) {
+                sendMessageQueue(e, "You don't have any matching artist with more than %d %s with anyone in this server.".formatted(ap.getThreshold(), CommandUtil.singlePlural(ap.getThreshold(), "play", "plays")));
+            } else {
+                sendMessageQueue(e, "You don't have any matching artist (using the default threshold of %d %s) with anyone in this server. You can try specifying a lower value!"
+                        .formatted(ap.getThreshold(), CommandUtil.singlePlural(ap.getThreshold(), "play", "plays")));
+            }
+            return;
+        }
 
         StringBuilder stringBuilder = new StringBuilder();
         List<String> lines = serverAff.stream().map(x -> String.format(". [%s](%s) - %.2f%%%s matching%n", getUserString(e, x.getDiscordId()),
