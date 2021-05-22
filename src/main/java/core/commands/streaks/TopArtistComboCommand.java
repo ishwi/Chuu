@@ -144,7 +144,7 @@ public class TopArtistComboCommand extends ConcurrentCommand<NumberParameters<Ar
 
             GlobalStreakEntities.DateHolder holder = params.hasOptional("start") ? CommandUtil.toDateHolder(x.getStreakStart(), lastfmId) : null;
 
-            return GlobalStreakEntities.getComboString(aString, description, x.getaCounter(), x.getCurrentArtist(), x.getAlbCounter(), x.getCurrentAlbum(), x.gettCounter(), x.getCurrentSong(), holder);
+            return GlobalStreakEntities.getComboString(aString, description, x.artistCount(), x.getCurrentArtist(), x.albumCount(), x.getCurrentAlbum(), x.trackCount(), x.getCurrentSong(), holder);
         };
 
         if (topStreaks.isEmpty()) {

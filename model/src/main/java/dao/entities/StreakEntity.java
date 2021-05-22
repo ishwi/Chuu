@@ -28,7 +28,7 @@ public class StreakEntity {
         return currentArtist;
     }
 
-    public int getaCounter() {
+    public int artistCount() {
         return aCounter;
     }
 
@@ -36,7 +36,7 @@ public class StreakEntity {
         return currentAlbum;
     }
 
-    public int getAlbCounter() {
+    public int albumCount() {
         return albCounter;
     }
 
@@ -44,7 +44,7 @@ public class StreakEntity {
         return currentSong;
     }
 
-    public int gettCounter() {
+    public int trackCount() {
         return tCounter;
     }
 

@@ -1267,8 +1267,8 @@ public class UpdaterDaoImpl extends BaseDAO implements UpdaterDao {
         String mySql = "INSERT INTO top_combos (artist_id,discord_id,album_id,track_name,artist_combo,album_combo,track_combo,streak_start) VALUES" +
                        " (?,?,?,?,?,?,?,?)" + " ON DUPLICATE KEY UPDATE " +
                        "artist_combo = IF(artist_combo < VALUES(artist_combo),VALUES(artist_combo),artist_combo)," +
-                       "album_combo = IF(artist_combo < VALUES(artist_combo),VALUES(album_combo),album_combo)," +
-                       "track_combo = IF(artist_combo < VALUES(artist_combo),VALUES(track_combo),track_combo)," +
+                       "album_combo = IF(album_combo < VALUES(album_combo),VALUES(album_combo),album_combo)," +
+                       "track_combo = IF(track_combo < VALUES(track_combo),VALUES(track_combo),track_combo)," +
                        " album_id = IF(album_combo > 1,VALUES(album_id),NULL)," +
                        " track_name = IF(track_combo > 1,VALUES(track_name),NULL)";
         try (PreparedStatement preparedStatement = connection.prepareStatement(mySql)) {
@@ -1280,14 +1280,14 @@ public class UpdaterDaoImpl extends BaseDAO implements UpdaterDao {
                 preparedStatement.setLong(+3, albumId);
 
             }
-            if (combo.gettCounter() <= 1) {
+            if (combo.trackCount() <= 1) {
                 preparedStatement.setNull(+4, Types.VARCHAR);
             } else {
                 preparedStatement.setString(4, combo.getCurrentSong());
             }
-            preparedStatement.setInt(+5, combo.getaCounter());
-            preparedStatement.setInt(+6, combo.getAlbCounter());
-            preparedStatement.setInt(+7, combo.gettCounter());
+            preparedStatement.setInt(+5, combo.artistCount());
+            preparedStatement.setInt(+6, combo.albumCount());
+            preparedStatement.setInt(+7, combo.trackCount());
             preparedStatement.setTimestamp(+8, Timestamp.from(combo.getStreakStart()));
 
 

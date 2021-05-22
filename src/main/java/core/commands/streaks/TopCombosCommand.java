@@ -115,7 +115,7 @@ public class TopCombosCommand extends ConcurrentCommand<NumberParameters<Command
             StringBuilder description = new StringBuilder("" + publicString.discordName() + "\n");
             GlobalStreakEntities.DateHolder holder = params.hasOptional("start") ? CommandUtil.toDateHolder(x.getStreakStart(), x.getLastfmId()) : null;
 
-            return GlobalStreakEntities.getComboString(aString, description, x.getaCounter(), x.getCurrentArtist(), x.getAlbCounter(), x.getCurrentAlbum(), x.gettCounter(), x.getCurrentSong(), holder);
+            return GlobalStreakEntities.getComboString(aString, description, x.artistCount(), x.getCurrentArtist(), x.albumCount(), x.getCurrentAlbum(), x.trackCount(), x.getCurrentSong(), holder);
         };
 
         List<Memoized<GlobalStreakEntities, String>> z = topStreaks.stream().map(t -> new Memoized<>(t, mapper)).toList();

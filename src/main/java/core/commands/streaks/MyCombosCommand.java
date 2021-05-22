@@ -70,7 +70,7 @@ public class MyCombosCommand extends ConcurrentCommand<ChuuDataParams> {
                             StringBuilder description = new StringBuilder(CommandUtil.getDayNumberSuffix(andIncrement) + "\n");
                             GlobalStreakEntities.DateHolder holder = params.hasOptional("start") ? CommandUtil.toDateHolder(combo.getStreakStart(), params.getLastFMData().getName()) : null;
 
-                            return GlobalStreakEntities.getComboString(aString, description, combo.getaCounter(), combo.getCurrentArtist(), combo.getAlbCounter(), combo.getCurrentAlbum(), combo.gettCounter(), combo.getCurrentSong(), holder);
+                            return GlobalStreakEntities.getComboString(aString, description, combo.artistCount(), combo.getCurrentArtist(), combo.albumCount(), combo.getCurrentAlbum(), combo.trackCount(), combo.getCurrentSong(), holder);
                         }
                 ).collect(Collectors.toCollection(ArrayList::new));
         if (streaks.isEmpty()) {

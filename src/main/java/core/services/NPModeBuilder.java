@@ -226,9 +226,9 @@ public class NPModeBuilder {
                         } else {
                             try {
                                 StreakEntity combo = lastFM.getCombo(lastFMName);
-                                if (combo.getaCounter() > 1) {
+                                if (combo.artistCount() > 1) {
                                     footerSpaces[footerIndexes.get(NPMode.CURRENT_COMBO)] =
-                                            String.format("%s's is on a 🔥 of %d %s", userName, combo.getaCounter(), CommandUtil.singlePlural(combo.getaCounter(), "play", "plays"));
+                                            String.format("%s's is on a 🔥 of %d %s", userName, combo.artistCount(), CommandUtil.singlePlural(combo.artistCount(), "play", "plays"));
                                 }
                             } catch (LastFmException exception) {
                                 exception.printStackTrace();
@@ -696,7 +696,7 @@ public class NPModeBuilder {
                         if (!userArtistTopStreaks.isEmpty()) {
                             StreakEntity globalStreakEntities = userArtistTopStreaks.get(0);
                             footerSpaces[footerIndexes.get(NPMode.HIGHEST_STREAK)] =
-                                    (String.format("%s 🔥 %d %s", userName, globalStreakEntities.getaCounter(), CommandUtil.singlePlural(globalStreakEntities.getaCounter(), "play", "plays")));
+                                    (String.format("%s 🔥 %d %s", userName, globalStreakEntities.artistCount(), CommandUtil.singlePlural(globalStreakEntities.artistCount(), "play", "plays")));
                         }
                     })));
                     break;
@@ -711,7 +711,7 @@ public class NPModeBuilder {
                                 globalStreakEntities.setDisplayer(consumer);
                                 String name = globalStreakEntities.getName().replace("*", "").substring(2).trim();
                                 footerSpaces[index] =
-                                        (String.format("%s \uD83D\uDD25 %d %s (%s)", e.getGuild().getName(), globalStreakEntities.getaCounter(), CommandUtil.singlePlural(globalStreakEntities.getaCounter(), "play", "plays"), name));
+                                        (String.format("%s \uD83D\uDD25 %d %s (%s)", e.getGuild().getName(), globalStreakEntities.artistCount(), CommandUtil.singlePlural(globalStreakEntities.artistCount(), "play", "plays"), name));
                             }
                         })));
                     }
@@ -725,7 +725,7 @@ public class NPModeBuilder {
                             globalStreakEntities.setDisplayer(consumer);
                             String name = globalStreakEntities.getName().replace("*", "").substring(2).trim();
                             footerSpaces[index] =
-                                    (String.format("Global \uD83D\uDD25 %d %s (%s)", globalStreakEntities.getaCounter(), CommandUtil.singlePlural(globalStreakEntities.getaCounter(), "play", "plays"), name));
+                                    (String.format("Global \uD83D\uDD25 %d %s (%s)", globalStreakEntities.artistCount(), CommandUtil.singlePlural(globalStreakEntities.artistCount(), "play", "plays"), name));
                         }
                     })));
                     break;

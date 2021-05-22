@@ -89,12 +89,12 @@ public class StreakCommand extends ConcurrentCommand<ChuuDataParams> {
         ScrobbledArtist artist = new ScrobbledArtist(combo.getCurrentArtist(), 0, "");
         CommandUtil.validate(db, artist, lastFM, discogsApi, spotifyApi);
         Long albumId = null;
-        if (combo.getAlbCounter() > 1) {
+        if (combo.albumCount() > 1) {
             albumId = CommandUtil.albumvalidate(db, artist, lastFM, combo.getCurrentAlbum()).id();
         }
 
-        if (combo.getaCounter() >= 3) {
-            if (combo.gettCounter() >= StreakEntity.MAX_STREAK || combo.getStreakStart().isBefore(Instant.EPOCH.plus(350, ChronoUnit.DAYS))) {
+        if (combo.artistCount() >= 3) {
+            if (combo.trackCount() >= StreakEntity.MAX_STREAK || combo.getStreakStart().isBefore(Instant.EPOCH.plus(350, ChronoUnit.DAYS))) {
                 //Only one allowed Max Streak per user
                 combo.setStreakStart(Instant.EPOCH.plus(1, ChronoUnit.DAYS));
             }
@@ -111,12 +111,12 @@ public class StreakCommand extends ConcurrentCommand<ChuuDataParams> {
                 .setThumbnail(CommandUtil.noImageUrl(artist.getUrl()))
                 .setDescription("");
 
-        if (combo.getaCounter() > 1) {
+        if (combo.artistCount() > 1) {
             description.append("**Artist**: ")
-                    .append(combo.getaCounter()).append(combo.getaCounter() >= 9000 ? "+" : "").append(combo.getaCounter() != 1 ? " consecutive plays - " : " play - ")
+                    .append(combo.artistCount()).append(combo.artistCount() >= 9000 ? "+" : "").append(combo.artistCount() != 1 ? " consecutive plays - " : " play - ")
                     .append("**[").append(aString).append("](").append(LinkUtils.getLastFmArtistUrl(combo.getCurrentArtist())).append(")**").append("\n");
         }
-        if (combo.getAlbCounter() > 1) {
+        if (combo.albumCount() > 1) {
             if (combo.getUrl() == null || combo.getUrl().isBlank() || combo.getUrl().equals(TrackGroupAlbumQueue.defaultTrackImage)) {
                 String s = CommandUtil.albumUrl(db, lastFM, combo.getCurrentArtist(), combo.getCurrentAlbum(), discogsApi, spotifyApi);
                 if (s != null && !s.isBlank()) {
@@ -126,19 +126,19 @@ public class StreakCommand extends ConcurrentCommand<ChuuDataParams> {
                 embedBuilder.setThumbnail(combo.getUrl());
             }
             description.append("**Album**: ")
-                    .append(combo.getAlbCounter())
-                    .append(combo.getAlbCounter() >= 9000 ? "+" : "")
-                    .append(combo.getAlbCounter() != 1 ? " consecutive plays - " : " play - ")
+                    .append(combo.albumCount())
+                    .append(combo.albumCount() >= 9000 ? "+" : "")
+                    .append(combo.albumCount() != 1 ? " consecutive plays - " : " play - ")
                     .append("**[").append(CommandUtil.cleanMarkdownCharacter(combo.getCurrentAlbum())).append("](")
                     .append(LinkUtils.getLastFmArtistAlbumUrl(combo.getCurrentArtist(), combo.getCurrentAlbum())).append(")**")
                     .append("\n");
         }
-        if (combo.gettCounter() > 1) {
+        if (combo.trackCount() > 1) {
             if (combo.getUrl() != null && !combo.getUrl().isBlank() && !combo.getUrl().equals(TrackGroupAlbumQueue.defaultTrackImage)) {
                 embedBuilder.setThumbnail(combo.getUrl());
             }
-            description.append("**Song**: ").append(combo.gettCounter()).append(combo.gettCounter() >= 9000 ? "+" : "")
-                    .append(combo.gettCounter() != 1 ? " consecutive plays - " : " play - ").append("**[")
+            description.append("**Song**: ").append(combo.trackCount()).append(combo.trackCount() >= 9000 ? "+" : "")
+                    .append(combo.trackCount() != 1 ? " consecutive plays - " : " play - ").append("**[")
                     .append(CommandUtil.cleanMarkdownCharacter(combo.getCurrentSong())).append("](").append(LinkUtils.getLastFMArtistTrack(combo.getCurrentArtist(), combo.getCurrentSong())).append(")**").append("\n");
         }
         if (params.hasOptional("start")) {
