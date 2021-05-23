@@ -62,7 +62,7 @@ public class UserConfigCommand extends ConcurrentCommand<UserConfigParameters> {
         UserConfigParameters parse = this.parser.parse(e);
 
         UserConfigType config = parse.getConfig();
-        String value = parse.getValue();
+        String value = parse.getValue().trim();
         boolean cleansing = value.equalsIgnoreCase("clear");
         switch (config) {
             case PRIVATE_UPDATE:
@@ -215,7 +215,12 @@ public class UserConfigCommand extends ConcurrentCommand<UserConfigParameters> {
                 }
                 break;
             case NP:
-                String[] split = value.trim().replaceAll(" +", " ").split("[|,& ]+");
+
+                if (value.matches("(clear|list|add|remove|help).*")) {
+                    sendMessageQueue(e, "To use one of those settings please use the `" + e.getPrefix() + "npc` command instead.");
+                    return;
+                }
+                String[] split = value.replaceAll(" +", " ").split("[|,& ]+");
                 EnumSet<NPMode> modes = EnumSet.noneOf(NPMode.class);
                 for (String mode : split) {
                     NPMode npMode = NPMode.valueOf(mode.replace("-", "_").toUpperCase());
@@ -256,10 +261,10 @@ public class UserConfigCommand extends ConcurrentCommand<UserConfigParameters> {
                 break;
             case CHART_OPTIONS:
                 EnumSet<ChartOptions> chartOpts;
-                if (value.trim().toLowerCase(Locale.ROOT).contains("clear")) {
+                if (value.toLowerCase(Locale.ROOT).contains("clear")) {
                     chartOpts = ChartOptions.defaultMode();
                 } else {
-                    split = value.trim().replaceAll("--|~~|—", "").replaceAll("\\s+", " ").split("[|,& ]+");
+                    split = value.replaceAll("--|~~|—", "").replaceAll("\\s+", " ").split("[|,& ]+");
                     chartOpts = EnumSet.noneOf(ChartOptions.class);
                     for (String mode : split) {
                         ChartOptions npMode = ChartOptions.valueOf(mode.replace("-", "_").toUpperCase());

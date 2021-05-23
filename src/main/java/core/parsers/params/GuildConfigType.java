@@ -186,13 +186,13 @@ public enum GuildConfigType {
             case OVERRIDE_NP_REACTIONS:
                 explanation = EnumSet.allOf(OverrideMode.class).stream().map(x -> "\n\t\t\t**" + WordUtils.capitalizeFully(x.toString().replaceAll("_", "-"), '-', ' ') + "**: " + x.getDescription()).collect(Collectors.joining(""));
                 return "Whether you want the server reactions to override the users reactions, add to the user added or only use them when the user doesnt have any.\n"
-                       + "\t\tThe possible values for the override nowPlayingInfo mode are the following:" + explanation;
+                       + "\t\tThe possible values for the override np mode are the following:" + explanation;
             case DELETE_MESSAGE:
                 return "Whether you want the bot to delete the original message the user wrote.";
             case SHOW_DISABLED_WARNING:
                 return "Whether you want the bot to show a warning when you try to run a disabled command.";
             case NP:
-                return "Setting this will alter the appearance of this server nowPlayingInfo commands. You can select up to 10 different from the following list and mix them up:\n" + "CLEAR | " + NPMode.getListedName(EnumSet.allOf(NPMode.class));
+                return "Setting this will alter the appearance of this server np commands. You can select any from the following list and mix them up:\n" + "CLEAR | " + NPMode.getListedName(EnumSet.allOf(NPMode.class));
             case VOICE_ANNOUNCEMENT_CHANNEL:
                 return "If set, the bot will send to this channel when a new song is started, as opposed to using the channel where the command was invoked.";
             case VOICE_ANNOUNCEMENT_ENABLED:

@@ -41,7 +41,7 @@ public enum UserConfigType {
     static final Pattern privacyMode = Pattern.compile("(Normal|Tag|Last-name|Discord-Name)", Pattern.CASE_INSENSITIVE);
     static final Pattern npMode = Pattern.compile("((" +
                                                   EnumSet.allOf(NPMode.class).stream().filter(x -> !x.equals(NPMode.UNKNOWN)).map(NPMode::toString).collect(Collectors.joining("|")) +
-                                                  ")[ |&,]*)+", Pattern.CASE_INSENSITIVE);
+                                                  "|clear|list|add|remove|help|)[ |&,]*)+", Pattern.CASE_INSENSITIVE);
     static final Predicate<String> stringPredicate = (x) ->
     {
         try {
@@ -232,7 +232,7 @@ public enum UserConfigType {
             case NOTIFY_RATING -> "Whether you will get notified or not when a url you have submitted to the random command gets rated by someone else (true = notify, false = don't)";
             case PRIVATE_LASTFM -> "Setting this to true will mean that your last.fm name will stay private and will not be shared with anyone. (This is different from privacy settings since it affects commands within a server and not cross server)";
             case SHOW_BOTTED -> "Setting this to false will mean that you wont have to include --nobotted in the global commands to exclude accounts flagged as bots)";
-            case NP -> "Setting this will alter the appearance of your nowPlayingInfo commands. You can select as many as you want from the following list and mix them up:\n" + NPMode.getListedName(EnumSet.allOf(NPMode.class));
+            case NP -> "Setting this will alter the appearance of your np commands. You can select as many as you want from the following list and mix them up:\n" + NPMode.getListedName(EnumSet.allOf(NPMode.class));
             case SCROBBLING -> "Setting this to false will mean that whatever you play with the bot on a voice channel won't scrooble";
             case COLOR -> {
                 String line = EnumSet.allOf(EmbedColor.EmbedColorType.class).stream().map(x -> "\n\t\t\t**" + WordUtils.capitalizeFully(x.toString()) + "**: " + x.getDescription()).collect(Collectors.joining(""));

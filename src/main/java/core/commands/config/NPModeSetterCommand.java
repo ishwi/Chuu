@@ -44,12 +44,12 @@ public class NPModeSetterCommand extends ConcurrentCommand<EnumListParameters<NP
 
     @Override
     public Parser<EnumListParameters<NPMode>> initParser() {
-        return new EnumListParser<>("NP Modes", NPMode.class, EnumSet.of(NPMode.UNKNOWN), mapper);
+        return new EnumListParser<>(db, "NP Modes", NPMode.class, EnumSet.of(NPMode.UNKNOWN), mapper);
     }
 
     @Override
     public String getDescription() {
-        return "Customize your nowPlayingInfo/fm commands with several extra fields";
+        return "Customize your np/fm commands with several extra fields";
     }
 
     @Override
@@ -59,7 +59,7 @@ public class NPModeSetterCommand extends ConcurrentCommand<EnumListParameters<NP
 
     @Override
     public String getName() {
-        return "Now Playing command configuration";
+        return "NP command configuration";
     }
 
     @Override
@@ -79,18 +79,26 @@ public class NPModeSetterCommand extends ConcurrentCommand<EnumListParameters<NP
             return;
         }
         if (params.isListing()) {
-            modes = db.getNPModes(e.getAuthor().getIdLong());
+            modes = db.getNPModes(params.getUser().getIdLong());
             String strMode = NPMode.getListedName(modes);
             sendMessageQueue(e,
                     "Do `" + CommandUtil.getMessagePrefix(e) + "npc help` for a list of all options.\n" +
-                    "Current modes: " +
+                    "%surrent modes: ".formatted(params.getUser().getIdLong() != e.getAuthor().getIdLong() ? getUserString(e, params.getUser().getIdLong()) + "'s c" : "C") +
                     strMode);
         } else {
+            if (params.isAdding() || params.isRemoving()) {
+                EnumSet<NPMode> npModes = db.getNPModes(e.getAuthor().getIdLong());
+                if (params.isAdding()) {
+                    npModes.addAll(modes);
+                } else {
+                    npModes.removeAll(modes);
+                }
+                modes = npModes;
+            }
             String strMode = NPMode.getListedName(modes);
             db.changeNpMode(e.getAuthor().getIdLong(), modes);
             sendMessageQueue(e, String.format("Successfully changed to the following %s: %s", CommandUtil.singlePlural(modes.size(), "mode", "modes"), strMode));
         }
     }
-
 
 }
