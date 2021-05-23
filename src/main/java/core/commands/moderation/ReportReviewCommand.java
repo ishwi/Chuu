@@ -44,7 +44,7 @@ public class ReportReviewCommand extends ConcurrentCommand<CommandParameters> {
                     .addField("#Times user got reported:", String.valueOf(reportEntity.getUserTotalReports()), true)
                     .addField("Image score:", String.valueOf(reportEntity.getCurrentScore()), false)
                     .addField("Number of reports on this image:", String.valueOf(reportEntity.getReportCount()), true)
-                    .addField("Artist:", String.format("[%s](%s)", CommandUtil.cleanMarkdownCharacter(reportEntity.getArtistName()), LinkUtils.getLastFmArtistUrl(reportEntity.getArtistName())), false)
+                    .addField("Artist:", String.format("[%s](%s)", CommandUtil.escapeMarkdown(reportEntity.getArtistName()), LinkUtils.getLastFmArtistUrl(reportEntity.getArtistName())), false)
                     .setFooter(String.format("%d/%d%nUse \uD83D\uDC69\u200D\u2696\ufe0f to remove this image", pos.get() + 1, integer))
                     .setImage(CommandUtil.noImageUrl(reportEntity.getUrl()))
                     .setColor(CommandUtil.pastelColor());

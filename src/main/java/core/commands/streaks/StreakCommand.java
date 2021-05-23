@@ -104,10 +104,10 @@ public class StreakCommand extends ConcurrentCommand<ChuuDataParams> {
 
 
         int artistPlays = db.getArtistPlays(artist.getArtistId(), lastfmId);
-        String aString = CommandUtil.cleanMarkdownCharacter(artist.getArtist());
+        String aString = CommandUtil.escapeMarkdown(artist.getArtist());
         StringBuilder description = new StringBuilder();
         EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e)
-                .setAuthor(String.format("%s 's current listening streak", CommandUtil.markdownLessUserString(userName, discordID, e)), CommandUtil.getLastFmUser(lastfmId), userUrl)
+                .setAuthor(String.format("%s 's current listening streak", CommandUtil.unescapedUser(userName, discordID, e)), CommandUtil.getLastFmUser(lastfmId), userUrl)
                 .setThumbnail(CommandUtil.noImageUrl(artist.getUrl()))
                 .setDescription("");
 
@@ -129,7 +129,7 @@ public class StreakCommand extends ConcurrentCommand<ChuuDataParams> {
                     .append(combo.albumCount())
                     .append(combo.albumCount() >= 9000 ? "+" : "")
                     .append(combo.albumCount() != 1 ? " consecutive plays - " : " play - ")
-                    .append("**[").append(CommandUtil.cleanMarkdownCharacter(combo.getCurrentAlbum())).append("](")
+                    .append("**[").append(CommandUtil.escapeMarkdown(combo.getCurrentAlbum())).append("](")
                     .append(LinkUtils.getLastFmArtistAlbumUrl(combo.getCurrentArtist(), combo.getCurrentAlbum())).append(")**")
                     .append("\n");
         }
@@ -139,7 +139,7 @@ public class StreakCommand extends ConcurrentCommand<ChuuDataParams> {
             }
             description.append("**Song**: ").append(combo.trackCount()).append(combo.trackCount() >= 9000 ? "+" : "")
                     .append(combo.trackCount() != 1 ? " consecutive plays - " : " play - ").append("**[")
-                    .append(CommandUtil.cleanMarkdownCharacter(combo.getCurrentSong())).append("](").append(LinkUtils.getLastFMArtistTrack(combo.getCurrentArtist(), combo.getCurrentSong())).append(")**").append("\n");
+                    .append(CommandUtil.escapeMarkdown(combo.getCurrentSong())).append("](").append(LinkUtils.getLastFMArtistTrack(combo.getCurrentArtist(), combo.getCurrentSong())).append(")**").append("\n");
         }
         if (params.hasOptional("start")) {
             OffsetDateTime offsetDateTime = OffsetDateTime.ofInstant(combo.getStreakStart(), user.getTimeZone().toZoneId());
@@ -156,7 +156,7 @@ public class StreakCommand extends ConcurrentCommand<ChuuDataParams> {
         }
 
         embedBuilder.setDescription(description)
-                .setFooter(String.format("%s has played %s %d %s!", CommandUtil.markdownLessUserString(userName, discordID, e), artist.getArtist(), artistPlays, CommandUtil.singlePlural(artistPlays, "time", "times")));
+                .setFooter(String.format("%s has played %s %d %s!", CommandUtil.unescapedUser(userName, discordID, e), artist.getArtist(), artistPlays, CommandUtil.singlePlural(artistPlays, "time", "times")));
         e.sendMessage(embedBuilder.build()).
                 queue();
 

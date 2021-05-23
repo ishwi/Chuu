@@ -78,21 +78,21 @@ public class FavesFromArtistCommand extends ConcurrentCommand<ArtistTimeFramePar
         if (timeframew.equals(TimeFrameEnum.ALL)) {
             ai = db.getTopArtistTracks(lastFmName, who.getArtistId(), Integer.MAX_VALUE);
             if (ai.isEmpty()) {
-                sendMessageQueue(e, ("Couldn't find any track of " + CommandUtil.cleanMarkdownCharacter(who.getArtist()) + timeframew.getDisplayString()));
+                sendMessageQueue(e, ("Couldn't find any track of " + CommandUtil.escapeMarkdown(who.getArtist()) + timeframew.getDisplayString()));
                 return;
             }
         } else {
             ai = lastFM.getTopArtistTracks(params.getLastFMData(), who.getArtist(), timeframew, artist);
             if (ai.isEmpty()) {
-                sendMessageQueue(e, ("Couldn't find any track in your top 5k  (or you don't have any track with more than 3 plays) of " + CommandUtil.cleanMarkdownCharacter(who.getArtist()) + timeframew.getDisplayString() + "!"));
+                sendMessageQueue(e, ("Couldn't find any track in your top 5k  (or you don't have any track with more than 3 plays) of " + CommandUtil.escapeMarkdown(who.getArtist()) + timeframew.getDisplayString() + "!"));
                 return;
             }
         }
-        DiscordUserDisplay uInfo = CommandUtil.getUserInfoNotStripped(e, userId);
+        DiscordUserDisplay uInfo = CommandUtil.getUserInfoUnescaped(e, userId);
         String userString = uInfo.getUsername();
 
         StringBuilder a = new StringBuilder();
-        List<String> s = ai.stream().map(g -> ". **[" + CommandUtil.cleanMarkdownCharacter(g.getName()) + "](" + LinkUtils.getLastFMArtistTrack(g.getArtist(), g.getName()) + ")** - " + g.getPlays() + " plays" +
+        List<String> s = ai.stream().map(g -> ". **[" + CommandUtil.escapeMarkdown(g.getName()) + "](" + LinkUtils.getLastFMArtistTrack(g.getArtist(), g.getName()) + ")** - " + g.getPlays() + " plays" +
                                               "\n").toList();
         for (int i = 0; i < ai.size() && i < 10; i++) {
             String sb = s.get(i);

@@ -64,7 +64,7 @@ public class TrackDurationArtistChart extends TrackDurationChart {
     @Override
     public String toEmbedDisplay() {
         return String.format(". **[%s](%s)** - **%s** hours in **%d** %s%n",
-                CommandUtil.cleanMarkdownCharacter(getArtistName()),
+                CommandUtil.escapeMarkdown(getArtistName()),
                 LinkUtils.getLastFmArtistUrl(getArtistName()),
                 String.format("%d:%02d", seconds / 3600, seconds / 60 % 60),
                 getPlays(),

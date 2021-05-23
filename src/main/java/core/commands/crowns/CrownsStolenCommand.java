@@ -105,7 +105,7 @@ public class CrownsStolenCommand extends ConcurrentCommand<NumberParameters<TwoU
         embedBuilder.setDescription(a).setTitle(userName + "'s Top Crowns stolen by " + userName2, CommandUtil
                 .getLastFmUser(ogLastFmId))
                 .setThumbnail(userUrl2)
-                .setFooter(CommandUtil.markdownLessUserString(userName2, resultWrapper.getQuriedId(), e) + " has stolen " + rows + " crowns!\n", null);
+                .setFooter(CommandUtil.unescapedUser(userName2, resultWrapper.getQuriedId(), e) + " has stolen " + rows + " crowns!\n", null);
         e.sendMessage(embedBuilder.build()).queue(m ->
                 new Reactionary<>(resultWrapper.getList(), m, embedBuilder));
 

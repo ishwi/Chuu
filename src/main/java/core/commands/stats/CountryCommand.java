@@ -142,7 +142,7 @@ public class CountryCommand extends ConcurrentCommand<NumberParameters<TimeFrame
                 String s = lines.get(i);
                 a.append(i + 1).append(s);
             }
-            DiscordUserDisplay uInfo = CommandUtil.getUserInfoNotStripped(params.getE(), discordId);
+            DiscordUserDisplay uInfo = CommandUtil.getUserInfoUnescaped(params.getE(), discordId);
 
             var embedBuilder = new ChuuEmbedBuilder(e)
                     .setDescription(a)
@@ -157,7 +157,7 @@ public class CountryCommand extends ConcurrentCommand<NumberParameters<TimeFrame
                 indexPalette = Math.toIntExact(palette - 1);
             else
                 indexPalette = null;
-            byte[] b = WorldMapRenderer.generateImage(map, CommandUtil.getUserInfoNotStripped(e, discordId).getUsername(), indexPalette);
+            byte[] b = WorldMapRenderer.generateImage(map, CommandUtil.getUserInfoUnescaped(e, discordId).getUsername(), indexPalette);
             CommandUtil.handleConditionalMessage(future);
             if (b == null) {
                 parser.sendError("Unknown error happened while creating the map", e);

@@ -73,8 +73,8 @@ public class AffinityCommand extends ConcurrentCommand<AffinityParameters> {
         Context e = ap.getE();
 
         Affinity affinity = db.getAffinity(ap.getFirstUser().getName(), ap.getSecondUser().getName(), ap.getThreshold());
-        DiscordUserDisplay first = CommandUtil.getUserInfoNotStripped(e, ap.getFirstDiscordID());
-        DiscordUserDisplay second = CommandUtil.getUserInfoNotStripped(e, ap.getSecondDiscordID());
+        DiscordUserDisplay first = CommandUtil.getUserInfoUnescaped(e, ap.getFirstDiscordID());
+        DiscordUserDisplay second = CommandUtil.getUserInfoUnescaped(e, ap.getSecondDiscordID());
         UserInfoService info = new UserInfoService(db);
         BufferedImage bufferedImage = LoveMaker.calculateLove(affinity, first, info.maybeRefresh(ap.getFirstUser()).getImage(), info.maybeRefresh(ap.getSecondUser()).getImage(), second);
         sendImage(bufferedImage, e);
@@ -106,8 +106,8 @@ public class AffinityCommand extends ConcurrentCommand<AffinityParameters> {
         DiscordUserDisplay uInfo = CommandUtil.getUserInfoConsideringGuildOrNot(e, e.getAuthor().getIdLong());
         EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e)
                 .setDescription(stringBuilder)
-                .setTitle(uInfo.getUsername() + "'s soulmates in " + CommandUtil.cleanMarkdownCharacter(e.getGuild().getName()))
-                .setFooter(String.format("%s's affinity using a threshold of %d plays!%n", CommandUtil.markdownLessString(uInfo.getUsername()), ap.getThreshold()), null)
+                .setTitle(uInfo.getUsername() + "'s soulmates in " + CommandUtil.escapeMarkdown(e.getGuild().getName()))
+                .setFooter(String.format("%s's affinity using a threshold of %d plays!%n", CommandUtil.stripEscapedMarkdown(uInfo.getUsername()), ap.getThreshold()), null)
                 .setThumbnail(e.getGuild().getIconUrl());
         e.sendMessage(embedBuilder.build()).queue(message1 ->
                 new Reactionary<>(lines, message1, embedBuilder));

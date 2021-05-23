@@ -186,7 +186,7 @@ public abstract class ChartableCommand<T extends ChartParameters> extends Concur
     }
 
     public void doPie(PieChart pieChart, T chartParameters, int count) {
-        DiscordUserDisplay userInfoNotStripped = CommandUtil.getUserInfoNotStripped(chartParameters.getE(), chartParameters.getDiscordId());
+        DiscordUserDisplay userInfoNotStripped = CommandUtil.getUserInfoUnescaped(chartParameters.getE(), chartParameters.getDiscordId());
         String subtitle = configPieChart(pieChart, chartParameters, count, userInfoNotStripped.getUsername());
         String urlImage = userInfoNotStripped.getUrlImage();
         BufferedImage bufferedImage = new BufferedImage(1000, 750, BufferedImage.TYPE_INT_ARGB);

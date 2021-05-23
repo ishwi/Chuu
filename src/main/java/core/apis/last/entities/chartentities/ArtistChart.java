@@ -59,7 +59,7 @@ public class ArtistChart extends UrlCapsule {
     @Override
     public String toEmbedDisplay() {
         return String.format(". **[%s](%s)** - **%d** %s%n",
-                CommandUtil.cleanMarkdownCharacter(getArtistName()),
+                CommandUtil.escapeMarkdown(getArtistName()),
                 LinkUtils.getLastFmArtistUrl(getArtistName()),
                 getPlays(), CommandUtil.singlePlural(getPlays(), "play", "plays"));
     }

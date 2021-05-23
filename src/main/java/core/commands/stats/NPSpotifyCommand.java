@@ -32,7 +32,7 @@ public class NPSpotifyCommand extends NpCommand {
                         .albumName());
 
         if (uri.isBlank()) {
-            sendMessageQueue(e, String.format("Was not able to find %s - %s on spotify", CommandUtil.cleanMarkdownCharacter(nowPlayingArtist.artistName()), CommandUtil.cleanMarkdownCharacter(nowPlayingArtist
+            sendMessageQueue(e, String.format("Was not able to find %s - %s on spotify", CommandUtil.escapeMarkdown(nowPlayingArtist.artistName()), CommandUtil.escapeMarkdown(nowPlayingArtist
                     .songName())));
             return;
         }

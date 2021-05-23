@@ -81,17 +81,17 @@ public class SummaryArtistCommand extends ConcurrentCommand<ArtistParameters> {
         String tagsField = summary.getTags().isEmpty()
                            ? ""
                            : summary.getTags().stream()
-                                   .map(tag -> "[" + CommandUtil.cleanMarkdownCharacter(tag) + "](" + LinkUtils.getLastFmTagUrl(tag) + ")")
+                                   .map(tag -> "[" + CommandUtil.escapeMarkdown(tag) + "](" + LinkUtils.getLastFmTagUrl(tag) + ")")
                                    .collect(Collectors.joining(" - "));
 
         String similarField =
                 summary.getSimilars().isEmpty()
                 ? ""
                 : summary.getSimilars().stream()
-                        .map(art -> "[" + CommandUtil.cleanMarkdownCharacter(art) + "](" + LinkUtils.getLastFmArtistUrl(art) + ")")
+                        .map(art -> "[" + CommandUtil.escapeMarkdown(art) + "](" + LinkUtils.getLastFmArtistUrl(art) + ")")
                         .collect(Collectors.joining(" - "));
 
-        embedBuilder.setTitle("Information about " + CommandUtil.cleanMarkdownCharacter(summary.getArtistname()), LinkUtils.getLastFmArtistUrl(scrobbledArtist.getArtist()));
+        embedBuilder.setTitle("Information about " + CommandUtil.escapeMarkdown(summary.getArtistname()), LinkUtils.getLastFmArtistUrl(scrobbledArtist.getArtist()));
 
         if (e.isFromGuild()) {
             StringBuilder serverStats = new StringBuilder();
@@ -100,14 +100,14 @@ public class SummaryArtistCommand extends ConcurrentCommand<ArtistParameters> {
             long serverArtistPlays = db.getServerArtistPlays(e.getGuild().getIdLong(), scrobbledArtist.getArtistId());
             serverStats.append(String.format("**%d** plays%n", serverArtistPlays));
             embedBuilder.
-                    addField(String.format("%s's stats", CommandUtil.cleanMarkdownCharacter(e.getGuild().getName())), serverStats.toString(), true);
+                    addField(String.format("%s's stats", CommandUtil.escapeMarkdown(e.getGuild().getName())), serverStats.toString(), true);
         }
         String lastFMStats = String.format("**%d** listeners%n", summary.getListeners()) +
                              String.format("**%d** plays%n", summary.getPlaycount());
         String globalStats = String.format("**%d** listeners%n", globalArtistFrequencies) +
                              String.format("**%d** plays%n", globalArtistPlays);
         embedBuilder
-                .addField(String.format("%s's stats", CommandUtil.cleanMarkdownCharacter(e.getJDA().getSelfUser().getName())), globalStats, true)
+                .addField(String.format("%s's stats", CommandUtil.escapeMarkdown(e.getJDA().getSelfUser().getName())), globalStats, true)
                 .addField("Last.FM stats", lastFMStats, true)
                 .addField(username + "'s plays:", "**" + summary.getUserPlayCount() + "** plays", false);
         if (artistDetails != null) {
@@ -124,7 +124,7 @@ public class SummaryArtistCommand extends ConcurrentCommand<ArtistParameters> {
 
         embedBuilder.addField("Tags:", tagsField, false)
                 .addField("Similars:", similarField, false)
-                .addField("Bio:", CommandUtil.cleanMarkdownCharacter(summary.getSummary()), false)
+                .addField("Bio:", CommandUtil.escapeMarkdown(summary.getSummary()), false)
                 .setImage(scrobbledArtist.getUrl());
 
         e.sendMessage(embedBuilder.build()).queue();

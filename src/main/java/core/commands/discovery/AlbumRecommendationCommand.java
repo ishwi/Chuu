@@ -145,7 +145,7 @@ public class AlbumRecommendationCommand extends ConcurrentCommand<Recommendation
             String link;
             String albumLink = spotify.getAlbumLink(t.getArtist(), t.getAlbum());
             link = Objects.requireNonNullElseGet(albumLink, () -> LinkUtils.getLastFmArtistAlbumUrl(t.getArtist(), t.getAlbum()));
-            return String.format(". **[%s - %s](%s)**\n", CommandUtil.cleanMarkdownCharacter(t.getArtist()), t.getAlbum(), link);
+            return String.format(". **[%s - %s](%s)**\n", CommandUtil.escapeMarkdown(t.getArtist()), t.getAlbum(), link);
         }).limit(params.getRecCount())
                 .toList();
 

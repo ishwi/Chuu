@@ -26,7 +26,7 @@ public class MultipleWhoKnowsTagCommand extends WhoKnowsBaseCommand<MultipleGenr
     @NotNull
     static WrapperReturnNowPlaying formatTag(Context e, CompletableFuture<Optional<ScrobbledArtist>> completableFuture, WrapperReturnNowPlaying wrapperReturnNowPlaying) {
         wrapperReturnNowPlaying.getReturnNowPlayings()
-                .forEach(x -> x.setDiscordName(CommandUtil.getUserInfoNotStripped(e, x.getDiscordId()).getUsername()));
+                .forEach(x -> x.setDiscordName(CommandUtil.getUserInfoUnescaped(e, x.getDiscordId()).getUsername()));
         try {
             Optional<ScrobbledArtist> scrobbledArtist = completableFuture.get();
             scrobbledArtist.ifPresent((sc) -> wrapperReturnNowPlaying.setUrl(sc.getUrl()));
@@ -63,7 +63,7 @@ public class MultipleWhoKnowsTagCommand extends WhoKnowsBaseCommand<MultipleGenr
                 this.db.getWhoKnowsTagSet(params.getGenres(), e.getGuild().getIdLong(), Integer.MAX_VALUE, null, mode) :
                 this.db.getWhoKnowsTagSet(params.getGenres(), e.getGuild().getIdLong(), Integer.MAX_VALUE, null, mode);
         if (wrapperReturnNowPlaying.getRows() == 0) {
-            sendMessageQueue(e, "No one knows " + CommandUtil.cleanMarkdownCharacter(params.getGenres().stream().map(WordUtils::capitalizeFully).collect(Collectors.joining(","))));
+            sendMessageQueue(e, "No one knows " + CommandUtil.escapeMarkdown(params.getGenres().stream().map(WordUtils::capitalizeFully).collect(Collectors.joining(","))));
             return null;
         }
 

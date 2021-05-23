@@ -63,7 +63,7 @@ public class WhoLastCommand extends ConcurrentCommand<ArtistParameters> {
             if (counter == 11)
                 break;
         }
-        String usable = CommandUtil.cleanMarkdownCharacter(e.getGuild().getName());
+        String usable = CommandUtil.escapeMarkdown(e.getGuild().getName());
         embedBuilder.setTitle("Who listened " + (isFirst ? "first" : "last") + " to " + params.getScrobbledArtist().getArtist() + " in " + usable).
                 setThumbnail(CommandUtil.noImageUrl(params.getScrobbledArtist().getUrl())).setDescription(builder)
                 .setFooter(strings.size() + CommandUtil.singlePlural(strings.size(), " listener", " listeners"));

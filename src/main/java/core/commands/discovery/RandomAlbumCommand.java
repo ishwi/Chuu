@@ -90,7 +90,7 @@ public class RandomAlbumCommand extends ConcurrentCommand<RandomUrlParameters> {
             if (ownerRec == null) {
                 ownerRec = e.getJDA().getSelfUser().getName();
             }
-            String sb = String.format("%s, here's your random recommendation%n**Posted by:** %s%n**Link:** %s", CommandUtil.cleanMarkdownCharacter(e.getAuthor().getName()), ownerRec, randomUrl.url());
+            String sb = String.format("%s, here's your random recommendation%n**Posted by:** %s%n**Link:** %s", CommandUtil.escapeMarkdown(e.getAuthor().getName()), ownerRec, randomUrl.url());
             e.sendMessage(sb).queue();
             return;
         }
@@ -101,7 +101,7 @@ public class RandomAlbumCommand extends ConcurrentCommand<RandomUrlParameters> {
             sendMessageQueue(e, String.format("The provided url: <%s> was already on the pool", url));
             return;
         }
-        sendMessageQueue(e, String.format("Successfully added %s's link to the pool", getUserString(e, e.getAuthor().getIdLong(), CommandUtil.cleanMarkdownCharacter(e.getAuthor()
+        sendMessageQueue(e, String.format("Successfully added %s's link to the pool", getUserString(e, e.getAuthor().getIdLong(), CommandUtil.escapeMarkdown(e.getAuthor()
                 .getName()))));
 
     }

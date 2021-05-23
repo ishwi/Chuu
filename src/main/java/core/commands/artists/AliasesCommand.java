@@ -66,9 +66,9 @@ public class AliasesCommand extends ConcurrentCommand<ArtistParameters> {
         ScrobbledArtist scrobbledArtist = new ScrobbledArtist(artist, 0, null);
         CommandUtil.validate(db, scrobbledArtist, lastFM, discogsApi, spotify);
 
-        String correctedArtist = CommandUtil.cleanMarkdownCharacter(scrobbledArtist.getArtist());
+        String correctedArtist = CommandUtil.escapeMarkdown(scrobbledArtist.getArtist());
         List<String> artistAliases = db.getArtistAliases(scrobbledArtist.getArtistId())
-                .stream().map(x -> ". **" + CommandUtil.cleanMarkdownCharacter(x) + "**\n").toList();
+                .stream().map(x -> ". **" + CommandUtil.escapeMarkdown(x) + "**\n").toList();
         if (artistAliases.isEmpty()) {
             sendMessageQueue(e, correctedArtist + " doesn't have any correction:");
             return;

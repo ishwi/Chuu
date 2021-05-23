@@ -59,7 +59,7 @@ public class UnsetCommand extends ConcurrentCommand<CommandParameters> {
         // Check if it exists
         LastFMData data = db.findLastFMData(idLong);
         String userString = getUserString(e, idLong);
-        DiscordUserDisplay uInfo = CommandUtil.getUserInfoNotStripped(e, idLong);
+        DiscordUserDisplay uInfo = CommandUtil.getUserInfoUnescaped(e, idLong);
 
         EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e)
                 .setColor(Color.RED)

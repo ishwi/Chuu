@@ -133,7 +133,7 @@ public class TagStreakCommand extends ConcurrentCommand<ChuuDataParams> {
         String userUrl = userInformation.getUrlImage();
 
         EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e)
-                .setAuthor(String.format("%s's current tag streak", CommandUtil.markdownLessUserString(userName, discordID, e)), CommandUtil.getLastFmUser(lastfmId), userUrl)
+                .setAuthor(String.format("%s's current tag streak", CommandUtil.unescapedUser(userName, discordID, e)), CommandUtil.getLastFmUser(lastfmId), userUrl)
                 .setDescription(tags.stream().limit(5).collect(Collectors.joining()));
         e.sendMessage(embedBuilder.build()).
                 queue(m -> new Reactionary<>(tags, m, 5, embedBuilder, false));

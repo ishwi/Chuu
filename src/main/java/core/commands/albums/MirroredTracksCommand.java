@@ -71,22 +71,22 @@ public class MirroredTracksCommand extends AlbumPlaysCommand {
 
         Optional<FullAlbumEntity> trackList1 = new UserTrackListService(db, ogData.getName()).getTrackList(scrobbledAlbum, ogData, scrobbledArtist.getUrl(), e);
         if (trackList1.isEmpty()) {
-            sendMessageQueue(e, "Couldn't find a tracklist for " + CommandUtil.cleanMarkdownCharacter(scrobbledArtist.getArtist()
-            ) + " - " + CommandUtil.cleanMarkdownCharacter(scrobbledAlbum.getAlbum()));
+            sendMessageQueue(e, "Couldn't find a tracklist for " + CommandUtil.escapeMarkdown(scrobbledArtist.getArtist()
+            ) + " - " + CommandUtil.escapeMarkdown(scrobbledAlbum.getAlbum()));
             return;
 
         }
         Optional<FullAlbumEntity> trackList2 = new UserTrackListService(db, secondUser.getName()).getTrackList(scrobbledAlbum, secondUser, scrobbledArtist.getUrl(), e);
         if (trackList2.isEmpty()) {
-            sendMessageQueue(e, "Couldn't find a tracklist for " + CommandUtil.cleanMarkdownCharacter(scrobbledArtist.getArtist()
-            ) + " - " + CommandUtil.cleanMarkdownCharacter(scrobbledAlbum.getAlbum()));
+            sendMessageQueue(e, "Couldn't find a tracklist for " + CommandUtil.escapeMarkdown(scrobbledArtist.getArtist()
+            ) + " - " + CommandUtil.escapeMarkdown(scrobbledAlbum.getAlbum()));
             return;
         }
         UserInfoService userInfoService = new UserInfoService(db);
         UserInfo userInfo = userInfoService.getUserInfo(ogData);
-        userInfo.setUsername(CommandUtil.getUserInfoNotStripped(e, ogData.getDiscordId()).getUsername());
+        userInfo.setUsername(CommandUtil.getUserInfoUnescaped(e, ogData.getDiscordId()).getUsername());
         UserInfo userInfo2 = userInfoService.getUserInfo(secondUser);
-        userInfo2.setUsername(CommandUtil.getUserInfoNotStripped(e, secondUser.getDiscordId()).getUsername());
+        userInfo2.setUsername(CommandUtil.getUserInfoUnescaped(e, secondUser.getDiscordId()).getUsername());
         BufferedImage bufferedImage = TrackDistributor.drawImageMirrored(trackList1.get(), trackList2.get(), userInfo, userInfo2);
         sendImage(bufferedImage, e);
     }

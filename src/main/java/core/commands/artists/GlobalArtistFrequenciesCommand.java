@@ -62,7 +62,7 @@ public class GlobalArtistFrequenciesCommand extends ResultWrappedCommand<ArtistP
         StringBuilder a = new StringBuilder();
         List<ArtistPlays> resultList = list.getResultList();
 
-        List<String> lines = resultList.stream().map(x -> String.format(". [%s](%s) - %d total listeners%n", CommandUtil.cleanMarkdownCharacter(x.getArtistName()),
+        List<String> lines = resultList.stream().map(x -> String.format(". [%s](%s) - %d total listeners%n", CommandUtil.escapeMarkdown(x.getArtistName()),
                 LinkUtils.getLastFmArtistUrl(x.getArtistName()),
                 x.getCount())).toList();
         for (int i = 0, size = lines.size(); i < 10 && i < size; i++) {

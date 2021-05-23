@@ -88,7 +88,7 @@ public class GlobalAOTY extends ChartableCommand<ChartYearParameters> {
         String name = params.getE().getJDA().getSelfUser().getName();
         return embedBuilder.setAuthor(name + titleInit,
                 null, params.getE().getJDA().getSelfUser().getAvatarUrl())
-                .setFooter(CommandUtil.markdownLessString(name) + footerText);
+                .setFooter(CommandUtil.stripEscapedMarkdown(name) + footerText);
     }
 
     @Override

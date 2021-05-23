@@ -70,7 +70,7 @@ public class GlobalYearDistributionCommand extends ConcurrentCommand<CommandPara
         var embedBuilder = new ChuuEmbedBuilder(e)
                 .setDescription(a)
                 .setAuthor(String.format("%s's years", name), null, e.getJDA().getSelfUser().getAvatarUrl())
-                .setFooter("%s has albums from %d different %s".formatted(CommandUtil.markdownLessString(name), yearCount.size(), CommandUtil.singlePlural(yearCount.size(), "year", "years")), null);
+                .setFooter("%s has albums from %d different %s".formatted(CommandUtil.stripEscapedMarkdown(name), yearCount.size(), CommandUtil.singlePlural(yearCount.size(), "year", "years")), null);
 
         e.sendMessage(embedBuilder.build()).queue(m ->
                 new Reactionary<>(lines, m, 10, embedBuilder));

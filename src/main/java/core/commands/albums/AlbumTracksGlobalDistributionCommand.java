@@ -85,8 +85,8 @@ public class AlbumTracksGlobalDistributionCommand extends AlbumPlaysCommand {
 
         Optional<FullAlbumEntity> trackList = tracklistService.getTrackList(scrobbledAlbum, params.getLastFMData(), scrobbledArtist.getUrl(), e);
         if (trackList.isEmpty()) {
-            sendMessageQueue(e, "Couldn't find a tracklist for " + CommandUtil.cleanMarkdownCharacter(scrobbledArtist.getArtist()
-            ) + " - " + CommandUtil.cleanMarkdownCharacter(scrobbledAlbum.getAlbum()));
+            sendMessageQueue(e, "Couldn't find a tracklist for " + CommandUtil.escapeMarkdown(scrobbledArtist.getArtist()
+            ) + " - " + CommandUtil.escapeMarkdown(scrobbledAlbum.getAlbum()));
         } else {
 
             FullAlbumEntity fullAlbumEntity = trackList.get();
@@ -113,7 +113,7 @@ public class AlbumTracksGlobalDistributionCommand extends AlbumPlaysCommand {
                 case LIST -> {
                     StringBuilder a = new StringBuilder();
                     List<String> lines = fullAlbumEntity.getTrackList().stream().map(t -> ". " + "[" +
-                                                                                          CommandUtil.cleanMarkdownCharacter(t.getName()) +
+                                                                                          CommandUtil.escapeMarkdown(t.getName()) +
                                                                                           "](" + LinkUtils.getLastFMArtistTrack(artist, t.getName()) +
                                                                                           ")" + " - " + t.getPlays() + CommandUtil.singlePlural(t.getPlays(), " play", " plays") + "\n").toList();
                     for (int i = 0; i < fullAlbumEntity.getTrackList().size() && i <= 20; i++) {

@@ -57,7 +57,7 @@ public class LovedCommand extends ConcurrentCommand<ChuuDataParams> {
     @Override
     protected void onCommand(Context e, @NotNull ChuuDataParams params) throws LastFmException, InstanceNotFoundException {
         CountWrapper<List<TrackWithArtistId>> wrapper = lastFM.getLovedSongs(params.getLastFMData());
-        DiscordUserDisplay uInfo = CommandUtil.getUserInfoNotStripped(e, params.getLastFMData().getDiscordId());
+        DiscordUserDisplay uInfo = CommandUtil.getUserInfoUnescaped(e, params.getLastFMData().getDiscordId());
         if (wrapper.getRows() == 0) {
             sendMessageQueue(e, "%s doesn't have any loved track. Consider using the`%slove` command!".formatted(uInfo.getUsername(), CommandUtil.getMessagePrefix(e)));
         }

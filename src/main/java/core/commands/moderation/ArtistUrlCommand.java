@@ -70,15 +70,15 @@ public class ArtistUrlCommand extends ConcurrentCommand<ArtistUrlParameters> {
             OptionalLong queuedId = db.checkQueuedUrlExists(scrobbledArtist.getArtistId(), urlParsed);
 
             if (persistedId.isPresent()) {
-                sendMessageQueue(e, "That image already existed for artist: %s.\nAdded a vote to that image instead".formatted(CommandUtil.cleanMarkdownCharacter(scrobbledArtist.getArtist())));
+                sendMessageQueue(e, "That image already existed for artist: %s.\nAdded a vote to that image instead".formatted(CommandUtil.escapeMarkdown(scrobbledArtist.getArtist())));
                 db.castVote(persistedId.getAsLong(), e.getAuthor().getIdLong(), true);
                 return;
             } else if (queuedId.isPresent()) {
-                sendMessageQueue(e, "That image for **%s** is already on the review queue.".formatted(CommandUtil.cleanMarkdownCharacter(scrobbledArtist.getArtist())));
+                sendMessageQueue(e, "That image for **%s** is already on the review queue.".formatted(CommandUtil.escapeMarkdown(scrobbledArtist.getArtist())));
                 return;
             }
             db.userInsertQueueUrl(urlParsed, scrobbledArtist.getArtistId(), e.getAuthor().getIdLong());
-            sendMessageQueue(e, "Submitted an image for %s.\nIt will be reviewed by a bot moderator.".formatted(CommandUtil.cleanMarkdownCharacter(scrobbledArtist.getArtist())));
+            sendMessageQueue(e, "Submitted an image for %s.\nIt will be reviewed by a bot moderator.".formatted(CommandUtil.escapeMarkdown(scrobbledArtist.getArtist())));
 
         } catch (IOException exception) {
             parser.sendError(parser.getErrorMessage(2), e);

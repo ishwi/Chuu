@@ -109,7 +109,7 @@ public class LanguageCommand extends ConcurrentCommand<TimeFrameParameters> {
         }
 
         List<String> stringedList = languageCountByMbid.entrySet().stream().sorted(Comparator.comparingLong((ToLongFunction<Map.Entry<Language, Long>>) Map.Entry::getValue).reversed()).map((t) ->
-                String.format(". **%s** - %s %s\n", CommandUtil.cleanMarkdownCharacter(t.getKey().getName()), t.getValue().toString(), CommandUtil.singlePlural(Math.toIntExact(t.getValue()), "album", "albums")))
+                String.format(". **%s** - %s %s\n", CommandUtil.escapeMarkdown(t.getKey().getName()), t.getValue().toString(), CommandUtil.singlePlural(Math.toIntExact(t.getValue()), "album", "albums")))
                 .toList();
 
         for (int i = 0; i < 15 && i < stringedList.size(); i++) {
@@ -119,7 +119,7 @@ public class LanguageCommand extends ConcurrentCommand<TimeFrameParameters> {
         String title = userName + "'s most common languages" + params.getTime().getDisplayString();
         long count = languageCountByMbid.keySet().size();
         EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e).setThumbnail(userUrl)
-                .setFooter(String.format("%s has %d%s%s", CommandUtil.markdownLessUserString(userName, discordId, e), count, count == 1 ? " language" : " languages", usableTime), null)
+                .setFooter(String.format("%s has %d%s%s", CommandUtil.unescapedUser(userName, discordId, e), count, count == 1 ? " language" : " languages", usableTime), null)
                 .setTitle(title)
                 .setDescription(a);
         e.sendMessage(embedBuilder.build()).queue(mes ->
@@ -128,7 +128,7 @@ public class LanguageCommand extends ConcurrentCommand<TimeFrameParameters> {
 
     void doPie(Map<Language, Long> map, TimeFrameParameters parameters) {
         PieChart pieChart = this.iPie.doPie(parameters, map);
-        DiscordUserDisplay uInfo = CommandUtil.getUserInfoNotStripped(parameters.getE(), parameters.getLastFMData().getDiscordId());
+        DiscordUserDisplay uInfo = CommandUtil.getUserInfoUnescaped(parameters.getE(), parameters.getLastFMData().getDiscordId());
 
         pieChart.setTitle(uInfo.getUsername() + "'s languages" + parameters.getTime().getDisplayString());
         BufferedImage bufferedImage = new BufferedImage(1000, 750, BufferedImage.TYPE_INT_ARGB);

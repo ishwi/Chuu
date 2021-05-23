@@ -161,7 +161,7 @@ public class ArtistFromCountryCommand extends ConcurrentCommand<CountryParameter
 
         String title = userName + "'s top artists from " + countryRep + (":");
         EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e).setThumbnail(userUrl)
-                .setFooter(CommandUtil.markdownLessUserString(userName, discordId, e) + " has " + list.size() +
+                .setFooter(CommandUtil.unescapedUser(userName, discordId, e) + " has " + list.size() +
                            (list.size() == 1 ? " artist " : " artists ") + "from " + country.getName() + " " + usableTime, null)
                 .setTitle(title)
                 .setDescription(a);

@@ -258,9 +258,9 @@ public class NPModeBuilder {
                         if (npModes.contains(NPMode.PREVIOUS)) {
                             try {
                                 NowPlayingArtist recent = lastFM.getRecent(lastFMName, 2).get(1);
-                                String album = CommandUtil.cleanMarkdownCharacter(recent.albumName());
-                                String artist = CommandUtil.cleanMarkdownCharacter(recent.artistName());
-                                String song = CommandUtil.cleanMarkdownCharacter(recent.songName());
+                                String album = CommandUtil.escapeMarkdown(recent.albumName());
+                                String artist = CommandUtil.escapeMarkdown(recent.artistName());
+                                String song = CommandUtil.escapeMarkdown(recent.songName());
                                 if (npModes.contains(NPMode.SPOTIFY_LINK)) {
                                     String uri = spotifyApi.searchItems(recent.songName(), recent.artistName(), recent.albumName());
                                     if (!uri.isBlank())
@@ -286,10 +286,10 @@ public class NPModeBuilder {
                         if (npModes.contains(NPMode.RYM_LINK) && !StringUtils.isEmpty(np.albumName())) {
                             String url = rymSearch.searchUrl(np.artistName(), np.albumName());
 
-                            String a = "**" + CommandUtil.cleanMarkdownCharacter(np.artistName()) +
-                                       "** | " + CommandUtil.cleanMarkdownCharacter(np.albumName());
+                            String a = "**" + CommandUtil.escapeMarkdown(np.artistName()) +
+                                       "** | " + CommandUtil.escapeMarkdown(np.albumName());
 
-                            String b = "**%s** | \t<:rym:820111349690531850> %s [%s](%s)".formatted(CommandUtil.cleanMarkdownCharacter(np.artistName()), EmbedBuilder.ZERO_WIDTH_SPACE, CommandUtil.cleanMarkdownCharacter(np.albumName()), url);
+                            String b = "**%s** | \t<:rym:820111349690531850> %s [%s](%s)".formatted(CommandUtil.escapeMarkdown(np.artistName()), EmbedBuilder.ZERO_WIDTH_SPACE, CommandUtil.escapeMarkdown(np.albumName()), url);
                             embedBuilder.setDescription(StringUtils.replaceOnceIgnoreCase(embedBuilder.build().getDescription(), a, b));
                         }
 
@@ -335,7 +335,7 @@ public class NPModeBuilder {
                             if (!returnNowPlayings.isEmpty()) {
 
                                 ReturnNowPlaying returnNowPlaying = returnNowPlayings.get(0);
-                                String userString = CommandUtil.getUserInfoNotStripped(e, returnNowPlaying.getDiscordId()).getUsername();
+                                String userString = CommandUtil.getUserInfoUnescaped(e, returnNowPlaying.getDiscordId()).getUsername();
                                 if (npModes.contains(NPMode.CROWN))
                                     footerSpaces[footerIndexes.get(NPMode.CROWN)] =
                                             "\uD83D\uDC51 " + returnNowPlaying.getPlayNumber() + " (" + userString + ")";
@@ -366,7 +366,7 @@ public class NPModeBuilder {
                             if (!returnNowPlayings.isEmpty()) {
 
                                 ReturnNowPlaying returnNowPlaying = returnNowPlayings.get(0);
-                                String userString = CommandUtil.getUserInfoNotStripped(e, returnNowPlaying.getDiscordId()).getUsername();
+                                String userString = CommandUtil.getUserInfoUnescaped(e, returnNowPlaying.getDiscordId()).getUsername();
                                 if (npModes.contains(NPMode.ALBUM_CROWN))
                                     footerSpaces[footerIndexes.get(NPMode.ALBUM_CROWN)] =
                                             "Album \uD83D\uDC51 " + returnNowPlaying.getPlayNumber() + " (" + userString + ")";
@@ -397,7 +397,7 @@ public class NPModeBuilder {
                             if (!returnNowPlayings.isEmpty()) {
 
                                 ReturnNowPlaying returnNowPlaying = returnNowPlayings.get(0);
-                                String userString = CommandUtil.getUserInfoNotStripped(e, returnNowPlaying.getDiscordId()).getUsername();
+                                String userString = CommandUtil.getUserInfoUnescaped(e, returnNowPlaying.getDiscordId()).getUsername();
                                 if (npModes.contains(NPMode.TRACK_CROWN))
                                     footerSpaces[footerIndexes.get(NPMode.TRACK_CROWN)] =
                                             "Track \uD83D\uDC51 " + returnNowPlaying.getPlayNumber() + " (" + userString + ")";
@@ -804,7 +804,7 @@ public class NPModeBuilder {
             if (EnumSet.of(PrivacyMode.LAST_NAME, PrivacyMode.TAG, PrivacyMode.DISCORD_NAME).contains(lastFMData.getPrivacyMode())) {
 
                 holder = switch (lastFMData.getPrivacyMode()) {
-                    case DISCORD_NAME -> CommandUtil.getUserInfoNotStripped(e, discordId).getUsername();
+                    case DISCORD_NAME -> CommandUtil.getUserInfoUnescaped(e, discordId).getUsername();
                     case TAG -> e.getJDA().retrieveUserById(lastFMData.getDiscordId()).complete().getAsTag();
                     case LAST_NAME -> lastFMData.getName() + " (lastfm)";
                     default -> "Private User #1";

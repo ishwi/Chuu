@@ -94,7 +94,7 @@ public class TopArtistComboCommand extends ConcurrentCommand<NumberParameters<Ar
         Integer limit = params.getExtraParam() == null ? null : Math.toIntExact(params.getExtraParam());
         boolean myself = params.hasOptional("me") || params.hasOptional("myself");
         if (myself) {
-            DiscordUserDisplay uInfo = CommandUtil.getUserInfoNotStripped(e, params.getInnerParams().getLastFMData().getDiscordId());
+            DiscordUserDisplay uInfo = CommandUtil.getUserInfoUnescaped(e, params.getInnerParams().getLastFMData().getDiscordId());
             title = uInfo.getUsername();
         } else if (e.isFromGuild() && params.hasOptional("server")) {
             Guild guild = e.getGuild();
@@ -162,10 +162,10 @@ public class TopArtistComboCommand extends ConcurrentCommand<NumberParameters<Ar
 
         EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e)
                 .
-                        setAuthor(String.format("%s's top streaks in %s ", scrobbledArtist.getArtist(), CommandUtil.cleanMarkdownCharacter(title)))
+                        setAuthor(String.format("%s's top streaks in %s ", scrobbledArtist.getArtist(), CommandUtil.escapeMarkdown(title)))
                 .setThumbnail(scrobbledArtist.getUrl())
                 .setDescription(a)
-                .setFooter(String.format("%s has a total of %d %s %s!", CommandUtil.cleanMarkdownCharacter(title), topStreaks.size(), scrobbledArtist.getArtist(), CommandUtil.singlePlural(topStreaks.size(), "streak", "streaks")));
+                .setFooter(String.format("%s has a total of %d %s %s!", CommandUtil.escapeMarkdown(title), topStreaks.size(), scrobbledArtist.getArtist(), CommandUtil.singlePlural(topStreaks.size(), "streak", "streaks")));
         e.sendMessage(embedBuilder.build()).queue(message1 ->
                 new Reactionary<>(z, message1, 5, embedBuilder));
     }

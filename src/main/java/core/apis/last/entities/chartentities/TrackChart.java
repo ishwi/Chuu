@@ -75,8 +75,8 @@ public class TrackChart extends UrlCapsule {
     @Override
     public String toEmbedDisplay() {
         return String.format(". **[%s - %s](%s)** - **%d** %s%n",
-                CommandUtil.cleanMarkdownCharacter(getArtistName())
-                , CommandUtil.cleanMarkdownCharacter(getAlbumName()),
+                CommandUtil.escapeMarkdown(getArtistName())
+                , CommandUtil.escapeMarkdown(getAlbumName()),
                 LinkUtils.getLastFMArtistTrack(getArtistName(), getAlbumName()),
                 getPlays(), CommandUtil.singlePlural(getPlays(), "play", "plays"));
     }

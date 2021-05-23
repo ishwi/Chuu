@@ -173,7 +173,7 @@ public abstract class MyCommand<T extends CommandParameters> implements EventLis
                     // We left the inital value
                 }
             } else {
-                username = CommandUtil.cleanMarkdownCharacter(e.getAuthor().getName());
+                username = CommandUtil.escapeMarkdown(e.getAuthor().getName());
             }
 
             String init = "hasn't played anything" + ex.getTimeFrameEnum().toLowerCase();

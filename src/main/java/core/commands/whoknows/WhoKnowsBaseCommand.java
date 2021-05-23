@@ -110,7 +110,7 @@ public abstract class WhoKnowsBaseCommand<T extends CommandParameters> extends C
 
             case IMAGE, PIE -> {
                 wrapperReturnNowPlaying.getReturnNowPlayings().stream().limit(15)
-                        .forEach(x -> x.setDiscordName(CommandUtil.getUserInfoNotStripped(ap.getE(), x.getDiscordId()).getUsername()));
+                        .forEach(x -> x.setDiscordName(CommandUtil.getUserInfoUnescaped(ap.getE(), x.getDiscordId()).getUsername()));
                 if (effectiveMode.equals(WhoKnowsMode.IMAGE)) {
                     doImage(ap, wrapperReturnNowPlaying);
                 } else {
@@ -153,7 +153,7 @@ public abstract class WhoKnowsBaseCommand<T extends CommandParameters> extends C
         }
         String usable;
         if (e.isFromGuild()) {
-            usable = CommandUtil.cleanMarkdownCharacter(e.getGuild().getName());
+            usable = CommandUtil.escapeMarkdown(e.getGuild().getName());
         } else {
             usable = e.getJDA().getSelfUser().getName();
         }
@@ -170,7 +170,7 @@ public abstract class WhoKnowsBaseCommand<T extends CommandParameters> extends C
         String usable;
         Context e = ap.getE();
         if (e.isFromGuild()) {
-            usable = CommandUtil.cleanMarkdownCharacter(e.getGuild().getName());
+            usable = CommandUtil.escapeMarkdown(e.getGuild().getName());
         } else {
             usable = e.getJDA().getSelfUser().getName();
         }

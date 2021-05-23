@@ -170,7 +170,7 @@ public class BillboardCommand extends ConcurrentCommand<NumberParameters<Command
             EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e);
             List<String> artistAliases = entities
                     .stream().map(x -> String.format(". **[%s](%s):**\n Rank: %d | Previous Week: %s | Peak: %s | Weeks on top: %s | %s: %d\n",
-                            x.getArtist() == null ? CommandUtil.cleanMarkdownCharacter(x.getName()) : CommandUtil.cleanMarkdownCharacter(x.getName() + " - " + x.getArtist()),
+                            x.getArtist() == null ? CommandUtil.escapeMarkdown(x.getName()) : CommandUtil.escapeMarkdown(x.getName() + " - " + x.getArtist()),
                             x.getArtist() == null ? LinkUtils.getLastFmArtistUrl(x.getName()) : LinkUtils.getLastFMArtistTrack(x.getArtist(), x.getName()),
                             x.getPosition(),
                             x.getPreviousWeek() == 0 ? "--" : x.getPreviousWeek(),

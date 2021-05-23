@@ -77,7 +77,7 @@ public class RecentListCommand extends ConcurrentCommand<NumberParameters<ChuuDa
 
         int counter = 1;
         for (NowPlayingArtist nowPlayingArtist : list) {
-            embedBuilder.addField("Track #" + counter++ + ":", String.format("**%s** - %s | %s%n", CommandUtil.cleanMarkdownCharacter(nowPlayingArtist.songName()), CommandUtil.cleanMarkdownCharacter(nowPlayingArtist.artistName()), CommandUtil.cleanMarkdownCharacter(nowPlayingArtist
+            embedBuilder.addField("Track #" + counter++ + ":", String.format("**%s** - %s | %s%n", CommandUtil.escapeMarkdown(nowPlayingArtist.songName()), CommandUtil.escapeMarkdown(nowPlayingArtist.artistName()), CommandUtil.escapeMarkdown(nowPlayingArtist
                     .albumName())), false);
         }
 

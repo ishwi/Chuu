@@ -98,7 +98,7 @@ public class SongAudioFeaturesCommand extends ConcurrentCommand<ArtistAlbumParam
         DecimalFormat db = new DecimalFormat("##.# 'dB' ");
 
         int s = audioFeatures.size();
-        DiscordUserDisplay userInfoNotStripped = CommandUtil.getUserInfoNotStripped(e, params.getLastFMData().getDiscordId());
+        DiscordUserDisplay userInfoNotStripped = CommandUtil.getUserInfoUnescaped(e, params.getLastFMData().getDiscordId());
         AudioFeatures audioFeature = audioFeatures.get(0);
         EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e)
                 .setAuthor("Audio features for " + scrobbledTrack.getName() + " by " + scrobbledTrack.getArtist(), PrivacyUtils.getLastFmUser(lastFMData.getName()), userInfoNotStripped.getUrlImage())

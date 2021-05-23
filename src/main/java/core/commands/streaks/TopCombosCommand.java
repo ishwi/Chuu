@@ -133,10 +133,10 @@ public class TopCombosCommand extends ConcurrentCommand<NumberParameters<Command
 
         EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e)
                 .
-                        setAuthor(String.format("%s's Top streaks", CommandUtil.cleanMarkdownCharacter(title)))
+                        setAuthor(String.format("%s's Top streaks", CommandUtil.escapeMarkdown(title)))
                 .setThumbnail(CommandUtil.noImageUrl(validUrl))
                 .setDescription(a)
-                .setFooter(String.format("%s has a total of %d %s!", CommandUtil.cleanMarkdownCharacter(title), topStreaks.size(), CommandUtil.singlePlural(topStreaks.size(), "streak", "streaks")));
+                .setFooter(String.format("%s has a total of %d %s!", CommandUtil.escapeMarkdown(title), topStreaks.size(), CommandUtil.singlePlural(topStreaks.size(), "streak", "streaks")));
         e.sendMessage(embedBuilder.build()).queue(message1 ->
                 new Reactionary<>(z, message1, 5, embedBuilder));
     }

@@ -7,6 +7,7 @@ import java.util.regex.Pattern;
 public class LinkUtils {
 
     public static final Pattern markdownStripper = Pattern.compile("((?<!\\\\)[*_~|`>\\[()\\]])");
+    public static final Pattern beenScaped = Pattern.compile("\\\\([*_~|`>\\[()\\]])");
 
     public static String getLastFmArtistUrl(String artist) {
         return "https://www.last.fm/music/" + encodeUrl(artist);
@@ -42,12 +43,8 @@ public class LinkUtils {
     }
 
 
-    public static String markdownLessString(String string) {
-        if (!string.contains("\\")) {
-            return string;
-        }
-        return string.replaceAll("\\\\", "");
-
+    public static String stripEscapedMarkdown(String string) {
+        return beenScaped.matcher(string).replaceAll("$1");
     }
 
 }

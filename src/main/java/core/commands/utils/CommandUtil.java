@@ -251,7 +251,7 @@ public class CommandUtil {
 
 
     public static String getGlobalUsername(JDA jda, long discordID) {
-        return CommandUtil.cleanMarkdownCharacter(jda.retrieveUserById(discordID, false).complete().getName());
+        return CommandUtil.escapeMarkdown(jda.retrieveUserById(discordID, false).complete().getName());
     }
 
     public static int getDecade(int year) {
@@ -289,13 +289,13 @@ public class CommandUtil {
 
     }
 
-    public static DiscordUserDisplay getUserInfoNotStripped(Context e, long discordID) {
+    public static DiscordUserDisplay getUserInfoUnescaped(Context e, long discordID) {
         return handleUser(e, discordID);
     }
 
     public static DiscordUserDisplay getUserInfoConsideringGuildOrNot(Context e, long discordID) {
         DiscordUserDisplay discordUserDisplay = handleUser(e, discordID);
-        return new DiscordUserDisplay(cleanMarkdownCharacter(discordUserDisplay.getUsername()), discordUserDisplay.getUrlImage());
+        return new DiscordUserDisplay(escapeMarkdown(discordUserDisplay.getUsername()), discordUserDisplay.getUrlImage());
     }
 
 
@@ -307,23 +307,17 @@ public class CommandUtil {
         return URLEncoder.encode(url, StandardCharsets.UTF_8);
     }
 
-    public static String cleanMarkdownCharacter(String string) {
+    public static String escapeMarkdown(String string) {
         return LinkUtils.markdownStripper.matcher(string).replaceAll("\\\\$1");
     }
 
-    public static String markdownLessString(String string) {
-        if (!string.contains("\\")) {
-            return string;
-        }
-        return string.replaceAll("\\\\", "");
+    public static String stripEscapedMarkdown(String string) {
+        return LinkUtils.stripEscapedMarkdown(string);
 
     }
 
-    public static String markdownLessUserString(String string, long discordId, Context e) {
-        if (!string.contains("\\")) {
-            return string;
-        }
-        return getUserInfoNotStripped(e, discordId).getUsername();
+    public static String unescapedUser(String string, long discordId, Context e) {
+        return getUserInfoUnescaped(e, discordId).getUsername();
     }
 
     public static void handleConditionalMessage(CompletableFuture<Message> future) {

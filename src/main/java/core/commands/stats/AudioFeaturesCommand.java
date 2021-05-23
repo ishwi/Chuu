@@ -99,7 +99,7 @@ public class AudioFeaturesCommand extends ConcurrentCommand<ChuuDataParams> {
         DecimalFormat db = new DecimalFormat("##.# 'dB' ");
 
         int s = audioFeatures.size();
-        DiscordUserDisplay userInfoNotStripped = CommandUtil.getUserInfoNotStripped(e, params.getLastFMData().getDiscordId());
+        DiscordUserDisplay userInfoNotStripped = CommandUtil.getUserInfoUnescaped(e, params.getLastFMData().getDiscordId());
         AudioFeatures audioFeature = reduce.get();
         EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e)
                 .setAuthor("Audio features for " + userInfoNotStripped.getUsername(), PrivacyUtils.getLastFmUser(lastFMData.getName()), userInfoNotStripped.getUrlImage())

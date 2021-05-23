@@ -105,7 +105,7 @@ public class SetCommand extends ConcurrentCommand<WordParameter> {
             if (name.get().getDiscordID() != userId)
                 sendMessageQueue(e, repeatedMessage);
             else
-                sendMessageQueue(e, String.format("%s, you are good to go!", CommandUtil.cleanMarkdownCharacter(e.getAuthor().getName())));
+                sendMessageQueue(e, String.format("%s, you are good to go!", CommandUtil.escapeMarkdown(e.getAuthor().getName())));
             return;
         }
 
@@ -122,7 +122,7 @@ public class SetCommand extends ConcurrentCommand<WordParameter> {
                     return;
                 }
             } else {
-                sendMessageQueue(e, String.format("%s, you are good to go!", CommandUtil.cleanMarkdownCharacter(e.getAuthor().getName())));
+                sendMessageQueue(e, String.format("%s, you are good to go!", CommandUtil.escapeMarkdown(e.getAuthor().getName())));
                 return;
             }
             //First Time on the guild
@@ -131,17 +131,17 @@ public class SetCommand extends ConcurrentCommand<WordParameter> {
             if (db.getGuildList(userId).stream().anyMatch(guild -> guild != guildID)) {
                 //Adds the user to the guild
                 if (db.isUserServerBanned(userId, guildID)) {
-                    sendMessageQueue(e, String.format("%s, you have been not allowed to appear on the server leaderboards as a choice of this server admins. Rest of commands should work fine.", CommandUtil.cleanMarkdownCharacter(e.getAuthor().getName())));
+                    sendMessageQueue(e, String.format("%s, you have been not allowed to appear on the server leaderboards as a choice of this server admins. Rest of commands should work fine.", CommandUtil.escapeMarkdown(e.getAuthor().getName())));
                     return;
                 }
                 db.addGuildUser(userId, guildID);
-                sendMessageQueue(e, String.format("%s, you are good to go!", CommandUtil.cleanMarkdownCharacter(e.getAuthor().getName())));
+                sendMessageQueue(e, String.format("%s, you are good to go!", CommandUtil.escapeMarkdown(e.getAuthor().getName())));
                 return;
             }
         }
 
         //Never registered before
-        String sb = "**" + CommandUtil.cleanMarkdownCharacter(e.getAuthor()
+        String sb = "**" + CommandUtil.escapeMarkdown(e.getAuthor()
                 .
 
                         getName()) + "** has set their last FM name \n Updating your library, wait a moment";
@@ -177,7 +177,7 @@ public class SetCommand extends ConcurrentCommand<WordParameter> {
         } catch (
                 LastFMNoPlaysException ex) {
             db.updateUserTimeStamp(lastFmID, Math.toIntExact(Instant.now().getEpochSecond()), null);
-            e.sendMessage("Finished updating " + CommandUtil.cleanMarkdownCharacter(name) + "'s library, you are good to go!").queue();
+            e.sendMessage("Finished updating " + CommandUtil.escapeMarkdown(name) + "'s library, you are good to go!").queue();
         } catch (
                 LastFmEntityNotFoundException ex) {
             db.removeUserCompletely(userId);

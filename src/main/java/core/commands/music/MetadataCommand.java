@@ -55,7 +55,7 @@ public class MetadataCommand extends MusicCommand<CommandParameters> {
         AudioTrack track = manager.getCurrentTrack();
         String identifier = track.getInfo().uri;
 
-        String cleanUri = CommandUtil.cleanMarkdownCharacter(identifier);
+        String cleanUri = CommandUtil.escapeMarkdown(identifier);
         String words = String.join(" ", message);
         if (words.length() == 0) {
             manager.getScrobble().thenAccept(scrobble ->

@@ -73,13 +73,13 @@ public class ServerFavesFromArtistCommand extends ConcurrentCommand<ArtistParame
         String lastFmName = params.getLastFMData().getName();
         List<AlbumUserPlays> songs = db.getServerTopArtistTracks(e.getGuild().getIdLong(), who.getArtistId(), Integer.MAX_VALUE);
         if (songs.isEmpty()) {
-            sendMessageQueue(e, ("Couldn't find any tracks of " + CommandUtil.cleanMarkdownCharacter(who.getArtist()) + " in this server!"));
+            sendMessageQueue(e, ("Couldn't find any tracks of " + CommandUtil.escapeMarkdown(who.getArtist()) + " in this server!"));
             return;
         }
         String userString = e.getGuild().getName();
 
         StringBuilder a = new StringBuilder();
-        List<String> s = songs.stream().map(g -> ". **[" + CommandUtil.cleanMarkdownCharacter(g.getAlbum()) + "](" + LinkUtils.getLastFMArtistTrack(g.getArtist(), g.getAlbum()) + ")** - " + g.getPlays() + " plays" +
+        List<String> s = songs.stream().map(g -> ". **[" + CommandUtil.escapeMarkdown(g.getAlbum()) + "](" + LinkUtils.getLastFMArtistTrack(g.getArtist(), g.getAlbum()) + ")** - " + g.getPlays() + " plays" +
                                                  "\n").toList();
         for (int i = 0; i < s.size() && i < 10; i++) {
             String sb = s.get(i);

@@ -107,7 +107,7 @@ public class BandInfoCommand extends ConcurrentCommand<ArtistParameters> {
         np.getReturnNowPlayings().
 
                 forEach(element ->
-                        element.setDiscordName(CommandUtil.getUserInfoNotStripped(e, element.getDiscordId()).
+                        element.setDiscordName(CommandUtil.getUserInfoUnescaped(e, element.getDiscordId()).
 
                                 getUsername())
                 );
@@ -127,7 +127,7 @@ public class BandInfoCommand extends ConcurrentCommand<ArtistParameters> {
 
     void doImage(ArtistParameters ap, WrapperReturnNowPlaying np, ArtistAlbums ai, int plays, BufferedImage logo, long threshold) {
         BufferedImage returnedImage = BandRendered
-                .makeBandImage(np, ai, plays, logo, CommandUtil.getUserInfoNotStripped(ap.getE(), ap.getLastFMData().getDiscordId()).getUsername(), threshold);
+                .makeBandImage(np, ai, plays, logo, CommandUtil.getUserInfoUnescaped(ap.getE(), ap.getLastFMData().getDiscordId()).getUsername(), threshold);
         sendImage(returnedImage, ap.getE());
     }
 
@@ -150,15 +150,15 @@ public class BandInfoCommand extends ConcurrentCommand<ArtistParameters> {
 
     void configEmbedBuilder(EmbedBuilder embedBuilder, ArtistParameters ap, ArtistAlbums ai) {
         DiscordUserDisplay uInfo = CommandUtil.getUserInfoConsideringGuildOrNot(ap.getE(), ap.getLastFMData().getDiscordId());
-        embedBuilder.setTitle(uInfo.getUsername() + "'s top " + CommandUtil.cleanMarkdownCharacter(ai.getArtist()) + " albums");
+        embedBuilder.setTitle(uInfo.getUsername() + "'s top " + CommandUtil.escapeMarkdown(ai.getArtist()) + " albums");
 
     }
 
     void doPie(ArtistParameters ap, WrapperReturnNowPlaying np, ArtistAlbums ai, BufferedImage logo) {
         PieChart pieChart = this.pie.doPie(ap, ai.getAlbumList());
-        DiscordUserDisplay uInfo = CommandUtil.getUserInfoNotStripped(ap.getE(), ap.getLastFMData().getDiscordId());
+        DiscordUserDisplay uInfo = CommandUtil.getUserInfoUnescaped(ap.getE(), ap.getLastFMData().getDiscordId());
 
-        pieChart.setTitle(uInfo.getUsername() + "'s top " + CommandUtil.cleanMarkdownCharacter(ap.getScrobbledArtist().getArtist()) + " albums");
+        pieChart.setTitle(uInfo.getUsername() + "'s top " + CommandUtil.escapeMarkdown(ap.getScrobbledArtist().getArtist()) + " albums");
         BufferedImage bufferedImage = new BufferedImage(1000, 750, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g = bufferedImage.createGraphics();
         GraphicUtils.setQuality(g);

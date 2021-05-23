@@ -72,7 +72,7 @@ public class UniqueSongCommand extends ConcurrentCommand<ChuuDataParams> {
 
         EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e).setDescription(a)
                 .setAuthor(String.format("%s's%s unique songs", userInfo.getUsername(), isGlobal() ? " global" : ""), CommandUtil.getLastFmUser(lastFmName), userInfo.getUrlImage())
-                .setFooter(String.format("%s has %d%s unique songs!%n", CommandUtil.markdownLessUserString(userInfo.getUsername(), resultWrapper.getDiscordId(), e), rows, isGlobal() ? " global" : ""), null);
+                .setFooter(String.format("%s has %d%s unique songs!%n", CommandUtil.unescapedUser(userInfo.getUsername(), resultWrapper.getDiscordId(), e), rows, isGlobal() ? " global" : ""), null);
 
         e.sendMessage(embedBuilder.build()).queue(m ->
                 new Reactionary<>(resultWrapper.getUniqueData(), m, embedBuilder));

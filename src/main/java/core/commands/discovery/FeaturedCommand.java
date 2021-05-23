@@ -78,7 +78,7 @@ public class FeaturedCommand extends ConcurrentCommand<CommandParameters> {
                 .setThumbnail(CommandUtil.noImageUrl(currentPresence.getUrl()))
                 .setTitle(e.getJDA().getSelfUser().getName() + "'s Featured Artist:", LinkUtils
                         .getLastFmArtistUrl(currentPresence.getArtist()))
-                .addField("Artist:", CommandUtil.cleanMarkdownCharacter(currentPresence.getArtist()), false)
+                .addField("Artist:", CommandUtil.escapeMarkdown(currentPresence.getArtist()), false)
                 .addField("User:", userString, false)
                 .addField("Total Artist Plays:", String.valueOf(currentPresence.getSum()), false);
 

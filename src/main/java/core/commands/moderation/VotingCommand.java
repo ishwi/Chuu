@@ -95,7 +95,7 @@ public class VotingCommand extends ConcurrentCommand<ArtistParameters> {
             sendMessageQueue(e, artist.getArtist() + " doesn't have any image");
             return;
         }
-        String correctedArtist = CommandUtil.cleanMarkdownCharacter(allArtistImages.get(0).getArtist());
+        String correctedArtist = CommandUtil.escapeMarkdown(allArtistImages.get(0).getArtist());
         EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e)
                 .setTitle(correctedArtist + " Images");
 
@@ -173,9 +173,9 @@ public class VotingCommand extends ConcurrentCommand<ArtistParameters> {
                         title = "Voting timed out";
                         description = "Submitted by: " + CommandUtil.getGlobalUsername(e.getJDA(), first.getOwner()) + "\n\n";
                         if (first != allArtistImages.get(0)) {
-                            description += "The artist image for " + CommandUtil.cleanMarkdownCharacter(first.getArtist()) + " has changed to:";
+                            description += "The artist image for " + CommandUtil.escapeMarkdown(first.getArtist()) + " has changed to:";
                         } else {
-                            description += "The top voted image for " + CommandUtil.cleanMarkdownCharacter(first.getArtist()) + " is:";
+                            description += "The top voted image for " + CommandUtil.escapeMarkdown(first.getArtist()) + " is:";
                         }
                     }
                     finalEmbed.setTitle(title)

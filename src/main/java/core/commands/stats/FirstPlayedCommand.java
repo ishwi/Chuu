@@ -58,7 +58,7 @@ public class FirstPlayedCommand extends AlbumPlaysCommand {
         String usernameString = getUserString(e, who, lastFMData.getName());
         OffsetDateTime offsetDateTime = OffsetDateTime.ofInstant(instant.get(), lastFMData.getTimeZone().toZoneId());
         String date = CommandUtil.getAmericanizedDate(offsetDateTime);
-        sendMessageQueue(e, String.format("First time that **%s** scrobbled **%s** was at %s", usernameString, CommandUtil.cleanMarkdownCharacter(song), date));
+        sendMessageQueue(e, String.format("First time that **%s** scrobbled **%s** was at %s", usernameString, CommandUtil.escapeMarkdown(song), date));
     }
 }
 

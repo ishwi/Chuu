@@ -162,7 +162,7 @@ public abstract class Parser<T extends CommandParameters> {
 
 
     public void sendError(String message, Context e) {
-        String errorBase = "Error on " + CommandUtil.cleanMarkdownCharacter(e.getAuthor().getName()) + "'s request:\n";
+        String errorBase = "Error on " + CommandUtil.escapeMarkdown(e.getAuthor().getName()) + "'s request:\n";
         e.sendMessage(errorBase + message).queue();
     }
 

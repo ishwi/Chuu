@@ -68,7 +68,7 @@ public class GlobalWhoKnowSongCommand extends GlobalBaseWhoKnowCommand<ArtistAlb
         WrapperReturnNowPlaying wrapperReturnNowPlaying =
                 this.db.getGlobalWhoKnowsTrack(limit, trackId, author, b, hidePrivate(params));
         if (wrapperReturnNowPlaying.getRows() == 0) {
-            sendMessageQueue(params.getE(), "No one knows " + CommandUtil.cleanMarkdownCharacter(scrobbledArtist.getArtist() + " - " + params.getAlbum()));
+            sendMessageQueue(params.getE(), "No one knows " + CommandUtil.escapeMarkdown(scrobbledArtist.getArtist() + " - " + params.getAlbum()));
             return null;
         }
         return wrapperReturnNowPlaying;
@@ -76,6 +76,6 @@ public class GlobalWhoKnowSongCommand extends GlobalBaseWhoKnowCommand<ArtistAlb
 
     @Override
     public String getTitle(ArtistAlbumParameters params, String ignored) {
-        return "Who knows " + CommandUtil.cleanMarkdownCharacter(params.getArtist() + " - " + params.getAlbum()) + " in " + params.getE().getJDA().getSelfUser().getName() + "?";
+        return "Who knows " + CommandUtil.escapeMarkdown(params.getArtist() + " - " + params.getAlbum()) + " in " + params.getE().getJDA().getSelfUser().getName() + "?";
     }
 }

@@ -119,7 +119,7 @@ public class GenreCommand extends ConcurrentCommand<NumberParameters<TimeFramePa
         long discordId = user.getDiscordId();
 
         TimeFrameEnum timeframe = innerParams.getTime();
-        DiscordUserDisplay userInfo = CommandUtil.getUserInfoNotStripped(e, discordId);
+        DiscordUserDisplay userInfo = CommandUtil.getUserInfoUnescaped(e, discordId);
         String usableString = userInfo.getUsername();
         String urlImage = userInfo.getUrlImage();
         boolean mb = params.hasOptional("mb");
@@ -184,7 +184,7 @@ public class GenreCommand extends ConcurrentCommand<NumberParameters<TimeFramePa
 
         if (params.hasOptional("list")) {
             List<String> lines = map.entrySet()
-                    .stream().sorted(((o1, o2) -> o2.getValue().compareTo(o1.getValue()))).map(x -> ". **" + WordUtils.capitalizeFully(CommandUtil.cleanMarkdownCharacter(x.getKey().getName())) + "** - " + x.getValue() + "\n").toList();
+                    .stream().sorted(((o1, o2) -> o2.getValue().compareTo(o1.getValue()))).map(x -> ". **" + WordUtils.capitalizeFully(CommandUtil.escapeMarkdown(x.getKey().getName())) + "** - " + x.getValue() + "\n").toList();
             if (lines.isEmpty()) {
                 sendMessageQueue(e, String.format("Was not able to find any genre in %s's top 3000 %s%s on%s", usableString, doAlbums ? "artists" : "albums", innerParams.getTime().getDisplayString(), service));
                 return;

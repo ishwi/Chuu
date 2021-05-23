@@ -61,16 +61,16 @@ public class TrackInfoCommand extends AlbumPlaysCommand {
         String tagsField = trackInfo.getTags().isEmpty()
                            ? ""
                            : trackInfo.getTags().stream()
-                                   .map(tag -> String.format("[%s](%s)", CommandUtil.cleanMarkdownCharacter(tag), LinkUtils.getLastFmTagUrl(tag)))
+                                   .map(tag -> String.format("[%s](%s)", CommandUtil.escapeMarkdown(tag), LinkUtils.getLastFmTagUrl(tag)))
                                    .collect(Collectors.joining(" - "));
 
         embedBuilder.setTitle(trackInfo.getName(), LinkUtils.getLastFMArtistTrack(trackInfo.getArtist(), trackInfo.getName()))
-                .addField("Artist:", String.format("[%s](%s)", CommandUtil.cleanMarkdownCharacter(trackInfo.getArtist()),
+                .addField("Artist:", String.format("[%s](%s)", CommandUtil.escapeMarkdown(trackInfo.getArtist()),
                         LinkUtils.getLastFmArtistUrl(trackInfo.getArtist())), false);
         if (trackInfo.getAlbumName() != null) {
             embedBuilder.
                     addField("Album:",
-                            String.format("[%s](%s)", CommandUtil.cleanMarkdownCharacter(trackInfo.getAlbumName()), LinkUtils.getLastFmArtistAlbumUrl(trackInfo.getArtist(), trackInfo.getAlbumName())),
+                            String.format("[%s](%s)", CommandUtil.escapeMarkdown(trackInfo.getAlbumName()), LinkUtils.getLastFmArtistAlbumUrl(trackInfo.getArtist(), trackInfo.getAlbumName())),
                             false);
         }
         embedBuilder

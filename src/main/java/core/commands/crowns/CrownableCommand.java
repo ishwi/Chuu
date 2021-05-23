@@ -80,7 +80,7 @@ public class CrownableCommand extends ListCommand<CrownableArtist, NumberParamet
         StringBuilder a = new StringBuilder();
         List<String> lines = list.stream().map(x ->
                 String.format(". [%s](%s) - **%d**/**%d** with **%d plays** %s%n",
-                        CommandUtil.cleanMarkdownCharacter(x.getArtistName()),
+                        CommandUtil.escapeMarkdown(x.getArtistName()),
                         LinkUtils.getLastFmArtistUrl(x.getArtistName()),
                         x.getRank(),
                         x.getTotalListeners(),
@@ -92,14 +92,14 @@ public class CrownableCommand extends ListCommand<CrownableArtist, NumberParamet
         }
         String s;
         if (isServer) {
-            s = CommandUtil.cleanMarkdownCharacter(e.getGuild().getName());
+            s = CommandUtil.escapeMarkdown(e.getGuild().getName());
         } else {
             s = params.getE().getJDA().getSelfUser().getName();
         }
         boolean onlySecond = outerParmams.hasOptional("secondonly") || outerParmams.hasOptional("second") || outerParmams.hasOptional("onlysecond");
 
         String thumbnail = isServer && e.isFromGuild() ? e.getGuild().getIconUrl() : e.getJDA().getSelfUser().getAvatarUrl();
-        DiscordUserDisplay uInfo = CommandUtil.getUserInfoNotStripped(params.getE(), params.getLastFMData().getDiscordId());
+        DiscordUserDisplay uInfo = CommandUtil.getUserInfoUnescaped(params.getE(), params.getLastFMData().getDiscordId());
         String footer;
         String conditionalFiltering = outerParmams.getExtraParam() != Integer.MAX_VALUE ? " and you are less than " + outerParmams.getExtraParam() + " plays away from first" : "";
         if (onlySecond) {

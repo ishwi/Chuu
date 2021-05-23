@@ -64,7 +64,7 @@ public class YoutubeSearchCommand extends ConcurrentCommand<ExtraParameters<Word
         if (audioItem instanceof BasicAudioPlaylist playlist) {
             s = playlist.getTracks().stream().findFirst().map(t -> t.getInfo().uri).orElse(null);
         }
-        s = s == null || s.isBlank() ? String.format("Couldn't find \"%s\" on youtube", CommandUtil.cleanMarkdownCharacter(query)) : s;
+        s = s == null || s.isBlank() ? String.format("Couldn't find \"%s\" on youtube", CommandUtil.escapeMarkdown(query)) : s;
         sendMessageQueue(e, s);
 
     }

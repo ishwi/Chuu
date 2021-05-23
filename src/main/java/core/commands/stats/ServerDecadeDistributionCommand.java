@@ -68,7 +68,7 @@ public class ServerDecadeDistributionCommand extends ConcurrentCommand<CommandPa
         var embedBuilder = new ChuuEmbedBuilder(e)
                 .setDescription(a)
                 .setAuthor(String.format("%s's years", e.getGuild().getName()), null, e.getGuild().getIconUrl())
-                .setFooter("%s has albums from %d different %s".formatted(CommandUtil.markdownLessString(e.getGuild().getName()), counts.size(), CommandUtil.singlePlural(counts.size(), "decade", "decades")), null);
+                .setFooter("%s has albums from %d different %s".formatted(CommandUtil.stripEscapedMarkdown(e.getGuild().getName()), counts.size(), CommandUtil.singlePlural(counts.size(), "decade", "decades")), null);
 
         e.sendMessage(embedBuilder.build()).queue(m ->
                 new Reactionary<>(lines, m, 10, embedBuilder));

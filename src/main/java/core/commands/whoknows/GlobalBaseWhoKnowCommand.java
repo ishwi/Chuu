@@ -42,7 +42,7 @@ public abstract class GlobalBaseWhoKnowCommand<T extends CommandParameters> exte
         BufferedImage image = WhoKnowsMaker.generateWhoKnows(wrapperReturnNowPlaying, EnumSet.allOf(WKMode.class), title, logo, e.getAuthor().getIdLong());
         if (obtainPrivacyMode(ap) == PrivacyMode.NORMAL && CommandUtil.rand.nextFloat() >= 0.95f) {
             char prefix = e.getPrefix();
-            DiscordUserDisplay uInfo = CommandUtil.getUserInfoNotStripped(e, e.getAuthor().getIdLong());
+            DiscordUserDisplay uInfo = CommandUtil.getUserInfoUnescaped(e, e.getAuthor().getIdLong());
             EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e)
                     .setTitle("Did you know?")
                     .setAuthor(uInfo.getUsername(), null, uInfo.getUrlImage())

@@ -73,7 +73,7 @@ public class TopCommandsCommand extends ConcurrentCommand<ChuuDataParams> {
         LastFMData lastFMData = params.getLastFMData();
         List<CommandUsage> userCommands = db.getUserCommands(params.getLastFMData().getDiscordId());
 
-        DiscordUserDisplay uInfo = CommandUtil.getUserInfoNotStripped(e, params.getLastFMData().getDiscordId());
+        DiscordUserDisplay uInfo = CommandUtil.getUserInfoUnescaped(e, params.getLastFMData().getDiscordId());
 
         if (userCommands.isEmpty()) {
             sendMessageQueue(e, uInfo.getUsername() + " hasn't run any command.");

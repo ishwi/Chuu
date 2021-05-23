@@ -129,12 +129,12 @@ public class GlobalRecommendationCommand extends ConcurrentCommand<NumberParamet
         } else {
             if (recs.size() == 1) {
                 sendMessageQueue(e, String.format("**%s** has recommended %s to listen to **%s** (they have %d plays)",
-                        giver, receiver, CommandUtil.cleanMarkdownCharacter(recs.get(0).getArtist()), recs.get(0).getCount()));
+                        giver, receiver, CommandUtil.escapeMarkdown(recs.get(0).getArtist()), recs.get(0).getCount()));
                 db.insertRecommendation(secondDiscordID, firstDiscordID, recs.get(0).getArtistId());
             } else {
                 StringBuilder s = new StringBuilder();
                 for (ScrobbledArtist rec : recs) {
-                    s.append((String.format("# [%s](%s): %d plays%n", CommandUtil.cleanMarkdownCharacter(rec.getArtist()), LinkUtils.getLastFmArtistUrl(rec.getArtist()), rec.getCount())));
+                    s.append((String.format("# [%s](%s): %d plays%n", CommandUtil.escapeMarkdown(rec.getArtist()), LinkUtils.getLastFmArtistUrl(rec.getArtist()), rec.getCount())));
                 }
                 EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e);
 

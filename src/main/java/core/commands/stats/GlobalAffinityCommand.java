@@ -94,8 +94,8 @@ public class GlobalAffinityCommand extends ConcurrentCommand<NumberParameters<Ch
         String name = e.getJDA().getSelfUser().getName();
         EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e)
                 .setDescription(stringBuilder)
-                .setTitle(uinfo.getUsername() + "'s soulmates in " + CommandUtil.cleanMarkdownCharacter(name))
-                .setFooter(String.format("%s's global affinity using a threshold of %d plays!%n", CommandUtil.markdownLessString(uinfo.getUsername()), threshold), null)
+                .setTitle(uinfo.getUsername() + "'s soulmates in " + CommandUtil.escapeMarkdown(name))
+                .setFooter(String.format("%s's global affinity using a threshold of %d plays!%n", CommandUtil.stripEscapedMarkdown(uinfo.getUsername()), threshold), null)
                 .setThumbnail(e.getJDA().getSelfUser().getAvatarUrl());
         e.sendMessage(embedBuilder.build())
                 .queue(message1 -> new Reactionary<>(lines, message1, embedBuilder));

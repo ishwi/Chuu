@@ -63,7 +63,7 @@ public class BandInfoServerCommand extends BandInfoCommand {
         }
         WrapperReturnNowPlaying np = db.whoKnows(who.getArtistId(), e.getGuild().getIdLong(), 5);
         np.getReturnNowPlayings().forEach(element ->
-                element.setDiscordName(CommandUtil.getUserInfoNotStripped(e, element.getDiscordId()).getUsername())
+                element.setDiscordName(CommandUtil.getUserInfoUnescaped(e, element.getDiscordId()).getUsername())
         );
         BufferedImage logo = CommandUtil.getLogo(db, e);
         if (b1) {
@@ -84,7 +84,7 @@ public class BandInfoServerCommand extends BandInfoCommand {
 
     @Override
     void configEmbedBuilder(EmbedBuilder embedBuilder, ArtistParameters ap, ArtistAlbums ai) {
-        embedBuilder.setTitle(ap.getE().getGuild().getName() + "'s top " + CommandUtil.cleanMarkdownCharacter(ai.getArtist()) + " albums");
+        embedBuilder.setTitle(ap.getE().getGuild().getName() + "'s top " + CommandUtil.escapeMarkdown(ai.getArtist()) + " albums");
 
     }
 }

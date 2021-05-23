@@ -73,12 +73,12 @@ public class GlobalFavesFromArtistCommand extends ConcurrentCommand<ArtistParame
         String lastFmName = params.getLastFMData().getName();
         List<AlbumUserPlays> songs = db.getGlboalTopArtistTracks(who.getArtistId(), Integer.MAX_VALUE);
         if (songs.isEmpty()) {
-            sendMessageQueue(e, ("Couldn't find any tracks of " + CommandUtil.cleanMarkdownCharacter(who.getArtist()) + " in the bot!"));
+            sendMessageQueue(e, ("Couldn't find any tracks of " + CommandUtil.escapeMarkdown(who.getArtist()) + " in the bot!"));
             return;
         }
         String userString = e.getJDA().getSelfUser().getName();
         StringBuilder a = new StringBuilder();
-        List<String> s = songs.stream().map(g -> ". **[" + CommandUtil.cleanMarkdownCharacter(g.getAlbum()) + "](" + LinkUtils.getLastFMArtistTrack(g.getArtist(), g.getAlbum()) + ")** - " + g.getPlays() + " plays" +
+        List<String> s = songs.stream().map(g -> ". **[" + CommandUtil.escapeMarkdown(g.getAlbum()) + "](" + LinkUtils.getLastFMArtistTrack(g.getArtist(), g.getAlbum()) + ")** - " + g.getPlays() + " plays" +
                                                  "\n").toList();
         for (int i = 0; i < s.size() && i < 10; i++) {
             String sb = s.get(i);

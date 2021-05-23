@@ -95,7 +95,7 @@ public class LyricsCommand extends ConcurrentCommand<ArtistAlbumParameters> {
         if (pages.size() != 1) {
             desc += "\n1" + "/" + pages.size();
         }
-        String urlImage = CommandUtil.getUserInfoNotStripped(e, params.getLastFMData().getDiscordId()).getUrlImage();
+        String urlImage = CommandUtil.getUserInfoUnescaped(e, params.getLastFMData().getDiscordId()).getUrlImage();
         EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e)
                 .setDescription(desc)
                 .setAuthor(String.format("%s - %s", correctedArtist, song), LinkUtils.getLastFMArtistTrack(correctedArtist, song), urlImage)

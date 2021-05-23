@@ -75,10 +75,10 @@ public class GuildArtistPlaysCommand extends ConcurrentCommand<ArtistParameters>
         } else {
             usableString = e.getAuthor().getName();
         }
-        usableString = CommandUtil.cleanMarkdownCharacter(usableString);
+        usableString = CommandUtil.escapeMarkdown(usableString);
         sendMessageQueue(e, String.format("**%s** has **%d** %s on **%s**",
                 usableString, artistPlays, CommandUtil.singlePlural(Math.toIntExact(artistPlays), "plays", "plays"),
-                CommandUtil.cleanMarkdownCharacter(scrobbledArtist.getArtist())));
+                CommandUtil.escapeMarkdown(scrobbledArtist.getArtist())));
 
     }
 }

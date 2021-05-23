@@ -95,7 +95,7 @@ public class PlayingCommand extends ConcurrentCommand<CommandParameters> {
         EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e).setThumbnail(e.getGuild().getIconUrl())
                 .setTitle(
                         (showFresh ? "What is being played now in " : "What was being played in ")
-                        + CommandUtil.cleanMarkdownCharacter(e.getGuild().getName()));
+                        + CommandUtil.escapeMarkdown(e.getGuild().getName()));
 
         List<String> result = users.parallelStream().map(u ->
         {
@@ -115,13 +115,13 @@ public class PlayingCommand extends ConcurrentCommand<CommandParameters> {
                     NowPlayingArtist value = x.getValue().get(); //Checked previous filter
                     String username = getUserString(e, usersWrapper.getDiscordId(), usersWrapper.getName());
                     String started = !showFresh && value.current() ? "#" : "+";
-                    return started + " [" +
-                           username + "](" +
-                           CommandUtil.getLastFmUser(usersWrapper.getName()) +
-                           "): " +
-                           CommandUtil.cleanMarkdownCharacter(value.songName() +
-                                                              " - " + value.artistName() +
-                                                              " | " + value.albumName() + "\n");
+            return started + " [" +
+                   username + "](" +
+                   CommandUtil.getLastFmUser(usersWrapper.getName()) +
+                   "): " +
+                   CommandUtil.escapeMarkdown(value.songName() +
+                                              " - " + value.artistName() +
+                                              " | " + value.albumName() + "\n");
                 }
         ).collect(Collectors.toCollection(ArrayList::new));
         Collections.shuffle(result, CommandUtil.rand);

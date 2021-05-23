@@ -75,7 +75,7 @@ public class GlobalArtistCommand extends ConcurrentCommand<ArtistParameters> {
         params.setScrobbledArtist(validable);
         boolean b = CommandUtil.showBottedAccounts(params.getLastFMData(), params, db);
         List<GlobalCrown> globalArtistRanking = db.getGlobalArtistRanking(validable.getArtistId(), b, e.getAuthor().getIdLong());
-        String artist = CommandUtil.cleanMarkdownCharacter(validable.getArtist());
+        String artist = CommandUtil.escapeMarkdown(validable.getArtist());
         if (globalArtistRanking.isEmpty()) {
             sendMessageQueue(e, "No one knows " + artist);
             return;
@@ -132,13 +132,13 @@ public class GlobalArtistCommand extends ConcurrentCommand<ArtistParameters> {
             long serverArtistPlays = db.getServerArtistPlays(e.getGuild().getIdLong(), validable.getArtistId());
             serverStats.append(String.format("**%d** plays%n", serverArtistPlays));
             embedBuilder.
-                    addField(String.format("%s's stats", CommandUtil.cleanMarkdownCharacter(e.getGuild().getName())), serverStats.toString(), true);
+                    addField(String.format("%s's stats", CommandUtil.escapeMarkdown(e.getGuild().getName())), serverStats.toString(), true);
         }
 
         String globalStats = String.format("**%d** listeners%n", totalPeople) +
                              String.format("**%d** plays%n", totalPlays);
         embedBuilder
-                .addField(String.format("%s's stats", CommandUtil.cleanMarkdownCharacter(e.getJDA().getSelfUser().getName())), globalStats, true)
+                .addField(String.format("%s's stats", CommandUtil.escapeMarkdown(e.getJDA().getSelfUser().getName())), globalStats, true)
                 .setImage(validable.getUrl())
                 .setTitle("Who knows " + artist + " globally?");
         e.sendMessage(embedBuilder.build()).queue();

@@ -61,7 +61,7 @@ public class TotalArtistPlayCountCommand extends ResultWrappedCommand<ArtistPlay
         }
 
         List<String> lines = artistPlays.stream().map(x -> String.format(". [%s](%s) - %d plays %n",
-                CommandUtil.cleanMarkdownCharacter(x.getArtistName()), LinkUtils.getLastFmArtistUrl(x.getArtistName()), x.getCount()))
+                CommandUtil.escapeMarkdown(x.getArtistName()), LinkUtils.getLastFmArtistUrl(x.getArtistName()), x.getCount()))
                 .toList();
         EmbedBuilder embedBuilder = initList(lines, e)
                 .setTitle("Total artist plays")

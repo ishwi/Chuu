@@ -65,8 +65,8 @@ public class MyCombosCommand extends ConcurrentCommand<ChuuDataParams> {
         AtomicInteger atomicInteger = new AtomicInteger(1);
         List<String> streaks = userStreaks
                 .stream().map(combo -> {
-                            String aString = CommandUtil.cleanMarkdownCharacter(combo.getCurrentArtist());
-                            int andIncrement = atomicInteger.getAndIncrement();
+                            String aString = CommandUtil.escapeMarkdown(combo.getCurrentArtist());
+                    int andIncrement = atomicInteger.getAndIncrement();
                             StringBuilder description = new StringBuilder(CommandUtil.getDayNumberSuffix(andIncrement) + "\n");
                             GlobalStreakEntities.DateHolder holder = params.hasOptional("start") ? CommandUtil.toDateHolder(combo.getStreakStart(), params.getLastFMData().getName()) : null;
 
@@ -88,10 +88,10 @@ public class MyCombosCommand extends ConcurrentCommand<ChuuDataParams> {
         }
 
         EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e)
-                .setAuthor(String.format("%s's streaks", CommandUtil.markdownLessUserString(userName, discordID, e)), CommandUtil.getLastFmUser(params.getLastFMData().getName()), userUrl)
+                .setAuthor(String.format("%s's streaks", CommandUtil.unescapedUser(userName, discordID, e)), CommandUtil.getLastFmUser(params.getLastFMData().getName()), userUrl)
                 .setThumbnail(CommandUtil.noImageUrl(userUrl))
                 .setDescription(a)
-                .setFooter(String.format("%s has a total of %d %s!", CommandUtil.markdownLessUserString(userName, discordID, e), streaks.size(), CommandUtil.singlePlural(streaks.size(), "streak", "streaks")));
+                .setFooter(String.format("%s has a total of %d %s!", CommandUtil.unescapedUser(userName, discordID, e), streaks.size(), CommandUtil.singlePlural(streaks.size(), "streak", "streaks")));
         e.sendMessage(embedBuilder.build()).queue(message1 ->
                 new Reactionary<>(streaks, message1, maxSize.get(), embedBuilder));
     }

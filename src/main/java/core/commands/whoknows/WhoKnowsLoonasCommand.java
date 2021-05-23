@@ -124,7 +124,7 @@ public class WhoKnowsLoonasCommand extends WhoKnowsBaseCommand<LOONAParameters> 
         whoKnowsArtistSet.stream().flatMap(x -> x.getReturnNowPlayings().stream()).forEach(x -> {
             String s = mapper.get(x.getDiscordId());
             if (s == null) {
-                s = CommandUtil.getUserInfoNotStripped(e, x.getDiscordId()).getUsername();
+                s = CommandUtil.getUserInfoUnescaped(e, x.getDiscordId()).getUsername();
                 mapper.put(x.getDiscordId(), s);
             }
             x.setDiscordName(s);
@@ -320,7 +320,7 @@ public class WhoKnowsLoonasCommand extends WhoKnowsBaseCommand<LOONAParameters> 
         }
         String usable;
         if (e.isFromGuild()) {
-            usable = CommandUtil.cleanMarkdownCharacter(e.getGuild().getName());
+            usable = CommandUtil.escapeMarkdown(e.getGuild().getName());
         } else {
             usable = e.getJDA().getSelfUser().getName();
         }
@@ -372,7 +372,7 @@ public class WhoKnowsLoonasCommand extends WhoKnowsBaseCommand<LOONAParameters> 
 
     public String countString(ReturnNowPlaying returnNowPlaying) {
         return ". " +
-               "[" + CommandUtil.cleanMarkdownCharacter(returnNowPlaying.getArtist()) + "](" +
+               "[" + CommandUtil.escapeMarkdown(returnNowPlaying.getArtist()) + "](" +
                LinkUtils
                        .getLastFmArtistUrl(returnNowPlaying.getArtist()) +
                ") - " +

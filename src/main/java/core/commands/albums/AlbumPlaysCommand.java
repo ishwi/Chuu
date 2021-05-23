@@ -79,7 +79,7 @@ public class AlbumPlaysCommand extends ConcurrentCommand<ArtistAlbumParameters> 
 
         String ending = a == 1 ? "time " : "times";
 
-        sendMessageQueue(e, "**" + usernameString + "** has listened **" + CommandUtil.cleanMarkdownCharacter(album) + "** " + a + " " + ending);
+        sendMessageQueue(e, "**" + usernameString + "** has listened **" + CommandUtil.escapeMarkdown(album) + "** " + a + " " + ending);
 
 
     }

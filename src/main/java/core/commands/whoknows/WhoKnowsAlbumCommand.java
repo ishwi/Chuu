@@ -76,7 +76,7 @@ public class WhoKnowsAlbumCommand extends WhoKnowsBaseCommand<ArtistAlbumParamet
                 .toList();
         if (userList.isEmpty()) {
             Chuu.getLogger().error("Something went real wrong");
-            sendMessageQueue(e, String.format(" No one knows %s - %s", CommandUtil.cleanMarkdownCharacter(ap.getArtist()), CommandUtil.cleanMarkdownCharacter(ap.getAlbum())));
+            sendMessageQueue(e, String.format(" No one knows %s - %s", CommandUtil.escapeMarkdown(ap.getArtist()), CommandUtil.escapeMarkdown(ap.getAlbum())));
             return null;
         }
         Map<UsersWrapper, Integer> userMapPlays = fillPlayCounter(userList, artist.getArtist(), ap.getAlbum(), urlContainter);
@@ -94,11 +94,11 @@ public class WhoKnowsAlbumCommand extends WhoKnowsBaseCommand<ArtistAlbumParamet
         List<ReturnNowPlaying> list2 = userCounts.stream().sequential().limit(effectiveMode.equals(WhoKnowsMode.IMAGE) ? 10 : Integer.MAX_VALUE).map(t -> {
             long id2 = t.getKey().getDiscordID();
             ReturnNowPlaying np = new ReturnNowPlayingAlbum(id2, t.getKey().getLastFMName(), correctedArtist, t.getValue(), correctedAlbum);
-            np.setDiscordName(CommandUtil.getUserInfoNotStripped(e, id2).getUsername());
+            np.setDiscordName(CommandUtil.getUserInfoUnescaped(e, id2).getUsername());
             return np;
         }).filter(x -> x.getPlayNumber() > 0).toList();
         if (list2.isEmpty()) {
-            sendMessageQueue(e, String.format(" No one knows %s - %s", CommandUtil.cleanMarkdownCharacter(correctedArtist), CommandUtil.cleanMarkdownCharacter(correctedAlbum)));
+            sendMessageQueue(e, String.format(" No one knows %s - %s", CommandUtil.escapeMarkdown(correctedArtist), CommandUtil.escapeMarkdown(correctedAlbum)));
             return null;
         }
 
@@ -139,7 +139,7 @@ public class WhoKnowsAlbumCommand extends WhoKnowsBaseCommand<ArtistAlbumParamet
 
     @Override
     public String getTitle(ArtistAlbumParameters params, String baseTitle) {
-        return "Who knows " + CommandUtil.cleanMarkdownCharacter(params.getArtist() + " - " + params.getAlbum()) + " in " + baseTitle + "?";
+        return "Who knows " + CommandUtil.escapeMarkdown(params.getArtist() + " - " + params.getAlbum()) + " in " + baseTitle + "?";
     }
 
 

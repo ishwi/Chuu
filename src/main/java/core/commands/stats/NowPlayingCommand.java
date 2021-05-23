@@ -51,7 +51,7 @@ public class NowPlayingCommand extends NpCommand {
         StringBuilder a = new StringBuilder();
 
         // Author fields cant have escaped markdown characters
-        DiscordUserDisplay uInfo = CommandUtil.getUserInfoNotStripped(e, discordId);
+        DiscordUserDisplay uInfo = CommandUtil.getUserInfoUnescaped(e, discordId);
 
         String urlHolder = uInfo.getUrlImage();
         String userName = uInfo.getUsername();
@@ -69,12 +69,12 @@ public class NowPlayingCommand extends NpCommand {
         String lastFMName = nowPlayingArtist.username();
 
 
-        a.append("**").append(CommandUtil.cleanMarkdownCharacter(nowPlayingArtist.artistName()))
-                .append("** | ").append(CommandUtil.cleanMarkdownCharacter(nowPlayingArtist.albumName())).append("\n");
+        a.append("**").append(CommandUtil.escapeMarkdown(nowPlayingArtist.artistName()))
+                .append("** | ").append(CommandUtil.escapeMarkdown(nowPlayingArtist.albumName())).append("\n");
 
         EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e).setAuthor(title, CommandUtil.getLastFmUser(lastFMName), urlHolder)
                 .setThumbnail(CommandUtil.noImageUrl(nowPlayingArtist.url()))
-                .setTitle(CommandUtil.cleanMarkdownCharacter(nowPlayingArtist.songName()), LinkUtils.getLastFMArtistTrack(nowPlayingArtist.artistName(), nowPlayingArtist.songName()))
+                .setTitle(CommandUtil.escapeMarkdown(nowPlayingArtist.songName()), LinkUtils.getLastFMArtistTrack(nowPlayingArtist.artistName(), nowPlayingArtist.songName()))
                 .setDescription(a);
 
 

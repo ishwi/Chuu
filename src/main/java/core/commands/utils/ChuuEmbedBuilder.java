@@ -46,7 +46,7 @@ public class ChuuEmbedBuilder extends EmbedBuilder {
     @Override
     public EmbedBuilder setFooter(@Nullable String text, @Nullable String iconUrl) {
         if (text != null) {
-            return super.setFooter(CommandUtil.cleanMarkdownCharacter(text), iconUrl);
+            return super.setFooter(CommandUtil.stripEscapedMarkdown(text), iconUrl);
         }
         return super.setFooter(null, iconUrl);
     }

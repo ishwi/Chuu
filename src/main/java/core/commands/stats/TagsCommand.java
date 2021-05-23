@@ -71,7 +71,7 @@ public class TagsCommand extends ConcurrentCommand<ArtistParameters> {
         CommandUtil.validate(db, scrobbledArtist, lastFM, discogsApi, spotify);
 
 
-        String correctedArtist = CommandUtil.cleanMarkdownCharacter(scrobbledArtist.getArtist());
+        String correctedArtist = CommandUtil.escapeMarkdown(scrobbledArtist.getArtist());
         List<String> artistTags = db.getArtistTag(scrobbledArtist.getArtistId())
                 .stream().map(x -> String.format(". **[%s](%s)**%n",
                         WordUtils.capitalizeFully(x)

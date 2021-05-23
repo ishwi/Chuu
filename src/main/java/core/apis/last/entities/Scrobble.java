@@ -10,7 +10,7 @@ public record Scrobble(String artist, String album, String song, String image, L
     }
 
     public String toLink(String uri) {
-        return "[%s](%s)".formatted(lineless(), CommandUtil.cleanMarkdownCharacter(uri));
+        return "[%s](%s)".formatted(lineless(), CommandUtil.escapeMarkdown(uri));
     }
 
     public String lineless() {

@@ -86,10 +86,10 @@ public abstract class BaseTasteCommand<T extends CommandParameters> extends Conc
         UserInfo userInfo = userInfoService.getUserInfo(LastFMData.ofUser(userA));
         UserInfo userInfo1 = userInfoService.getUserInfo(LastFMData.ofUser(userB));
         if (Chuu.getLastFmId(userInfo.getUsername()).equals(Chuu.DEFAULT_LASTFM_ID)) {
-            userInfo.setUsername(CommandUtil.getUserInfoNotStripped(e, firstId).getUsername());
+            userInfo.setUsername(CommandUtil.getUserInfoUnescaped(e, firstId).getUsername());
         }
         if (Chuu.getLastFmId(userInfo1.getUsername()).equals(Chuu.DEFAULT_LASTFM_ID)) {
-            userInfo1.setUsername(CommandUtil.getUserInfoNotStripped(e, secondId).getUsername());
+            userInfo1.setUsername(CommandUtil.getUserInfoUnescaped(e, secondId).getUsername());
         }
         Pair<Integer, Integer> tasteBar = getTasteBar(resultWrapper, userInfo, userInfo1, params);
         var palette = getColor(e, firstId)

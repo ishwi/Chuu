@@ -9,7 +9,7 @@ import java.util.concurrent.ExecutorService;
 
 
 public abstract class ConcurrentCommand<T extends CommandParameters> extends MyCommand<T> {
-    public final ExecutorService executor = ExecutorsSingleton.getInstance();
+    public static final ExecutorService executor = ExecutorsSingleton.getInstance();
 
 
     public ConcurrentCommand(ServiceView dao, boolean isLongRunningCommand) {

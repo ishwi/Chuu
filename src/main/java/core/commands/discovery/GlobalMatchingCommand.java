@@ -112,7 +112,7 @@ public class GlobalMatchingCommand extends ConcurrentCommand<NumberParameters<Ch
             a.append(i + 1).append((strings.get(i).toString()));
         }
         embedBuilder.setDescription(a).setTitle("Global Matching artists with " + usableName)
-                .setFooter(String.format("%s has %d total artist!%n", CommandUtil.markdownLessUserString(usableName, discordId, e), db
+                .setFooter(String.format("%s has %d total artist!%n", CommandUtil.unescapedUser(usableName, discordId, e), db
                         .getUserArtistCount(innerParams.getLastFMData().
                                 getName(), 0)), null);
         e.sendMessage(embedBuilder.build()).queue(mes ->

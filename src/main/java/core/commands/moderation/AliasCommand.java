@@ -61,24 +61,24 @@ public class AliasCommand extends ConcurrentCommand<TwoArtistParams> {
         long artistId;
         String corrected = db.findCorrection(alias);
         if (corrected != null) {
-            sendMessageQueue(e, "The alias: " + CommandUtil.cleanMarkdownCharacter(alias) + " already exists on the bot");
+            sendMessageQueue(e, "The alias: " + CommandUtil.escapeMarkdown(alias) + " already exists on the bot");
             return;
         }
         try {
             artistId = db.getArtistId(to);
         } catch (InstanceNotFoundException ex) {
-            sendMessageQueue(e, "The artist: " + CommandUtil.cleanMarkdownCharacter(to) + " doesn't exist in the bot");
+            sendMessageQueue(e, "The artist: " + CommandUtil.escapeMarkdown(to) + " doesn't exist in the bot");
             return;
         }
         try {
             db.getArtistId(alias);
-            sendMessageQueue(e, "The alias: " + CommandUtil.cleanMarkdownCharacter(alias) + " points to an existing artist within the bot!");
+            sendMessageQueue(e, "The alias: " + CommandUtil.escapeMarkdown(alias) + " points to an existing artist within the bot!");
             return;
         } catch (InstanceNotFoundException ex) {
             try {
                 ArtistSummary artistSummary = lastFM.getArtistSummary(alias, lastFMData);
                 if (artistSummary.getListeners() > 1000) {
-                    sendMessageQueue(e, "The alias: " + CommandUtil.cleanMarkdownCharacter(alias) + " is an existing artist in last.fm!");
+                    sendMessageQueue(e, "The alias: " + CommandUtil.escapeMarkdown(alias) + " is an existing artist in last.fm!");
                     return;
                 }
             } catch (LastFmEntityNotFoundException ignored) {

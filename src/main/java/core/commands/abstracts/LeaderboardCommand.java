@@ -44,7 +44,7 @@ public abstract class LeaderboardCommand<T extends CommandParameters> extends Li
         if (strings.size() > 10) {
             embedBuilder.setFooter("%s has %d users with %s\n".formatted(e.getGuild().getName(), list.size(), getEntryName(params)), null);
         }
-        embedBuilder.setDescription(a).setTitle(CommandUtil.cleanMarkdownCharacter(e.getGuild().getName()) + "'s " + getEntryName(params) + " leaderboard")
+        embedBuilder.setDescription(a).setTitle(CommandUtil.escapeMarkdown(e.getGuild().getName()) + "'s " + getEntryName(params) + " leaderboard")
                 .setThumbnail(e.getGuild().getIconUrl())
                 .setFooter(e.getGuild().getName() + " has " + list.size() + " registered users!\n", null);
 

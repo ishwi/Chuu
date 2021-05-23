@@ -40,7 +40,7 @@ public class UrlQueueReview extends ConcurrentCommand<CommandParameters> {
 
     private final TriFunction<JDA, Integer, Supplier<Integer>, BiFunction<ImageQueue, EmbedBuilder, EmbedBuilder>> builder = (jda, totalCount, pos) -> (reportEntity, embedBuilder) ->
             addStrikeField(reportEntity, embedBuilder.clearFields()
-                    .addField("Artist:", String.format("[%s](%s)", CommandUtil.cleanMarkdownCharacter(reportEntity.artistName()), LinkUtils.getLastFmArtistUrl(reportEntity.artistName())), false)
+                    .addField("Artist:", String.format("[%s](%s)", CommandUtil.escapeMarkdown(reportEntity.artistName()), LinkUtils.getLastFmArtistUrl(reportEntity.artistName())), false)
                     .addField("Author", CommandUtil.getGlobalUsername(jda, reportEntity.uploader()), true)
                     .addField("# Rejected:", String.valueOf(reportEntity.userRejectedCount()), true)
                     .addField("# Approved:", String.valueOf(reportEntity.count()), true)

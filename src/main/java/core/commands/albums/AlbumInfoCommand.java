@@ -57,20 +57,20 @@ public class AlbumInfoCommand extends AlbumPlaysCommand {
         String tagsField = albumSummary.getTagList().isEmpty()
                            ? ""
                            : albumSummary.getTagList().stream()
-                                   .map(tag -> "[" + CommandUtil.cleanMarkdownCharacter(tag) + "](" + LinkUtils.getLastFmTagUrl(tag) + ")")
+                                   .map(tag -> "[" + CommandUtil.escapeMarkdown(tag) + "](" + LinkUtils.getLastFmTagUrl(tag) + ")")
                                    .collect(Collectors.joining(" - "));
         StringBuilder trackList = new StringBuilder();
 
         MusicbrainzFullAlbumEntity albumInfo = mb.getAlbumInfo(albumSummary);
         albumSummary.getTrackList().forEach(x ->
                 trackList.append(x.getPosition()).append(". ")
-                        .append(CommandUtil.cleanMarkdownCharacter(x.getName()))
+                        .append(CommandUtil.escapeMarkdown(x.getName()))
                         .append(". ").append(
                         String
                                 .format("%02d:%02d", x.getDuration() / 60, x.getDuration() % 60))
                         .append("\n"));
-        embedBuilder.setTitle(CommandUtil.cleanMarkdownCharacter(albumSummary.getAlbum()), LinkUtils.getLastFmArtistAlbumUrl(albumSummary.getArtist(), albumSummary.getAlbum()))
-                .addField("Artist:", "[" + CommandUtil.cleanMarkdownCharacter(albumSummary.getArtist()) + "](" + LinkUtils.getLastFmArtistUrl(albumSummary.getArtist()) + ")", false)
+        embedBuilder.setTitle(CommandUtil.escapeMarkdown(albumSummary.getAlbum()), LinkUtils.getLastFmArtistAlbumUrl(albumSummary.getArtist(), albumSummary.getAlbum()))
+                .addField("Artist:", "[" + CommandUtil.escapeMarkdown(albumSummary.getArtist()) + "](" + LinkUtils.getLastFmArtistUrl(albumSummary.getArtist()) + ")", false)
                 .addField(username + "'s plays:", String.valueOf(albumSummary.getTotalPlayNumber()), true)
                 .addField("Listeners:", String.valueOf(albumSummary.getListeners()), true)
                 .addField("Scrobbles:", String.valueOf(albumSummary.getTotalscrobbles()), true)
@@ -78,7 +78,7 @@ public class AlbumInfoCommand extends AlbumPlaysCommand {
         if (!albumInfo.getTags().isEmpty()) {
             String tagLine = albumInfo.getTags().stream().limit(5)
                     .filter(x -> x != null && x.length() > 0)
-                    .map(tag -> "[" + CommandUtil.cleanMarkdownCharacter(tag) + "](" + LinkUtils.getMusicbrainzTagUrl(tag) + ")")
+                    .map(tag -> "[" + CommandUtil.escapeMarkdown(tag) + "](" + LinkUtils.getMusicbrainzTagUrl(tag) + ")")
                     .collect(Collectors.joining(" - "));
             embedBuilder.addField("MusicBrainz Tags: ", tagLine, false);
         }

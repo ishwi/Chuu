@@ -62,7 +62,7 @@ public class FirstArtistCommand extends ConcurrentCommand<ArtistParameters> {
         String usernameString = getUserString(e, params.getLastFMData().getDiscordId(), data.getName());
         OffsetDateTime offsetDateTime = OffsetDateTime.ofInstant(instant.get(), data.getTimeZone().toZoneId());
         String date = CommandUtil.getAmericanizedDate(offsetDateTime);
-        sendMessageQueue(e, String.format("First time that **%s** scrobbled **%s** was at %s", usernameString, CommandUtil.cleanMarkdownCharacter(artist.getArtist()), date));
+        sendMessageQueue(e, String.format("First time that **%s** scrobbled **%s** was at %s", usernameString, CommandUtil.escapeMarkdown(artist.getArtist()), date));
     }
 
 

@@ -40,7 +40,7 @@ public class WhoKnowsTagCommand extends WhoKnowsBaseCommand<GenreParameters> {
                 this.db.whoKnowsGenre(params.getGenre(), e.getGuild().getIdLong()) :
                 this.db.whoKnowsGenre(params.getGenre(), e.getGuild().getIdLong(), Integer.MAX_VALUE);
         if (wrapperReturnNowPlaying.getRows() == 0) {
-            sendMessageQueue(e, "No one knows " + CommandUtil.cleanMarkdownCharacter(params.getGenre()));
+            sendMessageQueue(e, "No one knows " + CommandUtil.escapeMarkdown(params.getGenre()));
             return null;
         }
         return formatTag(e, completableFuture, wrapperReturnNowPlaying);
@@ -48,7 +48,7 @@ public class WhoKnowsTagCommand extends WhoKnowsBaseCommand<GenreParameters> {
 
     @Override
     public String getTitle(GenreParameters params, String baseTitle) {
-        return "Who knows " + CommandUtil.cleanMarkdownCharacter(params.getGenre()) + " in " + baseTitle + "?";
+        return "Who knows " + CommandUtil.escapeMarkdown(params.getGenre()) + " in " + baseTitle + "?";
 
     }
 

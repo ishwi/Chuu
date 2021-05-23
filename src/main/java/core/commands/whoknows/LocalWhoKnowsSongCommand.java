@@ -78,14 +78,14 @@ public class LocalWhoKnowsSongCommand extends LocalWhoKnowsAlbumCommand {
             //Ignored
         }
         if (wrapperReturnNowPlaying.getRows() == 0) {
-            sendMessageQueue(ap.getE(), "No one knows " + CommandUtil.cleanMarkdownCharacter(who.getArtist() + " - " + ap.getAlbum()));
+            sendMessageQueue(ap.getE(), "No one knows " + CommandUtil.escapeMarkdown(who.getArtist() + " - " + ap.getAlbum()));
             return null;
         }
         wrapperReturnNowPlaying.setReturnNowPlayings(
                 wrapperReturnNowPlaying.getReturnNowPlayings()
                         .stream().<ReturnNowPlaying>map(x -> new ReturnNowPlayingAlbum(x, ap.getAlbum()))
                         .peek(x -> x.setArtist(who.getArtist()))
-                        .peek(x -> x.setDiscordName(CommandUtil.getUserInfoNotStripped(ap.getE(), x.getDiscordId()).getUsername()))
+                        .peek(x -> x.setDiscordName(CommandUtil.getUserInfoUnescaped(ap.getE(), x.getDiscordId()).getUsername()))
                         .toList());
 
 

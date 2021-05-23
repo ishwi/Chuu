@@ -34,7 +34,7 @@ public class MultipleWhoKnowsCommand extends WhoKnowsBaseCommand<MultiArtistPara
         int i = whoKnowsMode.equals(WhoKnowsMode.IMAGE) ? 10 : Integer.MAX_VALUE;
         List<WrapperReturnNowPlaying> whoKnowsArtistSet = db.getWhoKnowsArtistSet(params.getArtists(), params.getE().getGuild().getIdLong(), i, null);
         if (whoKnowsArtistSet.isEmpty()) {
-            sendMessageQueue(params.getE(), "No one knows " + CommandUtil.cleanMarkdownCharacter(join(params.getArtists())));
+            sendMessageQueue(params.getE(), "No one knows " + CommandUtil.escapeMarkdown(join(params.getArtists())));
             return null;
         }
         WrapperReturnNowPlaying first = whoKnowsArtistSet.get(0);
@@ -47,7 +47,7 @@ public class MultipleWhoKnowsCommand extends WhoKnowsBaseCommand<MultiArtistPara
                 0, first.getUrl(), ""
         );
         wrapperReturnNowPlaying.getReturnNowPlayings()
-                .forEach(x -> x.setDiscordName(CommandUtil.getUserInfoNotStripped(params.getE(), x.getDiscordId()).getUsername()));
+                .forEach(x -> x.setDiscordName(CommandUtil.getUserInfoUnescaped(params.getE(), x.getDiscordId()).getUsername()));
         wrapperReturnNowPlaying.setUrl((first.getUrl()));
         wrapperReturnNowPlaying.setArtist(whoKnowsArtistSet.stream().map(WrapperReturnNowPlaying::getArtist).collect(Collectors.joining(",")));
         return wrapperReturnNowPlaying;
@@ -55,7 +55,7 @@ public class MultipleWhoKnowsCommand extends WhoKnowsBaseCommand<MultiArtistPara
 
     @Override
     public String getTitle(MultiArtistParameters params, String baseTitle) {
-        return "Who knows " + CommandUtil.cleanMarkdownCharacter(join(params.getArtists())) + " in " + baseTitle + "?";
+        return "Who knows " + CommandUtil.escapeMarkdown(join(params.getArtists())) + " in " + baseTitle + "?";
 
     }
 

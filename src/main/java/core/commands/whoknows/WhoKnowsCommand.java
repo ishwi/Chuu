@@ -64,18 +64,18 @@ public class WhoKnowsCommand extends WhoKnowsBaseCommand<ArtistParameters> {
         WrapperReturnNowPlaying wrapperReturnNowPlaying =
                 whoKnowsMode.equals(WhoKnowsMode.IMAGE) ? this.db.whoKnows(scrobbledArtist.getArtistId(), e.getGuild().getIdLong()) : this.db.whoKnows(scrobbledArtist.getArtistId(), e.getGuild().getIdLong(), Integer.MAX_VALUE);
         if (wrapperReturnNowPlaying.getRows() == 0) {
-            sendMessageQueue(e, "No one knows " + CommandUtil.cleanMarkdownCharacter(scrobbledArtist.getArtist()));
+            sendMessageQueue(e, "No one knows " + CommandUtil.escapeMarkdown(scrobbledArtist.getArtist()));
             return null;
         }
         wrapperReturnNowPlaying.getReturnNowPlayings()
-                .forEach(x -> x.setDiscordName(CommandUtil.getUserInfoNotStripped(e, x.getDiscordId()).getUsername()));
+                .forEach(x -> x.setDiscordName(CommandUtil.getUserInfoUnescaped(e, x.getDiscordId()).getUsername()));
         wrapperReturnNowPlaying.setUrl(scrobbledArtist.getUrl());
         return wrapperReturnNowPlaying;
     }
 
     @Override
     public String getTitle(ArtistParameters params, String baseTitle) {
-        return "Who knows " + CommandUtil.cleanMarkdownCharacter(params.getScrobbledArtist().getArtist()) + " in " + baseTitle + "?";
+        return "Who knows " + CommandUtil.escapeMarkdown(params.getScrobbledArtist().getArtist()) + " in " + baseTitle + "?";
     }
 
 

@@ -72,7 +72,7 @@ public class TopServerRatingsCommand extends ListCommand<ScoredAlbumRatings, Com
         }
         String name = e.getGuild().getName();
         RymStats rymServerStats = db.getRYMServerStats(e.getGuild().getIdLong());
-        embedBuilder.setDescription(a).setTitle(CommandUtil.cleanMarkdownCharacter(name) + "'s Top Ranked Albums")
+        embedBuilder.setDescription(a).setTitle(CommandUtil.escapeMarkdown(name) + "'s Top Ranked Albums")
                 .setThumbnail(e.getGuild().getIconUrl())
                 .setFooter(String.format("This server has rated a total of %s albums with an average of %s!", rymServerStats.getNumberOfRatings(), formatter.format(rymServerStats.getAverage() / 2f)), null);
 
