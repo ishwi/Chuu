@@ -1485,10 +1485,12 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
                                               (SELECT popularity,
                                                       (row_number() OVER (
                                                                           ORDER BY playnumber DESC)) AS i
-                                               FROM popular), counted AS
+                                               FROM popular
+                                               WHERE  popularity IS NOT NULL
+                                               ), counted AS
                                               (SELECT count(*) AS tf
                                                FROM popular)
-                                            SELECT sum( coalesce(popularity, 50) * 2 * (1 - i/counted.tf))/counted.tf AS ord
+                                            SELECT sum( popularity * 2 * (1 - i/counted.tf))/counted.tf AS ord
                                             FROM indexes
                                             JOIN counted
                                             ORDER BY ord DESC
@@ -1517,7 +1519,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
                                   ORDER BY score DESC
                               ),
                               indexes AS (
-                                 SELECT guild_id,score,(rank() OVER (ORDER BY score DESC)) AS i\s
+                                 SELECT guild_id,score,(rank() OVER (ORDER BY score ASC )) AS i\s
                                   FROM averages
                               ),
                               counted AS (
@@ -1551,7 +1553,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
                  JOIN user u ON o.lastfm_id = u.lastfm_id
                  JOIN user_guild ug ON u.discord_id = ug.discord_id
                  WHERE ug.guild_id = ?
-                 GROUP BY  u.lastfm_id ORDER BY ord DESC
+                 GROUP BY  u.lastfm_id ORDER BY ord asc
                 """;
         return getLbEntries(connection, guildId, queryString, ObscurityEntry::new, false, 0, Double.class);
     }

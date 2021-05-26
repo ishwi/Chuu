@@ -1640,7 +1640,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
                    (SELECT guild_id,
                            score,
                            (rank() OVER (
-                                         ORDER BY score DESC)) AS i
+                                         ORDER BY score ASC )) AS i
                     FROM averages), counted AS
                    (SELECT COUNT(*) AS tf
                     FROM averages),

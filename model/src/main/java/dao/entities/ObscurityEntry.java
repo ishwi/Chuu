@@ -17,7 +17,7 @@ public class ObscurityEntry extends LbEntry<Double> {
         return ". [" +
                LinkUtils.cleanMarkdownCharacter(getDiscordName()) +
                "](" + WILDCARD +
-               "): " + average.format(getEntryCount()) +
+               "): " + average.format(100 - getEntryCount()) +
                "% obscure  \n";
     }
 

@@ -96,7 +96,7 @@ public class ObscurityCommand extends ConcurrentCommand<ChuuDataParams> {
 
         embedBuilder.setAuthor(e.getGuild().getName() + "'s stats", null, e.getGuild().getIconUrl())
                 .setAuthor(uInfo.getUsername() + "'s obscurity details", PrivacyUtils.getLastFmUser(name), uInfo.getUrlImage())
-                .setTitle(formatter.format(v) + "% obscure" + title)
+                .setTitle(formatter.format(100 - v) + "% obscure" + title)
                 .addField("**Happines:**", "**" + hapinessStr + "**", false)
                 .addField("**Energy:**", "**" + energyStr + "**", false)
                 .addField("**Danceability:**", "**" + danceStr + "**", false)

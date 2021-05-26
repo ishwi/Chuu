@@ -10,6 +10,7 @@ import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
 import dao.ServerStats;
 import dao.ServiceView;
+import dao.entities.ObscurityEntry;
 import net.dv8tion.jda.api.EmbedBuilder;
 
 import javax.validation.constraints.NotNull;
@@ -60,7 +61,7 @@ public class ServerStatsCommand extends ConcurrentCommand<CommandParameters> {
                 .addField("**Recommendations Given:**", "**" + serverStats.recCount() + "**", true)
                 .addField("**Total Artist Images:**", "**" + serverStats.imageCount() + "**", true)
                 .addField("**Obscurity Rank:**", "**%d%s/%d**".formatted(serverStats.stats().rank(), CommandUtil.getRank(serverStats.stats().rank()), serverStats.stats().total()), true)
-                .addField("**Average obscurity points:**", "**" + serverStats.stats().averageScore() + "**", true);
+                .addField("**Average obscurity points:**", "**" + ObscurityEntry.average.format(100 - serverStats.stats().averageScore()) + "**", true);
 
         e.sendMessage(embedBuilder.build()).queue();
 

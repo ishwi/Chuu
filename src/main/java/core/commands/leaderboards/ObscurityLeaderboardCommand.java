@@ -67,7 +67,7 @@ public class ObscurityLeaderboardCommand extends LeaderboardCommand<ChuuDataPara
             embedBuilder.setFooter("%s is ranked %d%s out of %d servers with an average of a %s%%"
                     .formatted(e.getGuild().getName(), obscurityStats.rank(), CommandUtil.getRank(obscurityStats.rank()),
                             obscurityStats.total(),
-                            ObscurityEntry.average.format(obscurityStats.averageScore())
+                            ObscurityEntry.average.format(100 - obscurityStats.averageScore())
                     ), null);
         } else {
             super.setFooter(embedBuilder, list, params);
