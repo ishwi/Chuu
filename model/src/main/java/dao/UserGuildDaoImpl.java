@@ -283,6 +283,26 @@ public class UserGuildDaoImpl implements UserGuildDao {
     }
 
     @Override
+    public List<UsersWrapper> getAllNotObscurify(Connection connection, long guildId) {
+        String queryString = """
+                SELECT a.discord_id, a.lastfm_id,a.role,a.timezone FROM user a
+                JOIN (SELECT discord_id FROM user_guild WHERE guild_id = ? ) b
+                ON a.discord_id = b.discord_id
+                WHERE NOT exists(SELECT 1 FROM obscurity m WHERE m.lastfm_id = a.lastfm_id)
+                """;
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+
+            /* Fill "preparedStatement". */
+
+            /* Execute query. */
+            preparedStatement.setLong(1, guildId);
+            return getUsersWrappers(preparedStatement);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    @Override
     public List<UsersWrapper> getAllNonPrivate(Connection connection, long guildId) {
         String queryString = "SELECT a.discord_id, a.lastfm_id,a.role,a.timezone,a.last_update FROM user a JOIN (SELECT discord_id FROM user_guild WHERE guild_id = ? ) b ON a.discord_id = b.discord_id WHERE a.private_update = FALSE";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
@@ -1579,24 +1599,110 @@ public class UserGuildDaoImpl implements UserGuildDao {
         }
     }
 
+
     @Override
-    public boolean shouldSendPermsAgain(Connection connection, long perms, long guildId) {
+    public void insertObscurity(Connection connection, String lastfmId, double obscurity) {
         String queryString = """
-                SELECT moment < (now() - INTERVAL 15 MINUTE)
-                FROM permission_errors
-                WHERE guild_id = ? AND permsission = ?
+                INSERT INTO obscurity(lastfm_id,score) VALUES (?,?) ON DUPLICATE KEY UPDATE score = VALUES(score)
                 """;
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
             int i = 1;
-            preparedStatement.setLong(i, guildId);
+            preparedStatement.setString(i++, lastfmId);
+            preparedStatement.setDouble(i, obscurity);
 
 
+            preparedStatement.executeUpdate();
+
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    @Override
+    public ServerStats getServerStats(Connection connection, long guildId) {
+
+
+        String queryString = """
+                WITH
+                users AS (
+                SELECT discord_id FROM user_guild WHERE guild_id = ?
+                )
+                ,averages AS
+                   (SELECT guild_id,
+                           avg(score) AS score
+                       FROM obscurity o
+                                  JOIN user u ON o.lastfm_id = u.lastfm_id
+                              	JOIN user_guild ug ON u.discord_id = ug.discord_id
+                                  GROUP BY guild_id
+                                  ORDER BY score DESC
+                   ),
+                      indexes AS
+                   (SELECT guild_id,
+                           score,
+                           (rank() OVER (
+                                         ORDER BY score DESC)) AS i
+                    FROM averages), counted AS
+                   (SELECT COUNT(*) AS tf
+                    FROM averages),
+                    commands AS (SELECT * FROM command_logs WHERE guild_id = ?),
+                    top_command AS (SELECT command,count(*) AS command_count FROM commands GROUP BY command ORDER BY command_count  DESC LIMIT 1)
+                 SELECT counted.tf AS total_servers,
+                        guild_id,
+                        score,
+                        i AS `RANK`,
+                 
+                   (SELECT COUNT(*)
+                    FROM users ) AS user_count,
+                 
+                   (SELECT COUNT(*)
+                    FROM commands ) commands_count,
+                 (SELECT command
+                    FROM top_command) top_name,
+                    (SELECT command_count
+                    FROM top_command) top_name_count,
+                 
+                   (SELECT COUNT(*)
+                    FROM past_recommendations WHERE receiver_id IN (SELECT discord_id FROM users)) recommedation_count,
+                 
+                                
+                 
+                   (SELECT COUNT(*)
+                    FROM randomlinks WHERE discord_id IN (SELECT discord_id FROM users)) random_count,
+                    
+                    (SELECT COUNT(*)
+                    FROM alt_url WHERE discord_id IN (SELECT discord_id FROM users)) image_count,
+                 
+                 
+                   (SELECT COUNT(*)
+                    FROM vote WHERE discord_id IN (SELECT discord_id FROM user)) vote_count
+                 
+                 
+                 FROM indexes
+                 JOIN counted
+                 WHERE guild_id = ?""";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+            preparedStatement.setLong(1, guildId);
+            preparedStatement.setLong(2, guildId);
+            preparedStatement.setLong(3, guildId);
             ResultSet resultSet = preparedStatement.executeQuery();
 
             if (resultSet.next()) {
-                return resultSet.getBoolean(0);
+                long total_servers = resultSet.getLong("total_servers");
+                long guild_id = resultSet.getLong("guild_id");
+                long score = resultSet.getLong("score");
+                long rank = resultSet.getLong("rank");
+                long user_count = resultSet.getLong("user_count");
+                long commands_count = resultSet.getLong("commands_count");
+                String top_name = resultSet.getString("top_name");
+                long top_name_count = resultSet.getLong("top_name_count");
+                long recommedation_count = resultSet.getLong("recommedation_count");
+                long random_count = resultSet.getLong("random_count");
+                long image_count = resultSet.getLong("image_count");
+                long vote_count = resultSet.getLong("vote_count");
+                ObscurityStats obscurityStats = new ObscurityStats(score, rank, total_servers, guildId);
+                return new ServerStats(obscurityStats, user_count, commands_count, top_name, top_name_count, random_count, vote_count, image_count, recommedation_count);
             }
-            return true;
+            throw new ChuuServiceException();
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }

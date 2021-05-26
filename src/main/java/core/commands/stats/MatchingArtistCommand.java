@@ -71,7 +71,7 @@ public class MatchingArtistCommand extends ConcurrentCommand<NumberParameters<Ch
 
         long discordId = innerParams.getLastFMData().getDiscordId();
         int threshold = params.getExtraParam() == null ? 1 : Math.toIntExact(params.getExtraParam());
-        List<LbEntry> list = db.matchingArtistsCount(innerParams.getLastFMData().getName(), e.getGuild().getIdLong(), threshold);
+        List<LbEntry<Integer>> list = db.matchingArtistsCount(innerParams.getLastFMData().getName(), e.getGuild().getIdLong(), threshold);
         list.forEach(cl -> cl.setDiscordName(getUserString(e, cl.getDiscordId(), cl.getLastFmId())));
         DiscordUserDisplay userInformation = CommandUtil.getUserInfoConsideringGuildOrNot(e, discordId);
         String url = userInformation.getUrlImage();

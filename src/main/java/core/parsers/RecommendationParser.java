@@ -97,7 +97,7 @@ public class RecommendationParser extends DaoParser<RecommendationsParams> {
         boolean noUserFlag = false;
         if (datas == null) {
             noUserFlag = true;
-        } else if (datas[0].getDiscordId().equals(datas[1].getDiscordId())) {
+        } else if (datas[0].getDiscordId() == datas[1].getDiscordId()) {
             e.sendMessage("Don't use the same person twice\n").queue();
             return null;
         }

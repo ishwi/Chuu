@@ -47,6 +47,7 @@ public class NPModeBuilder {
             NPMode.BOT_ALBUM_RYM,
             NPMode.GLOBAL_TRACK_CROWN,
             NPMode.GLOBAL_TRACK_RANK,
+            NPMode.POPULARITY,
             NPMode.ALBUM_CROWN, NPMode.ALBUM_RANK, NPMode.ALBUM_PLAYS, NPMode.TRACK_CROWN, NPMode.TRACK_RANK);
 
     static {
@@ -57,6 +58,7 @@ public class NPModeBuilder {
                     NPMode.ARTIST_PLAYS,
                     NPMode.ALBUM_PLAYS,
                     NPMode.SONG_PLAYS,
+                    NPMode.POPULARITY,
                     NPMode.CROWN,
                     NPMode.ARTIST_RANK,
                     NPMode.GLOBAL_CROWN,
@@ -241,6 +243,15 @@ public class NPModeBuilder {
                         int playCount = new UserInfoService(service).getUserInfo(lastFMName).getPlayCount();
                         footerSpaces[index] =
                                 "%d total scrobbles".formatted(playCount);
+                    })));
+                    break;
+                case POPULARITY:
+                    completableFutures.add(logger.apply(CompletableFuture.runAsync(() -> {
+                        ScrobbledTrack trackInfo = service.getTrackInfo(lastFMName.getName(), trackId);
+                        if (trackInfo != null && trackInfo.getPopularity() != 0) {
+                            footerSpaces[index] =
+                                    "%d%% popular".formatted(trackInfo.getPopularity());
+                        }
                     })));
                     break;
                 case NORMAL:

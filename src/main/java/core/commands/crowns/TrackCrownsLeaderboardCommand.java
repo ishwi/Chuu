@@ -14,7 +14,7 @@ import java.util.List;
 
 import static core.parsers.NumberParser.generateThresholdParser;
 
-public class TrackCrownsLeaderboardCommand extends LeaderboardCommand<NumberParameters<CommandParameters>> {
+public class TrackCrownsLeaderboardCommand extends LeaderboardCommand<NumberParameters<CommandParameters>, Integer> {
 
     public TrackCrownsLeaderboardCommand(ServiceView dao) {
         super(dao, true);
@@ -48,7 +48,7 @@ public class TrackCrownsLeaderboardCommand extends LeaderboardCommand<NumberPara
     }
 
     @Override
-    public List<LbEntry> getList(NumberParameters<CommandParameters> params) {
+    public List<LbEntry<Integer>> getList(NumberParameters<CommandParameters> params) {
         Long threshold = params.getExtraParam();
         long idLong = params.getE().getGuild().getIdLong();
 

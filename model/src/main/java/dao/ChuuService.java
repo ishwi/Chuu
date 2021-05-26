@@ -26,6 +26,7 @@ import java.time.temporal.IsoFields;
 import java.util.List;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.ToIntFunction;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -343,6 +344,15 @@ public class ChuuService implements EveryNoiseService {
         }
     }
 
+    public List<UsersWrapper> getAllObscurifyPending(long guildId) {
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setReadOnly(true);
+            return userGuildDao.getAllNotObscurify(connection, guildId);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
     public List<UsersWrapper> getAll(long guildId) {
         try (Connection connection = dataSource.getConnection()) {
             connection.setReadOnly(true);
@@ -617,7 +627,7 @@ public class ChuuService implements EveryNoiseService {
         }
     }
 
-    public List<LbEntry> getGuildCrownLb(long guildId, int threshold) {
+    public List<LbEntry<Integer>> getGuildCrownLb(long guildId, int threshold) {
 
         try (Connection connection = dataSource.getConnection()) {
             connection.setReadOnly(true);
@@ -756,7 +766,7 @@ public class ChuuService implements EveryNoiseService {
         }
     }
 
-    public List<LbEntry> getUniqueLeaderboard(long guildId) {
+    public List<LbEntry<Integer>> getUniqueLeaderboard(long guildId) {
         try (Connection connection = dataSource.getConnection()) {
             connection.setReadOnly(true);
             return queriesDao.uniqueLeaderboard(connection, guildId);
@@ -766,7 +776,7 @@ public class ChuuService implements EveryNoiseService {
         }
     }
 
-    public List<LbEntry> getUniqueAlbumLeaderboard(long guildId) {
+    public List<LbEntry<Integer>> getUniqueAlbumLeaderboard(long guildId) {
         try (Connection connection = dataSource.getConnection()) {
             connection.setReadOnly(true);
             return queriesDao.uniqueAlbumLeaderboard(connection, guildId);
@@ -776,7 +786,7 @@ public class ChuuService implements EveryNoiseService {
         }
     }
 
-    public List<LbEntry> getUniqueSongLeaderboard(long guildId) {
+    public List<LbEntry<Integer>> getUniqueSongLeaderboard(long guildId) {
         try (Connection connection = dataSource.getConnection()) {
             connection.setReadOnly(true);
             return queriesDao.uniqueSongLeaderboard(connection, guildId);
@@ -813,7 +823,7 @@ public class ChuuService implements EveryNoiseService {
         }
     }
 
-    public List<LbEntry> getArtistLeaderboard(long guildId, int threshold) {
+    public List<LbEntry<Integer>> getArtistLeaderboard(long guildId, int threshold) {
         try (Connection connection = dataSource.getConnection()) {
             connection.setReadOnly(true);
             return queriesDao.artistLeaderboard(connection, guildId, threshold);
@@ -823,7 +833,7 @@ public class ChuuService implements EveryNoiseService {
         }
     }
 
-    public List<LbEntry> getAlbumLeaderboard(long guildId, int threshold) {
+    public List<LbEntry<Integer>> getAlbumLeaderboard(long guildId, int threshold) {
         try (Connection connection = dataSource.getConnection()) {
             connection.setReadOnly(true);
             return queriesDao.albumLeaderboard(connection, guildId, threshold);
@@ -833,7 +843,7 @@ public class ChuuService implements EveryNoiseService {
         }
     }
 
-    public List<LbEntry> getTrackLeaderboard(long guildId, int threshold) {
+    public List<LbEntry<Integer>> getTrackLeaderboard(long guildId, int threshold) {
         try (Connection connection = dataSource.getConnection()) {
             connection.setReadOnly(true);
             return queriesDao.trackLeaderboard(connection, guildId, threshold);
@@ -843,7 +853,7 @@ public class ChuuService implements EveryNoiseService {
         }
     }
 
-    public List<LbEntry> getObscurityRankings(long guildId) {
+    public List<LbEntry<Double>> getObscurityRankings(long guildId) {
         try (Connection connection = dataSource.getConnection()) {
             connection.setReadOnly(true);
             return queriesDao.obscurityLeaderboard(connection, guildId);
@@ -965,7 +975,7 @@ public class ChuuService implements EveryNoiseService {
         }
     }
 
-    public List<LbEntry> albumCrownsLeaderboard(long guildId, int threshold) {
+    public List<LbEntry<Integer>> albumCrownsLeaderboard(long guildId, int threshold) {
         try (Connection connection = dataSource.getConnection()) {
             connection.setReadOnly(true);
             return queriesDao.albumCrownsLeaderboard(connection, guildId, threshold);
@@ -974,7 +984,7 @@ public class ChuuService implements EveryNoiseService {
         }
     }
 
-    public List<LbEntry> trackCrownsLeaderboard(long guildId, int threshold) {
+    public List<LbEntry<Integer>> trackCrownsLeaderboard(long guildId, int threshold) {
         try (Connection connection = dataSource.getConnection()) {
             connection.setReadOnly(true);
             return queriesDao.trackCrownsLeaderboard(connection, guildId, threshold);
@@ -1064,6 +1074,15 @@ public class ChuuService implements EveryNoiseService {
     public UniqueWrapper<AlbumPlays> getGlobalAlbumUniques(String lastfmid) {
         try (Connection connection = dataSource.getConnection()) {
             return queriesDao.getGlobalAlbumUniques(connection, lastfmid);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+
+    }
+
+    public ScrobbledTrack getTrackInfo(String lastfmid, long trackId) {
+        try (Connection connection = dataSource.getConnection()) {
+            return trackDao.getUserTrackInfo(connection, lastfmid, trackId);
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }
@@ -1288,11 +1307,11 @@ public class ChuuService implements EveryNoiseService {
         }
     }
 
-    public List<LbEntry> matchingArtistsCount(String lastFmId, long guildId, int extraParam) {
+    public List<LbEntry<Integer>> matchingArtistsCount(String lastFmId, long guildId, int extraParam) {
         try (Connection connection = dataSource.getConnection()) {
             affinityDao.setServerTempTable(connection, guildId, lastFmId, extraParam);
-            List<LbEntry> matchingCount = affinityDao.getMatchingCount(connection);
-            matchingCount.sort(Comparator.comparingInt(LbEntry::getEntryCount).reversed());
+            List<LbEntry<Integer>> matchingCount = affinityDao.getMatchingCount(connection);
+            matchingCount.sort(Comparator.comparingInt((ToIntFunction<LbEntry<Integer>>) LbEntry::getEntryCount).reversed());
             affinityDao.cleanUp(connection, true);
             return matchingCount;
         } catch (SQLException e) {
@@ -1304,7 +1323,7 @@ public class ChuuService implements EveryNoiseService {
         try (Connection connection = dataSource.getConnection()) {
             affinityDao.setGlobalTable(connection, lastFmId, theshold);
             List<ArtistLbGlobalEntry> matchingCount = affinityDao.getGlobalMatchingCount(connection);
-            matchingCount.sort(Comparator.comparingInt(LbEntry::getEntryCount).reversed());
+            matchingCount.sort(Comparator.comparingInt((ToIntFunction<LbEntry<Integer>>) LbEntry::getEntryCount).reversed());
             affinityDao.cleanUpGlobal(connection, true);
             return matchingCount;
         } catch (SQLException e) {
@@ -1547,7 +1566,7 @@ public class ChuuService implements EveryNoiseService {
     }
 
 
-    public List<LbEntry> getScrobblesLeaderboard(long guildId) {
+    public List<LbEntry<Integer>> getScrobblesLeaderboard(long guildId) {
         try (Connection connection = dataSource.getConnection()) {
             connection.setReadOnly(true);
             return queriesDao.getScrobblesLeaderboard(connection, guildId);
@@ -2257,11 +2276,22 @@ public class ChuuService implements EveryNoiseService {
 
     public BotStats getBotStats() {
         try (Connection connection = dataSource.getConnection()) {
+            connection.setReadOnly(true);
             return queriesDao.getBotStats(connection);
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }
     }
+
+    public ServerStats getServerStats(long guildId) {
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setReadOnly(true);
+            return userGuildDao.getServerStats(connection, guildId);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
 
     public long getUserAlbumCount(long discordId) {
         try (Connection connection = dataSource.getConnection()) {
@@ -3156,8 +3186,12 @@ public class ChuuService implements EveryNoiseService {
     }
 
     public List<ScrobbledTrack> getTopTracks(String lastfmId) {
+        return getTopTracks(lastfmId, null);
+    }
+
+    public List<ScrobbledTrack> getTopTracks(String lastfmId, Integer limit) {
         try (Connection connection = dataSource.getConnection()) {
-            return trackDao.getUserTopTracks(connection, lastfmId);
+            return trackDao.getUserTopTracks(connection, lastfmId, limit);
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }
@@ -3179,6 +3213,16 @@ public class ChuuService implements EveryNoiseService {
         }
     }
 
+    public AudioFeatures getUserFeatures(String lastfmid) {
+
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setReadOnly(true);
+            return queriesDao.userFeatures(connection, lastfmid);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
     public void insertAudioFeatures(List<AudioFeatures> audioFeaturesStream) {
 
         try (Connection connection = dataSource.getConnection()) {
@@ -3186,7 +3230,6 @@ public class ChuuService implements EveryNoiseService {
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }
-
     }
 
     public Optional<UserInfo> getUserInfo(String lastfmId) {
@@ -3957,6 +4000,25 @@ public class ChuuService implements EveryNoiseService {
         return everyNoiseService.listAllGenres();
     }
 
+    public Optional<ObscurityStats> getServerObscurityStats(long guildId) {
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setReadOnly(true);
+            return queriesDao.serverObscurityStats(connection, guildId);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    public double obtainObscurity(String lastfmId) {
+        try (Connection connection = dataSource.getConnection()) {
+            double obscurity = queriesDao.obscurity(connection, lastfmId);
+            userGuildDao.insertObscurity(connection, lastfmId, obscurity);
+            return obscurity;
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+
+    }
 
     @Override
     public void insertReleases(List<ReleaseWithGenres> release, LocalDate week) {
@@ -3978,13 +4040,6 @@ public class ChuuService implements EveryNoiseService {
         }
     }
 
-    public boolean shouldSendPermsAgain(long perms, long guildId) {
-        try (Connection connection = dataSource.getConnection()) {
-            connection.setReadOnly(true);
-            return userGuildDao.shouldSendPermsAgain(connection, perms, guildId);
-        } catch (SQLException e) {
-            throw new ChuuServiceException(e);
-        }
-    }
+
 }
 

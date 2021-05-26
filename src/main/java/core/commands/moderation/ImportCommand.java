@@ -35,6 +35,7 @@ import java.util.*;
 
 public class ImportCommand extends ConcurrentCommand<UrlParameters> {
 
+    public static final String spinner = "https://cdnjs.cloudflare.com/ajax/libs/prettyPhoto/3.1.6/images/prettyPhoto/dark_rounded/loader.gif";
     private final ImportFunctional consumer = (u, m, message, embedBuilder, author, pos, errorCounter) -> () -> {
 
         embedBuilder.setDescription("Processing user #" + pos);
@@ -202,7 +203,7 @@ public class ImportCommand extends ConcurrentCommand<UrlParameters> {
 
         EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e).setTitle("Import In Progress")
                 .setFooter("Total users to import: " + arr.length())
-                .setThumbnail("https://cdnjs.cloudflare.com/ajax/libs/prettyPhoto/3.1.6/images/prettyPhoto/dark_rounded/loader.gif");
+                .setThumbnail(spinner);
         Message complete = e.sendMessage(embedBuilder.build()).complete();
 
         final Queue<Callback> queue = new ArrayDeque<>();

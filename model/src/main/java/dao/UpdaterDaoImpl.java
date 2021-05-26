@@ -1673,18 +1673,18 @@ public class UpdaterDaoImpl extends BaseDAO implements UpdaterDao {
                              "(?,?,?,?,?,?,?,?,?,?,?,?)" + ",(?,?,?,?,?,?,?,?,?,?,?,?)".repeat(Math.max(0, audioFeatures.size() - 1));
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
             for (int i = 0; i < audioFeatures.size(); i++) {
-                preparedStatement.setString(12 * i + 1, audioFeatures.get(i).getId());
-                preparedStatement.setFloat(12 * i + 2, audioFeatures.get(i).getAcousticness());
-                preparedStatement.setFloat(12 * i + 3, audioFeatures.get(i).getDanceability());
-                preparedStatement.setFloat(12 * i + 4, audioFeatures.get(i).getEnergy());
-                preparedStatement.setFloat(12 * i + 5, audioFeatures.get(i).getInstrumentalness());
-                preparedStatement.setInt(12 * i + 6, audioFeatures.get(i).getKey());
-                preparedStatement.setFloat(12 * i + 7, audioFeatures.get(i).getLiveness());
-                preparedStatement.setFloat(12 * i + 8, audioFeatures.get(i).getLoudness());
-                preparedStatement.setFloat(12 * i + 9, audioFeatures.get(i).getSpeechiness());
-                preparedStatement.setFloat(12 * i + 10, audioFeatures.get(i).getTempo());
-                preparedStatement.setFloat(12 * i + 11, audioFeatures.get(i).getValence());
-                preparedStatement.setInt(12 * i + 12, audioFeatures.get(i).getTimeSignature());
+                preparedStatement.setString(12 * i + 1, audioFeatures.get(i).id());
+                preparedStatement.setFloat(12 * i + 2, audioFeatures.get(i).acousticness());
+                preparedStatement.setFloat(12 * i + 3, audioFeatures.get(i).danceability());
+                preparedStatement.setFloat(12 * i + 4, audioFeatures.get(i).energy());
+                preparedStatement.setFloat(12 * i + 5, audioFeatures.get(i).instrumentalness());
+                preparedStatement.setInt(12 * i + 6, audioFeatures.get(i).key());
+                preparedStatement.setFloat(12 * i + 7, audioFeatures.get(i).liveness());
+                preparedStatement.setFloat(12 * i + 8, audioFeatures.get(i).loudness());
+                preparedStatement.setFloat(12 * i + 9, audioFeatures.get(i).speechiness());
+                preparedStatement.setFloat(12 * i + 10, audioFeatures.get(i).tempo());
+                preparedStatement.setFloat(12 * i + 11, audioFeatures.get(i).valence());
+                preparedStatement.setInt(12 * i + 12, audioFeatures.get(i).timeSignature());
             }
             preparedStatement.execute();
         } catch (SQLException e) {

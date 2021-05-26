@@ -1,5 +1,6 @@
 package core.commands.moderation;
 
+import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import core.Chuu;
 import core.commands.Context;
@@ -66,7 +67,7 @@ public class UserExportCommand extends ConcurrentCommand<CommandParameters> {
 
         List<UsersWrapper> all = db.getAll(e.getGuild().getIdLong());
         try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
-            new ObjectMapper().writeValue(baos, all);
+            new ObjectMapper().writer(new DefaultPrettyPrinter()).writeValue(baos, all);
             e.getAuthor().openPrivateChannel().flatMap(
                     x -> x.sendFile(baos.toByteArray(),
                             "users_" + e.getGuild().getName() + LocalDateTime.now().atOffset(ZoneOffset.UTC).format(DateTimeFormatter.ISO_ZONED_DATE_TIME) + ".json"))

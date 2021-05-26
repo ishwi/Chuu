@@ -2,7 +2,7 @@ package dao.entities;
 
 import dao.utils.LinkUtils;
 
-public class UniqueAlbumLbEntry extends LbEntry {
+public class UniqueAlbumLbEntry extends LbEntryInt {
 
     public UniqueAlbumLbEntry(String user, long discordId, int entryCount) {
         super(user, discordId, entryCount);

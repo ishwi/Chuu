@@ -129,15 +129,60 @@ public class TrackDaoImpl extends BaseDAO implements TrackDao {
     }
 
     @Override
-    public List<ScrobbledTrack> getUserTopTracks(Connection connection, String lastfmid) {
+    public ScrobbledTrack getUserTrackInfo(Connection connection, String lastfmid, long trackId) {
         List<ScrobbledTrack> scrobbledTracks = new ArrayList<>();
 
-        String mySql = "SELECT b.id,d.id,c.id,c.name,d.album_name,b.duration,b.track_name,coalesce(b.url,d.url,c.url),a.playnumber,a.loved " +
-                       "FROM scrobbled_track a JOIN track b ON a.track_id = b.id JOIN artist c ON b.artist_id = c.id LEFT JOIN album d ON b.album_id = d.id WHERE a.lastfm_id = ? ORDER BY playnumber DESC";
+        String mySql = "SELECT b.id,d.id,c.id,c.name,d.album_name,b.duration,b.track_name,coalesce(b.url,d.url,c.url),a.playnumber,a.loved,b.popularity " +
+                       "FROM scrobbled_track a RIGHT JOIN track b ON a.track_id = b.id RIGHT JOIN artist c ON b.artist_id = c.id LEFT JOIN album d ON b.album_id = d.id WHERE a.lastfm_id = ?  AND b.id = ? ";
+
         try
                 (PreparedStatement preparedStatement = connection.prepareStatement(mySql)) {
             preparedStatement.setString(1, lastfmid);
+            preparedStatement.setLong(2, trackId);
 
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                long albumId = resultSet.getLong(2);
+                long artistId = resultSet.getLong(3);
+                String artsitName = resultSet.getString(4);
+                String albumName = resultSet.getString(5);
+                int duration = resultSet.getInt(6);
+                String trackName = resultSet.getString(7);
+                String url = resultSet.getString(8);
+                int plays = resultSet.getInt(9);
+                boolean loved = resultSet.getBoolean(10);
+                int pop = resultSet.getInt(11);
+
+                ScrobbledTrack e = new ScrobbledTrack(artsitName, trackName, plays, loved, duration, url, null, null);
+                e.setArtistId(artistId);
+                e.setAlbumId(albumId);
+                e.setTrackId(trackId);
+                e.setPopularity(pop);
+                return e;
+            }
+        } catch (
+                SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+        return null;
+    }
+
+
+    @Override
+    public List<ScrobbledTrack> getUserTopTracks(Connection connection, String lastfmid, Integer limit) {
+        List<ScrobbledTrack> scrobbledTracks = new ArrayList<>();
+
+        String mySql = "SELECT b.id,d.id,c.id,c.name,d.album_name,b.duration,b.track_name,coalesce(b.url,d.url,c.url),a.playnumber,a.loved,b.popularity " +
+                       "FROM scrobbled_track a JOIN track b ON a.track_id = b.id JOIN artist c ON b.artist_id = c.id LEFT JOIN album d ON b.album_id = d.id WHERE a.lastfm_id = ? ORDER BY playnumber DESC";
+        if (limit != null) {
+            mySql += " limit ?";
+        }
+        try
+                (PreparedStatement preparedStatement = connection.prepareStatement(mySql)) {
+            preparedStatement.setString(1, lastfmid);
+            if (limit != null) {
+                preparedStatement.setInt(2, limit);
+            }
             ResultSet resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
                 long trackId = resultSet.getLong(1);
@@ -150,11 +195,13 @@ public class TrackDaoImpl extends BaseDAO implements TrackDao {
                 String url = resultSet.getString(8);
                 int plays = resultSet.getInt(9);
                 boolean loved = resultSet.getBoolean(10);
+                int pop = resultSet.getInt(11);
 
                 ScrobbledTrack e = new ScrobbledTrack(artsitName, trackName, plays, loved, duration, url, null, null);
                 e.setArtistId(artistId);
                 e.setAlbumId(albumId);
                 e.setTrackId(trackId);
+                e.setPopularity(pop);
                 scrobbledTracks.add(e);
             }
         } catch (

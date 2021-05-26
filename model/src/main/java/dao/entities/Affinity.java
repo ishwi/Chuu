@@ -37,14 +37,15 @@ public class Affinity {
     }
 
     public float getAffinity() {
-        if (!this.hasCaculated()) {
+        if (!hasCalculated) {
             this.percentage = ((this.matchingCount * 1.1f) + this.closeMatch * CLOSE_MATCH_WEIGHT + this.trueMatching * TRUE_MATCH_WEIGHT) * ((float) threshold / DEFAULT_THRESHOLD) / (sampleSize + 1);
+            hasCalculated = true;
         }
         return this.percentage;
 
     }
 
-    private synchronized boolean hasCaculated() {
+    private boolean hasCaculated() {
         return hasCalculated;
     }
 

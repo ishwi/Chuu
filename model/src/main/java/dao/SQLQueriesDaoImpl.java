@@ -299,7 +299,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
     }
 
     @Override
-    public List<LbEntry> matchingArtistCount(Connection connection, long userId, long guildId, Long threshold) {
+    public List<LbEntry<Integer>> matchingArtistCount(Connection connection, long userId, long guildId, Long threshold) {
 
         String queryString = """
                         SELECT discord_id,lastfm_id,COUNT(*) AS orden
@@ -326,7 +326,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
             preparedStatement.setLong(i++, userId);
             preparedStatement.setLong(i, userId);
 
-            List<LbEntry> returnedList = new ArrayList<>();
+            List<LbEntry<Integer>> returnedList = new ArrayList<>();
 
             ResultSet resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) { //&& (j < 10 && j < rows)) {
@@ -503,14 +503,14 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
     }
 
     @Override
-    public List<LbEntry> getScrobblesLeaderboard(Connection connection, long guildId) {
+    public List<LbEntry<Integer>> getScrobblesLeaderboard(Connection connection, long guildId) {
         String queryBody = "SELECT b.lastfm_id,b.discord_id, sum(a.playnumber) AS ord " +
                            "FROM scrobbled_artist a JOIN user b ON a.lastfm_id = b.lastfm_id " +
                            "JOIN user_guild ug ON b.discord_id = ug.discord_id " +
                            "WHERE ug.guild_id = ? " +
                            "GROUP BY b.discord_id,b.lastfm_id " +
                            "ORDER BY ord DESC ";
-        return getLbEntries(connection, guildId, queryBody, ScrobbleLbEntry::new, false, -1);
+        return getLbEntries(connection, guildId, queryBody, ScrobbleLbEntry::new, false, -1, Integer.class);
     }
 
     @Override
@@ -1119,7 +1119,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
     }
 
     @Override
-    public List<LbEntry> crownsLeaderboard(Connection connection, long guildID, int threshold) {
+    public List<LbEntry<Integer>> crownsLeaderboard(Connection connection, long guildID, int threshold) {
         String queryString = "SELECT t2.lastfm_id,t3.discord_id,count(t2.lastfm_id) ord " +
                              "FROM " +
                              "( " +
@@ -1155,13 +1155,13 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
         queryString += "  GROUP BY t2.lastfm_id,t3.discord_id " +
                        "  ORDER BY ord DESC";
 
-        return getLbEntries(connection, guildID, queryString, CrownsLbEntry::new, true, threshold);
+        return getLbEntries(connection, guildID, queryString, CrownsLbEntry::new, true, threshold, Integer.class);
 
 
     }
 
     @Override
-    public List<LbEntry> uniqueLeaderboard(Connection connection, long guildId) {
+    public List<LbEntry<Integer>> uniqueLeaderboard(Connection connection, long guildId) {
         String queryString = "SELECT  " +
                              "    count(temp.lastfm_id) AS ord,temp.lastfm_id,temp.discord_id " +
                              "FROM " +
@@ -1179,11 +1179,11 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
                              "GROUP BY lastfm_id " +
                              "ORDER BY ord DESC";
 
-        return getLbEntries(connection, guildId, queryString, UniqueLbEntry::new, false, 0);
+        return getLbEntries(connection, guildId, queryString, UniqueLbEntry::new, false, 0, Integer.class);
     }
 
     @Override
-    public List<LbEntry> uniqueAlbumLeaderboard(Connection connection, long guildId) {
+    public List<LbEntry<Integer>> uniqueAlbumLeaderboard(Connection connection, long guildId) {
         String queryString = "SELECT  " +
                              "    count(temp.lastfm_id) AS ord,temp.lastfm_id,temp.discord_id " +
                              "FROM " +
@@ -1201,11 +1201,11 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
                              "GROUP BY lastfm_id " +
                              "ORDER BY ord DESC";
 
-        return getLbEntries(connection, guildId, queryString, UniqueAlbumLbEntry::new, false, 0);
+        return getLbEntries(connection, guildId, queryString, UniqueAlbumLbEntry::new, false, 0, Integer.class);
     }
 
     @Override
-    public List<LbEntry> uniqueSongLeaderboard(Connection connection, long guildId) {
+    public List<LbEntry<Integer>> uniqueSongLeaderboard(Connection connection, long guildId) {
         String queryString = "SELECT  " +
                              "    count(temp.lastfm_id) AS ord,temp.lastfm_id,temp.discord_id " +
                              "FROM " +
@@ -1223,7 +1223,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
                              "GROUP BY lastfm_id " +
                              "ORDER BY ord DESC";
 
-        return getLbEntries(connection, guildId, queryString, UniqueSongLbEntry::new, false, 0);
+        return getLbEntries(connection, guildId, queryString, UniqueSongLbEntry::new, false, 0, Integer.class);
     }
 
     @Override
@@ -1351,6 +1351,44 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
     }
 
     @Override
+    public AudioFeatures userFeatures(Connection connection, String lastfmId) {
+
+        String queryString = "SELECT acousticness,danceability,energy,instrumentalness,`key`,liveness,loudness,speechiness,tempo,valence,time_signature FROM audio_features a JOIN track t ON a.spotify_id = t.spotify_id JOIN scrobbled_track st ON t.id = st.track_id WHERE st.lastfm_id = ?";
+
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+            preparedStatement.setString(1, lastfmId);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            AudioFeatures audioFeatures = null;
+            while (resultSet.next()) {
+                int i = 0;
+                float acousticness = resultSet.getFloat(i + 1);
+                float danceability = resultSet.getFloat(i + 2);
+                float energy = resultSet.getFloat(i + 3);
+                float instrumentalness = resultSet.getFloat(i + 4);
+                int key = resultSet.getInt(i + 5);
+                float liveness = resultSet.getFloat(i + 6);
+                float loudness = resultSet.getFloat(i + 7);
+                float speechiness = resultSet.getFloat(i + 8);
+                float tempo = resultSet.getFloat(i + 9);
+                float valence = resultSet.getFloat(i + 10);
+                int time_signature = resultSet.getInt(i + 11);
+                AudioFeatures current = new AudioFeatures(acousticness, null, danceability, null, energy, null, instrumentalness, key, liveness, loudness, speechiness, tempo, time_signature, null, null, valence);
+                if (audioFeatures == null) {
+                    audioFeatures = current;
+                } else {
+                    audioFeatures = audioFeatures.combine(current);
+                }
+            }
+            return audioFeatures;
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+
+
+    }
+
+
+    @Override
     public Optional<Rank<PrivacyUserCount>> getGlobalPosition(Connection connection, long discordId) {
         String queryString = "SELECT * FROM (SELECT COUNT(*),a.discord_id,c.lastfm_id,c.privacy_mode  FROM command_logs a  JOIN user c ON a.discord_id = c.discord_id GROUP BY a.discord_id ORDER BY COUNT(*) DESC ) main WHERE main.discord_id = ?  ";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
@@ -1412,7 +1450,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
     }
 
     @Override
-    public List<LbEntry> artistLeaderboard(Connection con, long guildID, int threshold) {
+    public List<LbEntry<Integer>> artistLeaderboard(Connection con, long guildID, int threshold) {
         String queryString = "(SELECT  " +
                              "        a.lastfm_id , count(*) AS ord, c.discord_id" +
                              "    FROM " +
@@ -1426,67 +1464,96 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
                              " GROUP BY a.lastfm_id,c.discord_id " +
                              "    ORDER BY ord DESC    )";
 
-        return getLbEntries(con, guildID, queryString, ArtistLbEntry::new, true, threshold);
+        return getLbEntries(con, guildID, queryString, ArtistLbEntry::new, true, threshold, Integer.class);
+    }
+//     50 / track_count
+//    (50/shortTermArtists.items.length)*
+//    (parseInt(shortTermArtists.items[i].popularity * (1 - i/shortTermArtists.items.length)));
+
+    @Override
+    public double obscurity(Connection connection, String lastfmId) {
+
+        String queryString = """
+                WITH popular AS
+                                              (SELECT popularity,
+                                                      playnumber
+                                               FROM track a
+                                               JOIN scrobbled_track st ON a.id = st.track_id
+                                               WHERE st.lastfm_id = ?
+                                               ORDER BY playnumber DESC),
+                                                 indexes AS
+                                              (SELECT popularity,
+                                                      (row_number() OVER (
+                                                                          ORDER BY playnumber DESC)) AS i
+                                               FROM popular), counted AS
+                                              (SELECT count(*) AS tf
+                                               FROM popular)
+                                            SELECT sum( coalesce(popularity, 50) * 2 * (1 - i/counted.tf))/counted.tf AS ord
+                                            FROM indexes
+                                            JOIN counted
+                                            ORDER BY ord DESC
+                """;
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+            preparedStatement.setString(1, lastfmId);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                return resultSet.getDouble(1);
+            }
+            return 0;
+        } catch (SQLException sqlException) {
+            throw new ChuuServiceException(sqlException);
+        }
     }
 
     @Override
-    public List<LbEntry> obscurityLeaderboard(Connection connection, long guildId) {
-        //OBtains total plays, and other users plays on your artist
-        // Obtains uniques, percentage of uniques, and plays on uniques
-        //"\t#full artist table, we will filter later because is somehow faster :D\n" +
+    public Optional<ObscurityStats> serverObscurityStats(Connection connection, long guildId) {
         String queryString = """
+                WITH averages AS (
+                                  SELECT guild_id,avg(score)  AS score
+                                  FROM obscurity o
+                                  JOIN user u ON o.lastfm_id = u.lastfm_id
+                              	JOIN user_guild ug ON u.discord_id = ug.discord_id
+                                  GROUP BY guild_id
+                                  ORDER BY score DESC
+                              ),
+                              indexes AS (
+                                 SELECT guild_id,score,(rank() OVER (ORDER BY score DESC)) AS i\s
+                                  FROM averages
+                              ),
+                              counted AS (
+                                  SELECT count(*) AS tf FROM averages
+                                  )
+                                   SELECT  counted.tf  AS total_servers, guild_id,score,i
+                                   FROM indexes JOIN counted
+                              	 WHERE  guild_id = ?
+                """;
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+            preparedStatement.setLong(1, guildId);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                long count = resultSet.getLong(1);
+                double average = resultSet.getDouble(3);
+                long rank = resultSet.getLong(4);
+                return Optional.of(new ObscurityStats(average, rank, count, guildId));
+            }
+            return Optional.empty();
+        } catch (SQLException sqlException) {
+            throw new ChuuServiceException(sqlException);
+        }
+    }
 
-                SELECT finalmain.lastfm_id,  POW(((mytotalplays / (other_plays_on_my_artists)) * (as_unique_coefficient + 1)),
-                            0.4) AS ord , c.discord_id
-                FROM (
-                SELECT\s
-                    main.lastfm_id,
-                    (SELECT\s
-                              COALESCE(SUM(a.playnumber) * (COUNT(*)), 0)
-                        FROM
-                            scrobbled_artist a
-                        WHERE
-                            lastfm_id = main.lastfm_id) AS mytotalplays,
-                    (SELECT\s
-                             COALESCE(SUM(a.playnumber), 1)
-                        FROM
-                            scrobbled_artist a
-                        WHERE
-                            lastfm_id != main.lastfm_id
-                                AND a.artist_id IN (SELECT\s
-                                    artist_id
-                                FROM
-                                    artist
-                                WHERE
-                                    lastfm_id = main.lastfm_id))AS  other_plays_on_my_artists,
-                    (SELECT\s
-                            COUNT(*) / (SELECT\s
-                                        COUNT(*) + 1
-                                    FROM
-                                        scrobbled_artist a
-                                    WHERE
-                                        lastfm_id = main.lastfm_id) * (COALESCE(SUM(playnumber), 1))
-                        FROM
-                            (SELECT\s
-                                artist_id, playnumber, a.lastfm_id
-                            FROM
-                                scrobbled_artist a
-                            GROUP BY a.artist_id
-                            HAVING COUNT(*) = 1) temp\s
-                        WHERE
-                            temp.lastfm_id = main.lastfm_id
-                                AND temp.playnumber > 1
-                        ) as_unique_coefficient
-                FROM
-                    scrobbled_artist main
-                   \s
-                GROUP BY main.lastfm_id
-                ) finalmain JOIN user b
-                ON finalmain.lastfm_id = b.lastfm_id\s
-                JOIN user_guild c ON b.discord_id = c.discord_id\s
-                WHERE c.guild_id = ? ORDER BY ord DESC""";
+    @Override
+    public List<LbEntry<Double>> obscurityLeaderboard(Connection connection, long guildId) {
 
-        return getLbEntries(connection, guildId, queryString, ObscurityEntry::new, false, 0);
+        String queryString = """
+                SELECT o.lastfm_id, score as ord, u.discord_id
+                 FROM obscurity o
+                 JOIN user u ON o.lastfm_id = u.lastfm_id
+                 JOIN user_guild ug ON u.discord_id = ug.discord_id
+                 WHERE ug.guild_id = ?
+                 GROUP BY  u.lastfm_id ORDER BY ord DESC
+                """;
+        return getLbEntries(connection, guildId, queryString, ObscurityEntry::new, false, 0, Double.class);
     }
 
     @Override
@@ -1749,7 +1816,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
 
 
     @Override
-    public List<LbEntry> albumCrownsLeaderboard(Connection con, long guildID, int threshold) {
+    public List<LbEntry<Integer>> albumCrownsLeaderboard(Connection con, long guildID, int threshold) {
         String queryString = "SELECT t2.lastfm_id,t3.discord_id,count(t2.lastfm_id) ord " +
                              "FROM " +
                              "( " +
@@ -1786,7 +1853,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
                        "  ORDER BY ord DESC";
 
 
-        return getLbEntries(con, guildID, queryString, AlbumCrownLbEntry::new, true, threshold);
+        return getLbEntries(con, guildID, queryString, AlbumCrownLbEntry::new, true, threshold, Integer.class);
     }
 
     @Override
@@ -1913,9 +1980,9 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
 
     //TriFunction is not the simplest approach but i felt like using it so :D
     @NotNull
-    private List<LbEntry> getLbEntries(Connection connection, long guildId, String
-            queryString, TriFunction<String, Long, Integer, LbEntry> fun, boolean needsReSet, int resetThreshold) {
-        List<LbEntry> returnedList = new ArrayList<>();
+    private <T extends Number> List<LbEntry<T>> getLbEntries(Connection connection, long guildId, String
+            queryString, TriFunction<String, Long, T, LbEntry<T>> fun, boolean needsReSet, int resetThreshold, Class<T> tClass) {
+        List<LbEntry<T>> returnedList = new ArrayList<>();
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
             int i = 1;
             preparedStatement.setLong(i, guildId);
@@ -1928,9 +1995,17 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
             while (resultSet.next()) { //&& (j < 10 && j < rows)) {
                 String lastfmId = resultSet.getString("lastfm_id");
                 long discordId = resultSet.getLong("discord_id");
-                int crowns = resultSet.getInt("ord");
+                T order;
+                if (tClass.equals(Integer.class)) {
+                    order = tClass.cast(resultSet.getInt("ord"));
+                } else if (tClass.equals(Double.class)) {
+                    order = tClass.cast(resultSet.getDouble("ord"));
+                } else {
+                    order = tClass.cast(resultSet.getDouble("ord"));
+                }
 
-                returnedList.add(fun.apply(lastfmId, discordId, crowns));
+
+                returnedList.add(fun.apply(lastfmId, discordId, order));
 
 
             }
@@ -2184,7 +2259,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
                 long scrobbled_count = resultSet.getLong("scrobbled_count");
                 long rym_count = resultSet.getLong("rym_count");
                 double rym_avg = resultSet.getDouble("rym_avg");
-                long recommendation_count = resultSet.getLong("recommedation_count");
+                long recommendation_count = resultSet.getLong("recCount");
                 long correction_count = resultSet.getLong("correction_count");
                 long random_count = resultSet.getLong("random_count");
                 long image_count = resultSet.getLong("image_count");
@@ -3377,7 +3452,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
     }
 
     @Override
-    public List<LbEntry> trackCrownsLeaderboard(Connection connection, long guildId, int threshold) {
+    public List<LbEntry<Integer>> trackCrownsLeaderboard(Connection connection, long guildId, int threshold) {
         String queryString = "SELECT t2.lastfm_id,t3.discord_id,count(t2.lastfm_id) ord " +
                              "FROM " +
                              "( " +
@@ -3414,7 +3489,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
                        "  ORDER BY ord DESC";
 
 
-        return getLbEntries(connection, guildId, queryString, TrackCrownLbEntry::new, true, threshold);
+        return getLbEntries(connection, guildId, queryString, TrackCrownLbEntry::new, true, threshold, Integer.class);
 
     }
 
@@ -4254,7 +4329,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
     }
 
     @Override
-    public List<LbEntry> albumLeaderboard(Connection connection, long guildId, int threshold) {
+    public List<LbEntry<Integer>> albumLeaderboard(Connection connection, long guildId, int threshold) {
         String queryString = "(SELECT  " +
                              "        a.lastfm_id , count(*) AS ord, c.discord_id" +
                              "    FROM " +
@@ -4268,11 +4343,11 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
                              " GROUP BY a.lastfm_id,c.discord_id " +
                              "    ORDER BY ord DESC    )";
 
-        return getLbEntries(connection, guildId, queryString, AlbumLbEntry::new, true, threshold);
+        return getLbEntries(connection, guildId, queryString, AlbumLbEntry::new, true, threshold, Integer.class);
     }
 
     @Override
-    public List<LbEntry> trackLeaderboard(Connection connection, long guildId, int threshold) {
+    public List<LbEntry<Integer>> trackLeaderboard(Connection connection, long guildId, int threshold) {
         String queryString = "(SELECT  " +
                              "        a.lastfm_id , count(*) AS ord, c.discord_id" +
                              "    FROM " +
@@ -4286,7 +4361,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
                              " GROUP BY a.lastfm_id,c.discord_id " +
                              "    ORDER BY ord DESC    )";
 
-        return getLbEntries(connection, guildId, queryString, TrackLbEntry::new, true, threshold);
+        return getLbEntries(connection, guildId, queryString, TrackLbEntry::new, true, threshold, Integer.class);
     }
 
     @Override

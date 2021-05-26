@@ -45,7 +45,9 @@ public interface TrackDao {
 
     Optional<FullAlbumEntity> getAlbumTrackList(Connection connection, long albumId, String lastfmId);
 
-    List<ScrobbledTrack> getUserTopTracks(Connection connection, String lastfmid);
+    ScrobbledTrack getUserTrackInfo(Connection connection, String lastfmid, long trackId);
+
+    List<ScrobbledTrack> getUserTopTracks(Connection connection, String lastfmid, Integer limit);
 
     List<ScrobbledTrack> getTopSpotifyTracksIds(Connection connection, String lastfmId, int limit);
 

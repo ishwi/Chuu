@@ -45,7 +45,9 @@ class ThreadQueue implements Runnable {
             START_FONT_SIZE = 12;
             lowerLimitStringSize = 7;
         }
-
+        if (asideMode) {
+            g.setColor(Color.WHITE);
+        }
         START_FONT = new Font("Noto Sans", Font.PLAIN, START_FONT_SIZE);
         titleFitter = new StringFitterBuilder(START_FONT_SIZE, imageSize - 5)
                 .setStep(1)
@@ -215,7 +217,6 @@ class ThreadQueue implements Runnable {
     }
 
     void drawNeverEndingCharts(UrlCapsule capsule, int y, int x, int imageWidth) {
-        g.setColor(Color.WHITE);
         List<ChartLine> chartLines = capsule.getLines();
         if (chartLines.isEmpty()) {
             return;
@@ -232,14 +233,7 @@ class ThreadQueue implements Runnable {
         int sizeToUse = lineEnd - lineStart;
         double v = (0.9 * sizeToUse) / (float) (itemPerLine + 1);
         double baseline = lineStart + 0.05 * sizeToUse;
-        synchronized (g) {
-            Color temp = g.getColor();
-            g.setColor(Color.WHITE);
-            Font ogFont = g.getFont();
-            g.drawString(fontMetadata.atrribute().getIterator(), this.x * imageWidth + 5, (int) ((baseline + (v + 1) * x) + (1 * v)));
-            g.setFont(ogFont);
-            g.setColor(temp);
-        }
+        g.drawString(fontMetadata.atrribute().getIterator(), this.x * imageWidth + 5, (int) ((baseline + (v + 1) * x) + (1 * v)));
     }
 
     void drawNames(UrlCapsule capsule, int y, int x, Graphics2D g, int imageWidth, BufferedImage image) {
@@ -268,18 +262,14 @@ class ThreadQueue implements Runnable {
             accum += nextIncrease;
             if (image != null) {
                 g.setColor(Color.WHITE);
-                synchronized (this.g) {
-                    GraphicUtils.drawStringChartly(g, font, xOffset, accum);
-                }
+                GraphicUtils.drawStringChartly(g, font, xOffset, accum);
             } else {
                 if (capsule instanceof PreComputedChartEntity) {
                     g.setColor(((PreComputedChartEntity) capsule).isDarkToWhite() ? Color.WHITE : Color.BLACK);
                 } else {
                     g.setColor(Color.BLACK);
                 }
-                synchronized (this.g) {
-                    g.drawString(font.atrribute().getIterator(), x * imageSize + xOffset, y * imageSize + accum);
-                }
+                g.drawString(font.atrribute().getIterator(), x * imageSize + xOffset, y * imageSize + accum);
             }
         }
     }

@@ -76,7 +76,7 @@ public class AffinityParser extends DaoParser<AffinityParameters> {
         if (datas == null) {
             doServer = true;
         } else {
-            if (datas[0].getDiscordId().equals(datas[1].getDiscordId())) {
+            if (datas[0].getDiscordId() == (datas[1].getDiscordId())) {
                 e.sendMessage("Don't use the same person twice\n").queue();
                 return null;
             }

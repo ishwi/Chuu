@@ -155,7 +155,7 @@ public class ChartParserAux {
         Optional<String> parsed = Arrays.stream(message).filter(s ->
                 !permissive
                 ? nonPermissivePattern.matcher(s).matches()
-                : pattern.matcher("").matches()).findAny();
+                : pattern.matcher(s).matches()).findAny();
         if (parsed.isPresent()) {
             String permissiveString = !permissive ? parsed.get() : String.valueOf(parsed.get().charAt(0));
             permissiveString = permissiveString.toLowerCase(Locale.ROOT);

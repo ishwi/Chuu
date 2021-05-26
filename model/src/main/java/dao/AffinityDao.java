@@ -22,7 +22,7 @@ public interface AffinityDao {
 
     List<ArtistLbGlobalEntry> getGlobalMatchingCount(Connection connection);
 
-    List<LbEntry> getMatchingCount(Connection connection);
+    List<LbEntry<Integer>> getMatchingCount(Connection connection);
 
     List<GlobalAffinity> doGlobalAffinity(Connection connection, String ogLastfmId, long threshold);
 

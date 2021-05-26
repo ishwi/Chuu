@@ -12,7 +12,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
 
 import java.util.List;
 
-public abstract class LeaderboardCommand<T extends CommandParameters> extends ListCommand<LbEntry, T> {
+public abstract class LeaderboardCommand<T extends CommandParameters, Y extends Number> extends ListCommand<LbEntry<Y>, T> {
     public LeaderboardCommand(ServiceView dao, boolean isLongRunningCommand) {
         super(dao, isLongRunningCommand);
         this.respondInPrivate = false;
@@ -25,11 +25,11 @@ public abstract class LeaderboardCommand<T extends CommandParameters> extends Li
     public abstract String getEntryName(T params);
 
     @Override
-    public void printList(List<LbEntry> list, T params) {
+    public void printList(List<LbEntry<Y>> list, T params) {
         Context e = params.getE();
         list.forEach(cl -> cl.setDiscordName(getUserString(e, cl.getDiscordId(), cl.getLastFmId())));
 
-        EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e).setThumbnail(e.getGuild().getIconUrl());
+        EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e);
         StringBuilder a = new StringBuilder();
 
         if (list.isEmpty()) {
@@ -44,11 +44,16 @@ public abstract class LeaderboardCommand<T extends CommandParameters> extends Li
         if (strings.size() > 10) {
             embedBuilder.setFooter("%s has %d users with %s\n".formatted(e.getGuild().getName(), list.size(), getEntryName(params)), null);
         }
-        embedBuilder.setDescription(a).setTitle(CommandUtil.escapeMarkdown(e.getGuild().getName()) + "'s " + getEntryName(params) + " leaderboard")
-                .setThumbnail(e.getGuild().getIconUrl())
-                .setFooter(e.getGuild().getName() + " has " + list.size() + " registered users!\n", null);
+        embedBuilder.setDescription(a)
+                .setAuthor(e.getGuild().getName() + "'s " + getEntryName(params) + " leaderboard", null, e.getGuild().getIconUrl());
 
+        setFooter(embedBuilder, list, params);
         e.sendMessage(embedBuilder.build()).queue(message ->
                 new Reactionary<>(strings, message, embedBuilder));
+    }
+
+    protected void setFooter(EmbedBuilder embedBuilder, List<LbEntry<Y>> list, T params) {
+        Context e = params.getE();
+        embedBuilder.setFooter(e.getGuild().getName() + " has " + list.size() + " registered " + CommandUtil.singlePlural(list.size(), "user", "users") + "!\n", null);
     }
 }

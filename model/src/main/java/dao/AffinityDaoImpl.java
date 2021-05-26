@@ -217,8 +217,8 @@ public class AffinityDaoImpl implements AffinityDao {
 
 
     @Override
-    public List<LbEntry> getMatchingCount(Connection connection) {
-        List<LbEntry> affinityList = new ArrayList<>();
+    public List<LbEntry<Integer>> getMatchingCount(Connection connection) {
+        List<LbEntry<Integer>> affinityList = new ArrayList<>();
         String queryBody = """
                 SELECT u.discord_id ,l1 AS lastfmid,Count(*) AS matchingcount \s
                    FROM server_affinity main       JOIN user u ON main.l1 = u.lastfm_id

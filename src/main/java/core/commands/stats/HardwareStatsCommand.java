@@ -17,7 +17,7 @@ import java.util.List;
 
 public class HardwareStatsCommand extends ConcurrentCommand<CommandParameters> {
     public HardwareStatsCommand(ServiceView dao) {
-        super(dao);
+        super(dao, false);
     }
 
     @Override

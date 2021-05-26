@@ -111,7 +111,7 @@ public class LastFMData {
         this.role = role;
     }
 
-    public Long getDiscordId() {
+    public long getDiscordId() {
         return discordId;
     }
 

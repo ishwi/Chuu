@@ -2,8 +2,13 @@ package dao.entities;
 
 import dao.utils.LinkUtils;
 
-public class ObscurityEntry extends LbEntry {
-    public ObscurityEntry(String lastFMId, long discordId, int crowns) {
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
+
+public class ObscurityEntry extends LbEntry<Double> {
+    public final static NumberFormat average = new DecimalFormat("#0.##");
+
+    public ObscurityEntry(String lastFMId, long discordId, double crowns) {
         super(lastFMId, discordId, crowns);
     }
 
@@ -12,8 +17,8 @@ public class ObscurityEntry extends LbEntry {
         return ". [" +
                LinkUtils.cleanMarkdownCharacter(getDiscordName()) +
                "](" + WILDCARD +
-               "): " + getEntryCount() +
-               " obscurity points\n";
+               "): " + average.format(getEntryCount()) +
+               "% obscure  \n";
     }
 
 }

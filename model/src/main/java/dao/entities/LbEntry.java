@@ -1,13 +1,13 @@
 package dao.entities;
 
-public abstract class LbEntry {
+public abstract class LbEntry<T extends Number> {
     public static final String WILDCARD = "|template|to_be_replaced|";
     private final String lastFmId;
     private final long discordId;
-    private final int entryCount;
+    private final T entryCount;
     private String discordName;
 
-    public LbEntry(String user, long discordId, int entryCount) {
+    public LbEntry(String user, long discordId, T entryCount) {
         this.lastFmId = user;
         this.discordId = discordId;
         this.entryCount = entryCount;
@@ -25,7 +25,7 @@ public abstract class LbEntry {
         return discordId;
     }
 
-    public int getEntryCount() {
+    public T getEntryCount() {
         return entryCount;
     }
 

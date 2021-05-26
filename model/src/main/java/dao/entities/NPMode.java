@@ -50,6 +50,7 @@ public enum NPMode {
     SCROBBLE_COUNT(38),
     RYM_LINK(39),
     LOVED(40),
+    POPULARITY(41),
     UNKNOWN(-1);
 
     private final int offset;
@@ -150,6 +151,7 @@ public enum NPMode {
             case SCROBBLE_COUNT -> "Total scrobble count on your account";
             case RYM_LINK -> "A link if available of the album on rym.";
             case LOVED -> "Will give you a heart if you have loved this song";
+            case POPULARITY -> "The popularity of this song according to spotify";
             case UNKNOWN -> throw new IllegalStateException("Unexpected value: " + this);
         };
 

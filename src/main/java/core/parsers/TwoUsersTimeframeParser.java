@@ -60,7 +60,7 @@ public class TwoUsersTimeframeParser extends DaoParser<TwoUsersTimeframeParamate
             sendError("Couldn't get two users", e);
             return null;
         }
-        if (!e.isFromGuild() && !datas[0].getDiscordId().equals(datas[1].getDiscordId())) {
+        if (!e.isFromGuild() && (datas[0].getDiscordId() != datas[1].getDiscordId())) {
             sendError("Can't get two different users on DM's", e);
             return null;
         }

@@ -37,6 +37,8 @@ interface UserGuildDao {
 
     List<UsersWrapper> getAll(Connection connection, long guildId);
 
+    List<UsersWrapper> getAllNotObscurify(Connection connection, long guildId);
+
     List<UsersWrapper> getAllNonPrivate(Connection connection, long guildId);
 
     void addGuild(Connection con, long userId, long guildId);
@@ -175,6 +177,9 @@ interface UserGuildDao {
 
     void setGuildVoiceAnnouncement(Connection connection, long guildId, VoiceAnnouncement voiceAnnouncement);
 
-    boolean shouldSendPermsAgain(Connection connection, long perms, long guildId);
+
+    void insertObscurity(Connection connection, String lastfmId, double obscurity);
+
+    ServerStats getServerStats(Connection connection, long guildId);
 
 }

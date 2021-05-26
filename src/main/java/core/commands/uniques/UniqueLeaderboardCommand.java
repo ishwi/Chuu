@@ -11,7 +11,7 @@ import dao.entities.LbEntry;
 import java.util.Collections;
 import java.util.List;
 
-public class UniqueLeaderboardCommand extends LeaderboardCommand<CommandParameters> {
+public class UniqueLeaderboardCommand extends LeaderboardCommand<CommandParameters, Integer> {
     public UniqueLeaderboardCommand(ServiceView dao) {
         super(dao);
     }
@@ -43,7 +43,7 @@ public class UniqueLeaderboardCommand extends LeaderboardCommand<CommandParamete
     }
 
     @Override
-    public List<LbEntry> getList(CommandParameters parameters) {
+    public List<LbEntry<Integer>> getList(CommandParameters parameters) {
         return db.getUniqueLeaderboard(parameters.getE().getGuild().getIdLong());
     }
 

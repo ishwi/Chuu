@@ -146,6 +146,14 @@ public class ScrobbledTrack extends ScrobbledArtist {
         return super.equals(o) && Objects.equals(name, ((ScrobbledTrack) o).name);
     }
 
+    public int getPopularity() {
+        return popularity;
+    }
+
+    public void setPopularity(int popularity) {
+        this.popularity = popularity;
+    }
+
     @Override
     public int hashCode() {
         int result = getDiscordID() != null ? getDiscordID().hashCode() : 0;

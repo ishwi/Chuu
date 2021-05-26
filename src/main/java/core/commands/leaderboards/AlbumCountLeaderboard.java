@@ -16,7 +16,7 @@ import java.util.Map;
 
 import static core.parsers.ExtraParser.LIMIT_ERROR;
 
-public class AlbumCountLeaderboard extends LeaderboardCommand<NumberParameters<CommandParameters>> {
+public class AlbumCountLeaderboard extends LeaderboardCommand<NumberParameters<CommandParameters>, Integer> {
     public AlbumCountLeaderboard(ServiceView dao) {
         super(dao);
     }
@@ -53,7 +53,7 @@ public class AlbumCountLeaderboard extends LeaderboardCommand<NumberParameters<C
     }
 
     @Override
-    public List<LbEntry> getList(NumberParameters<CommandParameters> params) {
+    public List<LbEntry<Integer>> getList(NumberParameters<CommandParameters> params) {
         int threshold = params.getExtraParam().intValue();
         return db.getAlbumLeaderboard(params.getE().getGuild().getIdLong(), threshold == 0 ? -1 : threshold);
 

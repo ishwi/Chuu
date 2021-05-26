@@ -1,0 +1,102 @@
+package core.commands.stats;
+
+import core.commands.Context;
+import core.commands.abstracts.ConcurrentCommand;
+import core.commands.utils.ChuuEmbedBuilder;
+import core.commands.utils.CommandCategory;
+import core.commands.utils.CommandUtil;
+import core.commands.utils.PrivacyUtils;
+import core.otherlisteners.Reactionary;
+import core.parsers.OnlyUsernameParser;
+import core.parsers.OptionalEntity;
+import core.parsers.Parser;
+import core.parsers.params.ChuuDataParams;
+import dao.ServiceView;
+import dao.entities.DiscordUserDisplay;
+import dao.entities.ScrobbledTrack;
+import dao.utils.LinkUtils;
+import net.dv8tion.jda.api.EmbedBuilder;
+
+import javax.validation.constraints.NotNull;
+import java.text.DecimalFormat;
+import java.util.Comparator;
+import java.util.List;
+import java.util.function.Function;
+
+public class PopularityCommand extends ConcurrentCommand<ChuuDataParams> {
+    private static final DecimalFormat formatter = new DecimalFormat("#0.#");
+
+    public PopularityCommand(ServiceView dao) {
+        super(dao);
+        respondInPrivate = false;
+    }
+
+    @Override
+    protected CommandCategory initCategory() {
+        return CommandCategory.USER_STATS;
+    }
+
+    @Override
+    public Parser<ChuuDataParams> initParser() {
+        OnlyUsernameParser parser = new OnlyUsernameParser(db);
+        parser.addOptional(new OptionalEntity("sort", "sort by popularity"));
+        return parser;
+    }
+
+    @Override
+    public String getDescription() {
+        return "Songs ordered by popularity";
+    }
+
+    @Override
+    public List<String> getAliases() {
+        return List.of("popularity", "popular");
+    }
+
+    @Override
+    public String getName() {
+        return "Obscurity";
+    }
+
+    @Override
+    protected void onCommand(Context e, @NotNull ChuuDataParams params) {
+        String name = params.getLastFMData().getName();
+        List<ScrobbledTrack> topTracks = db.getTopTracks(name, 2000);
+        if (params.hasOptional("sort")) {
+            topTracks = topTracks.stream().sorted(Comparator.comparingInt(ScrobbledTrack::getPopularity).reversed()).toList();
+        }
+        DiscordUserDisplay uInfo = CommandUtil.getUserInfoConsideringGuildOrNot(e, params.getLastFMData().getDiscordId());
+        if (topTracks.isEmpty()) {
+            e.sendMessage(uInfo.getUsername() + " doesnt have any song.").queue();
+            return;
+        }
+        Function<ScrobbledTrack, String> popularity = (s) -> {
+            if (s.getPopularity() == 0) {
+                return "No data";
+            }
+            return s.getPopularity() + "%";
+        };
+        List<String> strs = topTracks.stream().map(t ->
+                String.format(". **[%s - %s](%s)** - %s (%d %s)%n",
+                        LinkUtils.cleanMarkdownCharacter(t.getName()),
+                        LinkUtils.cleanMarkdownCharacter(t.getArtist()), PrivacyUtils.getLastFmArtistTrackUserUrl(t.getArtist(), t.getName(), params.getLastFMData().getName()),
+                        popularity.apply(t),
+                        t.getCount(), CommandUtil.singlePlural(t.getCount(), "play", "plays"))).toList();
+        StringBuilder a = new StringBuilder();
+
+        for (int i = 0; i < 10 && i < strs.size(); i++) {
+            a.append(i + 1).append(strs.get(i));
+        }
+
+        String title = uInfo.getUsername() + "'s tracks";
+        EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e).setAuthor(title, PrivacyUtils.getLastFmUser(params.getLastFMData().getName()), uInfo.getUrlImage())
+                .setFooter("Showing top %s songs".formatted(topTracks.size()))
+                .setDescription(a);
+        e.sendMessage(embedBuilder.build()).queue(mes ->
+                new Reactionary<>(strs, mes, embedBuilder));
+
+
+    }
+
+
+}

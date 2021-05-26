@@ -50,7 +50,7 @@ public class PrivacyUtils {
         return "https://www.last.fm/user/" + encodeUrl(Chuu.getLastFmId(username));
     }
 
-    public static String toString(LbEntry entry) {
+    public static <T extends Number> String toString(LbEntry<T> entry) {
 
         return entry.toStringWildcard().replace(LbEntry.WILDCARD, getLastFmUser(entry.getLastFmId()));
 
