@@ -42,7 +42,7 @@ dependencies {
     api group: 'org.apache.commons', name: 'commons-lang3', version: '3.12.0'
     api group: 'org.apache.commons', name: 'commons-text', version: '1.9'
     api group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.12.3'
-    api 'org.jetbrains:annotations:20.1.0'
+    api 'org.jetbrains:annotations:21.0.1'
     api 'com.neovisionaries:nv-i18n:1.28'
     api 'org.beryx:awt-color-factory:1.0.2'
     implementation group: 'com.zaxxer', name: 'HikariCP', version: '4.0.3'

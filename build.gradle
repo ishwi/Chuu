@@ -61,7 +61,7 @@ dependencies {
     implementation 'ch.qos.logback:logback-classic:1.3.0-alpha5'
 
     // Audio
-    implementation 'com.sedmelluq:lavaplayer:1.3.76'
+    implementation 'com.sedmelluq:lavaplayer:1.3.77'
     implementation 'com.github.natanbc:lavadsp:0.7.7'
     implementation 'com.sedmelluq:lavaplayer-ext-youtube-rotator:0.2.3'
     implementation 'com.sedmelluq:jda-nas:1.1.0'
@@ -71,7 +71,7 @@ dependencies {
     implementation 'com.neovisionaries:nv-i18n:1.28'
     implementation 'com.github.natanbc:java-eval:1.0'
     implementation group: 'com.google.guava', name: 'guava', version: '30.1.1-jre'
-    implementation("com.github.DV8FromTheWorld:JDA:510d12ac4057231706bc4574817e169cece13f18")
+    implementation("com.github.DV8FromTheWorld:JDA:db92d7d669a639a225f5ee831a83bb36f30a4b13")
     implementation group: 'org.jsoup', name: 'jsoup', version: '1.13.1'
 
 //    implementation('net.dv8tion:JDA:4.2.1_255')
@@ -92,7 +92,7 @@ dependencies {
     // TEST
 // https://mvnrepository.com/artifact/org.awaitility/awaitility
     testImplementation group: 'org.awaitility', name: 'awaitility', version: '4.1.0'
-    testImplementation group: 'com.openpojo', name: 'openpojo', version: '0.8.13'
+    testImplementation group: 'com.openpojo', name: 'openpojo', version: '0.9.1'
 
 // https://mvnrepository.com/artifact/org.ow2.asm/asm
     testImplementation group: 'org.ow2.asm', name: 'asm', version: '9.1'
