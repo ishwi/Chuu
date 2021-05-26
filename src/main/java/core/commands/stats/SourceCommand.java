@@ -12,7 +12,7 @@ import javax.validation.constraints.NotNull;
 import java.util.List;
 
 public class SourceCommand extends ConcurrentCommand<CommandParameters> {
-    private static final String REPO_URL = "https://github.com/ishwi/discordBot";
+    public static final String REPO_URL = "https://github.com/ishwi/chuu";
 
 
     public SourceCommand(ServiceView dao) {

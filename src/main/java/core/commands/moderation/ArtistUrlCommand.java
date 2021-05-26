@@ -80,7 +80,7 @@ public class ArtistUrlCommand extends ConcurrentCommand<ArtistUrlParameters> {
             db.userInsertQueueUrl(urlParsed, scrobbledArtist.getArtistId(), e.getAuthor().getIdLong());
             sendMessageQueue(e, "Submitted an image for %s.\nIt will be reviewed by a bot moderator.".formatted(CommandUtil.escapeMarkdown(scrobbledArtist.getArtist())));
 
-        } catch (IOException exception) {
+        } catch (IOException | ArrayIndexOutOfBoundsException exception) {
             parser.sendError(parser.getErrorMessage(2), e);
             Chuu.getLogger().warn(exception.getMessage(), exception);
         }

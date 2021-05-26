@@ -82,8 +82,8 @@ public class ExtendedAudioPlayerManager extends DefaultAudioPlayerManager {
                 new VimeoAudioSourceManager(),
                 new TwitchStreamAudioSourceManager(),
                 new BeamAudioSourceManager(),
-                new HttpAudioSourceManager(),
-                new DiscordAttachmentAudioSourceManager()
+                new DiscordAttachmentAudioSourceManager(),
+                new HttpAudioSourceManager()
         );
 
 

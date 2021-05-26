@@ -60,7 +60,7 @@ public class GenreChartParser extends ChartableParser<ChartableGenreParameters> 
             }
             return new ChartableGenreParameters(e, data, new CustomTimeFrame(timeFrameEnum), x, y, data.getChartMode(), genreParameters);
         } catch (LastFmException lastFmException) {
-            throw new ChuuServiceException();
+            throw new ChuuServiceException(lastFmException);
         }
 
     }

@@ -15,6 +15,7 @@ import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -41,7 +42,8 @@ public abstract class Parser<T extends CommandParameters> {
         Optional<String> opt2 = secondStream.findAny();
         if (opt2.isPresent()) {
             apply = mapper.apply(opt2.get());
-            ogMessage = Arrays.stream(ogMessage).filter(s -> !s.equals(opt2.get())).toArray(String[]::new);
+            AtomicBoolean atomicBoolean = new AtomicBoolean(false);
+            ogMessage = Arrays.stream(ogMessage).filter(s -> !s.equals(opt2.get()) || !atomicBoolean.compareAndSet(false, true)).toArray(String[]::new);
         }
         return Pair.of(ogMessage, apply);
 

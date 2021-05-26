@@ -11,10 +11,9 @@ import javacutils.Pair;
 import javax.annotation.Nullable;
 import java.awt.*;
 import java.time.Year;
-import java.util.Arrays;
-import java.util.EnumSet;
 import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
@@ -23,7 +22,7 @@ import static core.parsers.Parser.filterMessage;
 
 public class ChartParserAux {
     public static final Pattern chartSizePattern = Pattern.compile("\\d+[xX]\\d+");
-    private static final Pattern pattern = Pattern.compile("([yqsmwad]|(?:day|daily)?|(?:year(?:ly)?|month(?:ly)?|quarter(?:ly)?|semester(?:ly)?|week(?:ly)?|alltime|all))", Pattern.CASE_INSENSITIVE);
+    private static final Pattern pattern = Pattern.compile("([yqsmwad]|(?:day|daily)|(?:year(?:ly)?|month(?:ly)?|quarter(?:ly)?|semester(?:ly)?|week(?:ly)?|alltime|all))", Pattern.CASE_INSENSITIVE);
     private static final Pattern naturalPattern = Pattern.compile("([yqsmwadh']|(?:year(?:ly)?s?(?:lies)?|month(?:ly)?s?(?:lies)?|quarter(?:ly)?s?(?:lies)?|semester(?:ly)?s?(?:lies)?|week(?:ly)?s?(?:lies)?|alltime|all|dai(?:ly)?(?:lies)?|days?|" +
                                                                   "hour(?:ly)?s?|min(?:ute)?s?|sec(?:ond)?s?|''))", Pattern.CASE_INSENSITIVE);
 
@@ -93,6 +92,7 @@ public class ChartParserAux {
             } else if (List.of("sec", "second", "seconds", "''", "secs").contains(natural)) {
                 permissiveString = "sec";
             }
+            permissiveString = permissiveString.toLowerCase(Locale.ROOT);
             NaturalTimeFrameEnum naturalTimeFrameEnum = NaturalTimeFrameEnum.get(permissiveString);
             message = words.replaceAll(natural, "").split("\\s+");
             if (message.length == 1 && message[0].isBlank()) {
@@ -137,8 +137,10 @@ public class ChartParserAux {
             } else if (List.of("sec", "second", "seconds", "''", "secs").contains(opt2.get())) {
                 permissiveString = "sec";
             }
+            permissiveString = permissiveString.toLowerCase(Locale.ROOT);
             timeFrame = NaturalTimeFrameEnum.get(permissiveString);
-            message = Arrays.stream(message).filter(s -> !s.equals(opt2.get())).toArray(String[]::new);
+            AtomicBoolean atomicBoolean = new AtomicBoolean(false);
+            message = Arrays.stream(message).filter(s -> !s.equals(opt2.get()) || !atomicBoolean.compareAndSet(false, true)).toArray(String[]::new);
         }
         return timeFrame;
     }
@@ -153,11 +155,13 @@ public class ChartParserAux {
         Optional<String> parsed = Arrays.stream(message).filter(s ->
                 !permissive
                 ? nonPermissivePattern.matcher(s).matches()
-                : pattern.matcher(s).matches()).findAny();
+                : pattern.matcher("").matches()).findAny();
         if (parsed.isPresent()) {
             String permissiveString = !permissive ? parsed.get() : String.valueOf(parsed.get().charAt(0));
+            permissiveString = permissiveString.toLowerCase(Locale.ROOT);
             timeFrame = TimeFrameEnum.get(permissiveString);
-            message = Arrays.stream(message).filter(s -> !s.equals(parsed.get())).toArray(String[]::new);
+            AtomicBoolean atomicBoolean = new AtomicBoolean(false);
+            message = Arrays.stream(message).filter(s -> !s.equals(parsed.get()) || !atomicBoolean.compareAndSet(false, true)).toArray(String[]::new);
         }
         return timeFrame;
     }

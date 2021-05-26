@@ -95,7 +95,7 @@ public class ChartParameters extends CommandParameters {
 
     public boolean isList() {
         ChartMode chartMode = chartMode();
-        return ((chartMode == ChartMode.LIST && !hasOptional("list") && !hasOptional("pie") && !hasOptional("aside"))
+        return ((chartMode == ChartMode.LIST && !hasOptional("pie") && !hasOptional("aside"))
                 ||
                 (chartMode != ChartMode.LIST && hasOptional("list")));
     }
@@ -106,7 +106,7 @@ public class ChartParameters extends CommandParameters {
 
     public boolean isPie() {
         ChartMode chartMode = chartMode();
-        return ((chartMode == ChartMode.PIE) && !hasOptional("pie") && !hasOptional("list") && !hasOptional("aside"))
+        return ((chartMode == ChartMode.PIE) && !hasOptional("list") && !hasOptional("aside"))
                || ((chartMode != ChartMode.PIE) && hasOptional("pie"));
     }
 

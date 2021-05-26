@@ -485,7 +485,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
             ResultSet resultSet = preparedStatement.executeQuery();
 
             if (!resultSet.next()) {
-                throw new InstanceNotFoundException("Not found ");
+                throw new InstanceNotFoundException(lastFmName);
             }
 
             /* Get results. */
@@ -493,6 +493,10 @@ public class UserGuildDaoImpl implements UserGuildDao {
             return resultSet.getLong(1);
 
         } catch (SQLException e) {
+            // Illegal mix of collation
+            if (e.getErrorCode() == 1267) {
+                throw new InstanceNotFoundException(lastFmName);
+            }
             throw new ChuuServiceException(e);
         }
 

@@ -1058,7 +1058,7 @@ public class ConcurrentLastFM {//implements LastFMService {
             throw new LastFmEntityNotFoundException(new ExceptionEntity(user.getName()));
         }
 
-        int playCount = obj.getInt("userplaycount");
+        int playCount = obj.optInt("userplaycount", 0);
         FullAlbumEntity fae = new FullAlbumEntity(correctedArtist, correctedAlbum, playCount, imageUrl, user.getName());
         JSONObject tracks = obj.optJSONObject("tracks");
         if (tracks != null) {
@@ -1233,7 +1233,7 @@ public class ConcurrentLastFM {//implements LastFMService {
         JSONObject jsonObject = doMethod(url, new ArtistException(artist), user);
         JSONObject globalJson = jsonObject.getJSONObject("artist");
         JSONObject statObject = globalJson.getJSONObject("stats");
-        int userPlayCount = statObject.getInt("userplaycount");
+        int userPlayCount = statObject.optInt("userplaycount", 0);
         int listeners = statObject.getInt("listeners");
         int playcount = statObject.getInt("playcount");
         String mbid = null;

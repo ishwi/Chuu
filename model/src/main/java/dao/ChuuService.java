@@ -590,10 +590,6 @@ public class ChuuService implements EveryNoiseService {
     public long getDiscordIdFromLastfm(String fmName, long guildId) throws InstanceNotFoundException {
         try (Connection connection = dataSource.getConnection()) {
             connection.setReadOnly(true);
-            //Force collation
-            fmName = Normalizer.normalize(fmName, Normalizer.Form.NFD);
-            fmName = fmName.replaceAll("\\p{M}", "");
-
             return userGuildDao.getDiscordIdFromLastFm(connection, fmName, guildId);
         } catch (SQLException e) {
             throw new ChuuServiceException(e);

@@ -127,9 +127,9 @@ public class AlbumDaoImpl extends BaseDAO implements AlbumDao {
     @Override
     public void insertLastFmAlbum(Connection connection, ScrobbledAlbum x) {
 
-        String sql = "INSERT INTO album (artist_id,album_name,url,mbid) VALUES (?,?,?,?) on duplicate key update" +
-                     " mbid = if(mbid is null and values(mbid) is not null,values(mbid),mbid), " +
-                     " url = if(url is null and values(url) is not null,values(url),url) " +
+        String sql = "INSERT INTO album (artist_id,album_name,url,mbid) VALUES (?,?,?,?) ON DUPLICATE KEY UPDATE" +
+                     " mbid = if(mbid IS NULL AND values(mbid) IS NOT NULL,values(mbid),mbid), " +
+                     " url = if(url IS NULL AND values(url) IS NOT NULL,values(url),url) " +
 
                      "";
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
@@ -169,7 +169,7 @@ public class AlbumDaoImpl extends BaseDAO implements AlbumDao {
 
     @Override
     public long getAlbumIdByName(Connection connection, String album, long artist_id) throws InstanceNotFoundException {
-        String queryString = "SELECT id FROM  album WHERE album_name = ? and artist_id = ?  ";
+        String queryString = "SELECT id FROM  album WHERE album_name = ? AND artist_id = ?  ";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
             preparedStatement.setLong(2, artist_id);
             preparedStatement.setString(1, album);
@@ -187,7 +187,7 @@ public class AlbumDaoImpl extends BaseDAO implements AlbumDao {
 
     @Override
     public String getAlbumUrlByName(Connection connection, String album, long artist_id) throws InstanceNotFoundException {
-        String queryString = "SELECT url FROM  album WHERE album_name = ? and artist_id = ?  ";
+        String queryString = "SELECT url FROM  album WHERE album_name = ? AND artist_id = ?  ";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
             preparedStatement.setLong(2, artist_id);
             preparedStatement.setString(1, album);
@@ -241,7 +241,7 @@ public class AlbumDaoImpl extends BaseDAO implements AlbumDao {
     @Override
     public List<ScrobbledAlbum> getUserAlbumsOfYear(Connection connection, String username, Year year) {
         List<ScrobbledAlbum> scrobbledAlbums = new ArrayList<>();
-        String s = "select b.album_name,c.name,b.url,b.mbid,a.playnumber  from scrobbled_album a join album b on a.album_id = b.id join artist c on a.artist_id = c.id  where a.lastfm_id = ? and b.release_year = ? order by a.playnumber desc";
+        String s = "SELECT b.album_name,c.name,b.url,b.mbid,a.playnumber  FROM scrobbled_album a JOIN album b ON a.album_id = b.id JOIN artist c ON a.artist_id = c.id  WHERE a.lastfm_id = ? AND b.release_year = ? ORDER BY a.playnumber DESC";
         try (PreparedStatement preparedStatement = connection.prepareStatement(s)) {
             preparedStatement.setString(1, username);
             preparedStatement.setInt(2, year.getValue());
@@ -267,7 +267,7 @@ public class AlbumDaoImpl extends BaseDAO implements AlbumDao {
     @Override
     public List<ScrobbledAlbum> getUserAlbumsWithNoYear(Connection connection, String username, int limit) {
         List<ScrobbledAlbum> scrobbledAlbums = new ArrayList<>();
-        String s = "select b.album_name,c.name,b.url,b.mbid,a.playnumber  from scrobbled_album a join album b on a.album_id = b.id join artist c on a.artist_id = c.id  where a.lastfm_id = ? and b.release_year is null order by a.playnumber desc limit ? ";
+        String s = "SELECT b.album_name,c.name,b.url,b.mbid,a.playnumber  FROM scrobbled_album a JOIN album b ON a.album_id = b.id JOIN artist c ON a.artist_id = c.id  WHERE a.lastfm_id = ? AND b.release_year IS NULL ORDER BY a.playnumber DESC LIMIT ? ";
         try (PreparedStatement preparedStatement = connection.prepareStatement(s)) {
             preparedStatement.setString(1, username);
             preparedStatement.setInt(2, limit);
@@ -292,7 +292,7 @@ public class AlbumDaoImpl extends BaseDAO implements AlbumDao {
 
     @Override
     public void insertAlbumsOfYear(Connection connection, List<AlbumInfo> albumInfos, Year year) {
-        String queryString = "update album join artist  on album.artist_id = artist.id set album.release_year = ?  WHERE (album.album_name,artist.name) in (%s)  ";
+        String queryString = "update album join artist  on album.artist_id = artist.id set album.release_year = ?  WHERE (album.album_name,artist.name) in (%s) and release_year is null ";
         String sql = String.format(queryString, albumInfos.isEmpty() ? null : prepareINQueryTuple(albumInfos.size()), albumInfos.isEmpty() ? null : prepareINQueryTuple(albumInfos.size()));
 
 
@@ -315,7 +315,7 @@ public class AlbumDaoImpl extends BaseDAO implements AlbumDao {
 
     @Override
     public Album getAlbumByName(Connection connection, String album, long artist_id) throws InstanceNotFoundException {
-        String queryString = "SELECT id,artist_id,album_name,url,rym_id,mbid,spotify_id FROM  album WHERE album_name = ? and artist_id = ?  ";
+        String queryString = "SELECT id,artist_id,album_name,url,rym_id,mbid,spotify_id FROM  album WHERE album_name = ? AND artist_id = ?  ";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
             preparedStatement.setLong(2, artist_id);
             preparedStatement.setString(1, album);
@@ -369,8 +369,8 @@ public class AlbumDaoImpl extends BaseDAO implements AlbumDao {
     @Override
     public List<AlbumUserPlays> getUserTopArtistAlbums(Connection connection, long discord_id, long artistId, int limit) {
         List<AlbumUserPlays> returnList = new ArrayList<>();
-        String mySql = "select a.playnumber,b.album_name,d.name,b.url from scrobbled_album a join album b on a.album_id = b.id join user c on a.lastfm_id = c.lastfm_id " +
-                       "join artist d on b.artist_id = d.id  where c.discord_id = ? and a.artist_id = ?  order by a.playnumber desc  limit ? ";
+        String mySql = "SELECT a.playnumber,b.album_name,d.name,b.url FROM scrobbled_album a JOIN album b ON a.album_id = b.id JOIN user c ON a.lastfm_id = c.lastfm_id " +
+                       "JOIN artist d ON b.artist_id = d.id  WHERE c.discord_id = ? AND a.artist_id = ?  ORDER BY a.playnumber DESC  LIMIT ? ";
         try {
             PreparedStatement preparedStatement = connection.prepareStatement(mySql);
             int i = 1;
@@ -390,11 +390,11 @@ public class AlbumDaoImpl extends BaseDAO implements AlbumDao {
     @Override
     public List<AlbumUserPlays> getServerTopArtistAlbums(Connection connection, long guildId, long artistId, int limit) {
         List<AlbumUserPlays> returnList = new ArrayList<>();
-        String mySql = "select sum(a.playnumber) as ord,b.album_name,d.name,b.url from scrobbled_album a join album b on a.album_id = b.id join user c on a.lastfm_id = c.lastfm_id" +
-                       " join user_guild e on c.discord_id = e.discord_id " +
-                       "join artist d on b.artist_id = d.id  where e.guild_id = ? and a.artist_id = ?  " +
-                       " group by a.album_id " +
-                       "order by ord desc  limit ? ";
+        String mySql = "SELECT sum(a.playnumber) AS ord,b.album_name,d.name,b.url FROM scrobbled_album a JOIN album b ON a.album_id = b.id JOIN user c ON a.lastfm_id = c.lastfm_id" +
+                       " JOIN user_guild e ON c.discord_id = e.discord_id " +
+                       "JOIN artist d ON b.artist_id = d.id  WHERE e.guild_id = ? AND a.artist_id = ?  " +
+                       " GROUP BY a.album_id " +
+                       "ORDER BY ord DESC  LIMIT ? ";
         try {
             PreparedStatement preparedStatement = connection.prepareStatement(mySql);
             int i = 1;
@@ -415,10 +415,10 @@ public class AlbumDaoImpl extends BaseDAO implements AlbumDao {
     @Override
     public List<AlbumUserPlays> getGlobalTopArtistAlbums(Connection connection, long artistId, int limit) {
         List<AlbumUserPlays> returnList = new ArrayList<>();
-        String mySql = "select sum(a.playnumber) as ord,b.album_name,d.name,b.url from scrobbled_album a join album b on a.album_id = b.id" +
-                       " join artist d on b.artist_id = d.id  where  a.artist_id = ?" +
-                       " group by a.album_id " +
-                       "  order by ord desc  limit ? ";
+        String mySql = "SELECT sum(a.playnumber) AS ord,b.album_name,d.name,b.url FROM scrobbled_album a JOIN album b ON a.album_id = b.id" +
+                       " JOIN artist d ON b.artist_id = d.id  WHERE  a.artist_id = ?" +
+                       " GROUP BY a.album_id " +
+                       "  ORDER BY ord DESC  LIMIT ? ";
         try {
             PreparedStatement preparedStatement = connection.prepareStatement(mySql);
             int i = 1;

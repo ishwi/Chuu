@@ -4,7 +4,6 @@ import core.Chuu;
 import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
-import core.commands.utils.CommandUtil;
 import core.parsers.Parser;
 import core.parsers.UrlParser;
 import core.parsers.params.UrlParameters;
@@ -85,7 +84,7 @@ public class AdministrativeCommand extends ConcurrentCommand<UrlParameters> {
             event.getGuild().loadMembers().onSuccess(members -> {
                 List<Long> toInsert = members.stream().filter(x -> !x.getUser().isBot()).map(x -> x.getUser().getIdLong()).filter(x -> allBot.contains(x) && !thisServer.contains(x)).toList();
                 toInsert.forEach(x -> db.addGuildUser(x, event.getGuild().getIdLong()));
-                Chuu.getLogger().info("Successfully added {} {} to server: {}", toInsert.size(), CommandUtil.singlePlural(toInsert.size(), "member", "members"), event.getGuild().getName());
+//                Chuu.getLogger().info("Successfully added {} {} to server: {}", toInsert.size(), CommandUtil.singlePlural(toInsert.size(), "member", "members"), event.getGuild().getName());
             });
         });
     }
@@ -98,7 +97,7 @@ public class AdministrativeCommand extends ConcurrentCommand<UrlParameters> {
             try {
                 LastFMData lastFMData = db.findLastFMData(event.getUser().getIdLong());
                 db.addGuildUser(lastFMData.getDiscordId(), event.getGuild().getIdLong());
-                Chuu.getLogger().info("Successfully added {} to server: {} ", lastFMData.getDiscordId(), event.getGuild().getName());
+//                Chuu.getLogger().info("Successfully added {} to server: {} ", lastFMData.getDiscordId(), event.getGuild().getName());
             } catch (InstanceNotFoundException e) {
                 //Ignored
             }
@@ -108,7 +107,7 @@ public class AdministrativeCommand extends ConcurrentCommand<UrlParameters> {
     public void onGuildMemberRemove(@Nonnull GuildMemberRemoveEvent event) {
 
         long idLong = event.getUser().getIdLong();
-        Chuu.getLogger().info("USER LEFT {}", idLong);
+//        Chuu.getLogger().info("USER LEFT {}", idLong);
         executor2
                 .submit(() -> {
 
@@ -116,7 +115,6 @@ public class AdministrativeCommand extends ConcurrentCommand<UrlParameters> {
                         db.findLastFMData(idLong);
                         Guild guild = event.getJDA().getGuildById(event.getGuild().getIdLong());
                         Chuu.getLogger().info("USER was a registered user {} ", idLong);
-
                         // Making sure they really left?
                         if (guild != null && guild.getMember(event.getUser()) == null)
                             db.removeUserFromOneGuildConsequent(idLong, event.getGuild().getIdLong())

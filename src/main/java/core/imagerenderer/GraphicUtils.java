@@ -84,6 +84,10 @@ public class GraphicUtils {
         return slightlybrighter(color, 0.85);
     }
 
+    private static int clamp(int input) {
+        return Math.max(0, Math.min(input, 255));
+    }
+
     public static Color slightlybrighter(Color color, double factor) {
         int r = color.getRed();
         int g = color.getGreen();
@@ -97,6 +101,7 @@ public class GraphicUtils {
          */
         int i = (int) (1.0 / (1.0 - factor));
         if (r == 0 && g == 0 && b == 0) {
+            i = clamp(i);
             return new Color(i, i, i, alpha);
         }
         if (r > 0 && r < i) r = i;
