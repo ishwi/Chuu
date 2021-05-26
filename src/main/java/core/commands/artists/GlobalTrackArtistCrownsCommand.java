@@ -34,7 +34,7 @@ public class GlobalTrackArtistCrownsCommand extends ConcurrentCommand<NumberPara
     private final Spotify spotifyApi;
 
     public GlobalTrackArtistCrownsCommand(ServiceView dao) {
-        super(dao);
+        super(dao, true);
         this.respondInPrivate = false;
         this.discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
         this.spotifyApi = SpotifySingleton.getInstance();

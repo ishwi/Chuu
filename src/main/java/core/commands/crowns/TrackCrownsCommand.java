@@ -25,7 +25,7 @@ import static core.parsers.NumberParser.generateThresholdParser;
 public class
 TrackCrownsCommand extends ConcurrentCommand<NumberParameters<ChuuDataParams>> {
     public TrackCrownsCommand(ServiceView dao) {
-        super(dao);
+        super(dao, true);
         this.respondInPrivate = false;
     }
 

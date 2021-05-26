@@ -69,7 +69,7 @@ public final record ContextSlashReceived(SlashCommandEvent e) implements Context
 
     @Override
     public RestAction<Message> sendEmbed(EmbedBuilder embedBuilder) {
-        return e.getHook().sendMessage(embedBuilder.build());
+        return e.getHook().sendMessageEmbeds(embedBuilder.build());
     }
 
     @Override
@@ -85,12 +85,12 @@ public final record ContextSlashReceived(SlashCommandEvent e) implements Context
 
     @Override
     public RestAction<Message> sendMessage(MessageEmbed embed) {
-        return e.getHook().sendMessage(embed);
+        return e.getHook().sendMessageEmbeds(embed);
     }
 
     @Override
     public RestAction<Message> sendMessage(MessageEmbed embed, User toMention) {
-        return e.getHook().sendMessage(embed).mention(toMention);
+        return e.getHook().sendMessageEmbeds(embed).mention(toMention);
     }
 
     @Override

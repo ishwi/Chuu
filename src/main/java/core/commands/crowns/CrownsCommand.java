@@ -23,12 +23,9 @@ import java.util.List;
 import static core.parsers.NumberParser.generateThresholdParser;
 
 public class CrownsCommand extends ConcurrentCommand<NumberParameters<ChuuDataParams>> {
-    public CrownsCommand(ServiceView dao) {
-        this(dao, false);
-    }
 
-    public CrownsCommand(ServiceView dao, boolean isLongRunningCommand) {
-        super(dao, isLongRunningCommand);
+    public CrownsCommand(ServiceView dao) {
+        super(dao, true);
         this.respondInPrivate = false;
     }
 

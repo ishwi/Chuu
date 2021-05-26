@@ -25,7 +25,7 @@ import static core.parsers.NumberParser.generateThresholdParser;
 
 public class AlbumCrownsCommand extends ConcurrentCommand<NumberParameters<ChuuDataParams>> {
     public AlbumCrownsCommand(ServiceView dao) {
-        super(dao);
+        super(dao, true);
         this.respondInPrivate = false;
     }
 

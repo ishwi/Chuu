@@ -17,7 +17,7 @@ import static core.parsers.NumberParser.generateThresholdParser;
 public class AlbumCrownsLeaderboardCommand extends LeaderboardCommand<NumberParameters<CommandParameters>> {
 
     public AlbumCrownsLeaderboardCommand(ServiceView dao) {
-        super(dao);
+        super(dao, true);
     }
 
     @Override

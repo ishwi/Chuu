@@ -59,10 +59,9 @@ public class UserConfigCommand extends ConcurrentCommand<UserConfigParameters> {
 
     @Override
     protected void onCommand(Context e, @NotNull UserConfigParameters params) throws LastFmException, InstanceNotFoundException {
-        UserConfigParameters parse = this.parser.parse(e);
 
-        UserConfigType config = parse.getConfig();
-        String value = parse.getValue().trim();
+        UserConfigType config = params.getConfig();
+        String value = params.getValue().trim();
         boolean cleansing = value.equalsIgnoreCase("clear");
         switch (config) {
             case PRIVATE_UPDATE:

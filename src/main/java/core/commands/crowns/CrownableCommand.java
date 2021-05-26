@@ -27,7 +27,7 @@ import static core.parsers.ExtraParser.LIMIT_ERROR;
 public class CrownableCommand extends ListCommand<CrownableArtist, NumberParameters<ChuuDataParams>> {
 
     public CrownableCommand(ServiceView dao) {
-        super(dao);
+        super(dao, true);
     }
 
 

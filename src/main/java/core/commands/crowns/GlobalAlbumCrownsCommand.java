@@ -15,7 +15,7 @@ import java.util.List;
 
 public class GlobalAlbumCrownsCommand extends CrownsCommand {
     public GlobalAlbumCrownsCommand(ServiceView dao) {
-        super(dao, true);
+        super(dao);
         this.respondInPrivate = true;
     }
 

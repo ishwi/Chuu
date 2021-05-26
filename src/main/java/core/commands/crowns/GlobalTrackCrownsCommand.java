@@ -15,7 +15,7 @@ import java.util.List;
 
 public class GlobalTrackCrownsCommand extends CrownsCommand {
     public GlobalTrackCrownsCommand(ServiceView dao) {
-        super(dao, true);
+        super(dao);
         this.respondInPrivate = true;
     }
 

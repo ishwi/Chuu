@@ -24,7 +24,7 @@ import static core.parsers.NumberParser.generateThresholdParser;
 
 public class CrownsStolenCommand extends ConcurrentCommand<NumberParameters<TwoUsersParamaters>> {
     public CrownsStolenCommand(ServiceView dao) {
-        super(dao);
+        super(dao, true);
         this.respondInPrivate = false;
     }
 
