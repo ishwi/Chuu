@@ -40,6 +40,7 @@ public class PopularityCommand extends ConcurrentCommand<ChuuDataParams> {
     public Parser<ChuuDataParams> initParser() {
         OnlyUsernameParser parser = new OnlyUsernameParser(db);
         parser.addOptional(new OptionalEntity("sort", "sort by popularity"));
+        parser.addOptional(new OptionalEntity("reverse", "sort by less popularity"));
         return parser;
     }
 
@@ -55,7 +56,7 @@ public class PopularityCommand extends ConcurrentCommand<ChuuDataParams> {
 
     @Override
     public String getName() {
-        return "Obscurity";
+        return "Popularity";
     }
 
     @Override
@@ -64,6 +65,8 @@ public class PopularityCommand extends ConcurrentCommand<ChuuDataParams> {
         List<ScrobbledTrack> topTracks = db.getTopTracks(name, 2000);
         if (params.hasOptional("sort")) {
             topTracks = topTracks.stream().sorted(Comparator.comparingInt(ScrobbledTrack::getPopularity).reversed()).toList();
+        } else if (params.hasOptional("reverse")) {
+            topTracks = topTracks.stream().sorted(Comparator.comparingInt(ScrobbledTrack::getPopularity)).toList();
         }
         DiscordUserDisplay uInfo = CommandUtil.getUserInfoConsideringGuildOrNot(e, params.getLastFMData().getDiscordId());
         if (topTracks.isEmpty()) {

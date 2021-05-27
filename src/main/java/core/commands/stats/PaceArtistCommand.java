@@ -141,12 +141,11 @@ public class PaceArtistCommand extends ConcurrentCommand<NumberParameters<Artist
             case YEAR -> (int) now.minus(unitNumber, ChronoUnit.YEARS).toInstant().getEpochSecond();
             case QUARTER -> (int) now.minus(unitNumber * 4, ChronoUnit.MONTHS).toInstant().getEpochSecond();
             case MONTH -> (int) now.minus(unitNumber, ChronoUnit.MONTHS).toInstant().getEpochSecond();
-            case ALL -> 0;
-            case SEMESTER -> (int) now.minus(unitNumber * 2, ChronoUnit.MONTHS).toInstant().getEpochSecond();
+            case ALL -> unixtimestamp;
+            case SEMESTER -> (int) now.minus(unitNumber * 6, ChronoUnit.MONTHS).toInstant().getEpochSecond();
             case WEEK -> (int) now.minus(unitNumber, ChronoUnit.WEEKS).toInstant().getEpochSecond();
             case DAY -> (int) now.minus(unitNumber, days).toInstant().getEpochSecond();
         };
-        timestamp = time.equals(TimeFrameEnum.ALL) ? unixtimestamp : timestamp;
         BiFunction<Temporal, Temporal, Long> between = days::between;
         LocalDateTime compareTime = LocalDateTime.ofEpochSecond(timestamp, 0, ZoneOffset.ofHours(1));
         totalUnits = between.apply(compareTime, now);

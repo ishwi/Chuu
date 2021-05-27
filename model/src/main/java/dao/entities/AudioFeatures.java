@@ -20,4 +20,16 @@ public record AudioFeatures(Float acousticness, String analysisUrl, Float dancea
                 a.valence + b.valence);
     }
 
+    public AudioFeatures flatten(int i) {
+        return new AudioFeatures(acousticness / i, null,
+                danceability / i,
+                null, energy / i,
+                null, instrumentalness / i,
+                key / i,
+                liveness / i,
+                loudness / i,
+                speechiness / i,
+                tempo / i, timeSignature / i, null, null,
+                valence / i);
+    }
 }

@@ -11,9 +11,7 @@ import java.awt.image.BufferedImage;
 import java.io.InputStream;
 import java.sql.Connection;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TimeZone;
+import java.util.*;
 
 interface UserGuildDao {
 
@@ -182,4 +180,5 @@ interface UserGuildDao {
 
     ServerStats getServerStats(Connection connection, long guildId);
 
+    OptionalDouble obtainObscurity(Connection connection, String lastfmId);
 }

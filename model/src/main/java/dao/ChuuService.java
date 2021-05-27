@@ -4009,15 +4009,31 @@ public class ChuuService implements EveryNoiseService {
         }
     }
 
-    public double obtainObscurity(String lastfmId) {
+    public OptionalDouble obtainObscurity(String lastfmId) {
         try (Connection connection = dataSource.getConnection()) {
-            double obscurity = queriesDao.obscurity(connection, lastfmId);
-            userGuildDao.insertObscurity(connection, lastfmId, obscurity);
-            return obscurity;
+            return userGuildDao.obtainObscurity(connection, lastfmId);
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }
+    }
 
+    private double genObscurity(String lastfmId) {
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setReadOnly(true);
+            return queriesDao.obscurity(connection, lastfmId);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    public double processObscurity(String lastfmId) {
+        double v = genObscurity(lastfmId);
+        try (Connection connection = dataSource.getConnection()) {
+            userGuildDao.insertObscurity(connection, lastfmId, v);
+            return v;
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
     }
 
     @Override

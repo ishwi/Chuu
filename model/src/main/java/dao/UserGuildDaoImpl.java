@@ -1708,6 +1708,27 @@ public class UserGuildDaoImpl implements UserGuildDao {
         }
     }
 
+    @Override
+    public OptionalDouble obtainObscurity(Connection connection, String lastfmId) {
+        String queryString = """
+                SELECT  score FROM obscurity WHERE  lastfm_id = ?
+                """;
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+            preparedStatement.setString(1, lastfmId);
+
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                float score = resultSet.getFloat(1);
+                return OptionalDouble.of(score == 0 ? 100 : score);
+            }
+            return OptionalDouble.empty();
+
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+
+    }
+
     private List<LastFMData> getServerData(Connection con, long guildId, String queryString) {
         List<LastFMData> lastFMData = new ArrayList<>();
         try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {

@@ -1359,6 +1359,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
             preparedStatement.setString(1, lastfmId);
             ResultSet resultSet = preparedStatement.executeQuery();
             AudioFeatures audioFeatures = null;
+            int j = 0;
             while (resultSet.next()) {
                 int i = 0;
                 float acousticness = resultSet.getFloat(i + 1);
@@ -1378,8 +1379,9 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
                 } else {
                     audioFeatures = audioFeatures.combine(current);
                 }
+                j++;
             }
-            return audioFeatures;
+            return audioFeatures != null ? audioFeatures.flatten(j) : null;
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }
@@ -1475,12 +1477,10 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
 
         String queryString = """
                 WITH popular AS
-                                              (SELECT popularity,
-                                                      playnumber
-                                               FROM track a
-                                               JOIN scrobbled_track st ON a.id = st.track_id
+                                              (SELECT track_id
+                                               FROM scrobbled_track st
                                                WHERE st.lastfm_id = ?
-                                               ORDER BY playnumber DESC),
+                                               ),
                                                  indexes AS
                                               (SELECT popularity,
                                                       (row_number() OVER (
@@ -1499,7 +1499,8 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
             preparedStatement.setString(1, lastfmId);
             ResultSet resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
-                return resultSet.getDouble(1);
+                double result = resultSet.getDouble(1);
+                return result == 0 ? 100 : result;
             }
             return 0;
         } catch (SQLException sqlException) {

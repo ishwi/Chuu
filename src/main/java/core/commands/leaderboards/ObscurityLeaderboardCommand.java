@@ -17,14 +17,17 @@ import dao.entities.UsersWrapper;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
 
+import javax.validation.constraints.NotNull;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentSkipListSet;
 
 public class ObscurityLeaderboardCommand extends LeaderboardCommand<ChuuDataParams, Double> {
 
+    private final static ConcurrentSkipListSet<Long> inProcessSets = new ConcurrentSkipListSet<>();
 
     public ObscurityLeaderboardCommand(ServiceView dao) {
         super(dao, true);
@@ -75,41 +78,62 @@ public class ObscurityLeaderboardCommand extends LeaderboardCommand<ChuuDataPara
     }
 
     @Override
+    protected void onCommand(Context e, @NotNull ChuuDataParams params) {
+
+        var list = getList(params);
+        if (list == null) {
+            return;
+        }
+        printList(list, params);
+    }
+
+    @Override
     public List<LbEntry<Double>> getList(ChuuDataParams params) {
         Context e = params.getE();
         long guildId = params.getE().getGuild().getIdLong();
-        List<UsersWrapper> unprocessed = db.getAllObscurifyPending(guildId);
-        int size = unprocessed.size();
-        CompletableFuture<Message> submit = null;
-        boolean didUser = false;
-        if (!unprocessed.isEmpty()) {
-            if (size > 15) {
-                submit = e.sendMessage(
-                        getEmbedBuilder(e, 0, size).build()
-                ).submit();
-            }
-            var now = Instant.now();
-            for (int i = 0; i < unprocessed.size(); i++) {
-                String lastFMName = unprocessed.get(i).getLastFMName();
-                if (lastFMName.equals(params.getLastFMData().getName())) {
-                    didUser = true;
-                }
-                db.obtainObscurity(lastFMName);
-                if (size > 15) {
-                    if (Instant.now().isAfter(now.plusMillis(500))) {
-                        int finalI = i;
 
-                        submit.thenCompose(z -> z.editMessage(getEmbedBuilder(e, finalI, size).build()).submit());
-                        now = now.plusMillis(500);
+        if (inProcessSets.contains(guildId)) {
+            sendMessageQueue(e, "The obscuritylb is still being calculated, wait a few seconds/minutes more pls.");
+            return null;
+        }
+        try {
+            inProcessSets.add(guildId);
+            List<UsersWrapper> unprocessed = db.getAllObscurifyPending(guildId);
+            int size = unprocessed.size();
+            CompletableFuture<Message> submit = null;
+            boolean didUser = false;
+            if (!unprocessed.isEmpty()) {
+                if (size > 15) {
+                    submit = e.sendMessage(
+                            getEmbedBuilder(e, 0, size).build()
+                    ).submit();
+                }
+                var now = Instant.now();
+                for (int i = 0; i < unprocessed.size(); i++) {
+                    String lastFMName = unprocessed.get(i).getLastFMName();
+                    if (lastFMName.equals(params.getLastFMData().getName())) {
+                        didUser = true;
+                    }
+                    db.obtainObscurity(lastFMName);
+                    if (size > 15) {
+                        if (Instant.now().isAfter(now.plusMillis(500))) {
+                            int finalI = i;
+
+                            submit.thenCompose(z -> z.editMessage(getEmbedBuilder(e, finalI, size).build()).submit());
+                            now = now.plusMillis(500);
+                        }
                     }
                 }
-            }
 
+            }
+            if (!didUser)
+                db.obtainObscurity(params.getLastFMData().getName()).orElseGet(() -> db.processObscurity(params.getLastFMData().getName()));
+            if (size > 15)
+                return submit.thenCompose(z -> z.delete().submit()).thenApply(z -> db.getObscurityRankings(e.getGuild().getIdLong())).join();
+        } finally {
+            inProcessSets.remove(guildId);
         }
-        if (!didUser)
-            db.obtainObscurity(params.getLastFMData().getName());
-        if (size > 15)
-            return submit.thenCompose(z -> z.delete().submit()).thenApply(z -> db.getObscurityRankings(e.getGuild().getIdLong())).join();
+
         return db.getObscurityRankings(e.getGuild().getIdLong());
     }
 

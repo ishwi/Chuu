@@ -10,10 +10,12 @@ import core.exceptions.LastFmException;
 import core.parsers.ArtistSongParser;
 import core.parsers.Parser;
 import core.parsers.params.ArtistAlbumParameters;
+import core.services.TrackValidator;
 import core.services.tags.TrackTagService;
 import dao.ServiceView;
 import dao.entities.LastFMData;
 import dao.entities.ScrobbledArtist;
+import dao.entities.ScrobbledTrack;
 import dao.entities.TrackInfo;
 import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -54,7 +56,8 @@ public class TrackInfoCommand extends AlbumPlaysCommand {
     protected void doSomethingWithAlbumArtist(ScrobbledArtist artist, String song, Context e, long who, ArtistAlbumParameters params) throws LastFmException {
         LastFMData lastFMData = params.getLastFMData();
         TrackExtended trackInfo = this.lastFM.getTrackInfoExtended(lastFMData, artist.getArtist(), song);
-
+        ScrobbledTrack validate = new TrackValidator(db, lastFM).validate(artist.getArtist(), song);
+        ScrobbledTrack popularity = db.getTrackInfo(lastFMData.getName(), validate.getTrackId());
 
         String username = getUserString(e, who, lastFMData.getName());
         EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e);
@@ -83,6 +86,11 @@ public class TrackInfoCommand extends AlbumPlaysCommand {
         if (trackInfo.getDuration() != 0) {
             embedBuilder.addField("Duration:",
                     (String.format("%02d:%02d minutes", trackInfo.getDuration() / 60, trackInfo.getDuration() % 60))
+                    , true);
+        }
+        if (popularity != null && popularity.getPopularity() != 0) {
+            embedBuilder.addField("Popularity:",
+                    String.format("%s%%", popularity.getPopularity())
                     , true);
         }
 

@@ -108,11 +108,10 @@ public class TopCombosCommand extends ConcurrentCommand<NumberParameters<Command
             PrivacyUtils.PrivateString publicString = PrivacyUtils.getPublicString(x.getPrivacyMode(), x.getDiscordId(), x.getLastfmId(), atomicInteger, e, showableUsers);
             int andIncrement = positionCounter.getAndIncrement();
             String dayNumberSuffix = CommandUtil.getDayNumberSuffix(andIncrement);
-            x.setCalculatedDisplayName("%s **%s**".formatted(dayNumberSuffix, publicString.discordName()));
 
 
             String aString = LinkUtils.cleanMarkdownCharacter(x.getCurrentArtist());
-            StringBuilder description = new StringBuilder("" + publicString.discordName() + "\n");
+            StringBuilder description = new StringBuilder("%s **%s**%n".formatted(dayNumberSuffix, publicString.discordName()));
             GlobalStreakEntities.DateHolder holder = params.hasOptional("start") ? CommandUtil.toDateHolder(x.getStreakStart(), x.getLastfmId()) : null;
 
             return GlobalStreakEntities.getComboString(aString, description, x.artistCount(), x.getCurrentArtist(), x.albumCount(), x.getCurrentAlbum(), x.trackCount(), x.getCurrentSong(), holder);

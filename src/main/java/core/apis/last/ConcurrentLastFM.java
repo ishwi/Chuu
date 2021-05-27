@@ -1473,7 +1473,7 @@ public class ConcurrentLastFM {//implements LastFMService {
     public List<Track> getListTopTrack(LastFMData user, TimeFrameEnum timeframe) throws LastFmException {
 
         if (timeframe == TimeFrameEnum.DAY) {
-            return getDailyT(TopEntity.ARTIST, user, capsule -> new Track(capsule.getArtistName(), capsule.getAlbumName(), capsule.getPlays(), false, SONG_AVERAGE_DURATION), Integer.MAX_VALUE);
+            return getDailyT(TopEntity.TRACK, user, capsule -> new Track(capsule.getArtistName(), capsule.getAlbumName(), capsule.getPlays(), false, SONG_AVERAGE_DURATION), Integer.MAX_VALUE);
         }
         List<Track> trackList = new ArrayList<>();
         String url = BASE + GET_TOP_TRACKS + user.getName() + apiKey + ENDING + "&period=" + timeframe.toApiFormat() + "&limit=1000";
