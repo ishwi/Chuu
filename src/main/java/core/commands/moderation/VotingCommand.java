@@ -6,7 +6,9 @@ import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.exceptions.LastFmException;
-import core.otherlisteners.Validator;
+import core.otherlisteners.ButtonResult;
+import core.otherlisteners.ButtonValidator;
+import core.otherlisteners.Reaction;
 import core.parsers.ArtistParser;
 import core.parsers.Parser;
 import core.parsers.params.ArtistParameters;
@@ -16,25 +18,28 @@ import dao.entities.*;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
-import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
+import net.dv8tion.jda.api.entities.Emoji;
+import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
+import net.dv8tion.jda.api.interactions.ActionRow;
+import net.dv8tion.jda.api.interactions.Component;
+import net.dv8tion.jda.api.interactions.button.Button;
 
 import javax.validation.constraints.NotNull;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
-import java.util.Comparator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiFunction;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class VotingCommand extends ConcurrentCommand<ArtistParameters> {
-    private static final String RIGHT_ARROW = "U+27a1";
-    private static final String LEFT_ARROW = "U+2b05";
-    private static final String UP_VOTE = "U+1f44d";
-    private static final String DOWN_VOTE = "U+1f44e";
-    private static final String REPORT = "U+1f6ab";
-    private static final String CANCEL = "U+1f3f3U+fe0f";
+    private static final String RIGHT_ARROW = "➡";
+    private static final String LEFT_ARROW = "⬅";
+    private static final String UP_VOTE = "👍";
+    private static final String DOWN_VOTE = "👎";
+    private static final String REPORT = "🚫";
+    private static final String CANCEL = "🏳️";
 
 
     private final TriFunction<JDA, AtomicInteger, AtomicInteger, BiFunction<VotingEntity, EmbedBuilder, EmbedBuilder>> builder = (jda, size, counter) -> (votingEntity, embedBuilder) ->
@@ -96,19 +101,24 @@ public class VotingCommand extends ConcurrentCommand<ArtistParameters> {
             return;
         }
         String correctedArtist = CommandUtil.escapeMarkdown(allArtistImages.get(0).getArtist());
+
         EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e)
                 .setTitle(correctedArtist + " Images");
 
         AtomicInteger counter = new AtomicInteger(0);
-        Map<String, BiFunction<VotingEntity, MessageReactionAddEvent, Boolean>> actionMap = new LinkedHashMap<>();
+        Map<String, Reaction<VotingEntity, ButtonClickEvent, ButtonResult>> actionMap = new LinkedHashMap<>();
         List<Long> guildList = e.isFromGuild()
                                ? db.getAll(e.getGuild().getIdLong()).stream().filter(u -> !u.getRole().equals(Role.IMAGE_BLOCKED)).map(UsersWrapper::getDiscordID).toList()
                                : List.of(e.getAuthor().getIdLong());
-
+        ActionRow of = ActionRow.of(Button.primary(UP_VOTE, Emoji.ofUnicode(UP_VOTE)),
+                Button.primary(DOWN_VOTE, Emoji.ofUnicode(DOWN_VOTE)));
+        List<ActionRow> rows = new ArrayList<>();
+        rows.add(of);
+        List<Component> components = of.getComponents();
 
         actionMap.put(UP_VOTE, (a, r) -> {
-            if (guildList.contains(r.getUserIdLong())) {
-                VoteStatus voteStatus = db.castVote(a.getUrlId(), r.getUserIdLong(), true);
+            if (guildList.contains(r.getUser().getIdLong())) {
+                VoteStatus voteStatus = db.castVote(a.getUrlId(), r.getUser().getIdLong(), true);
                 if (voteStatus.equals(VoteStatus.CHANGE_VALUE)) {
                     a.changeToAPositive();
                 } else if (voteStatus.equals(VoteStatus.NEW_VOTE)) {
@@ -116,11 +126,11 @@ public class VotingCommand extends ConcurrentCommand<ArtistParameters> {
                     a.incrementTotalVotes();
                 }
             }
-            return false;
+            return () -> new ButtonResult.Result(false, null);
         });
         actionMap.put(DOWN_VOTE, (a, r) -> {
-            if (guildList.contains(r.getUserIdLong())) {
-                VoteStatus voteStatus = db.castVote(a.getUrlId(), r.getUserIdLong(), false);
+            if (guildList.contains(r.getUser().getIdLong())) {
+                VoteStatus voteStatus = db.castVote(a.getUrlId(), r.getUser().getIdLong(), false);
                 if (voteStatus.equals(VoteStatus.CHANGE_VALUE)) {
                     a.changeToANegative();
                 } else if (voteStatus.equals(VoteStatus.NEW_VOTE)) {
@@ -128,26 +138,32 @@ public class VotingCommand extends ConcurrentCommand<ArtistParameters> {
                     a.incrementTotalVotes();
                 }
             }
-            return false;
+            return () -> new ButtonResult.Result(false, null);
         });
 
         if (allArtistImages.size() > 1) {
+
+//            components.add(Button.primary(LEFT_ARROW, Emoji.ofUnicode(LEFT_ARROW)));
+            components.add(Button.primary(RIGHT_ARROW, Emoji.ofUnicode(RIGHT_ARROW)));
+
             actionMap.put(LEFT_ARROW, (aliasEntity, r) -> leftMove(allArtistImages, counter, r, true));
             actionMap.put(RIGHT_ARROW, (a, r) -> rightMove(allArtistImages, counter, r, true));
         }
+
         actionMap.put(REPORT, (a, r) -> {
-            if (guildList.contains(r.getUserIdLong())) {
-                db.report(a.getUrlId(), r.getUserIdLong());
+            if (guildList.contains(r.getUser().getIdLong())) {
+                db.report(a.getUrlId(), r.getUser().getIdLong());
             }
-            return false;
+            return () -> new ButtonResult.Result(false, null);
         });
         AtomicInteger size = new AtomicInteger(allArtistImages.size());
 
         if (lastFMData.getRole() == Role.ADMIN) {
+            rows.add(ActionRow.of(Button.danger(CANCEL, Emoji.ofUnicode(CANCEL))));
             AtomicInteger deletedCounter = new AtomicInteger();
             actionMap.put(CANCEL, (a, r) -> {
-                if (r.getUserIdLong() == e.getAuthor().getIdLong()) {
-                    db.removeReportedImage(a.getUrlId(), a.getOwner(), r.getUserIdLong());
+                if (r.getUser().getIdLong() == e.getAuthor().getIdLong()) {
+                    db.removeReportedImage(a.getUrlId(), a.getOwner(), r.getUser().getIdLong());
                     counter.decrementAndGet();
                     allArtistImages.removeIf(ve -> ve.getUrlId() == a.getUrlId());
                     size.decrementAndGet();
@@ -158,10 +174,18 @@ public class VotingCommand extends ConcurrentCommand<ArtistParameters> {
                 else if (counter.get() < i) {
                     leftMove(allArtistImages, counter, r, false);
                 }  // Do nothing
-                return false;
+                return () -> new ButtonResult.Result(false, null);
             });
         }
-        new Validator<>(
+        Button report = Button.danger(REPORT, Emoji.ofUnicode(REPORT));
+
+        if (rows.size() == 2) {
+            rows.get(1).getComponents().add(report);
+        } else {
+            rows.add(ActionRow.of(report));
+        }
+
+        new ButtonValidator<>(
                 finalEmbed -> {
                     VotingEntity first = allArtistImages.stream().max(Comparator.comparingLong(VotingEntity::getVotes)).orElse(allArtistImages.isEmpty() ? null : allArtistImages.get(0));
                     String description;
@@ -204,40 +228,70 @@ public class VotingCommand extends ConcurrentCommand<ArtistParameters> {
                     return allArtistImages.get(counter.get());
                 },
                 builder.apply(e.getJDA(), size, counter)
-                , embedBuilder, e, e.getAuthor().getIdLong(), actionMap, true, true);
+                , embedBuilder, e, e.getAuthor().getIdLong(), actionMap, rows, true, true);
 
     }
 
     @org.jetbrains.annotations.NotNull
-    private Boolean leftMove(List<VotingEntity> allArtistImages, AtomicInteger counter, MessageReactionAddEvent r, boolean isSame) {
+    private ButtonResult leftMove(List<VotingEntity> allArtistImages, AtomicInteger counter, ButtonClickEvent r, boolean isSame) {
         int i = counter.decrementAndGet();
+        List<ActionRow> rows = r.getMessage().getActionRows();
+        List<Component> arrowLess = rows.get(0).getComponents().stream().filter(z -> !(z.getId().equals(LEFT_ARROW) || z.getId().equals(RIGHT_ARROW))).collect(Collectors.toCollection(ArrayList::new));
+        boolean changed = false;
         if (i == 0) {
-            if (isSame) {
-                r.getReaction().clearReactions().queue();
-            } else {
-                r.getChannel().removeReactionById(r.getMessageId(), LEFT_ARROW).queue();
+            if (i != allArtistImages.size() - 1) {
+                arrowLess.add(Button.primary(RIGHT_ARROW, Emoji.ofUnicode(RIGHT_ARROW)));
             }
+            rows = Stream.concat(Stream.of(ActionRow.of(arrowLess)), rows.stream().skip(1)).toList();
+            changed = true;
         }
         if (i == allArtistImages.size() - 2) {
-            r.getChannel().addReactionById(r.getMessageIdLong(), RIGHT_ARROW).queue();
+            if (i != 0) {
+                arrowLess.add(Button.primary(LEFT_ARROW, Emoji.ofUnicode(LEFT_ARROW)));
+            }
+            arrowLess.add(Button.primary(RIGHT_ARROW, Emoji.ofUnicode(RIGHT_ARROW)));
+            rows = Stream.concat(Stream.of(ActionRow.of(arrowLess)), rows.stream().skip(1)).toList();
+            changed = true;
         }
-        return false;
+        if (!changed) {
+            rows = null;
+        }
+        List<ActionRow> finalActionRows = rows;
+        return () -> new ButtonResult.Result(false, finalActionRows);
     }
 
     @org.jetbrains.annotations.NotNull
-    private Boolean rightMove(List<VotingEntity> allArtistImages, AtomicInteger counter, MessageReactionAddEvent r, boolean isSame) {
+    private ButtonResult rightMove(List<VotingEntity> allArtistImages, AtomicInteger counter, ButtonClickEvent r, boolean isSame) {
+
         int i = counter.incrementAndGet();
-        if (i == allArtistImages.size() - 1) {
-            if (isSame) {
-                r.getReaction().clearReactions().queue();
-            } else {
-                r.getChannel().removeReactionById(r.getMessageId(), RIGHT_ARROW).queue();
-            }
-        }
+
+        List<ActionRow> rows = r.getMessage().getActionRows();
+        List<Component> arrowLess = rows.get(0).getComponents().stream().filter(z -> !(z.getId().equals(LEFT_ARROW) || z.getId().equals(RIGHT_ARROW))).collect(Collectors.toCollection(ArrayList::new));
+        boolean changed = false;
+
         if (i == 1) {
-            r.getChannel().addReactionById(r.getMessageIdLong(), LEFT_ARROW).queue();
+            arrowLess.add(Button.primary(LEFT_ARROW, Emoji.ofUnicode(LEFT_ARROW)));
+            if (i != allArtistImages.size() - 1) {
+                arrowLess.add(Button.primary(RIGHT_ARROW, Emoji.ofUnicode(RIGHT_ARROW)));
+
+            }
+
+            rows = Stream.concat(Stream.of(ActionRow.of(arrowLess)), rows.stream().skip(1)).toList();
+            changed = true;
         }
-        return false;
+
+        if (i == allArtistImages.size() - 1) {
+            arrowLess.add(Button.primary(LEFT_ARROW, Emoji.ofUnicode(LEFT_ARROW)));
+            rows = Stream.concat(Stream.of(ActionRow.of(arrowLess)), rows.stream().skip(1)).toList();
+            changed = true;
+        }
+
+
+        if (!changed) {
+            rows = null;
+        }
+        List<ActionRow> finalActionRows = rows;
+        return () -> new ButtonResult.Result(false, finalActionRows);
     }
 }
 

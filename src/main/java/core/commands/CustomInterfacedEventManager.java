@@ -17,6 +17,7 @@ import net.dv8tion.jda.api.events.guild.member.GuildMemberRemoveEvent;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceJoinEvent;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceLeaveEvent;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceMoveEvent;
+import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
@@ -178,14 +179,18 @@ public class CustomInterfacedEventManager implements IEventManager {
                     }
                 } else if (event instanceof GuildMemberRemoveEvent || event instanceof GuildMemberJoinEvent || event instanceof GuildJoinEvent) {
                     administrativeCommand.onEvent(event);
-                } else if (event instanceof MessageReactionAddEvent e3) {
-                    ConstantListener c = constantListeners.get(e3.getChannel().getIdLong());
-                    if (c != null) {
-                        c.onMessageReactionAdd(e3);
-                        return;
+                } else if ((event instanceof MessageReactionAddEvent) || (event instanceof ButtonClickEvent)) {
+
+                    if (event instanceof MessageReactionAddEvent e3) {
+                        ConstantListener c = constantListeners.get(e3.getChannel().getIdLong());
+                        if (c != null) {
+                            c.onMessageReactionAdd(e3);
+                            return;
+                        }
                     }
+
                     for (ReactionListener listener : reactionaries.keySet()) {
-                        listener.onMessageReactionAdd(e3);
+                        listener.onEvent(event);
                     }
                 } else if (event instanceof GuildVoiceJoinEvent || event instanceof GuildVoiceLeaveEvent || event instanceof GuildVoiceMoveEvent) {
 

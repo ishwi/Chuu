@@ -6,7 +6,9 @@ import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
-import core.otherlisteners.Validator;
+import core.otherlisteners.ReactValidator;
+import core.otherlisteners.Reaction;
+import core.otherlisteners.ReactionResult;
 import core.parsers.NoOpParser;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
@@ -115,18 +117,18 @@ public class UrlQueueReview extends ConcurrentCommand<CommandParameters> {
         Set<Long> skippedIds = new HashSet<>();
         try {
             int totalReports = db.getQueueUrlCount();
-            HashMap<String, BiFunction<ImageQueue, MessageReactionAddEvent, Boolean>> actionMap = new LinkedHashMap<>();
+            HashMap<String, Reaction<ImageQueue, MessageReactionAddEvent, ReactionResult>> actionMap = new LinkedHashMap<>();
             actionMap.put(DELETE, (reportEntity, r) -> {
                 db.rejectQueuedImage(reportEntity.queuedId(), reportEntity);
                 statDeclined.getAndIncrement();
                 navigationCounter.incrementAndGet();
-                return false;
+                return () -> false;
 
             });
             actionMap.put(RIGHT_ARROW, (a, r) -> {
                 skippedIds.add(a.queuedId());
                 navigationCounter.incrementAndGet();
-                return false;
+                return () -> false;
             });
             actionMap.put(ACCEPT, (a, r) -> {
                 long id = db.acceptImageQueue(a.queuedId(), a.url(), a.artistId(), a.uploader());
@@ -148,7 +150,7 @@ public class UrlQueueReview extends ConcurrentCommand<CommandParameters> {
                 }
                 statAccepeted.getAndIncrement();
                 navigationCounter.incrementAndGet();
-                return false;
+                return () -> false;
             });
 
             actionMap.put(STRIKE, (a, r) -> {
@@ -161,9 +163,9 @@ public class UrlQueueReview extends ConcurrentCommand<CommandParameters> {
                 }
                 statDeclined.getAndIncrement();
                 navigationCounter.incrementAndGet();
-                return false;
+                return () -> false;
             });
-            new Validator<>(
+            new ReactValidator<>(
                     finalEmbed -> {
                         int reportCount = db.getQueueUrlCount();
                         String description = (navigationCounter.get() == 0) ? null :

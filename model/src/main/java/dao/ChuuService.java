@@ -3341,14 +3341,20 @@ public class ChuuService implements EveryNoiseService {
         }
     }
 
+    public void insertAlbumOfYear(AlbumInfo foundByYear, Year year) {
+        try (Connection connection = dataSource.getConnection()) {
+            albumDao.insertAlbumOfYear(connection, foundByYear, year);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
     public void insertAlbumsOfYear(List<AlbumInfo> foundByYear, Year year) {
         try (Connection connection = dataSource.getConnection()) {
             albumDao.insertAlbumsOfYear(connection, foundByYear, year);
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }
-
-
     }
 
 

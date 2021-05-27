@@ -71,7 +71,7 @@ dependencies {
     implementation 'com.neovisionaries:nv-i18n:1.28'
     implementation 'com.github.natanbc:java-eval:1.0'
     implementation group: 'com.google.guava', name: 'guava', version: '30.1.1-jre'
-    implementation("com.github.DV8FromTheWorld:JDA:db92d7d669a639a225f5ee831a83bb36f30a4b13")
+    implementation("com.github.DV8FromTheWorld:JDA:f9578019ce5c7a5446cfdf1cf14677a07e7c6a4c")
     implementation group: 'org.jsoup', name: 'jsoup', version: '1.13.1'
 
 //    implementation('net.dv8tion:JDA:4.2.1_255')

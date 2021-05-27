@@ -3,6 +3,8 @@ package core.otherlisteners;
 import core.commands.Context;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.events.GenericEvent;
+import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.requests.RestAction;
 
@@ -17,21 +19,22 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
 
-public class Validator<T> extends ReactionListener {
+public class ReactValidator<T> extends ReactionListener {
 
     private final Function<EmbedBuilder, EmbedBuilder> getLastMessage;
     private final Supplier<T> elementFetcher;
     private final BiFunction<T, EmbedBuilder, EmbedBuilder> fillBuilder;
     private final long whom;
     private final Context context;
-    private final Map<String, BiFunction<T, MessageReactionAddEvent, Boolean>> actionMap;
+    private final Map<String, Reaction<T, MessageReactionAddEvent, ReactionResult>> actionMap;
     private final boolean allowOtherUsers;
     private final boolean renderInSameElement;
     private final Queue<MessageReactionAddEvent> tbp = new LinkedBlockingDeque<>();
     private final AtomicBoolean hasCleaned = new AtomicBoolean(false);
     private T currentElement;
 
-    public Validator(UnaryOperator<EmbedBuilder> getLastMessage, Supplier<T> elementFetcher, BiFunction<T, EmbedBuilder, EmbedBuilder> fillBuilder, EmbedBuilder who, Context context, long discordId, Map<String, BiFunction<T, MessageReactionAddEvent, Boolean>> actionMap, boolean allowOtherUsers, boolean renderInSameElement) {
+    public ReactValidator(UnaryOperator<EmbedBuilder> getLastMessage, Supplier<T> elementFetcher, BiFunction<T, EmbedBuilder, EmbedBuilder> fillBuilder, EmbedBuilder who, Context context, long discordId,
+                          Map<String, Reaction<T, MessageReactionAddEvent, ReactionResult>> actionMap, boolean allowOtherUsers, boolean renderInSameElement) {
         super(who, null, 30, context.getJDA());
         this.getLastMessage = getLastMessage;
         this.elementFetcher = elementFetcher;
@@ -72,7 +75,7 @@ public class Validator<T> extends ReactionListener {
         RestAction.allOf(reacts).queue();
     }
 
-    private RestAction<Message> doTheThing(boolean newElement) {
+    private RestAction<Message> doTheThing(ReactionResult newElement) {
         T t = elementFetcher.get();
         if (t == null) {
             noMoreElements();
@@ -82,9 +85,9 @@ public class Validator<T> extends ReactionListener {
         return dotheLogicThing(t, newElement);
     }
 
-    private RestAction<Message> dotheLogicThing(T t, boolean newElement) {
+    private RestAction<Message> dotheLogicThing(T t, ReactionResult newElement) {
         EmbedBuilder apply = fillBuilder.apply(t, who);
-        if (newElement || this.message == null) {
+        if (newElement.newResult() || this.message == null) {
             return context.sendMessage(apply.build());
         }
         return this.message.editMessage(apply.build());
@@ -93,7 +96,7 @@ public class Validator<T> extends ReactionListener {
 
     @Override
     public void init() {
-        RestAction<Message> messageAction = doTheThing(true);
+        RestAction<Message> messageAction = doTheThing(() -> true);
         if (messageAction == null) {
             return;
         }
@@ -113,6 +116,13 @@ public class Validator<T> extends ReactionListener {
     }
 
     @Override
+    public void onEvent(@Nonnull GenericEvent event) {
+        if (event instanceof MessageReactionAddEvent e) {
+            onMessageReactionAdd(e);
+        }
+    }
+
+    @Override
     public void onMessageReactionAdd(@Nonnull MessageReactionAddEvent event) {
         if (this.message == null) {
             return;
@@ -120,13 +130,13 @@ public class Validator<T> extends ReactionListener {
         if (event.getMessageIdLong() != message.getIdLong() || (!this.allowOtherUsers && event.getUserIdLong() != whom) ||
             event.getUserIdLong() == event.getJDA().getSelfUser().getIdLong() || !event.getReaction().getReactionEmote().isEmoji())
             return;
-        BiFunction<T, MessageReactionAddEvent, Boolean> action = this.actionMap.get(event.getReaction().getReactionEmote().getAsCodepoints());
+        Reaction<T, MessageReactionAddEvent, ReactionResult> action = this.actionMap.get(event.getReaction().getReactionEmote().getAsCodepoints());
         if (action == null)
             return;
-        boolean apply = action.apply(currentElement, event);
+        ReactionResult apply = action.release(currentElement, event);
         RestAction<Message> messageAction = this.doTheThing(apply);
         if (messageAction != null) {
-            if (apply) {
+            if (apply.newResult()) {
                 messageAction.queue(this::accept);
             } else if (event.getUser() != null) {
                 clearOneReact(event);
@@ -138,6 +148,10 @@ public class Validator<T> extends ReactionListener {
             }
         }
         refresh(event.getJDA());
+    }
+
+    @Override
+    public void onButtonClickedEvent(@Nonnull ButtonClickEvent event) {
     }
 
     private void accept(Message mes) {

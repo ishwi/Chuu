@@ -2,6 +2,7 @@ package core.otherlisteners;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 
 import javax.annotation.Nonnull;
@@ -140,6 +141,11 @@ public class Reactionary<T> extends ReactionListener {
         }
 
         refresh(event.getJDA());
+    }
+
+    @Override
+    public void onButtonClickedEvent(@Nonnull ButtonClickEvent event) {
+
     }
 
 }

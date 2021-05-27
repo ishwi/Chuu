@@ -6,7 +6,9 @@ import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
-import core.otherlisteners.Validator;
+import core.otherlisteners.ReactValidator;
+import core.otherlisteners.Reaction;
+import core.otherlisteners.ReactionResult;
 import core.parsers.NoOpParser;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
@@ -83,7 +85,7 @@ public class AliasReviewCommand extends ConcurrentCommand<CommandParameters> {
 
         try {
 
-            HashMap<String, BiFunction<AliasEntity, MessageReactionAddEvent, Boolean>> actionMap = new HashMap<>();
+            HashMap<String, Reaction<AliasEntity, MessageReactionAddEvent, ReactionResult>> actionMap = new HashMap<>();
             actionMap.put("U+2714", (aliasEntity, r) -> {
                 try {
                     db.addAlias(aliasEntity.getAlias(), aliasEntity.getArtistId());
@@ -99,7 +101,7 @@ public class AliasReviewCommand extends ConcurrentCommand<CommandParameters> {
                         //Doesnt exists on the server
                     }
                 }
-                return true;
+                return () -> true;
 
             });
             actionMap.put("U+274c", (a, r) -> {
@@ -108,9 +110,9 @@ public class AliasReviewCommand extends ConcurrentCommand<CommandParameters> {
                 } catch (InstanceNotFoundException e1) {
                     Chuu.getLogger().error(e1.getMessage());
                 }
-                return true;
+                return () -> true;
             });
-            new Validator<>(
+            new ReactValidator<>(
                     embedBuilder1 -> embedBuilder.setTitle("No more  Aliases to Review").clearFields(),
                     db::getNextInAliasQueue,
                     builder

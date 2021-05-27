@@ -5,6 +5,7 @@ import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
+import core.commands.utils.CommandUtil;
 import core.otherlisteners.Confirmator;
 import core.otherlisteners.util.ConfirmatorItem;
 import core.parsers.NoOpParser;
@@ -16,13 +17,19 @@ import dao.entities.LastFMData;
 import dao.entities.Role;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.Emoji;
 import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.interactions.ActionRow;
+import net.dv8tion.jda.api.interactions.button.Button;
+import net.dv8tion.jda.api.interactions.button.ButtonStyle;
 
 import javax.validation.constraints.NotNull;
 import java.time.Year;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import static net.dv8tion.jda.api.interactions.button.Button.of;
 
 public class TagWithYearCommand extends ConcurrentCommand<CommandParameters> {
 
@@ -96,27 +103,35 @@ public class TagWithYearCommand extends ConcurrentCommand<CommandParameters> {
         EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e)
                 .setTitle("Year confirmation")
                 .setDescription(String.format("%s, want to tag the album **%s** of **%s** with the year **%s**?", userString, album, artist, year));
-        List<ConfirmatorItem> items = List.of(new ConfirmatorItem("\u2714", who -> {
+        List<ConfirmatorItem> items = List.of(new ConfirmatorItem("✔", who -> {
             if (lastFMData.getRole() == Role.ADMIN) {
-                return who.clear().setTitle(String.format("%s - %s was tagged as a %s album", artist, album, year));
+                return who.clear().setTitle(String.format("%s - %s was tagged as a %s album", artist, album, year)).setColor(CommandUtil.pastelColor());
             } else {
-                return who.clear().setTitle("Your submission was passed to the mod team");
+                return who.clear().setTitle("Your submission was passed to the mod team").setColor(CommandUtil.pastelColor());
             }
         }, (z) -> {
             if (lastFMData.getRole() == Role.ADMIN) {
-                db.insertAlbumsOfYear(List.of(new AlbumInfo(album, artist)), parse);
+                db.insertAlbumOfYear(new AlbumInfo(album, artist), parse);
             } else {
                 TextChannel textChannelById = Chuu.getShardManager().getTextChannelById(Chuu.channelId);
                 if (textChannelById != null)
                     textChannelById.sendMessage(new ChuuEmbedBuilder(e).setTitle("Year submission")
-                            .setDescription("Artist: **" + artist + "**\nAlbum: **" + album + "**\nYear: **" + year + "**\nAuthor: " + e.getAuthor().getIdLong()).build()).flatMap(q ->
-                            q.addReaction("\u2714").flatMap(t -> q.addReaction("\u274c"))
-                    ).queue();
+                            .setColor(CommandUtil.pastelColor())
+                            .setDescription("Artist: **" + artist + "**\nAlbum: **" + album + "**\nYear: **" + year + "**\nAuthor: " + e.getAuthor().getIdLong()).build())
+                            .setActionRows(ActionRow.of(
+                                    Button.of(ButtonStyle.PRIMARY, "✔", Emoji.ofUnicode("✔")),
+                                    Button.of(ButtonStyle.DANGER, "❌", Emoji.ofUnicode("❌"))
+                                    )
+                            )
+                            .queue();
             }
-        }), new ConfirmatorItem("\u274c", who -> who.clear().setTitle(String.format("Didn't tag %s - %s", artist, album)),
+        }), new ConfirmatorItem("❌", who -> who.clear().setTitle(String.format("Didn't tag %s - %s", artist, album)).setColor(CommandUtil.pastelColor()),
                 (z) -> {
                 }));
-        e.sendMessage(embedBuilder.build())
-                .queue(mes -> new Confirmator(embedBuilder, mes, idLong, items));
+
+        ActionRow of = ActionRow.of(of(ButtonStyle.PRIMARY, "✔", "Submit"),
+                of(ButtonStyle.DANGER, "❌", "Cancel"));
+        e.sendMessage(embedBuilder.build(), List.of(of))
+                .queue(mes -> new Confirmator(embedBuilder, mes, idLong, items, Confirmator.Mode.BUTTON));
     }
 }

@@ -44,7 +44,7 @@ public class GenreDisambiguator {
                     description.append(emote).append(" \u279C ").append(noiseGenre.name()).append("\n");
                 }
                 e.sendMessage(eb.setDescription(description).build())
-                        .queue(message -> new Confirmator(eb, message, e.getAuthor().getIdLong(), reacts, (z) -> z.clear().setDescription("You didn't select any genre!"), false, 50));
+                        .queue(message -> new Confirmator(eb, message, e.getAuthor().getIdLong(), reacts, (z) -> z.clear().setDescription("You didn't select any genre!"), false, 50, Confirmator.Mode.REACTION));
                 return;
             } else
                 theOne = matchingGenre.get(0);

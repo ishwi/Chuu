@@ -6,7 +6,9 @@ import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
-import core.otherlisteners.Validator;
+import core.otherlisteners.ReactValidator;
+import core.otherlisteners.Reaction;
+import core.otherlisteners.ReactionResult;
 import core.parsers.NoOpParser;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
@@ -105,28 +107,28 @@ public class ReportReviewCommand extends ConcurrentCommand<CommandParameters> {
         Set<Long> skippedIds = new HashSet<>();
         try {
             int totalReports = db.getReportCount();
-            HashMap<String, BiFunction<ReportEntity, MessageReactionAddEvent, Boolean>> actionMap = new HashMap<>();
+            HashMap<String, Reaction<ReportEntity, MessageReactionAddEvent, ReactionResult>> actionMap = new HashMap<>();
             actionMap.put(DELETE, (reportEntity, r) -> {
                 db.removeReportedImage(reportEntity.getImageReported(), reportEntity.getWhoGotReported(), idLong);
                 statBan.getAndIncrement();
                 navigationCounter.incrementAndGet();
-                return false;
+                return () -> false;
 
             });
             actionMap.put(ACCEPT, (a, r) -> {
                 db.ignoreReportedImage(a.getImageReported());
                 statIgnore.getAndIncrement();
                 navigationCounter.incrementAndGet();
-                return false;
+                return () -> false;
             });
             actionMap.put(RIGHT_ARROW, (a, r) -> {
                 skippedIds.add(a.getImageReported());
                 navigationCounter.incrementAndGet();
-                return false;
+                return () -> false;
             });
 
 
-            new Validator<>(
+            new ReactValidator<>(
                     finalEmbed -> {
                         int reportCount = db.getReportCount();
                         String description = (navigationCounter.get() == 0) ? null : String.format("You have seen %d %s and decided to delete %d %s and to ignore %d", navigationCounter.get(), CommandUtil.singlePlural(navigationCounter.get(), "image", "images"), statBan.get(), CommandUtil.singlePlural(statBan.get(), "image", "images"), statIgnore.get());

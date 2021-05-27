@@ -8,6 +8,7 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.GenericEvent;
+import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.hooks.EventListener;
 import net.dv8tion.jda.api.hooks.IEventManager;
@@ -45,6 +46,8 @@ public abstract class ReactionListener implements EventListener {
     public void onEvent(@Nonnull GenericEvent event) {
         if (event instanceof MessageReactionAddEvent e) {
             onMessageReactionAdd(e);
+        } else if (event instanceof ButtonClickEvent e) {
+            onButtonClickedEvent(e);
         }
     }
 
@@ -71,6 +74,8 @@ public abstract class ReactionListener implements EventListener {
     public abstract void dispose();
 
     public abstract void onMessageReactionAdd(@Nonnull MessageReactionAddEvent event);
+
+    public abstract void onButtonClickedEvent(@Nonnull ButtonClickEvent event);
 
     public void clearReacts() {
         clearReacts((Void a) -> {

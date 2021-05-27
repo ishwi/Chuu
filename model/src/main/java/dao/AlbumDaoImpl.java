@@ -289,6 +289,22 @@ public class AlbumDaoImpl extends BaseDAO implements AlbumDao {
         return scrobbledAlbums;
     }
 
+    @Override
+    public void insertAlbumOfYear(Connection connection, AlbumInfo albumInfos, Year year) {
+        String sql = "UPDATE album JOIN artist  ON album.artist_id = artist.id SET album.release_year = ?  WHERE (album.album_name = ?  AND artist.name = ?)   ";
+
+
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            preparedStatement.setInt(1, year.getValue());
+            preparedStatement.setString(2, albumInfos.getName());
+            preparedStatement.setString(3, albumInfos.getArtist());
+            preparedStatement.executeUpdate();
+
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+
+    }
 
     @Override
     public void insertAlbumsOfYear(Connection connection, List<AlbumInfo> albumInfos, Year year) {

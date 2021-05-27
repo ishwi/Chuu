@@ -16,11 +16,15 @@ import dao.entities.DiscordUserDisplay;
 import dao.entities.LastFMData;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.interactions.ActionRow;
+import net.dv8tion.jda.api.interactions.button.ButtonStyle;
 
 import javax.validation.constraints.NotNull;
 import java.awt.*;
 import java.util.Collections;
 import java.util.List;
+
+import static net.dv8tion.jda.api.interactions.button.Button.of;
 
 public class UnsetCommand extends ConcurrentCommand<CommandParameters> {
     public UnsetCommand(ServiceView dao) {
@@ -68,10 +72,12 @@ public class UnsetCommand extends ConcurrentCommand<CommandParameters> {
                 .setDescription(String.format("%s, are you sure you want to delete all your info from the bot?", userString));
 
         List<ConfirmatorItem> list = List.of(
-                new ConfirmatorItem("\u2714", who -> who.clear().setTitle(String.format("%s was removed completely from the bot", userString)), (z) -> db.removeUserCompletely(idLong)),
-                new ConfirmatorItem("\u274c", who -> who.clear().setTitle(String.format("Didn't do anything with user %s", userString)), (z) -> {
+                new ConfirmatorItem("\u2714", who -> who.clear().setTitle(String.format("%s was removed completely from the bot", userString)).setColor(Color.RED), (z) -> db.removeUserCompletely(idLong)),
+                new ConfirmatorItem("\u274c", who -> who.clear().setTitle(String.format("Didn't do anything with user %s", userString)).setColor(Color.GREEN), (z) -> {
                 }));
-        e.sendMessage(embedBuilder.build())
-                .queue(message -> new Confirmator(embedBuilder, message, idLong, list));
+        ActionRow of = ActionRow.of(of(ButtonStyle.DANGER, "\u2714", "Delete account"),
+                of(ButtonStyle.PRIMARY, "\u274c", "Don't do anything"));
+        e.sendMessage(embedBuilder.build(), List.of(of))
+                .queue(message -> new Confirmator(embedBuilder, message, idLong, list, Confirmator.Mode.BUTTON));
     }
 }

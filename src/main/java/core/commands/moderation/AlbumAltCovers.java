@@ -7,7 +7,9 @@ import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.exceptions.LastFmException;
-import core.otherlisteners.Validator;
+import core.otherlisteners.ReactValidator;
+import core.otherlisteners.Reaction;
+import core.otherlisteners.ReactionResult;
 import core.parsers.ArtistAlbumParser;
 import core.parsers.Parser;
 import core.parsers.params.ArtistAlbumParameters;
@@ -70,7 +72,7 @@ public class AlbumAltCovers extends ConcurrentCommand<ArtistAlbumParameters> {
             return;
         }
 
-        HashMap<String, BiFunction<String, MessageReactionAddEvent, Boolean>> actionMap = new HashMap<>();
+        HashMap<String, Reaction<String, MessageReactionAddEvent, ReactionResult>> actionMap = new HashMap<>();
         AtomicInteger counter = new AtomicInteger(0);
 
         if (covers.size() > 1) {
@@ -82,7 +84,7 @@ public class AlbumAltCovers extends ConcurrentCommand<ArtistAlbumParameters> {
                 if (i == covers.size() - 2) {
                     r.getChannel().addReactionById(r.getMessageIdLong(), RIGHT_ARROW).queue();
                 }
-                return false;
+                return () -> false;
             });
             actionMap.put(RIGHT_ARROW, (a, r) -> {
                 int i = counter.incrementAndGet();
@@ -92,13 +94,12 @@ public class AlbumAltCovers extends ConcurrentCommand<ArtistAlbumParameters> {
                 if (i == 1) {
                     r.getChannel().addReactionById(r.getMessageIdLong(), LEFT_ARROW).queue();
                 }
-                return false;
+                return () -> false;
             });
         }
 
-        new Validator<>(
+        new ReactValidator<>(
                 finalEmbed -> finalEmbed,
-
                 () -> {
                     if (counter.get() >= covers.size() - 1) {
                         counter.set(covers.size() - 1);

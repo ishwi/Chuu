@@ -5,6 +5,7 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.interactions.ActionRow;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.requests.RestAction;
@@ -89,13 +90,18 @@ public final record ContextSlashReceived(SlashCommandEvent e) implements Context
     }
 
     @Override
+    public RestAction<Message> sendMessage(MessageEmbed embed, List<ActionRow> rows) {
+        return e.getHook().sendMessageEmbeds(embed).addActionRows(rows);
+    }
+
+    @Override
     public RestAction<Message> sendMessage(MessageEmbed embed, User toMention) {
         return e.getHook().sendMessageEmbeds(embed).mention(toMention);
     }
 
     @Override
     public void doSendImage(byte[] img, String format, @Nullable EmbedBuilder embedBuilder) {
-        WebhookMessageAction interactionWebhookAction = e.getHook().sendFile(img, "cat." + format);
+        WebhookMessageAction<Message> interactionWebhookAction = e.getHook().sendFile(img, "cat." + format);
         if (embedBuilder != null) {
             interactionWebhookAction = interactionWebhookAction.addEmbeds(embedBuilder.build());
         }

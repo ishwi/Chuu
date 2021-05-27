@@ -6,6 +6,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.GenericEvent;
+import net.dv8tion.jda.api.interactions.ActionRow;
 import net.dv8tion.jda.api.requests.RestAction;
 
 import javax.annotation.CheckReturnValue;
@@ -50,6 +51,8 @@ public sealed interface Context permits ContextMessageReceived, ContextSlashRece
 
     @CheckReturnValue
     RestAction<Message> sendMessage(MessageEmbed embed);
+
+    RestAction<Message> sendMessage(MessageEmbed embed, List<ActionRow> rows);
 
     default void sendMessageQueue(String content) {
         sendMessage(content).queue();

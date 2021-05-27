@@ -5,6 +5,7 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.interactions.ActionRow;
 import net.dv8tion.jda.api.requests.RestAction;
 import net.dv8tion.jda.api.requests.restaction.MessageAction;
 
@@ -83,6 +84,11 @@ public final record ContextMessageReceived(MessageReceivedEvent e) implements Co
     @Override
     public RestAction<Message> sendMessage(MessageEmbed embed) {
         return e.getChannel().sendMessage(embed);
+    }
+
+    @Override
+    public RestAction<Message> sendMessage(MessageEmbed embed, List<ActionRow> rows) {
+        return e.getChannel().sendMessage(embed).setActionRows(rows);
     }
 
     @Override
