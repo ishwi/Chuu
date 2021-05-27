@@ -4,7 +4,7 @@ plugins {
     id "com.github.johnrengelman.shadow" version "7.0.0"
     id 'info.solidsoft.pitest' version '1.6.0'
     id 'se.patrikerdes.use-latest-versions' version '0.2.16'
-    id 'com.github.ben-manes.versions' version '0.38.0'
+    id 'com.github.ben-manes.versions' version '0.39.0'
 }
 
 repositories {
@@ -28,8 +28,8 @@ apply plugin: 'idea'
 
 mainClassName = "core.Chuu"
 
-group 'ish'
-version '1.1'
+group 'org.ish'
+version '1.1.0'
 apply plugin: 'java'
 
 sourceCompatibility = 16
@@ -71,7 +71,7 @@ dependencies {
     implementation 'com.neovisionaries:nv-i18n:1.28'
     implementation 'com.github.natanbc:java-eval:1.0'
     implementation group: 'com.google.guava', name: 'guava', version: '30.1.1-jre'
-    implementation("com.github.DV8FromTheWorld:JDA:f9578019ce5c7a5446cfdf1cf14677a07e7c6a4c")
+    implementation("com.github.DV8FromTheWorld:JDA:402ee633353f6e1b914319f10f2d8aac572f4f91")
     implementation group: 'org.jsoup', name: 'jsoup', version: '1.13.1'
 
 //    implementation('net.dv8tion:JDA:4.2.1_255')
@@ -108,7 +108,7 @@ dependencies {
     testImplementation "org.mockito:mockito-core:3.10.0"
     testImplementation group: 'junit', name: 'junit', version: '4.13.2'
 
-    testImplementation group: 'org.openjdk.jmh', name: 'jmh-core', version: '1.31'
+    testImplementation group: 'org.openjdk.jmh', name: 'jmh-core', version: '1.32'
     testAnnotationProcessor group: 'org.openjdk.jmh', name: 'jmh-generator-annprocess', version: '1.29'
 
 
