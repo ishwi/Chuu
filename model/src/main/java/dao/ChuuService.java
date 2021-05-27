@@ -642,7 +642,7 @@ public class ChuuService implements EveryNoiseService {
         removeFromGuild(discordID, guildID);
         MultiValuedMap<Long, Long> map = getMapGuildUsers();
         if (!map.containsValue(discordID)) {
-            logger.info("No longer sharing any server with user {} : %n removing user", discordID);
+            logger.info("No longer sharing any server with user {}:  removing user", discordID);
             removeUserCompletely(discordID);
         }
     }

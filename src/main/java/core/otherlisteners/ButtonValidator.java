@@ -3,23 +3,30 @@ package core.otherlisteners;
 import core.commands.Context;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
+import net.dv8tion.jda.api.entities.Emoji;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.interactions.ActionRow;
+import net.dv8tion.jda.api.interactions.Component;
+import net.dv8tion.jda.api.interactions.button.Button;
 import net.dv8tion.jda.api.requests.RestAction;
 
 import javax.annotation.Nonnull;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class ButtonValidator<T> extends ReactionListener {
 
@@ -29,11 +36,11 @@ public class ButtonValidator<T> extends ReactionListener {
     private final long whom;
     private final Context context;
     private final Map<String, Reaction<T, ButtonClickEvent, ButtonResult>> actionMap;
-    private final List<ActionRow> actionRows;
     private final boolean allowOtherUsers;
     private final boolean renderInSameElement;
     private final Queue<ButtonClickEvent> tbp = new LinkedBlockingDeque<>();
     private final AtomicBoolean hasCleaned = new AtomicBoolean(false);
+    private List<ActionRow> actionRows;
     private T currentElement;
 
     public ButtonValidator(UnaryOperator<EmbedBuilder> getLastMessage,
@@ -58,6 +65,44 @@ public class ButtonValidator<T> extends ReactionListener {
         this.renderInSameElement = renderInSameElement;
 
         init();
+    }
+
+    @org.jetbrains.annotations.NotNull
+    public static ButtonResult rightMove(int size, AtomicInteger counter, ButtonClickEvent r, boolean isSame) {
+
+        int i = counter.incrementAndGet();
+
+        List<ActionRow> rows = r.getMessage().getActionRows();
+        List<Component> arrowLess = rows.get(0).getComponents().stream().filter(z -> !(z.getId().equals(LEFT_ARROW) || z.getId().equals(RIGHT_ARROW))).collect(Collectors.toCollection(ArrayList::new));
+        arrowLess.add(Button.primary(LEFT_ARROW, Emoji.ofUnicode(LEFT_ARROW)));
+        rows = Stream.concat(Stream.of(ActionRow.of(arrowLess)), rows.stream().skip(1)).toList();
+        if (i != size - 1) {
+            arrowLess.add(Button.primary(RIGHT_ARROW, Emoji.ofUnicode(RIGHT_ARROW)));
+            rows = Stream.concat(Stream.of(ActionRow.of(arrowLess)), rows.stream().skip(1)).toList();
+        }
+        if (i != 1 && i != size - 1) {
+            rows = null;
+        }
+        List<ActionRow> finalActionRows = rows;
+        return () -> new ButtonResult.Result(false, finalActionRows);
+    }
+
+    @org.jetbrains.annotations.NotNull
+    public static ButtonResult leftMove(int size, AtomicInteger counter, ButtonClickEvent r, boolean isSame) {
+        int i = counter.decrementAndGet();
+        List<ActionRow> rows = r.getMessage().getActionRows();
+        List<Component> arrowLess = rows.get(0).getComponents().stream().filter(z -> !(z.getId().equals(LEFT_ARROW) || z.getId().equals(RIGHT_ARROW))).collect(Collectors.toCollection(ArrayList::new));
+
+
+        if (i != 0) {
+            arrowLess.add(Button.primary(LEFT_ARROW, Emoji.ofUnicode(LEFT_ARROW)));
+            rows = Stream.concat(Stream.of(ActionRow.of(arrowLess)), rows.stream().skip(1)).toList();
+        }
+
+        arrowLess.add(Button.primary(RIGHT_ARROW, Emoji.ofUnicode(RIGHT_ARROW)));
+        rows = Stream.concat(Stream.of(ActionRow.of(arrowLess)), rows.stream().skip(1)).toList();
+        List<ActionRow> finalActionRows = rows;
+        return () -> new ButtonResult.Result(false, finalActionRows);
     }
 
     private void clearButtons() {
@@ -85,7 +130,6 @@ public class ButtonValidator<T> extends ReactionListener {
         }
     }
 
-
     private RestAction<Message> doTheThing(ButtonResult newElement) {
         T t = elementFetcher.get();
         if (t == null) {
@@ -99,12 +143,15 @@ public class ButtonValidator<T> extends ReactionListener {
     private RestAction<Message> dotheLogicThing(T t, ButtonResult newElement) {
         EmbedBuilder apply = fillBuilder.apply(t, who);
         ButtonResult.Result result = newElement.newResult();
-        if (result.newElement() || this.message == null) {
-            return context.sendMessage(apply.build(), result.newRows() == null ? actionRows : result.newRows());
+        if (result.newRows() != null) {
+            actionRows = result.newRows();
         }
-        return this.message.editMessage(new MessageBuilder(apply.build()).setActionRows(result.newRows() == null ? actionRows : result.newRows()).build());
-    }
+        if (result.newElement() || this.message == null) {
 
+            return context.sendMessage(apply.build(), actionRows);
+        }
+        return this.message.editMessage(new MessageBuilder(apply.build()).setActionRows(actionRows).build());
+    }
 
     @Override
     public void onEvent(@Nonnull GenericEvent event) {
@@ -127,7 +174,7 @@ public class ButtonValidator<T> extends ReactionListener {
             this.message = z;
             while (!tbp.isEmpty()) {
                 ButtonClickEvent poll = tbp.poll();
-                onButtonClickedEvent(poll);
+                onEvent(poll);
             }
         });
     }

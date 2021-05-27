@@ -78,6 +78,6 @@ public class UnsetCommand extends ConcurrentCommand<CommandParameters> {
         ActionRow of = ActionRow.of(of(ButtonStyle.DANGER, "\u2714", "Delete account"),
                 of(ButtonStyle.PRIMARY, "\u274c", "Don't do anything"));
         e.sendMessage(embedBuilder.build(), List.of(of))
-                .queue(message -> new Confirmator(embedBuilder, message, idLong, list, Confirmator.Mode.BUTTON));
+                .queue(message -> new Confirmator(embedBuilder, message, idLong, list, e.isFromGuild() ? Confirmator.Mode.BUTTON : Confirmator.Mode.REACTION));
     }
 }

@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -159,6 +160,38 @@ public class ReactValidator<T> extends ReactionListener {
             this.message = mes;
             this.initEmotes();
         });
+    }
+
+    @org.jetbrains.annotations.NotNull
+    public static ReactionResult leftMove(int size, AtomicInteger counter, MessageReactionAddEvent r, boolean isSame) {
+        int i = counter.decrementAndGet();
+        if (i == 0) {
+            if (isSame) {
+                r.getReaction().clearReactions().queue();
+            } else {
+                r.getChannel().removeReactionById(r.getMessageId(), LEFT_ARROW).queue();
+            }
+        }
+        if (i == size - 2) {
+            r.getChannel().addReactionById(r.getMessageIdLong(), RIGHT_ARROW).queue();
+        }
+        return () -> false;
+    }
+
+    @org.jetbrains.annotations.NotNull
+    public static ReactionResult rightMove(int size, AtomicInteger counter, MessageReactionAddEvent r, boolean isSame) {
+        int i = counter.incrementAndGet();
+        if (i == size - 1) {
+            if (isSame) {
+                r.getReaction().clearReactions().queue();
+            } else {
+                r.getChannel().removeReactionById(r.getMessageId(), RIGHT_ARROW).queue();
+            }
+        }
+        if (i == 1) {
+            r.getChannel().addReactionById(r.getMessageIdLong(), LEFT_ARROW).queue();
+        }
+        return () -> false;
     }
 
 }

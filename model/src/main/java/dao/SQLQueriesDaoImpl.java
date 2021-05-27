@@ -1477,24 +1477,26 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
 
         String queryString = """
                 WITH popular AS
-                                              (SELECT track_id
-                                               FROM scrobbled_track st
-                                               WHERE st.lastfm_id = ?
-                                               ),
-                                                 indexes AS
-                                              (SELECT popularity,
-                                                      (row_number() OVER (
-                                                                          ORDER BY playnumber DESC)) AS i
-                                               FROM popular
-                                               WHERE  popularity IS NOT NULL
-                                               ), counted AS
-                                              (SELECT count(*) AS tf
-                                               FROM popular)
-                                            SELECT sum( popularity * 2 * (1 - i/counted.tf))/counted.tf AS ord
-                                            FROM indexes
-                                            JOIN counted
-                                            ORDER BY ord DESC
-                """;
+                (
+                        SELECT   track_id,
+                                 playnumber
+                        FROM     scrobbled_track st
+                        WHERE    st.lastfm_id = ?
+                        ORDER BY playnumber DESC ), indexes AS
+                (
+                        SELECT   popularity,
+                                 (ROW_NUMBER() OVER ( ORDER BY playnumber DESC)) AS i
+                        FROM     popular a
+                        JOIN     track b
+                        ON       a.track_id = b.id
+                        WHERE    popularity IS NOT NULL ), counted AS
+                (
+                      SELECT Count(*) AS tf
+                      FROM   popular)
+                SELECT   Sum( popularity * 2 * (1 - i/counted.tf))/counted.tf AS ord
+                FROM     indexes
+                JOIN     counted
+                ORDER BY ord DESC""";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
             preparedStatement.setString(1, lastfmId);
             ResultSet resultSet = preparedStatement.executeQuery();

@@ -70,18 +70,16 @@ public class ObscurityCommand extends ConcurrentCommand<ChuuDataParams> {
     @Override
     protected void onCommand(Context e, @NotNull ChuuDataParams params) {
         String name = params.getLastFMData().getName();
+        CompletableFuture<AudioFeatures> uF = CompletableFuture.supplyAsync(() -> db.getUserFeatures(name));
         double v;
         if (params.hasOptional("refresh")) {
             v = db.processObscurity(name);
         } else {
             v = db.obtainObscurity(name).orElseGet(() -> db.processObscurity(name));
         }
-
         long id = params.getLastFMData().getDiscordId();
         CompletableFuture<String> titleCF = CompletableFuture.supplyAsync(() -> {
             String title = "";
-
-
             if (e.isFromGuild()) {
                 List<LbEntry<Double>> obscurityRankings = db.getObscurityRankings(e.getGuild().getIdLong());
                 for (int i = 0; i < obscurityRankings.size(); i++) {
@@ -93,12 +91,11 @@ public class ObscurityCommand extends ConcurrentCommand<ChuuDataParams> {
             }
             return title;
         });
-        AudioFeatures userFeatures = db.getUserFeatures(name);
         final var avgDanceability = 0.57;
         final var avgEnergy = 0.65;
         final var avgHapinnes = 0.45;
         final var avgAcousticness = 0.22;
-
+        AudioFeatures userFeatures = uF.join();
         EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e);
         String danceStr = str(userFeatures.danceability(), avgDanceability);
         String energyStr = str(userFeatures.energy(), avgEnergy);
@@ -109,7 +106,7 @@ public class ObscurityCommand extends ConcurrentCommand<ChuuDataParams> {
         embedBuilder.setAuthor(e.getGuild().getName() + "'s stats", null, e.getGuild().getIconUrl())
                 .setAuthor(uInfo.getUsername() + "'s obscurity details", PrivacyUtils.getLastFmUser(name), uInfo.getUrlImage())
                 .setTitle(formatter.format(100 - v) + "% obscure" + titleCF.join())
-                .addField("**Happines:** %s%%".formatted(formatter.format(userFeatures.liveness() * 100)), "**" + hapinessStr + "**", false)
+                .addField("**Happinnes:** %s%%".formatted(formatter.format(userFeatures.liveness() * 100)), "**" + hapinessStr + "**", false)
                 .addField("**Energy:** %s%%".formatted(formatter.format(userFeatures.energy() * 100)), "**" + energyStr + "**", false)
                 .addField("**Danceability:** %s%%".formatted(formatter.format(userFeatures.danceability() * 100)), "**" + danceStr + "**", false)
                 .addField("**Acousticness:** %s%%".formatted(formatter.format(userFeatures.acousticness() * 100)), "**" + accStr + "**", false);

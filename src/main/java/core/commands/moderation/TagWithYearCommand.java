@@ -117,7 +117,7 @@ public class TagWithYearCommand extends ConcurrentCommand<CommandParameters> {
                 if (textChannelById != null)
                     textChannelById.sendMessage(new ChuuEmbedBuilder(e).setTitle("Year submission")
                             .setColor(CommandUtil.pastelColor())
-                            .setDescription("Artist: **" + artist + "**\nAlbum: **" + album + "**\nYear: **" + year + "**\nAuthor: " + e.getAuthor().getIdLong()).build())
+                            .setDescription("Artist: **%s**\nAlbum: **%s**\nYear: **%s**\nAuthor: %s".formatted(artist, album, year, e.getAuthor().getAsMention())).build())
                             .setActionRows(ActionRow.of(
                                     Button.of(ButtonStyle.PRIMARY, "✔", Emoji.ofUnicode("✔")),
                                     Button.of(ButtonStyle.DANGER, "❌", Emoji.ofUnicode("❌"))
@@ -132,6 +132,6 @@ public class TagWithYearCommand extends ConcurrentCommand<CommandParameters> {
         ActionRow of = ActionRow.of(of(ButtonStyle.PRIMARY, "✔", "Submit"),
                 of(ButtonStyle.DANGER, "❌", "Cancel"));
         e.sendMessage(embedBuilder.build(), List.of(of))
-                .queue(mes -> new Confirmator(embedBuilder, mes, idLong, items, Confirmator.Mode.BUTTON));
+                .queue(mes -> new Confirmator(embedBuilder, mes, idLong, items, e.isFromGuild() ? Confirmator.Mode.BUTTON : Confirmator.Mode.REACTION));
     }
 }

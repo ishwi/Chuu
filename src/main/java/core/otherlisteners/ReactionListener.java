@@ -17,6 +17,8 @@ import javax.annotation.Nonnull;
 import java.util.function.Consumer;
 
 public abstract class ReactionListener implements EventListener {
+    public static final String RIGHT_ARROW = "➡";
+    public static final String LEFT_ARROW = "⬅";
     private static final String PERMS_MES = "Don't have permissions to clear reactions :(\nYou can still manually remove the reaction\n";
     private static final String DMS_MES = "Can't clear reactions on dm's, please manually remove the reaction\n";
     public final EmbedBuilder who;
@@ -42,6 +44,7 @@ public abstract class ReactionListener implements EventListener {
     }
 
 
+
     @Override
     public void onEvent(@Nonnull GenericEvent event) {
         if (event instanceof MessageReactionAddEvent e) {
@@ -58,7 +61,6 @@ public abstract class ReactionListener implements EventListener {
     void unregister() {
         jda.getEventManager().unregister(this);
     }
-
 
     public void refresh(JDA jda) {
         IEventManager eventManager = jda.getEventManager();
@@ -118,4 +120,6 @@ public abstract class ReactionListener implements EventListener {
     public long getActiveSeconds() {
         return activeSeconds;
     }
+
+
 }
