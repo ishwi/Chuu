@@ -114,7 +114,7 @@ public class ObscurityLeaderboardCommand extends LeaderboardCommand<ChuuDataPara
                     if (lastFMName.equals(params.getLastFMData().getName())) {
                         didUser = true;
                     }
-                    db.obtainObscurity(lastFMName);
+                    db.processObscurity(lastFMName);
                     if (size > 15) {
                         if (Instant.now().isAfter(now.plusMillis(500))) {
                             int finalI = i;
