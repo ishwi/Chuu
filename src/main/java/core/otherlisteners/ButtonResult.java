@@ -1,6 +1,6 @@
 package core.otherlisteners;
 
-import net.dv8tion.jda.api.interactions.ActionRow;
+import net.dv8tion.jda.api.interactions.components.ActionRow;
 
 import java.util.List;
 

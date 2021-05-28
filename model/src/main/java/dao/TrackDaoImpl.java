@@ -396,30 +396,34 @@ public class TrackDaoImpl extends BaseDAO implements TrackDao {
     @Override
     public ResultWrapper<ScrobbledTrack> getGuildTopTracks(Connection connection, Long guildID, int limit, boolean doCount) {
 
-
-        String normalQUery = "SELECT d.name,f.track_name,coalesce(f.url,e.url,d.url) as url,sum(playnumber) AS orden ,e.mbid  ";
-
-        String countQuery = "Select count(*) as orden ";
-
-
-        String queryBody = "FROM  scrobbled_track a use index (scrobbled_track_fk_user)" +
-                           " JOIN user b" +
-                           " ON a.lastfm_id = b.lastfm_id" +
-                           " JOIN artist d " +
-                           " ON a.artist_id = d.id" +
-                           " join track f on a.track_id = f.id " +
-                           " left join album e on f.album_id = e.id ";
-
+        String innerSelect = """
+                (select track_id,playnumber
+                from scrobbled_track a
+                """;
         if (guildID != null) {
-            queryBody += " JOIN  user_guild c" +
-                         " ON b.discord_id=c.discord_id" +
-                         " WHERE c.guild_id = ?";
+            innerSelect += """
+                    join user b on a.lastfm_id = b.lastfm_id
+                    join user_guild c on b.discord_id = c.discord_id
+                    where c.guild_id = ?""";
         }
+        innerSelect += ") main ";
+
+        String normalQUery = """
+                SELECT
+                (SELECT name FROM artist a JOIN track b WHERE b.id = result.track_id) AS name,
+                (SELECT name FROM track WHERE b.id = result.track_id) AS track_name,
+                (SELECT coalesce(f.url,e.url,d.url) FROM track f JOIN artist d ON f.artist_id = d.id LEFT JOIN album e ON f.album_id = e.id) AS url
+                ,orden AS orden
+                FROM (SELECT sum(playnumber) AS orden,track_id FROM ${main} GROUP BY track_id ORDER BY  orden DESC LIMIT ? ) result
+                """.replace("${main}", innerSelect);
+
+        String countQuery = "SELECT count(*) AS orden FROM " + innerSelect;
+
 
         List<ScrobbledTrack> list = new ArrayList<>();
         int count = 0;
         int i = 1;
-        try (PreparedStatement preparedStatement1 = connection.prepareStatement(normalQUery + queryBody + " GROUP BY track_id,url  ORDER BY orden DESC  LIMIT ?")) {
+        try (PreparedStatement preparedStatement1 = connection.prepareStatement(normalQUery)) {
             if (guildID != null)
                 preparedStatement1.setLong(i++, guildID);
 
@@ -442,7 +446,7 @@ public class TrackDaoImpl extends BaseDAO implements TrackDao {
             }
             if (doCount) {
 
-                PreparedStatement preparedStatement = connection.prepareStatement(countQuery + queryBody);
+                PreparedStatement preparedStatement = connection.prepareStatement(countQuery);
                 i = 1;
                 if (guildID != null)
                     preparedStatement.setLong(i, guildID);

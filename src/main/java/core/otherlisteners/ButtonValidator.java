@@ -8,9 +8,9 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
-import net.dv8tion.jda.api.interactions.ActionRow;
-import net.dv8tion.jda.api.interactions.Component;
-import net.dv8tion.jda.api.interactions.button.Button;
+import net.dv8tion.jda.api.interactions.components.ActionRow;
+import net.dv8tion.jda.api.interactions.components.Button;
+import net.dv8tion.jda.api.interactions.components.Component;
 import net.dv8tion.jda.api.requests.RestAction;
 
 import javax.annotation.Nonnull;
@@ -69,9 +69,7 @@ public class ButtonValidator<T> extends ReactionListener {
 
     @org.jetbrains.annotations.NotNull
     public static ButtonResult rightMove(int size, AtomicInteger counter, ButtonClickEvent r, boolean isSame) {
-
         int i = counter.incrementAndGet();
-
         List<ActionRow> rows = r.getMessage().getActionRows();
         List<Component> arrowLess = rows.get(0).getComponents().stream().filter(z -> !(z.getId().equals(LEFT_ARROW) || z.getId().equals(RIGHT_ARROW))).collect(Collectors.toCollection(ArrayList::new));
         arrowLess.add(Button.primary(LEFT_ARROW, Emoji.ofUnicode(LEFT_ARROW)));
@@ -147,7 +145,6 @@ public class ButtonValidator<T> extends ReactionListener {
             actionRows = result.newRows();
         }
         if (result.newElement() || this.message == null) {
-
             return context.sendMessage(apply.build(), actionRows);
         }
         return this.message.editMessage(new MessageBuilder(apply.build()).setActionRows(actionRows).build());

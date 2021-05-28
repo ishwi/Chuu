@@ -5,6 +5,7 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackInfo;
+import core.Chuu;
 import core.music.sources.MetadataTrack;
 import core.music.sources.youtube.webscrobbler.ChuuYoutubeAudioTrack;
 import core.music.sources.youtube.webscrobbler.processers.ChuuAudioTrackInfo;
@@ -58,8 +59,12 @@ public record ScrobbleProcesser(AlbumFinder albumFinder) {
                     ChuuAudioTrackInfo newInfo = cyat.newInfo;
                     inn = inn.fromChuu(newInfo);
                 } else {
-                    AudioTrackInfo process = cyat.process();
-                    inn = inn.fromAudioTrack(cyat.getInfo());
+                    try {
+                        AudioTrackInfo process = cyat.process();
+                        inn = inn.fromAudioTrack(cyat.getInfo());
+                    } catch (Exception e) {
+                        Chuu.getLogger().warn("Error processando song que no estaba proceada {}", cyat, e);
+                    }
                 }
             }
         } else {

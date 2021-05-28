@@ -58,7 +58,7 @@ public class ObscurityLeaderboardCommand extends LeaderboardCommand<ChuuDataPara
 
     @Override
     public String getName() {
-        return "Obscurity";
+        return "Obscurity leaderboard";
     }
 
     @Override

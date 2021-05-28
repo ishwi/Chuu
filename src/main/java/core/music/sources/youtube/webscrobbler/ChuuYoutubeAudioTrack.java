@@ -68,13 +68,14 @@ public class ChuuYoutubeAudioTrack extends YoutubeAudioTrack {
         return isSet.get();
     }
 
-    public AudioTrackInfo process() {
+    public AudioTrackInfo process() throws Exception {
         if (!trackInfo.isStream) {
             if (isSet.compareAndSet(false, false)) {
                 try (HttpInterface httpInterface = sourceManager.getHttpInterface()) {
                     loadBestFormatWithUrl(httpInterface);
                 } catch (Exception e) {
                     Chuu.getLogger().info("Something went wrong loading a track in chuu interceptor: " + e.getMessage(), e);
+                    throw e;
                 }
             }
         }

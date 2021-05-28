@@ -19,9 +19,9 @@ import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Emoji;
 import net.dv8tion.jda.api.entities.TextChannel;
-import net.dv8tion.jda.api.interactions.ActionRow;
-import net.dv8tion.jda.api.interactions.button.Button;
-import net.dv8tion.jda.api.interactions.button.ButtonStyle;
+import net.dv8tion.jda.api.interactions.components.ActionRow;
+import net.dv8tion.jda.api.interactions.components.Button;
+import net.dv8tion.jda.api.interactions.components.ButtonStyle;
 
 import javax.validation.constraints.NotNull;
 import java.time.Year;
@@ -29,7 +29,6 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static net.dv8tion.jda.api.interactions.button.Button.of;
 
 public class TagWithYearCommand extends ConcurrentCommand<CommandParameters> {
 
@@ -129,8 +128,8 @@ public class TagWithYearCommand extends ConcurrentCommand<CommandParameters> {
                 (z) -> {
                 }));
 
-        ActionRow of = ActionRow.of(of(ButtonStyle.PRIMARY, "✔", "Submit"),
-                of(ButtonStyle.DANGER, "❌", "Cancel"));
+        ActionRow of = ActionRow.of(Button.of(ButtonStyle.PRIMARY, "✔", "Submit"),
+                Button.of(ButtonStyle.DANGER, "❌", "Cancel"));
         e.sendMessage(embedBuilder.build(), List.of(of))
                 .queue(mes -> new Confirmator(embedBuilder, mes, idLong, items, e.isFromGuild() ? Confirmator.Mode.BUTTON : Confirmator.Mode.REACTION));
     }

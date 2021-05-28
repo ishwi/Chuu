@@ -2,6 +2,7 @@ package core.commands.moderation;
 
 import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
+import core.commands.abstracts.MyCommand;
 import core.commands.utils.CommandCategory;
 import core.interactions.InteractionBuilder;
 import core.parsers.NoOpParser;
@@ -13,7 +14,11 @@ import net.dv8tion.jda.api.requests.RestAction;
 
 import javax.validation.constraints.NotNull;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
+
+import static java.util.function.Predicate.not;
 
 public class RefreshSlashCommand extends ConcurrentCommand<CommandParameters> {
 
@@ -33,6 +38,7 @@ public class RefreshSlashCommand extends ConcurrentCommand<CommandParameters> {
         noOpParser.addOptional(new OptionalEntity("global", "global refresh"));
         noOpParser.addOptional(new OptionalEntity("delete", "clean this server"));
         noOpParser.addOptional(new OptionalEntity("globaldelete", "clean the bot"));
+        noOpParser.addOptional(new OptionalEntity("missing", "missing"));
         return noOpParser;
     }
 
@@ -63,6 +69,13 @@ public class RefreshSlashCommand extends ConcurrentCommand<CommandParameters> {
                     e.getJDA().retrieveCommands().flatMap(z -> RestAction.allOf(z.stream().map(l -> e.getJDA().deleteCommandById(l.getId())).toList())).queue(z -> sendMessageQueue(e, "Finished the global deletion!"));
                 } else if (params.hasOptional("global")) {
                     InteractionBuilder.setGlobalCommands(e.getJDA()).queue(z -> sendMessageQueue(e, "Finished the global refresh!"));
+                } else if (params.hasOptional("missing")) {
+                    e.sendMessage(e.getJDA().getRegisteredListeners().stream()
+                            .filter(w -> w instanceof MyCommand<?>)
+                            .map(w -> (MyCommand<?>) w)
+                            .sorted(Comparator.comparingInt(w -> w.order))
+                            .filter(not(InteractionBuilder.test))
+                            .map(MyCommand::getName).collect(Collectors.joining(", "))).queue();
                 } else {
                     sendMessageQueue(e, "Nothing done :)");
                 }

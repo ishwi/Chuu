@@ -640,10 +640,14 @@ public class ChuuService implements EveryNoiseService {
 
     public void removeUserFromOneGuildConsequent(long discordID, long guildID) {
         removeFromGuild(discordID, guildID);
-        MultiValuedMap<Long, Long> map = getMapGuildUsers();
-        if (!map.containsValue(discordID)) {
-            logger.info("No longer sharing any server with user {}:  removing user", discordID);
-            removeUserCompletely(discordID);
+        try (Connection connection = dataSource.getConnection()) {
+            List<Long> servers = userGuildDao.guildsFromUser(connection, discordID);
+            if (servers.isEmpty()) {
+                removeUserCompletely(discordID);
+                logger.info("No longer sharing any server with user {}:  removing user", discordID);
+            }
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
         }
     }
 
@@ -692,6 +696,16 @@ public class ChuuService implements EveryNoiseService {
             }
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
+        }
+    }
+
+    public List<Long> getUserGuilds(long guildId) {
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setReadOnly(true);
+            return userGuildDao.guildsFromUser(connection, guildId);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+
         }
     }
 

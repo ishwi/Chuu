@@ -1646,10 +1646,9 @@ public class UserGuildDaoImpl implements UserGuildDao {
                     FROM averages),
                     commands AS (SELECT * FROM command_logs WHERE guild_id = ?),
                     top_command AS (SELECT command,count(*) AS command_count FROM commands GROUP BY command ORDER BY command_count  DESC LIMIT 1)
-                 SELECT counted.tf AS total_servers,
-                        guild_id,
-                        score,
-                        i AS `RANK`,
+                 SELECT (SELECT counted.tf FROM counted) AS total_servers,
+                        (SELECT score FROM averages WHERE guild_id = ?),
+                        coalesce((SELECT i  FROM indexes WHERE guild_id = ?),1) AS `RANK`,
                  
                    (SELECT COUNT(*)
                     FROM users ) AS user_count,
@@ -1677,9 +1676,8 @@ public class UserGuildDaoImpl implements UserGuildDao {
                     FROM vote WHERE discord_id IN (SELECT discord_id FROM user)) vote_count
                  
                  
-                 FROM indexes
-                 JOIN counted
-                 WHERE guild_id = ?""";
+                 FROM dual
+                 """;
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
             preparedStatement.setLong(1, guildId);
             preparedStatement.setLong(2, guildId);
@@ -1700,9 +1698,9 @@ public class UserGuildDaoImpl implements UserGuildDao {
                 long image_count = resultSet.getLong("image_count");
                 long vote_count = resultSet.getLong("vote_count");
                 ObscurityStats obscurityStats = new ObscurityStats(score, rank, total_servers, guildId);
-                return new ServerStats(obscurityStats, user_count, commands_count, top_name, top_name_count, random_count, vote_count, image_count, recommedation_count);
             }
-            throw new ChuuServiceException();
+            return new ServerStats(new ObscurityStats(0, 0, 0, guildId), 0, 0, null, 0, 0, 0, 0, 0);
+
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }

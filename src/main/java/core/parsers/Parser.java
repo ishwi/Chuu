@@ -55,7 +55,7 @@ public abstract class Parser<T extends CommandParameters> {
 
     protected abstract void setUpErrorMessages();
 
-    public T parseMessage(Context e) throws LastFmException, InstanceNotFoundException {
+    public final T parseMessage(Context e) throws LastFmException, InstanceNotFoundException {
         String[] subMessage = getSubMessage(e);
         List<String> subMessageBuilding = new ArrayList<>();
         List<String> optionals = new ArrayList<>();
@@ -85,7 +85,7 @@ public abstract class Parser<T extends CommandParameters> {
         return null;
     }
 
-    public T parseSlash(ContextSlashReceived ctx) throws LastFmException, InstanceNotFoundException {
+    public final T parseSlash(ContextSlashReceived ctx) throws LastFmException, InstanceNotFoundException {
         SlashCommandEvent e = ctx.e();
         List<OptionMapping> strings = e.getOptionsByType(OptionType.STRING);
         List<String> optionals = new ArrayList<>();

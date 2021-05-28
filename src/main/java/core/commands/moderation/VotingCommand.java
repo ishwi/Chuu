@@ -23,9 +23,9 @@ import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.events.interaction.GenericInteractionCreateEvent;
 import net.dv8tion.jda.api.events.message.react.GenericMessageReactionEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
-import net.dv8tion.jda.api.interactions.ActionRow;
-import net.dv8tion.jda.api.interactions.Component;
-import net.dv8tion.jda.api.interactions.button.Button;
+import net.dv8tion.jda.api.interactions.components.ActionRow;
+import net.dv8tion.jda.api.interactions.components.Button;
+import net.dv8tion.jda.api.interactions.components.Component;
 
 import javax.validation.constraints.NotNull;
 import java.time.ZoneOffset;
@@ -199,9 +199,9 @@ public class VotingCommand extends ConcurrentCommand<ArtistParameters> {
             components.add(Button.primary(RIGHT_ARROW, Emoji.ofUnicode(RIGHT_ARROW)));
         }
         if (stringReactionMap.containsKey(CANCEL)) {
-            rows.add(ActionRow.of(Button.danger(CANCEL, Emoji.ofUnicode(CANCEL))));
+            rows.add(ActionRow.of(Button.danger(CANCEL, "Remove").withEmoji(Emoji.ofUnicode(CANCEL))));
         }
-        Button report = Button.danger(REPORT, Emoji.ofUnicode(REPORT));
+        Button report = Button.danger(REPORT, "Report").withEmoji(Emoji.ofUnicode(REPORT));
         if (rows.size() == 2) {
             rows.get(1).getComponents().add(report);
         } else {

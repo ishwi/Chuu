@@ -27,7 +27,7 @@ public class ArtistSearchCommand extends ListCommand<ScrobbledArtist, UserString
 
     @Override
     protected CommandCategory initCategory() {
-        return CommandCategory.USER_STATS;
+        return CommandCategory.DISCOVERY;
     }
 
     @Override

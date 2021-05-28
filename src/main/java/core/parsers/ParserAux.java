@@ -300,8 +300,7 @@ public class ParserAux {
     }
 
     Optional<User> userString(String message, Context e, ChuuService db) throws InstanceNotFoundException {
-        Set<Long> all = db.getAll(e.getGuild().getIdLong()).stream().map(UsersWrapper::getDiscordID).collect(Collectors.toSet());
-        Predicate<Member> isOnServer = member -> member != null && all.stream().anyMatch(x -> x == member.getIdLong());
+        Predicate<Member> isOnServer = Objects::nonNull;
 
         if (discordId.matcher(message).matches()) {
             Member memberById = e.getGuild().getMemberById(message);

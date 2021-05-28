@@ -33,6 +33,16 @@ import java.util.stream.Collectors;
 import static java.util.function.Predicate.not;
 
 public class InteractionBuilder {
+    public static final Predicate<MyCommand<?>> test = t -> {
+        try {
+            t.getParser().parseSlashLogic(null);
+            return true;
+        } catch (UnsupportedOperationException ex) {
+            return false;
+        } catch (Exception e) {
+            return true;
+        }
+    };
     private static final Set<CommandCategory> categorized = Set.of(
             CommandCategory.RYM,
             CommandCategory.BOT_INFO,
@@ -50,7 +60,6 @@ public class InteractionBuilder {
             CommandCategory.DISCOVERY
     );
     private static final Set<Class<? extends MyCommand<?>>> ignored = Set.of(EvalCommand.class, MbidUpdatedCommand.class, RefreshSlashCommand.class);
-
     private static final Set<Class<? extends MyCommand<?>>> timeGrouped =
             Set.of(WastedChartCommand.class,
                     WastedTrackCommand.class,
@@ -62,16 +71,6 @@ public class InteractionBuilder {
                     WastedAlbumChartCommand.class,
                     WeeklyCommand.class,
                     DailyCommand.class);
-    private static final Predicate<MyCommand<?>> test = t -> {
-        try {
-            t.getParser().parseSlashLogic(null);
-            return true;
-        } catch (UnsupportedOperationException ex) {
-            return false;
-        } catch (Exception e) {
-            return true;
-        }
-    };
 
     @CheckReturnValue
     public static CommandUpdateAction setGlobalCommands(JDA jda) {
@@ -95,14 +94,15 @@ public class InteractionBuilder {
                 .toList();
 
         var categoryToCommand = myCommands.stream().collect(Collectors.groupingBy(MyCommand::getCategory));
-        List<CommandData> categoryCommands = categoryToCommand.entrySet().stream().filter(t -> categorized.contains(t.getKey())).map((k) -> k.getValue().stream().reduce(new CommandData(k.getKey().getPrefix(), k.getKey().getDescription()),
+        List<CommandData> categoryCommands = categoryToCommand.entrySet().stream().filter(t -> categorized.contains(t.getKey())).map((k) -> k.getValue().stream().reduce(
+                new CommandData(k.getKey().getPrefix(), k.getKey().getDescription()),
                 (commandData, myCommand) -> {
                     SubcommandData subcommandData = processSubComand(myCommand);
-                    commandData.addSubcommand(subcommandData);
+                    commandData.addSubcommands(subcommandData);
                     return commandData;
                 },
                 (c, d) -> {
-                    d.getSubcommands().forEach(c::addSubcommand);
+                    c.addSubcommands(d.getSubcommands());
                     return c;
                 })).toList();
 
@@ -112,11 +112,11 @@ public class InteractionBuilder {
         CommandData timeCommands = myCommands.stream().filter(t -> timeGrouped.contains(t.getClass())).reduce(new CommandData("time", "Commands that use timed data"),
                 (commandData, myCommand) -> {
                     SubcommandData subcommandData = processSubComand(myCommand);
-                    commandData.addSubcommand(subcommandData);
+                    commandData.addSubcommands(subcommandData);
                     return commandData;
                 },
                 (c, d) -> {
-                    d.getSubcommands().forEach(c::addSubcommand);
+                    c.addSubcommands(d.getSubcommands());
                     return c;
                 });
 
@@ -173,8 +173,8 @@ public class InteractionBuilder {
     private static CommandData processCommand(MyCommand<?> myCommand) {
         CommandData commandData = new CommandData(myCommand.getAliases().get(0), StringUtils.abbreviate(myCommand.getDescription(), 100));
         List<Explanation> usages = myCommand.getParser().getUsages();
-        usages.forEach(t -> t.explanation().options().forEach(commandData::addOption));
-        processOpts(myCommand, commandData::addOption);
+        usages.forEach(t -> commandData.addOptions(t.explanation().options()));
+        processOpts(myCommand, commandData::addOptions);
         return commandData;
     }
 

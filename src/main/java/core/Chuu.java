@@ -164,7 +164,6 @@ public class Chuu {
                 .addEventListeners(evalCommand)
                 .setShardsTotal(-1)
                 .addEventListeners(new AwaitReady(counter, (ShardManager shard) -> {
-                    messageDisablingService = new MessageDisablingService(shard, service);
 
                     if (!startRightAway) {
                         shutDownPreviousInstance(() -> {
@@ -172,6 +171,8 @@ public class Chuu {
                             customManager.isReady = true;
                         });
                     }
+                    messageDisablingService = new MessageDisablingService(shard, service);
+
                     updatePresence("Chuu");
                     if (installGlobalCommands) {
                         InteractionBuilder.setGlobalCommands(shard.getShardById(0)).queue();

@@ -95,7 +95,6 @@ public class StatusProcesser {
             first = overriden.remove(genId(status));
             if (first == null) {
                 CompletableFuture.delayedExecutor(10, TimeUnit.SECONDS).execute(() -> {
-
                     if (statuses.containsKey(genId(status)) || overriden.containsKey(genId(status))) {
                         try {
                             this.processEnd(status);
