@@ -12,9 +12,10 @@ import net.dv8tion.jda.api.hooks.EventListener;
 import javax.annotation.Nonnull;
 import java.time.Year;
 
+import static core.otherlisteners.Reactions.ACCEPT;
+import static core.otherlisteners.Reactions.REJECT;
+
 public record ConstantListener(long channelId, ChuuService service) implements EventListener {
-    private static final String ACCEPT = "U+2714";
-    private static final String REJECT = "U+274c";
 
     @Override
     public void onEvent(@Nonnull GenericEvent event) {
@@ -49,7 +50,7 @@ public record ConstantListener(long channelId, ChuuService service) implements E
                 String artist = split[0].split("Artist: ")[1].replaceAll("\\*\\*", "").trim();
                 String album = split[1].split("Album: ")[1].replaceAll("\\*\\*", "").trim();
                 String year = split[2].split("Year: ")[1].replaceAll("\\*\\*", "").trim();
-                String author = split[3].split("Author: ")[1].replaceAll("\\*\\*", "").trim();
+                String author = split[3].split("Author: ")[1].replaceAll("\\*\\*", "").replaceAll("[<>@!]", "").trim();
                 service.insertAlbumOfYear(new AlbumInfo(album, artist), Year.parse(year));
                 x.delete().flatMap(b ->
                         core.Chuu.getShardManager().retrieveUserById((author))

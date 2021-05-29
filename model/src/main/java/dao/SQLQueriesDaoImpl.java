@@ -2252,7 +2252,8 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
                              " (SELECT COUNT(*) FROM guild) guild_count," +
                              " (SELECT table_rows FROM  information_schema.tables WHERE tables.table_schema = 'lastfm' AND table_name = 'artist') artist_count," +
                              "(SELECT table_rows FROM  information_schema.tables WHERE tables.table_schema = 'lastfm' AND table_name = 'album') album_count," +
-                             "(SELECT SUM(playnumber) FROM scrobbled_artist) scrobbled_count," +
+                             " (SELECT table_rows * 450 FROM  information_schema.tables WHERE tables.table_schema = 'lastfm' AND table_name = 'artist') scrobbled_count," +
+
                              "(SELECT table_rows FROM  information_schema.tables WHERE tables.table_schema = 'lastfm' AND table_name = 'album_rating' ) rym_count," +
                              " (SELECT AVG(rating) FROM album_rating ) rym_avg," +
                              " (SELECT COUNT(*) FROM past_recommendations) recommedation_count," +
@@ -2274,7 +2275,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
                 long scrobbled_count = resultSet.getLong("scrobbled_count");
                 long rym_count = resultSet.getLong("rym_count");
                 double rym_avg = resultSet.getDouble("rym_avg");
-                long recommendation_count = resultSet.getLong("recCount");
+                long recommendation_count = resultSet.getLong("recommedation_count");
                 long correction_count = resultSet.getLong("correction_count");
                 long random_count = resultSet.getLong("random_count");
                 long image_count = resultSet.getLong("image_count");

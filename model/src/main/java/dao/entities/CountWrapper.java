@@ -9,6 +9,7 @@ public class CountWrapper<T> {
         this.result = result;
     }
 
+
     public int getRows() {
         return rows;
     }

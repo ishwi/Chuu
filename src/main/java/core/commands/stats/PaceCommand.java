@@ -39,6 +39,21 @@ public class PaceCommand extends ConcurrentCommand<NumberParameters<NumberParame
 
     }
 
+    public static int getTimestamp(NaturalTimeFrameEnum naturalTimeFrameEnum, UserInfo mainUser, long unitNumber, ZonedDateTime now) {
+        return switch (naturalTimeFrameEnum) {
+            case YEAR -> (int) now.minus(unitNumber, ChronoUnit.YEARS).toEpochSecond();
+            case QUARTER -> (int) now.minus(unitNumber * 4, ChronoUnit.MONTHS).toEpochSecond();
+            case MONTH -> (int) now.minus(unitNumber, ChronoUnit.MONTHS).toEpochSecond();
+            case ALL -> mainUser.getUnixtimestamp();
+            case SEMESTER -> (int) now.minus(unitNumber * 6, ChronoUnit.MONTHS).toEpochSecond();
+            case WEEK -> (int) now.minus(unitNumber, ChronoUnit.WEEKS).toEpochSecond();
+            case DAY -> (int) now.minus(unitNumber, ChronoUnit.DAYS).toEpochSecond();
+            case HOUR -> (int) now.minus(unitNumber, ChronoUnit.HOURS).toEpochSecond();
+            case MINUTE -> (int) now.minus(unitNumber, ChronoUnit.MINUTES).toEpochSecond();
+            case SECOND -> (int) now.minus(unitNumber, ChronoUnit.SECONDS).toEpochSecond();
+        };
+    }
+
     @Override
     protected CommandCategory initCategory() {
         return CommandCategory.USER_STATS;
@@ -123,18 +138,7 @@ public class PaceCommand extends ConcurrentCommand<NumberParameters<NumberParame
         // UTC was not working with last.fm smh
 
         ZonedDateTime now = LocalDateTime.now().atZone(ZoneOffset.ofHours(2));
-        int timestamp = switch (naturalTimeFrameEnum) {
-            case YEAR -> (int) now.minus(unitNumber, ChronoUnit.YEARS).toEpochSecond();
-            case QUARTER -> (int) now.minus(unitNumber * 4, ChronoUnit.MONTHS).toEpochSecond();
-            case MONTH -> (int) now.minus(unitNumber, ChronoUnit.MONTHS).toEpochSecond();
-            case ALL -> mainUser.getUnixtimestamp();
-            case SEMESTER -> (int) now.minus(unitNumber * 6, ChronoUnit.MONTHS).toEpochSecond();
-            case WEEK -> (int) now.minus(unitNumber, ChronoUnit.WEEKS).toEpochSecond();
-            case DAY -> (int) now.minus(unitNumber, ChronoUnit.DAYS).toEpochSecond();
-            case HOUR -> (int) now.minus(unitNumber, ChronoUnit.HOURS).toEpochSecond();
-            case MINUTE -> (int) now.minus(unitNumber, ChronoUnit.MINUTES).toEpochSecond();
-            case SECOND -> (int) now.minus(unitNumber, ChronoUnit.SECONDS).toEpochSecond();
-        };
+        int timestamp = getTimestamp(naturalTimeFrameEnum, mainUser, unitNumber, now);
         int totalScrobbles = lastFM.getInfoPeriod(user, timestamp);
         if (totalScrobbles == 0) {
             sendMessageQueue(e, userString + " hasn't played anything in the last " + unitNumber + " " + naturalTimeFrameEnum.toString().toLowerCase());

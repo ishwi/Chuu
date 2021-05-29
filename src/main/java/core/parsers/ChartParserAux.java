@@ -149,7 +149,7 @@ public class ChartParserAux {
         return getNaturalTimeFrameEnum(defaultTimeFrame);
     }
 
-    TimeFrameEnum parseTimeframe(TimeFrameEnum defaultTimeFrame) {
+    public TimeFrameEnum parseTimeframe(TimeFrameEnum defaultTimeFrame) {
         TimeFrameEnum timeFrame = defaultTimeFrame;
 
         Optional<String> parsed = Arrays.stream(message).filter(s ->

@@ -1,5 +1,6 @@
 package core.otherlisteners;
 
+import core.Chuu;
 import core.commands.Context;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
@@ -27,6 +28,9 @@ import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static core.otherlisteners.Reactions.LEFT_ARROW;
+import static core.otherlisteners.Reactions.RIGHT_ARROW;
 
 public class ButtonValidator<T> extends ReactionListener {
 
@@ -192,6 +196,10 @@ public class ButtonValidator<T> extends ReactionListener {
             return;
         }
         if (event.getMessageIdLong() != message.getIdLong()) {
+            return;
+        }
+        if (event.getMessage() == null) {
+            Chuu.getLogger().warn("Got a null message IdLong => {} | event.getChannel =>  {} | event.button => {} | => event  {} ", event.getMessageIdLong(), event.getChannel(), event.getButton(), event);
             return;
         }
         if (event.getUser() == null)

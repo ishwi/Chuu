@@ -86,7 +86,7 @@ public class AliasReviewCommand extends ConcurrentCommand<CommandParameters> {
         try {
 
             HashMap<String, Reaction<AliasEntity, MessageReactionAddEvent, ReactionResult>> actionMap = new HashMap<>();
-            actionMap.put("U+2714", (aliasEntity, r) -> {
+            actionMap.put("✔", (aliasEntity, r) -> {
                 try {
                     db.addAlias(aliasEntity.getAlias(), aliasEntity.getArtistId());
                     db.deleteAliasById(aliasEntity.getId());
@@ -104,7 +104,9 @@ public class AliasReviewCommand extends ConcurrentCommand<CommandParameters> {
                 return () -> true;
 
             });
-            actionMap.put("U+274c", (a, r) -> {
+
+
+            actionMap.put("❌", (a, r) -> {
                 try {
                     db.deleteAliasById(a.getId());
                 } catch (InstanceNotFoundException e1) {

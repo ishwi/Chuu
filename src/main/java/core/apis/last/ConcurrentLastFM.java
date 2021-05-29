@@ -612,7 +612,7 @@ public class ConcurrentLastFM {//implements LastFMService {
         return returned;
     }
 
-    public int getInfoPeriod(LastFMData username, int timestampQuery) throws LastFmException {
+    public int getInfoPeriod(LastFMData username, long timestampQuery) throws LastFmException {
         String url = BASE + GET_NOW_PLAYINH + username.getName() + apiKey + ENDING + "&extended=1" + "&from=" + (timestampQuery);
         JSONObject obj = doMethod(url, new ExceptionEntity(username.getName()), username);
         obj = obj.getJSONObject("recenttracks");
@@ -1697,7 +1697,9 @@ public class ConcurrentLastFM {//implements LastFMService {
             entity, BiFunction<JSONObject, Integer, UrlCapsule> parser, Queue<UrlCapsule> queue, CustomTimeFrame
                                           customTimeFrame) throws LastFmException {
         int requestedSize = x * y;
-
+        if (from < 0) {
+            from = 0;
+        }
         String apiMethod = entity.getCustomApiMethod();
         String leadingObject = entity.getCustomLeadingObject();
         String arrayObject = entity.getCustomArrayObject();

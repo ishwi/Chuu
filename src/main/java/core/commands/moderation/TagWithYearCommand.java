@@ -29,6 +29,9 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static core.otherlisteners.Reactions.ACCEPT;
+import static core.otherlisteners.Reactions.REJECT;
+
 
 public class TagWithYearCommand extends ConcurrentCommand<CommandParameters> {
 
@@ -118,8 +121,8 @@ public class TagWithYearCommand extends ConcurrentCommand<CommandParameters> {
                             .setColor(CommandUtil.pastelColor())
                             .setDescription("Artist: **%s**\nAlbum: **%s**\nYear: **%s**\nAuthor: %s".formatted(artist, album, year, e.getAuthor().getAsMention())).build())
                             .setActionRows(ActionRow.of(
-                                    Button.of(ButtonStyle.PRIMARY, "✔", Emoji.ofUnicode("✔")),
-                                    Button.of(ButtonStyle.DANGER, "❌", Emoji.ofUnicode("❌"))
+                                    Button.of(ButtonStyle.PRIMARY, ACCEPT, "Accept").withEmoji(Emoji.ofUnicode(ACCEPT)),
+                                    Button.of(ButtonStyle.DANGER, REJECT, "Reject").withEmoji(Emoji.ofUnicode(REJECT))
                                     )
                             )
                             .queue();
@@ -128,9 +131,9 @@ public class TagWithYearCommand extends ConcurrentCommand<CommandParameters> {
                 (z) -> {
                 }));
 
-        ActionRow of = ActionRow.of(Button.of(ButtonStyle.PRIMARY, "✔", "Submit"),
-                Button.of(ButtonStyle.DANGER, "❌", "Cancel"));
+        ActionRow of = ActionRow.of(Button.of(ButtonStyle.PRIMARY, ACCEPT, "Submit"),
+                Button.of(ButtonStyle.DANGER, REJECT, "Cancel"));
         e.sendMessage(embedBuilder.build(), List.of(of))
-                .queue(mes -> new Confirmator(embedBuilder, mes, idLong, items, e.isFromGuild() ? Confirmator.Mode.BUTTON : Confirmator.Mode.REACTION));
+                .queue(mes -> new Confirmator(embedBuilder, mes, idLong, items, Confirmator.Mode.BUTTON));
     }
 }

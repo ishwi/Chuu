@@ -27,6 +27,10 @@ public class ChartUtil {
 
     public static Pair<Long, Long> getFromTo(CustomTimeFrame customTimeFrame) {
         long from, to;
+        if (customTimeFrame.getType() == CustomTimeFrame.Type.NORMAL) {
+            NaturalTimeFrameEnum naturalTimeFrameEnum = NaturalTimeFrameEnum.fromCompletePeriod(customTimeFrame.getTimeFrameEnum().toApiFormat());
+            customTimeFrame = new CustomTimeFrame(naturalTimeFrameEnum, 1);
+        }
         if (customTimeFrame.getType() == CustomTimeFrame.Type.NATURAL) {
             NaturalTimeFrameEnum naturalTimeFrameEnum = customTimeFrame.getNaturalTimeFrameEnum();
             LocalDateTime localDateTime = naturalTimeFrameEnum.toLocalDate(Math.toIntExact(customTimeFrame.getCount()));

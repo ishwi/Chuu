@@ -219,12 +219,12 @@ public class UserConfigCommand extends ConcurrentCommand<UserConfigParameters> {
                     sendMessageQueue(e, "To use one of those settings please use the `" + e.getPrefix() + "npc` command instead.");
                     return;
                 }
-                String[] split = value.replaceAll(" +", " ").split("[|,& ]+");
-                EnumSet<NPMode> modes = EnumSet.noneOf(NPMode.class);
-                for (String mode : split) {
-                    NPMode npMode = NPMode.valueOf(mode.replace("-", "_").toUpperCase());
-                    modes.add(npMode);
+                EnumSet<NPMode> modes = NPModeSetterCommand.mapper.apply(value);
+                if (modes.isEmpty()) {
+                    sendMessageQueue(e, "Couldn't parse any mode. Please to get more info use `" + e.getPrefix() + "npc help`");
+                    return;
                 }
+
                 db.changeNpMode(e.getAuthor().getIdLong(), modes);
                 String strModes = NPMode.getListedName(modes);
                 sendMessageQueue(e, String.format("Successfully changed to the following %s: %s", CommandUtil.singlePlural(modes.size(), "mode", "modes"), strModes));
@@ -263,7 +263,7 @@ public class UserConfigCommand extends ConcurrentCommand<UserConfigParameters> {
                 if (value.toLowerCase(Locale.ROOT).contains("clear")) {
                     chartOpts = ChartOptions.defaultMode();
                 } else {
-                    split = value.replaceAll("--|~~|—", "").replaceAll("\\s+", " ").split("[|,& ]+");
+                    String[] split = value.replaceAll("--|~~|—", "").replaceAll("\\s+", " ").split("[|,& ]+");
                     chartOpts = EnumSet.noneOf(ChartOptions.class);
                     for (String mode : split) {
                         ChartOptions npMode = ChartOptions.valueOf(mode.replace("-", "_").toUpperCase());

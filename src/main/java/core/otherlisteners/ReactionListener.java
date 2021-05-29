@@ -17,8 +17,7 @@ import javax.annotation.Nonnull;
 import java.util.function.Consumer;
 
 public abstract class ReactionListener implements EventListener {
-    public static final String RIGHT_ARROW = "➡";
-    public static final String LEFT_ARROW = "⬅";
+
     private static final String PERMS_MES = "Don't have permissions to clear reactions :(\nYou can still manually remove the reaction\n";
     private static final String DMS_MES = "Can't clear reactions on dm's, please manually remove the reaction\n";
     public final EmbedBuilder who;

@@ -179,16 +179,19 @@ public class CustomInterfacedEventManager implements IEventManager {
                     }
                 } else if (event instanceof GuildMemberRemoveEvent || event instanceof GuildMemberJoinEvent || event instanceof GuildJoinEvent) {
                     administrativeCommand.onEvent(event);
-                } else if ((event instanceof MessageReactionAddEvent) || (event instanceof ButtonClickEvent)) {
-
+                } else if ((event instanceof MessageReactionAddEvent e3) || (event instanceof ButtonClickEvent e4)) {
+                    long channelId;
                     if (event instanceof MessageReactionAddEvent e3) {
-                        ConstantListener c = constantListeners.get(e3.getChannel().getIdLong());
-                        if (c != null) {
-                            c.onMessageReactionAdd(e3);
-                            return;
-                        }
+                        channelId = e3.getChannel().getIdLong();
+                    } else {
+                        ButtonClickEvent e4 = (ButtonClickEvent) event;
+                        channelId = e4.getChannel().getIdLong();
                     }
-
+                    ConstantListener c = constantListeners.get(channelId);
+                    if (c != null) {
+                        c.onEvent(event);
+                        return;
+                    }
                     for (ReactionListener listener : reactionaries.keySet()) {
                         listener.onEvent(event);
                     }

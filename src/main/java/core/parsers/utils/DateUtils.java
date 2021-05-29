@@ -27,7 +27,7 @@ public class DateUtils {
                 new DateTimeFormatterBuilder().parseCaseInsensitive().appendPattern(s)
                         .toFormatter(Locale.UK);
         String[] dayFormats = new String[]{"d, E, EEE"};
-        String[] monthFormats = new String[]{"M", "LLL", "LLLL"};
+        String[] monthFormats = new String[]{"MM", "LLL", "LLLL"};
         String[] yearFormats = new String[]{"yyyy", "y"};
         String[][] formats = new String[][]{dayFormats, monthFormats, yearFormats};
         List<String> flattenFormats = List.of(".", "/", " ");
@@ -38,7 +38,7 @@ public class DateUtils {
             return string;
         };
         Set<String> order = new ListOrderedSet<>();
-        order.add("yyyy/M/d");
+        order.add("yyyy/MM/d");
         order.add("yyyy");
         order.addAll(Arrays.asList(dayFormats));
         order.addAll(Arrays.asList(monthFormats));
@@ -101,6 +101,7 @@ public class DateUtils {
     final BiFunction<String, DateTimeFormatter[], Optional<OffsetDateTime>> matcher = (s, formatArray) ->
             Arrays.stream(formatArray).map(x -> {
                 try {
+
                     TemporalAccessor parse = x.parse(s);
                     int year;
                     int month;
@@ -152,7 +153,7 @@ public class DateUtils {
             return null;
         }
         Optional<OffsetDateTime> apply = matcher.apply(join.trim(), dateTimeFormatters);
-        return new DateParsed(words, apply.orElse(null), OffsetDateTime.now());
+        return new DateParsed(new String[]{}, apply.orElse(null), OffsetDateTime.now());
     }
 
     public DateParsed parseString(String[] words) {

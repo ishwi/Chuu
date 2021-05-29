@@ -410,9 +410,9 @@ public class TrackDaoImpl extends BaseDAO implements TrackDao {
 
         String normalQUery = """
                 SELECT
-                (SELECT name FROM artist a JOIN track b WHERE b.id = result.track_id) AS name,
-                (SELECT name FROM track WHERE b.id = result.track_id) AS track_name,
-                (SELECT coalesce(f.url,e.url,d.url) FROM track f JOIN artist d ON f.artist_id = d.id LEFT JOIN album e ON f.album_id = e.id) AS url
+                (SELECT name FROM artist a JOIN track b ON a.id = b.artist_id WHERE b.id = result.track_id) AS name,
+                (SELECT name FROM track WHERE id = result.track_id) AS track_name,
+                (SELECT coalesce(f.url,e.url,d.url) FROM track f JOIN artist d ON f.artist_id = d.id LEFT JOIN album e ON f.album_id = e.id WHERE f.id = result.track_id) AS url
                 ,orden AS orden
                 FROM (SELECT sum(playnumber) AS orden,track_id FROM ${main} GROUP BY track_id ORDER BY  orden DESC LIMIT ? ) result
                 """.replace("${main}", innerSelect);
@@ -432,9 +432,8 @@ public class TrackDaoImpl extends BaseDAO implements TrackDao {
             ResultSet resultSet1 = preparedStatement1.executeQuery();
 
             while (resultSet1.next()) {
-                String artist = resultSet1.getString("d.name");
-                String album = resultSet1.getString("f.track_name");
-                String mbid = resultSet1.getString("e.mbid");
+                String artist = resultSet1.getString("name");
+                String album = resultSet1.getString("track_name");
 
 
                 String url = resultSet1.getString("url");

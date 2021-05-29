@@ -32,11 +32,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiFunction;
 import java.util.function.Supplier;
 
+import static core.otherlisteners.Reactions.*;
+
 public class UrlQueueReview extends ConcurrentCommand<CommandParameters> {
-    private static final String ACCEPT = "U+2714";
-    private static final String DELETE = "U+1f469U+200dU+2696U+fe0f";
-    private static final String RIGHT_ARROW = "U+27a1";
-    private static final String STRIKE = "U+1f3f3U+fe0f";
+
     private final AtomicBoolean isActive = new AtomicBoolean(false);
 
 
@@ -46,7 +45,7 @@ public class UrlQueueReview extends ConcurrentCommand<CommandParameters> {
                     .addField("Author", CommandUtil.getGlobalUsername(jda, reportEntity.uploader()), true)
                     .addField("# Rejected:", String.valueOf(reportEntity.userRejectedCount()), true)
                     .addField("# Approved:", String.valueOf(reportEntity.count()), true)
-                    .setFooter(String.format("%d/%d%nUse \uD83D\uDC69\u200D\u2696\ufe0f to reject this image", pos.get() + 1, totalCount))
+                    .setFooter(String.format("%d/%d%nUse 👩🏾‍⚖️ to reject this image", pos.get() + 1, totalCount))
                     .setImage(CommandUtil.noImageUrl(reportEntity.url()))
                     .setColor(CommandUtil.pastelColor()));
 

@@ -37,13 +37,9 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
 
+import static core.otherlisteners.Reactions.*;
+
 public class VotingCommand extends ConcurrentCommand<ArtistParameters> {
-    private static final String RIGHT_ARROW = "➡";
-    private static final String LEFT_ARROW = "⬅";
-    private static final String UP_VOTE = "👍";
-    private static final String DOWN_VOTE = "👎";
-    private static final String REPORT = "🚫";
-    private static final String CANCEL = "🏳️";
 
 
     private final TriFunction<JDA, AtomicInteger, AtomicInteger, BiFunction<VotingEntity, EmbedBuilder, EmbedBuilder>> builder = (jda, size, counter) -> (votingEntity, embedBuilder) ->
@@ -153,21 +149,12 @@ public class VotingCommand extends ConcurrentCommand<ArtistParameters> {
             }
             return allArtistImages.get(counter.get());
         };
-        if (e.isFromGuild()) {
-            var result = processButtonActions(e, allArtistImages, lastFMData, counter, size);
-            new ButtonValidator<>(
-                    finisher,
-                    fetcher,
-                    builder.apply(e.getJDA(), size, counter)
-                    , embedBuilder, e, e.getAuthor().getIdLong(), result.map, result.rows, true, true);
-        } else {
-            var result = processReactionActions(e, allArtistImages, lastFMData, counter, size);
-            new ReactValidator<>(
-                    finisher,
-                    fetcher,
-                    builder.apply(e.getJDA(), size, counter)
-                    , embedBuilder, e, e.getAuthor().getIdLong(), result, true, true);
-        }
+        var result = processButtonActions(e, allArtistImages, lastFMData, counter, size);
+        new ButtonValidator<>(
+                finisher,
+                fetcher,
+                builder.apply(e.getJDA(), size, counter)
+                , embedBuilder, e, e.getAuthor().getIdLong(), result.map, result.rows, true, true);
 
     }
 
@@ -189,8 +176,10 @@ public class VotingCommand extends ConcurrentCommand<ArtistParameters> {
                 (ButtonClickEvent r, Boolean t) -> ButtonValidator.rightMove(allArtistImages.size(), counter, r, t),
                 allArtistImages, lastFMData, counter, size);
 
-        ActionRow of = ActionRow.of(Button.primary(UP_VOTE, Emoji.ofUnicode(UP_VOTE)),
-                Button.primary(DOWN_VOTE, Emoji.ofUnicode(DOWN_VOTE)));
+        ActionRow of = ActionRow.of(Button.primary(DOWN_VOTE, Emoji.ofUnicode(DOWN_VOTE)),
+                Button.primary(UP_VOTE, Emoji.ofUnicode(UP_VOTE)),
+                Button.danger(REPORT, "Report").withEmoji(Emoji.ofUnicode(REPORT))
+        );
         List<ActionRow> rows = new ArrayList<>();
         rows.add(of);
         List<Component> components = of.getComponents();
@@ -198,15 +187,10 @@ public class VotingCommand extends ConcurrentCommand<ArtistParameters> {
         if (allArtistImages.size() > 1) {
             components.add(Button.primary(RIGHT_ARROW, Emoji.ofUnicode(RIGHT_ARROW)));
         }
-        if (stringReactionMap.containsKey(CANCEL)) {
-            rows.add(ActionRow.of(Button.danger(CANCEL, "Remove").withEmoji(Emoji.ofUnicode(CANCEL))));
+        if (stringReactionMap.containsKey(STRIKE)) {
+            rows.add(ActionRow.of(Button.danger(STRIKE, "Remove").withEmoji(Emoji.ofUnicode(STRIKE))));
         }
-        Button report = Button.danger(REPORT, "Report").withEmoji(Emoji.ofUnicode(REPORT));
-        if (rows.size() == 2) {
-            rows.get(1).getComponents().add(report);
-        } else {
-            rows.add(ActionRow.of(report));
-        }
+
         return new Result(stringReactionMap, rows);
     }
 
@@ -262,7 +246,7 @@ public class VotingCommand extends ConcurrentCommand<ArtistParameters> {
 
         if (lastFMData.getRole() == Role.ADMIN) {
             AtomicInteger deletedCounter = new AtomicInteger();
-            actionMap.put(CANCEL, (a, r) -> {
+            actionMap.put(STRIKE, (a, r) -> {
                 if (owner.apply(r).getIdLong() == e.getAuthor().getIdLong()) {
                     db.removeReportedImage(a.getUrlId(), a.getOwner(), owner.apply(r).getIdLong());
                     counter.decrementAndGet();

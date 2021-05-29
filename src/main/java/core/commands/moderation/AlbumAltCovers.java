@@ -26,9 +26,12 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiFunction;
 
+import static core.otherlisteners.Reactions.LEFT_ARROW;
+import static core.otherlisteners.Reactions.RIGHT_ARROW;
+
 public class AlbumAltCovers extends ConcurrentCommand<ArtistAlbumParameters> {
-    private static final String RIGHT_ARROW = "U+27a1";
-    private static final String LEFT_ARROW = "U+2b05";
+
+
     private final BiFunction<JDA, Integer, BiFunction<String, EmbedBuilder, EmbedBuilder>> builder = (jda, integer) -> (votingEntity, embedBuilder) ->
             embedBuilder.clearFields()
                     .setImage(CommandUtil.noImageUrl(votingEntity))

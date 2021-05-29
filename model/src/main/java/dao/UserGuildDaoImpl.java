@@ -1647,7 +1647,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
                     commands AS (SELECT * FROM command_logs WHERE guild_id = ?),
                     top_command AS (SELECT command,count(*) AS command_count FROM commands GROUP BY command ORDER BY command_count  DESC LIMIT 1)
                  SELECT (SELECT counted.tf FROM counted) AS total_servers,
-                        (SELECT score FROM averages WHERE guild_id = ?),
+                        (SELECT score FROM averages WHERE guild_id = ?) AS score ,
                         coalesce((SELECT i  FROM indexes WHERE guild_id = ?),1) AS `RANK`,
                  
                    (SELECT COUNT(*)
@@ -1682,24 +1682,25 @@ public class UserGuildDaoImpl implements UserGuildDao {
             preparedStatement.setLong(1, guildId);
             preparedStatement.setLong(2, guildId);
             preparedStatement.setLong(3, guildId);
+            preparedStatement.setLong(4, guildId);
             ResultSet resultSet = preparedStatement.executeQuery();
 
             if (resultSet.next()) {
                 long total_servers = resultSet.getLong("total_servers");
-                long guild_id = resultSet.getLong("guild_id");
                 long score = resultSet.getLong("score");
                 long rank = resultSet.getLong("rank");
                 long user_count = resultSet.getLong("user_count");
                 long commands_count = resultSet.getLong("commands_count");
                 String top_name = resultSet.getString("top_name");
+                top_name = top_name == null ? "Unknown" : top_name;
                 long top_name_count = resultSet.getLong("top_name_count");
                 long recommedation_count = resultSet.getLong("recommedation_count");
                 long random_count = resultSet.getLong("random_count");
                 long image_count = resultSet.getLong("image_count");
                 long vote_count = resultSet.getLong("vote_count");
-                ObscurityStats obscurityStats = new ObscurityStats(score, rank, total_servers, guildId);
+                return new ServerStats(new ObscurityStats(score, rank, total_servers, guildId), user_count, commands_count, top_name, top_name_count, random_count, vote_count, image_count, recommedation_count);
             }
-            return new ServerStats(new ObscurityStats(0, 0, 0, guildId), 0, 0, null, 0, 0, 0, 0, 0);
+            return new ServerStats(new ObscurityStats(0, 0, 0, guildId), 0, 0, "Unknown", 0, 0, 0, 0, 0);
 
         } catch (SQLException e) {
             throw new ChuuServiceException(e);

@@ -34,10 +34,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiFunction;
 import java.util.function.Supplier;
 
+import static core.otherlisteners.Reactions.*;
+
 public class ReportReviewCommand extends ConcurrentCommand<CommandParameters> {
-    private static final String ACCEPT = "U+2714";
-    private static final String DELETE = "U+1f469U+200dU+2696U+fe0f";
-    private static final String RIGHT_ARROW = "U+27a1";
+
+
     private final AtomicBoolean isActive = new AtomicBoolean(false);
 
     private final TriFunction<JDA, Integer, Supplier<Integer>, BiFunction<ReportEntity, EmbedBuilder, EmbedBuilder>> builder = (jda, integer, pos) -> (reportEntity, embedBuilder) ->
@@ -47,7 +48,7 @@ public class ReportReviewCommand extends ConcurrentCommand<CommandParameters> {
                     .addField("Image score:", String.valueOf(reportEntity.getCurrentScore()), false)
                     .addField("Number of reports on this image:", String.valueOf(reportEntity.getReportCount()), true)
                     .addField("Artist:", String.format("[%s](%s)", CommandUtil.escapeMarkdown(reportEntity.getArtistName()), LinkUtils.getLastFmArtistUrl(reportEntity.getArtistName())), false)
-                    .setFooter(String.format("%d/%d%nUse \uD83D\uDC69\u200D\u2696\ufe0f to remove this image", pos.get() + 1, integer))
+                    .setFooter(String.format("%d/%d%nUse 👩🏾‍⚖️ to remove this image", pos.get() + 1, integer))
                     .setImage(CommandUtil.noImageUrl(reportEntity.getUrl()))
                     .setColor(CommandUtil.pastelColor());
 

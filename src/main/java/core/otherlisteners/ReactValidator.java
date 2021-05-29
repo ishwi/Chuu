@@ -20,6 +20,9 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
 
+import static core.otherlisteners.Reactions.LEFT_ARROW;
+import static core.otherlisteners.Reactions.RIGHT_ARROW;
+
 public class ReactValidator<T> extends ReactionListener {
 
     private final Function<EmbedBuilder, EmbedBuilder> getLastMessage;
@@ -131,7 +134,7 @@ public class ReactValidator<T> extends ReactionListener {
         if (event.getMessageIdLong() != message.getIdLong() || (!this.allowOtherUsers && event.getUserIdLong() != whom) ||
             event.getUserIdLong() == event.getJDA().getSelfUser().getIdLong() || !event.getReaction().getReactionEmote().isEmoji())
             return;
-        Reaction<T, MessageReactionAddEvent, ReactionResult> action = this.actionMap.get(event.getReaction().getReactionEmote().getAsCodepoints());
+        Reaction<T, MessageReactionAddEvent, ReactionResult> action = this.actionMap.get(event.getReaction().getReactionEmote().getEmoji());
         if (action == null)
             return;
         ReactionResult apply = action.release(currentElement, event);
