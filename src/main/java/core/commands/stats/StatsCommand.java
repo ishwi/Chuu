@@ -44,17 +44,17 @@ public class StatsCommand extends ConcurrentCommand<StatsParams> {
 
     @Override
     public String getDescription() {
-        return "Several stats grouped";
+        return "Several stats";
     }
 
     @Override
     public List<String> getAliases() {
-        return List.of("stats", "overview", "o");
+        return List.of("overview", "o", "statistics");
     }
 
     @Override
     public String getName() {
-        return "Stats";
+        return "Overview ";
     }
 
     @Override
