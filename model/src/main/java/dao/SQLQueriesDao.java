@@ -267,7 +267,7 @@ interface SQLQueriesDao {
 
     List<ScrobbledTrack> getUserTracksWithTag(Connection connection, long discordId, String genre, int limit);
 
-    List<TrackInfo> getTracksWithTag(Connection connection, List<TrackInfo> tracks, long discordId, String tag);
+    List<TrackInfo> getTracksWithTag(Connection connection, List<Long> tracks, long discordId, String tag);
 
     List<CommandUsage> getUserCommands(Connection connection, long discordId);
 

@@ -2988,9 +2988,13 @@ public class ChuuService implements EveryNoiseService {
         }
     }
 
+
     public List<TrackInfo> getTrackWithTags(List<TrackInfo> tracks, long discordId, String tag) {
         try (Connection connection = dataSource.getConnection()) {
-            return queriesDao.getTracksWithTag(connection, tracks, discordId, tag);
+            List<ScrobbledTrack> list = tracks.stream().map(z -> new ScrobbledTrack(z.getArtist(), z.getTrack(), 0, false, 0, null, null, null)).toList();
+            updaterDao.fillIds(connection, list);
+            trackDao.fillIds(connection, list);
+            return queriesDao.getTracksWithTag(connection, list.stream().map(ScrobbledTrack::getTrackId).toList(), discordId, tag);
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }

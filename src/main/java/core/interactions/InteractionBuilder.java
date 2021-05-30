@@ -164,8 +164,8 @@ public class InteractionBuilder {
     private static SubcommandData processSubComand(MyCommand<?> myCommand) {
         SubcommandData commandData = new SubcommandData(myCommand.getAliases().get(0), StringUtils.abbreviate(myCommand.getDescription(), 100));
         List<Explanation> usages = myCommand.getParser().getUsages();
-        usages.forEach(t -> t.explanation().options().forEach(commandData::addOption));
-        processOpts(myCommand, commandData::addOption);
+        commandData.addOptions(usages.stream().flatMap(t -> t.explanation().options().stream()).toList());
+        processOpts(myCommand, commandData::addOptions);
         return commandData;
     }
 

@@ -1278,25 +1278,25 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
     }
 
     @Override
-    public List<TrackInfo> getTracksWithTag(Connection connection, List<TrackInfo> tracks, long discordId, String tag) {
+    public List<TrackInfo> getTracksWithTag(Connection connection, List<Long> tracks, long discordId, String tag) {
         String queryString = "SELECT a.id as track_id, c.id,track_name,c.name,a.mbid as artist_mbid,c.mbid,a.url,d.playnumber " +
                              "FROM track a " +
                              "join artist c on a.artist_id = c.id " +
                              "join scrobbled_track d on a.id = d.track_id " +
                              "join user e on d.lastfm_id = e.lastfm_id  " +
                              "join  track_tags b on a.id = b.track_id " +
-                             "WHERE (c.name,track_name)  IN (%s) and tag = ? and e.discord_id = ? ";
-        String sql = String.format(queryString, tracks.isEmpty() ? null : prepareINQuery(tracks.size()));
+                             "WHERE (a.id) in (%s) and tag = ? and e.discord_id = ? ";
+        String sql = String.format(queryString, tracks.isEmpty() ? null : prepareSingle(tracks.size()));
         List<TrackInfo> returnInfoes = new ArrayList<>();
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
 
 
             for (int i = 0; i < tracks.size(); i++) {
-                preparedStatement.setString(2 * i + 1, tracks.get(i).getArtist());
-                preparedStatement.setString(2 * i + 2, tracks.get(i).getTrack());
+                preparedStatement.setLong(i + 1, tracks.get(i));
             }
-            preparedStatement.setString(tracks.size() * 2 + 1, tag);
-            preparedStatement.setLong(tracks.size() * 2 + 2, discordId);
+
+            preparedStatement.setString(tracks.size() + 1, tag);
+            preparedStatement.setLong(tracks.size() + 2, discordId);
 
 
             ResultSet resultSet = preparedStatement.executeQuery();
@@ -2919,6 +2919,11 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
     private String prepareINQuery(int size) {
         return String.join(",", Collections.nCopies(size, "(?,?)"));
     }
+
+    private String prepareSingle(int size) {
+        return String.join(",", Collections.nCopies(size, "(?)"));
+    }
+
 
     @Override
     public List<ScrobbledAlbum> getUserAlbumsWithTag(Connection connection, long discordId, String tag, int limit) {

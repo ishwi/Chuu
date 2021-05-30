@@ -64,7 +64,7 @@ interface UpdaterDao {
     void truncateRandomPool(Connection connection);
 
 
-    void fillIds(Connection connection, List<ScrobbledArtist> list);
+    void fillIds(Connection connection, List<? extends ScrobbledArtist> list);
 
     void insertArtistSad(Connection connection, ScrobbledArtist nonExistingId);
 
