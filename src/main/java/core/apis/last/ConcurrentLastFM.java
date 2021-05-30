@@ -254,7 +254,7 @@ public class ConcurrentLastFM {//implements LastFMService {
     public List<ArtistInfo> getTopArtists(LastFMData user, CustomTimeFrame timeframe, int requestedSize) throws LastFmException {
         List<ArtistInfo> returnList = new ArrayList<>();
         TimeFrameEnum timeFrameEnum = timeframe.getTimeFrameEnum();
-        if (timeframe.getType() != CustomTimeFrame.Type.NORMAL) {
+        if (!timeframe.isNormal()) {
             return getCustomT(TopEntity.ARTIST, user, capsule -> new ArtistInfo(null, capsule.getArtistName(), capsule.getMbid()), requestedSize, timeframe);
         }
         if (timeFrameEnum == TimeFrameEnum.DAY) {
@@ -416,7 +416,7 @@ public class ConcurrentLastFM {//implements LastFMService {
 
     public int getChart(LastFMData user, CustomTimeFrame customTimeFrame, int x, int y, TopEntity entity, BiFunction<JSONObject, Integer, UrlCapsule> parser, Queue<UrlCapsule> queue) throws
             LastFmException {
-        if (customTimeFrame.getType() != CustomTimeFrame.Type.NORMAL) {
+        if (!customTimeFrame.isNormal()) {
             return doCustomChart(user, customTimeFrame, x, y, entity, parser, queue);
         }
         TimeFrameEnum timeFrameEnum = customTimeFrame.getTimeFrameEnum();

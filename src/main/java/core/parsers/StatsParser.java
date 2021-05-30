@@ -1,7 +1,6 @@
 package core.parsers;
 
 import core.commands.Context;
-import core.parsers.exceptions.InvalidDateException;
 import core.parsers.explanation.util.Explanation;
 import core.parsers.explanation.util.ExplanationLine;
 import core.parsers.explanation.util.ExplanationLineType;
@@ -10,6 +9,7 @@ import core.parsers.utils.CustomTimeFrame;
 import core.util.stats.Stats;
 import dao.ChuuService;
 import dao.entities.LastFMData;
+import dao.entities.NaturalTimeFrameEnum;
 import dao.entities.NowPlayingArtist;
 import dao.entities.TimeFrameEnum;
 import dao.exceptions.InstanceNotFoundException;
@@ -91,8 +91,13 @@ public class StatsParser extends DaoParser<StatsParams> {
     }
 
     private StatsParams parse(String[] words, Context e, LastFMData data) {
+        ChartParserAux chartParserAux = new ChartParserAux(words);
+        CustomTimeFrame tfe = new CustomTimeFrame(chartParserAux.parseNaturalTimeFrame(NaturalTimeFrameEnum.ALL), 1);
+
+        words = chartParserAux.getMessage();
         String remaining = String.join(" ", Arrays.copyOfRange(words, 0, words.length));
-        Pattern digit = Pattern.compile("^\\s*(\\d+).*");
+
+        Pattern digit = Pattern.compile("^\\s*(\\d+)");
         Pattern artistGx = Pattern.compile("(artist|album|song|track):(.*)");
         Matcher matcher = digit.matcher(remaining);
 
@@ -108,28 +113,20 @@ public class StatsParser extends DaoParser<StatsParams> {
         EnumSet<Stats> artistRank = EnumSet.of(Stats.ARTIST_RANK, Stats.ALBUM_RANK, Stats.SONG_RANK, Stats.ARTIST_PERCENT, Stats.ALBUM_PERCENTAGE, Stats.SONG_PERCENTAGE);
         EnumSet<Stats> modes = building.isEmpty() ? EnumSet.noneOf(Stats.class) : EnumSet.copyOf(building.stream().map(z -> z.mode).collect(Collectors.toSet()));
         modes.removeAll(artistRank);
-        CustomTimeFrame tfe;
         NowPlayingArtist np = null;
-        if (modes.isEmpty()) {
-            ChartParserAux chartParserAux = new ChartParserAux(words, false);
-            tfe = CustomTimeFrame.ofTimeFrameEnum(chartParserAux.parseTimeframe(TimeFrameEnum.ALL));
+        if (modes.isEmpty() && !building.isEmpty()) {
             words = chartParserAux.getMessage();
+            remaining = String.join(" ", words);
             np = parseArtist(words);
         } else {
+
             String artist = String.join(" ", words);
             Matcher artistMatcher = artistGx.matcher(artist);
 
             if (artistMatcher.find()) {
-                np = parseArtist(artistMatcher.group(1).split("\\s+"));
-                artist = artist.replace(artistMatcher.group(1), "");
-                words = artist.split("\\s+");
+                np = parseArtist(artistMatcher.group(2).split("\\s+"));
             }
-            ChartParserAux chartParserAux = new ChartParserAux(words);
-            try {
-                tfe = chartParserAux.parseCustomTimeFrame(TimeFrameEnum.ALL);
-            } catch (InvalidDateException invalidDateException) {
-                tfe = CustomTimeFrame.ofTimeFrameEnum(TimeFrameEnum.ALL);
-            }
+
         }
         if (!remaining.isBlank() && building.isEmpty()) {
             return new StatsParams(e, building, true, data, tfe, globalParam, true, np);

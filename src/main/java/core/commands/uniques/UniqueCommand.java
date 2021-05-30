@@ -73,13 +73,14 @@ public class UniqueCommand extends ConcurrentCommand<ChuuDataParams> {
             a.append(i + 1).append(g.toString());
         }
 
-        DiscordUserDisplay userInfo = CommandUtil.getUserInfoConsideringGuildOrNot(e, resultWrapper.getDiscordId());
+        long discordId = params.getLastFMData().getDiscordId();
+        DiscordUserDisplay userInfo = CommandUtil.getUserInfoConsideringGuildOrNot(e, discordId);
 
 
         EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e).setDescription(a)
                 .setAuthor(String.format("%s's%s unique artists", userInfo.getUsername(), isGlobal() ? " global" : ""), CommandUtil.getLastFmUser(lastFmName), userInfo.getUrlImage())
                 .setDescription(a)
-                .setFooter(String.format("%s has %d%s unique artists!%n", CommandUtil.unescapedUser(userInfo.getUsername(), resultWrapper.getDiscordId(), e), rows, isGlobal() ? " global" : ""), null);
+                .setFooter(String.format("%s has %d%s unique artists!%n", CommandUtil.unescapedUser(userInfo.getUsername(), discordId, e), rows, isGlobal() ? " global" : ""), null);
 
         e.sendMessage(embedBuilder.build()).queue(m ->
                 new Reactionary<>(resultWrapper.getUniqueData(), m, embedBuilder));

@@ -114,11 +114,12 @@ public class GlobalTrackArtistCrownsCommand extends ConcurrentCommand<NumberPara
         }
 
 
+        long discordId = params.getInnerParams().getLastFMData().getDiscordId();
         EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e)
                 .setDescription(a)
                 .setAuthor(String.format("%s's %scrowns", userName, getTitle(scrobbledArtist)), CommandUtil.getLastFmUser(uniqueDataUniqueWrapper.getLastFmId()), userInformation.getUrlImage())
                 .setThumbnail(scrobbledArtist.getUrl())
-                .setFooter(String.format("%s has %d %scrowns!!%n", CommandUtil.unescapedUser(userName, uniqueDataUniqueWrapper.getDiscordId(), e), resultWrapper.size(), getTitle(scrobbledArtist)), null);
+                .setFooter(String.format("%s has %d %scrowns!!%n", CommandUtil.unescapedUser(userName, discordId, e), resultWrapper.size(), getTitle(scrobbledArtist)), null);
         e.sendMessage(embedBuilder.build()).queue(message1 ->
 
                 new Reactionary<>(strings, message1, embedBuilder));

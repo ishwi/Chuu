@@ -108,7 +108,7 @@ public class TasteCommand extends BaseTasteCommand<TwoUsersTimeframeParamaters> 
 
 
                     return new Holder(a, b, score);
-                }).sorted((a, b) -> (int) (b.total - a.total))
+                }).sorted(Comparator.comparingDouble((Holder w) -> w.total).reversed())
                         .map(x -> {
                             UrlCapsule left = x.first;
                             UrlCapsule right = x.second;

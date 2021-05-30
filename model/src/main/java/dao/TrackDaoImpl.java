@@ -828,38 +828,30 @@ public class TrackDaoImpl extends BaseDAO implements TrackDao {
     @Override
     public List<AlbumUserPlays> getServerTopArtistTracks(Connection connection, long guildId, long artistId, int limit) {
         List<AlbumUserPlays> returnList = new ArrayList<>();
-        String mySql = "SELECT sum(a.playnumber) AS ord,b.track_name,d.name,b.url FROM scrobbled_track a JOIN track b ON a.track_id = b.id JOIN user c ON a.lastfm_id = c.lastfm_id" +
-                       " JOIN user_guild e ON c.discord_id = e.discord_id " +
-                       "JOIN artist d ON b.artist_id = d.id  WHERE e.guild_id = ? AND a.artist_id = ?  " +
-                       " GROUP BY a.track_id " +
-                       "ORDER BY ord DESC  LIMIT ? ";
+        String mySql = """
+                SELECT
+                    sum(playnumber) AS ord,
+                    (SELECT track_name FROM track WHERE id = a.id)
+                FROM
+                        (SELECT id FROM track WHERE artist_id = ?) a
+                            JOIN scrobbled_track b ON a.id = b.track_id
+                            JOIN user c ON b.lastfm_id = c.lastfm_id
+                            JOIN user_guild e ON c.discord_id = e.discord_id
+                WHERE
+                    e.guild_id = ?
+                GROUP BY
+                    a.id
+                ORDER BY
+                    ord DESC
+                LIMIT ?
+                """;
         try {
             PreparedStatement preparedStatement = connection.prepareStatement(mySql);
             int i = 1;
+            preparedStatement.setLong(i++, artistId);
             preparedStatement.setLong(i++, guildId);
-            preparedStatement.setLong(i++, artistId);
             processArtistTracks(limit, returnList, preparedStatement, i);
 
-
-        } catch (
-                SQLException e) {
-            throw new ChuuServiceException(e);
-        }
-        return returnList;
-    }
-
-    @Override
-    public List<AlbumUserPlays> getGlobalTopArtistTracks(Connection connection, long artistId, int limit) {
-        List<AlbumUserPlays> returnList = new ArrayList<>();
-        String mySql = "SELECT sum(a.playnumber) AS ord,b.track_name,d.name,b.url FROM scrobbled_track a JOIN track b ON a.track_id = b.id" +
-                       " JOIN artist d ON b.artist_id = d.id  WHERE  a.artist_id = ?" +
-                       " GROUP BY a.track_id " +
-                       "  ORDER BY ord DESC  LIMIT ? ";
-        try {
-            PreparedStatement preparedStatement = connection.prepareStatement(mySql);
-            int i = 1;
-            preparedStatement.setLong(i++, artistId);
-            processArtistTracks(limit, returnList, preparedStatement, i);
         } catch (
                 SQLException e) {
             throw new ChuuServiceException(e);
@@ -873,15 +865,41 @@ public class TrackDaoImpl extends BaseDAO implements TrackDao {
         while (resultSet.next()) {
             int plays = resultSet.getInt(1);
             String trackName = resultSet.getString(2);
-            String artist = resultSet.getString(3);
-            String url = resultSet.getString(4);
-
-            AlbumUserPlays e = new AlbumUserPlays(trackName, url);
-            e.setArtist(artist);
+            AlbumUserPlays e = new AlbumUserPlays(trackName, null);
             e.setPlays(plays);
             returnList.add(e);
         }
     }
+
+    @Override
+    public List<AlbumUserPlays> getGlobalTopArtistTracks(Connection connection, long artistId, int limit) {
+        List<AlbumUserPlays> returnList = new ArrayList<>();
+        String mySql = """
+                SELECT
+                    sum(playnumber) AS ord,
+                    (SELECT track_name FROM track WHERE id = a.id)
+                FROM
+                        (SELECT id FROM track WHERE artist_id = ?) a
+                            JOIN scrobbled_track b ON a.id = b.track_id
+                GROUP BY
+                    a.id
+                ORDER BY
+                    ord DESC
+                LIMIT ?;
+                """;
+        try {
+            PreparedStatement preparedStatement = connection.prepareStatement(mySql);
+            int i = 1;
+            preparedStatement.setLong(i++, artistId);
+            processArtistTracks(limit, returnList, preparedStatement, i);
+        } catch (
+                SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+        return returnList;
+    }
+
+
 
     @Override
     public Map<Genre, Integer> genreCountsByTracks(Connection connection, List<AlbumInfo> albumInfos) {

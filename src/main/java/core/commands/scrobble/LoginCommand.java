@@ -73,86 +73,85 @@ public class LoginCommand extends ConcurrentCommand<CommandParameters> {
         String s = lastFM.generateSessionUrl(authToken);
         boolean finalNotExisting = notExisting;
         LastFMData finalLastFMData = lastFMData;
-        e.getAuthor().openPrivateChannel().queue(t -> {
+        e.getAuthor().openPrivateChannel().queue(t ->
+                t.sendMessage(new ChuuEmbedBuilder(e).setTitle("Last.fm login").setDescription(String.format("**[%s](%s)**", "Follow this link to complete the login", s)).build()).queue(z -> {
+                    sendMessage(e, "Sent you a DM with the login details!").queue();
+                    ScheduledExecutorService scheduledExecutor = Executors.newSingleThreadScheduledExecutor();
+                    AtomicInteger counter = new AtomicInteger();
+                    scheduledExecutor.scheduleWithFixedDelay(() -> {
+                        counter.incrementAndGet();
+                        if (counter.get() >= 25) {
+                            db.storeSess(null, authToken);
+                            scheduledExecutor.shutdown();
+                            z.editMessage(new ChuuEmbedBuilder(e).setTitle("Link expired").setColor(Color.red).build()).queue();
+                        }
 
-            sendMessage(e, "Sent you a DM with the login details!").queue();
-            t.sendMessage(new ChuuEmbedBuilder(e).setTitle("Last.fm login").setDescription(String.format("**[%s](%s)**", "Follow this link to complete the login", s)).build()).queue(z -> {
+                        try {
 
-                ScheduledExecutorService scheduledExecutor = Executors.newSingleThreadScheduledExecutor();
-                AtomicInteger counter = new AtomicInteger();
-                scheduledExecutor.scheduleWithFixedDelay(() -> {
-                    counter.incrementAndGet();
-                    if (counter.get() >= 25) {
-                        db.storeSess(null, authToken);
-                        scheduledExecutor.shutdown();
-                        z.editMessage(new ChuuEmbedBuilder(e).setTitle("Link expired").setColor(Color.red).build()).queue();
-                    }
+                            String session = lastFM.findSession(authToken);
+                            String userAccount = lastFM.findUserAccount(session);
 
-                    try {
-
-                        String session = lastFM.findSession(authToken);
-                        String userAccount = lastFM.findUserAccount(session);
-
-                        if (!finalNotExisting) {
-                            if (userAccount.equalsIgnoreCase(finalLastFMData.getName())) {
-                                db.storeSess(session, finalLastFMData.getName());
-                                z.editMessage(new ChuuEmbedBuilder(e).setColor(Color.green).setTitle(":white_check_mark: Successfully logged in!").build()).queue();
-                                scheduledExecutor.shutdown();
-                                return;
-                            } else {
-                                t.sendMessage("You had previously logged in with a different account. Will reset eveything now").queue();
-                                try {
-                                    db.changeLastFMName(e.getAuthor().getIdLong(), userAccount);
-                                    db.storeSess(session, userAccount);
-                                } catch (DuplicateInstanceException duplicateInstanceException) {
-                                    db.removeUserCompletely(e.getAuthor().getIdLong());
-                                    db.changeDiscordId(e.getAuthor().getIdLong(), userAccount);
-                                    db.storeSess(session, userAccount);
-                                } catch (InstanceNotFoundException duplicateInstanceException) {
-                                    Chuu.getLogger().warn("infe shouldnt happen here {}", duplicateInstanceException.getMessage());
-                                    t.sendMessage("Something unusual happpened, try again later :(").queue();
+                            if (!finalNotExisting) {
+                                if (userAccount.equalsIgnoreCase(finalLastFMData.getName())) {
+                                    db.storeSess(session, finalLastFMData.getName());
+                                    z.editMessage(new ChuuEmbedBuilder(e).setColor(Color.green).setTitle(":white_check_mark: Successfully logged in!").build()).queue();
                                     scheduledExecutor.shutdown();
                                     return;
+                                } else {
+                                    t.sendMessage("You had previously logged in with a different account. Will reset eveything now").queue();
+                                    try {
+                                        db.changeLastFMName(e.getAuthor().getIdLong(), userAccount);
+                                        db.storeSess(session, userAccount);
+                                    } catch (DuplicateInstanceException duplicateInstanceException) {
+                                        db.removeUserCompletely(e.getAuthor().getIdLong());
+                                        db.changeDiscordId(e.getAuthor().getIdLong(), userAccount);
+                                        db.storeSess(session, userAccount);
+                                    } catch (InstanceNotFoundException duplicateInstanceException) {
+                                        Chuu.getLogger().warn("infe shouldnt happen here {}", duplicateInstanceException.getMessage());
+                                        t.sendMessage("Something unusual happpened, try again later :(").queue();
+                                        scheduledExecutor.shutdown();
+                                        return;
+                                    }
+                                    setCommand.setProcess(e, t, userAccount, e.getAuthor().getIdLong(), LastFMData.ofUser(userAccount), e.getAuthor().getName());
+                                    scheduledExecutor.shutdown();
+
                                 }
+                            }
+
+                            LastFMData newUser = LastFMData.ofUser(userAccount);
+                            if (e.isFromGuild()) {
+                                newUser.setGuildID(e.getGuild().getIdLong());
+                            }
+                            try {
+                                db.getDiscordIdFromLastfm(userAccount);
+                                // Exists
+                                db.removeUserCompletely(e.getAuthor().getIdLong());
+                                db.changeDiscordId(e.getAuthor().getIdLong(), userAccount);
+                                db.storeSess(session, userAccount);
+
+                            } catch (InstanceNotFoundException ex) {
+                                newUser.setDiscordId(e.getAuthor().getIdLong());
+                                db.insertNewUser(newUser);
+                                db.storeSess(session, userAccount);
+                                z.editMessage(new ChuuEmbedBuilder(e).setTitle(":white_check_mark: Successfully logged in!").setDescription("Now will try to index your library").setColor(Color.green).build()).queue();
                                 setCommand.setProcess(e, t, userAccount, e.getAuthor().getIdLong(), LastFMData.ofUser(userAccount), e.getAuthor().getName());
                                 scheduledExecutor.shutdown();
-
+                                return;
                             }
-                        }
-
-                        LastFMData newUser = LastFMData.ofUser(userAccount);
-                        if (e.isFromGuild()) {
-                            newUser.setGuildID(e.getGuild().getIdLong());
-                        }
-                        try {
-                            db.getDiscordIdFromLastfm(userAccount);
-                            // Exists
-                            db.removeUserCompletely(e.getAuthor().getIdLong());
-                            db.changeDiscordId(e.getAuthor().getIdLong(), userAccount);
-                            db.storeSess(session, userAccount);
-
-                        } catch (InstanceNotFoundException ex) {
-                            newUser.setDiscordId(e.getAuthor().getIdLong());
-                            db.insertNewUser(newUser);
-                            db.storeSess(session, userAccount);
-                            z.editMessage(new ChuuEmbedBuilder(e).setTitle(":white_check_mark: Successfully logged in!").setDescription("Now will try to index your library").setColor(Color.green).build()).queue();
-                            setCommand.setProcess(e, t, userAccount, e.getAuthor().getIdLong(), LastFMData.ofUser(userAccount), e.getAuthor().getName());
                             scheduledExecutor.shutdown();
-                            return;
+                            z.editMessage(new ChuuEmbedBuilder(e).setTitle(":white_check_mark: Successfully logged in!").setColor(Color.green).build()).queue();
+                        } catch (LastFmException instanceNotFoundException) {
+                            instanceNotFoundException.printStackTrace();
                         }
-                        scheduledExecutor.shutdown();
-                        z.editMessage(new ChuuEmbedBuilder(e).setTitle(":white_check_mark: Successfully logged in!").setColor(Color.green).build()).queue();
-                    } catch (LastFmException instanceNotFoundException) {
-                        instanceNotFoundException.printStackTrace();
-                    }
 
-                }, 20, 30, TimeUnit.SECONDS);
-            });
+                    }, 20, 30, TimeUnit.SECONDS);
+                }, error -> e.getChannel().
 
+                        sendMessage("Cannot send DMs to you. Please enable DMs if you want to use this option").
 
-        }, error -> e.getChannel().
+                        queue()), error -> e.getChannel().
 
-                sendMessage("Cannot send DM's to you. Please enable DMs if you want to use this option").
+                sendMessage("Cannot send DMs to you. Please enable DMs if you want to use this option").
 
                 queue());
 

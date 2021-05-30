@@ -22,6 +22,7 @@ import dao.entities.LastFMData;
 import dao.entities.UserInfo;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.EmbedBuilder;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.validation.constraints.NotNull;
 import java.util.*;
@@ -124,13 +125,15 @@ public class StatsCommand extends ConcurrentCommand<StatsParams> {
 
         Stats.StatsResult result = Stats.process(data, db, lastFM, enumSet, userInfo, totalPlays, timestamp, tfe, aux, params.getNp());
         DiscordUserDisplay uInfo = CommandUtil.getUserInfoUnescaped(e, e.getAuthor().getIdLong());
+        String image = userInfo.getImage();
+        image = StringUtils.isBlank(image) ? null : image;
         EmbedBuilder eb = new ChuuEmbedBuilder(e)
-                .setAuthor(uInfo.getUsername(), PrivacyUtils.getLastFmUser(data.getName()), userInfo.getImage())
+                .setAuthor(uInfo.getUsername(), PrivacyUtils.getLastFmUser(data.getName()), image == null ? uInfo.getUrlImage() : image)
                 .setDescription(result.description())
                 .setFooter(result.footer());
 
         if (enumSet.contains(Stats.ALL)) {
-            eb.setThumbnail(userInfo.getImage());
+            eb.setThumbnail(image);
         }
         e.sendMessage(eb
                 .build()

@@ -16,8 +16,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class HeavyCommandRateLimiter {
 
-    private final static long MAX_SERVER = 15L;
-    private final static long MAX_GLOBAL = 80;
+    private final static long MAX_SERVER = 30L;
+    private final static long MAX_GLOBAL = 100L;
     private final static Map<Long, LocalDateTime> accesibleAgain = new HashMap<>();
     private static final LoadingCache<Long, AtomicInteger> serverCache = CacheBuilder.newBuilder()
             .maximumSize(10000)

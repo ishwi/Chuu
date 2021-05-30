@@ -15,10 +15,7 @@ import net.dv8tion.jda.api.interactions.components.Component;
 import net.dv8tion.jda.api.requests.RestAction;
 
 import javax.annotation.Nonnull;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Queue;
+import java.util.*;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -72,9 +69,9 @@ public class ButtonValidator<T> extends ReactionListener {
     }
 
     @org.jetbrains.annotations.NotNull
-    public static ButtonResult rightMove(int size, AtomicInteger counter, ButtonClickEvent r, boolean isSame) {
+    public static ButtonResult rightMove(int size, AtomicInteger counter, ButtonClickEvent r, boolean isSame, List<ActionRow> baseRows) {
         int i = counter.incrementAndGet();
-        List<ActionRow> rows = r.getMessage().getActionRows();
+        List<ActionRow> rows = baseRows;
         List<Component> arrowLess = rows.get(0).getComponents().stream().filter(z -> !(z.getId().equals(LEFT_ARROW) || z.getId().equals(RIGHT_ARROW))).collect(Collectors.toCollection(ArrayList::new));
         arrowLess.add(Button.primary(LEFT_ARROW, Emoji.ofUnicode(LEFT_ARROW)));
         rows = Stream.concat(Stream.of(ActionRow.of(arrowLess)), rows.stream().skip(1)).toList();
@@ -90,11 +87,10 @@ public class ButtonValidator<T> extends ReactionListener {
     }
 
     @org.jetbrains.annotations.NotNull
-    public static ButtonResult leftMove(int size, AtomicInteger counter, ButtonClickEvent r, boolean isSame) {
+    public static ButtonResult leftMove(int size, AtomicInteger counter, ButtonClickEvent r, boolean isSame, List<ActionRow> baseRows) {
         int i = counter.decrementAndGet();
-        List<ActionRow> rows = r.getMessage().getActionRows();
+        List<ActionRow> rows = baseRows;
         List<Component> arrowLess = rows.get(0).getComponents().stream().filter(z -> !(z.getId().equals(LEFT_ARROW) || z.getId().equals(RIGHT_ARROW))).collect(Collectors.toCollection(ArrayList::new));
-
 
         if (i != 0) {
             arrowLess.add(Button.primary(LEFT_ARROW, Emoji.ofUnicode(LEFT_ARROW)));
@@ -108,7 +104,6 @@ public class ButtonValidator<T> extends ReactionListener {
     }
 
     private void clearButtons() {
-
     }
 
     private void noMoreElements() {
@@ -117,10 +112,10 @@ public class ButtonValidator<T> extends ReactionListener {
             boolean check;
             if (message == null) {
                 check = true;
-                a = context.sendMessage(getLastMessage.apply(who).build());
+                a = context.sendMessage(getLastMessage.apply(who).build(), Collections.emptyList());
             } else {
                 check = false;
-                a = message.editMessage(getLastMessage.apply(who).build());
+                a = message.editMessage(getLastMessage.apply(who).build()).setActionRows(Collections.emptyList());
             }
             a.queue(z -> {
                 if (check) {
@@ -200,7 +195,6 @@ public class ButtonValidator<T> extends ReactionListener {
         }
         if (event.getMessage() == null) {
             Chuu.getLogger().warn("Got a null message IdLong => {} | event.getChannel =>  {} | event.button => {} | => event  {} ", event.getMessageIdLong(), event.getChannel(), event.getButton(), event);
-            return;
         }
         if (event.getUser() == null)
             if (event.getMessageIdLong() != message.getIdLong() || (!this.allowOtherUsers && event.getUser().getIdLong() != whom) ||

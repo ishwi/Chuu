@@ -72,9 +72,6 @@ public class UpdateCommand extends ConcurrentCommand<ChuuDataParams> {
                 sendMessageQueue(e, userString + " is not registered in this server");
                 return;
             }
-        } else if (!db.getUserGuilds(e.getAuthor().getIdLong()).isEmpty()) {
-            sendMessageQueue(e, "You are not registered yet, go to any server and register there!");
-            return;
         }
         boolean removeFlag = true;
         try {

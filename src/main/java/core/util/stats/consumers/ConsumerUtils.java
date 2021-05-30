@@ -107,7 +107,7 @@ public class ConsumerUtils {
                             ? "very low"
                             : ".... really?";
 
-        return "**Breath Index**: %s (%s)".formatted(format.format(rating), ratingString);
+        return "**Breadth rating**: %s (%s)".formatted(format.format(rating), ratingString);
     }
 
     public static String scrobbleAverages(GeneratorUtils.AllCached cached, StatsCtx ctx) {
@@ -348,6 +348,6 @@ public class ConsumerUtils {
         }
     }
 
-    record Range(int start, int end) {
+    private record Range(int start, int end) {
     }
 }

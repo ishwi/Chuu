@@ -49,8 +49,5 @@ public class CacheHandler {
         return consumer.consume(getT(cache.producer(), ctx), ctx);
     }
 
-    public <T> void initCache(StatsGenerator<StatsCtx, T> cacheConsumer, StatsCtx ctx) {
-        getT(cacheConsumer, ctx);
-    }
 
 }

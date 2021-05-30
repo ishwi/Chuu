@@ -79,7 +79,7 @@ public class DiscoveredAlbumCommand extends ChartableCommand<ChartParameters> {
                     x.setPlays(x.getPlays() + y.getPlays());
                     return x;
                 }));
-        List<ScrobbledAlbum> discoveredAlbums = db.getDiscoveredAlbums(albumToItem.keySet(), param.getUser().getName());
+        List<ScrobbledAlbum> discoveredAlbums = db.getDiscoveredAlbums(albumToItem.keySet().stream().toList(), param.getUser().getName());
         marker.set(0);
         queue = albumToItem.entrySet().stream().filter(x -> discoveredAlbums.contains(x.getKey()))
                 .map(Map.Entry::getValue).sorted(Comparator.comparingInt(UrlCapsule::getPlays).reversed())

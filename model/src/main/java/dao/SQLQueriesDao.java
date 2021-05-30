@@ -171,7 +171,7 @@ interface SQLQueriesDao {
 
     List<ScrobbledAlbum> getUserAlbumsWithTag(Connection connection, long discordId, String tag, int limit);
 
-    List<AlbumInfo> getAlbumsWithTag(Connection connection, List<AlbumInfo> albums, long discordId, String tag);
+    List<AlbumInfo> getAlbumsWithTag(Connection connection, List<Long> albums, long discordId, String tag);
 
 
     List<ScrobbledArtist> getUserArtistsWithMBID(Connection connection, String lastfmId);

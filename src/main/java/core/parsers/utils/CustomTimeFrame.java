@@ -73,7 +73,12 @@ public class CustomTimeFrame {
     }
 
     public TimeFrameEnum getTimeFrameEnum() {
-        return timeFrameEnum;
+        if (type == Type.NORMAL) {
+            return timeFrameEnum;
+        } else if (type == Type.NATURAL && isNormal()) {
+            return TimeFrameEnum.fromCompletePeriod(getNaturalTimeFrameEnum().toApiFormat());
+        }
+        return null;
     }
 
     public boolean isNormal() {

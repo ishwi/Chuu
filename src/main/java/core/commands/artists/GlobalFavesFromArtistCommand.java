@@ -37,6 +37,28 @@ public class GlobalFavesFromArtistCommand extends ConcurrentCommand<ArtistParame
         this.spotify = SpotifySingleton.getInstance();
     }
 
+    public static void sendArtistFaves(Context e, ScrobbledArtist who, String validArtist, String lastFmName, List<AlbumUserPlays> songs, String userString, String inWhere) {
+
+        if (songs.isEmpty()) {
+            e.sendMessage("Couldn't find any tracks of " + CommandUtil.escapeMarkdown(who.getArtist()) + " " + inWhere).queue();
+            return;
+        }
+        StringBuilder a = new StringBuilder();
+        List<String> s = songs.stream().map(g -> ". **[" + CommandUtil.escapeMarkdown(g.getAlbum()) + "](" + LinkUtils.getLastFMArtistTrack(validArtist, g.getAlbum()) + ")** - " + g.getPlays() + " plays" +
+                                                 "\n").toList();
+        for (int i = 0; i < s.size() && i < 10; i++) {
+            String sb = s.get(i);
+            a.append(i + 1).append(sb);
+        }
+        EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e)
+                .setDescription(a)
+                .setFooter(userString + " users have listened to " + s.size() + " different " + who.getArtist() + " songs!")
+                .setAuthor(String.format("%s's top %s tracks", userString, who.getArtist()), PrivacyUtils.getLastFmArtistUserUrl(who.getArtist(), lastFmName), e.getJDA().getSelfUser().getAvatarUrl())
+                .setThumbnail(CommandUtil.noImageUrl(who.getUrl()));
+        e.sendMessage(embedBuilder.build()).queue(mes ->
+                new Reactionary<>(s, mes, embedBuilder));
+    }
+
     @Override
     protected CommandCategory initCategory() {
         return CommandCategory.BOT_STATS;
@@ -68,28 +90,16 @@ public class GlobalFavesFromArtistCommand extends ConcurrentCommand<ArtistParame
 
         long userId = params.getLastFMData().getDiscordId();
         String artist = params.getArtist();
+
         ScrobbledArtist who = new ScrobbledArtist(artist, 0, "");
         CommandUtil.validate(db, who, lastFM, discogs, spotify);
+        String validArtist = who.getArtist();
+
         String lastFmName = params.getLastFMData().getName();
+
+
         List<AlbumUserPlays> songs = db.getGlboalTopArtistTracks(who.getArtistId(), Integer.MAX_VALUE);
-        if (songs.isEmpty()) {
-            sendMessageQueue(e, ("Couldn't find any tracks of " + CommandUtil.escapeMarkdown(who.getArtist()) + " in the bot!"));
-            return;
-        }
-        String userString = e.getJDA().getSelfUser().getName();
-        StringBuilder a = new StringBuilder();
-        List<String> s = songs.stream().map(g -> ". **[" + CommandUtil.escapeMarkdown(g.getAlbum()) + "](" + LinkUtils.getLastFMArtistTrack(g.getArtist(), g.getAlbum()) + ")** - " + g.getPlays() + " plays" +
-                                                 "\n").toList();
-        for (int i = 0; i < s.size() && i < 10; i++) {
-            String sb = s.get(i);
-            a.append(i + 1).append(sb);
-        }
-        EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e)
-                .setDescription(a)
-                .setFooter(userString + " users have listened to " + s.size() + " different " + who.getArtist() + " songs!")
-                .setAuthor(String.format("%s's top %s tracks", userString, who.getArtist()), PrivacyUtils.getLastFmArtistUserUrl(who.getArtist(), lastFmName), e.getJDA().getSelfUser().getAvatarUrl())
-                .setThumbnail(CommandUtil.noImageUrl(who.getUrl()));
-        e.sendMessage(embedBuilder.build()).queue(mes ->
-                new Reactionary<>(s, mes, embedBuilder));
+
+        sendArtistFaves(e, who, validArtist, lastFmName, songs, e.getJDA().getSelfUser().getName(), "in the bot!");
     }
 }

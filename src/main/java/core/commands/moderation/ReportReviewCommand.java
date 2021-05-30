@@ -6,9 +6,9 @@ import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
-import core.otherlisteners.ReactValidator;
+import core.otherlisteners.ButtonResult;
+import core.otherlisteners.ButtonValidator;
 import core.otherlisteners.Reaction;
-import core.otherlisteners.ReactionResult;
 import core.parsers.NoOpParser;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
@@ -22,7 +22,10 @@ import dao.exceptions.InstanceNotFoundException;
 import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
-import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
+import net.dv8tion.jda.api.entities.Emoji;
+import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
+import net.dv8tion.jda.api.interactions.components.ActionRow;
+import net.dv8tion.jda.api.interactions.components.Button;
 
 import javax.validation.constraints.NotNull;
 import java.util.HashMap;
@@ -108,28 +111,33 @@ public class ReportReviewCommand extends ConcurrentCommand<CommandParameters> {
         Set<Long> skippedIds = new HashSet<>();
         try {
             int totalReports = db.getReportCount();
-            HashMap<String, Reaction<ReportEntity, MessageReactionAddEvent, ReactionResult>> actionMap = new HashMap<>();
+            HashMap<String, Reaction<ReportEntity, ButtonClickEvent, ButtonResult>> actionMap = new HashMap<>();
             actionMap.put(DELETE, (reportEntity, r) -> {
                 db.removeReportedImage(reportEntity.getImageReported(), reportEntity.getWhoGotReported(), idLong);
                 statBan.getAndIncrement();
                 navigationCounter.incrementAndGet();
-                return () -> false;
+                return () -> new ButtonResult.Result(false, null);
 
             });
             actionMap.put(ACCEPT, (a, r) -> {
                 db.ignoreReportedImage(a.getImageReported());
                 statIgnore.getAndIncrement();
                 navigationCounter.incrementAndGet();
-                return () -> false;
+                return () -> new ButtonResult.Result(false, null);
             });
             actionMap.put(RIGHT_ARROW, (a, r) -> {
                 skippedIds.add(a.getImageReported());
                 navigationCounter.incrementAndGet();
-                return () -> false;
+                return () -> new ButtonResult.Result(false, null);
             });
 
+            ActionRow of = ActionRow.of(
+                    Button.danger(DELETE, "Remove image").withEmoji(Emoji.ofUnicode(DELETE)),
+                    Button.primary(ACCEPT, "Ignore report").withEmoji(Emoji.ofUnicode(ACCEPT)),
+                    Button.secondary(RIGHT_ARROW, "Skip").withEmoji(Emoji.ofUnicode(RIGHT_ARROW))
+            );
 
-            new ReactValidator<>(
+            new ButtonValidator<>(
                     finalEmbed -> {
                         int reportCount = db.getReportCount();
                         String description = (navigationCounter.get() == 0) ? null : String.format("You have seen %d %s and decided to delete %d %s and to ignore %d", navigationCounter.get(), CommandUtil.singlePlural(navigationCounter.get(), "image", "images"), statBan.get(), CommandUtil.singlePlural(statBan.get(), "image", "images"), statIgnore.get());
@@ -150,7 +158,7 @@ public class ReportReviewCommand extends ConcurrentCommand<CommandParameters> {
                     },
                     () -> db.getNextReport(maxId, skippedIds),
                     builder.apply(e.getJDA(), totalReports, navigationCounter::get)
-                    , embedBuilder, e, e.getAuthor().getIdLong(), actionMap, false, true);
+                    , embedBuilder, e, e.getAuthor().getIdLong(), actionMap, List.of(of), false, true);
         } catch (Throwable ex) {
             Chuu.getLogger().warn(ex.getMessage(), ex);
         } finally {

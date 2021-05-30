@@ -89,10 +89,10 @@ public class CrownsCommand extends ConcurrentCommand<NumberParameters<ChuuDataPa
         }
 
 
+        long discordId = params.getInnerParams().getLastFMData().getDiscordId();
         EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e)
                 .setDescription(a)
-                .setTitle(String.format("%s's %scrowns", userName, getTitle()), CommandUtil.getLastFmUser(uniqueDataUniqueWrapper.getLastFmId()))
-                .setFooter(String.format("%s has %d %scrowns!!%n", CommandUtil.unescapedUser(userName, uniqueDataUniqueWrapper.getDiscordId(), e), resultWrapper.size(), getTitle()), null)
+                .setTitle(String.format("%s's %scrowns", userName, getTitle()), CommandUtil.getLastFmUser(uniqueDataUniqueWrapper.getLastFmId())).setFooter(String.format("%s has %d %scrowns!!%n", CommandUtil.unescapedUser(userName, discordId, e), resultWrapper.size(), getTitle()), null)
                 .setThumbnail(userUrl);
         e.sendMessage(embedBuilder.build()).queue(message1 ->
 

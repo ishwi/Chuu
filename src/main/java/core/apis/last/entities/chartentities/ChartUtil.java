@@ -18,7 +18,7 @@ import java.util.function.BiFunction;
 public class ChartUtil {
 
     public static BiFunction<JSONObject, Integer, UrlCapsule> getParser(CustomTimeFrame timeFrameEnum, TopEntity topEntity, ChartParameters chartParameters, ConcurrentLastFM lastFM, LastFMData username) throws LastFmException {
-        if (timeFrameEnum.getType() == CustomTimeFrame.Type.NORMAL) {
+        if (timeFrameEnum.isNormal()) {
             return new TimeFrameParser(lastFM, username, chartParameters, topEntity, timeFrameEnum.getTimeFrameEnum()).obtainParse();
         } else {
             return new CustomTimeFrameParser(lastFM, username, chartParameters, topEntity, timeFrameEnum, Chuu.getDb()).obtainParse();

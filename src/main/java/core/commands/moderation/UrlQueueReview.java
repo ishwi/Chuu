@@ -6,9 +6,9 @@ import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
-import core.otherlisteners.ReactValidator;
+import core.otherlisteners.ButtonResult;
+import core.otherlisteners.ButtonValidator;
 import core.otherlisteners.Reaction;
-import core.otherlisteners.ReactionResult;
 import core.parsers.NoOpParser;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
@@ -21,9 +21,12 @@ import dao.exceptions.InstanceNotFoundException;
 import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.entities.Emoji;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
+import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
+import net.dv8tion.jda.api.interactions.components.ActionRow;
+import net.dv8tion.jda.api.interactions.components.Button;
 
 import javax.validation.constraints.NotNull;
 import java.util.*;
@@ -116,18 +119,18 @@ public class UrlQueueReview extends ConcurrentCommand<CommandParameters> {
         Set<Long> skippedIds = new HashSet<>();
         try {
             int totalReports = db.getQueueUrlCount();
-            HashMap<String, Reaction<ImageQueue, MessageReactionAddEvent, ReactionResult>> actionMap = new LinkedHashMap<>();
+            HashMap<String, Reaction<ImageQueue, ButtonClickEvent, ButtonResult>> actionMap = new LinkedHashMap<>();
             actionMap.put(DELETE, (reportEntity, r) -> {
                 db.rejectQueuedImage(reportEntity.queuedId(), reportEntity);
                 statDeclined.getAndIncrement();
                 navigationCounter.incrementAndGet();
-                return () -> false;
+                return () -> new ButtonResult.Result(false, null);
 
             });
             actionMap.put(RIGHT_ARROW, (a, r) -> {
                 skippedIds.add(a.queuedId());
                 navigationCounter.incrementAndGet();
-                return () -> false;
+                return () -> new ButtonResult.Result(false, null);
             });
             actionMap.put(ACCEPT, (a, r) -> {
                 long id = db.acceptImageQueue(a.queuedId(), a.url(), a.artistId(), a.uploader());
@@ -149,7 +152,7 @@ public class UrlQueueReview extends ConcurrentCommand<CommandParameters> {
                 }
                 statAccepeted.getAndIncrement();
                 navigationCounter.incrementAndGet();
-                return () -> false;
+                return () -> new ButtonResult.Result(false, null);
             });
 
             actionMap.put(STRIKE, (a, r) -> {
@@ -162,9 +165,16 @@ public class UrlQueueReview extends ConcurrentCommand<CommandParameters> {
                 }
                 statDeclined.getAndIncrement();
                 navigationCounter.incrementAndGet();
-                return () -> false;
+                return () -> new ButtonResult.Result(false, null);
             });
-            new ReactValidator<>(
+
+            ActionRow of = ActionRow.of(
+                    Button.danger(DELETE, "Deny").withEmoji(Emoji.ofUnicode(DELETE)),
+                    Button.primary(ACCEPT, "Accept").withEmoji(Emoji.ofUnicode(ACCEPT)),
+                    Button.secondary(RIGHT_ARROW, "Skip").withEmoji(Emoji.ofUnicode(RIGHT_ARROW)),
+                    Button.danger(STRIKE, "Strike").withEmoji(Emoji.ofUnicode(STRIKE))
+            );
+            new ButtonValidator<>(
                     finalEmbed -> {
                         int reportCount = db.getQueueUrlCount();
                         String description = (navigationCounter.get() == 0) ? null :
@@ -191,7 +201,7 @@ public class UrlQueueReview extends ConcurrentCommand<CommandParameters> {
                     },
                     () -> db.getNextQueue(maxId, skippedIds),
                     builder.apply(e.getJDA(), totalReports, navigationCounter::get)
-                    , embedBuilder, e, e.getAuthor().getIdLong(), actionMap, false, true);
+                    , embedBuilder, e, e.getAuthor().getIdLong(), actionMap, List.of(of), false, true);
         } catch (Throwable ex) {
             Chuu.getLogger().warn(ex.getMessage(), ex);
         } finally {

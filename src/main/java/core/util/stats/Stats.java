@@ -49,8 +49,8 @@ public enum Stats {
     SUM_TOP(GeneratorUtils.aL(ConsumerUtils::sumtop), AllMode.LINE_BREAK, "sum"),
 
     BREAKDOWNS(GeneratorUtils.aL((artists, entity) -> ConsumerUtils.breakdowns(artists, ConsumerUtils.Entity.ARTIST, entity)), AllMode.LINE_BREAK, "bk", "break", "point"),
-    BREAKDOWNS_ALBUMS(GeneratorUtils.albL((artists, entity) -> ConsumerUtils.breakdowns(artists, ConsumerUtils.Entity.ALBUM, entity)), AllMode.DONT, "abk", "abreak", "apoint"),
-    BREAKDOWNS_SONGS(GeneratorUtils.tL((artists, entity) -> ConsumerUtils.breakdowns(artists, ConsumerUtils.Entity.TRACK, entity)), AllMode.DONT, "sbk", "sbreak", "spoint"),
+    BREAKDOWNS_ALBUMS(GeneratorUtils.albL((artists, entity) -> ConsumerUtils.breakdowns(artists, ConsumerUtils.Entity.ALBUM, entity)), EnumSet.of(AllMode.LINE_BREAK, AllMode.DONT), "abk", "abreak", "apoint"),
+    BREAKDOWNS_SONGS(GeneratorUtils.tL((artists, entity) -> ConsumerUtils.breakdowns(artists, ConsumerUtils.Entity.TRACK, entity)), EnumSet.of(AllMode.LINE_BREAK, AllMode.DONT), "sbk", "sbreak", "spoint"),
 
     BREADTH_RATING(GeneratorUtils.all(ConsumerUtils::breadth), "breadth", "breath", "bread", "br"),
 
@@ -79,13 +79,13 @@ public enum Stats {
 
     final boolean acceptsTimeframe;
     final Cache<?> cache;
-    private final AllMode mode;
+    private final EnumSet<AllMode> mode;
     private final Set<String> aliases;
 
     Stats() {
         this.acceptsTimeframe = false;
         cache = null;
-        mode = AllMode.NORMAL;
+        mode = EnumSet.of(AllMode.NORMAL);
         this.aliases = Collections.emptySet();
     }
 
@@ -99,11 +99,15 @@ public enum Stats {
     }
 
 
-    <T> Stats(Cache<T> cache, AllMode b) {
-        this(cache, b, new String[]{});
+    <T> Stats(Cache<T> cache, AllMode mode) {
+        this(cache, mode, new String[]{});
     }
 
-    <T> Stats(Cache<T> cache, AllMode b, String... aliases) {
+    <T> Stats(Cache<T> cache, AllMode mode, String... aliases) {
+        this(cache, EnumSet.of(mode), aliases);
+    }
+
+    <T> Stats(Cache<T> cache, EnumSet<AllMode> b, String... aliases) {
         this.mode = b;
         this.cache = cache;
         this.aliases = Set.of(aliases);
@@ -129,7 +133,7 @@ public enum Stats {
 
                 String process = cacheHandler.process(stats.cache, statsCtx);
 
-                if (stats.mode == AllMode.LINE_BREAK)
+                if (stats.mode.contains(AllMode.LINE_BREAK))
                     process += "\n";
                 stringList.add(process);
 
@@ -141,7 +145,7 @@ public enum Stats {
             footer += "Showing stats" + tfe.getDisplayString() + "\n";
         }
         if (exception)
-            footer += "An error ocurred on some stadistics so there might be a few missing!";
+            footer += "An error ocurred on some statistics so there might be a few missing!";
         return new StatsResult(String.join("\n", stringList), footer);
     }
 
@@ -165,7 +169,7 @@ public enum Stats {
     }
 
     public boolean hideInAll() {
-        return this.mode == AllMode.DONT;
+        return this.mode.contains(AllMode.DONT);
     }
 
     public Set<String> getAliases() {
@@ -211,7 +215,7 @@ public enum Stats {
             case ARTIST_RANK -> "The rank of a given artist";
             case ALBUM_RANK -> "The rank of a given album";
             case SONG_RANK -> "The rank of a given song";
-            case ALL -> "";
+            case ALL -> "A overview with all modes. Equivalent to not specifying any stat";
         };
 
     }

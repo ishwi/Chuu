@@ -92,8 +92,8 @@ public final record ContextMessageReceived(MessageReceivedEvent e) implements Co
     }
 
     @Override
-    public RestAction<Message> sendMessage(MessageEmbed embed, User toMention) {
-        return e.getChannel().sendMessage(embed).mentionUsers(toMention.getId());
+    public RestAction<Message> sendMessage(Message message, User toMention) {
+        return e.getChannel().sendMessage(message).mentionUsers(toMention.getId());
     }
 
     @Override

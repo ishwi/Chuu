@@ -66,7 +66,13 @@ public class PopularityCommand extends ConcurrentCommand<ChuuDataParams> {
         if (params.hasOptional("sort")) {
             topTracks = topTracks.stream().sorted(Comparator.comparingInt(ScrobbledTrack::getPopularity).reversed()).toList();
         } else if (params.hasOptional("reverse")) {
-            topTracks = topTracks.stream().sorted(Comparator.comparingInt(ScrobbledTrack::getPopularity)).toList();
+            topTracks = topTracks.stream().sorted(Comparator.comparingInt(scrobbledTrack -> {
+                int popularity = scrobbledTrack.getPopularity();
+                if (popularity == 0) {
+                    return Integer.MAX_VALUE;
+                }
+                return popularity;
+            })).toList();
         }
         DiscordUserDisplay uInfo = CommandUtil.getUserInfoConsideringGuildOrNot(e, params.getLastFMData().getDiscordId());
         if (topTracks.isEmpty()) {

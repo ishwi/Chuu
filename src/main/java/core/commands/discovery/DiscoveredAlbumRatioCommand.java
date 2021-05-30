@@ -53,7 +53,7 @@ public class DiscoveredAlbumRatioCommand extends ConcurrentCommand<TimeFramePara
 
 
         if (params.getTime().equals(TimeFrameEnum.ALL)) {
-            sendMessageQueue(e, "Surprisingly you have discovered a 100% of your albums");
+            sendMessageQueue(e, "Surprisingly you have discovered the 100% of your albums");
             return;
         }
         List<ScrobbledAlbum> allArtists = lastFM.getAllAlbums(params.getLastFMData(), new CustomTimeFrame(params.getTime()));

@@ -6,20 +6,15 @@ import core.apis.spotify.Spotify;
 import core.apis.spotify.SpotifySingleton;
 import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
-import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
-import core.commands.utils.PrivacyUtils;
 import core.exceptions.LastFmException;
-import core.otherlisteners.Reactionary;
 import core.parsers.ArtistParser;
 import core.parsers.Parser;
 import core.parsers.params.ArtistParameters;
 import dao.ServiceView;
 import dao.entities.AlbumUserPlays;
 import dao.entities.ScrobbledArtist;
-import dao.utils.LinkUtils;
-import net.dv8tion.jda.api.EmbedBuilder;
 
 import javax.validation.constraints.NotNull;
 import java.util.Arrays;
@@ -71,26 +66,10 @@ public class ServerFavesFromArtistCommand extends ConcurrentCommand<ArtistParame
         ScrobbledArtist who = new ScrobbledArtist(artist, 0, "");
         CommandUtil.validate(db, who, lastFM, discogs, spotify);
         String lastFmName = params.getLastFMData().getName();
+        String validArtist = who.getArtist();
         List<AlbumUserPlays> songs = db.getServerTopArtistTracks(e.getGuild().getIdLong(), who.getArtistId(), Integer.MAX_VALUE);
-        if (songs.isEmpty()) {
-            sendMessageQueue(e, ("Couldn't find any tracks of " + CommandUtil.escapeMarkdown(who.getArtist()) + " in this server!"));
-            return;
-        }
-        String userString = e.getGuild().getName();
 
-        StringBuilder a = new StringBuilder();
-        List<String> s = songs.stream().map(g -> ". **[" + CommandUtil.escapeMarkdown(g.getAlbum()) + "](" + LinkUtils.getLastFMArtistTrack(g.getArtist(), g.getAlbum()) + ")** - " + g.getPlays() + " plays" +
-                                                 "\n").toList();
-        for (int i = 0; i < s.size() && i < 10; i++) {
-            String sb = s.get(i);
-            a.append(i + 1).append(sb);
-        }
-        EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e)
-                .setDescription(a)
-                .setFooter(userString + " users have listened to " + s.size() + " different " + who.getArtist() + " songs!")
-                .setAuthor(String.format("%s's top %s tracks", userString, who.getArtist()), PrivacyUtils.getLastFmArtistUserUrl(who.getArtist(), lastFmName), e.getGuild().getIconUrl())
-                .setThumbnail(CommandUtil.noImageUrl(who.getUrl()));
-        e.sendMessage(embedBuilder.build()).queue(mes ->
-                new Reactionary<>(s, mes, embedBuilder));
+        GlobalFavesFromArtistCommand.sendArtistFaves(e, who, validArtist, lastFmName, songs, e.getGuild().getName(), "in this server!");
+
     }
 }

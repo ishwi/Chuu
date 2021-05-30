@@ -142,7 +142,7 @@ public class PaceAlbumCommand extends ConcurrentCommand<NumberParameters<AlbumTi
         ZonedDateTime now = LocalDateTime.now().atZone(ZoneOffset.ofHours(2));
         int timestamp;
         ChronoUnit days = ChronoUnit.DAYS;
-        if (time.getType() == CustomTimeFrame.Type.NORMAL) {
+        if (time.isNormal()) {
             timestamp = switch (time.getTimeFrameEnum()) {
                 case YEAR -> (int) now.minus(unitNumber, ChronoUnit.YEARS).toInstant().getEpochSecond();
                 case QUARTER -> (int) now.minus(unitNumber * 4, ChronoUnit.MONTHS).toInstant().getEpochSecond();

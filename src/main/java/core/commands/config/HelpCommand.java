@@ -109,10 +109,13 @@ public class HelpCommand extends ConcurrentCommand<WordParameter> {
     protected void onCommand(Context e, @NotNull WordParameter params) {
         Character prefix = e.getPrefix();
         if (params.hasOptional("all")) {
-            e.sendMessage(new ChuuEmbedBuilder(e).setDescription(new StringBuilder()
-                    .append(e.getAuthor()))
-                    .build(), e.getAuthor()).queue();
-            e.getAuthor().openPrivateChannel().queue(privateChannel -> sendPrivate(privateChannel, e));
+
+            e.sendMessage(new MessageBuilder()
+                    .append(e.getAuthor())
+                    .append(": Help information was sent as a private message.")
+                    .build(), e.getAuthor())
+                    .flatMap(z -> e.getAuthor().openPrivateChannel())
+                    .queue(privateChannel -> sendPrivate(privateChannel, e));
             return;
         }
         if (params.getWord() == null) {

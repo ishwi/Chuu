@@ -66,7 +66,7 @@ public class GeneratorUtils {
         return new Cache<>(combine, consumer);
     }
 
-    public static class EMPTY {
+    private static class EMPTY {
         private EMPTY() {
         }
     }

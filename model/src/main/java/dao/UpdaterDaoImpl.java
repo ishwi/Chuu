@@ -17,6 +17,7 @@ import java.util.stream.Collectors;
 
 public class UpdaterDaoImpl extends BaseDAO implements UpdaterDao {
 
+    private static final Pattern unicodeSnatcher = Pattern.compile("\\p{M}");
 
     public static String preparePlaceHolders(int length) {
         return String.join(",", Collections.nCopies(length, "?"));
@@ -645,26 +646,35 @@ public class UpdaterDaoImpl extends BaseDAO implements UpdaterDao {
             }
             /* Fill "preparedStatement". */
             ResultSet resultSet = preparedStatement.executeQuery();
-            Map<String, ScrobbledArtist> artistToScrobbled = list.stream().collect(Collectors.toMap(ScrobbledArtist::getArtist, Function.identity(), (scrobbledArtist, scrobbledArtist2) -> {
-                scrobbledArtist.setCount(scrobbledArtist.getCount() + scrobbledArtist2.getCount());
-                return scrobbledArtist;
-            }));
-            Pattern compile = Pattern.compile("\\p{M}");
+
+            Map<String, List<ScrobbledArtist>> artistToScrobbled = list.stream().collect(Collectors.toMap(sb -> unicodeSnatcher.matcher(
+                    Normalizer.normalize(sb.getArtist(), Normalizer.Form.NFKD)
+                    ).replaceAll("").toLowerCase(Locale.ROOT)
+                    , z -> {
+                        List<ScrobbledArtist> arr = new ArrayList<>();
+                        arr.add(z);
+                        return arr;
+                    },
+                    (scrobbledArtist, scrobbledArtist2) -> {
+                        scrobbledArtist.addAll(scrobbledArtist2);
+                        return scrobbledArtist;
+                    }));
 
             while (resultSet.next()) {
                 long id = resultSet.getLong("id");
                 String name = resultSet.getString("name");
-                ScrobbledArtist scrobbledArtist = artistToScrobbled.get(name);
+                List<ScrobbledArtist> scrobbledArtist = artistToScrobbled.get(name.toLowerCase(Locale.ROOT));
                 if (scrobbledArtist != null) {
-                    scrobbledArtist.setArtistId(id);
+                    scrobbledArtist.forEach(z -> z.setArtistId(id));
                 } else {
+
                     // name can be stripped or maybe the element is collect is the stripped one
-                    String normalizeArtistName = compile.matcher(
+                    String normalizeArtistName = unicodeSnatcher.matcher(
                             Normalizer.normalize(name, Normalizer.Form.NFKD)
-                    ).replaceAll("");
-                    ScrobbledArtist normalizedArtist = artistToScrobbled.get(normalizeArtistName);
+                    ).replaceAll("").toLowerCase(Locale.ROOT);
+                    List<ScrobbledArtist> normalizedArtist = artistToScrobbled.get(normalizeArtistName);
                     if (normalizedArtist != null) {
-                        normalizedArtist.setArtistId(id);
+                        normalizedArtist.forEach(z -> z.setArtistId(id));
                     }
                 }
             }

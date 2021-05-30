@@ -169,27 +169,29 @@ public class VotingCommand extends ConcurrentCommand<ArtistParameters> {
     }
 
     private Result processButtonActions(Context e, List<VotingEntity> allArtistImages, LastFMData lastFMData, AtomicInteger counter, AtomicInteger size) {
-        Map<String, Reaction<VotingEntity, ButtonClickEvent, ButtonResult>> stringReactionMap = generateActions(e,
-                GenericInteractionCreateEvent::getUser,
-                () -> () -> new ButtonResult.Result(false, null),
-                (ButtonClickEvent r, Boolean t) -> ButtonValidator.leftMove(allArtistImages.size(), counter, r, t),
-                (ButtonClickEvent r, Boolean t) -> ButtonValidator.rightMove(allArtistImages.size(), counter, r, t),
-                allArtistImages, lastFMData, counter, size);
-
         ActionRow of = ActionRow.of(Button.primary(DOWN_VOTE, Emoji.ofUnicode(DOWN_VOTE)),
                 Button.primary(UP_VOTE, Emoji.ofUnicode(UP_VOTE)),
                 Button.danger(REPORT, "Report").withEmoji(Emoji.ofUnicode(REPORT))
         );
+
         List<ActionRow> rows = new ArrayList<>();
         rows.add(of);
         List<Component> components = of.getComponents();
-
         if (allArtistImages.size() > 1) {
             components.add(Button.primary(RIGHT_ARROW, Emoji.ofUnicode(RIGHT_ARROW)));
         }
-        if (stringReactionMap.containsKey(STRIKE)) {
+        if (lastFMData.getRole() == Role.ADMIN) {
             rows.add(ActionRow.of(Button.danger(STRIKE, "Remove").withEmoji(Emoji.ofUnicode(STRIKE))));
         }
+        List<ActionRow> copy = new ArrayList<>(rows);
+
+
+        Map<String, Reaction<VotingEntity, ButtonClickEvent, ButtonResult>> stringReactionMap = generateActions(e,
+                GenericInteractionCreateEvent::getUser,
+                () -> () -> new ButtonResult.Result(false, null),
+                (ButtonClickEvent r, Boolean t) -> ButtonValidator.leftMove(allArtistImages.size(), counter, r, t, copy),
+                (ButtonClickEvent r, Boolean t) -> ButtonValidator.rightMove(allArtistImages.size(), counter, r, t, copy),
+                allArtistImages, lastFMData, counter, size);
 
         return new Result(stringReactionMap, rows);
     }
@@ -249,7 +251,6 @@ public class VotingCommand extends ConcurrentCommand<ArtistParameters> {
             actionMap.put(STRIKE, (a, r) -> {
                 if (owner.apply(r).getIdLong() == e.getAuthor().getIdLong()) {
                     db.removeReportedImage(a.getUrlId(), a.getOwner(), owner.apply(r).getIdLong());
-                    counter.decrementAndGet();
                     allArtistImages.removeIf(ve -> ve.getUrlId() == a.getUrlId());
                     size.decrementAndGet();
                 }
