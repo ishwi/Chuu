@@ -9,6 +9,7 @@ import core.commands.utils.CommandUtil;
 import core.otherlisteners.ReactValidator;
 import core.otherlisteners.Reaction;
 import core.otherlisteners.ReactionResult;
+import core.otherlisteners.Reactions;
 import core.parsers.NoOpParser;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
@@ -86,7 +87,7 @@ public class AliasReviewCommand extends ConcurrentCommand<CommandParameters> {
         try {
 
             HashMap<String, Reaction<AliasEntity, MessageReactionAddEvent, ReactionResult>> actionMap = new HashMap<>();
-            actionMap.put("✔", (aliasEntity, r) -> {
+            actionMap.put(Reactions.ACCEPT, (aliasEntity, r) -> {
                 try {
                     db.addAlias(aliasEntity.getAlias(), aliasEntity.getArtistId());
                     db.deleteAliasById(aliasEntity.getId());
@@ -106,7 +107,7 @@ public class AliasReviewCommand extends ConcurrentCommand<CommandParameters> {
             });
 
 
-            actionMap.put("❌", (a, r) -> {
+            actionMap.put(Reactions.REJECT, (a, r) -> {
                 try {
                     db.deleteAliasById(a.getId());
                 } catch (InstanceNotFoundException e1) {

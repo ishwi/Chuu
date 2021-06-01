@@ -18,7 +18,7 @@ import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
-import net.dv8tion.jda.api.requests.restaction.CommandUpdateAction;
+import net.dv8tion.jda.api.requests.restaction.CommandListUpdateAction;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
@@ -73,18 +73,18 @@ public class InteractionBuilder {
                     DailyCommand.class);
 
     @CheckReturnValue
-    public static CommandUpdateAction setGlobalCommands(JDA jda) {
-        CommandUpdateAction commandUpdateAction = jda.updateCommands();
+    public static CommandListUpdateAction setGlobalCommands(JDA jda) {
+        CommandListUpdateAction commandUpdateAction = jda.updateCommands();
         return fillAction(jda, commandUpdateAction);
     }
 
     @CheckReturnValue
-    public static CommandUpdateAction setServerCommand(Guild guild) {
-        CommandUpdateAction commandUpdateAction = guild.updateCommands();
+    public static CommandListUpdateAction setServerCommand(Guild guild) {
+        CommandListUpdateAction commandUpdateAction = guild.updateCommands();
         return fillAction(guild.getJDA(), commandUpdateAction);
     }
 
-    private static CommandUpdateAction fillAction(JDA jda, CommandUpdateAction commandUpdateAction) {
+    private static CommandListUpdateAction fillAction(JDA jda, CommandListUpdateAction commandUpdateAction) {
         List<? extends MyCommand<?>> myCommands = jda.getRegisteredListeners().stream()
                 .filter(t -> t instanceof MyCommand<?>)
                 .map(t -> (MyCommand<?>) t)

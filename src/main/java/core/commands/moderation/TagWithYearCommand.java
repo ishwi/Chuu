@@ -7,6 +7,7 @@ import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.otherlisteners.Confirmator;
+import core.otherlisteners.Reactions;
 import core.otherlisteners.util.ConfirmatorItem;
 import core.parsers.NoOpParser;
 import core.parsers.Parser;
@@ -105,7 +106,7 @@ public class TagWithYearCommand extends ConcurrentCommand<CommandParameters> {
         EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e)
                 .setTitle("Year confirmation")
                 .setDescription(String.format("%s, want to tag the album **%s** of **%s** with the year **%s**?", userString, album, artist, year));
-        List<ConfirmatorItem> items = List.of(new ConfirmatorItem("✔", who -> {
+        List<ConfirmatorItem> items = List.of(new ConfirmatorItem(Reactions.ACCEPT, who -> {
             if (lastFMData.getRole() == Role.ADMIN) {
                 return who.clear().setTitle(String.format("%s - %s was tagged as a %s album", artist, album, year)).setColor(CommandUtil.pastelColor());
             } else {
@@ -121,19 +122,20 @@ public class TagWithYearCommand extends ConcurrentCommand<CommandParameters> {
                             .setColor(CommandUtil.pastelColor())
                             .setDescription("Artist: **%s**\nAlbum: **%s**\nYear: **%s**\nAuthor: %s".formatted(artist, album, year, e.getAuthor().getAsMention())).build())
                             .setActionRows(ActionRow.of(
-                                    Button.of(ButtonStyle.PRIMARY, ACCEPT, "Accept").withEmoji(Emoji.ofUnicode(ACCEPT)),
-                                    Button.of(ButtonStyle.DANGER, REJECT, "Reject").withEmoji(Emoji.ofUnicode(REJECT))
+                                    Button.of(ButtonStyle.PRIMARY, ACCEPT, "Accept").withEmoji(Emoji.fromUnicode(ACCEPT)),
+                                    Button.of(ButtonStyle.DANGER, REJECT, "Reject").withEmoji(Emoji.fromUnicode(REJECT))
                                     )
                             )
                             .queue();
             }
-        }), new ConfirmatorItem("❌", who -> who.clear().setTitle(String.format("Didn't tag %s - %s", artist, album)).setColor(CommandUtil.pastelColor()),
+        }), new ConfirmatorItem(Reactions.REJECT, who -> who.clear().setTitle(String.format("Didn't tag %s - %s", artist, album)).setColor(CommandUtil.pastelColor()),
                 (z) -> {
                 }));
 
-        ActionRow of = ActionRow.of(Button.of(ButtonStyle.PRIMARY, ACCEPT, "Submit"),
+        ActionRow row = ActionRow.of(Button.of(ButtonStyle.PRIMARY, ACCEPT, "Submit"),
                 Button.of(ButtonStyle.DANGER, REJECT, "Cancel"));
-        e.sendMessage(embedBuilder.build(), List.of(of))
-                .queue(mes -> new Confirmator(embedBuilder, mes, idLong, items, Confirmator.Mode.BUTTON));
+
+        e.sendMessage(embedBuilder.build(), row)
+                .queue(mes -> new Confirmator(embedBuilder, mes, idLong, items));
     }
 }

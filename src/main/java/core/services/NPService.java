@@ -10,7 +10,7 @@ import dao.entities.TrackWithArtistId;
 import dao.entities.UpdaterUserWrapper;
 import dao.exceptions.InstanceNotFoundException;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
@@ -31,7 +31,7 @@ public class NPService {
     public NPUpdate getNowPlayingBoth() throws InstanceNotFoundException, LastFmException {
         UpdaterUserWrapper wrapper = db.getUserUpdateStatus(user.getDiscordId());
         if (user.isPrivateUpdate()) {
-            return new NPUpdate(lastFM.getNowPlayingInfo(user), CompletableFuture.completedFuture((new ArrayList<>())));
+            return new NPUpdate(lastFM.getNowPlayingInfo(user), CompletableFuture.completedFuture(Collections.emptyList()));
         }
 
         NPUpdate npWithUpdate = lastFM.getNPWithUpdate(user, wrapper.getTimestamp(), true);

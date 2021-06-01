@@ -72,7 +72,7 @@ public class ObscurityCommand extends ConcurrentCommand<ChuuDataParams> {
         String name = params.getLastFMData().getName();
         CompletableFuture<AudioFeatures> uF = CompletableFuture.supplyAsync(() -> db.getUserFeatures(name));
         double v;
-        if (params.hasOptional("refresh")) {
+        if (params.hasOptional("refresh") || CommandUtil.rand.nextBoolean()) {
             v = db.processObscurity(name);
         } else {
             v = db.obtainObscurity(name).orElseGet(() -> db.processObscurity(name));

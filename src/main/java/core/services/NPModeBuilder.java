@@ -349,7 +349,7 @@ public class NPModeBuilder {
                                 String userString = CommandUtil.getUserInfoUnescaped(e, returnNowPlaying.getDiscordId()).getUsername();
                                 if (npModes.contains(NPMode.CROWN))
                                     footerSpaces[footerIndexes.get(NPMode.CROWN)] =
-                                            "\uD83D\uDC51 " + returnNowPlaying.getPlayNumber() + " (" + userString + ")";
+                                            "👑 " + returnNowPlaying.getPlayNumber() + " (" + userString + ")";
                                 if (npModes.contains(NPMode.ARTIST_RANK)) {
                                     for (int i = 0; i < returnNowPlayings.size(); i++) {
                                         ReturnNowPlaying searching = returnNowPlayings.get(i);
@@ -380,7 +380,7 @@ public class NPModeBuilder {
                                 String userString = CommandUtil.getUserInfoUnescaped(e, returnNowPlaying.getDiscordId()).getUsername();
                                 if (npModes.contains(NPMode.ALBUM_CROWN))
                                     footerSpaces[footerIndexes.get(NPMode.ALBUM_CROWN)] =
-                                            "Album \uD83D\uDC51 " + returnNowPlaying.getPlayNumber() + " (" + userString + ")";
+                                            "Album 👑 " + returnNowPlaying.getPlayNumber() + " (" + userString + ")";
                                 if (npModes.contains(NPMode.ALBUM_RANK)) {
                                     for (int i = 0; i < returnNowPlayings.size(); i++) {
                                         ReturnNowPlaying searching = returnNowPlayings.get(i);
@@ -411,7 +411,7 @@ public class NPModeBuilder {
                                 String userString = CommandUtil.getUserInfoUnescaped(e, returnNowPlaying.getDiscordId()).getUsername();
                                 if (npModes.contains(NPMode.TRACK_CROWN))
                                     footerSpaces[footerIndexes.get(NPMode.TRACK_CROWN)] =
-                                            "Track \uD83D\uDC51 " + returnNowPlaying.getPlayNumber() + " (" + userString + ")";
+                                            "Track 👑 " + returnNowPlaying.getPlayNumber() + " (" + userString + ")";
                                 if (npModes.contains(NPMode.TRACK_RANK)) {
                                     for (int i = 0; i < returnNowPlayings.size(); i++) {
                                         ReturnNowPlaying searching = returnNowPlayings.get(i);
@@ -542,7 +542,7 @@ public class NPModeBuilder {
                             if (npModes.contains(NPMode.GLOBAL_CROWN)) {
                                 String holder = getPrivateString(returnNowPlaying.getDiscordId());
                                 footerSpaces[footerIndexes.get(NPMode.GLOBAL_CROWN)] =
-                                        "Global \uD83D\uDC51 " + returnNowPlaying.getPlaycount() + " (" + holder + ")";
+                                        "Global 👑 " + returnNowPlaying.getPlaycount() + " (" + holder + ")";
                             }
                             if (npModes.contains(NPMode.GLOBAL_RANK)) {
                                 Optional<GlobalCrown> yourPosition = globalArtistRanking.stream().filter(x -> x.getDiscordId() == discordId).findFirst();
@@ -575,7 +575,7 @@ public class NPModeBuilder {
                                 String holder = getPrivateString(returnNowPlaying.getDiscordId());
                                 if (npModes.contains(NPMode.GLOBAL_ALBUM_CROWN))
                                     footerSpaces[footerIndexes.get(NPMode.GLOBAL_ALBUM_CROWN)] =
-                                            "Global Album \uD83D\uDC51 " + returnNowPlaying.getPlayNumber() + " (" + holder + ")";
+                                            "Global Album 👑 " + returnNowPlaying.getPlayNumber() + " (" + holder + ")";
                                 if (npModes.contains(NPMode.GLOBAL_ALBUM_RANK)) {
                                     for (int i = 0; i < returnNowPlayings.size(); i++) {
                                         ReturnNowPlaying searching = returnNowPlayings.get(i);
@@ -606,7 +606,7 @@ public class NPModeBuilder {
                                 String holder = getPrivateString(returnNowPlaying.getDiscordId());
                                 if (npModes.contains(NPMode.GLOBAL_TRACK_CROWN))
                                     footerSpaces[footerIndexes.get(NPMode.GLOBAL_TRACK_CROWN)] =
-                                            "Global Track \uD83D\uDC51 " + returnNowPlaying.getPlayNumber() + " (" + holder + ")";
+                                            "Global Track 👑 " + returnNowPlaying.getPlayNumber() + " (" + holder + ")";
                                 if (npModes.contains(NPMode.GLOBAL_TRACK_RANK)) {
                                     for (int i = 0; i < returnNowPlayings.size(); i++) {
                                         ReturnNowPlaying searching = returnNowPlayings.get(i);
@@ -722,7 +722,7 @@ public class NPModeBuilder {
                                 globalStreakEntities.setDisplayer(consumer);
                                 String name = globalStreakEntities.getName().replace("*", "").substring(2).trim();
                                 footerSpaces[index] =
-                                        (String.format("%s \uD83D\uDD25 %d %s (%s)", e.getGuild().getName(), globalStreakEntities.artistCount(), CommandUtil.singlePlural(globalStreakEntities.artistCount(), "play", "plays"), name));
+                                        (String.format("%s 🔥 %d %s (%s)", e.getGuild().getName(), globalStreakEntities.artistCount(), CommandUtil.singlePlural(globalStreakEntities.artistCount(), "play", "plays"), name));
                             }
                         })));
                     }
@@ -736,7 +736,7 @@ public class NPModeBuilder {
                             globalStreakEntities.setDisplayer(consumer);
                             String name = globalStreakEntities.getName().replace("*", "").substring(2).trim();
                             footerSpaces[index] =
-                                    (String.format("Global \uD83D\uDD25 %d %s (%s)", globalStreakEntities.artistCount(), CommandUtil.singlePlural(globalStreakEntities.artistCount(), "play", "plays"), name));
+                                    (String.format("Global 🔥 %d %s (%s)", globalStreakEntities.artistCount(), CommandUtil.singlePlural(globalStreakEntities.artistCount(), "play", "plays"), name));
                         }
                     })));
                     break;

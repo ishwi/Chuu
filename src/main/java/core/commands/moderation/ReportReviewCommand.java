@@ -132,9 +132,9 @@ public class ReportReviewCommand extends ConcurrentCommand<CommandParameters> {
             });
 
             ActionRow of = ActionRow.of(
-                    Button.danger(DELETE, "Remove image").withEmoji(Emoji.ofUnicode(DELETE)),
-                    Button.primary(ACCEPT, "Ignore report").withEmoji(Emoji.ofUnicode(ACCEPT)),
-                    Button.secondary(RIGHT_ARROW, "Skip").withEmoji(Emoji.ofUnicode(RIGHT_ARROW))
+                    Button.danger(DELETE, "Remove image").withEmoji(Emoji.fromUnicode(DELETE)),
+                    Button.primary(ACCEPT, "Ignore report").withEmoji(Emoji.fromUnicode(ACCEPT)),
+                    Button.secondary(RIGHT_ARROW, "Skip").withEmoji(Emoji.fromUnicode(RIGHT_ARROW))
             );
 
             new ButtonValidator<>(

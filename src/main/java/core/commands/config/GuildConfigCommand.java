@@ -258,6 +258,15 @@ public class GuildConfigCommand extends ConcurrentCommand<GuildConfigParams> {
                 }
             }
 
+            case SET_ON_JOIN -> {
+                boolean b = Boolean.parseBoolean(value);
+                db.setSetOnJoin(guildId, b);
+                if (b) {
+                    sendMessageQueue(e, "The bot will auto add known members when they join your server");
+                } else {
+                    sendMessageQueue(e, "The bot won't auto add known members when they join your server");
+                }
+            }
             case CENSOR_CONVERS -> {
                 boolean allowCovers = !Boolean.parseBoolean(value);
                 db.setServerAllowCovers(guildId, allowCovers);

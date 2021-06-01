@@ -69,7 +69,7 @@ public class ServerFavesFromArtistCommand extends ConcurrentCommand<ArtistParame
         String validArtist = who.getArtist();
         List<AlbumUserPlays> songs = db.getServerTopArtistTracks(e.getGuild().getIdLong(), who.getArtistId(), Integer.MAX_VALUE);
 
-        GlobalFavesFromArtistCommand.sendArtistFaves(e, who, validArtist, lastFmName, songs, e.getGuild().getName(), "in this server!");
+        GlobalFavesFromArtistCommand.sendArtistFaves(e, who, validArtist, lastFmName, songs, e.getGuild().getName(), "in this server!", e.getGuild().getIconUrl());
 
     }
 }

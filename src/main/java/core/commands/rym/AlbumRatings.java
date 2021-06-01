@@ -14,9 +14,11 @@ import core.otherlisteners.Reactionary;
 import core.parsers.ArtistAlbumParser;
 import core.parsers.Parser;
 import core.parsers.params.ArtistAlbumParameters;
+import core.services.AlbumValidator;
 import dao.ServiceView;
 import dao.entities.FullAlbumEntityExtended;
 import dao.entities.Rating;
+import dao.entities.ScrobbledAlbum;
 import dao.entities.ScrobbledArtist;
 import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -24,7 +26,10 @@ import org.jetbrains.annotations.NotNull;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.time.Year;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Function;
 
 public class AlbumRatings extends ConcurrentCommand<ArtistAlbumParameters> {
@@ -80,15 +85,25 @@ public class AlbumRatings extends ConcurrentCommand<ArtistAlbumParameters> {
 
         ScrobbledArtist scrobbledArtist = new ScrobbledArtist(params.getArtist(), 0, null);
         CommandUtil.validate(db, scrobbledArtist, lastFM, discogsApi, spotify, false, !params.isNoredirect());
+
+        ScrobbledAlbum validate = new AlbumValidator(db, lastFM)
+                .validate(scrobbledArtist.getArtistId(), scrobbledArtist.getArtist(), params.getAlbum());
+
         String album = params.getAlbum();
         String artist = params.getArtist();
-
-        dao.entities.AlbumRatings ratingss = db.getRatingsByName(e.getGuild().getIdLong(), album, scrobbledArtist.getArtistId());
+        List<Rating> userRatings;
+        Year releaseYear = null;
+        if (e.isFromGuild()) {
+            dao.entities.AlbumRatings userrat = db.getRatingsByName(e.getGuild().getIdLong(), album, scrobbledArtist.getArtistId());
+            userRatings = userrat.getUserRatings();
+            releaseYear = userrat.getReleaseYear();
+        } else {
+            userRatings = Optional.ofNullable(db.getUserAlbumRating(params.getLastFMData().getDiscordId(), validate.getAlbumId(), validate.getArtistId())).map(List::of).orElse(Collections.emptyList());
+        }
 
         NumberFormat average = new DecimalFormat("#0.##");
         Function<Byte, String> starFormatter = getStartsFromScore();
         FullAlbumEntityExtended albumSummary = lastFM.getAlbumSummary(params.getLastFMData(), scrobbledArtist.getArtist(), album);
-        List<Rating> userRatings = ratingss.getUserRatings();
         String lastFmArtistAlbumUrl = LinkUtils.getLastFmArtistAlbumUrl(artist, album);
         List<String> stringList = userRatings.stream().filter(Rating::isSameGuild).map(x -> ". **[" +
                                                                                             getUserString(e, x.getDiscordId()) +
@@ -115,7 +130,7 @@ public class AlbumRatings extends ConcurrentCommand<ArtistAlbumParameters> {
         embedBuilder.setTitle(String.format("%s - %s Ratings in %s", albumSummary.getArtist(), albumSummary.getAlbum(), serverName), lastFmArtistAlbumUrl)
 
                 .setFooter(String.format("%s%s has been rated by %d %s.", albumSummary.getAlbum(),
-                        ratingss.getReleaseYear() != null ? " (" + ratingss.getReleaseYear().toString() + ")" : ""
+                        releaseYear != null ? " (" + releaseYear + ")" : ""
                         , userRatings.size(),
                         CommandUtil.singlePlural(userRatings.size(), "person", "people")))
                 .setThumbnail(chuu)

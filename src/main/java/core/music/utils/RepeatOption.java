@@ -17,10 +17,12 @@
  */
 package core.music.utils;
 
+import core.otherlisteners.Reactions;
+
 public enum RepeatOption {
     QUEUE("🔁"),
     SONG("🔂"),
-    NONE("❌");
+    NONE(Reactions.REJECT);
 
     private final String emoji;
 

@@ -60,7 +60,7 @@ public class GenreCommand extends ConcurrentCommand<NumberParameters<TimeFramePa
                         .forEach(entry -> {
                             Genre genre = entry.getKey();
                             int plays = entry.getValue();
-                            chart.addSeries(genre.getName() + "\u200B", plays);
+                            chart.addSeries(genre.getName() + "​", plays);
                         });
                 return chart;
             }

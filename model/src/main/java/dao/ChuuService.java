@@ -1810,6 +1810,14 @@ public class ChuuService implements EveryNoiseService {
         }
     }
 
+    public void setSetOnJoin(long guildId, boolean setOnJoin) {
+        try (Connection connection = dataSource.getConnection()) {
+            userGuildDao.setGuildProperty(connection, guildId, "set_on_join", setOnJoin);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
     public void setServerShowDisabledWarning(long guildId, boolean disabledWarning) {
         try (Connection connection = dataSource.getConnection()) {
             userGuildDao.setGuildProperty(connection, guildId, "disabled_warning", disabledWarning);
@@ -3542,7 +3550,7 @@ public class ChuuService implements EveryNoiseService {
         }
     }
 
-    public void clearSess(String session, String lastfm) {
+    public void clearSess(String lastfm) {
         try (Connection connection = dataSource.getConnection()) {
             updaterDao.clearSess(connection, lastfm);
         } catch (SQLException e) {

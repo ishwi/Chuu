@@ -37,7 +37,7 @@ public class GlobalFavesFromArtistCommand extends ConcurrentCommand<ArtistParame
         this.spotify = SpotifySingleton.getInstance();
     }
 
-    public static void sendArtistFaves(Context e, ScrobbledArtist who, String validArtist, String lastFmName, List<AlbumUserPlays> songs, String userString, String inWhere) {
+    public static void sendArtistFaves(Context e, ScrobbledArtist who, String validArtist, String lastFmName, List<AlbumUserPlays> songs, String userString, String inWhere, String url) {
 
         if (songs.isEmpty()) {
             e.sendMessage("Couldn't find any tracks of " + CommandUtil.escapeMarkdown(who.getArtist()) + " " + inWhere).queue();
@@ -53,7 +53,7 @@ public class GlobalFavesFromArtistCommand extends ConcurrentCommand<ArtistParame
         EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e)
                 .setDescription(a)
                 .setFooter(userString + " users have listened to " + s.size() + " different " + who.getArtist() + " songs!")
-                .setAuthor(String.format("%s's top %s tracks", userString, who.getArtist()), PrivacyUtils.getLastFmArtistUserUrl(who.getArtist(), lastFmName), e.getJDA().getSelfUser().getAvatarUrl())
+                .setAuthor(String.format("%s's top %s tracks", userString, who.getArtist()), PrivacyUtils.getLastFmArtistUserUrl(who.getArtist(), lastFmName), url)
                 .setThumbnail(CommandUtil.noImageUrl(who.getUrl()));
         e.sendMessage(embedBuilder.build()).queue(mes ->
                 new Reactionary<>(s, mes, embedBuilder));
@@ -100,6 +100,6 @@ public class GlobalFavesFromArtistCommand extends ConcurrentCommand<ArtistParame
 
         List<AlbumUserPlays> songs = db.getGlboalTopArtistTracks(who.getArtistId(), Integer.MAX_VALUE);
 
-        sendArtistFaves(e, who, validArtist, lastFmName, songs, e.getJDA().getSelfUser().getName(), "in the bot!");
+        sendArtistFaves(e, who, validArtist, lastFmName, songs, e.getJDA().getSelfUser().getName(), "in the bot!", e.getJDA().getSelfUser().getAvatarUrl());
     }
 }

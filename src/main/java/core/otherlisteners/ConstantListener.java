@@ -6,7 +6,6 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
-import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.hooks.EventListener;
 
 import javax.annotation.Nonnull;
@@ -19,11 +18,7 @@ public record ConstantListener(long channelId, ChuuService service) implements E
 
     @Override
     public void onEvent(@Nonnull GenericEvent event) {
-        if (event instanceof MessageReactionAddEvent e) {
-            onMessageReactionAdd(e);
-        }
         if (event instanceof ButtonClickEvent e) {
-            e.deferEdit().queue();
             onButtonClicked(e);
         }
     }
@@ -33,7 +28,6 @@ public record ConstantListener(long channelId, ChuuService service) implements E
         if (idLong != channelId || e.getUser() == null || e.getUser().isBot()) {
             return;
         }
-
         Message message = e.getMessage();
         if (e.getComponentId().equals(REJECT)) {
             message.delete().queue();
@@ -61,17 +55,4 @@ public record ConstantListener(long channelId, ChuuService service) implements E
         }
     }
 
-    public void onMessageReactionAdd(MessageReactionAddEvent e) {
-        long idLong = e.getChannel().getIdLong();
-        if (idLong != channelId || e.getUser() == null || e.getUser().isBot()) {
-            return;
-        }
-        e.getChannel().retrieveMessageById(e.getMessageId()).queue(x -> {
-            if (e.getReaction().getReactionEmote().getAsCodepoints().equals(REJECT)) {
-                x.delete().queue();
-            } else if (e.getReaction().getReactionEmote().getAsCodepoints().equals(ACCEPT)) {
-                a(x);
-            }
-        });
-    }
 }

@@ -31,49 +31,43 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
 
         String queryString =
                 """
-                            WITH
-                                mines AS (
-                                    SELECT
-                                        artist_id,
-                                        playnumber
-                                    FROM
-                                        scrobbled_artist
-                                    WHERE
-                                        lastfm_id = ?
-                        """ +
-                (threshold > 1 ? " and playnumber > ? " : "") +
-                """
-                                ),
-                                globals AS (
-                                    SELECT
-                                        a.artist_id,
-                                        max(a.playnumber) AS outf
-                                    FROM
-                                        scrobbled_artist a
-                                        join user u ON a.lastfm_id = u.lastfm_id
-                                            JOIN mines b ON a.artist_id = b.artist_id
-                                    WHERE ? OR NOT u.botted_account
-                                    GROUP BY a.artist_id
-                                )
-                            SELECT
-                                c.name,
-                                mines.playnumber as playnumber
-                            FROM
-                                mines
-                                    JOIN globals ON globals.artist_id = mines.artist_id AND mines.playnumber = globals.outf
-                                    JOIN artist c ON mines.artist_id = c.id
-                            ORDER BY
-                                playnumber DESC
+                        SELECT
+                            main.orden,
+                            b.name
+                        FROM
+                            (SELECT
+                                 a.artist_id,
+                                 a.orden
+                             FROM
+                                 (SELECT
+                                      artist_id,
+                                      playnumber AS orden
+                                  FROM
+                                      scrobbled_artist a
+                                  WHERE
+                                      a.lastfm_id = ?
+                                      AND playnumber >= ?
+                                 ) a
+                                     JOIN (SELECT
+                                               artist_id,
+                                               max(playnumber) AS orden
+                                           FROM
+                                               scrobbled_artist in_a JOIN user u ON in_a.lastfm_id = u.lastfm_id
+                                           WHERE ? OR NOT in_b.botted_account
+                                           GROUP BY artist_id
+                                 ) AS b
+                                          ON a.artist_id = b.artist_id AND a.orden = b.orden
+                            ) AS main
+                                JOIN artist b ON main.artist_id = b.id
+                        ORDER BY
+                            orden DESC
                         """;
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
             int i = 1;
             preparedStatement.setString(i++, lastfmId);
-            if (threshold > 1) {
-                preparedStatement.setInt(i++, threshold);
-            }
+            preparedStatement.setInt(i++, threshold);
             preparedStatement.setBoolean(i, includeBottedUsers);
-            //preparedStatement.setLong(4, ownerId);
 
 
             ResultSet resultSet = preparedStatement.executeQuery();
@@ -81,8 +75,8 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
 
             while (resultSet.next()) {
 
-                String artist = resultSet.getString("name");
-                int plays = resultSet.getInt("playnumber");
+                String artist = resultSet.getString(2);
+                int plays = resultSet.getInt(1);
                 returnList.add(new ArtistPlays(artist, plays));
 
             }
@@ -1089,48 +1083,51 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
         List<ArtistPlays> returnList = new ArrayList<>();
         long discordId = 0;
         String queryString = """
-                                     SELECT a2.name, b.discord_id , playnumber AS orden
-                                     FROM  scrobbled_artist  a
-                                     JOIN user b ON a.lastfm_id = b.lastfm_id
-                                     JOIN artist a2 ON a.artist_id = a2.id
-                                     WHERE  b.lastfm_id = ?
-                                     """ +
-                             (crownThreshold > 1 ? " and playnumber >= ? " : "") +
-                             """
-                                                     
-                                      AND  playnumber >= ALL
-                                            (SELECT MAX(b.playnumber)
-                                      FROM
-                                     (SELECT in_a.artist_id,in_a.playnumber
-                                      FROM scrobbled_artist in_a
-                                      JOIN
-                                      user in_b
-                                      ON in_a.lastfm_id = in_b.lastfm_id
-                                      NATURAL JOIN
-                                      user_guild in_c
-                                      WHERE guild_id = ?
-                                        ) AS b
-                                      WHERE b.artist_id = a.artist_id
-                                      GROUP BY artist_id)
-                                      ORDER BY orden DESC
-                                     """;
+                SELECT main.orden, b.name FROM (SELECT
+                     a.artist_id,
+                     a.orden
+                 FROM
+                     (SELECT
+                          artist_id,
+                          playnumber AS orden
+                      FROM
+                          scrobbled_artist a
+                      WHERE
+                          a.lastfm_id = ?
+                          AND playnumber >= ?
+                     ) a
+                         JOIN (SELECT
+                                   artist_id,
+                                   max(playnumber) AS orden
+                               FROM
+                                   scrobbled_artist in_a
+                                       JOIN
+                                       user in_b
+                                       ON in_a.lastfm_id = in_b.lastfm_id
+                                       NATURAL JOIN
+                                       user_guild in_c
+                               WHERE
+                                   guild_id = ?
+                               GROUP BY artist_id
+                     ) AS b
+                              ON a.artist_id = b.artist_id AND a.orden = b.orden
+                ) AS main JOIN artist b ON main.artist_id = b.id
+                ORDER BY orden DESC
+                """;
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
             int i = 1;
             preparedStatement.setString(i++, lastfmId);
-            if (crownThreshold > 1) {
-                preparedStatement.setInt(i++, crownThreshold);
-            }
+
+            preparedStatement.setInt(i++, crownThreshold);
             preparedStatement.setLong(i, guildID);
 
             ResultSet resultSet = preparedStatement.executeQuery();
 
 
             while (resultSet.next()) {
-                discordId = resultSet.getLong("b.discord_id");
-
-                String artist = resultSet.getString("a2.name");
-                int plays = resultSet.getInt("orden");
+                String artist = resultSet.getString(2);
+                int plays = resultSet.getInt(1);
                 returnList.add(new ArtistPlays(artist, plays));
             }
         } catch (SQLException e) {
@@ -3583,7 +3580,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
                                 WHERE
                                     lastfm_id = ?
                                     """ +
-                (crownthreshold > 1 ? " and playnumber > ? " : "") +
+                (crownthreshold > 1 ? " and playnumber >= ? " : "") +
                 """
                             ),
                             globals AS (

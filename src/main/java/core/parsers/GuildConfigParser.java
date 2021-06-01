@@ -34,7 +34,7 @@ public class GuildConfigParser extends DaoParser<GuildConfigParams> {
         }
         if (words.length == 1) {
             String line = Arrays.stream(GuildConfigType.values()).filter(x -> x.getCommandName().equalsIgnoreCase(words[0])).map(x ->
-                    String.format("\t**%s** \u279C %s", x.getCommandName(), x.getExplanation())).collect(Collectors.joining("\n"));
+                    String.format("\t**%s** ➜ %s", x.getCommandName(), x.getExplanation())).collect(Collectors.joining("\n"));
             if (line.isBlank()) {
                 line = Arrays.stream(GuildConfigType.values()).map(GuildConfigType::getCommandName).collect(Collectors.joining(", "));
                 sendError(words[0] + " is not a valid configuration, use one of the following:\n\t" + line, e);
@@ -73,7 +73,7 @@ public class GuildConfigParser extends DaoParser<GuildConfigParams> {
 
     @Override
     public List<Explanation> getUsages() {
-        String line = Arrays.stream(GuildConfigType.values()).map(x -> String.format("\t**%s** \u279C %s", x.getCommandName(), x.getExplanation())).collect(Collectors.joining("\n"));
+        String line = Arrays.stream(GuildConfigType.values()).map(x -> String.format("\t**%s** ➜ %s", x.getCommandName(), x.getExplanation())).collect(Collectors.joining("\n"));
         String usage = "Possible values:\n" + line;
         OptionData optionData = new OptionData(OptionType.STRING, "config", "Name of the config");
         for (GuildConfigType value : GuildConfigType.values()) {

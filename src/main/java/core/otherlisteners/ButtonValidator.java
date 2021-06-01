@@ -1,6 +1,5 @@
 package core.otherlisteners;
 
-import core.Chuu;
 import core.commands.Context;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
@@ -44,6 +43,7 @@ public class ButtonValidator<T> extends ReactionListener {
     private List<ActionRow> actionRows;
     private T currentElement;
 
+
     public ButtonValidator(UnaryOperator<EmbedBuilder> getLastMessage,
                            Supplier<T> elementFetcher,
                            BiFunction<T, EmbedBuilder, EmbedBuilder> fillBuilder,
@@ -53,7 +53,7 @@ public class ButtonValidator<T> extends ReactionListener {
                            Map<String, Reaction<T, ButtonClickEvent, ButtonResult>> actionMap,
                            List<ActionRow> actionRows
             , boolean allowOtherUsers,
-                           boolean renderInSameElement) {
+                           boolean renderInSameElement, int timeout) {
         super(who, null, 30, context.getJDA());
         this.getLastMessage = getLastMessage;
         this.elementFetcher = elementFetcher;
@@ -68,15 +68,28 @@ public class ButtonValidator<T> extends ReactionListener {
         init();
     }
 
+    public ButtonValidator(UnaryOperator<EmbedBuilder> getLastMessage,
+                           Supplier<T> elementFetcher,
+                           BiFunction<T, EmbedBuilder, EmbedBuilder> fillBuilder,
+                           EmbedBuilder who,
+                           Context context,
+                           long discordId,
+                           Map<String, Reaction<T, ButtonClickEvent, ButtonResult>> actionMap,
+                           List<ActionRow> actionRows
+            , boolean allowOtherUsers,
+                           boolean renderInSameElement) {
+        this(getLastMessage, elementFetcher, fillBuilder, who, context, discordId, actionMap, actionRows, allowOtherUsers, renderInSameElement, 30);
+    }
+
     @org.jetbrains.annotations.NotNull
     public static ButtonResult rightMove(int size, AtomicInteger counter, ButtonClickEvent r, boolean isSame, List<ActionRow> baseRows) {
         int i = counter.incrementAndGet();
         List<ActionRow> rows = baseRows;
         List<Component> arrowLess = rows.get(0).getComponents().stream().filter(z -> !(z.getId().equals(LEFT_ARROW) || z.getId().equals(RIGHT_ARROW))).collect(Collectors.toCollection(ArrayList::new));
-        arrowLess.add(Button.primary(LEFT_ARROW, Emoji.ofUnicode(LEFT_ARROW)));
+        arrowLess.add(Button.primary(LEFT_ARROW, Emoji.fromUnicode(LEFT_ARROW)));
         rows = Stream.concat(Stream.of(ActionRow.of(arrowLess)), rows.stream().skip(1)).toList();
         if (i != size - 1) {
-            arrowLess.add(Button.primary(RIGHT_ARROW, Emoji.ofUnicode(RIGHT_ARROW)));
+            arrowLess.add(Button.primary(RIGHT_ARROW, Emoji.fromUnicode(RIGHT_ARROW)));
             rows = Stream.concat(Stream.of(ActionRow.of(arrowLess)), rows.stream().skip(1)).toList();
         }
         if (i != 1 && i != size - 1) {
@@ -93,11 +106,11 @@ public class ButtonValidator<T> extends ReactionListener {
         List<Component> arrowLess = rows.get(0).getComponents().stream().filter(z -> !(z.getId().equals(LEFT_ARROW) || z.getId().equals(RIGHT_ARROW))).collect(Collectors.toCollection(ArrayList::new));
 
         if (i != 0) {
-            arrowLess.add(Button.primary(LEFT_ARROW, Emoji.ofUnicode(LEFT_ARROW)));
+            arrowLess.add(Button.primary(LEFT_ARROW, Emoji.fromUnicode(LEFT_ARROW)));
             rows = Stream.concat(Stream.of(ActionRow.of(arrowLess)), rows.stream().skip(1)).toList();
         }
 
-        arrowLess.add(Button.primary(RIGHT_ARROW, Emoji.ofUnicode(RIGHT_ARROW)));
+        arrowLess.add(Button.primary(RIGHT_ARROW, Emoji.fromUnicode(RIGHT_ARROW)));
         rows = Stream.concat(Stream.of(ActionRow.of(arrowLess)), rows.stream().skip(1)).toList();
         List<ActionRow> finalActionRows = rows;
         return () -> new ButtonResult.Result(false, finalActionRows);
@@ -152,9 +165,6 @@ public class ButtonValidator<T> extends ReactionListener {
     @Override
     public void onEvent(@Nonnull GenericEvent event) {
         if (event instanceof ButtonClickEvent e) {
-            if (!e.isAcknowledged()) {
-                e.deferEdit().queue();
-            }
             onButtonClickedEvent(e);
         }
     }
@@ -193,9 +203,6 @@ public class ButtonValidator<T> extends ReactionListener {
         if (event.getMessageIdLong() != message.getIdLong()) {
             return;
         }
-        if (event.getMessage() == null) {
-            Chuu.getLogger().warn("Got a null message IdLong => {} | event.getChannel =>  {} | event.button => {} | => event  {} ", event.getMessageIdLong(), event.getChannel(), event.getButton(), event);
-        }
         if (event.getUser() == null)
             if (event.getMessageIdLong() != message.getIdLong() || (!this.allowOtherUsers && event.getUser().getIdLong() != whom) ||
                 event.getUser().getIdLong() == event.getJDA().getSelfUser().getIdLong())
@@ -203,6 +210,7 @@ public class ButtonValidator<T> extends ReactionListener {
         Reaction<T, ButtonClickEvent, ButtonResult> action = this.actionMap.get(event.getComponentId());
         if (action == null)
             return;
+        event.deferEdit().queue();
         ButtonResult apply = action.release(currentElement, event);
         RestAction<Message> messageAction = this.doTheThing(apply);
         if (messageAction != null) {

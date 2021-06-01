@@ -12,7 +12,7 @@ import net.dv8tion.jda.api.entities.GuildVoiceState;
 import java.util.function.Function;
 
 public abstract class MusicCommand<T extends CommandParameters> extends ConcurrentCommand<T> {
-    protected static final Function<Character, String> PLAY_MESSAGE = (s) -> "\uD83C\uDFB6 `" + s + "play (song/url)` in a voice channel to start playing some music!";
+    protected static final Function<Character, String> PLAY_MESSAGE = (s) -> "🎶 `" + s + "play (song/url)` in a voice channel to start playing some music!";
     protected boolean sameChannel = false;
     protected boolean requirePlayingTrack = false;
     protected boolean requireManager = true;

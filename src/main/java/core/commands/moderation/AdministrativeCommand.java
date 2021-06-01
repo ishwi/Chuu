@@ -8,6 +8,7 @@ import core.parsers.Parser;
 import core.parsers.UrlParser;
 import core.parsers.params.UrlParameters;
 import dao.ServiceView;
+import dao.entities.GuildProperties;
 import dao.entities.LastFMData;
 import dao.entities.UsersWrapper;
 import dao.exceptions.InstanceNotFoundException;
@@ -95,9 +96,11 @@ public class AdministrativeCommand extends ConcurrentCommand<UrlParameters> {
         }
         executor2.submit(() -> {
             try {
-                LastFMData lastFMData = db.findLastFMData(event.getUser().getIdLong());
-                db.addGuildUser(lastFMData.getDiscordId(), event.getGuild().getIdLong());
-//                Chuu.getLogger().info("Successfully added {} to server: {} ", lastFMData.getDiscordId(), event.getGuild().getName());
+                GuildProperties guildProperties = db.getGuildProperties(event.getGuild().getIdLong());
+                if (guildProperties.setOnJoin()) {
+                    LastFMData lastFMData = db.findLastFMData(event.getUser().getIdLong());
+                    db.addGuildUser(lastFMData.getDiscordId(), event.getGuild().getIdLong());
+                }
             } catch (InstanceNotFoundException e) {
                 //Ignored
             }

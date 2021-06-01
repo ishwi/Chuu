@@ -43,7 +43,6 @@ public abstract class ReactionListener implements EventListener {
     }
 
 
-
     @Override
     public void onEvent(@Nonnull GenericEvent event) {
         if (event instanceof MessageReactionAddEvent e) {

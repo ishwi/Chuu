@@ -50,7 +50,7 @@ public class VotingCommand extends ConcurrentCommand<ArtistParameters> {
                     .addField("Points:", String.valueOf(votingEntity.getVotes()), true)
                     .addBlankField(true)
                     .addField("Vote Count:", String.valueOf(votingEntity.getTotalVotes()), true)
-                    .setFooter("%d/%d".formatted(counter.get() + 1, size.get()) + "\nUse \uD83D\uDEAB to report this image")
+                    .setFooter("%d/%d".formatted(counter.get() + 1, size.get()) + "\nUse " + REPORT + " to report this image")
                     .setImage(CommandUtil.noImageUrl(votingEntity.getUrl()))
                     .setColor(CommandUtil.pastelColor());
 
@@ -169,19 +169,19 @@ public class VotingCommand extends ConcurrentCommand<ArtistParameters> {
     }
 
     private Result processButtonActions(Context e, List<VotingEntity> allArtistImages, LastFMData lastFMData, AtomicInteger counter, AtomicInteger size) {
-        ActionRow of = ActionRow.of(Button.primary(DOWN_VOTE, Emoji.ofUnicode(DOWN_VOTE)),
-                Button.primary(UP_VOTE, Emoji.ofUnicode(UP_VOTE)),
-                Button.danger(REPORT, "Report").withEmoji(Emoji.ofUnicode(REPORT))
+        ActionRow of = ActionRow.of(Button.primary(DOWN_VOTE, Emoji.fromUnicode(DOWN_VOTE)),
+                Button.primary(UP_VOTE, Emoji.fromUnicode(UP_VOTE)),
+                Button.danger(REPORT, "Report").withEmoji(Emoji.fromUnicode(REPORT))
         );
 
         List<ActionRow> rows = new ArrayList<>();
         rows.add(of);
         List<Component> components = of.getComponents();
         if (allArtistImages.size() > 1) {
-            components.add(Button.primary(RIGHT_ARROW, Emoji.ofUnicode(RIGHT_ARROW)));
+            components.add(Button.primary(RIGHT_ARROW, Emoji.fromUnicode(RIGHT_ARROW)));
         }
         if (lastFMData.getRole() == Role.ADMIN) {
-            rows.add(ActionRow.of(Button.danger(STRIKE, "Remove").withEmoji(Emoji.ofUnicode(STRIKE))));
+            rows.add(ActionRow.of(Button.danger(STRIKE, "Remove").withEmoji(Emoji.fromUnicode(STRIKE))));
         }
         List<ActionRow> copy = new ArrayList<>(rows);
 

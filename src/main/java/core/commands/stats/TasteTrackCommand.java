@@ -40,7 +40,7 @@ public class TasteTrackCommand extends TasteArtistCommand {
 
     @Override
     public String getDescription() {
-        return "Compare Your musical taste with another user";
+        return "Compare your musical taste with another user";
     }
 
     @Override

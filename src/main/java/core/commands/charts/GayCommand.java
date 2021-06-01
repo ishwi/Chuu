@@ -24,6 +24,8 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.time.LocalDateTime;
+import java.time.Month;
 import java.util.List;
 import java.util.*;
 import java.util.concurrent.BlockingQueue;
@@ -197,7 +199,13 @@ public class GayCommand extends OnlyChartCommand<GayParams> {
     @Override
     public EmbedBuilder configEmbed(EmbedBuilder embedBuilder, GayParams params, int count) {
 
-        return params.initEmbed("'s pride chart", embedBuilder, "UwU ", params.getUser().getName());
+        String footer;
+        if (LocalDateTime.now().getMonth() == Month.JUNE) {
+            footer = ", happy pride month";
+        } else {
+            footer = " uwu";
+        }
+        return params.initEmbed("'s pride chart", embedBuilder, footer, params.getUser().getName());
 
     }
 

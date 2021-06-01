@@ -27,7 +27,7 @@ public record OAuthService(ChuuService db, ConcurrentLastFM lastFM) {
             return url;
         } catch (UnknownLastFmException exception) {
             if (exception.getCode() == 9) {
-                db.clearSess(lastFMData.getSession(), lastFMData.getName());
+                db.clearSess(lastFMData.getName());
             }
             throw exception;
         }

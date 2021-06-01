@@ -5,3 +5,6 @@ CREATE TABLE obscurity
     score     double                                      NOT NULL
 
 );
+
+ALTER TABLE guild
+    ADD COLUMN set_on_join boolean DEFAULT TRUE;

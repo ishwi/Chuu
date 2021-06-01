@@ -7,6 +7,7 @@ import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.commands.utils.PrivacyUtils;
 import core.otherlisteners.Confirmator;
+import core.otherlisteners.Reactions;
 import core.otherlisteners.util.ConfirmatorItem;
 import core.parsers.NoOpParser;
 import core.parsers.Parser;
@@ -72,12 +73,13 @@ public class UnsetCommand extends ConcurrentCommand<CommandParameters> {
                 .setDescription(String.format("%s, are you sure you want to delete all your info from the bot?", userString));
 
         List<ConfirmatorItem> list = List.of(
-                new ConfirmatorItem("\u2714", who -> who.clear().setTitle(String.format("%s was removed completely from the bot", userString)).setColor(Color.RED), (z) -> db.removeUserCompletely(idLong)),
-                new ConfirmatorItem("\u274c", who -> who.clear().setTitle(String.format("Didn't do anything with user %s", userString)).setColor(Color.GREEN), (z) -> {
+                new ConfirmatorItem(Reactions.ACCEPT, who -> who.clear().setTitle(String.format("%s was removed completely from the bot", userString)).setColor(Color.RED), (z) -> db.removeUserCompletely(idLong)),
+                new ConfirmatorItem(Reactions.REJECT, who -> who.clear().setTitle(String.format("Didn't do anything with user %s", userString)).setColor(Color.GREEN), (z) -> {
                 }));
-        ActionRow of = ActionRow.of(Button.of(ButtonStyle.DANGER, "\u2714", "Delete account"),
-                Button.of(ButtonStyle.PRIMARY, "\u274c", "Don't do anything"));
-        e.sendMessage(embedBuilder.build(), List.of(of))
-                .queue(message -> new Confirmator(embedBuilder, message, idLong, list, e.isFromGuild() ? Confirmator.Mode.BUTTON : Confirmator.Mode.REACTION));
+        ActionRow of = ActionRow.of(Button.of(ButtonStyle.DANGER, Reactions.ACCEPT, "Delete account"),
+                Button.of(ButtonStyle.PRIMARY, Reactions.REJECT, "Don't do anything"));
+
+        e.sendMessage(embedBuilder.build(), of)
+                .queue(message -> new Confirmator(embedBuilder, message, idLong, list));
     }
 }

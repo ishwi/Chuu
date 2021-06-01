@@ -3,7 +3,7 @@ package core.services;
 import core.commands.Context;
 import core.commands.abstracts.MyCommand;
 import dao.ChuuService;
-import net.dv8tion.jda.api.sharding.ShardManager;
+import net.dv8tion.jda.api.JDA;
 import org.apache.commons.collections4.MultiValuedMap;
 import org.apache.commons.collections4.multimap.HashSetValuedHashMap;
 import org.apache.commons.lang3.tuple.Pair;
@@ -22,8 +22,8 @@ public class MessageDisablingService {
     public MessageDisablingService() {
     }
 
-    public MessageDisablingService(ShardManager jda, ChuuService dao) {
-        Map<String, MyCommand<?>> commandsByName = jda.getShards().get(0).getRegisteredListeners().stream().filter(x -> x instanceof MyCommand<?>).map(x -> (MyCommand<?>) x).collect(Collectors.toMap(MyCommand::getName, x -> x));
+    public MessageDisablingService(JDA jda, ChuuService dao) {
+        Map<String, MyCommand<?>> commandsByName = jda.getRegisteredListeners().stream().filter(x -> x instanceof MyCommand<?>).map(x -> (MyCommand<?>) x).collect(Collectors.toMap(MyCommand::getName, x -> x));
         MultiValuedMap<Long, String> serverDisables = dao.initServerCommandStatuses();
         serverDisables.entries().forEach(x -> {
             MyCommand<?> commandDisabled = commandsByName.get(x.getValue());

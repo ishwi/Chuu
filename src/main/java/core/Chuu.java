@@ -169,9 +169,10 @@ public class Chuu {
                         shutDownPreviousInstance(() -> {
                             addAll(db, shardManager::addEventListener);
                             customManager.isReady = true;
+                            messageDisablingService = new MessageDisablingService(shard.getShardById(0), service);
                         });
                     }
-                    messageDisablingService = new MessageDisablingService(shard, service);
+
 
                     updatePresence("Chuu");
                     if (installGlobalCommands) {
@@ -183,11 +184,14 @@ public class Chuu {
             if (startRightAway) {
                 addAll(db, builder::addEventListeners);
                 customManager.isReady = true;
+
             }
             initPrivateLastfms(db.normalService());
             messageDeletionService = new MessageDeletionService(db.normalService().getServersWithDeletableMessages());
             shardManager = builder.build();
-
+            if (startRightAway) {
+                shardManager.getShards().stream().findFirst().ifPresent(z -> messageDisablingService = new MessageDisablingService(z, service));
+            }
         } catch (LoginException e) {
             Chuu.getLogger().warn(e.getMessage(), e);
             throw new ChuuServiceException(e);

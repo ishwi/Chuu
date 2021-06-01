@@ -91,7 +91,7 @@ public class RadioCommand extends MusicCommand<EnumParameters<Station>> {
 
             if (input == null || falltrough) {
 
-                String str = stations.stream().filter(Station::isActive).map(z -> "__**%s**__  \u279C %s".formatted(WordUtils.capitalizeFully(z.name()), z.getDescription())).collect(Collectors.joining("\n"));
+                String str = stations.stream().filter(Station::isActive).map(z -> "__**%s**__  ➜ %s".formatted(WordUtils.capitalizeFully(z.name()), z.getDescription())).collect(Collectors.joining("\n"));
                 var eb = new ChuuEmbedBuilder(e).setDescription(str)
                         .setAuthor(e.getJDA().getSelfUser().getName() + "'s Radio stations", PrivacyUtils.getLastFmUser(Chuu.DEFAULT_LASTFM_ID), e.getJDA().getSelfUser().getAvatarUrl())
                         .setFooter("Do `" + e.getPrefix() + "radio stop` to cancel the radio\nExample: " + e.getPrefix() + "radio random");

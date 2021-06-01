@@ -24,14 +24,14 @@ public interface IPieableList<T, Y extends CommandParameters> extends IPieable<L
         data.stream().limit(12).forEach(x -> {
             String newTitles = keyMapping.apply(x);
             if (values.contains(newTitles)) {
-                newTitles += "\u200B".repeat(counter.getAndIncrement());
+                newTitles += "​".repeat(counter.getAndIncrement());
             } else {
                 values.add(newTitles);
             }
             entries.put(newTitles, valueMapping.applyAsInt(x));
         });
         int sum = data.stream().skip(12).parallel().mapToInt(valueMapping).sum();
-        others.put("Others\u200B", sum);
+        others.put("Others​", sum);
         return parted;
     }
 
@@ -55,14 +55,14 @@ public interface IPieableList<T, Y extends CommandParameters> extends IPieable<L
                     int i = counter.incrementAndGet();
                     String key = entry.getKey();
                     try {
-                        pieChart.addSeries(key.isBlank() ? "\u200B" : key, entry.getValue());
+                        pieChart.addSeries(key.isBlank() ? "​" : key, entry.getValue());
                     } catch (IllegalArgumentException ex) {
-                        pieChart.addSeries("\u200B".repeat(i) + key, entry.getValue());
+                        pieChart.addSeries("​".repeat(i) + key, entry.getValue());
                     }
                 });
         if (sum != 0) {
             //To avoid having an artist called others and colliding bc no duplicates allowed
-            pieChart.addSeries("Others\u200B", sum);
+            pieChart.addSeries("Others​", sum);
         }
     }
 

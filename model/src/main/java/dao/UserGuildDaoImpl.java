@@ -566,11 +566,12 @@ public class UserGuildDaoImpl implements UserGuildDao {
             long chart_options = resultSet.getInt(22);
             return new LastFMData(lastFmID, aLong, role, privateUpdate, imageNOtify, whoKnowsMode, chartMode, remainingImagesMode, defaultX, defaultY, privacyMode, ratingNotify, privateLastfmId, showBotted, tz, token, session, scrobbling, embedColor, ownTags, artistThreshold, ChartOptions.getChartOptions(chart_options));
 
-
-            /* Get results. */
-
-
         } catch (SQLException e) {
+            // Illegal mix of collation
+            if (e.getErrorCode() == 1267) {
+                throw new InstanceNotFoundException(lastFmID);
+            }
+
             throw new ChuuServiceException(e);
         }
     }
@@ -847,7 +848,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
     @Override
     public GuildProperties getGuild(Connection connection, long discordId) throws InstanceNotFoundException {
         String queryString = "SELECT " +
-                             "guild_id,prefix,crown_threshold,whoknows_mode,chart_mode,remaining_mode,delete_message,disabled_warning,override_reactions,allow_reactions,color,allow_covers,override_color FROM guild WHERE guild_id = ? ";
+                             "guild_id,prefix,crown_threshold,whoknows_mode,chart_mode,remaining_mode,delete_message,disabled_warning,override_reactions,allow_reactions,color,allow_covers,override_color,set_on_join FROM guild WHERE guild_id = ? ";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
 
             /* Fill "preparedStatement". */
@@ -869,6 +870,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
             boolean allow_covers = resultSet.getBoolean("allow_covers");
             OverrideMode override_reactions = OverrideMode.valueOf(resultSet.getString("override_reactions"));
             boolean allowReactions = resultSet.getBoolean("allow_reactions");
+            boolean setOnJoin = resultSet.getBoolean("set_on_join");
             String color = resultSet.getString("color");
             EmbedColor embedColor = EmbedColor.fromString(color);
             OverrideColorMode override_color = OverrideColorMode.valueOf(resultSet.getString("override_color"));
@@ -876,7 +878,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
 
             RemainingImagesMode remainingImagesMode = remaining_mode == null ? null : RemainingImagesMode.valueOf(remaining_mode);
 
-            return new GuildProperties(guild_id, prefix.charAt(0), crown_threshold, chartMode, whoKnowsMode, override_reactions, allowReactions, remainingImagesMode, deleteMessages, disabledWarning, embedColor, allow_covers, override_color);
+            return new GuildProperties(guild_id, prefix.charAt(0), crown_threshold, chartMode, whoKnowsMode, override_reactions, allowReactions, remainingImagesMode, deleteMessages, disabledWarning, embedColor, allow_covers, override_color, setOnJoin);
 
         } catch (SQLException e) {
             throw new ChuuServiceException(e);

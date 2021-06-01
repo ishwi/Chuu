@@ -31,6 +31,6 @@ public class StolenCrown {
                LinkUtils.cleanMarkdownCharacter(artist) +
                "](" + LinkUtils.getLastFmArtistUrl(artist) +
                ") : " + ogPlays +
-               " \u279C " + queriedPlays + "\n";
+               " ➜ " + queriedPlays + "\n";
     }
 }

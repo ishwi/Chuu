@@ -47,7 +47,7 @@ public class GenreDisambiguator {
                             succesFunction.apply(e, z, mapper.apply(noiseGenre), noiseGenre.name()));
                     reacts.add(confirmatorItem);
                     if (!e.isFromGuild()) {
-                        description.append(emote).append(" \u279C ").append(noiseGenre.name()).append("\n");
+                        description.append(emote).append(" ➜ ").append(noiseGenre.name()).append("\n");
                     }
                     buttons.add(Button.primary(emote, noiseGenre.name()));
                 }
@@ -59,7 +59,8 @@ public class GenreDisambiguator {
 
                 }
                 e.sendMessage(eb.setDescription(description).build(), rows)
-                        .queue(message -> new Confirmator(eb, message, e.getAuthor().getIdLong(), reacts, (z) -> z.clear().setDescription("You didn't select any genre!").setColor(CommandUtil.pastelColor()), false, 50, e.isFromGuild() ? Confirmator.Mode.BUTTON : Confirmator.Mode.REACTION));
+                        .queue(message -> new Confirmator(eb, message, e.getAuthor().getIdLong(), reacts, (z) ->
+                                z.clear().setDescription("You didn't select any genre!").setColor(CommandUtil.pastelColor()), false, 50));
                 return;
             } else
                 theOne = matchingGenre.get(0);

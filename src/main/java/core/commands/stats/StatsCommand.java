@@ -83,7 +83,7 @@ public class StatsCommand extends ConcurrentCommand<StatsParams> {
                 if (!aliases.isBlank()) {
                     aliases = " (" + aliases + ")";
                 }
-                return "**%s** \u279C %s%s%n".formatted(x.toString(), x.getHelpMessage(), aliases);
+                return "**%s** ➜ %s%s%n".formatted(x.toString(), x.getHelpMessage(), aliases);
             }).toList();
 
             StringBuilder str = new StringBuilder();

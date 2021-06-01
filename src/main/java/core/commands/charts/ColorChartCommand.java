@@ -157,11 +157,16 @@ public class ColorChartCommand extends OnlyChartCommand<ColorChartParams> {
                 preComputedChartEntity.setPos(counter++);
             }
         }
-        if (params.isColumn() || (!params.isLinear() && !params.isSorted() && (rows * cols) < holding.size())) {
-            for (int i = 0; i < rows; i++) {
-                for (int j = 0; j < cols; j++) {
-                    PreComputedChartEntity preComputed = sorting.get(i * rows + j);
-                    preComputed.setPos(j * cols + i);
+        if (params.isColumn() || (params.isLinear()) && (params.getX() == params.getY())) {
+            if (cols == 1 || rows == 1) {
+                AtomicInteger atomicInteger = new AtomicInteger(0);
+                sorting.forEach(z -> z.setPos(atomicInteger.getAndIncrement()));
+            } else {
+                for (int i = 0; i < rows; i++) {
+                    for (int j = 0; j < cols; j++) {
+                        PreComputedChartEntity preComputed = sorting.get(i * rows + j);
+                        preComputed.setPos(j * cols + i);
+                    }
                 }
             }
         } else {

@@ -51,7 +51,7 @@ public class RymSearchCommand extends ConcurrentCommand<ExtraParameters<WordPara
 
         String query = params.getInnerParams().getWord();
         String url = rymSearch.searchUrl(query);
-        e.sendMessage(new ChuuEmbedBuilder(e).setAuthor("Rateyourmusic search \u279C " + query, url)
+        e.sendMessage(new ChuuEmbedBuilder(e).setAuthor("Rateyourmusic search ➜ " + query, url)
                 .setTitle("\t<:rym:820111349690531850> Click here to view the results", url).build()).queue();
     }
 

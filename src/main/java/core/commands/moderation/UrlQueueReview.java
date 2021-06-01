@@ -169,10 +169,10 @@ public class UrlQueueReview extends ConcurrentCommand<CommandParameters> {
             });
 
             ActionRow of = ActionRow.of(
-                    Button.danger(DELETE, "Deny").withEmoji(Emoji.ofUnicode(DELETE)),
-                    Button.primary(ACCEPT, "Accept").withEmoji(Emoji.ofUnicode(ACCEPT)),
-                    Button.secondary(RIGHT_ARROW, "Skip").withEmoji(Emoji.ofUnicode(RIGHT_ARROW)),
-                    Button.danger(STRIKE, "Strike").withEmoji(Emoji.ofUnicode(STRIKE))
+                    Button.danger(DELETE, "Deny").withEmoji(Emoji.fromUnicode(DELETE)),
+                    Button.primary(ACCEPT, "Accept").withEmoji(Emoji.fromUnicode(ACCEPT)),
+                    Button.secondary(RIGHT_ARROW, "Skip").withEmoji(Emoji.fromUnicode(RIGHT_ARROW)),
+                    Button.danger(STRIKE, "Strike").withEmoji(Emoji.fromUnicode(STRIKE))
             );
             new ButtonValidator<>(
                     finalEmbed -> {
@@ -201,7 +201,7 @@ public class UrlQueueReview extends ConcurrentCommand<CommandParameters> {
                     },
                     () -> db.getNextQueue(maxId, skippedIds),
                     builder.apply(e.getJDA(), totalReports, navigationCounter::get)
-                    , embedBuilder, e, e.getAuthor().getIdLong(), actionMap, List.of(of), false, true);
+                    , embedBuilder, e, e.getAuthor().getIdLong(), actionMap, List.of(of), false, true, 60);
         } catch (Throwable ex) {
             Chuu.getLogger().warn(ex.getMessage(), ex);
         } finally {

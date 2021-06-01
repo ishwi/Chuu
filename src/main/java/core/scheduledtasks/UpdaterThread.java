@@ -18,6 +18,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
+import static core.exceptions.UnknownLastFmException.AUTHENTICATOIN_FAILED;
+
 /**
  * Thread that is the core of the application
  * Will update the less updated person
@@ -96,14 +98,20 @@ public class UpdaterThread implements Runnable {
                     dao.removeUserCompletely(userWork.getDiscordID());
                 } catch (UnknownLastFmException ex) {
                     int code = ex.getCode();
-                    if (code == 17) {
-                        dao.updateUserTimeStamp(lastFMName, userWork.getTimestamp(),
-                                (int) (Instant.now().getEpochSecond() + 10000));
-                        Chuu.getLogger().warn("User {} code 17 while updating ", lastFMName);
-                    } else {
-                        Chuu.getLogger().warn("Error while updating {} , Unknown code {} ", lastFMName, code, ex);
+                    switch (code) {
+                        case 17 -> {
+                            dao.updateUserTimeStamp(lastFMName, userWork.getTimestamp(),
+                                    (int) (Instant.now().getEpochSecond() + 10000));
+                            Chuu.getLogger().warn("User {} code 17 while updating ", lastFMName);
+                        }
+                        case AUTHENTICATOIN_FAILED -> {
+                            dao.clearSess(lastFMName);
+                            dao.updateUserTimeStamp(lastFMName, userWork.getTimestamp(),
+                                    (int) (Instant.now().getEpochSecond() + 1000));
+                            Chuu.getLogger().warn("Cleared session for {} ", lastFMName);
+                        }
+                        default -> Chuu.getLogger().warn("Error while updating {} , Unknown code {} ", lastFMName, code, ex);
                     }
-
                 }
             } finally {
                 if (removeFlag) {

@@ -54,6 +54,10 @@ public sealed interface Context permits ContextMessageReceived, ContextSlashRece
 
     RestAction<Message> sendMessage(MessageEmbed embed, List<ActionRow> rows);
 
+    default RestAction<Message> sendMessage(MessageEmbed embed, ActionRow row) {
+        return sendMessage(embed, List.of(row));
+    }
+
     default void sendMessageQueue(String content) {
         sendMessage(content).queue();
     }

@@ -7,7 +7,7 @@ import core.parsers.params.ChartParameters;
 import core.parsers.utils.CustomTimeFrame;
 import dao.entities.LastFMData;
 import dao.entities.NaturalTimeFrameEnum;
-import net.dv8tion.jda.internal.utils.tuple.Pair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.json.JSONObject;
 
 import java.time.LocalDateTime;

@@ -5,9 +5,9 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
-import net.dv8tion.jda.api.requests.RestAction;
 
 import javax.annotation.Nonnull;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,59 +28,43 @@ public class Confirmator extends ReactionListener {
     private final boolean runLastEmbed;
     private final AtomicReference<String> didConfirm = new AtomicReference<>(null);
     private final AtomicBoolean wasThisCalled = new AtomicBoolean(false);
-    private final Mode type;
 
-    public Confirmator(EmbedBuilder who, Message message, long author, List<ConfirmatorItem> items, Mode mode) {
-        this(who, message, author, items, (z) -> z.clear().setTitle("Time Out"), true, 30, mode);
+    public Confirmator(EmbedBuilder who, Message message, long author, List<ConfirmatorItem> items) {
+        this(who, message, author, items, (z) -> z.clear().setTitle("Confirmation timed out"), true, 30);
     }
 
-    public Confirmator(EmbedBuilder who, Message message, long author, List<ConfirmatorItem> items, UnaryOperator<EmbedBuilder> timeoutCallback, boolean runLastEmbed, long seconds, Mode mode) {
+    public Confirmator(EmbedBuilder who, Message message, long author, List<ConfirmatorItem> items, UnaryOperator<EmbedBuilder> timeoutCallback, boolean runLastEmbed, long seconds) {
         super(who, message, seconds);
         this.author = author;
         this.items = items;
         this.timeoutCallback = timeoutCallback;
         this.idMap = items.stream().collect(Collectors.toMap(ConfirmatorItem::reaction, z -> z, (a, b) -> a, LinkedHashMap::new));
         this.runLastEmbed = runLastEmbed;
-        this.type = mode;
         init();
     }
 
     @Override
     public void init() {
-        if (this.type == Mode.REACTION) {
-            List<RestAction<Void>> reacts = this.idMap.keySet().stream().map(x -> message.addReaction(x)).toList();
-            RestAction.allOf(reacts).queue();
-        }
     }
 
     @Override
     public void dispose() {
         if (!this.wasThisCalled.get()) {
-            this.message.editMessage(timeoutCallback.apply(who).build()).queue();
+            this.message.editMessage(timeoutCallback.apply(who).build()).setActionRows(Collections.emptyList()).queue();
         } else {
             if (runLastEmbed && this.didConfirm.get() != null) {
                 ConfirmatorItem item = this.idMap.get(this.didConfirm.get());
-                this.message.editMessage(item.builder().apply(who).build()).queue();
+                this.message.editMessage(item.builder().apply(who).build()).setActionRows(Collections.emptyList()).queue();
+            } else {
+                this.message.editMessage(message).setActionRows(Collections.emptyList()).queue();
             }
-        }
-        if (this.type == Mode.REACTION) {
-            clearReacts();
         }
     }
 
     @Override
     public void onMessageReactionAdd(@Nonnull MessageReactionAddEvent event) {
-        if (event.getMessageIdLong() != message.getIdLong() || (event.getUser() != null && event.getUser().isBot() || event.getUserIdLong() != author) || !event.getReaction().getReactionEmote().isEmoji())
-            return;
-        ConfirmatorItem item = this.idMap.get(event.getReaction().getReactionEmote().getAsReactionCode());
-        if (item != null) {
-            wasThisCalled.set(true);
-            this.didConfirm.set(item.reaction());
-            CompletableFuture.runAsync(() -> item.callback().accept(this.message));
-            unregister();
-
-        }
     }
+
 
     @Override
     public void onButtonClickedEvent(@Nonnull ButtonClickEvent event) {
@@ -96,6 +80,7 @@ public class Confirmator extends ReactionListener {
         if (event.getUser().getIdLong() != author) {
             return;
         }
+        event.deferEdit().queue();
         ConfirmatorItem item = this.idMap.get(event.getComponentId());
         if (item != null) {
             wasThisCalled.set(true);
