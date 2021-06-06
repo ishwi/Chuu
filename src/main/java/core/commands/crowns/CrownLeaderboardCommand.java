@@ -21,6 +21,10 @@ public class CrownLeaderboardCommand extends LeaderboardCommand<NumberParameters
         this.respondInPrivate = false;
     }
 
+    @Override
+    public String slashName() {
+        return "artist-leaderboard";
+    }
 
     @Override
     protected CommandCategory initCategory() {

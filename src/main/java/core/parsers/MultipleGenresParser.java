@@ -4,9 +4,6 @@ import core.apis.ExecutorsSingleton;
 import core.apis.last.ConcurrentLastFM;
 import core.commands.Context;
 import core.exceptions.LastFmException;
-import core.parsers.explanation.StrictUserExplanation;
-import core.parsers.explanation.util.Explanation;
-import core.parsers.explanation.util.MultiExplanation;
 import core.parsers.params.MultipleGenresParameters;
 import core.services.NPService;
 import core.services.tags.TagStorer;
@@ -26,7 +23,7 @@ public class MultipleGenresParser extends MultiStringParser<MultipleGenresParame
 
 
     public MultipleGenresParser(ChuuService dao, ConcurrentLastFM lastFM, OptionalEntity... opts) {
-        super(dao, opts);
+        super(dao, "genre", "genres", opts);
         this.lastFM = lastFM;
         executor = ExecutorsSingleton.getInstance();
 
@@ -38,11 +35,6 @@ public class MultipleGenresParser extends MultiStringParser<MultipleGenresParame
         opts.add(new OptionalEntity("any", "return artist that match at least one tag"));
     }
 
-    @Override
-    public List<Explanation> getUsages() {
-        return MultiExplanation.obtainMultiExplanation("genre", "genres", List.of(new StrictUserExplanation()));
-
-    }
 
     @Override
     protected MultipleGenresParameters doSomethingNoWords(int limit, LastFMData lastFMData, Context e) throws LastFmException, InstanceNotFoundException {
@@ -63,5 +55,6 @@ public class MultipleGenresParser extends MultiStringParser<MultipleGenresParame
         return new MultipleGenresParameters(e, lastFMData, strings);
 
     }
+
 
 }

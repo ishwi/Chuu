@@ -37,8 +37,8 @@ public class DecadeExplanation implements Explanation {
         optionData.addChoice("1880s", "1880s");
         optionData.addChoice("1870s", "1870s");
 
-        OptionData op1 = new OptionData(OptionType.STRING, RANGE_START, "Year/Decade to start the range");
-        OptionData op2 = new OptionData(OptionType.STRING, RANGE_END, "Year/Decade to end the range");
+        OptionData op1 = new OptionData(OptionType.STRING, RANGE_START, "Decade to start the range");
+        OptionData op2 = new OptionData(OptionType.STRING, RANGE_END, "Decade to end the range");
 
         datas = List.of(optionData, op1, op2);
     }

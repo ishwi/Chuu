@@ -26,6 +26,11 @@ public class UniqueSongCommand extends ConcurrentCommand<ChuuDataParams> {
     }
 
     @Override
+    public String slashName() {
+        return "tracks";
+    }
+
+    @Override
     protected CommandCategory initCategory() {
         return CommandCategory.UNIQUES;
     }

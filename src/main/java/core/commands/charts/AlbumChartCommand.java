@@ -31,8 +31,13 @@ public class AlbumChartCommand extends ChartableCommand<ChartParameters> {
     }
 
     @Override
+    public String getSlashName() {
+        return "album";
+    }
+
+    @Override
     public String getDescription() {
-        return "Returns a chart with album images";
+        return "Chart with albums";
     }
 
     @Override

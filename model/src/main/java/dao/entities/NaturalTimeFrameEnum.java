@@ -56,7 +56,7 @@ public enum NaturalTimeFrameEnum {
     }
 
     // getter method
-    private String getName() {
+    public String getName() {
         return this.name;
     }
 

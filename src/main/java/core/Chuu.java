@@ -39,6 +39,7 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionAddEvent;
 import net.dv8tion.jda.api.events.message.priv.react.PrivateMessageReactionAddEvent;
 import net.dv8tion.jda.api.requests.GatewayIntent;
+import net.dv8tion.jda.api.requests.restaction.CommandListUpdateAction;
 import net.dv8tion.jda.api.requests.restaction.MessageAction;
 import net.dv8tion.jda.api.sharding.DefaultShardManagerBuilder;
 import net.dv8tion.jda.api.sharding.ShardManager;
@@ -73,6 +74,7 @@ public class Chuu {
     public static long channelId;
     public static long channel2Id;
     public static PrefixService prefixService;
+    public static CustomInterfacedEventManager customManager;
     private static String[] args;
     private static ShardManager shardManager;
     private static Logger logger;
@@ -148,7 +150,7 @@ public class Chuu {
         MessageAction.setDefaultMentions(EnumSet.noneOf(Message.MentionType.class));
         MessageAction.setDefaultMentionRepliedUser(false);
 
-        CustomInterfacedEventManager customManager = new CustomInterfacedEventManager(0);
+        customManager = new CustomInterfacedEventManager(0);
         EvalCommand evalCommand = new EvalCommand(db);
 
         AtomicInteger counter = new AtomicInteger(0);
@@ -170,6 +172,7 @@ public class Chuu {
                             addAll(db, shardManager::addEventListener);
                             customManager.isReady = true;
                             messageDisablingService = new MessageDisablingService(shard.getShardById(0), service);
+                            CommandListUpdateAction ignored = InteractionBuilder.setGlobalCommands(shard.getShardById(0));
                         });
                     }
 
@@ -185,12 +188,16 @@ public class Chuu {
                 addAll(db, builder::addEventListeners);
                 customManager.isReady = true;
 
+
             }
             initPrivateLastfms(db.normalService());
             messageDeletionService = new MessageDeletionService(db.normalService().getServersWithDeletableMessages());
             shardManager = builder.build();
             if (startRightAway) {
-                shardManager.getShards().stream().findFirst().ifPresent(z -> messageDisablingService = new MessageDisablingService(z, service));
+                shardManager.getShards().stream().findFirst().ifPresent(z -> {
+                    messageDisablingService = new MessageDisablingService(z, service);
+                    CommandListUpdateAction ignored = InteractionBuilder.setGlobalCommands(z);
+                });
             }
         } catch (LoginException e) {
             Chuu.getLogger().warn(e.getMessage(), e);

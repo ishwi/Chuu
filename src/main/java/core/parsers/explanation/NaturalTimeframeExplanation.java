@@ -17,7 +17,7 @@ public record NaturalTimeframeExplanation(NaturalTimeFrameEnum timeFrame) implem
         NaturalTimeFrameEnum[] values = NaturalTimeFrameEnum.values();
         ArrayUtils.reverse(values);
         for (NaturalTimeFrameEnum value : values) {
-            optionData.addChoice(value.toValueString(), value.name());
+            optionData.addChoice(value.toValueString(), value.getName());
         }
     }
 

@@ -16,6 +16,11 @@ public class GlobalUniquesCommand extends UniqueCommand {
     }
 
     @Override
+    public String slashName() {
+        return "global-artists";
+    }
+
+    @Override
     protected CommandCategory initCategory() {
         return CommandCategory.UNIQUES;
     }

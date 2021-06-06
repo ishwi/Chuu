@@ -64,4 +64,6 @@ public class ChartNormalParser extends ChartableParser<ChartParameters> {
         LastFMData data = atTheEndOneUser(e, subMessage);
         return new ChartParameters(e, data, CustomTimeFrame.ofTimeFrameEnum(timeFrame), x, y);
     }
+
+
 }

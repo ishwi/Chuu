@@ -5,7 +5,7 @@ import java.util.Locale;
 public enum CommandCategory {
     STARTING(0, "Commands to get you started"),
     NOW_PLAYING(1, "Commands related to your current playing song"),
-    CHARTS(2, "Collages about your musical preferences"),
+    CHARTS(2, "Collages about your musical preferences", "chart"),
     WHO_KNOWS(3, "Who knows a song/album/artist?", "wk"),
     USER_STATS(4, "Stats about you"),
     SERVER_STATS(5, "Stats about a specific server", "server"),
@@ -17,14 +17,15 @@ public enum CommandCategory {
     BOT_INFO(11, "Information about the bot"),
     LOVE(12, "Using the love feature of last.fm"),
     ARTIST_IMAGES(13, "Personalize the artist images displayed on the bot"),
-    RYM(14, "Testing command about a RYM integration, possibly broken"),
-    TRENDS(15, "Weekly stats about server/global trends"),
-    STREAKS(16, "Tracking your combos"),
-    MUSIC(17, "Play and scrobble music"),
-    SERVER_LEADERBOARDS(18, "Server leaderboards", "leaderboard"),
-    CONFIGURATION(19, "Personalize your bot usage"),
-    MODERATION(20, "Command for bot admins"),
-    SCROBBLING(21, "Commands for scrobbling");
+    GENRES(14, "Commands about genres/tags for artists/albums..."),
+    RYM(15, "Testing command about a RYM integration, possibly broken"),
+    TRENDS(16, "Weekly stats about server/global trends"),
+    STREAKS(17, "Tracking your combos"),
+    MUSIC(18, "Play and scrobble music"),
+    SERVER_LEADERBOARDS(19, "Server leaderboards", "leaderboard"),
+    CONFIGURATION(20, "Personalize your bot usage"),
+    MODERATION(21, "Command for bot admins"),
+    SCROBBLING(22, "Commands for scrobbling");
 
     private final int order;
     private final String description;

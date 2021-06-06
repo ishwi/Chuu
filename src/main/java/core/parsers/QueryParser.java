@@ -1,12 +1,18 @@
 package core.parsers;
 
 import core.commands.Context;
+import core.commands.ContextSlashReceived;
+import core.exceptions.LastFmException;
 import core.parsers.explanation.util.Explanation;
 import core.parsers.explanation.util.ExplanationLineType;
+import core.parsers.interactions.InteractionAux;
 import core.parsers.params.WordParameter;
+import dao.exceptions.InstanceNotFoundException;
+import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 
 import java.util.List;
+import java.util.Optional;
 
 public class QueryParser extends Parser<WordParameter> {
     private final boolean allowEmpty;
@@ -22,6 +28,16 @@ public class QueryParser extends Parser<WordParameter> {
     }
 
     @Override
+    public WordParameter parseSlashLogic(ContextSlashReceived ctx) throws LastFmException, InstanceNotFoundException {
+        String word = Optional.ofNullable(ctx.e().getOption("search-term")).map(OptionMapping::getAsString).orElse(null);
+        if (word == null && !allowEmpty) {
+            sendError("Need at least one word!", ctx);
+            return null;
+        }
+        return new WordParameter(ctx, word);
+    }
+
+    @Override
     protected WordParameter parseLogic(Context e, String[] words) {
         String join = String.join(" ", words);
         if (!allowEmpty && join.isBlank()) {
@@ -33,7 +49,10 @@ public class QueryParser extends Parser<WordParameter> {
 
     @Override
     public List<Explanation> getUsages() {
-        return List.of(() -> new ExplanationLineType("search-term", "What you want to search for", OptionType.STRING));
+        if (allowEmpty) {
+            return List.of(() -> (new ExplanationLineType("search-term", "What you want to search for", OptionType.STRING)));
+        }
+        return List.of(InteractionAux.required(() -> (new ExplanationLineType("search-term", "What you want to search for", OptionType.STRING))));
     }
 
 }

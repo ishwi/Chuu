@@ -16,6 +16,10 @@ public class UniqueAlbumLeaderboardCommand extends LeaderboardCommand<CommandPar
 
     }
 
+    @Override
+    public String slashName() {
+        return "album-leaderboard";
+    }
 
     @Override
     protected CommandCategory initCategory() {

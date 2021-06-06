@@ -37,7 +37,12 @@ public class TagsCommand extends ConcurrentCommand<ArtistParameters> {
 
     @Override
     protected CommandCategory initCategory() {
-        return CommandCategory.INFO;
+        return CommandCategory.GENRES;
+    }
+
+    @Override
+    public String slashName() {
+        return "artist";
     }
 
     @Override

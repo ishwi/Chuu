@@ -24,7 +24,7 @@ public class DiscoveredRatioCommand extends ConcurrentCommand<TimeFrameParameter
 
     @Override
     protected CommandCategory initCategory() {
-        return CommandCategory.USER_STATS;
+        return CommandCategory.DISCOVERY;
     }
 
     @Override
@@ -40,6 +40,11 @@ public class DiscoveredRatioCommand extends ConcurrentCommand<TimeFrameParameter
     @Override
     public List<String> getAliases() {
         return List.of("discoveryratio", "dratio");
+    }
+
+    @Override
+    public String slashName() {
+        return "artist-ratio";
     }
 
     @Override

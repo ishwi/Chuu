@@ -97,6 +97,11 @@ public class WhoKnowsLoonasCommand extends WhoKnowsBaseCommand<LOONAParameters> 
     }
 
     @Override
+    public String slashName() {
+        return "loona";
+    }
+
+    @Override
     protected void onCommand(Context e, @NotNull LOONAParameters params) {
 
 
@@ -121,6 +126,10 @@ public class WhoKnowsLoonasCommand extends WhoKnowsBaseCommand<LOONAParameters> 
         LOONAParameters.Mode mode = params.getMode();
         List<WrapperReturnNowPlaying> whoKnowsArtistSet = db.getWhoKnowsArtistSet(artists, e.getGuild().getIdLong(), limit, nullableOwner);
         Map<Long, String> mapper = new HashMap<>();
+        if (whoKnowsArtistSet.isEmpty()) {
+            sendMessageQueue(e, "Didnt find any artist :(");
+            return;
+        }
         whoKnowsArtistSet.stream().flatMap(x -> x.getReturnNowPlayings().stream()).forEach(x -> {
             String s = mapper.get(x.getDiscordId());
             if (s == null) {

@@ -56,7 +56,7 @@ public class CountryCommand extends ConcurrentCommand<NumberParameters<TimeFrame
                 null,
                 5,
                 map, s, false, true, false, "palette");
-        parser.addOptional(new OptionalEntity("list", "display in list format"));
+        parser.addOptional(new OptionalEntity("list", "show as a list"));
         return parser;
 
     }

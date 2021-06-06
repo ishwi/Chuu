@@ -767,8 +767,17 @@ public class TrackDaoImpl extends BaseDAO implements TrackDao {
     @Override
     public List<Track> getUserTopArtistTracks(Connection connection, String lastfmId, long artistId, int limit) {
         List<Track> returnList = new ArrayList<>();
-        String mySql = "SELECT a.playnumber,b.track_name,d.name,b.url,a.loved,duration FROM scrobbled_track a JOIN track b ON a.track_id = b.id " +
-                       "JOIN artist d ON b.artist_id = d.id  WHERE a.lastfm_id = ? AND a.artist_id = ?  ORDER BY a.playnumber DESC  LIMIT ? ";
+        String mySql = """
+                SELECT
+                    a.playnumber,
+                    (SELECT track_name FROM track WHERE id = a.track_id),
+                    (SELECT name FROM artist WHERE id = (SELECT artist_id FROM track WHERE id = a.track_id))
+                FROM scrobbled_track a
+                WHERE
+                    a.lastfm_id = ?
+                    AND a.artist_id = ?
+                ORDER BY a.playnumber DESC
+                LIMIT ?""";
         try {
             PreparedStatement preparedStatement = connection.prepareStatement(mySql);
             int i = 1;
@@ -780,10 +789,8 @@ public class TrackDaoImpl extends BaseDAO implements TrackDao {
                 int plays = resultSet.getInt(1);
                 String trackName = resultSet.getString(2);
                 String artist = resultSet.getString(3);
-                boolean isLoved = resultSet.getBoolean(5);
-                int duration = resultSet.getInt(6);
 
-                Track e = new Track(artist, trackName, plays, isLoved, duration == 0 ? 200 : duration);
+                Track e = new Track(artist, trackName, plays, false, 0);
                 returnList.add(e);
             }
 
@@ -898,7 +905,6 @@ public class TrackDaoImpl extends BaseDAO implements TrackDao {
         }
         return returnList;
     }
-
 
 
     @Override

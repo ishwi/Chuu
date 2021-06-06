@@ -57,6 +57,11 @@ public class GlobalCommandsIssuedCommand extends ConcurrentCommand<ChuuDataParam
     }
 
     @Override
+    public String slashName() {
+        return "commandslb";
+    }
+
+    @Override
     public String getName() {
         return "Global spammers";
     }

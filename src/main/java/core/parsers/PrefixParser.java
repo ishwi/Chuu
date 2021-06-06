@@ -1,9 +1,12 @@
 package core.parsers;
 
 import core.commands.Context;
+import core.commands.ContextSlashReceived;
+import core.exceptions.LastFmException;
 import core.parsers.explanation.util.Explanation;
 import core.parsers.explanation.util.ExplanationLine;
 import core.parsers.params.CharacterParameters;
+import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
@@ -15,6 +18,12 @@ import java.util.List;
 public class PrefixParser extends Parser<CharacterParameters> {
     public static final List<Character> acceptecChars = (Arrays
             .asList('!', '@', '#', '$', '%', '^', '_', '.', ',', ';', ':', '~', '>', '<', '-', '?', '|'));
+
+
+    @Override
+    public CharacterParameters parseSlashLogic(ContextSlashReceived ctx) throws LastFmException, InstanceNotFoundException {
+        return new CharacterParameters(ctx, ctx.e().getOption("prefix").getAsString().charAt(0));
+    }
 
     @Override
     protected void setUpErrorMessages() {
@@ -47,12 +56,10 @@ public class PrefixParser extends Parser<CharacterParameters> {
 
     @Override
     public List<Explanation> getUsages() {
-        String s = "!@#$%^_.,;:~><-?|";
-        OptionData optionData = new OptionData(OptionType.STRING, "prefix", "The prefix to use");
-        for (int i = 0; i < s.length(); i++) {
-            char c = s.charAt(i);
-            optionData.addChoice(String.valueOf(c), String.valueOf(c));
-        }
+
+        OptionData optionData = new OptionData(OptionType.STRING, "prefix", "The prefix to use").setRequired(true);
+        acceptecChars.forEach(z -> optionData.addChoice(String.valueOf(z), String.valueOf(z)));
+
         return Collections.singletonList(() -> new ExplanationLine("[!@#$%^_.,;:~><-?|]", "Only one of the characters listed", optionData));
     }
 

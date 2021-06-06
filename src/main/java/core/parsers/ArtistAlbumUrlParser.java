@@ -68,7 +68,7 @@ public class ArtistAlbumUrlParser extends DaoParser<ArtistAlbumUrlParameters> {
 
     @Override
     void setUpOptionals() {
-        opts.add(new OptionalEntity("noredirect", "not change the artist name for a correction automatically"));
+        opts.add(new OptionalEntity("noredirect", "not use autocorrections"));
     }
 
     @Override

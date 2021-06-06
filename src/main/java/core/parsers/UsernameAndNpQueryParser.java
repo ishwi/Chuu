@@ -2,10 +2,12 @@ package core.parsers;
 
 import core.apis.last.ConcurrentLastFM;
 import core.commands.Context;
+import core.commands.ContextSlashReceived;
 import core.exceptions.LastFmException;
 import core.parsers.explanation.QuerySearchExplanation;
 import core.parsers.explanation.StrictUserExplanation;
 import core.parsers.explanation.util.Explanation;
+import core.parsers.interactions.InteractionAux;
 import core.parsers.params.ExtraParameters;
 import core.parsers.params.WordParameter;
 import core.services.NPService;
@@ -14,8 +16,11 @@ import dao.entities.LastFMData;
 import dao.entities.NowPlayingArtist;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Function;
 
 public class UsernameAndNpQueryParser extends DaoParser<ExtraParameters<WordParameter, User>> {
@@ -31,6 +36,21 @@ public class UsernameAndNpQueryParser extends DaoParser<ExtraParameters<WordPara
         super(dao);
         this.lastFM = lastFM;
         this.mapper = mapper;
+    }
+
+    @Override
+    public ExtraParameters<WordParameter, User> parseSlashLogic(ContextSlashReceived ctx) throws LastFmException, InstanceNotFoundException {
+        SlashCommandEvent e = ctx.e();
+        User user = InteractionAux.parseUser(e);
+        String s = Optional.ofNullable(e.getOption(QuerySearchExplanation.NAME)).map(OptionMapping::getAsString).orElse(null);
+        if (s == null) {
+            NowPlayingArtist np;
+            LastFMData data = findLastfmFromID(user, ctx);
+            np = new NPService(lastFM, data).getNowPlaying();
+            return new ExtraParameters<>(ctx, new WordParameter(ctx, mapper.apply(np)), user);
+        } else {
+            return new ExtraParameters<>(ctx, new WordParameter(ctx, s), user);
+        }
     }
 
     @Override

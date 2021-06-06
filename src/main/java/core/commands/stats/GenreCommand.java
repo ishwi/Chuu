@@ -69,7 +69,7 @@ public class GenreCommand extends ConcurrentCommand<NumberParameters<TimeFramePa
 
     @Override
     protected CommandCategory initCategory() {
-        return CommandCategory.USER_STATS;
+        return CommandCategory.GENRES;
     }
 
     @Override
@@ -80,12 +80,12 @@ public class GenreCommand extends ConcurrentCommand<NumberParameters<TimeFramePa
                    "defaults to 10";
 
         TimerFrameParser timerFrameParser = new TimerFrameParser(db, TimeFrameEnum.ALL);
-        timerFrameParser.addOptional(new OptionalEntity("albums", "use albums instead of artist for the genres"));
+        timerFrameParser.addOptional(new OptionalEntity("albums", "use albums"));
         timerFrameParser.addOptional(new OptionalEntity("lastfm", "use lastfm tags instead of musicbrainz"));
         timerFrameParser.addOptional(new OptionalEntity("mb", "use only musicbrainz tags"));
 
 
-        timerFrameParser.addOptional(new OptionalEntity("list", "display in list format"));
+        timerFrameParser.addOptional(new OptionalEntity("list", "show as a list"));
 
 
         return new NumberParser<>(timerFrameParser,
@@ -96,12 +96,17 @@ public class GenreCommand extends ConcurrentCommand<NumberParameters<TimeFramePa
 
     @Override
     public String getDescription() {
-        return "Top 10 genres from an user";
+        return "Top genres from an user";
     }
 
     @Override
     public List<String> getAliases() {
         return Collections.singletonList("genre");
+    }
+
+    @Override
+    public String slashName() {
+        return "top";
     }
 
     @Override

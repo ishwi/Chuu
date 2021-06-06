@@ -39,6 +39,11 @@ public class ArtistCountLeaderboard extends LeaderboardCommand<NumberParameters<
     }
 
     @Override
+    public String slashName() {
+        return "artists";
+    }
+
+    @Override
     public String getEntryName(NumberParameters<CommandParameters> params) {
         Long extraParam = params.getExtraParam();
         if (extraParam != 0) {

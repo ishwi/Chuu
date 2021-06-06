@@ -32,10 +32,15 @@ public class TopCommand extends ArtistAbleCommand<ChartSizeParameters> {
 
     @Override
     public ChartableParser<ChartSizeParameters> initParser() {
-        OnlyChartSizeParser parser = new OnlyChartSizeParser(db, null, new OptionalEntity("album", "use albums instead of artist"));
-        parser.replaceOptional("plays", new OptionalEntity("noplays", "don't display plays"));
+        OnlyChartSizeParser parser = new OnlyChartSizeParser(db, null, new OptionalEntity("album", "use albums"));
+        parser.replaceOptional("plays", new OptionalEntity("noplays", "not show plays"));
         parser.addOptional(new OptionalEntity("plays", "shows this with plays", true, "noplays"));
         return parser;
+    }
+
+    @Override
+    public String getSlashName() {
+        return "top";
     }
 
     @Override

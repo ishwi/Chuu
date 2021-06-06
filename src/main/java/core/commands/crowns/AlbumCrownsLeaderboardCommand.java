@@ -32,6 +32,11 @@ public class AlbumCrownsLeaderboardCommand extends LeaderboardCommand<NumberPara
     }
 
     @Override
+    public String slashName() {
+        return "album-leaderboard";
+    }
+
+    @Override
     public String getEntryName(NumberParameters<CommandParameters> params) {
         return "Album crowns leaderboard";
     }

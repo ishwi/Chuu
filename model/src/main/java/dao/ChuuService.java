@@ -1500,13 +1500,20 @@ public class ChuuService implements EveryNoiseService {
 
     }
 
+    public List<ImageQueue> getNextQueue() {
+        try (Connection connection = dataSource.getConnection()) {
+            return updaterDao.getUrlQueue(connection);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
     public ImageQueue getNextQueue(Long maxId, Set<Long> skippedIds) {
         try (Connection connection = dataSource.getConnection()) {
             return updaterDao.getUrlQueue(connection, maxId, skippedIds);
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }
-
     }
 
     public Affinity getAffinity(String ogLastFmID, String receiverLastfmID, long threshold) {

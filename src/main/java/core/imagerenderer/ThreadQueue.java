@@ -18,6 +18,9 @@ import java.util.stream.Collectors;
 
 
 class ThreadQueue implements Runnable {
+    static int START_FONT_SIZE = 24;
+    static final Font JAPANESE_FONT = new Font("Yu Gothic", Font.PLAIN, START_FONT_SIZE);
+    static final Font KOREAN_FONT = new Font("Malgun Gothic", Font.PLAIN, START_FONT_SIZE);
     final BlockingQueue<UrlCapsule> queue;
     final Graphics2D g;
     final int y;
@@ -27,11 +30,9 @@ class ThreadQueue implements Runnable {
     private final boolean asideMode;
     private final StringFitter titleFitter;
     private final StringFitter subTitleFitter;
-    int START_FONT_SIZE = 24;
-    final Font JAPANESE_FONT = new Font("Yu Gothic", Font.PLAIN, START_FONT_SIZE);
-    final Font KOREAN_FONT = new Font("Malgun Gothic", Font.PLAIN, START_FONT_SIZE);
     int lowerLimitStringSize = 14;
     int imageSize = 300;
+
 
     ThreadQueue(BlockingQueue<UrlCapsule> queue, Graphics2D g, int x, int y, AtomicInteger iterations, boolean makeSmaller, boolean asideMode) {
         this.queue = queue;
@@ -41,7 +42,7 @@ class ThreadQueue implements Runnable {
         this.iterations = iterations;
         this.asideMode = asideMode;
         if (makeSmaller) {
-            this.imageSize = 150;
+            imageSize = 150;
             START_FONT_SIZE = 12;
             lowerLimitStringSize = 7;
         }

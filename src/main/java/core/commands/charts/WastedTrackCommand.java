@@ -39,6 +39,12 @@ public class WastedTrackCommand extends ChartableCommand<ChartGroupParameters> {
         return new ChartGroupParser(db, TimeFrameEnum.WEEK);
     }
 
+    @Override
+    public String getSlashName() {
+        return "songs";
+
+    }
+
 
     @Override
     public CountWrapper<BlockingQueue<UrlCapsule>> processQueue(ChartGroupParameters params) throws LastFmException {

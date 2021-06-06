@@ -23,7 +23,7 @@ public class TrackPlaysCommand extends AlbumPlaysCommand {
 
     @Override
     protected CommandCategory initCategory() {
-        return CommandCategory.SERVER_STATS;
+        return CommandCategory.USER_STATS;
     }
 
     @Override

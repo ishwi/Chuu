@@ -31,10 +31,10 @@ public class GuildTopTracksCommand extends GuildTopCommand {
     @Override
     public ChartableParser<ChartSizeParameters> initParser() {
         OnlyChartSizeParser onlyChartSizeParser = new OnlyChartSizeParser(db, TimeFrameEnum.ALL,
-                new OptionalEntity("global", " shows albums from all bot users instead of only from this server"));
-        onlyChartSizeParser.replaceOptional("plays", new OptionalEntity("noplays", "don't display plays"));
+                new OptionalEntity("global", " make it global"));
+        onlyChartSizeParser.replaceOptional("plays", new OptionalEntity("noplays", "not show plays"));
         onlyChartSizeParser.addOptional(new OptionalEntity("plays", "shows this with plays", true, "noplays"));
-        onlyChartSizeParser.replaceOptional("list", new OptionalEntity("image", "show this with a chart instead of a list "));
+        onlyChartSizeParser.replaceOptional("list", new OptionalEntity("image", "show this as a chart "));
         onlyChartSizeParser.addOptional(new OptionalEntity("list", "shows this in list mode", true, Set.of("image", "pie")));
         onlyChartSizeParser.setExpensiveSearch(false);
         onlyChartSizeParser.setAllowUnaothorizedUsers(true);
@@ -50,6 +50,11 @@ public class GuildTopTracksCommand extends GuildTopCommand {
     @Override
     public List<String> getAliases() {
         return Arrays.asList("serversongs", "guildtr", "servertr", "guildsongs", "guildtracks");
+    }
+
+    @Override
+    public String getSlashName() {
+        return "songs";
     }
 
     @Override

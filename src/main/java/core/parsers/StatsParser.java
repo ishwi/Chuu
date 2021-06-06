@@ -1,9 +1,13 @@
 package core.parsers;
 
 import core.commands.Context;
+import core.commands.ContextSlashReceived;
+import core.exceptions.LastFmException;
+import core.parsers.explanation.TimeframeExplanation;
 import core.parsers.explanation.util.Explanation;
 import core.parsers.explanation.util.ExplanationLine;
 import core.parsers.explanation.util.ExplanationLineType;
+import core.parsers.interactions.InteractionAux;
 import core.parsers.params.StatsParams;
 import core.parsers.utils.CustomTimeFrame;
 import core.util.stats.Stats;
@@ -14,6 +18,8 @@ import dao.entities.NowPlayingArtist;
 import dao.entities.TimeFrameEnum;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import org.apache.commons.lang3.StringUtils;
@@ -102,7 +108,7 @@ public class StatsParser extends DaoParser<StatsParams> {
         Matcher matcher = digit.matcher(remaining);
 
         Integer globalParam = null;
-        if (matcher.matches()) {
+        if (matcher.find()) {
             globalParam = Integer.valueOf(matcher.group(1));
             remaining = remaining.replaceAll(matcher.group(1), "");
         }
@@ -115,7 +121,6 @@ public class StatsParser extends DaoParser<StatsParams> {
         modes.removeAll(artistRank);
         NowPlayingArtist np = null;
         if (modes.isEmpty() && !building.isEmpty()) {
-            words = chartParserAux.getMessage();
             remaining = String.join(" ", words);
             np = parseArtist(words);
         } else {
@@ -178,13 +183,43 @@ public class StatsParser extends DaoParser<StatsParams> {
         String join = String.join("** | **", lines);
         String name = "statistics";
         String usage = "\t Writing **__help__** will give you a brief description of all the " + name + " that you include in the command\n";
-        OptionData optionData2 = new OptionData(OptionType.STRING, "values", "the values to select");
-        lines.stream().limit(25).forEach(t -> optionData2.addChoice(t, t));
-        Explanation explanation = () -> new ExplanationLineType("help" + name, usage, OptionType.BOOLEAN);
-        Explanation explanation2 = () -> new ExplanationLine("statistic ", join, optionData2);
-        return List.of(explanation, explanation2);
+
+        OptionData stats = new OptionData(OptionType.STRING, "stats-select", "the values to select");
+        OptionData statsFree = new OptionData(OptionType.STRING, "stats-text", "the values to select");
+        lines.stream().limit(25).forEach(t -> stats.addChoice(t, t));
+
+        Explanation help = () -> new ExplanationLineType("help", usage, OptionType.BOOLEAN);
+
+        Explanation statistics = () -> new ExplanationLine("statistics", join, List.of(stats, statsFree));
 
 
+        OptionData artist = new OptionData(OptionType.STRING, "artist", "The artist for some modes");
+        OptionData song = new OptionData(OptionType.STRING, "song", "The song for some modes");
+        OptionData album = new OptionData(OptionType.STRING, "album", "The album for some modes");
+        Explanation artists = () -> new ExplanationLine("artist - song | album ", "Some modes accept ", List.of(artist, song, album));
+
+        return List.of(statistics, help, artists, new TimeframeExplanation(TimeFrameEnum.ALL),
+                () -> new ExplanationLineType("modifier", "A number that modifies all the stats", OptionType.INTEGER));
+
+
+    }
+
+    @Override
+    public StatsParams parseSlashLogic(ContextSlashReceived ctx) throws LastFmException, InstanceNotFoundException {
+        SlashCommandEvent e = ctx.e();
+        User user = InteractionAux.parseUser(e);
+        TimeFrameEnum tfe = InteractionAux.parseTimeFrame(e, TimeFrameEnum.ALL);
+        String artist = Optional.ofNullable(e.getOption("artist")).map(OptionMapping::getAsString).orElse(null);
+        String album = Optional.ofNullable(e.getOption("album")).map(OptionMapping::getAsString).orElse(null);
+        String song = Optional.ofNullable(e.getOption("song")).map(OptionMapping::getAsString).orElse(null);
+        Long param = Optional.ofNullable(e.getOption("modifier")).map(OptionMapping::getAsLong).orElse(null);
+        String stats = Optional.ofNullable(e.getOption("stats-select")).map(OptionMapping::getAsString).orElse("");
+        String statsText = stats + " " + Optional.ofNullable(e.getOption("stats-text")).map(OptionMapping::getAsString).orElse("");
+        boolean help = Optional.ofNullable(e.getOption("help")).map(OptionMapping::getAsBoolean).orElse(false);
+        LastFMData data = findLastfmFromID(user, ctx);
+        Set<StatsParam> apply = builder.apply(statsText).getLeft();
+        apply = help && apply.isEmpty() ? EnumSet.allOf(Stats.class).stream().map(z -> new StatsParam(z, null)).collect(Collectors.toSet()) : apply;
+        return new StatsParams(ctx, apply, help, data, CustomTimeFrame.ofTimeFrameEnum(tfe), param != null ? Math.toIntExact(param) : null, apply.isEmpty());
     }
 
     public record StatsParam(Stats mode, Integer param) {

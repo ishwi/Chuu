@@ -80,6 +80,11 @@ public class GlobalFavesFromArtistCommand extends ConcurrentCommand<ArtistParame
     }
 
     @Override
+    public String slashName() {
+        return "favs";
+    }
+
+    @Override
     public String getName() {
 
         return "Favs in the bot";

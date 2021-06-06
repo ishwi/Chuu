@@ -15,6 +15,10 @@ public class UniqueSongsLeaderboardCommand extends LeaderboardCommand<CommandPar
         super(dao, true);
     }
 
+    @Override
+    public String slashName() {
+        return "tracks-leaderboard";
+    }
 
     @Override
     protected CommandCategory initCategory() {

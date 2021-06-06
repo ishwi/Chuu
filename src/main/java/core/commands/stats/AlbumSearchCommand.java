@@ -27,7 +27,7 @@ public class AlbumSearchCommand extends ListCommand<ScrobbledAlbum, UserStringPa
 
     @Override
     protected CommandCategory initCategory() {
-        return CommandCategory.DISCOVERY;
+        return CommandCategory.USER_STATS;
     }
 
     @Override

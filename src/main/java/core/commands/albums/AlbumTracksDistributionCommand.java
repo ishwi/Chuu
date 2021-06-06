@@ -55,7 +55,7 @@ public class AlbumTracksDistributionCommand extends AlbumPlaysCommand {
     @Override
     public Parser<ArtistAlbumParameters> initParser() {
         ArtistAlbumParser parser = new ArtistAlbumParser(db, lastFM);
-        parser.addOptional(new OptionalEntity("list", "display in list format"));
+        parser.addOptional(new OptionalEntity("list", "show as a list"));
 
         parser.setExpensiveSearch(true);
         return parser;

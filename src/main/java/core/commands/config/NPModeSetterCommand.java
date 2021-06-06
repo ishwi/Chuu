@@ -3,13 +3,16 @@ package core.commands.config;
 import core.apis.lyrics.TextSplitter;
 import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
+import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
+import core.otherlisteners.Reactionary;
 import core.parsers.EnumListParser;
 import core.parsers.Parser;
 import core.parsers.params.EnumListParameters;
 import dao.ServiceView;
 import dao.entities.NPMode;
+import net.dv8tion.jda.api.EmbedBuilder;
 
 import javax.validation.constraints.NotNull;
 import java.util.EnumSet;
@@ -44,7 +47,7 @@ public class NPModeSetterCommand extends ConcurrentCommand<EnumListParameters<NP
 
     @Override
     public Parser<EnumListParameters<NPMode>> initParser() {
-        return new EnumListParser<>(db, "NP Modes", NPMode.class, EnumSet.of(NPMode.UNKNOWN), mapper);
+        return new EnumListParser<>(db, "np-modes", NPMode.class, EnumSet.of(NPMode.UNKNOWN), mapper);
     }
 
     @Override
@@ -73,9 +76,12 @@ public class NPModeSetterCommand extends ConcurrentCommand<EnumListParameters<NP
             }
             String lines = modes.stream().map(x -> "**%s** ➜ %s".formatted(NPMode.getListedName(List.of(x)), x.getHelpMessage())).collect(Collectors.joining("\n"));
             List<String> split = TextSplitter.split(lines, 2000);
-            for (String s : split) {
-                sendMessageQueue(e, s);
-            }
+            EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e).setTitle("NP Configuration help")
+                    .setDescription(split.get(0));
+            e.sendMessage(new ChuuEmbedBuilder(e).setTitle("NP Configuration help")
+                    .setDescription(split.get(0)).build()).queue(w -> {
+                new Reactionary<>(split, w, 1, embedBuilder, false);
+            });
             return;
         }
         if (params.isListing()) {

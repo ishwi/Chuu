@@ -46,7 +46,7 @@ public class ServerTagsCommand extends PieableListCommand<List<TagPlays>, Comman
 
     @Override
     public Parser<CommandParameters> initParser() {
-        return new NoOpParser(new OptionalEntity("plays", "to display number of artists instead of scrobbles"));
+        return new NoOpParser(new OptionalEntity("plays", "sort by scrobbles"));
     }
 
     @Override
@@ -91,6 +91,11 @@ public class ServerTagsCommand extends PieableListCommand<List<TagPlays>, Comman
     @Override
     public List<String> getAliases() {
         return Collections.singletonList("servertags");
+    }
+
+    @Override
+    public String slashName() {
+        return "tags";
     }
 
     @Override

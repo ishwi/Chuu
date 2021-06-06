@@ -1,6 +1,5 @@
 package core.commands.crowns;
 
-import core.commands.artists.GlobalTrackArtistCrownsCommand;
 import core.commands.utils.CommandCategory;
 import core.parsers.params.ArtistParameters;
 import core.parsers.params.NumberParameters;
@@ -24,6 +23,10 @@ public class TrackArtistCrownsCommand extends GlobalTrackArtistCrownsCommand {
         return CommandCategory.CROWNS;
     }
 
+    @Override
+    public String slashName() {
+        return "track-artist";
+    }
 
     public String getTitle(ScrobbledArtist scrobbledArtist) {
         return scrobbledArtist.getArtist() + "'s track ";

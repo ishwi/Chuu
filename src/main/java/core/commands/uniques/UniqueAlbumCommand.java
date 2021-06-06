@@ -25,6 +25,11 @@ public class UniqueAlbumCommand extends ConcurrentCommand<ChuuDataParams> {
     }
 
     @Override
+    public String slashName() {
+        return "albums";
+    }
+
+    @Override
     protected CommandCategory initCategory() {
         return CommandCategory.UNIQUES;
     }

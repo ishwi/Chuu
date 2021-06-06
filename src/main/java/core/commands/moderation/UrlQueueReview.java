@@ -30,7 +30,7 @@ import net.dv8tion.jda.api.interactions.components.Button;
 
 import javax.validation.constraints.NotNull;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiFunction;
 import java.util.function.Supplier;
@@ -39,7 +39,6 @@ import static core.otherlisteners.Reactions.*;
 
 public class UrlQueueReview extends ConcurrentCommand<CommandParameters> {
 
-    private final AtomicBoolean isActive = new AtomicBoolean(false);
 
 
     private final TriFunction<JDA, Integer, Supplier<Integer>, BiFunction<ImageQueue, EmbedBuilder, EmbedBuilder>> builder = (jda, totalCount, pos) -> (reportEntity, embedBuilder) ->
@@ -101,38 +100,29 @@ public class UrlQueueReview extends ConcurrentCommand<CommandParameters> {
             sendMessageQueue(e, "Only bot admins can review the reported images!");
             return;
         }
-        if (!this.isActive.compareAndSet(false, true)) {
-            sendMessageQueue(e, "Other admin is reviewing the image queue, pls wait till they have finished!");
-            return;
-        }
         AtomicInteger statDeclined = new AtomicInteger(0);
         AtomicInteger navigationCounter = new AtomicInteger(0);
         AtomicInteger statAccepeted = new AtomicInteger(0);
         EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e).setTitle("Image Queue Review");
-        long maxId;
-        ImageQueue nextQueue = db.getNextQueue(Long.MAX_VALUE, new HashSet<>());
-        if (nextQueue == null) {
-            maxId = Long.MAX_VALUE;
-        } else {
-            maxId = nextQueue.queuedId();
-        }
-        Set<Long> skippedIds = new HashSet<>();
-        try {
-            int totalReports = db.getQueueUrlCount();
-            HashMap<String, Reaction<ImageQueue, ButtonClickEvent, ButtonResult>> actionMap = new LinkedHashMap<>();
-            actionMap.put(DELETE, (reportEntity, r) -> {
-                db.rejectQueuedImage(reportEntity.queuedId(), reportEntity);
-                statDeclined.getAndIncrement();
-                navigationCounter.incrementAndGet();
-                return () -> new ButtonResult.Result(false, null);
 
-            });
-            actionMap.put(RIGHT_ARROW, (a, r) -> {
-                skippedIds.add(a.queuedId());
-                navigationCounter.incrementAndGet();
-                return () -> new ButtonResult.Result(false, null);
-            });
-            actionMap.put(ACCEPT, (a, r) -> {
+        Queue<ImageQueue> queue = new ArrayDeque<>(db.getNextQueue());
+        int totalReports = queue.size();
+        HashMap<String, Reaction<ImageQueue, ButtonClickEvent, ButtonResult>> actionMap = new LinkedHashMap<>();
+        actionMap.put(DELETE, (reportEntity, r) -> {
+            db.rejectQueuedImage(reportEntity.queuedId(), reportEntity);
+            statDeclined.getAndIncrement();
+            navigationCounter.incrementAndGet();
+            return ButtonResult.defaultResponse;
+
+        });
+        actionMap.put(RIGHT_ARROW, (a, r) -> {
+            navigationCounter.incrementAndGet();
+            return ButtonResult.defaultResponse;
+        });
+        actionMap.put(ACCEPT, (a, r) -> {
+            statAccepeted.getAndIncrement();
+            navigationCounter.incrementAndGet();
+            CompletableFuture.runAsync(() -> {
                 long id = db.acceptImageQueue(a.queuedId(), a.url(), a.artistId(), a.uploader());
                 if (a.guildId() != null) {
                     db.insertServerCustomUrl(id, a.guildId(), a.artistId());
@@ -150,12 +140,12 @@ public class UrlQueueReview extends ConcurrentCommand<CommandParameters> {
                         // Do nothing
                     }
                 }
-                statAccepeted.getAndIncrement();
-                navigationCounter.incrementAndGet();
-                return () -> new ButtonResult.Result(false, null);
             });
+            return ButtonResult.defaultResponse;
+        });
 
-            actionMap.put(STRIKE, (a, r) -> {
+        actionMap.put(STRIKE, (a, r) -> {
+            CompletableFuture.runAsync(() -> {
                 boolean banned = db.strikeQueue(a.queuedId(), a);
                 if (banned) {
                     TextChannel textChannelById = Chuu.getShardManager().getTextChannelById(Chuu.channel2Id);
@@ -163,50 +153,48 @@ public class UrlQueueReview extends ConcurrentCommand<CommandParameters> {
                         textChannelById.sendMessage(new ChuuEmbedBuilder(e).setTitle("Banned user for adding pics")
                                 .setDescription("User: **%s**\n".formatted(User.fromId(a.uploader()).getAsMention())).build()).queue();
                 }
-                statDeclined.getAndIncrement();
-                navigationCounter.incrementAndGet();
-                return () -> new ButtonResult.Result(false, null);
             });
+            statDeclined.getAndIncrement();
+            navigationCounter.incrementAndGet();
+            return ButtonResult.defaultResponse;
+        });
 
-            ActionRow of = ActionRow.of(
-                    Button.danger(DELETE, "Deny").withEmoji(Emoji.fromUnicode(DELETE)),
-                    Button.primary(ACCEPT, "Accept").withEmoji(Emoji.fromUnicode(ACCEPT)),
-                    Button.secondary(RIGHT_ARROW, "Skip").withEmoji(Emoji.fromUnicode(RIGHT_ARROW)),
-                    Button.danger(STRIKE, "Strike").withEmoji(Emoji.fromUnicode(STRIKE))
-            );
-            new ButtonValidator<>(
-                    finalEmbed -> {
-                        int reportCount = db.getQueueUrlCount();
-                        String description = (navigationCounter.get() == 0) ? null :
-                                             String.format("You have seen %d %s and decided to reject %d %s and to accept %d",
-                                                     navigationCounter.get(),
-                                                     CommandUtil.singlePlural(navigationCounter.get(), "image", "images"),
-                                                     statDeclined.get(),
-                                                     CommandUtil.singlePlural(statDeclined.get(), "image", "images"),
-                                                     statAccepeted.get());
-                        String title;
-                        if (navigationCounter.get() == 0) {
-                            title = "There are no images in the queue";
-                        } else if (navigationCounter.get() == totalReports) {
-                            title = "There are no more images in the queue";
-                        } else {
-                            title = "Timed Out";
-                        }
-                        return finalEmbed.setTitle(title)
-                                .setImage(null)
-                                .clearFields()
-                                .setDescription(description)
-                                .setFooter(String.format("There are %d %s left to review", reportCount, CommandUtil.singlePlural(reportCount, "image", "images")))
-                                .setColor(CommandUtil.pastelColor());
-                    },
-                    () -> db.getNextQueue(maxId, skippedIds),
-                    builder.apply(e.getJDA(), totalReports, navigationCounter::get)
-                    , embedBuilder, e, e.getAuthor().getIdLong(), actionMap, List.of(of), false, true, 60);
-        } catch (Throwable ex) {
-            Chuu.getLogger().warn(ex.getMessage(), ex);
-        } finally {
-            this.isActive.set(false);
-        }
+        ActionRow of = ActionRow.of(
+                Button.danger(DELETE, "Deny").withEmoji(Emoji.fromUnicode(DELETE)),
+                Button.primary(ACCEPT, "Accept").withEmoji(Emoji.fromUnicode(ACCEPT)),
+                Button.secondary(RIGHT_ARROW, "Skip").withEmoji(Emoji.fromUnicode(RIGHT_ARROW)),
+                Button.danger(STRIKE, "Strike").withEmoji(Emoji.fromUnicode(STRIKE))
+        );
+        new ButtonValidator<>(
+                finalEmbed -> {
+                    int reportCount = db.getQueueUrlCount();
+                    String description = (navigationCounter.get() == 0) ? null :
+                                         String.format("You have seen %d %s and decided to reject %d %s and to accept %d",
+                                                 navigationCounter.get(),
+                                                 CommandUtil.singlePlural(navigationCounter.get(), "image", "images"),
+                                                 statDeclined.get(),
+                                                 CommandUtil.singlePlural(statDeclined.get(), "image", "images"),
+                                                 statAccepeted.get());
+                    String title;
+                    if (navigationCounter.get() == 0) {
+                        title = "There are no images in the queue";
+                    } else if (navigationCounter.get() == totalReports) {
+                        title = "There are no more images in the queue";
+                    } else {
+                        title = "Timed Out";
+                    }
+                    return finalEmbed.setTitle(title)
+                            .setImage(null)
+                            .clearFields()
+                            .setDescription(description)
+                            .setFooter(String.format("There are %d %s left to review", reportCount, CommandUtil.singlePlural(reportCount, "image", "images")))
+                            .setColor(CommandUtil.pastelColor());
+                },
+                queue::poll,
+                builder.apply(e.getJDA(), totalReports, navigationCounter::get)
+                , embedBuilder, e, e.getAuthor().getIdLong(), actionMap, List.of(of), false, true, 60);
 
     }
+
+
 }

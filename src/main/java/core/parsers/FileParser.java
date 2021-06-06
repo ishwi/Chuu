@@ -25,7 +25,6 @@ public class FileParser extends Parser<UrlParameters> {
         this.errorMessages.put(3, "File introduced is not a valid file");
         this.errorMessages.put(4, "Link introduced is not a valid link");
 
-
     }
 
     @Override

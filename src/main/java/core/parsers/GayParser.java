@@ -2,11 +2,14 @@ package core.parsers;
 
 import core.commands.Context;
 import core.commands.ContextMessageReceived;
-import core.parsers.explanation.FullTimeframeExplanation;
+import core.commands.ContextSlashReceived;
+import core.exceptions.LastFmException;
 import core.parsers.explanation.PermissiveUserExplanation;
+import core.parsers.explanation.TimeframeExplanation;
 import core.parsers.explanation.util.Explanation;
 import core.parsers.explanation.util.ExplanationLine;
 import core.parsers.explanation.util.ExplanationLineType;
+import core.parsers.interactions.InteractionAux;
 import core.parsers.params.GayParams;
 import core.parsers.utils.CustomTimeFrame;
 import dao.ChuuService;
@@ -15,10 +18,14 @@ import dao.entities.LastFMData;
 import dao.entities.TimeFrameEnum;
 import dao.exceptions.InstanceNotFoundException;
 import javacutils.Pair;
+import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.regex.Pattern;
 
 public class GayParser extends ChartableParser<GayParams> {
@@ -33,6 +40,16 @@ public class GayParser extends ChartableParser<GayParams> {
         this.opts.add(new OptionalEntity("plays", "display play count"));
         this.opts.add(new OptionalEntity("titles", "display titles"));
         this.opts.add(new OptionalEntity("artist", "use artists instead of albums"));
+    }
+
+    @Override
+    public GayParams parseSlashLogic(ContextSlashReceived ctx) throws LastFmException, InstanceNotFoundException {
+        SlashCommandEvent e = ctx.e();
+        User user = InteractionAux.parseUser(e);
+        TimeFrameEnum timeFrameEnum = InteractionAux.parseTimeFrame(e, defaultTFE);
+        GayType flag = GayType.valueOf(e.getOption("flag").getAsString());
+        int x = Math.toIntExact(Optional.ofNullable(e.getOption("columns")).map(OptionMapping::getAsLong).orElse(5L));
+        return new GayParams(ctx, findLastfmFromID(user, ctx), CustomTimeFrame.ofTimeFrameEnum(timeFrameEnum), x, flag.getColumns(), x, flag);
     }
 
     @Override
@@ -84,10 +101,10 @@ public class GayParser extends ChartableParser<GayParams> {
 
     @Override
     public List<Explanation> getUsages() {
-        OptionData optionData = new OptionData(OptionType.STRING, "flag", "Flag to use");
+        OptionData optionData = new OptionData(OptionType.STRING, "flag", "Flag to use").setRequired(true);
         for (GayType value : GayType.values()) {
             optionData.addChoice(value.name(), value.name());
         }
-        return List.of(() -> new ExplanationLine("[LGTBQ,BI,TRANS,NB,LESBIAN,ACE]", null, optionData), () -> new ExplanationLineType("columns", "If number of columns is not specified it defaults to 5 columns", OptionType.INTEGER), new FullTimeframeExplanation(defaultTFE), new PermissiveUserExplanation());
+        return List.of(() -> new ExplanationLine("[LGTBQ,BI,TRANS,NB,LESBIAN,ACE]", null, optionData), () -> new ExplanationLineType("columns", "If number of columns is not specified it defaults to 5 columns", OptionType.INTEGER), new TimeframeExplanation(defaultTFE), new PermissiveUserExplanation());
     }
 }

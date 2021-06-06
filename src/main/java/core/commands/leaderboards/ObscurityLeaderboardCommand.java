@@ -51,6 +51,11 @@ public class ObscurityLeaderboardCommand extends LeaderboardCommand<ChuuDataPara
     }
 
     @Override
+    public String slashName() {
+        return "obscurity";
+    }
+
+    @Override
     public List<String> getAliases() {
         return Arrays.asList("obscuritylb", "ob", "obs");
     }

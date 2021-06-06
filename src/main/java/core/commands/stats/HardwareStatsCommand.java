@@ -42,6 +42,11 @@ public class HardwareStatsCommand extends ConcurrentCommand<CommandParameters> {
     }
 
     @Override
+    public String slashName() {
+        return "stats";
+    }
+
+    @Override
     public String getName() {
         return "Bot Stats";
     }

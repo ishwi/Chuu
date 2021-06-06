@@ -47,6 +47,11 @@ public class ServerYearDistributionCommand extends ConcurrentCommand<CommandPara
     }
 
     @Override
+    public String slashName() {
+        return "years";
+    }
+
+    @Override
     public String getName() {
         return "Server album years";
     }

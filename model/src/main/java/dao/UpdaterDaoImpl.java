@@ -446,6 +446,41 @@ public class UpdaterDaoImpl extends BaseDAO implements UpdaterDao {
     }
 
     @Override
+    public List<ImageQueue> getUrlQueue(Connection connection) {
+        List<ImageQueue> queues = new ArrayList<>();
+        String queryString = """
+                SELECT a.id,a.url,a.artist_id,a.discord_id,a.added_date, c.name,
+                (SELECT count(*) FROM alt_url d WHERE d.discord_id = a.discord_id) AS submitted,
+                (SELECT count(*) FROM rejected WHERE rejected.discord_id = a.discord_id) AS reportedcount,
+                (SELECT count(*) FROM strike WHERE strike.discord_id = a.discord_id) AS reportedcount,
+                guild_id
+                FROM queued_url a JOIN
+                artist c ON a.artist_id = c.id
+                ORDER BY a.added_date DESC
+                """;
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+            ResultSet resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                long queuedId = resultSet.getLong(1);
+                String url = resultSet.getString(2);
+                long artistId = resultSet.getInt(3);
+                long uploader = resultSet.getLong(4);
+                Timestamp addedDate = resultSet.getTimestamp(5);
+                String artistName = resultSet.getString(6);
+                int count = resultSet.getInt(7);
+                int userReportCount = resultSet.getInt(8);
+                int strikes = resultSet.getInt(9);
+                long guildId = resultSet.getLong(10);
+                queues.add(new ImageQueue(queuedId, url, artistId, uploader,
+                        artistName, addedDate.toLocalDateTime(), userReportCount, count, strikes, guildId == 0 ? null : guildId));
+            }
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+        return queues;
+    }
+
+    @Override
     public RandomUrlEntity findRandomUrlById(Connection con, String urlQ) {
         String queryString = "SELECT * " +
                              "FROM randomlinks  " +

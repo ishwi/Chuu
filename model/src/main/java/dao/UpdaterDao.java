@@ -199,4 +199,8 @@ interface UpdaterDao {
 
 
     RandomUrlEntity getRandomUrlFromUser(Connection connection, long userId);
+
+    List<ImageQueue> getUrlQueue(Connection connection);
+
+
 }

@@ -89,6 +89,10 @@ public abstract class MyCommand<T extends CommandParameters> implements EventLis
 
     public abstract List<String> getAliases();
 
+    public String slashName() {
+        return getAliases().get(0);
+    }
+
     @Override
     public void onEvent(@org.jetbrains.annotations.NotNull GenericEvent event) {
         onMessageReceived(((MessageReceivedEvent) event));

@@ -41,6 +41,11 @@ public class CrownsStolenCommand extends ConcurrentCommand<NumberParameters<TwoU
     }
 
     @Override
+    public String slashName() {
+        return "stolen";
+    }
+
+    @Override
     public String getDescription() {
         return ("List of crowns you would have if the other would concedes their crowns");
     }
@@ -102,7 +107,7 @@ public class CrownsStolenCommand extends ConcurrentCommand<NumberParameters<TwoU
         }
 
         // Footer doesnt allow markdown characters
-        embedBuilder.setDescription(a).setTitle(userName + "'s Top Crowns stolen by " + userName2, CommandUtil
+        embedBuilder.setDescription(a).setTitle(userName + "'s stolen crowns by " + userName2, CommandUtil
                 .getLastFmUser(ogLastFmId))
                 .setThumbnail(userUrl2)
                 .setFooter(CommandUtil.unescapedUser(userName2, resultWrapper.getQuriedId(), e) + " has stolen " + rows + " crowns!\n", null);

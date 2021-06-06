@@ -60,6 +60,14 @@ public abstract class ChartableCommand<T extends ChartParameters> extends Concur
 
     public abstract ChartableParser<T> initParser();
 
+    public abstract String getSlashName();
+
+    @Override
+    public final String slashName() {
+        return getSlashName();
+    }
+
+
     ChartMode getEffectiveMode(ChartParameters chartParameters) {
         if (chartParameters.isList()) {
             return ChartMode.LIST;

@@ -40,6 +40,12 @@ public class AlbumCrownsCommand extends ConcurrentCommand<NumberParameters<ChuuD
         return generateThresholdParser(new OnlyUsernameParser(db));
     }
 
+
+    @Override
+    public String slashName() {
+        return "albums";
+    }
+
     @Override
     public String getDescription() {
         return ("Albums you are the top listener within a server");

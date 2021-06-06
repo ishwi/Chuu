@@ -60,7 +60,7 @@ public class AlbumTracksGlobalDistributionCommand extends AlbumPlaysCommand {
     @Override
     public Parser<ArtistAlbumParameters> initParser() {
         ArtistAlbumParser parser = new ArtistAlbumParser(db, lastFM, false);
-        parser.addOptional(new OptionalEntity("list", "display in list format"));
+        parser.addOptional(new OptionalEntity("list", "show as a list"));
         parser.setExpensiveSearch(true);
         return parser;
     }
@@ -68,6 +68,11 @@ public class AlbumTracksGlobalDistributionCommand extends AlbumPlaysCommand {
     @Override
     public List<String> getAliases() {
         return Arrays.asList("globaltracks", "gtl");
+    }
+
+    @Override
+    public String slashName() {
+        return "tracklist";
     }
 
     @Override

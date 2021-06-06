@@ -50,7 +50,7 @@ public class ProfileInfoCommand extends ConcurrentCommand<ChuuDataParams> {
 
     @Override
     public Parser<ChuuDataParams> initParser() {
-        OnlyUsernameParser parser = new OnlyUsernameParser(db, new OptionalEntity("list", "display in list format"));
+        OnlyUsernameParser parser = new OnlyUsernameParser(db, new OptionalEntity("list", "show as a list"));
         parser.setExpensiveSearch(true);
         return parser;
     }

@@ -53,7 +53,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
                                                max(playnumber) AS orden
                                            FROM
                                                scrobbled_artist in_a JOIN user u ON in_a.lastfm_id = u.lastfm_id
-                                           WHERE ? OR NOT in_b.botted_account
+                                           WHERE ? OR NOT u.botted_account
                                            GROUP BY artist_id
                                  ) AS b
                                           ON a.artist_id = b.artist_id AND a.orden = b.orden

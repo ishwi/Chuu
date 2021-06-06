@@ -2,14 +2,20 @@ package core.parsers;
 
 import core.commands.Context;
 import core.commands.ContextMessageReceived;
+import core.commands.ContextSlashReceived;
+import core.exceptions.LastFmException;
 import core.parsers.explanation.UrlExplanation;
 import core.parsers.explanation.util.Explanation;
 import core.parsers.params.UrlParameters;
+import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 
 import java.net.URL;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 public class UrlParser extends Parser<UrlParameters> {
     private final boolean permCheck;
@@ -30,6 +36,22 @@ public class UrlParser extends Parser<UrlParameters> {
         } catch (Exception exception) {
             return false;
         }
+    }
+
+    @Override
+    public UrlParameters parseSlashLogic(ContextSlashReceived ctx) throws LastFmException, InstanceNotFoundException {
+        SlashCommandEvent e = ctx.e();
+        if (permCheck && (e.getMember() == null || !e.getMember().hasPermission(Permission.MESSAGE_MANAGE))) {
+            sendError(getErrorMessage(2), ctx);
+            return null;
+        }
+
+        String url = Optional.ofNullable(e.getOption(UrlExplanation.NAME)).map(OptionMapping::getAsString).orElse("");
+        if (!isValidURL(url)) {
+            sendError(getErrorMessage(1), ctx);
+            return null;
+        }
+        return new UrlParameters(ctx, url);
     }
 
     @Override

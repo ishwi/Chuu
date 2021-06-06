@@ -25,6 +25,11 @@ public class ArtistCommand extends ArtistAbleCommand<ChartParameters> {
     }
 
     @Override
+    public String getSlashName() {
+        return "artist";
+    }
+
+    @Override
     public EmbedBuilder configEmbed(EmbedBuilder embedBuilder, ChartParameters params, int count) {
         String handleCount;
         if (!params.getTimeFrameEnum().isNormal()) {
@@ -49,7 +54,7 @@ public class ArtistCommand extends ArtistAbleCommand<ChartParameters> {
 
     @Override
     public String getDescription() {
-        return "Returns a chart with artist images";
+        return "Chart with artists";
     }
 
     @Override

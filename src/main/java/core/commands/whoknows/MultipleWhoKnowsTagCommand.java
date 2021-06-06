@@ -2,6 +2,7 @@ package core.commands.whoknows;
 
 import core.Chuu;
 import core.commands.Context;
+import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.parsers.MultipleGenresParser;
 import core.parsers.Parser;
@@ -50,6 +51,16 @@ public class MultipleWhoKnowsTagCommand extends WhoKnowsBaseCommand<MultipleGenr
         } else {
             return lastFMData.getWhoKnowsMode();
         }
+    }
+
+    @Override
+    public CommandCategory initCategory() {
+        return CommandCategory.GENRES;
+    }
+
+    @Override
+    public String slashName() {
+        return "multi-who-knows";
     }
 
     @Override

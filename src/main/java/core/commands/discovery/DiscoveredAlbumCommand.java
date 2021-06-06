@@ -36,15 +36,20 @@ public class DiscoveredAlbumCommand extends ChartableCommand<ChartParameters> {
 
     @Override
     protected CommandCategory initCategory() {
-        return CommandCategory.CHARTS;
+        return CommandCategory.DISCOVERY;
     }
 
     @Override
     public ChartableParser<ChartParameters> initParser() {
         ChartParser chartParser = new ChartParser(db);
-        chartParser.replaceOptional("plays", new OptionalEntity("noplays", "don't display plays"));
+        chartParser.replaceOptional("plays", new OptionalEntity("noplays", "not show plays"));
         chartParser.addOptional(new OptionalEntity("plays", "shows this with plays", true, "noplays"));
         return chartParser;
+    }
+
+    @Override
+    public String getSlashName() {
+        return "albums";
     }
 
     @Override

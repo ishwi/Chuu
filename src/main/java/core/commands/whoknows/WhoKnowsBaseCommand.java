@@ -46,7 +46,7 @@ public abstract class WhoKnowsBaseCommand<T extends CommandParameters> extends C
             p.setAllowUnaothorizedUsers(true);
         }
         pie = new PieableListKnows<>(parser);
-        parser.addOptional(new OptionalEntity("list", "display in list format"));
+        parser.addOptional(new OptionalEntity("list", "show as a list"));
         this.respondInPrivate = false;
         this.discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
         this.spotify = SpotifySingleton.getInstance();
@@ -71,7 +71,7 @@ public abstract class WhoKnowsBaseCommand<T extends CommandParameters> extends C
     }
 
     @Override
-    public final CommandCategory initCategory() {
+    public CommandCategory initCategory() {
         return CommandCategory.WHO_KNOWS;
     }
 

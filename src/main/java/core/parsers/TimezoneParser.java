@@ -1,13 +1,17 @@
 package core.parsers;
 
 import core.commands.Context;
+import core.commands.ContextSlashReceived;
+import core.exceptions.LastFmException;
 import core.parsers.explanation.util.Explanation;
-import core.parsers.explanation.util.ExplanationLineType;
+import core.parsers.explanation.util.ExplanationLine;
 import core.parsers.params.TimezoneParams;
 import dao.ChuuService;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
+import org.apache.commons.lang3.StringUtils;
 
 import java.text.Normalizer;
 import java.time.DateTimeException;
@@ -49,6 +53,11 @@ public class TimezoneParser extends DaoParser<TimezoneParams> {
                  The timezone can be written either as a abbreviate of the timezone(CET, PT...),the offset of the timezone  (+01:00, -12:00...) or trying to write a representative of the timezone using the following format (Europe/Brussels,America/Los Angeles...)
                  Refer to https://en.wikipedia.org/wiki/List_of_tz_database_time_zones for the full name of the timezones that are accepted.""");
 
+    }
+
+    @Override
+    public TimezoneParams parseSlashLogic(ContextSlashReceived ctx) throws LastFmException, InstanceNotFoundException {
+        return parseLogic(ctx, new String[]{ctx.e().getOption("timezone").getAsString()});
     }
 
     @Override
@@ -136,8 +145,13 @@ public class TimezoneParser extends DaoParser<TimezoneParams> {
 
     @Override
     public List<Explanation> getUsages() {
-        return List.of(() -> new ExplanationLineType("Timezone", "The timezone can be written either as a abbreviate of the timezone (CET, PT...), the offset of the timezone" +
-                                                                 " (+01:00, -12:00...) or trying to write a representative of the timezone using the following format (Europe/Brussels,America/Los Angeles...)", OptionType.STRING));
+        String desc = "The timezone can be written either as a abbreviate of the timezone (CET, PT...), the offset of the timezone" +
+                      " (+01:00, -12:00...) or trying to write a representative of the timezone using the following format (Europe/Brussels,America/Los Angeles...)";
+        OptionData optionData = new OptionData(OptionType.STRING, "timezone", StringUtils.abbreviate(desc, 100), true);
+        ExplanationLine tz = new ExplanationLine("timezone", desc, optionData);
+        Explanation timezone = () -> tz;
+
+        return List.of(timezone);
     }
 
 }

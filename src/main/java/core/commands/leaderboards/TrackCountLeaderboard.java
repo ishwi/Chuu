@@ -39,6 +39,11 @@ public class TrackCountLeaderboard extends LeaderboardCommand<NumberParameters<C
     }
 
     @Override
+    public String slashName() {
+        return "tracks";
+    }
+
+    @Override
     public String getEntryName(NumberParameters<CommandParameters> params) {
         Long extraParam = params.getExtraParam();
         if (extraParam != 0) {

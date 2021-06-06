@@ -25,7 +25,7 @@ public class DiscoveredAlbumRatioCommand extends ConcurrentCommand<TimeFramePara
 
     @Override
     protected CommandCategory initCategory() {
-        return CommandCategory.USER_STATS;
+        return CommandCategory.DISCOVERY;
     }
 
     @Override
@@ -41,6 +41,11 @@ public class DiscoveredAlbumRatioCommand extends ConcurrentCommand<TimeFramePara
     @Override
     public List<String> getAliases() {
         return List.of("albumdiscoveryratio", "albdratio", "aldiscoveryratio", "aldisratio");
+    }
+
+    @Override
+    public String slashName() {
+        return "album-ratio";
     }
 
     @Override

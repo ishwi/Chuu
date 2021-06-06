@@ -49,6 +49,11 @@ public class ServerCommandsIssuedCommand extends ConcurrentCommand<CommandParame
     }
 
     @Override
+    public String slashName() {
+        return "commands";
+    }
+
+    @Override
     public String getName() {
         return "Server spammers";
     }

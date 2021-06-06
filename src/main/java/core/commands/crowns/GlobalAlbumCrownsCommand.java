@@ -30,6 +30,11 @@ public class GlobalAlbumCrownsCommand extends CrownsCommand {
     }
 
     @Override
+    public String slashName() {
+        return "global-albums";
+    }
+
+    @Override
     public UniqueWrapper<ArtistPlays> getList(NumberParameters<ChuuDataParams> params) {
         Long threshold = params.getExtraParam();
         if (threshold == null) {

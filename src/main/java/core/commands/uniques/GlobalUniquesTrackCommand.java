@@ -16,6 +16,11 @@ public class GlobalUniquesTrackCommand extends UniqueSongCommand {
     }
 
     @Override
+    public String slashName() {
+        return "global-tracks";
+    }
+
+    @Override
     protected CommandCategory initCategory() {
         return CommandCategory.UNIQUES;
     }

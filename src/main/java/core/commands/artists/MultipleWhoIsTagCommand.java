@@ -53,7 +53,7 @@ public class MultipleWhoIsTagCommand extends ConcurrentCommand<MultipleGenresPar
 
     @Override
     protected CommandCategory initCategory() {
-        return CommandCategory.BOT_INFO;
+        return CommandCategory.GENRES;
     }
 
     @Override

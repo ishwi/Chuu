@@ -48,6 +48,11 @@ public class RainbowChartCommand extends OnlyChartCommand<RainbowParams> {
     }
 
     @Override
+    public String getSlashName() {
+        return "rainbow";
+    }
+
+    @Override
     protected boolean handleCommand(Context e) {
         if (maxConcurrency.decrementAndGet() == 0) {
             sendMessageQueue(e, "There are a lot of people executing this command right now, try again later :(");

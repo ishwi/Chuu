@@ -5,8 +5,8 @@ import core.commands.ContextMessageReceived;
 import core.commands.ContextSlashReceived;
 import core.exceptions.LastFmException;
 import core.parsers.explanation.ChartSizeExplanation;
-import core.parsers.explanation.FullTimeframeExplanation;
 import core.parsers.explanation.PermissiveUserExplanation;
+import core.parsers.explanation.TimeframeExplanation;
 import core.parsers.explanation.util.Explanation;
 import core.parsers.params.ChartParameters;
 import dao.ChuuService;
@@ -39,7 +39,7 @@ public abstract class ChartableParser<T extends ChartParameters> extends DaoPars
 
     @Override
     void setUpOptionals() {
-        opts.add(new OptionalEntity("notitles", "dont display titles"));
+        opts.add(new OptionalEntity("notitles", "not display titles"));
         opts.add(new OptionalEntity("plays", "display play count"));
         opts.add(new OptionalEntity("list", "display it as an embed"));
         opts.add(new OptionalEntity("pie", "display it as a pie chart"));
@@ -87,7 +87,7 @@ public abstract class ChartableParser<T extends ChartParameters> extends DaoPars
 
     @Override
     public List<Explanation> getUsages() {
-        return List.of(new FullTimeframeExplanation(defaultTFE), new ChartSizeExplanation(), new PermissiveUserExplanation());
+        return List.of(new TimeframeExplanation(defaultTFE), new ChartSizeExplanation(), new PermissiveUserExplanation());
     }
 
 

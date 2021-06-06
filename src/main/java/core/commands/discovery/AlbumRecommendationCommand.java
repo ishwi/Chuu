@@ -39,7 +39,7 @@ public class AlbumRecommendationCommand extends ConcurrentCommand<Recommendation
 
     @Override
     protected CommandCategory initCategory() {
-        return CommandCategory.CHARTS;
+        return CommandCategory.DISCOVERY;
     }
 
     @Override

@@ -32,7 +32,7 @@ public class LocalWhoKnowsSongCommand extends LocalWhoKnowsAlbumCommand {
 
     @Override
     public Parser<ArtistAlbumParameters> initParser() {
-        ArtistSongParser parser = new ArtistSongParser(db, lastFM, new OptionalEntity("list", "display in list format")
+        ArtistSongParser parser = new ArtistSongParser(db, lastFM, new OptionalEntity("list", "show as a list")
                 , new OptionalEntity("pie", "display it as a chart pie"));
         parser.setExpensiveSearch(true);
         return parser;

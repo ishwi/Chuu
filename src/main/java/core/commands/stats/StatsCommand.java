@@ -114,6 +114,7 @@ public class StatsCommand extends ConcurrentCommand<StatsParams> {
         int timestamp = userInfo.getUnixtimestamp();
         if (!tfe.isAllTime()) {
             Long from = ChartUtil.getFromTo(tfe).getLeft();
+            timestamp = Math.toIntExact(from);
             totalPlays = lastFM.getInfoPeriod(data, from);
         }
         for (Stats stats : enumSet) {

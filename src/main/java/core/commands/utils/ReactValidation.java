@@ -18,6 +18,7 @@ public class ReactValidation {
         TextChannel channelToTestIn = Chuu.getShardManager().getTextChannelById(Chuu.channelId);
         List<Emote> rejected = new ArrayList<>();
         boolean sentMessage = false;
+
         for (Emote emote : params.getEmotes()) {
             if (emote.getGuild() != null) {
                 if (!emote.canInteract(e.getJDA().getSelfUser(), channelToTestIn, true)) {

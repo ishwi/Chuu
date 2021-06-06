@@ -5,10 +5,12 @@ import core.commands.ContextSlashReceived;
 import core.exceptions.LastFmException;
 import core.parsers.ChartParserAux;
 import core.parsers.exceptions.InvalidChartValuesException;
+import core.parsers.exceptions.InvalidDateException;
 import core.parsers.explanation.*;
 import core.parsers.explanation.util.Explanation;
 import core.parsers.explanation.util.ExplanationLine;
 import core.parsers.explanation.util.Interactible;
+import core.parsers.utils.CustomTimeFrame;
 import core.services.NPService;
 import dao.entities.*;
 import dao.exceptions.InstanceNotFoundException;
@@ -16,6 +18,7 @@ import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
@@ -34,11 +37,11 @@ public class InteractionAux {
     }
 
     public static TimeFrameEnum parseTimeFrame(SlashCommandEvent e, TimeFrameEnum fallback) {
-        return Optional.ofNullable(e.getOption(TimeframeExplanation.NAME)).map(OptionMapping::getAsString).map(TimeFrameEnum::getFromComplete).orElse(fallback);
+        return Optional.ofNullable(e.getOption(TimeframeExplanation.NAME)).map(OptionMapping::getAsString).map(TimeFrameEnum::get).orElse(fallback);
     }
 
     public static NaturalTimeFrameEnum parseNaturalTimeFrame(SlashCommandEvent e, NaturalTimeFrameEnum fallback) {
-        return Optional.ofNullable(e.getOption(NaturalTimeframeExplanation.NAME)).map(OptionMapping::getAsString).map(NaturalTimeFrameEnum::getFromComplete).orElse(fallback);
+        return Optional.ofNullable(e.getOption(NaturalTimeframeExplanation.NAME)).map(OptionMapping::getAsString).map(NaturalTimeFrameEnum::get).orElse(fallback);
     }
 
     public static User parseUser(SlashCommandEvent e) {
@@ -161,6 +164,24 @@ public class InteractionAux {
             return null;
         }
         return year;
+    }
+
+    public static CustomTimeFrame parseCustomTimeFrame(SlashCommandEvent e, TimeFrameEnum defaulted) throws InvalidDateException {
+        OptionMapping option = e.getOption(TimeframeExplanation.NAME);
+        if (option != null) {
+            return CustomTimeFrame.ofTimeFrameEnum(TimeFrameEnum.get(option.getAsString()));
+        }
+        String from = Optional.ofNullable(e.getOption("from")).map(OptionMapping::getAsString).orElse("");
+        String to = Optional.ofNullable(e.getOption("to")).map(OptionMapping::getAsString).orElse("");
+        String[] message;
+        if (StringUtils.isBlank(to)) {
+            message = new String[]{from};
+        } else {
+            message = new String[]{from, "-", to};
+        }
+        ChartParserAux chartParserAux = new ChartParserAux(message);
+        return chartParserAux.parseCustomTimeFrame(defaulted);
+
     }
 
     public record ArtistAlbum(String artist, String album) {

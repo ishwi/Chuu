@@ -5,6 +5,9 @@ import core.commands.ContextSlashReceived;
 import core.exceptions.LastFmException;
 import core.parsers.exceptions.InvalidChartValuesException;
 import core.parsers.exceptions.InvalidDateException;
+import core.parsers.explanation.FullTimeframeExplanation;
+import core.parsers.explanation.TimeframeExplanation;
+import core.parsers.explanation.util.Explanation;
 import core.parsers.interactions.InteractionAux;
 import core.parsers.params.ChartParameters;
 import core.parsers.utils.CustomTimeFrame;
@@ -16,6 +19,8 @@ import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 
 import java.awt.*;
+import java.util.List;
+import java.util.stream.Stream;
 
 public class ChartParser extends ChartableParser<ChartParameters> {
 
@@ -27,14 +32,20 @@ public class ChartParser extends ChartableParser<ChartParameters> {
     @Override
     public ChartParameters parseSlashLogic(ContextSlashReceived ctx) throws LastFmException, InstanceNotFoundException {
         SlashCommandEvent e = ctx.e();
-        TimeFrameEnum timeFrameEnum = InteractionAux.parseTimeFrame(e, this.defaultTFE);
+        CustomTimeFrame timeFrameEnum;
+        try {
+            timeFrameEnum = InteractionAux.parseCustomTimeFrame(e, this.defaultTFE);
+        } catch (InvalidDateException invalidDateException) {
+            this.sendError(invalidDateException.getErrorMessage(), ctx);
+            return null;
+        }
         User user = InteractionAux.parseUser(e);
         Point point = InteractionAux.parseSize(e, () -> sendError(getErrorMessage(6), ctx));
         if (point == null) {
             return null;
         }
         LastFMData data = findLastfmFromID(user, ctx);
-        return new ChartParameters(ctx, data, CustomTimeFrame.ofTimeFrameEnum(timeFrameEnum), point.x, point.y);
+        return new ChartParameters(ctx, data, timeFrameEnum, point.x, point.y);
     }
 
     @Override
@@ -71,6 +82,11 @@ public class ChartParser extends ChartableParser<ChartParameters> {
             data = atTheEndOneUser(e, subMessage);
         }
         return new ChartParameters(e, data, timeFrame, x, y);
+    }
+
+    @Override
+    public List<Explanation> getUsages() {
+        return Stream.concat(super.getUsages().stream().filter(t -> !(t instanceof TimeframeExplanation)), Stream.of(new FullTimeframeExplanation(defaultTFE))).toList();
     }
 
 }

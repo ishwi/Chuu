@@ -61,7 +61,7 @@ public class AlbumCrownsCommandTest extends CommandTest {
 
         Pattern noEmbeddedPattern2 = Pattern.compile("Sis, dont use the same person twice");
 
-        String titleRegex = ".*?(?=Top 10 crowns Stolen by )Top 10 crowns Stolen by .*";
+        String titleRegex = ".*?(?=Crowns stolen by )Top crowns stolen by .*";
         TestResources.insertCommonArtistWithPlays(Integer.MAX_VALUE);
         EmbedUtils.testLeaderboardEmbed("!stolen " + TestResources.ogJDA.getSelfUser()
                 .getAsMention(), EmbedUtils.stolenRegex, titleRegex, false, false, noEmbeddedPattern);

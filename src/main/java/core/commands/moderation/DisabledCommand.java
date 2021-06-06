@@ -3,7 +3,6 @@ package core.commands.moderation;
 import core.Chuu;
 import core.apis.lyrics.TextSplitter;
 import core.commands.Context;
-import core.commands.ContextMessageReceived;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.abstracts.MyCommand;
 import core.commands.utils.ChuuEmbedBuilder;
@@ -46,6 +45,11 @@ public class DisabledCommand extends ConcurrentCommand<DisabledCommandParameters
     }
 
     @Override
+    public String slashName() {
+        return "command-status";
+    }
+
+    @Override
     public List<String> getAliases() {
         return List.of("disable", "enable", "toggle");
     }
@@ -73,14 +77,9 @@ public class DisabledCommand extends ConcurrentCommand<DisabledCommandParameters
         // Wont accept this command
         // TODO x is null
         commandsToAllow.removeIf(x -> x.getName().equals(this.getName()));
-        StringBuilder s = new StringBuilder();
-        String substring = "disable";
-        if (e instanceof ContextMessageReceived mes) {
-            substring = mes.e().getMessage().getContentRaw().substring(1);
-        }
 
-        boolean enable = substring.startsWith("enable");
-        boolean toggl = substring.startsWith("toggle");
+        boolean enable = params.getAction() == DisabledCommandParameters.Action.ENABLE;
+        boolean toggl = params.getAction() == DisabledCommandParameters.Action.TOGGLE;
         Predicate<Boolean> transformation = (b) -> {
             if (toggl) {
                 return !b;

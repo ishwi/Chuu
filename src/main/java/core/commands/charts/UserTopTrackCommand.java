@@ -48,10 +48,15 @@ public class UserTopTrackCommand extends ChartableCommand<ChartParameters> {
     @Override
     public ChartableParser<ChartParameters> initParser() {
         ChartParser chartParser = new ChartParser(db);
-        chartParser.replaceOptional("list", new OptionalEntity("image", "show this with a chart instead of a list "));
-        chartParser.addOptional(new OptionalEntity("list", "shows this in list mode", true, Set.of("image", "pie")));
+        chartParser.replaceOptional("list", new OptionalEntity("image", "show this as a chart "));
+        chartParser.addOptional(new OptionalEntity("list", "  shows this in list mode", true, Set.of("image", "pie")));
         chartParser.setExpensiveSearch(false);
         return chartParser;
+    }
+
+    @Override
+    public String getSlashName() {
+        return "toptracks";
     }
 
 

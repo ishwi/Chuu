@@ -4,6 +4,7 @@ import core.apis.last.entities.chartentities.ArtistChart;
 import core.apis.last.entities.chartentities.UrlCapsule;
 import core.commands.Context;
 import core.commands.utils.ChuuEmbedBuilder;
+import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.imagerenderer.GraphicUtils;
 import core.otherlisteners.Reactionary;
@@ -40,12 +41,21 @@ public class GuildTopCommand extends ChartableCommand<ChartSizeParameters> {
     public ChartableParser<ChartSizeParameters> initParser() {
         OnlyChartSizeParser onlyChartSizeParser = new OnlyChartSizeParser(db, TimeFrameEnum.ALL,
                 new OptionalEntity("global", " shows artist from all bot users instead of only from this server"));
-        onlyChartSizeParser.replaceOptional("plays", new OptionalEntity("noplays", "don't display plays"));
+        onlyChartSizeParser.replaceOptional("plays", new OptionalEntity("noplays", "not show plays"));
         onlyChartSizeParser.addOptional(new OptionalEntity("plays", "shows this with plays", true, "noplays"));
         onlyChartSizeParser.setAllowUnaothorizedUsers(true);
         return onlyChartSizeParser;
     }
 
+    @Override
+    public String getSlashName() {
+        return "artists";
+    }
+
+    @Override
+    protected CommandCategory initCategory() {
+        return CommandCategory.SERVER_STATS;
+    }
 
     @Override
     public String getDescription() {

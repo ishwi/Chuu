@@ -31,7 +31,7 @@ public class WhoLastCommand extends ConcurrentCommand<ArtistParameters> {
     private final Spotify spotify;
 
     public WhoLastCommand(ServiceView dao) {
-        super(dao);
+        super(dao, true);
         this.discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
         this.spotify = SpotifySingleton.getInstance();
         respondInPrivate = false;
@@ -74,7 +74,7 @@ public class WhoLastCommand extends ConcurrentCommand<ArtistParameters> {
 
     @Override
     protected CommandCategory initCategory() {
-        return CommandCategory.USER_STATS;
+        return CommandCategory.SERVER_LEADERBOARDS;
     }
 
     @Override

@@ -50,6 +50,11 @@ public class GuildArtistPlaysCommand extends ConcurrentCommand<ArtistParameters>
     }
 
     @Override
+    public String slashName() {
+        return "plays";
+    }
+
+    @Override
     public String getName() {
         return "Artist Server Plays";
     }

@@ -30,8 +30,8 @@ public class GuildTopAlbumsCommand extends GuildTopCommand {
     @Override
     public ChartableParser<ChartSizeParameters> initParser() {
         OnlyChartSizeParser onlyChartSizeParser = new OnlyChartSizeParser(db, TimeFrameEnum.ALL,
-                new OptionalEntity("global", " shows albums from all bot users instead of only from this server"));
-        onlyChartSizeParser.replaceOptional("plays", new OptionalEntity("noplays", "don't display plays"));
+                new OptionalEntity("global", " make it global"));
+        onlyChartSizeParser.replaceOptional("plays", new OptionalEntity("noplays", "not show plays"));
         onlyChartSizeParser.addOptional(new OptionalEntity("plays", "shows this with plays", true, "noplays"));
         onlyChartSizeParser.setAllowUnaothorizedUsers(true);
         return onlyChartSizeParser;
@@ -72,6 +72,10 @@ public class GuildTopAlbumsCommand extends GuildTopCommand {
                 .setFooter(CommandUtil.stripEscapedMarkdown(name) + footerText);
     }
 
+    @Override
+    public String getSlashName() {
+        return "albums";
+    }
 
     @Override
     public String configPieChart(PieChart pieChart, ChartSizeParameters params, int count, String initTitle) {

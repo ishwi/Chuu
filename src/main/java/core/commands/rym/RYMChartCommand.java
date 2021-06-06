@@ -40,14 +40,19 @@ public class RYMChartCommand extends ChartableCommand<ChartSizeParameters> {
         p.addOptional(new OptionalEntity("global", " show ratings from all bot users instead of only from this server"))
                 .addOptional(new OptionalEntity("server", " show ratings from users only in this server"))
                 .addOptional(new OptionalEntity("usestars", "show stars instead of numbers on global and server chart"))
-                .replaceOptional("plays", new OptionalEntity("noratings", "don't display ratings"))
+                .replaceOptional("plays", new OptionalEntity("noratings", "not show ratings"))
                 .addOptional(new OptionalEntity("plays", "shows this with ratings", true, "noratings"));
         return p;
     }
 
     @Override
+    public String getSlashName() {
+        return "chart";
+    }
+
+    @Override
     public String getDescription() {
-        return "Image of top rated albums for a user /server or for the bot";
+        return "Image of top rated albums for a user|server|bot";
     }
 
     @Override

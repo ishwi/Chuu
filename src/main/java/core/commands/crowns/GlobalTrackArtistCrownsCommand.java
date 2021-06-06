@@ -1,4 +1,4 @@
-package core.commands.artists;
+package core.commands.crowns;
 
 import core.apis.discogs.DiscogsApi;
 import core.apis.discogs.DiscogsSingleton;
@@ -38,6 +38,11 @@ public class GlobalTrackArtistCrownsCommand extends ConcurrentCommand<NumberPara
         this.respondInPrivate = false;
         this.discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
         this.spotifyApi = SpotifySingleton.getInstance();
+    }
+
+    @Override
+    public String slashName() {
+        return "global-track-artist";
     }
 
 

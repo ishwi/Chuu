@@ -39,6 +39,11 @@ public class AlbumCountLeaderboard extends LeaderboardCommand<NumberParameters<C
     }
 
     @Override
+    public String slashName() {
+        return "albums";
+    }
+
+    @Override
     public String getEntryName(NumberParameters<CommandParameters> params) {
         Long extraParam = params.getExtraParam();
         if (extraParam != 0) {

@@ -38,6 +38,11 @@ public class BandInfoServerCommand extends BandInfoCommand {
     }
 
     @Override
+    public String slashName() {
+        return "artist";
+    }
+
+    @Override
     public String getName() {
         return "Specific Artist Overview in a Server";
     }

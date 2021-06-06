@@ -1,22 +1,32 @@
 package core.parsers;
 
+import com.google.common.collect.Lists;
 import core.commands.Context;
+import core.commands.ContextSlashReceived;
+import core.commands.abstracts.MyCommand;
+import core.commands.utils.CommandUtil;
+import core.exceptions.LastFmException;
+import core.parsers.explanation.StrictUserExplanation;
 import core.parsers.explanation.util.Explanation;
 import core.parsers.explanation.util.ExplanationLine;
+import core.parsers.interactions.InteractionAux;
 import core.parsers.params.EnumListParameters;
 import dao.ChuuService;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.interactions.commands.Command;
+import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
+import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 import org.apache.commons.text.WordUtils;
 
-import java.util.Arrays;
-import java.util.EnumSet;
-import java.util.List;
+import java.util.*;
 import java.util.function.Function;
 
-public class EnumListParser<T extends Enum<T>> extends DaoParser<EnumListParameters<T>> {
+public class EnumListParser<T extends Enum<T>> extends DaoParser<EnumListParameters<T>> implements Generable<EnumListParameters<T>> {
     protected final Class<T> clazz;
     private final String name;
     private final EnumSet<T> excluded;
@@ -34,6 +44,108 @@ public class EnumListParser<T extends Enum<T>> extends DaoParser<EnumListParamet
     @Override
     protected void setUpErrorMessages() {
 
+    }
+
+    public CommandData generateCommandData(MyCommand<?> myCommand) {
+        CommandData commandData = new CommandData(myCommand.slashName(), myCommand.getDescription());
+
+        SubcommandData set = new SubcommandData("set", "Replaces all your " + name + " with the ones provided");
+        set.addOption(OptionType.STRING, name, "List of all " + name + " to set", true);
+
+        SubcommandData list = new SubcommandData("list", "List the setted " + name + " for an user");
+        list.addOptions(new StrictUserExplanation().explanation().options());
+
+
+        SubcommandData add = new SubcommandData("add", "Adds only one " + name);
+        SubcommandData remove = new SubcommandData("remove", "Removes only one " + name);
+        SubcommandData help = new SubcommandData("help", "Removes only one " + name);
+        help.addOption(OptionType.BOOLEAN, "all", "whether should include the help for one command or for all");
+
+
+        EnumSet<T> ts = EnumSet.complementOf(excluded);
+        List<List<T>> partition = Lists.partition(new ArrayList<>(ts), 25);
+        int size = partition.size();
+        for (int i = 0, partitionSize = partition.size(); i < partitionSize; i++) {
+            String mode;
+            String nameOpt;
+            if (size == 1) {
+                mode = "All modes to select to";
+                nameOpt = name;
+
+            } else {
+                mode = (i + 1) + CommandUtil.getRank(i + 1) + " batch of " + name;
+                nameOpt = name + (i + 1);
+            }
+            OptionData optionData = new OptionData(OptionType.STRING, nameOpt, mode);
+            if (size == 1) {
+                optionData.setRequired(true);
+            }
+            optionData.addChoices(partition.get(i).stream().map(z -> new Command.Choice(z.toString(), z.name())).toList());
+            add.addOptions(optionData);
+            remove.addOptions(optionData);
+            help.addOptions(optionData);
+        }
+        commandData.addSubcommands(add);
+        commandData.addSubcommands(remove);
+        commandData.addSubcommands(set);
+        commandData.addSubcommands(help);
+        commandData.addSubcommands(list);
+        return commandData;
+    }
+
+    @Override
+    public EnumListParameters<T> parseSlashLogic(ContextSlashReceived ctx) throws LastFmException, InstanceNotFoundException {
+        SlashCommandEvent e = ctx.e();
+        String subcommandName = e.getSubcommandName();
+        User user = InteractionAux.parseUser(e);
+        return switch (subcommandName) {
+            case "add" -> parseSlash(ctx, e, user, true, false, false);
+            case "remove" -> parseSlash(ctx, e, user, false, true, false);
+            case "set" -> parseSlash(ctx, e, user, false, false, false);
+            case "list" -> new EnumListParameters<>(ctx, EnumSet.noneOf(clazz), false, true, false, false, user);
+            case "help" -> {
+                boolean isAll = Optional.ofNullable(e.getOption("all")).map(OptionMapping::getAsBoolean).orElse(false);
+                if (isAll) {
+                    EnumSet<T> building = EnumSet.complementOf(excluded);
+                    yield new EnumListParameters<>(ctx, building, true, false, false, false, user);
+                } else {
+                    yield parseSlash(ctx, e, user, false, false, true);
+                }
+            }
+            default -> throw new IllegalStateException("Unexpected value: " + subcommandName);
+        };
+    }
+
+    private EnumListParameters<T> parseSlash(ContextSlashReceived ctx, SlashCommandEvent e, User user, boolean isAdding, boolean isRemoving, boolean isHelp) {
+
+        EnumSet<T> ts = EnumSet.complementOf(excluded);
+        List<List<T>> partition = Lists.partition(new ArrayList<>(ts), 25);
+        int size = partition.size();
+
+        EnumSet<T> building;
+        if (size == 1) {
+            building = Optional.ofNullable(e.getOption(name)).map(OptionMapping::getAsString).map(mapper).orElse(EnumSet.noneOf(clazz));
+        } else {
+            Optional<String> opt = Optional.empty();
+            for (int i = 0, partitionSize = partition.size(); i < partitionSize; i++) {
+                List<T> tList = partition.get(i);
+                final int j = i + 1;
+                opt = opt.or(() -> Optional.ofNullable(e.getOption(name + (j))).map(OptionMapping::getAsString));
+                if (opt.isEmpty()) {
+                    continue;
+                }
+                break;
+            }
+            if (opt.isEmpty()) {
+                sendError("You need to select one " + name, ctx);
+                return null;
+            }
+            building = mapper.apply(opt.get());
+        }
+        if (building.isEmpty()) {
+            return new EnumListParameters<>(ctx, building, true, true, isAdding, isRemoving, e.getUser());
+        }
+        return new EnumListParameters<>(ctx, building, false, false, isAdding, isRemoving, e.getUser());
     }
 
     @Override

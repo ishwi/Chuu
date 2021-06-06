@@ -4,6 +4,7 @@ import core.commands.Context;
 import core.commands.ContextSlashReceived;
 import core.exceptions.LastFmException;
 import core.parsers.exceptions.InvalidChartValuesException;
+import core.parsers.explanation.TimeframeExplanation;
 import core.parsers.explanation.YearExplanation;
 import core.parsers.explanation.util.Explanation;
 import core.parsers.interactions.InteractionAux;
@@ -84,7 +85,7 @@ public class ChartYearParser extends ChartableParser<ChartYearParameters> {
 
     @Override
     public List<Explanation> getUsages() {
-        return Stream.concat(Stream.of(new YearExplanation()), super.getUsages().stream()).toList();
+        return Stream.concat(Stream.of(new YearExplanation()), super.getUsages().stream().filter(t -> !(t instanceof TimeframeExplanation))).toList();
     }
 
     @Override

@@ -8,6 +8,7 @@ import core.music.listeners.VoiceListener;
 import core.otherlisteners.AwaitReady;
 import core.otherlisteners.ConstantListener;
 import core.otherlisteners.ReactionListener;
+import core.parsers.params.CommandParameters;
 import net.dv8tion.jda.api.entities.MessageType;
 import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.ReadyEvent;
@@ -36,10 +37,11 @@ import java.util.stream.Stream;
 public class CustomInterfacedEventManager implements IEventManager {
 
     private final Set<EventListener> otherListeners = ConcurrentHashMap.newKeySet();
-    private final Map<String, MyCommand<?>> commandListeners = new HashMap<>();
+    private final Map<String, MyCommand<? extends CommandParameters>> commandListeners = new HashMap<>();
     private final Map<Long, ConstantListener> constantListeners = new HashMap<>();
     private final Map<ReactionListener, ScheduledFuture<?>> reactionaries = new ConcurrentHashMap<>();
     public boolean isReady;
+    private Map<String, MyCommand<? extends CommandParameters>> slashVariants;
     private AdministrativeCommand administrativeCommand;
     private VoiceListener voiceListener;
 
@@ -158,13 +160,25 @@ public class CustomInterfacedEventManager implements IEventManager {
             if (!isReady) {
                 return;
             }
-            MyCommand<?> myCommand;
+            MyCommand<? extends CommandParameters> myCommand;
             if (sce.getSubcommandName() == null) {
                 myCommand = commandListeners.get(sce.getName().toLowerCase(Locale.ROOT));
             } else {
-                myCommand = commandListeners.get(sce.getSubcommandName().toLowerCase(Locale.ROOT));
+                myCommand = slashVariants.get(sce.getCommandPath());
+                if (myCommand == null) {
+                    myCommand = commandListeners.get(sce.getSubcommandName());
+                }
             }
             try {
+                ContextSlashReceived ctx = new ContextSlashReceived(sce);
+                if (!Chuu.getMessageDisablingService().isMessageAllowed(myCommand, ctx)) {
+                    if (Chuu.getMessageDisablingService().doResponse(ctx))
+                        sce.reply("This command is disabled in this channel.").queue();
+                    else {
+                        sce.reply("This command is disabled in this channel.").setEphemeral(true).queue();
+                    }
+                    return;
+                }
                 myCommand.onSlashCommandReceived(sce);
             } catch (Throwable throwable) {
                 JDAImpl.LOG.error("One of the EventListeners had an uncaught exception", throwable);
@@ -225,5 +239,9 @@ public class CustomInterfacedEventManager implements IEventManager {
                 reactionListener.dispose();
             }), seconds, TimeUnit.SECONDS));
         }
+    }
+
+    public void setSlashVariants(Map<String, MyCommand<?>> slashVariants) {
+        this.slashVariants = slashVariants;
     }
 }

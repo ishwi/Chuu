@@ -12,6 +12,6 @@ public class PermissiveUserExplanation implements Explanation {
     @Override
     public Interactible explanation() {
         return new ExplanationLineType(NAME,
-                "Person who will be used for the command. Defaults to the author.", OptionType.USER);
+                "Who will be used for the command.", OptionType.USER);
     }
 }

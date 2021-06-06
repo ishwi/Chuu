@@ -81,6 +81,11 @@ public class GlobalTotalArtistPlaysCountCommand extends ResultWrappedCommand<Art
     }
 
     @Override
+    public String slashName() {
+        return "plays";
+    }
+
+    @Override
     public String getName() {
         return "Total Artist Plays";
     }

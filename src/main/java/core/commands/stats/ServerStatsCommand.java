@@ -39,7 +39,12 @@ public class ServerStatsCommand extends ConcurrentCommand<CommandParameters> {
 
     @Override
     public List<String> getAliases() {
-        return List.of("serverstats", "stats");
+        return List.of("serverstats", "sstats");
+    }
+
+    @Override
+    public String slashName() {
+        return "stats";
     }
 
     @Override

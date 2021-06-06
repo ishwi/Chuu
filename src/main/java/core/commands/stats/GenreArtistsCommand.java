@@ -9,6 +9,7 @@ import core.apis.last.queues.ArtistQueue;
 import core.apis.spotify.SpotifySingleton;
 import core.commands.Context;
 import core.commands.charts.ChartableCommand;
+import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.exceptions.LastFmException;
 import core.parsers.ChartableParser;
@@ -38,8 +39,18 @@ public class GenreArtistsCommand extends ChartableCommand<ChartableGenreParamete
     }
 
     @Override
+    protected CommandCategory initCategory() {
+        return CommandCategory.GENRES;
+    }
+
+    @Override
     public ChartableParser<ChartableGenreParameters> initParser() {
         return new GenreChartParser(db, TimeFrameEnum.WEEK, lastFM);
+    }
+
+    @Override
+    public String getSlashName() {
+        return "artist-chart";
     }
 
     @Override

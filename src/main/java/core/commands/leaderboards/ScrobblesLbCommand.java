@@ -45,6 +45,11 @@ public class ScrobblesLbCommand extends LeaderboardCommand<CommandParameters, In
     }
 
     @Override
+    public String slashName() {
+        return "scrobbles";
+    }
+
+    @Override
     public String getName() {
         return "Scrobble leaderboard";
     }

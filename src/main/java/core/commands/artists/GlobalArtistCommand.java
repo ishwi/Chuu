@@ -62,6 +62,11 @@ public class GlobalArtistCommand extends ConcurrentCommand<ArtistParameters> {
     }
 
     @Override
+    public String slashName() {
+        return "rank";
+    }
+
+    @Override
     public String getName() {
         return "Global Artist Overview";
     }

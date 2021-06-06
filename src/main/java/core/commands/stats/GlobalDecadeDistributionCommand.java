@@ -46,6 +46,11 @@ public class GlobalDecadeDistributionCommand extends ConcurrentCommand<CommandPa
     }
 
     @Override
+    public String slashName() {
+        return "decades";
+    }
+
+    @Override
     public String getName() {
         return "Global album decades";
     }

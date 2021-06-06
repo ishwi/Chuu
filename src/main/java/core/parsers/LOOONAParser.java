@@ -1,15 +1,20 @@
 package core.parsers;
 
 import core.commands.Context;
+import core.commands.ContextSlashReceived;
+import core.exceptions.LastFmException;
 import core.parsers.explanation.CommandExplanation;
 import core.parsers.explanation.util.Explanation;
 import core.parsers.explanation.util.ExplanationLine;
+import core.parsers.interactions.InteractionAux;
 import core.parsers.params.LOONAParameters;
 import dao.ChuuService;
 import dao.entities.LOONA;
 import dao.entities.LastFMData;
 import dao.exceptions.InstanceNotFoundException;
 import javacutils.Pair;
+import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import org.apache.commons.lang3.StringUtils;
@@ -34,6 +39,21 @@ public class LOOONAParser extends DaoParser<LOONAParameters> {
     @Override
     protected void setUpErrorMessages() {
         // Intentionally Empty
+    }
+
+    @Override
+    public LOONAParameters parseSlashLogic(ContextSlashReceived ctx) throws LastFmException, InstanceNotFoundException {
+        SlashCommandEvent e = ctx.e();
+        User user = InteractionAux.parseUser(e);
+        LastFMData data = findLastfmFromID(user, ctx);
+
+
+        LOONA.Type type = LOONA.Type.valueOf(e.getOption("group-selector").getAsString());
+        LOONAParameters.Display display = LOONAParameters.Display.valueOf(e.getOption("operations").getAsString());
+
+        LOONAParameters.Mode modes = LOONAParameters.Mode.valueOf(e.getOption("modes").getAsString());
+        LOONAParameters.Subject target = LOONAParameters.Subject.valueOf(e.getOption("target").getAsString());
+        return new LOONAParameters(ctx, data, LOONAParameters.SubCommand.GENERAL, display, null, type, target, modes);
     }
 
     @Override
@@ -126,21 +146,21 @@ public class LOOONAParser extends DaoParser<LOONAParameters> {
         String target = String.format(("[%s]"), subject);
 
 
-        OptionData selectorData = new OptionData(OptionType.STRING, "group-selector", StringUtils.abbreviate("You can either select all the members, a specific member,all subgroups, a specific subgroup,the main group or what is tagged as Misc.", 100));
+        OptionData selectorData = new OptionData(OptionType.STRING, "group-selector", StringUtils.abbreviate("You can either select all the members, a specific member,all subgroups, a specific subgroup,the main group or what is tagged as Misc.", 100), true);
         for (LOONA.Type value : LOONA.Type.values()) {
             String s = value.toString().replaceAll("_", " ");
             selectorData.addChoice(s, s);
         }
-        OptionData opsData = new OptionData(OptionType.STRING, "operations", "The possible operations on the resulting image/embed");
+        OptionData opsData = new OptionData(OptionType.STRING, "operations", "The possible operations on the resulting image/embed", true);
         Arrays.stream(LOONAParameters.Display.values()).map(Enum::toString).forEach(t -> opsData.addChoice(t, t));
-        OptionData modsDatga = new OptionData(OptionType.STRING, "modes", "Whether the results will be shown grouped within the selector or not");
+        OptionData modsDatga = new OptionData(OptionType.STRING, "modes", "Whether the results will be shown grouped within the selector or not", true);
         Arrays.stream(LOONAParameters.Mode.values()).map(Enum::toString).forEach(t -> modsDatga.addChoice(t, t));
-        OptionData targetData = new OptionData(OptionType.STRING, "target", "Whether the results contains info from all the server members or only the caller of the command.");
+        OptionData targetData = new OptionData(OptionType.STRING, "target", "Whether the results contains info from all the server members or only the caller of the command.", true);
         Arrays.stream(LOONAParameters.Subject.values()).map(Enum::toString).forEach(t -> targetData.addChoice(t, t));
         return List.of(
                 () ->
                         new ExplanationLine(
-                                "Group Selector",
+                                "group-selector",
                                 "The first group means the selector you can use. You can either select all the members, a specific member,all subgroups, a specific subgroup,the main group or what is tagged as Misc.",
                                 selectorData
                         ),

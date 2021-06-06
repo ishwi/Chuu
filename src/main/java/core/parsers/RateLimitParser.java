@@ -3,6 +3,7 @@ package core.parsers;
 import core.commands.Context;
 import core.parsers.explanation.util.Explanation;
 import core.parsers.explanation.util.ExplanationLineType;
+import core.parsers.interactions.InteractionAux;
 import core.parsers.params.RateLimitParams;
 import dao.ChuuService;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
@@ -63,7 +64,7 @@ public class RateLimitParser extends DaoParser<RateLimitParams> {
 
     @Override
     public List<Explanation> getUsages() {
-        return List.of(() -> new ExplanationLineType("Discord id", "discord_id is the 20 long identifier of an user", OptionType.USER),
+        return List.of(InteractionAux.required(() -> new ExplanationLineType("Discord id", "discord_id is the 20 long identifier of an user", OptionType.USER)),
                 () -> new ExplanationLineType("Rate", "The rate is the number of request the user can do per second. Must be bigger than 0.01", OptionType.STRING)
         );
     }

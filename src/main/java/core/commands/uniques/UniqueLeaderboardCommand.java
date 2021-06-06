@@ -16,6 +16,10 @@ public class UniqueLeaderboardCommand extends LeaderboardCommand<CommandParamete
         super(dao);
     }
 
+    @Override
+    public String slashName() {
+        return "artists-leaderboard";
+    }
 
     @Override
     protected CommandCategory initCategory() {

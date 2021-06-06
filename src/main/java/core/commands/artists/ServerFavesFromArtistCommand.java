@@ -53,6 +53,11 @@ public class ServerFavesFromArtistCommand extends ConcurrentCommand<ArtistParame
     }
 
     @Override
+    public String slashName() {
+        return "favs";
+    }
+
+    @Override
     public String getName() {
 
         return "Favs in server";

@@ -27,7 +27,7 @@ public class TrackSearchCommand extends ListCommand<ScrobbledTrack, UserStringPa
 
     @Override
     protected CommandCategory initCategory() {
-        return CommandCategory.DISCOVERY;
+        return CommandCategory.USER_STATS;
     }
 
     @Override

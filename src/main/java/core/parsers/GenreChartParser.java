@@ -2,10 +2,12 @@ package core.parsers;
 
 import core.apis.last.ConcurrentLastFM;
 import core.commands.Context;
+import core.commands.ContextSlashReceived;
 import core.exceptions.LastFmException;
 import core.parsers.exceptions.InvalidChartValuesException;
 import core.parsers.explanation.GenreExplanation;
 import core.parsers.explanation.util.Explanation;
+import core.parsers.interactions.InteractionAux;
 import core.parsers.params.ChartableGenreParameters;
 import core.parsers.params.GenreParameters;
 import core.parsers.utils.CustomTimeFrame;
@@ -15,6 +17,7 @@ import dao.entities.TimeFrameEnum;
 import dao.exceptions.ChuuServiceException;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 
 import java.awt.*;
 import java.util.List;
@@ -28,6 +31,21 @@ public class GenreChartParser extends ChartableParser<ChartableGenreParameters> 
         innerParser = new GenreParser(dao, lastFM);
     }
 
+    @Override
+    public ChartableGenreParameters parseSlashLogic(ContextSlashReceived ctx) throws LastFmException, InstanceNotFoundException {
+        SlashCommandEvent e = ctx.e();
+        GenreParameters genreParameters = innerParser.parseSlashLogic(ctx);
+        if (genreParameters == null) {
+            return null;
+        }
+        LastFMData data = genreParameters.getLastFMData();
+        TimeFrameEnum timeFrameEnum = InteractionAux.parseTimeFrame(e, defaultTFE);
+        Point point = InteractionAux.parseSize(e, () -> this.sendError(getErrorMessage(6), ctx));
+        if (point == null) {
+            return null;
+        }
+        return new ChartableGenreParameters(ctx, data, new CustomTimeFrame(timeFrameEnum), point.x, point.y, data.getChartMode(), genreParameters);
+    }
 
     @Override
     public ChartableGenreParameters parseLogic(Context e, String[] subMessage) throws InstanceNotFoundException {

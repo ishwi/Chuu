@@ -1,9 +1,15 @@
 package core.parsers;
 
 import core.commands.Context;
+import core.commands.ContextSlashReceived;
+import core.exceptions.LastFmException;
 import core.parsers.explanation.util.Explanation;
 import core.parsers.explanation.util.ExplanationLine;
+import core.parsers.explanation.util.ExplanationLineType;
 import core.parsers.params.EnumParameters;
+import dao.exceptions.InstanceNotFoundException;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
@@ -32,6 +38,24 @@ public class EnumParser<T extends Enum<T>> extends Parser<EnumParameters<T>> {
     @Override
     protected void setUpErrorMessages() {
 
+    }
+
+    @Override
+    public EnumParameters<T> parseSlashLogic(ContextSlashReceived ctx) throws LastFmException, InstanceNotFoundException {
+        EnumSet<T> ts = EnumSet.allOf(clazz);
+        List<String> lines = ts.stream().map(x -> x.name().replaceAll("_", "-").toLowerCase()).toList();
+
+        SlashCommandEvent e = ctx.e();
+        Optional<String> option = Optional.ofNullable(e.getOption("option")).map(OptionMapping::getAsString);
+        if (option.isEmpty()) {
+            if (allowEmpty) {
+                return new EnumParameters<>(ctx, null, null);
+            }
+            sendError("Pls introduce only one of the following: **" + String.join("**, **", lines) + "**", ctx);
+            return null;
+        }
+        String param = Optional.ofNullable(e.getOption("parameter")).map(OptionMapping::getAsString).orElse(null);
+        return new EnumParameters<>(ctx, option.map(z -> Enum.valueOf(clazz, z.toUpperCase().replaceAll("-", "_"))).orElse(null), param);
     }
 
     @Override
@@ -75,10 +99,19 @@ public class EnumParser<T extends Enum<T>> extends Parser<EnumParameters<T>> {
     public List<Explanation> getUsages() {
         List<String> lines = EnumSet.allOf(clazz).stream().map(x -> x.name().replaceAll("_", "-").toLowerCase()).toList();
         OptionData data = new OptionData(OptionType.STRING, "option", "One of the possible configuration values");
+        if (!allowEmpty) {
+            data.setRequired(true);
+        }
         for (String line : lines) {
             data.addChoice(line, line);
         }
-        return List.of(() -> new ExplanationLine("option", "Option being one of: **" + String.join("**, **", lines) + "**", data));
+
+        Explanation option = () -> new ExplanationLine("option", "Option being one of: **" + String.join("**, **", lines) + "**", data);
+        if (hasParams) {
+            Explanation params = () -> new ExplanationLineType("parameter", "Parameter for option", OptionType.STRING);
+            return List.of(option, params);
+        }
+        return List.of(option);
     }
 
 }

@@ -39,6 +39,11 @@ public class AOTDCommand extends ChartableCommand<ChartYearRangeParameters> {
     }
 
     @Override
+    public String getSlashName() {
+        return "aotd";
+    }
+
+    @Override
     public String getDescription() {
         return "Like AOTY but for multiple years at the same time";
     }

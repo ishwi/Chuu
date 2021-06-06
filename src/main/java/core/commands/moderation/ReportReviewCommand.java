@@ -116,19 +116,19 @@ public class ReportReviewCommand extends ConcurrentCommand<CommandParameters> {
                 db.removeReportedImage(reportEntity.getImageReported(), reportEntity.getWhoGotReported(), idLong);
                 statBan.getAndIncrement();
                 navigationCounter.incrementAndGet();
-                return () -> new ButtonResult.Result(false, null);
+                return ButtonResult.defaultResponse;
 
             });
             actionMap.put(ACCEPT, (a, r) -> {
                 db.ignoreReportedImage(a.getImageReported());
                 statIgnore.getAndIncrement();
                 navigationCounter.incrementAndGet();
-                return () -> new ButtonResult.Result(false, null);
+                return ButtonResult.defaultResponse;
             });
             actionMap.put(RIGHT_ARROW, (a, r) -> {
                 skippedIds.add(a.getImageReported());
                 navigationCounter.incrementAndGet();
-                return () -> new ButtonResult.Result(false, null);
+                return ButtonResult.defaultResponse;
             });
 
             ActionRow of = ActionRow.of(

@@ -1,6 +1,7 @@
 package core.commands.whoknows;
 
 import core.commands.Context;
+import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.parsers.GenreParser;
 import core.parsers.Parser;
@@ -28,6 +29,16 @@ public class WhoKnowsTagCommand extends WhoKnowsBaseCommand<GenreParameters> {
     @Override
     WhoKnowsMode getWhoknowsMode(GenreParameters params) {
         return getEffectiveMode(params.getLastFMData().getWhoKnowsMode(), params);
+    }
+
+    @Override
+    public String slashName() {
+        return "who-knows";
+    }
+
+    @Override
+    public CommandCategory initCategory() {
+        return CommandCategory.GENRES;
     }
 
 

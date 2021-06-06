@@ -26,6 +26,11 @@ public class WastedAlbumChartCommand extends GroupingChartCommand {
         super(dao);
     }
 
+    @Override
+    public String getSlashName() {
+        return "albums";
+    }
+
 
     @Override
     public CountWrapper<GroupingQueue> processGroupedQueue(ChartGroupParameters params) throws LastFmException {

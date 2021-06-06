@@ -1,10 +1,15 @@
 package core.parsers;
 
 import core.commands.Context;
+import core.commands.ContextSlashReceived;
+import core.exceptions.LastFmException;
 import core.parsers.explanation.util.Explanation;
-import core.parsers.explanation.util.ExplanationLineType;
+import core.parsers.explanation.util.ExplanationLine;
 import core.parsers.params.TwoArtistParams;
+import dao.exceptions.InstanceNotFoundException;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
 import java.util.Collections;
 import java.util.List;
@@ -17,6 +22,14 @@ public class TwoArtistsParser extends Parser<TwoArtistParams> {
     @Override
     protected void setUpErrorMessages() {
         super.errorMessages.put(1, "You need to introduce first the alias you want and next `to: artist_to_alias` \n e.g: `!alias Radohead to: Radiohead`");
+    }
+
+    @Override
+    public TwoArtistParams parseSlashLogic(ContextSlashReceived ctx) throws LastFmException, InstanceNotFoundException {
+        SlashCommandEvent e = ctx.e();
+        String alias = e.getOption("alias").getAsString();
+        String existingArtist = e.getOption("existing-artist").getAsString();
+        return new TwoArtistParams(ctx, alias, existingArtist);
     }
 
     @Override
@@ -43,7 +56,9 @@ public class TwoArtistsParser extends Parser<TwoArtistParams> {
 
     @Override
     public List<Explanation> getUsages() {
-        return Collections.singletonList(() -> new ExplanationLineType("firstArtist to: secondArtist", "It's also valid when the two artists are both one word long to write them without the to:", OptionType.STRING));
+        OptionData al = new OptionData(OptionType.STRING, "alias", "New alias to add", true);
+        OptionData existingArtist = new OptionData(OptionType.STRING, "existing-artist", "Existing artist this new alias will point to", true);
+        return Collections.singletonList(() -> new ExplanationLine("firstArtist to: secondArtist", "It's also valid when the two artists are both one word long to write them without the to:", List.of(al, existingArtist)));
     }
 
 }

@@ -104,6 +104,11 @@ public class GayCommand extends OnlyChartCommand<GayParams> {
     }
 
     @Override
+    public String getSlashName() {
+        return "pride";
+    }
+
+    @Override
     public String getDescription() {
         return "Chart with a LGTBQ pallete";
     }

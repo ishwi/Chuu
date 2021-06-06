@@ -64,7 +64,7 @@ public class ArtistFromCountryCommand extends ConcurrentCommand<CountryParameter
     @Override
     public Parser<CountryParameters> initParser() {
         CountryParser countryParser = new CountryParser(db);
-        countryParser.addOptional(new OptionalEntity("image", "show this with a chart instead of a list "));
+        countryParser.addOptional(new OptionalEntity("image", "show this as a chart "));
         return countryParser;
     }
 

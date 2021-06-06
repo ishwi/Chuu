@@ -3,6 +3,7 @@ package core.commands.charts;
 import core.apis.last.entities.chartentities.AlbumChart;
 import core.apis.last.entities.chartentities.UrlCapsule;
 import core.commands.Context;
+import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.imagerenderer.util.pie.PieSetUp;
 import core.parsers.ChartYearParser;
@@ -40,6 +41,16 @@ public class ServerAOTY extends ChartableCommand<ChartYearParameters> {
     public ChartableParser<ChartYearParameters> initParser() {
         return new ChartYearParser(db, TimeFrameEnum.ALL);
 
+    }
+
+    @Override
+    protected CommandCategory initCategory() {
+        return CommandCategory.SERVER_STATS;
+    }
+
+    @Override
+    public String getSlashName() {
+        return "aoty";
     }
 
     @Override

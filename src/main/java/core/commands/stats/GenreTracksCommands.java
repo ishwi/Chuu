@@ -6,6 +6,7 @@ import core.apis.last.entities.chartentities.TrackChart;
 import core.apis.last.entities.chartentities.UrlCapsule;
 import core.commands.Context;
 import core.commands.charts.ChartableCommand;
+import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.exceptions.LastFmException;
 import core.parsers.ChartableParser;
@@ -35,9 +36,14 @@ public class GenreTracksCommands extends ChartableCommand<ChartableGenreParamete
     public ChartableParser<ChartableGenreParameters> initParser() {
 
         GenreChartParser genreChartParser = new GenreChartParser(db, TimeFrameEnum.WEEK, lastFM);
-        genreChartParser.replaceOptional("list", new OptionalEntity("image", "show this with a chart instead of a list "));
+        genreChartParser.replaceOptional("list", new OptionalEntity("image", "show this as a chart "));
         genreChartParser.addOptional(new OptionalEntity("list", "shows this in list mode", true, Set.of("image", "pie")));
         return genreChartParser;
+    }
+
+    @Override
+    public String getSlashName() {
+        return "song-chart";
     }
 
     @Override
@@ -53,6 +59,11 @@ public class GenreTracksCommands extends ChartableCommand<ChartableGenreParamete
     @Override
     public String getName() {
         return "Songs by genre";
+    }
+
+    @Override
+    protected CommandCategory initCategory() {
+        return CommandCategory.GENRES;
     }
 
     @Override

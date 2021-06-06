@@ -15,6 +15,11 @@ public class GlobalUniquesAlbumCommand extends UniqueAlbumCommand {
     }
 
     @Override
+    public String slashName() {
+        return "global-albums";
+    }
+
+    @Override
     protected CommandCategory initCategory() {
         return CommandCategory.UNIQUES;
     }

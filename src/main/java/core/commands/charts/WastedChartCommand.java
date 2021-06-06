@@ -23,6 +23,12 @@ public class WastedChartCommand extends GroupingChartCommand {
         super(dao);
     }
 
+    @Override
+    public String getSlashName() {
+        return "artist";
+
+    }
+
 
     @Override
     public String getDescription() {

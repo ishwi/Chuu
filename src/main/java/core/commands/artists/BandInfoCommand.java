@@ -60,7 +60,7 @@ public class BandInfoCommand extends ConcurrentCommand<ArtistParameters> {
     @Override
     public Parser<ArtistParameters> initParser() {
         ArtistParser ap = new ArtistParser(db, lastFM);
-        ap.addOptional(new OptionalEntity("list", "display in list format"));
+        ap.addOptional(new OptionalEntity("list", "show as a list"));
         ap.setExpensiveSearch(true);
         return ap;
     }

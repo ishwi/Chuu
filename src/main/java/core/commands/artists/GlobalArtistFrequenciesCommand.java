@@ -90,6 +90,11 @@ public class GlobalArtistFrequenciesCommand extends ResultWrappedCommand<ArtistP
     }
 
     @Override
+    public String slashName() {
+        return "listeners";
+    }
+
+    @Override
     public String getName() {
         return "Total Listeners";
     }

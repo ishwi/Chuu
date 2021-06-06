@@ -40,6 +40,11 @@ public class CrownsCommand extends ConcurrentCommand<NumberParameters<ChuuDataPa
 
     }
 
+    @Override
+    public String slashName() {
+        return "artists";
+    }
+
     public String getTitle() {
         return "";
     }

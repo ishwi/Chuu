@@ -1,14 +1,18 @@
 package core.interactions;
 
+import core.Chuu;
 import core.commands.abstracts.MyCommand;
 import core.commands.charts.WastedAlbumChartCommand;
 import core.commands.charts.WastedChartCommand;
 import core.commands.charts.WastedTrackCommand;
+import core.commands.config.GuildConfigCommand;
+import core.commands.config.UserConfigCommand;
 import core.commands.moderation.EvalCommand;
 import core.commands.moderation.MbidUpdatedCommand;
 import core.commands.moderation.RefreshSlashCommand;
 import core.commands.stats.*;
 import core.commands.utils.CommandCategory;
+import core.parsers.Generable;
 import core.parsers.OptionalEntity;
 import core.parsers.explanation.util.Explanation;
 import net.dv8tion.jda.api.JDA;
@@ -23,9 +27,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.CheckReturnValue;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -48,18 +50,21 @@ public class InteractionBuilder {
             CommandCategory.BOT_INFO,
             CommandCategory.CROWNS,
             CommandCategory.UNIQUES,
+            CommandCategory.CHARTS,
             CommandCategory.SERVER_LEADERBOARDS,
             CommandCategory.BOT_STATS,
             CommandCategory.SERVER_STATS,
             CommandCategory.TRENDS,
             CommandCategory.STREAKS,
+            CommandCategory.GENRES,
             CommandCategory.CONFIGURATION,
             CommandCategory.MODERATION,
             CommandCategory.STARTING,
             CommandCategory.MUSIC,
             CommandCategory.DISCOVERY
     );
-    private static final Set<Class<? extends MyCommand<?>>> ignored = Set.of(EvalCommand.class, MbidUpdatedCommand.class, RefreshSlashCommand.class);
+    private static final Set<Class<? extends MyCommand<?>>> ignored = Set.of(EvalCommand.class, MbidUpdatedCommand.class, RefreshSlashCommand.class,
+            UserConfigCommand.class, GuildConfigCommand.class);
     private static final Set<Class<? extends MyCommand<?>>> timeGrouped =
             Set.of(WastedChartCommand.class,
                     WastedTrackCommand.class,
@@ -85,6 +90,7 @@ public class InteractionBuilder {
     }
 
     private static CommandListUpdateAction fillAction(JDA jda, CommandListUpdateAction commandUpdateAction) {
+        Map<String, MyCommand<?>> commandMap = new HashMap<>();
         List<? extends MyCommand<?>> myCommands = jda.getRegisteredListeners().stream()
                 .filter(t -> t instanceof MyCommand<?>)
                 .map(t -> (MyCommand<?>) t)
@@ -93,25 +99,14 @@ public class InteractionBuilder {
                 .filter(t -> !ignored.contains(t.getClass()))
                 .toList();
 
-        var categoryToCommand = myCommands.stream().collect(Collectors.groupingBy(MyCommand::getCategory));
-        List<CommandData> categoryCommands = categoryToCommand.entrySet().stream().filter(t -> categorized.contains(t.getKey())).map((k) -> k.getValue().stream().reduce(
-                new CommandData(k.getKey().getPrefix(), k.getKey().getDescription()),
+        List<CommandData> tmp = new ArrayList<>();
+
+
+        CommandData timeCommands = myCommands.stream().filter(t -> timeGrouped.contains(t.getClass())).reduce(
+                new CommandData("time", "Commands that use timed data"),
                 (commandData, myCommand) -> {
                     SubcommandData subcommandData = processSubComand(myCommand);
-                    commandData.addSubcommands(subcommandData);
-                    return commandData;
-                },
-                (c, d) -> {
-                    c.addSubcommands(d.getSubcommands());
-                    return c;
-                })).toList();
-
-        myCommands = myCommands.stream().filter(not(t -> categorized.contains(t.getCategory()))).toList();
-
-        // Fake time category
-        CommandData timeCommands = myCommands.stream().filter(t -> timeGrouped.contains(t.getClass())).reduce(new CommandData("time", "Commands that use timed data"),
-                (commandData, myCommand) -> {
-                    SubcommandData subcommandData = processSubComand(myCommand);
+                    commandMap.put(commandData.getName() + '/' + subcommandData.getName(), myCommand);
                     commandData.addSubcommands(subcommandData);
                     return commandData;
                 },
@@ -119,29 +114,94 @@ public class InteractionBuilder {
                     c.addSubcommands(d.getSubcommands());
                     return c;
                 });
+        myCommands = myCommands.stream().filter(t -> !timeGrouped.contains(t.getClass())).toList();
+        Map<CommandData, MyCommand<?>> toBeprocessed = new HashMap<>();
+        var categoryToCommand = myCommands.stream().collect(Collectors.groupingBy(MyCommand::getCategory));
+        List<CommandData> categoryCommands = categoryToCommand.entrySet().stream().filter(t -> categorized.contains(t.getKey())).map((k) -> k.getValue().stream().reduce(
+                new CommandData(k.getKey().getPrefix(), k.getKey().getDescription()),
+                (commandData, myCommand) -> {
+                    SubcommandData subcommandData;
+                    if (myCommand.getParser() instanceof Generable<?> w) {
+                        CommandData gen = w.generateCommandData(myCommand);
+                        if (!gen.getSubcommands().isEmpty()) {
+                            toBeprocessed.put(gen, myCommand);
+                            return commandData;
+                        }
+                        subcommandData = new SubcommandData(gen.getName(), gen.getDescription()).addOptions(gen.getOptions());
+                    } else {
+                        subcommandData = processSubComand(myCommand);
+                    }
+                    commandMap.put(commandData.getName() + '/' + subcommandData.getName(), myCommand);
+                    commandData.addSubcommands(subcommandData);
+                    return commandData;
+                },
+                (c, d) -> {
+                    c.addSubcommands(d.getSubcommands());
+                    return c;
+                })).toList();
+        toBeprocessed.forEach((a, j) -> {
+            commandMap.put(a.getName(), j);
+            tmp.add(a);
+        });
+        myCommands = myCommands.stream().filter(not(t -> categorized.contains(t.getCategory()))).toList();
+
+        List<CommandData> generables = myCommands.stream().filter(t -> (t.getParser() instanceof Generable<?>)).map(z -> {
+            Generable<?> generable = (Generable<?>) z.getParser();
+            CommandData commandData = generable.generateCommandData(z);
+            commandData.getSubcommands().forEach(w -> commandMap.put(commandData.getName() + '/' + w.getName(), z));
+            return commandData;
+        }).toList();
+
+        myCommands = myCommands.stream().filter(t -> !(t.getParser() instanceof Generable<?>)).toList();
 
 
-        //noinspection ResultOfMethodCallIgnored
-        myCommands.stream().filter(t -> !timeGrouped.contains(t.getClass()))
+        // Fake time category
+
+        myCommands.stream()
                 .map(InteractionBuilder::processCommand)
-                .forEach(commandUpdateAction::addCommands);
+                .forEach(tmp::add);
+
 
         // Generate one for fm
-        //noinspection ResultOfMethodCallIgnored
         myCommands.stream().filter(t -> t instanceof NowPlayingCommand)
                 .map(InteractionBuilder::processCommand).findFirst()
-                .map(t -> t.setName("fm")).ifPresent(commandUpdateAction::addCommands);
+                .map(t -> t.setName("fm")).ifPresent(tmp::add);
 
+        jda.getRegisteredListeners().stream()
+                .filter(t -> t instanceof MyCommand<?>)
+                .map(t -> (MyCommand<?>) t).filter(t -> t instanceof UserConfigCommand || t instanceof GuildConfigCommand)
+                .map(z -> {
+                    Generable<?> parser = (Generable<?>) z.getParser();
+                    CommandData commandData = parser.generateCommandData(z);
+                    commandData.getSubcommands().forEach(r -> commandMap.put(commandData.getName() + "/" + r.getName(), z));
+                    return commandData;
+                }).forEach(tmp::add);
 
         categoryCommands.stream().collect(Collectors.toMap(t -> t, InteractionBuilder::countCommand)).forEach((t, k) -> {
             if (k > 4000) {
                 throw new IllegalStateException("Slash command has more than 4k characters: %s".formatted(t.getName()));
             }
         });
+        tmp.addAll(categoryCommands);
+        tmp.add(timeCommands);
+        tmp.addAll(generables);
+        Map<String, Long> collect = tmp.stream().mapMulti((CommandData a, Consumer<String> b) -> {
+            if (a.getSubcommands().isEmpty()) {
+                b.accept(a.getName());
+            } else {
+                a.getSubcommands().forEach(w -> b.accept(a.getName() + "/" + w.getName()));
+            }
+        }).collect(Collectors.groupingBy(z -> z, Collectors.counting()));
+        List<Map.Entry<String, Long>> entries = collect.entrySet().stream().filter(z -> z.getValue() > 1).toList();
+        for (Map.Entry<String, Long> entry : entries) {
+            System.out.println(entry.getKey());
+        }
+        if (!entries.isEmpty()) {
+            throw new IllegalStateException("Slash commands repeated!");
+        }
 
-        return commandUpdateAction
-                .addCommands(categoryCommands)
-                .addCommands(timeCommands);
+        Chuu.customManager.setSlashVariants(commandMap);
+        return commandUpdateAction.addCommands(tmp);
     }
 
     private static int countCommand(CommandData commandData) {
@@ -162,7 +222,7 @@ public class InteractionBuilder {
 
     @NotNull
     private static SubcommandData processSubComand(MyCommand<?> myCommand) {
-        SubcommandData commandData = new SubcommandData(myCommand.getAliases().get(0), StringUtils.abbreviate(myCommand.getDescription(), 100));
+        SubcommandData commandData = new SubcommandData(myCommand.slashName(), StringUtils.abbreviate(myCommand.getDescription(), 100));
         List<Explanation> usages = myCommand.getParser().getUsages();
         commandData.addOptions(usages.stream().flatMap(t -> t.explanation().options().stream()).toList());
         processOpts(myCommand, commandData::addOptions);
@@ -171,20 +231,26 @@ public class InteractionBuilder {
 
     @NotNull
     private static CommandData processCommand(MyCommand<?> myCommand) {
-        CommandData commandData = new CommandData(myCommand.getAliases().get(0), StringUtils.abbreviate(myCommand.getDescription(), 100));
+        CommandData commandData = new CommandData(myCommand.slashName(), StringUtils.abbreviate(myCommand.getDescription(), 100));
         List<Explanation> usages = myCommand.getParser().getUsages();
-        usages.forEach(t -> commandData.addOptions(t.explanation().options()));
+        usages.forEach(t -> commandData.addOptions(t.explanation().options().stream().map(z -> z.setName(z.getName().replace("Can be use to", ""))).collect(Collectors.toList())));
         processOpts(myCommand, commandData::addOptions);
         return commandData;
     }
 
-    private static void processOpts(MyCommand<?> myCommand, Consumer<OptionData> consumer) {
+    public static void processOpts(MyCommand<?> myCommand, Consumer<OptionData> consumer) {
         List<OptionalEntity> optionals = myCommand.getParser().getOptionals();
         optionals.stream().filter(t -> !t.isEnabledByDefault()).forEach(t -> {
-            OptionData data = new OptionData(OptionType.STRING, t.getValue(), t.getDescription());
+            OptionData data = new OptionData(OptionType.STRING,
+                    t.getValue()
+                    , t.getDescription().replace("Can be use to", ""));
             data.addChoice("yes", "yes");
             consumer.accept(data);
         });
+    }
+
+    record Holder(MyCommand<?> command, String path) {
+
     }
 
 

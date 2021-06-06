@@ -41,6 +41,11 @@ TrackCrownsCommand extends ConcurrentCommand<NumberParameters<ChuuDataParams>> {
     }
 
     @Override
+    public String slashName() {
+        return "tracks";
+    }
+
+    @Override
     public String getDescription() {
         return ("List of tracks you are the top listener within a server");
     }

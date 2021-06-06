@@ -19,7 +19,10 @@ import java.util.stream.Stream;
 
 public enum UserConfigType {
 
-    CHART_MODE("chart"), NOTIFY_IMAGE("image-notify"), PRIVATE_UPDATE("private-update"), WHOKNOWS_MODE("whoknows"),
+    CHART_MODE("chart"),
+    NOTIFY_IMAGE("image-notify"),
+    PRIVATE_UPDATE("private-update"),
+    WHOKNOWS_MODE("whoknows"),
     REMAINING_MODE("rest"),
     CHART_SIZE("size"),
     PRIVACY_MODE("privacy"),

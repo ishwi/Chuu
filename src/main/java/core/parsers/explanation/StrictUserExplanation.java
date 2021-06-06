@@ -15,7 +15,7 @@ public class StrictUserExplanation implements Explanation {
     public Interactible explanation() {
         return new ExplanationLine("strict-user",
                 "If an username it's not provided it defaults to authors account, only ping, tag format (user#number),discord id, u:username or lfm:lastfmname"
-                , new OptionData(OptionType.USER, NAME, StringUtils.abbreviate("Person who will be used for the command. Defaults to the author.", 100))
+                , new OptionData(OptionType.USER, NAME, StringUtils.abbreviate("Who will be used for the command.", 100))
         );
     }
 

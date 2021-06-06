@@ -1,16 +1,22 @@
 package core.parsers;
 
 import core.commands.Context;
+import core.commands.ContextSlashReceived;
+import core.exceptions.LastFmException;
+import core.parsers.exceptions.InvalidDateException;
 import core.parsers.explanation.FullTimeframeExplanation;
 import core.parsers.explanation.StrictUserExplanation;
 import core.parsers.explanation.util.Explanation;
+import core.parsers.interactions.InteractionAux;
 import core.parsers.params.DateParameters;
+import core.parsers.utils.CustomTimeFrame;
 import dao.ChuuService;
 import dao.entities.NaturalTimeFrameEnum;
 import dao.entities.TimeFrameEnum;
 import dao.entities.TriFunction;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import org.apache.commons.collections4.set.ListOrderedSet;
 
 import java.time.*;
@@ -149,6 +155,19 @@ public class DateParser extends DaoParser<DateParameters> {
     public DateParser(ChuuService service) {
         super(service);
 
+    }
+
+    @Override
+    public DateParameters parseSlashLogic(ContextSlashReceived ctx) throws LastFmException, InstanceNotFoundException {
+        SlashCommandEvent e = ctx.e();
+        User user = InteractionAux.parseUser(e);
+        try {
+            CustomTimeFrame customTimeFrame = InteractionAux.parseCustomTimeFrame(e, TimeFrameEnum.ALL);
+            return new DateParameters(ctx, user, customTimeFrame.getFrom(), customTimeFrame.isAllTime());
+        } catch (InvalidDateException ex) {
+            sendError(getErrorMessage(5), ctx);
+            return null;
+        }
     }
 
     @Override

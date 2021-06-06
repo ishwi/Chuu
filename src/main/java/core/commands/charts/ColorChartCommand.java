@@ -95,6 +95,11 @@ public class ColorChartCommand extends OnlyChartCommand<ColorChartParams> {
     }
 
     @Override
+    public String getSlashName() {
+        return "color";
+    }
+
+    @Override
     public String getDescription() {
         return "Your artists/albums which their cover is of a specific colour";
     }

@@ -21,8 +21,9 @@ public class WhoIsTagCommand extends ConcurrentCommand<GenreParameters> {
 
     @Override
     protected CommandCategory initCategory() {
-        return CommandCategory.BOT_INFO;
+        return CommandCategory.GENRES;
     }
+
 
     @Override
     public Parser<GenreParameters> initParser() {

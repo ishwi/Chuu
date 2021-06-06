@@ -23,7 +23,7 @@ public class GenreInfoCommand extends ConcurrentCommand<GenreParameters> {
 
     @Override
     protected CommandCategory initCategory() {
-        return CommandCategory.INFO;
+        return CommandCategory.GENRES;
     }
 
     @Override

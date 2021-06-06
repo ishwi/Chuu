@@ -31,6 +31,10 @@ public class TrackCrownsLeaderboardCommand extends LeaderboardCommand<NumberPara
         return generateThresholdParser(NoOpParser.INSTANCE);
     }
 
+    @Override
+    public String slashName() {
+        return "track-leaderboard";
+    }
 
     @Override
     public String getEntryName(NumberParameters<CommandParameters> params) {
