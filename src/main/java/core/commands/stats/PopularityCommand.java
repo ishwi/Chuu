@@ -74,7 +74,7 @@ public class PopularityCommand extends ConcurrentCommand<ChuuDataParams> {
                 return popularity;
             })).toList();
         }
-        DiscordUserDisplay uInfo = CommandUtil.getUserInfoConsideringGuildOrNot(e, params.getLastFMData().getDiscordId());
+        DiscordUserDisplay uInfo = CommandUtil.getUserInfoUnescaped(e, params.getLastFMData().getDiscordId());
         if (topTracks.isEmpty()) {
             e.sendMessage(uInfo.getUsername() + " doesnt have any song.").queue();
             return;

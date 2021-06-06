@@ -51,6 +51,14 @@ public class ChuuEmbedBuilder extends EmbedBuilder {
         return super.setFooter(null, iconUrl);
     }
 
+    @NotNull
+    @Override
+    public EmbedBuilder setAuthor(@Nullable String name, @Nullable String url, @Nullable String iconUrl) {
+        if (name != null) {
+            return super.setAuthor(CommandUtil.stripEscapedMarkdown(name), url, iconUrl);
+        }
+        return super.setAuthor(null, url, iconUrl);
+    }
 
     @Nonnull
     public EmbedBuilder appendDescription(@Nonnull CharSequence description) {
