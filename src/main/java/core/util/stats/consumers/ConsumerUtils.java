@@ -55,7 +55,7 @@ public class ConsumerUtils {
         int queried = Optional.ofNullable(ctx.count()).orElse(30);
         List<T> items = cw.getResult();
         long count = items.stream().mapToInt(ScrobbledArtist::getCount).filter(operation.filter(queried)).count();
-        return "**%s's with %s %d %s**: %s".formatted(entity.format(), operation.phrase(), queried, CommandUtil.singlePlural(queried, "scrobble", "scrobbles"), count);
+        return "**%s with %s %d %s**: %s".formatted(entity.format(), operation.phrase(), queried, CommandUtil.singlePlural(queried, "scrobble", "scrobbles"), count);
     }
 
     public static String sumtop(CountWrapper<List<ScrobbledArtist>> artists, StatsCtx ctx) {
@@ -141,10 +141,10 @@ public class ConsumerUtils {
         );
     }
 
-    public static <T extends ScrobbledArtist> String percentage(CountWrapper<List<T>> list, StatsCtx ctx) {
+    public static <T extends ScrobbledArtist> String percentage(CountWrapper<List<T>> list, StatsCtx ctx, Entity entity) {
         int per = Optional.ofNullable(ctx.count()).orElse(10);
         long numberToReach = topPercentage(list, ctx, per);
-        return "**# of artists to equal %s%% of scrobbles**: %d".formatted(per, numberToReach);
+        return "**# of %s to equal %s%% of scrobbles**: %d".formatted(per, entity.format().toLowerCase(Locale.ROOT), numberToReach);
     }
 
 

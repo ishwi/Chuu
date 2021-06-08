@@ -42,9 +42,9 @@ public enum Stats {
     SCROBBLE_AVERAGES(GeneratorUtils.all(ConsumerUtils::scrobbleAverages), AllMode.LINE_BREAK, "spl", "spt", "spa", "savg", "sa"),
 
     H_INDEX(GeneratorUtils.aL((a, b) -> "**H-Index**: " + ConsumerUtils.HIndex(a)), "hi", "hind"),
-    PERCENTAGE(GeneratorUtils.aL(ConsumerUtils::percentage), "per", "spct"),
-    ALBUM_PERCENTAGE(GeneratorUtils.albL(ConsumerUtils::percentage), AllMode.DONT, "slper", "salbpct", "salbper"),
-    SONG_PERCENTAGE(GeneratorUtils.albL(ConsumerUtils::percentage), AllMode.DONT, "ssper", "sspct", "stper", "stpct"),
+    PERCENTAGE(GeneratorUtils.aL((list, ctx) -> ConsumerUtils.percentage(list, ctx, ConsumerUtils.Entity.ARTIST)), "per", "spct"),
+    ALBUM_PERCENTAGE(GeneratorUtils.albL((list, ctx) -> ConsumerUtils.percentage(list, ctx, ConsumerUtils.Entity.ALBUM)), AllMode.DONT, "slper", "salbpct", "salbper"),
+    SONG_PERCENTAGE(GeneratorUtils.albL((list, ctx) -> ConsumerUtils.percentage(list, ctx, ConsumerUtils.Entity.TRACK)), AllMode.DONT, "ssper", "sspct", "stper", "stpct"),
     TOP(GeneratorUtils.aL(ConsumerUtils::top)),
     SUM_TOP(GeneratorUtils.aL(ConsumerUtils::sumtop), AllMode.LINE_BREAK, "sum"),
 

@@ -124,18 +124,18 @@ public abstract class ChartableCommand<T extends ChartParameters> extends Concur
         if ((e.isFromGuild() && e.getGuild().getMaxFileSize() == Message.MAX_FILE_SIZE) || !e.isFromGuild()) {
             if (chartSize > 45 && chartSize < 200)
                 chartQuality = ChartQuality.JPEG_BIG;
-            else if (chartSize >= 200)
+            else if (chartSize > 350)
                 chartQuality = ChartQuality.JPEG_SMALL;
-        } else {
-            if (e.getGuild().getMaxFileSize() == (50 << 20)) {
-                if (chartSize > (45 * (50 / 8.)) && chartSize < 10000) {
-                    chartQuality = ChartQuality.JPEG_BIG;
-                } else if (chartSize >= 10000) {
-                    chartQuality = ChartQuality.JPEG_SMALL;
-                }
-            } else if (chartSize > (45 * (100 / 8.)) && chartSize < 20000) {
+        } else if (e.getGuild().getMaxFileSize() == (50 << 20)) {
+            if (chartSize > (45 * (50 / 8.)) && chartSize < 10000) {
                 chartQuality = ChartQuality.JPEG_BIG;
-            } else {
+            } else if (chartSize >= 10000) {
+                chartQuality = ChartQuality.JPEG_SMALL;
+            }
+        } else {
+            if (chartSize > (45 * (100 / 8.)) && chartSize < 20000) {
+                chartQuality = ChartQuality.JPEG_BIG;
+            } else if (chartSize >= 20000) {
                 chartQuality = ChartQuality.JPEG_SMALL;
             }
         }

@@ -203,14 +203,16 @@ public class ButtonValidator<T> extends ReactionListener {
         if (event.getMessageIdLong() != message.getIdLong()) {
             return;
         }
-        if (event.getUser() == null)
-            if (event.getMessageIdLong() != message.getIdLong() || (!this.allowOtherUsers && event.getUser().getIdLong() != whom) ||
-                event.getUser().getIdLong() == event.getJDA().getSelfUser().getIdLong())
-                return;
+        if (event.getUser() == null) {
+            return;
+        }
+        if (event.getMessageIdLong() != message.getIdLong() || (!this.allowOtherUsers && event.getUser().getIdLong() != whom) ||
+            event.getUser().getIdLong() == event.getJDA().getSelfUser().getIdLong())
+            return;
         Reaction<T, ButtonClickEvent, ButtonResult> action = this.actionMap.get(event.getComponentId());
         if (action == null)
             return;
-        event.deferEdit().queue();
+
         ButtonResult apply = action.release(currentElement, event);
         RestAction<Message> messageAction = this.doTheThing(apply);
         if (messageAction != null) {

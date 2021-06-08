@@ -16,7 +16,6 @@ import dao.ImageQueue;
 import dao.ServiceView;
 import dao.entities.LastFMData;
 import dao.entities.Role;
-import dao.entities.TriFunction;
 import dao.exceptions.InstanceNotFoundException;
 import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -39,14 +38,12 @@ import static core.otherlisteners.Reactions.*;
 
 public class UrlQueueReview extends ConcurrentCommand<CommandParameters> {
 
-
-
-    private final TriFunction<JDA, Integer, Supplier<Integer>, BiFunction<ImageQueue, EmbedBuilder, EmbedBuilder>> builder = (jda, totalCount, pos) -> (reportEntity, embedBuilder) ->
-            addStrikeField(reportEntity, embedBuilder.clearFields()
+    private final HexaFunction<JDA, Integer, Supplier<Integer>, Map<Long, Integer>, Map<Long, Integer>, Map<Long, Integer>, BiFunction<ImageQueue, EmbedBuilder, EmbedBuilder>> builder = (jda, totalCount, pos, strikes, rejected, accepted) -> (reportEntity, embedBuilder) ->
+            addStrikeField(reportEntity, strikes, embedBuilder.clearFields()
                     .addField("Artist:", String.format("[%s](%s)", CommandUtil.escapeMarkdown(reportEntity.artistName()), LinkUtils.getLastFmArtistUrl(reportEntity.artistName())), false)
                     .addField("Author", CommandUtil.getGlobalUsername(jda, reportEntity.uploader()), true)
-                    .addField("# Rejected:", String.valueOf(reportEntity.userRejectedCount()), true)
-                    .addField("# Approved:", String.valueOf(reportEntity.count()), true)
+                    .addField("# Rejected:", String.valueOf(reportEntity.userRejectedCount() + rejected.getOrDefault(reportEntity.uploader(), 0)), true)
+                    .addField("# Approved:", String.valueOf(reportEntity.count() + accepted.getOrDefault(reportEntity.uploader(), 0)), true)
                     .setFooter(String.format("%d/%d%nUse 👩🏾‍⚖️ to reject this image", pos.get() + 1, totalCount))
                     .setImage(CommandUtil.noImageUrl(reportEntity.url()))
                     .setColor(CommandUtil.pastelColor()));
@@ -55,17 +52,18 @@ public class UrlQueueReview extends ConcurrentCommand<CommandParameters> {
         super(dao);
     }
 
-    private static EmbedBuilder addStrikeField(ImageQueue q, EmbedBuilder embedBuilder) {
+    private static EmbedBuilder addStrikeField(ImageQueue q, Map<Long, Integer> strikesMap, EmbedBuilder embedBuilder) {
         int strikes = q.strikes();
         if (strikes != 0) {
             embedBuilder
-                    .addField("# Strikes:", String.valueOf(q.strikes()), true);
+                    .addField("# Strikes:", String.valueOf(q.strikes() + strikesMap.getOrDefault(q.uploader(), 0)), true);
         }
         if (q.guildId() != null) {
             embedBuilder.addField("For guild*", "", true);
         }
         return embedBuilder;
     }
+
 
     @Override
     protected CommandCategory initCategory() {
@@ -103,13 +101,16 @@ public class UrlQueueReview extends ConcurrentCommand<CommandParameters> {
         AtomicInteger statDeclined = new AtomicInteger(0);
         AtomicInteger navigationCounter = new AtomicInteger(0);
         AtomicInteger statAccepeted = new AtomicInteger(0);
-        EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e).setTitle("Image Queue Review");
-
+        EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e).setTitle("Image queue review");
+        Map<Long, Integer> strikesMap = new HashMap<>();
+        Map<Long, Integer> rejectedMap = new HashMap<>();
+        Map<Long, Integer> approvedMap = new HashMap<>();
         Queue<ImageQueue> queue = new ArrayDeque<>(db.getNextQueue());
         int totalReports = queue.size();
         HashMap<String, Reaction<ImageQueue, ButtonClickEvent, ButtonResult>> actionMap = new LinkedHashMap<>();
-        actionMap.put(DELETE, (reportEntity, r) -> {
-            db.rejectQueuedImage(reportEntity.queuedId(), reportEntity);
+        actionMap.put(DELETE, (q, r) -> {
+            rejectedMap.merge(q.uploader(), 1, Integer::sum);
+            db.rejectQueuedImage(q.queuedId(), q);
             statDeclined.getAndIncrement();
             navigationCounter.incrementAndGet();
             return ButtonResult.defaultResponse;
@@ -120,6 +121,8 @@ public class UrlQueueReview extends ConcurrentCommand<CommandParameters> {
             return ButtonResult.defaultResponse;
         });
         actionMap.put(ACCEPT, (a, r) -> {
+            approvedMap.merge(a.uploader(), 1, Integer::sum);
+
             statAccepeted.getAndIncrement();
             navigationCounter.incrementAndGet();
             CompletableFuture.runAsync(() -> {
@@ -147,6 +150,7 @@ public class UrlQueueReview extends ConcurrentCommand<CommandParameters> {
         actionMap.put(STRIKE, (a, r) -> {
             CompletableFuture.runAsync(() -> {
                 boolean banned = db.strikeQueue(a.queuedId(), a);
+                strikesMap.merge(a.uploader(), 1, Integer::sum);
                 if (banned) {
                     TextChannel textChannelById = Chuu.getShardManager().getTextChannelById(Chuu.channel2Id);
                     if (textChannelById != null)
@@ -191,10 +195,13 @@ public class UrlQueueReview extends ConcurrentCommand<CommandParameters> {
                             .setColor(CommandUtil.pastelColor());
                 },
                 queue::poll,
-                builder.apply(e.getJDA(), totalReports, navigationCounter::get)
+                builder.apply(e.getJDA(), totalReports, navigationCounter::get, strikesMap, rejectedMap, approvedMap)
                 , embedBuilder, e, e.getAuthor().getIdLong(), actionMap, List.of(of), false, true, 60);
 
     }
 
+    private interface HexaFunction<A, B, C, D, E, F, G> {
+        G apply(A a, B b, C c, D d, E e, F f);
+    }
 
 }
