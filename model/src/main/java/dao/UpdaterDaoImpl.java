@@ -1275,7 +1275,11 @@ public class UpdaterDaoImpl extends BaseDAO implements UpdaterDao {
     public void insertAlbumSad(Connection connection, RYMImportRating x) {
 
 
-        try (PreparedStatement preparedStatement = connection.prepareStatement("INSERT IGNORE INTO album (artist_id,album_name,rym_id,release_year) VALUES (?,?,?,?)" + " ON DUPLICATE KEY UPDATE release_year =  LEAST(release_year,VALUES(release_year)), rym_id = IF(rym_id IS NULL,VALUES(rym_id),rym_id)", Statement.RETURN_GENERATED_KEYS)) {
+        try (PreparedStatement preparedStatement = connection.prepareStatement("""
+                INSERT IGNORE INTO album (artist_id,album_name,rym_id,release_year) VALUES (?,?,?,?)
+                ON DUPLICATE KEY UPDATE release_year =  LEAST(release_year,VALUES(release_year)), rym_id = IF(rym_id IS NULL,VALUES(rym_id),rym_id)
+                RETURNING id
+                """)) {
             preparedStatement.setLong(+1, x.getArtist_id());
             preparedStatement.setString(2, x.getTitle());
             preparedStatement.setLong(3, x.getRYMid());
@@ -1289,9 +1293,8 @@ public class UpdaterDaoImpl extends BaseDAO implements UpdaterDao {
             preparedStatement.execute();
 
             ResultSet ids = preparedStatement.getResultSet();
-            ResultSet generatedKeys = preparedStatement.getGeneratedKeys();
-            if (generatedKeys.next()) {
-                x.setId(generatedKeys.getLong("GENERATED_KEY"));
+            if (ids.next()) {
+                x.setId(ids.getLong(1));
             } else {
                 try {
                     long albumId = getAlbumByName(connection, x.getTitle(), x.getArtist_id());

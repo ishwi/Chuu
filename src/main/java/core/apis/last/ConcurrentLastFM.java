@@ -124,11 +124,16 @@ public class ConcurrentLastFM {//implements LastFMService {
         String albumName = trackObj.getJSONObject("album").getString("#text");
         String songName = trackObj.getString("name");
         boolean loved = trackObj.getInt("loved") != 0;
-        String imageUrl = trackObj.getJSONArray("image").getJSONObject(2).getString("#text");
+        String imageUrl = obtainImage(trackObj);
 
         return new NowPlayingArtist(artistName, mbid, nowPlaying, albumName, songName, imageUrl, user.getName(), loved);
 
 
+    }
+
+    private String obtainImage(JSONObject jsonObject) {
+        JSONArray images = jsonObject.getJSONArray("image");
+        return images.getJSONObject(images.length() - 1).getString("#text").replace(".jpg", ".png");
     }
 
     private JSONObject initGetRecentTracks(LastFMData user, String url, CustomTimeFrame timeFrameEnum) throws LastFmException {
@@ -238,9 +243,7 @@ public class ConcurrentLastFM {//implements LastFMService {
             String url = BASE + GET_USER + lastFmName + apiKey + ENDING;
             JSONObject obj = doMethod(url, new ExceptionEntity(lastFmName), requester);
             obj = obj.getJSONObject("user");
-            JSONArray image = obj.getJSONArray("image");
-            JSONObject bigImage = image.getJSONObject(image.length() - 1);
-            String image2 = bigImage.getString("#text");
+            String image2 = obtainImage(obj);
             int unixTime = obj.getJSONObject("registered").getInt("#text");
             int playCount = obj.getInt("playcount");
             returnList.add(new UserInfo(playCount, image2, lastFmName, unixTime));
@@ -704,7 +707,7 @@ public class ConcurrentLastFM {//implements LastFMService {
                     if (!stopTCounter && currentSong.equals(trackName)) {
                         tCounter++;
                         if ((image == null || image.isBlank()))
-                            image = trackObj.getJSONArray("image").getJSONObject(3).getString("#text");
+                            image = obtainImage(trackObj);
                     } else
                         stopTCounter = true;
                 } else {
@@ -809,9 +812,9 @@ public class ConcurrentLastFM {//implements LastFMService {
             String artistName = artistObj.getString("name");
             String albumName = trackObj.getJSONObject("album").getString("#text");
             String songName = trackObj.getString("name");
-            String image_url = trackObj.getJSONArray("image").getJSONObject(2).getString("#text");
+            String image = obtainImage(trackObj);
 
-            npList.add(new NowPlayingArtist(artistName, "", np, albumName, songName, image_url, user.getName(), false));
+            npList.add(new NowPlayingArtist(artistName, "", np, albumName, songName, image, user.getName(), false));
         }
         return npList;
     }
@@ -911,9 +914,8 @@ public class ConcurrentLastFM {//implements LastFMService {
                 JSONObject jsonObj = (arr.getJSONObject(i));
                 String name = jsonObj.getString("name");
                 String mbid = jsonObj.getString("mbid");
-                JSONArray image = jsonObj.getJSONArray("image");
-                JSONObject bigImage = image.getJSONObject(image.length() - 1);
-                String imageUrl = bigImage.getString("#text");
+                String imageUrl = obtainImage(jsonObj);
+
                 int duration = parseDuration(jsonObj, true);
                 int frequency = jsonObj.getInt("playcount");
                 JSONObject artist = jsonObj.getJSONObject("artist");
@@ -986,13 +988,13 @@ public class ConcurrentLastFM {//implements LastFMService {
                 JSONObject albumObj = arr.getJSONObject(i);
                 JSONObject artistObj = albumObj.getJSONObject("artist");
                 String albumName = albumObj.getString("name");
-                JSONArray images = albumObj.getJSONArray("image");
-                String image_url = images.getJSONObject(images.length() - 1).getString("#text");
+                String imageUrl = obtainImage(albumObj);
+
                 int playCount = albumObj.getInt("playcount");
                 String albumMbid = albumObj.getString("mbid");
                 String artistMbid = artistObj.getString("mbid");
                 String artistName = artistObj.getString("name");
-                ScrobbledAlbum e = new ScrobbledAlbum(albumName, artistName, image_url, albumMbid);
+                ScrobbledAlbum e = new ScrobbledAlbum(albumName, artistName, imageUrl, albumMbid);
                 e.setArtistMbid(artistMbid);
                 e.setCount(playCount);
                 list.add(e);
@@ -1019,10 +1021,7 @@ public class ConcurrentLastFM {//implements LastFMService {
         JSONObject obj = initAlbumJSON(user, artist, album);
         artist = obj.getString("artist");
         album = obj.getString("name");
-
-        JSONArray images = obj.getJSONArray("image");
-
-        String imageUrl = images.getJSONObject(images.length() - 1).getString("#text");
+        String imageUrl = obtainImage(obj);
 
         AlbumUserPlays ai = new AlbumUserPlays(album, imageUrl);
         if (obj.has("userplaycount")) {
@@ -1049,11 +1048,10 @@ public class ConcurrentLastFM {//implements LastFMService {
             LastFmException {
         JSONObject obj = initAlbumJSON(user, artist, album);
 
-        JSONArray images = obj.getJSONArray("image");
+        String imageUrl = obtainImage(obj);
         String correctedArtist = obj.getString("artist");
         String correctedAlbum = obj.getString("name");
 
-        String imageUrl = images.getJSONObject(images.length() - 1).getString("#text");
         if (!obj.has("userplaycount")) {
             throw new LastFmEntityNotFoundException(new ExceptionEntity(user.getName()));
         }
@@ -1101,10 +1099,7 @@ public class ConcurrentLastFM {//implements LastFMService {
 
         JSONObject images;
         if ((images = obj).has("album") && (images = images.getJSONObject("album")).has("image")) {
-            JSONArray ar = images.getJSONArray("image");
-            track.setImageUrl(
-                    ar.getJSONObject(ar.length() - 1).getString("#text")
-            );
+            track.setImageUrl(obtainImage(images));
         }
         return track;
     }
@@ -1128,9 +1123,8 @@ public class ConcurrentLastFM {//implements LastFMService {
         JSONArray arr = obj.getJSONArray("album");
         for (int i = 0; i < arr.length(); i++) {
             JSONObject tempObj = arr.getJSONObject(i);
-            JSONArray images = tempObj.getJSONArray("image");
-            String image_url = images.getJSONObject(images.length() - 1).getString("#text");
-            albumList.add(new AlbumUserPlays(tempObj.getString("name"), image_url));
+            String imageUrl = obtainImage(tempObj);
+            albumList.add(new AlbumUserPlays(tempObj.getString("name"), imageUrl));
         }
 
         return new ArtistAlbums(artistCorrected, albumList);
@@ -1373,7 +1367,7 @@ public class ConcurrentLastFM {//implements LastFMService {
         String albumName = trackObj.getJSONObject("album").getString("#text");
         String songName = trackObj.getString("name");
         boolean loved = trackObj.getInt("loved") != 0;
-        String imageUrl = trackObj.getJSONArray("image").getJSONObject(2).getString("#text");
+        String imageUrl = obtainImage(trackObj);
 
 
         CompletableFuture<List<TrackWithArtistId>> listCompletableFuture = CompletableFuture.supplyAsync(() -> {
@@ -1503,12 +1497,11 @@ public class ConcurrentLastFM {//implements LastFMService {
     public FullAlbumEntityExtended getAlbumSummary(LastFMData user, String artist, String album) throws
             LastFmException {
         JSONObject obj = initAlbumJSON(user, artist, album);
+        String imageUrl = obtainImage(obj);
 
-        JSONArray images = obj.getJSONArray("image");
         String correctedArtist = obj.getString("artist");
         String correctedAlbum = obj.getString("name");
         String mbid = obj.optString("mbid");
-        String image_url = images.getJSONObject(images.length() - 1).getString("#text");
 
         int playCount = obj.optInt("userplaycount", 0);
         int totalPlayCount = obj.getInt("playcount");
@@ -1517,7 +1510,7 @@ public class ConcurrentLastFM {//implements LastFMService {
         int duration = 0;
         List<String> tags = parseTags(obj);
         String sumamry = parseBio(obj, "wiki");
-        FullAlbumEntityExtended fae = new FullAlbumEntityExtended(correctedArtist, correctedAlbum, playCount, image_url, user.getName(), listeners, totalPlayCount, tags, sumamry);
+        FullAlbumEntityExtended fae = new FullAlbumEntityExtended(correctedArtist, correctedAlbum, playCount, imageUrl, user.getName(), listeners, totalPlayCount, tags, sumamry);
         fae.setMbid(mbid);
         if (obj.has("tracks")) {
             JSONArray arr = getFMArr(obj.getJSONObject("tracks"), "track");
@@ -1595,10 +1588,8 @@ public class ConcurrentLastFM {//implements LastFMService {
         track.setMbid(mbid);
         JSONObject images;
         if ((images = obj).has("album") && (images = images.getJSONObject("album")).has("image")) {
-            JSONArray ar = images.getJSONArray("image");
-            track.setImageUrl(
-                    ar.getJSONObject(ar.length() - 1).getString("#text")
-            );
+
+            track.setImageUrl(obtainImage(images));
         }
         return track;
     }
@@ -1751,8 +1742,7 @@ public class ConcurrentLastFM {//implements LastFMService {
             track.setArtistMbid(artistMbid);
             track.setMbid(mbid);
             JSONObject albumObj = trackObj.optJSONObject("album");
-            String imageUrl = trackObj.getJSONArray("image").getJSONObject(2).getString("#text");
-            track.setImageUrl(imageUrl);
+            track.setImageUrl(obtainImage(trackObj));
             if (albumObj != null) {
                 track.setAlbum(albumObj.getString("#text"));
                 track.setAlbumMbid(albumObj.getString("mbid"));
@@ -1790,8 +1780,7 @@ public class ConcurrentLastFM {//implements LastFMService {
             track.setArtistMbid(artistMbid);
             track.setMbid(mbid);
             JSONObject albumObj = trackObj.optJSONObject("album");
-            String imageUrl = trackObj.getJSONArray("image").getJSONObject(2).getString("#text");
-            track.setImageUrl(imageUrl);
+            track.setImageUrl(obtainImage(trackObj));
             if (albumObj != null) {
                 track.setAlbum(albumObj.getString("#text"));
                 track.setAlbumMbid(albumObj.getString("mbid"));

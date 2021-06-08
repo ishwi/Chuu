@@ -116,9 +116,11 @@ public abstract class MyCommand<T extends CommandParameters> implements EventLis
      */
     public void onMessageReceived(MessageReceivedEvent e) {
         ContextMessageReceived ctx = new ContextMessageReceived(e);
-        e.getChannel().sendTyping().queue(unused -> {
-        }, throwable -> {
-        });
+        if (Chuu.doTyping) {
+            e.getChannel().sendTyping().queue(unused -> {
+            }, throwable -> {
+            });
+        }
         if (!e.isFromGuild() && !respondInPrivate) {
             sendMessageQueue(ctx, "This command only works in a server");
             return;

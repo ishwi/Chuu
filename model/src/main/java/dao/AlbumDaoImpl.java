@@ -129,7 +129,7 @@ public class AlbumDaoImpl extends BaseDAO implements AlbumDao {
 
         String sql = "INSERT INTO album (artist_id,album_name,url,mbid) VALUES (?,?,?,?) ON DUPLICATE KEY UPDATE" +
                      " mbid = if(mbid IS NULL AND values(mbid) IS NOT NULL,values(mbid),mbid), " +
-                     " url = if(url IS NULL AND values(url) IS NOT NULL,values(url),url) " +
+                     " url = if(url IS NULL AND values(url) IS NOT NULL,values(url),url) RETURNING id" +
 
                      "";
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
@@ -146,9 +146,8 @@ public class AlbumDaoImpl extends BaseDAO implements AlbumDao {
             preparedStatement.execute();
 
             ResultSet ids = preparedStatement.getResultSet();
-            ResultSet generatedKeys = preparedStatement.getGeneratedKeys();
-            if (generatedKeys.next()) {
-                x.setAlbumId(generatedKeys.getLong("GENERATED_KEY"));
+            if (ids.next()) {
+                x.setAlbumId(ids.getLong(1));
             } else {
                 try {
                     if (album.length() > 400) {

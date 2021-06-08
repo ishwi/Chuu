@@ -1,6 +1,7 @@
 package core.commands.utils;
 
 import com.zaxxer.hikari.HikariDataSource;
+import core.Chuu;
 import core.apis.last.ConcurrentLastFM;
 import core.commands.Context;
 import dao.ChuuService;
@@ -32,5 +33,10 @@ public record EvalContext(JDA jda, Context e,
         String a = "Short pool => %d total | %d active | %d idle | %d waiting".formatted(shortPool.getTotalConnections(), shortPool.getActiveConnections(), shortPool.getIdleConnections(), shortPool.getThreadsAwaitingConnection());
         String b3 = "Long pool => %d total | %d active | %d idle | %d waiting".formatted(longPool.getTotalConnections(), longPool.getActiveConnections(), longPool.getIdleConnections(), longPool.getThreadsAwaitingConnection());
         sendMessage(a + "\n" + b3);
+    }
+
+    public void type(boolean type) {
+        Chuu.doTyping = type;
+        sendMessage("Typing status set to " + type);
     }
 }

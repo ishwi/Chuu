@@ -75,6 +75,7 @@ public class Chuu {
     public static long channel2Id;
     public static PrefixService prefixService;
     public static CustomInterfacedEventManager customManager;
+    public static boolean doTyping = true;
     private static String[] args;
     private static ShardManager shardManager;
     private static Logger logger;
@@ -171,6 +172,7 @@ public class Chuu {
                         shutDownPreviousInstance(() -> {
                             addAll(db, shardManager::addEventListener);
                             customManager.isReady = true;
+                            doTyping = true;
                             messageDisablingService = new MessageDisablingService(shard.getShardById(0), service);
                             CommandListUpdateAction ignored = InteractionBuilder.setGlobalCommands(shard.getShardById(0));
                         });
@@ -187,7 +189,7 @@ public class Chuu {
             if (startRightAway) {
                 addAll(db, builder::addEventListeners);
                 customManager.isReady = true;
-
+                doTyping = true;
 
             }
             initPrivateLastfms(db.normalService());
