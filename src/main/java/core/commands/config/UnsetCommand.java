@@ -30,6 +30,7 @@ import java.util.List;
 public class UnsetCommand extends ConcurrentCommand<CommandParameters> {
     public UnsetCommand(ServiceView dao) {
         super(dao);
+        this.ephemeral = true;
     }
 
 
@@ -80,6 +81,6 @@ public class UnsetCommand extends ConcurrentCommand<CommandParameters> {
                 Button.of(ButtonStyle.PRIMARY, Reactions.REJECT, "Don't do anything"));
 
         e.sendMessage(embedBuilder.build(), of)
-                .queue(message -> new Confirmator(embedBuilder, message, idLong, list));
+                .queue(message -> new Confirmator(embedBuilder, e, message, idLong, list));
     }
 }

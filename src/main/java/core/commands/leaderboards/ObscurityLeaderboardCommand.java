@@ -20,6 +20,7 @@ import net.dv8tion.jda.api.entities.Message;
 import javax.validation.constraints.NotNull;
 import java.time.Instant;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -124,7 +125,7 @@ public class ObscurityLeaderboardCommand extends LeaderboardCommand<ChuuDataPara
                         if (Instant.now().isAfter(now.plusMillis(500))) {
                             int finalI = i;
 
-                            submit.thenCompose(z -> z.editMessage(getEmbedBuilder(e, finalI, size).build()).submit());
+                            submit.thenCompose(z -> e.editMessage(z, getEmbedBuilder(e, finalI, size).build(), Collections.emptyList()).submit());
                             now = now.plusMillis(500);
                         }
                     }

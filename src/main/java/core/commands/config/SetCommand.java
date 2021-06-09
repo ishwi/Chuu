@@ -17,7 +17,6 @@ import dao.ServiceView;
 import dao.entities.*;
 import dao.exceptions.DuplicateInstanceException;
 import dao.exceptions.InstanceNotFoundException;
-import net.dv8tion.jda.api.entities.MessageChannel;
 
 import javax.validation.constraints.NotNull;
 import java.net.URLEncoder;
@@ -154,18 +153,18 @@ public class SetCommand extends ConcurrentCommand<WordParameter> {
 
         db.insertNewUser(lastFMData);
 
-        setProcess(e, e.getChannel(), lastFmName, userId, lastFMData, e.getAuthor().getName());
+        setProcess(e, lastFmName, userId, lastFMData, e.getAuthor().getName());
 
     }
 
-    public void setProcess(Context e, MessageChannel channel, String lastFmID, long userId, LastFMData lastFMData, String name) {
+    public void setProcess(Context e, String lastFmID, long userId, LastFMData lastFMData, String name) {
         try {
 
 
             List<ScrobbledArtist> artistData = lastFM.getAllArtists(lastFMData, new CustomTimeFrame(TimeFrameEnum.ALL));
             db.insertArtistDataList(artistData, lastFmID);
             e.sendMessage("Finished updating your artist, now the album/track process will start").queue();
-            channel.sendTyping().queue();
+            e.getChannel().sendTyping().queue();
             List<ScrobbledAlbum> albumData = lastFM.getAllAlbums(lastFMData, new CustomTimeFrame(TimeFrameEnum.ALL));
             db.albumUpdate(albumData, artistData, lastFmID);
             List<ScrobbledTrack> trackData = lastFM.getAllTracks(lastFMData, CustomTimeFrame.ofTimeFrameEnum(TimeFrameEnum.ALL));

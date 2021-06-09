@@ -135,7 +135,6 @@ public class Chuu {
         scheduledService.setScheduled();
         // Needs these three references
 
-
         // Logs every fime minutes the api calls
         scheduledService.addSchedule(() -> {
             long l = lastFMMetric.longValue();

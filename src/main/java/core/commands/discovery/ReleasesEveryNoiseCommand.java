@@ -25,6 +25,7 @@ import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -119,7 +120,7 @@ public class ReleasesEveryNoiseCommand extends ConcurrentCommand<UserStringParam
             if (message == null) {
                 sendMessageQueue(e, "Couldn't find any release searching by `%s`".formatted(input));
             } else {
-                message.editMessage(new ChuuEmbedBuilder(e).setTitle("Didn't find any new release by " + input).build()).queue();
+                e.editMessage(message, new ChuuEmbedBuilder(e).setTitle("Didn't find any new release by " + input).build(), Collections.emptyList()).queue();
             }
             return;
         }
@@ -140,7 +141,7 @@ public class ReleasesEveryNoiseCommand extends ConcurrentCommand<UserStringParam
         if (message == null) {
             messageRestAction = e.sendMessage(eb.build());
         } else {
-            messageRestAction = message.editMessage(eb.build());
+            messageRestAction = e.editMessage(message, eb.build(), Collections.emptyList());
         }
         messageRestAction.queue(finalMessage ->
                 new Reactionary<>(strings, finalMessage, eb, false));

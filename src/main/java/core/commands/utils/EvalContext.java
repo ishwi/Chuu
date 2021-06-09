@@ -1,5 +1,7 @@
 package core.commands.utils;
 
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
 import com.zaxxer.hikari.HikariDataSource;
 import core.Chuu;
 import core.apis.last.ConcurrentLastFM;
@@ -10,6 +12,7 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.User;
 import org.apache.commons.lang3.reflect.FieldUtils;
+import org.slf4j.LoggerFactory;
 
 public record EvalContext(JDA jda, Context e,
                           User owner, Guild guild,
@@ -38,5 +41,12 @@ public record EvalContext(JDA jda, Context e,
     public void type(boolean type) {
         Chuu.doTyping = type;
         sendMessage("Typing status set to " + type);
+    }
+
+    public void setLog(String level) {
+        var rootLogger = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
+        var newLevel = Level.toLevel(level);
+        rootLogger.setLevel(newLevel);
+        sendMessage("Typing status set to " + newLevel);
     }
 }

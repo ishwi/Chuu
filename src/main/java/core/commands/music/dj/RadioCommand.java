@@ -21,6 +21,7 @@ import org.apache.commons.text.WordUtils;
 
 import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
@@ -143,7 +144,7 @@ public class RadioCommand extends MusicCommand<EnumParameters<Station>> {
         if (message == null) {
             messageRestAction = e.sendMessage(radio);
         } else {
-            messageRestAction = message.editMessage(radio);
+            messageRestAction = e.editMessage(message, radio, Collections.emptyList());
         }
         messageRestAction.queue();
         if (musicManager.isIdle()) {

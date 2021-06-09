@@ -30,6 +30,7 @@ public class UpdateCommand extends ConcurrentCommand<ChuuDataParams> {
 
     public UpdateCommand(ServiceView dao) {
         super(dao);
+        ephemeral = true;
         order = 6;
     }
 

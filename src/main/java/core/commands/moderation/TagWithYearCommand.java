@@ -136,6 +136,6 @@ public class TagWithYearCommand extends ConcurrentCommand<CommandParameters> {
                 Button.of(ButtonStyle.DANGER, REJECT, "Cancel"));
 
         e.sendMessage(embedBuilder.build(), row)
-                .queue(mes -> new Confirmator(embedBuilder, mes, idLong, items));
+                .queue(mes -> new Confirmator(embedBuilder, e, mes, idLong, items));
     }
 }

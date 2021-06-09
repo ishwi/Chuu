@@ -59,7 +59,7 @@ public class GenreDisambiguator {
 
                 }
                 e.sendMessage(eb.setDescription(description).build(), rows)
-                        .queue(message -> new Confirmator(eb, message, e.getAuthor().getIdLong(), reacts, (z) ->
+                        .queue(message -> new Confirmator(eb, e, message, e.getAuthor().getIdLong(), reacts, (z) ->
                                 z.clear().setDescription("You didn't select any genre!").setColor(CommandUtil.pastelColor()), false, 50));
                 return;
             } else

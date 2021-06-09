@@ -850,7 +850,6 @@ public class UpdaterDaoImpl extends BaseDAO implements UpdaterDao {
                 Timestamp controlTimestamp = resultSet.getTimestamp("control");
                 Role role = Role.valueOf(resultSet.getString("a.role"));
                 TimeZone tz = TimeZone.getTimeZone(Objects.requireNonNullElse(resultSet.getString("timezone"), "GMT"));
-
                 return new UpdaterUserWrapper(discordID, name, ((int) timestamp.toInstant()
                         .getEpochSecond()), ((int) controlTimestamp.toInstant().getEpochSecond()), role, tz);
             }

@@ -105,6 +105,9 @@ public abstract class MyCommand<T extends CommandParameters> implements EventLis
         }
         if (!canAnswerFast) {
             event.deferReply(ephemeral).queue();
+            if (ephemeral) {
+                event.getHook().setEphemeral(true);
+            }
         }
         ContextSlashReceived ctx = new ContextSlashReceived(event);
         doCommand(ctx);

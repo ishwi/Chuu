@@ -2,7 +2,6 @@ package core.otherlisteners;
 
 import core.commands.Context;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Emoji;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.GenericEvent;
@@ -116,9 +115,6 @@ public class ButtonValidator<T> extends ReactionListener {
         return () -> new ButtonResult.Result(false, finalActionRows);
     }
 
-    private void clearButtons() {
-    }
-
     private void noMoreElements() {
         RestAction<Message> a;
         if (hasCleaned.compareAndSet(false, true)) {
@@ -128,13 +124,12 @@ public class ButtonValidator<T> extends ReactionListener {
                 a = context.sendMessage(getLastMessage.apply(who).build(), Collections.emptyList());
             } else {
                 check = false;
-                a = message.editMessage(getLastMessage.apply(who).build()).setActionRows(Collections.emptyList());
+                a = context.editMessage(message, getLastMessage.apply(who).build(), Collections.emptyList());
             }
             a.queue(z -> {
                 if (check) {
                     message = z;
                 }
-                clearButtons();
             });
             this.unregister();
         }
@@ -159,7 +154,7 @@ public class ButtonValidator<T> extends ReactionListener {
         if (result.newElement() || this.message == null) {
             return context.sendMessage(apply.build(), actionRows);
         }
-        return this.message.editMessage(new MessageBuilder(apply.build()).setActionRows(actionRows).build());
+        return this.context.editMessage(message, apply.build(), actionRows);
     }
 
     @Override
@@ -212,7 +207,7 @@ public class ButtonValidator<T> extends ReactionListener {
         Reaction<T, ButtonClickEvent, ButtonResult> action = this.actionMap.get(event.getComponentId());
         if (action == null)
             return;
-
+        event.deferEdit().queue();
         ButtonResult apply = action.release(currentElement, event);
         RestAction<Message> messageAction = this.doTheThing(apply);
         if (messageAction != null) {

@@ -71,6 +71,9 @@ public sealed interface Context permits ContextMessageReceived, ContextSlashRece
         sendImage(image, chartQuality, null);
     }
 
+
+    RestAction<Message> editMessage(@Nullable Message message, @Nullable MessageEmbed embed, @Nullable List<ActionRow> rows);
+
     RestAction<Message> sendMessage(Message message, User toMention);
 
     void doSendImage(byte[] img, String format, @Nullable EmbedBuilder embedBuilder);

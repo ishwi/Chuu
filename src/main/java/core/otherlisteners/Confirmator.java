@@ -1,5 +1,7 @@
 package core.otherlisteners;
 
+import core.commands.Context;
+import core.commands.utils.CommandUtil;
 import core.otherlisteners.util.ConfirmatorItem;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
@@ -23,18 +25,20 @@ import java.util.stream.Collectors;
 public class Confirmator extends ReactionListener {
     private final long author;
     private final List<ConfirmatorItem> items;
+    private final core.commands.Context context;
     private final UnaryOperator<EmbedBuilder> timeoutCallback;
     private final Map<String, ConfirmatorItem> idMap;
     private final boolean runLastEmbed;
     private final AtomicReference<String> didConfirm = new AtomicReference<>(null);
     private final AtomicBoolean wasThisCalled = new AtomicBoolean(false);
 
-    public Confirmator(EmbedBuilder who, Message message, long author, List<ConfirmatorItem> items) {
-        this(who, message, author, items, (z) -> z.clear().setTitle("Confirmation timed out"), true, 30);
+    public Confirmator(EmbedBuilder who, Context context, Message message, long author, List<ConfirmatorItem> items) {
+        this(who, context, message, author, items, (z) -> z.clear().setTitle("Confirmation timed out").setColor(CommandUtil.pastelColor()), true, 30);
     }
 
-    public Confirmator(EmbedBuilder who, Message message, long author, List<ConfirmatorItem> items, UnaryOperator<EmbedBuilder> timeoutCallback, boolean runLastEmbed, long seconds) {
+    public Confirmator(EmbedBuilder who, Context context, Message message, long author, List<ConfirmatorItem> items, UnaryOperator<EmbedBuilder> timeoutCallback, boolean runLastEmbed, long seconds) {
         super(who, message, seconds);
+        this.context = context;
         this.author = author;
         this.items = items;
         this.timeoutCallback = timeoutCallback;
@@ -50,13 +54,13 @@ public class Confirmator extends ReactionListener {
     @Override
     public void dispose() {
         if (!this.wasThisCalled.get()) {
-            this.message.editMessage(timeoutCallback.apply(who).build()).setActionRows(Collections.emptyList()).queue();
+            this.context.editMessage(message, timeoutCallback.apply(who).build(), Collections.emptyList()).queue();
         } else {
             if (runLastEmbed && this.didConfirm.get() != null) {
                 ConfirmatorItem item = this.idMap.get(this.didConfirm.get());
-                this.message.editMessage(item.builder().apply(who).build()).setActionRows(Collections.emptyList()).queue();
+                this.context.editMessage(message, item.builder().apply(who).build(), Collections.emptyList()).queue();
             } else {
-                this.message.editMessage(message).setActionRows(Collections.emptyList()).queue();
+                this.context.editMessage(message, null, Collections.emptyList()).queue();
             }
         }
     }

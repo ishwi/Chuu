@@ -43,6 +43,9 @@ public class ColorChartParser extends ChartableParser<ColorChartParams> {
                 .map(OptionMapping::getAsString)
                 .map(z -> z.split("\\s+"))
                 .orElse(new String[]{}), ctx);
+        if (parser == null) {
+            return null;
+        }
         return new ColorChartParams(ctx, findLastfmFromID(user, ctx), CustomTimeFrame.ofTimeFrameEnum(timeFrameEnum), point.x, point.y, parser.getLeft());
     }
 
@@ -79,6 +82,9 @@ public class ColorChartParser extends ChartableParser<ColorChartParams> {
         timeFrame = chartParserAux.parseTimeframe(timeFrame);
         subMessage = chartParserAux.getMessage();
         var parser = parser(subMessage, e);
+        if (parser == null) {
+            return null;
+        }
 
         LastFMData data = atTheEndOneUser(e, parser.getRight().toArray(String[]::new));
         return new ColorChartParams(e, data, CustomTimeFrame.ofTimeFrameEnum(timeFrame), x, y, parser.getLeft());
