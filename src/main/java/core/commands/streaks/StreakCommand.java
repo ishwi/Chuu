@@ -127,7 +127,7 @@ public class StreakCommand extends ConcurrentCommand<ChuuDataParams> {
             }
             description.append("**Album**: ")
                     .append(combo.albumCount())
-                    .append(combo.albumCount() >= 9000 ? "+" : "")
+                    .append(combo.albumCount() >= StreakEntity.MAX_STREAK ? "+" : "")
                     .append(combo.albumCount() != 1 ? " consecutive plays - " : " play - ")
                     .append("**[").append(CommandUtil.escapeMarkdown(combo.getCurrentAlbum())).append("](")
                     .append(LinkUtils.getLastFmArtistAlbumUrl(combo.getCurrentArtist(), combo.getCurrentAlbum())).append(")**")
@@ -137,7 +137,7 @@ public class StreakCommand extends ConcurrentCommand<ChuuDataParams> {
             if (combo.getUrl() != null && !combo.getUrl().isBlank() && !combo.getUrl().equals(TrackGroupAlbumQueue.defaultTrackImage)) {
                 embedBuilder.setThumbnail(combo.getUrl());
             }
-            description.append("**Song**: ").append(combo.trackCount()).append(combo.trackCount() >= 9000 ? "+" : "")
+            description.append("**Song**: ").append(combo.trackCount()).append(combo.trackCount() >= StreakEntity.MAX_STREAK ? "+" : "")
                     .append(combo.trackCount() != 1 ? " consecutive plays - " : " play - ").append("**[")
                     .append(CommandUtil.escapeMarkdown(combo.getCurrentSong())).append("](").append(LinkUtils.getLastFMArtistTrack(combo.getCurrentArtist(), combo.getCurrentSong())).append(")**").append("\n");
         }
