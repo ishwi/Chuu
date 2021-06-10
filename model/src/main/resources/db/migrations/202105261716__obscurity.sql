@@ -8,3 +8,6 @@ CREATE TABLE obscurity
 
 ALTER TABLE guild
     ADD COLUMN set_on_join boolean DEFAULT TRUE;
+
+ALTER TABLE user
+    ALTER show_botted SET DEFAULT FALSE;

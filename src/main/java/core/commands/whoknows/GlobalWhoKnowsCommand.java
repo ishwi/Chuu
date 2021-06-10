@@ -7,7 +7,7 @@ import core.parsers.ArtistParser;
 import core.parsers.Parser;
 import core.parsers.params.ArtistParameters;
 import dao.ServiceView;
-import dao.entities.PrivacyMode;
+import dao.entities.LastFMData;
 import dao.entities.ScrobbledArtist;
 import dao.entities.WhoKnowsMode;
 import dao.entities.WrapperReturnNowPlaying;
@@ -22,8 +22,8 @@ public class GlobalWhoKnowsCommand extends GlobalBaseWhoKnowCommand<ArtistParame
     }
 
     @Override
-    PrivacyMode obtainPrivacyMode(ArtistParameters params) {
-        return params.getLastFMData().getPrivacyMode();
+    LastFMData obtainLastFmData(ArtistParameters params) {
+        return params.getLastFMData();
     }
 
     @Override

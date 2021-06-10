@@ -78,6 +78,23 @@ public class ConsumerUtils {
         return IntStream.range(0, list.size()).takeWhile(z -> list.get(z).getCount() >= z).count();
     }
 
+    public static <T extends ScrobbledArtist> String entityAt(CountWrapper<List<T>> cw, StatsCtx ctx, Entity entity) {
+        int rank = Optional.ofNullable(ctx.count()).orElse(1);
+        if (cw.getRows() < rank || rank <= 0) {
+            return "You don't have " + rank + " " + entity.format();
+        }
+        int realRank = rank - 1;
+        T item = cw.getResult().get(realRank);
+        String rnkStr = CommandUtil.getRank(rank);
+        String playsStr = " | %d %s".formatted(item.getCount(), CommandUtil.singlePlural(item.getCount(), "play", "plays"));
+        if (item instanceof ScrobbledAlbum s) {
+            return "%d%s %s: **%s** by **%s**%s".formatted(rank, rnkStr, entity.formatSingular(), s.getAlbum(), s.getArtist(), playsStr);
+        } else if (item instanceof ScrobbledTrack t) {
+            return "%d%s %s: **%s** by **%s**%s".formatted(rank, rnkStr, entity.formatSingular(), t.getName(), t.getArtist(), playsStr);
+        }
+        return "%d%s %s: **%s**%s".formatted(rank, rnkStr, entity.formatSingular(), item.getArtist(), playsStr);
+    }
+
     public static <T extends ScrobbledArtist> long sumTop(int limit, CountWrapper<List<T>> items) {
         return items.getResult().stream().mapToInt(ScrobbledArtist::getCount).limit(limit).sum();
     }
@@ -285,12 +302,16 @@ public class ConsumerUtils {
             }
         };
         String indexStr;
+        String playsStr = "";
         if (index == -1) {
             indexStr = "Not found";
         } else {
-            indexStr = index + CommandUtil.getRank(index);
+            indexStr = index + 1 + CommandUtil.getRank(index + 1);
+            int count = cw.getResult().get(index).getCount();
+            playsStr = " | %d %s".formatted(count, CommandUtil.singlePlural(count, "play", "plays"));
+
         }
-        return "Rank of %s: %s".formatted(artist.fromNp(np), indexStr);
+        return "Rank of %s: %s%s".formatted(artist.fromNp(np), indexStr, playsStr);
     }
 
     public enum Entity {
@@ -301,6 +322,14 @@ public class ConsumerUtils {
                 case ALBUM -> "Albums";
                 case TRACK -> "Songs";
                 case ARTIST -> "Artists";
+            };
+        }
+
+        public String formatSingular() {
+            return switch (this) {
+                case ALBUM -> "album";
+                case TRACK -> "song";
+                case ARTIST -> "artist";
             };
         }
 

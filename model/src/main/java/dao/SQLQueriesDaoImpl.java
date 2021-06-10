@@ -3555,7 +3555,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
                 long discordId = resultSet.getLong("c.discord_ID");
                 PrivacyMode privacyMode = PrivacyMode.valueOf(resultSet.getString("c.privacy_mode"));
 
-                returnList.add(new GlobalReturnNowPlayingAlbum(discordId, lastfmId, artistName, playNumber, privacyMode, trackName));
+                returnList.add(new GlobalReturnNowPlayingSong(discordId, lastfmId, artistName, playNumber, privacyMode, trackName));
             }
             /* Return booking. */
             return new WrapperReturnNowPlaying(returnList, returnList.size(), url, artistName + " - " + trackName);

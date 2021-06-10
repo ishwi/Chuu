@@ -39,9 +39,12 @@ public enum Stats {
     SONGS(GeneratorUtils.tL(ConsumerUtils::songs), AllMode.LINE_BREAK, "track"),
 
     AVERAGES(GeneratorUtils.all(ConsumerUtils::averages), AllMode.LINE_BREAK, "lpa", "tpa", "tpl", "avg"),
-    SCROBBLE_AVERAGES(GeneratorUtils.all(ConsumerUtils::scrobbleAverages), AllMode.LINE_BREAK, "spl", "spt", "spa", "savg", "sa"),
+    SCROBBLE_AVERAGES(GeneratorUtils.all(ConsumerUtils::scrobbleAverages), AllMode.LINE_BREAK, "spl", "spt", "spa", "savg"),
 
     H_INDEX(GeneratorUtils.aL((a, b) -> "**H-Index**: " + ConsumerUtils.HIndex(a)), "hi", "hind"),
+    ALBUM_H_INDEX(GeneratorUtils.albL((a, b) -> "**Album H-Index**: " + ConsumerUtils.HIndex(a)), AllMode.DONT, "lhi", "lhind", "albhi", "albhind", "album-index", "l-index", "alb-index"),
+    SONG_H_INDEX(GeneratorUtils.tL((a, b) -> "**Song H-Index**: " + ConsumerUtils.HIndex(a)), AllMode.DONT, "shi", "shind", "thi", "thind", "song-index", "track-index", "tr-index"),
+
     PERCENTAGE(GeneratorUtils.aL((list, ctx) -> ConsumerUtils.percentage(list, ctx, ConsumerUtils.Entity.ARTIST)), "per", "spct"),
     ALBUM_PERCENTAGE(GeneratorUtils.albL((list, ctx) -> ConsumerUtils.percentage(list, ctx, ConsumerUtils.Entity.ALBUM)), AllMode.DONT, "slper", "salbpct", "salbper"),
     SONG_PERCENTAGE(GeneratorUtils.albL((list, ctx) -> ConsumerUtils.percentage(list, ctx, ConsumerUtils.Entity.TRACK)), AllMode.DONT, "ssper", "sspct", "stper", "stpct"),
@@ -74,6 +77,11 @@ public enum Stats {
     ARTIST_RANK(GeneratorUtils.npArtist((a, b) -> ConsumerUtils.concreteRank(a, b, ConsumerUtils.Entity.ARTIST)), AllMode.DONT, "rank", "arank"),
     ALBUM_RANK(GeneratorUtils.npAlbum((a, b) -> ConsumerUtils.concreteRank(a, b, ConsumerUtils.Entity.ALBUM)), AllMode.DONT, "albrank", "alrank", "lrank"),
     SONG_RANK(GeneratorUtils.npSong((a, b) -> ConsumerUtils.concreteRank(a, b, ConsumerUtils.Entity.TRACK)), AllMode.DONT, "trank", "srank"),
+
+
+    ARTIST_AT(GeneratorUtils.aL((a, b) -> ConsumerUtils.entityAt(a, b, ConsumerUtils.Entity.ARTIST)), AllMode.DONT, "aa", "a@"),
+    ALBUM_AT(GeneratorUtils.albL((a, b) -> ConsumerUtils.entityAt(a, b, ConsumerUtils.Entity.ALBUM)), AllMode.DONT, "ala", "alba", "alb@"),
+    SONG_AT(GeneratorUtils.tL((a, b) -> ConsumerUtils.entityAt(a, b, ConsumerUtils.Entity.TRACK)), AllMode.DONT, "sa", "ta", "s@", "t@"),
     ALL;
 
 
@@ -90,24 +98,24 @@ public enum Stats {
     }
 
 
-    <T> Stats(@NotNull Cache<T> cache) {
+    Stats(@NotNull Cache<?> cache) {
         this(cache, AllMode.NORMAL, new String[]{});
     }
 
-    <T> Stats(@NotNull Cache<T> cache, String... aliases) {
+    Stats(@NotNull Cache<?> cache, String... aliases) {
         this(cache, AllMode.NORMAL, aliases);
     }
 
 
-    <T> Stats(Cache<T> cache, AllMode mode) {
+    Stats(Cache<?> cache, AllMode mode) {
         this(cache, mode, new String[]{});
     }
 
-    <T> Stats(Cache<T> cache, AllMode mode, String... aliases) {
+    Stats(Cache<?> cache, AllMode mode, String... aliases) {
         this(cache, EnumSet.of(mode), aliases);
     }
 
-    <T> Stats(Cache<T> cache, EnumSet<AllMode> b, String... aliases) {
+    Stats(Cache<?> cache, EnumSet<AllMode> b, String... aliases) {
         this.mode = b;
         this.cache = cache;
         this.aliases = Set.of(aliases);
@@ -155,14 +163,18 @@ public enum Stats {
 
     public static Optional<Stats> parse(String singleWord) {
         String singular = singleWord.trim().replaceAll("[_\\s-]", "").toLowerCase(Locale.ROOT);
-        String plural = singular
-                .replaceAll("[sS]$", "").toLowerCase();
+        String plural = singleWord.trim()
+                .replaceAll("[sS](?=($|-))", "")
+                .replaceAll("[_\\s-]", "").toLowerCase(Locale.ROOT);
 
         return EnumSet.allOf(Stats.class).stream()
                 .filter(z -> {
                             String strip = z.toString().replaceAll("[_\\s-]", "");
+                            Set<String> aliases = z.aliases;
+                            Set<String> mappedAliases = z.aliases.stream().map(a -> a.replaceAll("[_\\s-]", "")).collect(Collectors.toSet());
                             return strip.equalsIgnoreCase(singular) || strip.equalsIgnoreCase(plural) ||
-                                   z.aliases.contains(singular) || z.aliases.contains(plural);
+                                   aliases.contains(singular) || aliases.contains(plural)
+                                   || mappedAliases.contains(singular) || mappedAliases.contains(plural);
                         }
                 )
                 .findFirst();
@@ -191,6 +203,8 @@ public enum Stats {
             case AVERAGES -> "How many albums/songs per artist/Album you listen to on average";
             case SCROBBLE_AVERAGES -> "How many times you listen a song/album/artist on average";
             case H_INDEX -> "Your hindex is the point where the number of plays you have of an artist at least matches its rank. For example, if your 56th ranked artist had at least 56 plays, but your 57th ranked artist has under 57, your hindex would be 56. Hindex is meant to quantify how many different artists you actively listen to.";
+            case ALBUM_H_INDEX -> "Same as H-Index but for albums";
+            case SONG_H_INDEX -> "Same as H-Index but for song";
             case PERCENTAGE -> "How many artists are needed to obtain a % of your total scrobbles";
             case ALBUM_PERCENTAGE -> "How many albums are needed to obtain a % of your total scrobbles";
             case SONG_PERCENTAGE -> "How many songs are needed to obtain a % of your total scrobbles";
@@ -215,6 +229,9 @@ public enum Stats {
             case ARTIST_RANK -> "The rank of a given artist";
             case ALBUM_RANK -> "The rank of a given album";
             case SONG_RANK -> "The rank of a given song";
+            case ARTIST_AT -> "Your artist in the nth rank";
+            case ALBUM_AT -> "Your album in the nth rank";
+            case SONG_AT -> "Your song in the nth rank";
             case ALL -> "A overview with all modes. Equivalent to not specifying any stat";
         };
 

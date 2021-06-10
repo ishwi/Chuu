@@ -60,6 +60,10 @@ public class PrivacyUtils {
     public static String getUrlTitle(ReturnNowPlaying returnNowPlaying) {
         if (returnNowPlaying instanceof ReturnNowPlayingAlbum p) {
             return getLastFmAlbumUserUrl(p.getArtist(), p.getAlbum(), p.getLastFMId());
+        } else if (returnNowPlaying instanceof ReturnNowPlayingSong p) {
+            return getLastFmArtistTrackUserUrl(p.getArtist(), p.getSong(), p.getLastFMId());
+        } else if (returnNowPlaying instanceof GlobalReturnNowPlayingSong p) {
+            return getLastFmArtistTrackUserUrl(p.getArtist(), p.getSong(), p.getLastFMId());
         } else if (returnNowPlaying instanceof GlobalReturnNowPlayingAlbum p) {
             return getLastFmAlbumUserUrl(p.getArtist(), p.getAlbum(), p.getLastFMId());
         } else if (returnNowPlaying instanceof TagPlaying p) {

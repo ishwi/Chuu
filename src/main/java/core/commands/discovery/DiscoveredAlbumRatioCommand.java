@@ -35,7 +35,7 @@ public class DiscoveredAlbumRatioCommand extends ConcurrentCommand<TimeFramePara
 
     @Override
     public String getDescription() {
-        return "Returns the ratio of new albums discovered in the provided timeframe";
+        return "Returns the ratio of new albums discovered in a timeframe";
     }
 
     @Override

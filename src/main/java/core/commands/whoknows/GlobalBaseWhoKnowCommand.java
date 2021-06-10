@@ -1,5 +1,6 @@
 package core.commands.whoknows;
 
+import core.Chuu;
 import core.commands.Context;
 import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandUtil;
@@ -40,7 +41,7 @@ public abstract class GlobalBaseWhoKnowCommand<T extends CommandParameters> exte
             logo = CommandUtil.getLogo(db, e);
         }
         BufferedImage image = WhoKnowsMaker.generateWhoKnows(wrapperReturnNowPlaying, EnumSet.allOf(WKMode.class), title, logo, e.getAuthor().getIdLong());
-        if (obtainPrivacyMode(ap) == PrivacyMode.NORMAL && CommandUtil.rand.nextFloat() >= 0.95f) {
+        if (obtainLastFmData(ap).getPrivacyMode() == PrivacyMode.NORMAL && CommandUtil.rand.nextFloat() >= 0.95f) {
             char prefix = e.getPrefix();
             DiscordUserDisplay uInfo = CommandUtil.getUserInfoUnescaped(e, e.getAuthor().getIdLong());
             EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e)
@@ -67,7 +68,9 @@ public abstract class GlobalBaseWhoKnowCommand<T extends CommandParameters> exte
         wrapperReturnNowPlaying.getReturnNowPlayings()
                 .forEach(x ->
                         x.setGenerateString(() -> {
-                            PrivacyUtils.PrivateString privacy = PrivacyUtils.getPublicString(((GlobalReturnNowPlaying) x).getPrivacyMode(), x.getDiscordId(), x.getLastFMId(), atomicInteger, ap.getE(), showableUsers);
+                            PrivacyMode privacyMode = ((GlobalReturnNowPlaying) x).getPrivacyMode();
+                            PrivacyUtils.PrivateString privacy = PrivacyUtils.getPublicString(privacyMode, x.getDiscordId(), x.getLastFMId(), atomicInteger, ap.getE(), showableUsers);
+                            privacy = mapPrivacy(x, privacy, ap, privacyMode, showableUsers);
                             x.setDiscordName(privacy.discordName());
                             x.setLastFMId(privacy.lastfmName());
                             return ". " +
@@ -84,11 +87,19 @@ public abstract class GlobalBaseWhoKnowCommand<T extends CommandParameters> exte
         }
     }
 
-    abstract PrivacyMode obtainPrivacyMode(T params);
+    public PrivacyUtils.PrivateString mapPrivacy(ReturnNowPlaying x, PrivacyUtils.PrivateString privateString, T ap, PrivacyMode privacyMode, Set<Long> ids) {
+        LastFMData lastFMData = obtainLastFmData(ap);
+        if (lastFMData.getRole() == Role.ADMIN && (privacyMode == PrivacyMode.NORMAL || privacyMode == PrivacyMode.STRICT) &&
+            (!ap.getE().isFromGuild() || ap.getE().getChannel().getIdLong() == Chuu.channel2Id)) {
+            return new PrivacyUtils.PrivateString("Private: x.getLastFMId()", x.getLastFMId());
+        }
+        return privateString;
+    }
 
     boolean hidePrivate(T params) {
         return params.hasOptional("hp") || params.hasOptional("hideprivate");
     }
 
 
+    abstract LastFMData obtainLastFmData(T params);
 }

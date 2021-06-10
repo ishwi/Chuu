@@ -653,7 +653,7 @@ public class ConcurrentLastFM {//implements LastFMService {
                 comboUrl = url + "&limit=1000";
             }
             String urlPage = comboUrl + "&page=" + ++page;
-            if (page == 10 || page > totalPages) {
+            if (page == 11 || page > totalPages) {
                 break;
             }
             JSONObject obj = initGetRecentTracks(lastFMData, urlPage, new CustomTimeFrame(TimeFrameEnum.ALL));
@@ -664,8 +664,12 @@ public class ConcurrentLastFM {//implements LastFMService {
             JSONArray arr = obj.getJSONArray("track");
             for (int i = 0; i < arr.length(); i++) {
                 if (restarting) {
-                    i = 51;
+                    i = 50;
                     restarting = false;
+                    if (arr.getJSONObject(0).has("@attr")) {
+                        i++;
+                    }
+
                 }
                 JSONObject trackObj = arr.getJSONObject(i);
                 if (aCounter != 0 && trackObj.has("@attr")) {

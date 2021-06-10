@@ -83,7 +83,7 @@ public class LocalWhoKnowsSongCommand extends LocalWhoKnowsAlbumCommand {
         }
         wrapperReturnNowPlaying.setReturnNowPlayings(
                 wrapperReturnNowPlaying.getReturnNowPlayings()
-                        .stream().<ReturnNowPlaying>map(x -> new ReturnNowPlayingAlbum(x, ap.getAlbum()))
+                        .stream().<ReturnNowPlaying>map(x -> new ReturnNowPlayingSong(x, ap.getAlbum()))
                         .peek(x -> x.setArtist(who.getArtist()))
                         .peek(x -> x.setDiscordName(CommandUtil.getUserInfoUnescaped(ap.getE(), x.getDiscordId()).getUsername()))
                         .toList());

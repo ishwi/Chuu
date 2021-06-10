@@ -2,6 +2,7 @@ package core.commands.stats;
 
 import core.Chuu;
 import core.apis.last.entities.chartentities.ChartUtil;
+import core.apis.lyrics.TextSplitter;
 import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.ChuuEmbedBuilder;
@@ -83,14 +84,11 @@ public class StatsCommand extends ConcurrentCommand<StatsParams> {
                 if (!aliases.isBlank()) {
                     aliases = " (" + aliases + ")";
                 }
-                return "**%s** ➜ %s%s%n".formatted(x.toString(), x.getHelpMessage(), aliases);
-            }).toList();
+                return "**%s** ➜ %s%s".formatted(x.toString(), x.getHelpMessage(), aliases);
+            }).collect(Collectors.joining("\n"));
+            List<String> split = TextSplitter.split(lines, 2000);
 
-            StringBuilder str = new StringBuilder();
-            for (int i = 0; i < 20 && i < lines.size(); i++) {
-                str.append(lines.get(i));
-            }
-            e.sendMessage(embedBuilder.setDescription(str).build()).queue(z -> new Reactionary<>(lines, z, 20, embedBuilder, false));
+            e.sendMessage(embedBuilder.setDescription(split.get(0)).build()).queue(z -> new Reactionary<>(split, z, 1, embedBuilder, false));
             return;
         }
 

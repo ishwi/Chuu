@@ -19,8 +19,8 @@ public class GlobalWhoKnowsAlbumCommand extends GlobalBaseWhoKnowCommand<ArtistA
     }
 
     @Override
-    PrivacyMode obtainPrivacyMode(ArtistAlbumParameters params) {
-        return params.getLastFMData().getPrivacyMode();
+    LastFMData obtainLastFmData(ArtistAlbumParameters params) {
+        return params.getLastFMData();
     }
 
     @Override
@@ -42,7 +42,7 @@ public class GlobalWhoKnowsAlbumCommand extends GlobalBaseWhoKnowCommand<ArtistA
 
     @Override
     public String getName() {
-        return "Global Who Knows Album";
+        return "Global who knows album";
     }
 
     @Override
