@@ -91,7 +91,7 @@ public abstract class GlobalBaseWhoKnowCommand<T extends CommandParameters> exte
         LastFMData lastFMData = obtainLastFmData(ap);
         if (lastFMData.getRole() == Role.ADMIN && (privacyMode == PrivacyMode.NORMAL || privacyMode == PrivacyMode.STRICT) &&
             (!ap.getE().isFromGuild() || ap.getE().getChannel().getIdLong() == Chuu.channel2Id)) {
-            return new PrivacyUtils.PrivateString("Private: x.getLastFMId()", x.getLastFMId());
+            return new PrivacyUtils.PrivateString("Private: " + x.getLastFMId(), x.getLastFMId());
         }
         return privateString;
     }
