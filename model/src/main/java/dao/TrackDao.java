@@ -26,6 +26,8 @@ public interface TrackDao {
 
     void addSrobbledTracks(Connection con, List<ScrobbledTrack> scrobbledAlbums);
 
+    List<Track> getUserTopArtistTracksDuration(Connection connection, String lastfmId, long artistId, int limit);
+
     List<Track> getUserTopArtistTracks(Connection connection, String lastfmId, long artistId, int limit);
 
     Map<ScrobbledArtist, Long> getUserTopArtistByDuration(Connection connection, String lastfmId, int limit);

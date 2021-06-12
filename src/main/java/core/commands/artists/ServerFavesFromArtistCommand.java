@@ -9,9 +9,13 @@ import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.exceptions.LastFmException;
+import core.imagerenderer.util.pie.DefaultList;
+import core.imagerenderer.util.pie.IPieableList;
+import core.imagerenderer.util.pie.OptionalPie;
 import core.parsers.ArtistParser;
 import core.parsers.Parser;
 import core.parsers.params.ArtistParameters;
+import core.parsers.params.ChuuDataParams;
 import dao.ServiceView;
 import dao.entities.AlbumUserPlays;
 import dao.entities.ScrobbledArtist;
@@ -24,12 +28,16 @@ public class ServerFavesFromArtistCommand extends ConcurrentCommand<ArtistParame
 
     private final DiscogsApi discogs;
     private final Spotify spotify;
+    private final IPieableList<AlbumUserPlays, ChuuDataParams> pie;
 
     public ServerFavesFromArtistCommand(ServiceView dao) {
         super(dao);
         respondInPrivate = false;
         this.discogs = DiscogsSingleton.getInstanceUsingDoubleLocking();
         this.spotify = SpotifySingleton.getInstance();
+        this.pie = DefaultList.fillPie(AlbumUserPlays::getPie, AlbumUserPlays::getPlays);
+        new OptionalPie(this.getParser());
+
     }
 
     @Override
@@ -74,7 +82,7 @@ public class ServerFavesFromArtistCommand extends ConcurrentCommand<ArtistParame
         String validArtist = who.getArtist();
         List<AlbumUserPlays> songs = db.getServerTopArtistTracks(e.getGuild().getIdLong(), who.getArtistId(), Integer.MAX_VALUE);
 
-        GlobalFavesFromArtistCommand.sendArtistFaves(e, who, validArtist, lastFmName, songs, e.getGuild().getName(), "in this server!", e.getGuild().getIconUrl());
+        GlobalFavesFromArtistCommand.sendArtistFaves(e, who, validArtist, lastFmName, songs, e.getGuild().getName(), "in this server!", e.getGuild().getIconUrl(), params, pie, (b) -> sendImage(b, e));
 
     }
 }

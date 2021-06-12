@@ -23,7 +23,7 @@ public class PieableListTrack extends OptionalPie implements IPieableList<Track,
         int breakpoint = (int) (0.75 * total);
         AtomicInteger counter = new AtomicInteger(0);
         AtomicInteger acceptedCount = new AtomicInteger(0);
-        fillListedSeries(chart,
+        IPieableList.fillListedSeries(chart,
                 (x) -> x.getName() + " - " + x.getPlays() + CommandUtil.singlePlural(x.getPlays(), " play", " plays"),
                 Track::getPlays,
                 x -> {

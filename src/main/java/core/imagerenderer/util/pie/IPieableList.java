@@ -13,7 +13,7 @@ import java.util.function.ToIntFunction;
 public interface IPieableList<T, Y extends CommandParameters> extends IPieable<List<T>, Y>, IBubbleable<List<T>, Y> {
 
 
-    default Map<Boolean, Map<String, Integer>> getListedData(List<T> data, Function<T, String> keyMapping, ToIntFunction<T> valueMapping, Predicate<T> partitioner) {
+    static <T> Map<Boolean, Map<String, Integer>> getListedData(List<T> data, Function<T, String> keyMapping, ToIntFunction<T> valueMapping, Predicate<T> partitioner) {
         Map<Boolean, Map<String, Integer>> parted = new HashMap<>(2);
         parted.put(true, new HashMap<>());
         parted.put(false, new HashMap<>());
@@ -45,7 +45,7 @@ public interface IPieableList<T, Y extends CommandParameters> extends IPieable<L
         throw new UnsupportedOperationException();
     }
 
-    default void fillListedSeries(PieChart pieChart, Function<T, String> keyMapping, ToIntFunction<T> valueMapping, Predicate<T> partitioner, List<T> data) {
+    static <T> void fillListedSeries(PieChart pieChart, Function<T, String> keyMapping, ToIntFunction<T> valueMapping, Predicate<T> partitioner, List<T> data) {
         Map<Boolean, Map<String, Integer>> parted = getListedData(data, keyMapping, valueMapping, partitioner);
         AtomicInteger counter = new AtomicInteger(1);
         Map<String, Integer> entries = parted.get(true);

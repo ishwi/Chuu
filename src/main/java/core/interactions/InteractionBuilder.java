@@ -2,6 +2,7 @@ package core.interactions;
 
 import core.Chuu;
 import core.commands.abstracts.MyCommand;
+import core.commands.artists.TimeOnArtistCommand;
 import core.commands.charts.WastedAlbumChartCommand;
 import core.commands.charts.WastedChartCommand;
 import core.commands.charts.WastedTrackCommand;
@@ -70,6 +71,7 @@ public class InteractionBuilder {
                     WastedTrackCommand.class,
                     FirstArtistCommand.class,
                     FirstPlayedCommand.class,
+                    TimeOnArtistCommand.class,
                     LastPlayedArtistCommand.class,
                     LastPlayedCommand.class,
                     TimeSpentCommand.class,
@@ -177,14 +179,17 @@ public class InteractionBuilder {
                     return commandData;
                 }).forEach(tmp::add);
 
-        categoryCommands.stream().collect(Collectors.toMap(t -> t, InteractionBuilder::countCommand)).forEach((t, k) -> {
+
+        tmp.addAll(categoryCommands);
+        tmp.add(timeCommands);
+        tmp.addAll(generables);
+
+        tmp.stream().collect(Collectors.toMap(t -> t, InteractionBuilder::countCommand)).forEach((t, k) -> {
             if (k > 4000) {
                 throw new IllegalStateException("Slash command has more than 4k characters: %s".formatted(t.getName()));
             }
         });
-        tmp.addAll(categoryCommands);
-        tmp.add(timeCommands);
-        tmp.addAll(generables);
+
         Map<String, Long> collect = tmp.stream().mapMulti((CommandData a, Consumer<String> b) -> {
             if (a.getSubcommands().isEmpty()) {
                 b.accept(a.getName());
@@ -192,6 +197,8 @@ public class InteractionBuilder {
                 a.getSubcommands().forEach(w -> b.accept(a.getName() + "/" + w.getName()));
             }
         }).collect(Collectors.groupingBy(z -> z, Collectors.counting()));
+
+
         List<Map.Entry<String, Long>> entries = collect.entrySet().stream().filter(z -> z.getValue() > 1).toList();
         for (Map.Entry<String, Long> entry : entries) {
             System.out.println(entry.getKey());
@@ -201,6 +208,7 @@ public class InteractionBuilder {
         }
 
         Chuu.customManager.setSlashVariants(commandMap);
+
         return commandUpdateAction.addCommands(tmp);
     }
 
@@ -220,11 +228,18 @@ public class InteractionBuilder {
         return optionData.stream().mapToInt(t -> t.getDescription().length() + t.getName().length() + t.getChoices().stream().map(Command.Choice::getName).mapToInt(String::length).sum()).sum();
     }
 
+    private static int countCommandData(CommandData commandData) {
+        return commandData.toData().toString().length();
+    }
+
     @NotNull
     private static SubcommandData processSubComand(MyCommand<?> myCommand) {
         SubcommandData commandData = new SubcommandData(myCommand.slashName(), StringUtils.abbreviate(myCommand.getDescription(), 100));
         List<Explanation> usages = myCommand.getParser().getUsages();
-        commandData.addOptions(usages.stream().flatMap(t -> t.explanation().options().stream()).toList());
+        commandData.addOptions(usages.stream().flatMap(t -> t.explanation().options()
+                .stream()
+                .map(z -> z.setDescription(z.getDescription().replace("If the size is not specified it defaults to 5x5", "Size of the chart")))
+        ).toList());
         processOpts(myCommand, commandData::addOptions);
         return commandData;
     }
@@ -233,7 +248,7 @@ public class InteractionBuilder {
     private static CommandData processCommand(MyCommand<?> myCommand) {
         CommandData commandData = new CommandData(myCommand.slashName(), StringUtils.abbreviate(myCommand.getDescription(), 100));
         List<Explanation> usages = myCommand.getParser().getUsages();
-        usages.forEach(t -> commandData.addOptions(t.explanation().options().stream().map(z -> z.setName(z.getName().replace("Can be use to", ""))).collect(Collectors.toList())));
+        usages.forEach(t -> commandData.addOptions(new ArrayList<>(t.explanation().options())));
         processOpts(myCommand, commandData::addOptions);
         return commandData;
     }
@@ -243,7 +258,8 @@ public class InteractionBuilder {
         optionals.stream().filter(t -> !t.isEnabledByDefault()).forEach(t -> {
             OptionData data = new OptionData(OptionType.STRING,
                     t.getValue()
-                    , t.getDescription().replace("Can be use to", ""));
+
+                    , t.getDescription().replace("Can be use to", "").strip());
             data.addChoice("yes", "yes");
             consumer.accept(data);
         });

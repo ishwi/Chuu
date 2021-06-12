@@ -37,7 +37,7 @@ repositories {
 
 dependencies {
     testImplementation group: 'junit', name: 'junit', version: '4.13.2'
-    implementation group: 'org.postgresql', name: 'postgresql', version: '42.2.20'
+    implementation group: 'org.postgresql', name: 'postgresql', version: '42.2.21'
     implementation 'com.google.code.findbugs:jsr305:3.0.2'
     api group: 'org.apache.commons', name: 'commons-lang3', version: '3.12.0'
     api group: 'org.apache.commons', name: 'commons-text', version: '1.9'
@@ -50,12 +50,12 @@ dependencies {
     implementation group: 'mysql', name: 'mysql-connector-java', version: '8.0.25'
 
 
-    liquibaseRuntime 'org.liquibase:liquibase-core:4.3.5'
+    liquibaseRuntime 'org.liquibase:liquibase-core:4.4.0'
     liquibaseRuntime 'org.liquibase:liquibase-groovy-dsl:3.0.1'
     liquibaseRuntime group: 'mysql', name: 'mysql-connector-java', version: '8.0.25'
     liquibaseRuntime group: 'javax.xml.bind', name: 'jaxb-api', version: '2.4.0-b180830.0359'
 // https://mvnrepository.com/artifact/org.yaml/snakeyaml
-    liquibaseRuntime group: 'org.yaml', name: 'snakeyaml', version: '1.28'
+    liquibaseRuntime group: 'org.yaml', name: 'snakeyaml', version: '1.29'
     liquibaseRuntime files('build/classes/java/main')
     liquibaseRuntime files('build/resources/db')
 }

@@ -40,7 +40,7 @@ public abstract class ChartableParser<T extends ChartParameters> extends DaoPars
     @Override
     void setUpOptionals() {
         opts.add(new OptionalEntity("notitles", "not display titles"));
-        opts.add(new OptionalEntity("plays", "display play count"));
+        opts.add(new OptionalEntity("plays", "show plays"));
         opts.add(new OptionalEntity("list", "display it as an embed"));
         opts.add(new OptionalEntity("pie", "display it as a pie chart"));
         opts.add(new OptionalEntity("aside", "show titles on the side"));
@@ -54,20 +54,21 @@ public abstract class ChartableParser<T extends ChartParameters> extends DaoPars
     public T parse(Context e) throws LastFmException, InstanceNotFoundException {
         T params = super.parse(e);
         if (params != null) {
-            if (params.getX() == DEFAULT_X && params.getY() == DEFAULT_Y) {
-                if (e instanceof ContextMessageReceived) {
+            if (e instanceof ContextMessageReceived) {
+                if (params.getX() == DEFAULT_X && params.getY() == DEFAULT_Y) {
                     String[] subMessage = getSubMessage(e);
                     if (Arrays.stream(subMessage).filter(ChartParserAux.chartSizePattern.asMatchPredicate()).findAny().isEmpty()) {
                         params.setX(params.getUser().getDefaultX());
                         params.setY(params.getUser().getDefaultY());
                     }
-                } else if (e instanceof ContextSlashReceived ctxe) {
-                    if (ctxe.e().getOption(ChartSizeExplanation.NAME) == null) {
-                        params.setX(params.getUser().getDefaultX());
-                        params.setY(params.getUser().getDefaultY());
-                    }
                 }
-
+            } else if (e instanceof ContextSlashReceived ctxe) {
+                if (ctxe.e().getOption("rows") == null) {
+                    params.setY(params.getUser().getDefaultY());
+                }
+                if (ctxe.e().getOption("columns") == null) {
+                    params.setX(params.getUser().getDefaultX());
+                }
             }
             EnumSet<ChartOptions> chartOptions = params.getUser().getChartOptions();
             if (chartOptions.contains(ChartOptions.NOTITLES)) {
@@ -76,6 +77,7 @@ public abstract class ChartableParser<T extends ChartParameters> extends DaoPars
             if (chartOptions.contains(ChartOptions.PLAYS)) {
                 params.addOpts("plays");
             }
+
         }
         return params;
     }

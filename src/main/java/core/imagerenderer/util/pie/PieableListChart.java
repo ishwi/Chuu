@@ -25,7 +25,7 @@ public class PieableListChart extends OptionalPie implements IPieableList<UrlCap
         int breakpoint = (int) (0.75 * total);
         AtomicInteger counter = new AtomicInteger(0);
         AtomicInteger acceptedCount = new AtomicInteger(0);
-        fillListedSeries(chart,
+        IPieableList.fillListedSeries(chart,
                 x -> x.getLines().stream().map(ChartLine::getLine).collect(Collectors.joining(" - ")),
                 UrlCapsule::getChartValue,
                 x -> {

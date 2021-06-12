@@ -46,6 +46,15 @@ public class CommandUtil {
     private CommandUtil() {
     }
 
+    public static String secondFormatter(int seconds) {
+        int hours = seconds / 3600;
+        int minutes = seconds / 60 % 60;
+        if (hours == 0) {
+            return minutes + CommandUtil.singlePlural(minutes, " minute", " minutes");
+        }
+        return String.format("%d:%02d hours", hours, minutes);
+    }
+
     public static String noImageUrl(String artist) {
         return artist == null || artist
                 .isEmpty() ? "https://lastfm-img2.akamaized.net/i/u/174s/4128a6eb29f94943c9d206c08e625904" : artist;

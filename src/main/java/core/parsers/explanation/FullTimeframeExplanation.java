@@ -17,7 +17,7 @@ public record FullTimeframeExplanation(TimeFrameEnum timeFrame) implements Expla
 
     static {
 
-        optionData = new OptionData(OptionType.STRING, NAME, "time-frame of the chart");
+        optionData = new OptionData(OptionType.STRING, NAME, "chart time-frame");
         for (TimeFrameEnum value : TimeFrameEnum.values()) {
             optionData.addChoice(value.toValueString(), value.getName());
         }

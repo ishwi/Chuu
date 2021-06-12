@@ -113,7 +113,7 @@ public class TrackDurationAlbumArtistChart extends TrackDurationArtistChart {
             }
         }
         if (showDuration) {
-            list.add(new ChartLine(String.format("%d:%02d hours", seconds / 3600, seconds / 60 % 60)));
+            list.add(new ChartLine(CommandUtil.secondFormatter(seconds)));
 
         }
         if (drawPlays) {

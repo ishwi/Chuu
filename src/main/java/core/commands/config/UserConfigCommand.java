@@ -165,7 +165,7 @@ public class UserConfigCommand extends ConcurrentCommand<UserConfigParameters> {
                     return;
                 }
                 db.setChartDefaults(x, y, e.getAuthor().getIdLong());
-                sendMessageQueue(e, "Successfully changed default chart size for user " + getUserString(e, e.getAuthor().getIdLong()));
+                sendMessageQueue(e, "Successfully changed default chart size for user %s to **%d**x**%d**".formatted(getUserString(e, e.getAuthor().getIdLong()), x, y));
                 break;
             case PRIVACY_MODE:
                 PrivacyMode privacyMode;

@@ -3343,6 +3343,15 @@ public class ChuuService implements EveryNoiseService {
         }
     }
 
+    public List<Track> getTopArtistTracksDuration(String lastFmName, long artistId, int limit) {
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setReadOnly(true);
+            return trackDao.getUserTopArtistTracksDuration(connection, lastFmName, artistId, limit);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
     /**
      * @return ALbumUserPlays misses url and artist name
      */

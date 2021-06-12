@@ -6,6 +6,9 @@ import com.zaxxer.hikari.HikariDataSource;
 import core.Chuu;
 import core.apis.last.ConcurrentLastFM;
 import core.commands.Context;
+import core.commands.ContextMessageReceived;
+import core.commands.moderation.InviteCommand;
+import core.parsers.params.CommandParameters;
 import dao.ChuuService;
 import dao.ServiceView;
 import net.dv8tion.jda.api.JDA;
@@ -13,6 +16,9 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.User;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.slf4j.LoggerFactory;
+
+import javax.validation.constraints.NotNull;
+import java.util.function.Consumer;
 
 public record EvalContext(JDA jda, Context e,
                           User owner, Guild guild,
@@ -48,5 +54,25 @@ public record EvalContext(JDA jda, Context e,
         var newLevel = Level.toLevel(level);
         rootLogger.setLevel(newLevel);
         sendMessage("Typing status set to " + newLevel);
+    }
+
+    public void createAnonymousCommand(Consumer<ContextMessageReceived> mes) {
+        class Fish extends InviteCommand {
+            public Fish(ServiceView dao) {
+                super(dao);
+            }
+
+            @Override
+            protected void onCommand(Context e, @NotNull CommandParameters params) {
+                if (e instanceof ContextMessageReceived f) {
+                    mes.accept(f);
+                }
+            }
+        }
+        jda.addEventListener(new Fish(new ServiceView(db, db)));
+    }
+
+    public void cleanListeners() {
+        jda.removeEventListener(jda.getRegisteredListeners().stream().filter(z -> z instanceof InviteCommand && z.getClass() != InviteCommand.class).toList());
     }
 }

@@ -45,7 +45,7 @@ public class PieableListResultWrapper<T, Y extends CommandParameters> extends Op
     @Override
     public PieChart fillPie(PieChart chart, Y params, List<T> data) {
         AtomicInteger acceptedCount = new AtomicInteger(0);
-        fillListedSeries(chart,
+        IPieableList.fillListedSeries(chart,
                 keyMapper,
                 valueMapper,
                 x -> {

@@ -765,13 +765,54 @@ public class TrackDaoImpl extends BaseDAO implements TrackDao {
     }
 
     @Override
+    public List<Track> getUserTopArtistTracksDuration(Connection connection, String lastfmId, long artistId, int limit) {
+        List<Track> returnList = new ArrayList<>();
+        String mySql = """
+                SELECT
+                    a.playnumber,
+                    (SELECT track_name FROM track WHERE id = a.track_id),
+                    (SELECT coalesce(nullif(duration,0),200) FROM track WHERE id = a.track_id) AS duration,
+                    (SELECT url FROM track WHERE id = a.track_id)
+                FROM scrobbled_track a
+                WHERE
+                    a.lastfm_id = ?
+                    AND a.artist_id = ?
+                ORDER BY a.playnumber * duration DESC
+                LIMIT ?""";
+        try {
+            PreparedStatement preparedStatement = connection.prepareStatement(mySql);
+            int i = 1;
+            preparedStatement.setString(i++, lastfmId);
+            preparedStatement.setLong(i++, artistId);
+            preparedStatement.setInt(i, limit);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                int plays = resultSet.getInt(1);
+                String trackName = resultSet.getString(2);
+                int duration = resultSet.getInt(3);
+                String url = resultSet.getString(4);
+
+                Track e = new Track(null, trackName, plays, false, duration == 0 ? 200 : duration);
+                e.setImageUrl(url);
+                returnList.add(e);
+            }
+
+        } catch (
+                SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+        return returnList;
+    }
+
+
+    @Override
     public List<Track> getUserTopArtistTracks(Connection connection, String lastfmId, long artistId, int limit) {
         List<Track> returnList = new ArrayList<>();
         String mySql = """
                 SELECT
                     a.playnumber,
                     (SELECT track_name FROM track WHERE id = a.track_id),
-                    (SELECT name FROM artist WHERE id = (SELECT artist_id FROM track WHERE id = a.track_id))
+                    (SELECT url FROM track WHERE id = a.track_id)
                 FROM scrobbled_track a
                 WHERE
                     a.lastfm_id = ?
@@ -788,9 +829,10 @@ public class TrackDaoImpl extends BaseDAO implements TrackDao {
             while (resultSet.next()) {
                 int plays = resultSet.getInt(1);
                 String trackName = resultSet.getString(2);
-                String artist = resultSet.getString(3);
+                String url = resultSet.getString(3);
 
-                Track e = new Track(artist, trackName, plays, false, 0);
+                Track e = new Track(null, trackName, plays, false, 0);
+                e.setImageUrl(url);
                 returnList.add(e);
             }
 
@@ -838,7 +880,8 @@ public class TrackDaoImpl extends BaseDAO implements TrackDao {
         String mySql = """
                 SELECT
                     sum(playnumber) AS ord,
-                    (SELECT track_name FROM track WHERE id = a.id)
+                    (SELECT track_name FROM track WHERE id = a.id),
+                    (SELECT url FROM track WHERE id = a.id)
                 FROM
                         (SELECT id FROM track WHERE artist_id = ?) a
                             JOIN scrobbled_track b ON a.id = b.track_id
@@ -872,7 +915,8 @@ public class TrackDaoImpl extends BaseDAO implements TrackDao {
         while (resultSet.next()) {
             int plays = resultSet.getInt(1);
             String trackName = resultSet.getString(2);
-            AlbumUserPlays e = new AlbumUserPlays(trackName, null);
+            String url = resultSet.getString(3);
+            AlbumUserPlays e = new AlbumUserPlays(trackName, url);
             e.setPlays(plays);
             returnList.add(e);
         }
@@ -884,7 +928,8 @@ public class TrackDaoImpl extends BaseDAO implements TrackDao {
         String mySql = """
                 SELECT
                     sum(playnumber) AS ord,
-                    (SELECT track_name FROM track WHERE id = a.id)
+                    (SELECT track_name FROM track WHERE id = a.id),
+                    (SELECT url FROM track WHERE id = a.id)
                 FROM
                         (SELECT id FROM track WHERE artist_id = ?) a
                             JOIN scrobbled_track b ON a.id = b.track_id

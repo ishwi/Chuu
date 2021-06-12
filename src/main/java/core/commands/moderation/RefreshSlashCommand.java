@@ -10,7 +10,6 @@ import core.parsers.OptionalEntity;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
 import dao.ServiceView;
-import net.dv8tion.jda.api.requests.RestAction;
 
 import javax.validation.constraints.NotNull;
 import java.util.Collections;
@@ -49,7 +48,7 @@ public class RefreshSlashCommand extends ConcurrentCommand<CommandParameters> {
 
     @Override
     public List<String> getAliases() {
-        return Collections.singletonList("slashrefresh");
+        return Collections.singletonList("slashrefresh2");
     }
 
     @Override
@@ -62,13 +61,14 @@ public class RefreshSlashCommand extends ConcurrentCommand<CommandParameters> {
         e.getJDA().retrieveApplicationInfo().queue(t -> {
             if (t.getOwner().getIdLong() == e.getAuthor().getIdLong()) {
                 if (params.hasOptional("delete")) {
-                    e.getGuild().retrieveCommands().flatMap(z -> RestAction.allOf(z.stream().map(l -> e.getGuild().deleteCommandById(l.getId())).toList())).queue(z -> sendMessageQueue(e, "Finished the deletion!"));
+                    e.getGuild().updateCommands().queue(z -> sendMessageQueue(e, "Finished the server deletion!"), throwable -> sendMessageQueue(e, throwable.getMessage()));
                 } else if (params.hasOptional("server")) {
-                    InteractionBuilder.setServerCommand(e.getGuild()).queue(z -> sendMessageQueue(e, "Finished the refresh!"));
+                    InteractionBuilder.setServerCommand(e.getGuild()).queue(z -> sendMessageQueue(e, "Finished the refresh!"), throwable -> sendMessageQueue(e, throwable.getMessage()));
                 } else if (params.hasOptional("globaldelete")) {
-                    e.getJDA().retrieveCommands().flatMap(z -> RestAction.allOf(z.stream().map(l -> e.getJDA().deleteCommandById(l.getId())).toList())).queue(z -> sendMessageQueue(e, "Finished the global deletion!"));
+                    e.getJDA().updateCommands().queue(z -> sendMessageQueue(e, "Finished the global deletion!"), throwable -> sendMessageQueue(e, throwable.getMessage()));
                 } else if (params.hasOptional("global")) {
-                    InteractionBuilder.setGlobalCommands(e.getJDA()).queue(z -> sendMessageQueue(e, "Finished the global refresh!"));
+                    InteractionBuilder.setGlobalCommands(e.getJDA()).queue(z -> sendMessageQueue(e, "Finished the refresh!"), throwable -> sendMessageQueue(e,
+                            throwable.getMessage()));
                 } else if (params.hasOptional("missing")) {
                     e.sendMessage(e.getJDA().getRegisteredListeners().stream()
                             .filter(w -> w instanceof MyCommand<?>)

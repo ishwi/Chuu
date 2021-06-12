@@ -71,13 +71,12 @@ dependencies {
     implementation 'com.neovisionaries:nv-i18n:1.28'
     implementation 'com.github.natanbc:java-eval:1.0'
     implementation group: 'com.google.guava', name: 'guava', version: '30.1.1-jre'
-    implementation("net.dv8tion:JDA:4.2.1_268")
+    implementation("net.dv8tion:JDA:4.3.0_277")
     implementation group: 'org.jsoup', name: 'jsoup', version: '1.13.1'
 
-//    implementation('net.dv8tion:JDA:4.2.1_255')
     implementation group: 'org.apache.commons', name: 'commons-collections4', version: '4.4'
     implementation group: 'org.json', name: 'json', version: '20210307'
-    implementation group: 'io.github.classgraph', name: 'classgraph', version: '4.8.106'
+    implementation group: 'io.github.classgraph', name: 'classgraph', version: '4.8.108'
     implementation group: 'com.twelvemonkeys.imageio', name: 'imageio-core', version: '3.7.0'
     implementation group: 'com.twelvemonkeys.imageio', name: 'imageio-jpeg', version: '3.7.0'
     implementation group: 'com.twelvemonkeys.imageio', name: 'imageio-webp', version: '3.7.0'
@@ -105,7 +104,7 @@ dependencies {
 // https://mvnrepository.com/artifact/com.pholser/junit-quickcheck-core
     //a
     testImplementation group: 'com.pholser', name: 'junit-quickcheck-core', version: '1.0'
-    testImplementation "org.mockito:mockito-core:3.10.0"
+    testImplementation "org.mockito:mockito-core:3.11.1"
     testImplementation group: 'junit', name: 'junit', version: '4.13.2'
 
     testImplementation group: 'org.openjdk.jmh', name: 'jmh-core', version: '1.32'

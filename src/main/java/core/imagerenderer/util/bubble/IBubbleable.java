@@ -13,7 +13,9 @@ import java.util.function.Supplier;
 
 public interface IBubbleable<T, Y extends CommandParameters> {
 
-    List<StringFrequency> obtainFrequencies(T data, Y params);
+    default List<StringFrequency> obtainFrequencies(T data, Y params) {
+        throw new UnsupportedOperationException();
+    }
 
     default String doBubble(Y params, T data) {
 

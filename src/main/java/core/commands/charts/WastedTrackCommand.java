@@ -74,7 +74,7 @@ public class WastedTrackCommand extends ChartableCommand<ChartGroupParameters> {
     @Override
     public EmbedBuilder configEmbed(EmbedBuilder embedBuilder, ChartGroupParameters params, int count) {
         return params.initEmbed("'s most listened tracks", embedBuilder,
-                String.format(" has listened to songs for %s", String.format("%d:%02d hours", count / 3600, count / 60 % 60)), params.getUser().getName());
+                String.format(" has listened to songs for %s", CommandUtil.secondFormatter(count)), params.getUser().getName());
     }
 
     @Override
@@ -82,7 +82,7 @@ public class WastedTrackCommand extends ChartableCommand<ChartGroupParameters> {
         String time = params.getTimeFrameEnum().getDisplayString();
         pieChart.setTitle(initTitle + "'s most listened tracks" + time);
         return String.format("%s has listened to songs for %s%s (showing top %d songs)", initTitle,
-                String.format("%d:%02d hours", count / 3600, count / 60 % 60), time, params.getX() * params.getY());
+                CommandUtil.secondFormatter(count), time, params.getX() * params.getY());
     }
 
     @Override

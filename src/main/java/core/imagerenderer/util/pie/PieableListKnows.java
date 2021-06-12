@@ -22,7 +22,7 @@ public class PieableListKnows<T extends CommandParameters> extends OptionalPie i
         int breakpoint = (int) (0.75 * total);
         AtomicInteger counter = new AtomicInteger(0);
         AtomicInteger acceptedCount = new AtomicInteger(0);
-        fillListedSeries(chart,
+        IPieableList.fillListedSeries(chart,
                 ReturnNowPlaying::getDiscordName,
                 ReturnNowPlaying::getPlayNumber,
                 x -> {

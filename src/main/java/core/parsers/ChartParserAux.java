@@ -62,12 +62,16 @@ public class ChartParserAux {
         if (x.equals("0") || y.equals("0")) {
             throw new InvalidChartValuesException(x);
         }
-        int x1 = Integer.parseInt(x);
-        int y1 = Integer.parseInt(y);
-        if (x1 * y1 > 400) {
+        try {
+            int x1 = Integer.parseInt(x);
+            int y1 = Integer.parseInt(y);
+            if (x1 * y1 > 400) {
+                throw new InvalidChartValuesException(x);
+            }
+            return new Point(x1, y1);
+        } catch (NumberFormatException ex) {
             throw new InvalidChartValuesException(x);
         }
-        return new Point(x1, y1);
     }
 
     public String[] getMessage() {

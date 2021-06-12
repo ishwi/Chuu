@@ -14,7 +14,7 @@ public record StrictTimeframeExplanation(TimeFrameEnum timeFrame) implements Exp
 
     static {
 
-        optionData = new OptionData(OptionType.STRING, "timeframe", "time-frame of the chart");
+        optionData = new OptionData(OptionType.STRING, "timeframe", "chart time-frame");
         for (TimeFrameEnum value : TimeFrameEnum.values()) {
             optionData.addChoice(value.toValueString(), value.getName());
         }

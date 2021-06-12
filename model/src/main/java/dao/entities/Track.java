@@ -96,4 +96,8 @@ public class Track {
                " - " + plays + " plays" +
                "\n";
     }
+
+    public String getPie() {
+        return name + " (" + plays + ")";
+    }
 }

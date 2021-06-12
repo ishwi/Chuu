@@ -23,7 +23,7 @@ public class PieableListBand extends OptionalPie implements IPieableList<AlbumUs
         int breakpoint = (int) (0.75 * total);
         AtomicInteger counter = new AtomicInteger(0);
         AtomicInteger acceptedCount = new AtomicInteger(0);
-        fillListedSeries(chart,
+        IPieableList.fillListedSeries(chart,
                 x -> x.getArtist() + " - " + x.getAlbum(),
                 AlbumUserPlays::getPlays,
                 x -> {

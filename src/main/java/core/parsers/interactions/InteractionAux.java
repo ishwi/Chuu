@@ -53,7 +53,9 @@ public class InteractionAux {
     }
 
     public static String parseSize(SlashCommandEvent e) {
-        return Optional.ofNullable(e.getOption(ChartSizeExplanation.NAME)).map(OptionMapping::getAsString).orElse("5x5");
+        long rows = Optional.ofNullable(e.getOption("columns")).map(OptionMapping::getAsLong).orElse(5L);
+        long columns = Optional.ofNullable(e.getOption("rows")).map(OptionMapping::getAsLong).orElse(5L);
+        return rows + "x" + columns;
     }
 
     public static @Nullable Point parseSize(SlashCommandEvent e, Callback errorMessage) {

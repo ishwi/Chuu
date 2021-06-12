@@ -122,8 +122,8 @@ public class TagWithYearCommand extends ConcurrentCommand<CommandParameters> {
                             .setColor(CommandUtil.pastelColor())
                             .setDescription("Artist: **%s**\nAlbum: **%s**\nYear: **%s**\nAuthor: %s".formatted(artist, album, year, e.getAuthor().getAsMention())).build())
                             .setActionRows(ActionRow.of(
-                                    Button.of(ButtonStyle.PRIMARY, ACCEPT, "Accept").withEmoji(Emoji.fromUnicode(ACCEPT)),
-                                    Button.of(ButtonStyle.DANGER, REJECT, "Reject").withEmoji(Emoji.fromUnicode(REJECT))
+                                    Button.of(ButtonStyle.PRIMARY, ACCEPT, "Accept", Emoji.fromUnicode(ACCEPT)),
+                                    Button.of(ButtonStyle.DANGER, REJECT, "Reject", Emoji.fromUnicode(REJECT))
                                     )
                             )
                             .queue();
