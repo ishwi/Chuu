@@ -31,7 +31,7 @@ public class RecommendationCommand extends ConcurrentCommand<RecommendationsPara
 
     @Override
     protected CommandCategory initCategory() {
-        return CommandCategory.USER_STATS;
+        return CommandCategory.DISCOVERY;
     }
 
     @Override

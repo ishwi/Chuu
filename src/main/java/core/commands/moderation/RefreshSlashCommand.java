@@ -48,7 +48,7 @@ public class RefreshSlashCommand extends ConcurrentCommand<CommandParameters> {
 
     @Override
     public List<String> getAliases() {
-        return Collections.singletonList("slashrefresh2");
+        return Collections.singletonList("slashrefresh");
     }
 
     @Override

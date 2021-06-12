@@ -64,7 +64,7 @@ public class TimeOnArtistCommand extends ConcurrentCommand<ArtistTimeFrameParame
 
     @Override
     public String slashName() {
-        return "specific-time";
+        return "specific-artist";
     }
 
     @Override
