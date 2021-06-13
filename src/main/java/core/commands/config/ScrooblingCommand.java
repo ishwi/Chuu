@@ -5,6 +5,7 @@ import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.parsers.OnlyUsernameParser;
+import core.parsers.OptionalEntity;
 import core.parsers.Parser;
 import core.parsers.params.ChuuDataParams;
 import dao.ServiceView;
@@ -25,7 +26,9 @@ public class ScrooblingCommand extends ConcurrentCommand<ChuuDataParams> {
 
     @Override
     public Parser<ChuuDataParams> initParser() {
-        return new OnlyUsernameParser(db);
+        return new OnlyUsernameParser(db, new OptionalEntity("enable", "enable the scrobbling functionalities"),
+                new OptionalEntity("disable", "disable the scrobbling functionalities")
+        );
     }
 
     @Override

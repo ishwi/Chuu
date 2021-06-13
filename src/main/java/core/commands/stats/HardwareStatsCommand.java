@@ -38,7 +38,7 @@ public class HardwareStatsCommand extends ConcurrentCommand<CommandParameters> {
 
     @Override
     public List<String> getAliases() {
-        return List.of("botstats");
+        return List.of("botstats", "info");
     }
 
     @Override

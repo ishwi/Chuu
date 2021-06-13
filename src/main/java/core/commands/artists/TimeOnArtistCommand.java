@@ -10,6 +10,7 @@ import core.commands.utils.*;
 import core.exceptions.LastFmException;
 import core.imagerenderer.util.pie.DefaultList;
 import core.imagerenderer.util.pie.IPieableList;
+import core.imagerenderer.util.pie.OptionalPie;
 import core.imagerenderer.util.pie.PieSetUp;
 import core.parsers.ArtistTimeFrameParser;
 import core.parsers.OptionalEntity;
@@ -39,6 +40,7 @@ public class TimeOnArtistCommand extends ConcurrentCommand<ArtistTimeFrameParame
         this.discogs = DiscogsSingleton.getInstanceUsingDoubleLocking();
         this.spotify = SpotifySingleton.getInstance();
         this.pie = DefaultList.fillPie(Track::getPie, Track::getDuration);
+        new OptionalPie(getParser());
 
     }
 
@@ -104,7 +106,7 @@ public class TimeOnArtistCommand extends ConcurrentCommand<ArtistTimeFrameParame
                 ai.size(),
                 who.getArtist(),
                 ai.stream().mapToInt(Track::getPlays).sum(),
-                CommandUtil.secondFormatter(ai.stream().mapToInt(Track::getDuration).sum()));
+                CommandUtil.secondFormatter(ai.stream().mapToInt(w -> w.getDuration() * w.getPlays()).sum()));
         RemainingImagesMode effectiveMode = CommandUtil.getEffectiveMode(params.getLastFMData().getRemainingImagesMode(), params);
         String title = String.format("%s's top %s tracks%s by time", userString, who.getArtist(), timeframew.getDisplayString());
         switch (effectiveMode) {

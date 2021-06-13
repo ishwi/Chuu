@@ -31,7 +31,6 @@ public class ScheduledService {
         scheduledExecutorService.scheduleAtFixedRate(
                 new SpotifyUpdaterThread(dao), 5, 5, TimeUnit.MINUTES);
         scheduledExecutorService.scheduleAtFixedRate(new ArtistMbidUpdater(dao), 100, 3600, TimeUnit.MINUTES);
-
         scheduleAtFridays(() -> new EveryNoiseScrapperService(new EveryNoiseScrapper(), dao).scrapeReleases(LocalDate.now().with(TemporalAdjusters.previous(DayOfWeek.FRIDAY))));
         scheduleEachMonth(() -> new EveryNoiseScrapperService(new EveryNoiseScrapper(), dao).scrapeGenres());
 

@@ -1,7 +1,8 @@
 # Chuu
 
-Chuu is a Discord bot that integrates [Last.fm]([https://www.last.fm/](https://www.last.fm/)) with Discord. It also has
-some unique integrations with RateYourMusic.com. There are a ton of available commands like:
+Chuu is a Discord bot that integrates [Last.fm]([https://www.last.fm/](https://www.last.fm/)) with Discord. Highly
+customizable at the user and server level. It also has some unique integrations with RateYourMusic.com. There are a ton
+of available commands like:
 
 - Your top of albums that were released in a given year<br>
 - Image charts of both albums and artists<br>
@@ -9,7 +10,8 @@ some unique integrations with RateYourMusic.com. There are a ton of available co
 - Artist, albums and songs leaderboards (crowns)<br>
 - Unique artists within a server<br>
 - Genre information about your artist/albums<br>
-- 150+ more commands!
+- 200+ more commands!
+- Full support for slash commands
 
 ## Invite Link
 
@@ -22,7 +24,7 @@ There is also a support server if you want to ask any questions directly. [Join 
 
 You can also build the bot and install it on your own. In order to do that you need:<br><br>
 
-- Java 15+ with preview features enabled<br><br>
+- Java 16+ with preview features enabled<br><br>
 - MariaDB 10.5+<br><br>
 - Postgresql 12+<br><br>
 - [A Discogs developer account](https://www.discogs.com/developers)
@@ -62,6 +64,11 @@ the [following SQL script](https://github.com/ishwi/chuu/blob/master/model/src/m
 adjust
 the [datasource.properties](https://github.com/ishwi/chuu/blob/master/model/src/main/resources/datasource.properties)
 with the corresponding properties.
+
+If you are interested in posting info of the bot to a given botlist, fill the
+file [botlists.properties](https://github.com/ishwi/chuu/blob/master/src/main/resources/botlists.properties). The keys
+are specified
+in [BotLists.java](https://github.com/ishwi/chuu/blob/master/src/main/java/core/util/botlists/BotLists.java)
 
 For postgresql I would recommend you to use [mbdata](https://pypi.org/project/mbdata/) to set up the musicbrainz
 database. Then adjust

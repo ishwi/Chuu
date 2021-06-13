@@ -14,7 +14,7 @@ public enum CommandCategory {
     UNIQUES(8, "Commands about unique artists"),
     INFO(9, "Information about artists,albums..."),
     DISCOVERY(10, "Discover or help others discover new music"),
-    BOT_INFO(11, "Information about the bot"),
+    BOT_INFO(11, "Information about the bot", "info"),
     LOVE(12, "Using the love feature of last.fm"),
     ARTIST_IMAGES(13, "Personalize the artist images displayed on the bot"),
     GENRES(14, "Commands about genres/tags for artists/albums..."),

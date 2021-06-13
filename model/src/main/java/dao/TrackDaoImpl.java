@@ -764,6 +764,7 @@ public class TrackDaoImpl extends BaseDAO implements TrackDao {
         }
     }
 
+
     @Override
     public List<Track> getUserTopArtistTracksDuration(Connection connection, String lastfmId, long artistId, int limit) {
         List<Track> returnList = new ArrayList<>();

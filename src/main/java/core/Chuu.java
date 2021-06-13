@@ -23,6 +23,7 @@ import core.music.utils.ScrobbleProcesser;
 import core.otherlisteners.AwaitReady;
 import core.otherlisteners.ConstantListener;
 import core.services.*;
+import core.util.botlists.BotListPoster;
 import dao.ChuuDatasource;
 import dao.ChuuService;
 import dao.LongExecutorChuuDatasource;
@@ -176,6 +177,7 @@ public class Chuu {
                             CommandListUpdateAction ignored = InteractionBuilder.setGlobalCommands(shard.getShardById(0));
                         });
                     }
+                    scheduledService.addSchedule(() -> new BotListPoster().doPost(), 5, 120, TimeUnit.MINUTES);
 
 
                     updatePresence("Chuu");
