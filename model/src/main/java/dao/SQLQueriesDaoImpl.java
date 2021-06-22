@@ -1502,6 +1502,40 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
 
     }
 
+    @Override
+    public List<ScrobbledArtist> getServerArtistsByMbid(Connection connection, long guildId) {
+        List<ScrobbledArtist> scrobbledAlbums = new ArrayList<>();
+        String s = """
+                SELECT name,b.url,b.mbid,sum(a.playnumber)
+                FROM scrobbled_artist a
+                    JOIN user c ON a.lastfm_id = c.lastfm_id
+                    JOIN user_guild ug ON c.discord_id = ug.discord_id
+                    JOIN artist b ON a.artist_id = b.id
+                WHERE ug.guild_id = ? AND b.mbid IS NOT NULL AND mbid <> ''
+                 GROUP BY a.artist_id
+                 ORDER BY a.playnumber""";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(s)) {
+            preparedStatement.setLong(1, guildId);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                String artist = resultSet.getString(1);
+                String url = resultSet.getString(2);
+                String mbid = resultSet.getString(3);
+                int playnumber = resultSet.getInt(4);
+                ScrobbledArtist scrobbledArtist = new ScrobbledArtist(artist, playnumber, url);
+                scrobbledArtist.setArtistMbid(mbid);
+                scrobbledArtist.setCount(playnumber);
+                scrobbledAlbums.add(scrobbledArtist);
+            }
+            // TODO this might OOM
+        } catch (
+                SQLException throwables) {
+            throw new ChuuServiceException(throwables);
+        }
+        return scrobbledAlbums;
+
+    }
+
 
     @Override
     public Optional<Rank<PrivacyUserCount>> getGlobalPosition(Connection connection, long discordId) {

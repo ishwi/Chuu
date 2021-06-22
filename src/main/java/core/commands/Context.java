@@ -8,6 +8,7 @@ import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.requests.RestAction;
+import org.apache.commons.io.FileUtils;
 
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nullable;
@@ -91,16 +92,18 @@ public sealed interface Context permits ContextMessageReceived, ContextSlashRece
             ImageIO.write(image, format, b);
 
             byte[] img = b.toByteArray();
-            long maxSize = isFromGuild() ? getGuild().getMaxFileSize() : Message.MAX_FILE_SIZE;
-            if (img.length < maxSize) {
+            long maxSize = getMaxFileSize();
+
+
+            if (img.length <= maxSize) {
                 doSendImage(img, format, embedBuilder);
             } else {
-                sendMessageQueue("File was real big");
+                sendMessageQueue("Cannot send image because the image size exceeds %s".formatted(FileUtils.byteCountToDisplaySize(img.length)));
             }
         } catch (
                 IOException ex) {
             if (ex.getMessage().equals("Maximum supported image dimension is 65500 pixels")) {
-                sendMessageQueue("Programming language won't allow images with more than 65500 pixels in one dimension");
+                sendMessageQueue("Cannot do images with more than 65500 pixels in one dimension");
             } else {
                 throw new ChuuServiceException(ex);
             }
@@ -109,5 +112,9 @@ public sealed interface Context permits ContextMessageReceived, ContextSlashRece
 
     RestAction<Message> sendFile(InputStream inputStream, String s, String title);
 
-
+    default long getMaxFileSize() {
+        if (getChannel().getType().isGuild())
+            return ((GuildChannel) getChannel()).getGuild().getMaxFileSize();
+        return getJDA().getSelfUser().getAllowedFileSize();
+    }
 }

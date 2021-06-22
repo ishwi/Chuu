@@ -46,7 +46,7 @@ public interface MusicBrainzService {
 
     Map<Country, Integer> countryCount(List<ArtistInfo> artistInfo);
 
-    List<ArtistUserPlays> getArtistFromCountry(CountryCode country, List<ScrobbledArtist> allUserArtist, long discordId);
+    List<ScrobbledArtist> getArtistFromCountry(CountryCode country, List<ScrobbledArtist> allUserArtist, Long discordId);
 
     List<Track> getAlbumTrackListMbid(String mbid);
 

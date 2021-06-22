@@ -9,6 +9,7 @@ import core.parsers.explanation.TimeframeExplanation;
 import core.parsers.explanation.util.Explanation;
 import core.parsers.interactions.InteractionAux;
 import core.parsers.params.CountryParameters;
+import core.parsers.utils.CountryParse;
 import core.parsers.utils.CustomTimeFrame;
 import dao.ChuuService;
 import dao.entities.LastFMData;
@@ -17,14 +18,8 @@ import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
-import org.jetbrains.annotations.Nullable;
 
-import java.util.Arrays;
 import java.util.List;
-import java.util.Locale;
-import java.util.Optional;
-import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
 
 public class CountryParser extends DaoParser<CountryParameters> {
 
@@ -46,7 +41,7 @@ public class CountryParser extends DaoParser<CountryParameters> {
         User user = InteractionAux.parseUser(e);
         LastFMData data = findLastfmFromID(user, ctx);
         OptionMapping country = e.getOption("country");
-        CountryCode countryCode = fromString(ctx, country.getAsString());
+        CountryCode countryCode = CountryParse.fromString(this, ctx, country.getAsString());
         if (countryCode == null) return null;
         return new CountryParameters(ctx, data, countryCode, new CustomTimeFrame(timeFrameEnum));
     }
@@ -67,7 +62,7 @@ public class CountryParser extends DaoParser<CountryParameters> {
         } else {
             countryCode = String.join(" ", words);
         }
-        CountryCode country = fromString(e, countryCode);
+        CountryCode country = CountryParse.fromString(this, e, countryCode);
         if (country == null) return null;
         // :pensive:
 //        if (country == CountryCode.IL) {
@@ -80,60 +75,6 @@ public class CountryParser extends DaoParser<CountryParameters> {
 
     }
 
-    @Nullable
-    private CountryCode fromString(Context e, String value) {
-        CountryCode country;
-        if (value.length() == 2) {
-            if (value.equalsIgnoreCase("uk")) {
-                value = "gb";
-            }
-            country = CountryCode.getByAlpha2Code(value.toUpperCase());
-        } else if (value.length() == 3) {
-            if (value.equalsIgnoreCase("eng")) {
-                value = "gb";
-            }
-            country = CountryCode.getByAlpha3Code(value.toUpperCase());
-        } else {
-            if (value.equalsIgnoreCase("england")) {
-                value = "gb";
-                country = CountryCode.getByAlpha2Code(value.toUpperCase());
-
-            } else if (value.equalsIgnoreCase("northen macedonia")) {
-                value = "mk";
-                country = CountryCode.getByAlpha2Code(value.toUpperCase());
-            } else if (value.equalsIgnoreCase("eSwatini ")) {
-                value = "sz";
-                country = CountryCode.getByAlpha2Code(value.toUpperCase());
-            } else {
-                String finalCountryCode = value;
-                Optional<Locale> opt = Arrays.stream(Locale.getISOCountries()).map(x -> new Locale("en", x)).
-                        filter(y -> y.getDisplayCountry().equalsIgnoreCase(finalCountryCode))
-                        .findFirst();
-                if (opt.isPresent()) {
-                    country = CountryCode.getByAlpha3Code(opt.get().getISO3Country());
-                } else {
-                    try {
-                        List<CountryCode> byName = CountryCode.findByName(Pattern.compile(".*" + value + ".*", Pattern.CASE_INSENSITIVE | Pattern.DOTALL)).stream()
-                                .filter(x -> !x.getName().equalsIgnoreCase("Undefined")).toList();
-
-                        if (byName.isEmpty()) {
-                            country = null;
-                        } else {
-                            country = byName.get(0);
-                        }
-                    } catch (PatternSyntaxException ex) {
-                        sendError("The provided regex is not a valid one according to Java :(", e);
-                        return null;
-                    }
-                }
-            }
-        }
-        if (country == null) {
-            sendError(getErrorMessage(6), e);
-            return null;
-        }
-        return country;
-    }
 
     @Override
     public List<Explanation> getUsages() {

@@ -1,9 +1,9 @@
-FROM gradle:jre15 AS build
+FROM gradle:jre16 AS build
 COPY --chown=gradle:gradle . /home/gradle/src
 WORKDIR /home/gradle/src
 RUN gradle shadowJar --no-daemon
 
-FROM openjdk:15-jdk
+FROM openjdk:17-ea
 
 RUN mkdir /app
 CMD bash

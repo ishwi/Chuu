@@ -4,8 +4,6 @@ import com.neovisionaries.i18n.CountryCode;
 import core.apis.discogs.DiscogsApi;
 import core.apis.discogs.DiscogsSingleton;
 import core.apis.last.entities.chartentities.ArtistChart;
-import core.apis.last.entities.chartentities.ChartUtil;
-import core.apis.last.entities.chartentities.TopEntity;
 import core.apis.last.entities.chartentities.UrlCapsule;
 import core.apis.spotify.Spotify;
 import core.apis.spotify.SpotifySingleton;
@@ -18,16 +16,15 @@ import core.exceptions.LastFmException;
 import core.imagerenderer.ChartQuality;
 import core.imagerenderer.CollageMaker;
 import core.otherlisteners.Reactionary;
-import core.parsers.CountryParser;
+import core.parsers.OnlyCountryParser;
 import core.parsers.OptionalEntity;
 import core.parsers.Parser;
-import core.parsers.params.ChartParameters;
-import core.parsers.params.CountryParameters;
+import core.parsers.params.OnlyCountryParameters;
 import core.services.MbidFetcher;
 import dao.ServiceView;
-import dao.entities.DiscordUserDisplay;
 import dao.entities.LastFMData;
 import dao.entities.ScrobbledArtist;
+import dao.exceptions.InstanceNotFoundException;
 import dao.musicbrainz.MusicBrainzService;
 import dao.musicbrainz.MusicBrainzServiceSingleton;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -35,22 +32,20 @@ import org.apache.commons.lang3.StringUtils;
 
 import javax.validation.constraints.NotNull;
 import java.awt.image.BufferedImage;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class ArtistFromCountryCommand extends ConcurrentCommand<CountryParameters> {
+public class FromCountryServerCommand extends ConcurrentCommand<OnlyCountryParameters> {
 
     final DiscogsApi discogsApi;
     final Spotify spotifyApi;
 
     private final MusicBrainzService mb;
 
-    public ArtistFromCountryCommand(ServiceView dao) {
-        super(dao);
+    public FromCountryServerCommand(ServiceView dao) {
+        super(dao, true);
         mb = MusicBrainzServiceSingleton.getInstance();
         discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
         spotifyApi = SpotifySingleton.getInstance();
@@ -58,100 +53,109 @@ public class ArtistFromCountryCommand extends ConcurrentCommand<CountryParameter
 
     @Override
     protected CommandCategory initCategory() {
-        return CommandCategory.USER_STATS;
+        return CommandCategory.SERVER_STATS;
     }
 
     @Override
-    public Parser<CountryParameters> initParser() {
-        CountryParser countryParser = new CountryParser(db);
+    public Parser<OnlyCountryParameters> initParser() {
+        OnlyCountryParser countryParser = new OnlyCountryParser(db);
         countryParser.addOptional(new OptionalEntity("image", "show this as a chart "));
         return countryParser;
     }
 
     @Override
     public String getDescription() {
-        return "Your top artist that are from a specific country";
+        return "Server top artist that are from a specific country";
+    }
+
+    @Override
+    public String slashName() {
+        return "from";
     }
 
     @Override
     public List<String> getAliases() {
-        return Collections.singletonList("from");
+        return List.of("serverfrom", "sfrom");
     }
 
     @Override
     public String getName() {
-        return "Artist from a country";
+        return "Artist from a country in the server";
     }
 
-    void doImage(List<ScrobbledArtist> list, CountryParameters countryParameters) {
+    void doImage(List<ScrobbledArtist> list, OnlyCountryParameters countryParameters) {
         AtomicInteger ranker = new AtomicInteger(0);
-        LastFMData data = countryParameters.getLastFMData();
-        int size = data.getDefaultX() * data.getDefaultY();
+        final int size;
+        int size1;
+        int x;
+        int y;
+        int x1;
+        int y1;
+        try {
+            LastFMData data = db.computeLastFmData(countryParameters.getE().getAuthor().getIdLong(), countryParameters.getE().getGuild().getIdLong());
+            size1 = data.getDefaultX() * data.getDefaultY();
+            x1 = data.getDefaultX();
+            y1 = data.getDefaultY();
+        } catch (InstanceNotFoundException e) {
+            size1 = 25;
+            x1 = 5;
+            y1 = 5;
+        }
+        x = x1;
+        y = y1;
+        size = size1;
         List<UrlCapsule> urlEntities = list.stream()
                 .<UrlCapsule>map(w -> new ArtistChart(w.getUrl(), ranker.getAndIncrement(), w.getArtist(), null, w.getCount(), true, true, false))
-                .takeWhile(x -> x.getPos() < size)
-                .peek(x -> {
-                    if (!StringUtils.isBlank(x.getUrl())) {
+                .takeWhile(t -> t.getPos() < size)
+                .peek(t -> {
+                    if (!StringUtils.isBlank(t.getUrl())) {
                         return;
                     }
                     try {
-                        String artistImageUrl = CommandUtil.getArtistImageUrl(db, x.getArtistName(), lastFM, discogsApi, spotifyApi);
-                        x.setUrl(artistImageUrl);
+                        String artistImageUrl = CommandUtil.getArtistImageUrl(db, t.getArtistName(), lastFM, discogsApi, spotifyApi);
+                        t.setUrl(artistImageUrl);
                     } catch (LastFmException ignored) {
+                        // Whatever
                     }
                 })
                 .toList();
-        int rows = (int) Math.floor(Math.sqrt(urlEntities.size()));
-        rows = Math.min(rows, data.getDefaultX());
-        int cols = rows;
+        if (urlEntities.size() < x * y) {
+            x = Math.max((int) Math.ceil(Math.sqrt(urlEntities.size())), 1);
+            //noinspection SuspiciousNameCombination
+            y = x;
+        }
 
-        BufferedImage image = CollageMaker.generateCollageThreaded(rows, cols, new ArrayBlockingQueue<>(urlEntities.size(), false, urlEntities), ChartQuality.PNG_BIG,
+        BufferedImage image = CollageMaker.generateCollageThreaded(x, y, new ArrayBlockingQueue<>(urlEntities.size(), false, urlEntities), ChartQuality.PNG_BIG,
                 false);
         sendImage(image, countryParameters.getE());
 
     }
 
     @Override
-    protected void onCommand(Context e, @NotNull CountryParameters params) throws LastFmException {
+    protected void onCommand(Context e, @NotNull OnlyCountryParameters params) throws LastFmException {
 
         CountryCode country = params.getCode();
-        LastFMData user = params.getLastFMData();
-        String name = user.getName();
-        long discordId = user.getDiscordId();
-        List<ScrobbledArtist> userArtists;
-        BlockingQueue<UrlCapsule> queue = null;
-        if (params.getTimeFrame().isAllTime()) {
-            userArtists = this.db.getUserArtistByMbid(user.getName());
-        } else {
-            queue = new ArrayBlockingQueue<>(2000);
-            lastFM.getChart(user, params.getTimeFrame(), 2000, 1, TopEntity.ARTIST, ChartUtil.getParser(params.getTimeFrame(), TopEntity.ARTIST, ChartParameters.toListParams(), lastFM, user), queue);
-            userArtists = queue.stream().map(x -> {
-                ScrobbledArtist scrobbledArtist = new ScrobbledArtist(x.getArtistName(), x.getPlays(), null);
-                scrobbledArtist.setArtistMbid(x.getMbid());
-                return scrobbledArtist;
-            }).toList();
-        }
-        List<ScrobbledArtist> list = new MbidFetcher(db, mb)
+        MbidFetcher mbidFetcher = new MbidFetcher(db, mb);
+        List<ScrobbledArtist> list = mbidFetcher
                 .doFetch(
-                        () -> userArtists,
+                        () -> this.db.getServerArtistsByMbid(e.getGuild().getIdLong()),
                         (mbids) -> this.mb.getArtistFromCountry(country, mbids, null),
                         Comparator.comparingInt(ScrobbledArtist::getCount).reversed());
-        DiscordUserDisplay userInformation = CommandUtil.getUserInfoConsideringGuildOrNot(e, discordId);
-        String userName = userInformation.getUsername();
-        String userUrl = userInformation.getUrlImage();
+        String guild = e.getGuild().getName();
+        String userUrl = e.getGuild().getIconUrl();
+
         String countryRep;
         if (country.getAlpha2().equalsIgnoreCase("su")) {
             countryRep = "☭";
         } else {
             countryRep = ":flag_" + country.getAlpha2().toLowerCase();
         }
-        String usableTime = params.getTimeFrame().getDisplayString();
         if (list.isEmpty()) {
-            sendMessageQueue(e, userName + " doesnt have any artist from " + countryRep + ": " + usableTime);
+            sendMessageQueue(e, guild + " doesnt have any artist from " + countryRep + ": ");
             return;
         }
         if (params.hasOptional("image")) {
-
+            AtomicInteger ranker = new AtomicInteger(0);
             doImage(list, params);
             return;
         }
@@ -161,10 +165,10 @@ public class ArtistFromCountryCommand extends ConcurrentCommand<CountryParameter
             a.append(i + 1).append(list.get(i).toString());
         }
 
-        String title = userName + "'s top artists from " + countryRep + (":");
+        String title = guild + "'s top artists from " + countryRep + (":");
         EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e).setThumbnail(userUrl)
-                .setFooter(CommandUtil.unescapedUser(userName, discordId, e) + " has " + list.size() +
-                           (list.size() == 1 ? " artist " : " artists ") + "from " + country.getName() + " " + usableTime, null)
+                .setFooter(guild + " has " + list.size() +
+                           (list.size() == 1 ? " artist " : " artists ") + "from " + country.getName(), null)
                 .setTitle(title)
                 .setDescription(a);
         e.sendMessage(embedBuilder.build()).queue(mes ->

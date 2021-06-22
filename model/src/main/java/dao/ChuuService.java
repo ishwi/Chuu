@@ -3031,7 +3031,14 @@ public class ChuuService implements EveryNoiseService {
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }
+    }
 
+    public List<ScrobbledArtist> getServerArtistsByMbid(long guildId) {
+        try (Connection connection = dataSource.getConnection()) {
+            return queriesDao.getServerArtistsByMbid(connection, guildId);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
     }
 
     public List<ScrobbledArtist> getUserArtistWithTag(long discordId, String genre, int limit) {

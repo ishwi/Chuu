@@ -274,4 +274,8 @@ interface SQLQueriesDao {
     List<UserCount> getServerCommandsLb(Connection connection, long guildId);
 
     AudioFeatures userFeatures(Connection connection, String lastfmId);
+
+    List<ScrobbledArtist> getServerArtistsByMbid(Connection connection, long guildId);
+
+
 }

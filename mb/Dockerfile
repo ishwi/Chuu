@@ -1,13 +1,35 @@
-FROM postgres:latest
+  
+ARG POSTGRES_VERSION=12
+FROM postgres:${POSTGRES_VERSION}
 
-RUN apt-get update
+ARG POSTGRES_VERSION
+LABEL org.metabrainz.based-on-image="postgres:${POSTGRES_VERSION}"
 
-RUN DEBIAN_FRONTEND=noninteractive apt-get -y -q install git-core build-essential libxml2-dev libpq-dev libexpat1-dev libdb-dev libicu-dev postgresql-server-dev-9.5 wget
+ARG DEBIAN_FRONTEND=noninteractive
 
-RUN git clone https://github.com/metabrainz/postgresql-musicbrainz-unaccent.git && git clone https://github.com/metabrainz/postgresql-musicbrainz-collate.git
+# Update the Ubuntu and PostgreSQL repository indexes
+RUN apt-get update && \
+    apt-get install --allow-downgrades --no-install-recommends -qy \
+        build-essential \
+        ca-certificates \
+        gcc \
+        git \
+        libicu-dev \
+        make \
+        pkg-config \
+    && apt-get install --allow-downgrades --no-install-recommends -qy \
+        --target-release "n=$(. /etc/os-release && echo "$VERSION_CODENAME")-pgdg" \
+        libpq5 \
+        libpq-dev \
+        postgresql-server-dev-${POSTGRES_VERSION} \
+    && rm -rf /var/lib/apt/lists/*
 
-#RUN cd postgresql-musicbrainz-unaccent && make && make install && cd ../postgresql-musicbrainz-collate && make && make install && cd ../
-
-RUN echo "listen_addresses='*'" >> /var/lib/postgresql/data/postgresql.conf
-
-ADD create-database.sh /create-database.sh
+# There is no tag v0.4.2 (or 0.5.0) yet
+ARG PG_AMQP_GIT_REF="240d477d40c5e7a579b931c98eb29cef4edda164"
+# hadolint ignore=DL3003
+RUN git clone https://github.com/omniti-labs/pg_amqp.git /tmp/pg_amqp \
+    && cd /tmp/pg_amqp \
+    && git checkout "$PG_AMQP_GIT_REF" \
+    && make \
+    && make install \
+    && rm -R /tmp/*

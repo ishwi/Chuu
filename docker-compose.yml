@@ -1,12 +1,23 @@
 volumes:
   lastfm:
+  mb:
+  cache:
 services:
   musicbrainz:
-    build: ./mb
+    build:
+      context: ./mb
+      args:
+        - POSTGRES_VERSION=${POSTGRES_VERSION:-12}
+
+    image: musicbrainz-docker_db:${POSTGRES_VERSION:-12}
     environment:
       - POSTGRES_PASSWORD=password
     ports:
       - "5432:5432"
+    volumes:
+      - mb:/var/lib/postgresql/data
+    restart: unless-stopped
+
 
   lastfm:
     image: "mariadb:latest"
@@ -29,6 +40,5 @@ services:
       - lastfm
       - musicbrainz
     command: sh -c 'bin/wait-for lastfm:3306 --  gradle shadowJar --no-daemon  && java --enable-preview -jar /app/chuu.jar  stop-asking
-
-  redis:
-    image: "redis:alpine"
+    volumes:
+      - cache:/data/

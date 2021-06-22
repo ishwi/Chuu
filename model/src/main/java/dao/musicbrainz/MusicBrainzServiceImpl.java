@@ -215,7 +215,7 @@ public class MusicBrainzServiceImpl implements MusicBrainzService {
     }
 
     @Override
-    public List<ArtistUserPlays> getArtistFromCountry(CountryCode country, List<ScrobbledArtist> queue, long discordId) {
+    public List<ScrobbledArtist> getArtistFromCountry(CountryCode country, List<ScrobbledArtist> queue, Long discordId) {
         try (Connection connection = dataSource.getConnection()) {
             connection.setReadOnly(true);
 
@@ -230,7 +230,7 @@ public class MusicBrainzServiceImpl implements MusicBrainzService {
             List<String> artistFromCountry = mbizQueriesDao.getArtistFromCountry(connection, country, artistInfos);
 
             return queue.stream().filter(u -> u.getArtistMbid() != null && !u.getArtistMbid().isEmpty() && artistFromCountry.contains(u.getArtistMbid()))
-                    .map(x -> new ArtistUserPlays(x.getArtist(), x.getCount(), discordId)).toList();
+                    .map(x -> new ScrobbledArtist(x.getArtist(), x.getCount(), x.getUrl())).toList();
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }
