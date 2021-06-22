@@ -12,15 +12,13 @@ public class RYMChartEntity extends UrlCapsule {
     private final boolean drawTitles;
     private final boolean drawScore;
     private final boolean useNumber;
-    private final double average;
     private final long numberOfRatings;
 
-    public RYMChartEntity(String url, int pos, String artistName, String albumName, boolean drawTitles, boolean drawScore, boolean useNumber, double average, long numberOfRatings) {
+    public RYMChartEntity(String url, int pos, String artistName, String albumName, boolean drawTitles, boolean drawScore, boolean useNumber, long numberOfRatings) {
         super(url, pos, artistName, albumName, null);
         this.drawTitles = drawTitles;
         this.drawScore = drawScore;
         this.useNumber = useNumber;
-        this.average = average;
         this.numberOfRatings = numberOfRatings;
     }
 
@@ -38,22 +36,31 @@ public class RYMChartEntity extends UrlCapsule {
                 if (number % 1 != 0)
                     starts += "☆";
                 list.add(new ChartLine(starts));
-            } else
-                list.add(new ChartLine(ScoredAlbumRatings.formatter.format(average / 2f) + " in " + numberOfRatings + " " + CommandUtil.singlePlural(Math.toIntExact(numberOfRatings), "rating", "ratings")));
+            } else {
+                list.add(new ChartLine(toRatingText(false)));
+            }
 
         }
         return list;
 
     }
 
+    private String toRatingText(boolean bold) {
+        if (bold) {
+            return "**%s** in **%d** %s".formatted(ScoredAlbumRatings.formatter.format(getPlays() / 2f), numberOfRatings, CommandUtil.singlePlural(Math.toIntExact(numberOfRatings), "rating", "ratings"));
+        } else {
+            return "%s in %d %s".formatted(ScoredAlbumRatings.formatter.format(getPlays() / 2f), numberOfRatings, CommandUtil.singlePlural(Math.toIntExact(numberOfRatings), "rating", "ratings"));
+
+        }
+    }
 
     @Override
     public String toEmbedDisplay() {
-        return String.format(". **[%s - %s](%s)** - **%d** %s%n",
+        return String.format(". **[%s - %s](%s)** - %s%n",
                 CommandUtil.escapeMarkdown(getArtistName())
                 , CommandUtil.escapeMarkdown(getAlbumName()),
                 LinkUtils.getLastFmArtistAlbumUrl(getArtistName(), getAlbumName()),
-                getPlays(), CommandUtil.singlePlural(getPlays(), "play", "plays"));
+                toRatingText(true));
     }
 
     @Override
@@ -65,7 +72,7 @@ public class RYMChartEntity extends UrlCapsule {
 
     @Override
     public int getChartValue() {
-        return 0;
+        return getPlays();
     }
 
 }

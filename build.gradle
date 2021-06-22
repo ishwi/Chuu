@@ -13,12 +13,11 @@ repositories {
         url 'https://m2.dv8tion.net/releases'
         name 'm2-dv8tion'
     }
-    maven { url 'https://dl.bintray.com/natanbc/maven' }
     maven { url 'https://jitpack.io' }
 
-    maven {
-        url 'https://dl.bintray.com/sedmelluq/com.sedmelluq'
-    }
+
+    jcenter()
+
 
 }
 
@@ -69,7 +68,7 @@ dependencies {
     implementation 'com.github.ben-manes.caffeine:caffeine:3.0.2'
 
     implementation 'com.neovisionaries:nv-i18n:1.28'
-    implementation 'com.github.natanbc:java-eval:1.0'
+    implementation 'com.github.ishwi:java-eval:8de726df14c18523912aa6ff21bfd1b0b7d54924'
     implementation group: 'com.google.guava', name: 'guava', version: '30.1.1-jre'
     implementation("net.dv8tion:JDA:4.3.0_277")
     implementation group: 'org.jsoup', name: 'jsoup', version: '1.13.1'

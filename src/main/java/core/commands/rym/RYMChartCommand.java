@@ -17,10 +17,11 @@ import dao.entities.ScoredAlbumRatings;
 import dao.entities.TimeFrameEnum;
 import net.dv8tion.jda.api.EmbedBuilder;
 import org.knowm.xchart.PieChart;
+import org.knowm.xchart.style.PieStyler;
 
 import java.util.List;
+import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -85,20 +86,17 @@ public class RYMChartCommand extends ChartableCommand<ChartSizeParameters> {
         boolean isUseStars = params.hasOptional("usestars");
 
 
-        LinkedBlockingDeque<UrlCapsule> chartRatings = selfRatingsScore.stream().map(x -> {
+        BlockingQueue<UrlCapsule> chartRatings = selfRatingsScore.stream().map(x -> {
             boolean useAverage = false;
-            double average = 0;
             int score = (int) x.getScore();
             if (server || global) {
                 useAverage = !isUseStars;
                 score = (int) Math.round(x.getAverage());
-                average = x.getAverage();
-
             }
-            RYMChartEntity rymChartEntity = new RYMChartEntity(x.getUrl(), atomicInteger.getAndIncrement(), x.getArtist(), x.getName(), params.isWriteTitles(), !isNoRatings, useAverage, average, x.getNumberOfRatings());
+            RYMChartEntity rymChartEntity = new RYMChartEntity(x.getUrl(), atomicInteger.getAndIncrement(), x.getArtist(), x.getName(), params.isWriteTitles(), !isNoRatings, useAverage, x.getNumberOfRatings());
             rymChartEntity.setPlays(score);
             return rymChartEntity;
-        }).limit((long) params.getX() * params.getY()).collect(Collectors.toCollection(LinkedBlockingDeque::new));// They in fact cannot be inferred you dumbass.
+        }).limit((long) params.getX() * params.getY()).collect(Collectors.toCollection(() -> new ArrayBlockingQueue<>(params.getX() * params.getY())));// They in fact cannot be inferred you dumbass.
         return new CountWrapper<>(chartRatings.size(), chartRatings);
     }
 
@@ -116,7 +114,7 @@ public class RYMChartCommand extends ChartableCommand<ChartSizeParameters> {
             title = "bot";
             url = params.getE().getJDA().getSelfUser().getAvatarUrl();
         } else {
-            Long discordId = params.getUser().getDiscordId();
+            long discordId = params.getUser().getDiscordId();
             DiscordUserDisplay userInfoConsideringGuildOrNot = CommandUtil.getUserInfoConsideringGuildOrNot(params.getE(), discordId);
             title = userInfoConsideringGuildOrNot.getUsername();
             url = userInfoConsideringGuildOrNot.getUrlImage();
@@ -131,18 +129,15 @@ public class RYMChartCommand extends ChartableCommand<ChartSizeParameters> {
 
     @Override
     public void noElementsMessage(ChartSizeParameters parameters) {
-
-
         sendMessageQueue(parameters.getE(), "Couldn't find any rating!");
-
     }
 
 
     @Override
     public String configPieChart(PieChart pieChart, ChartSizeParameters params, int count, String initTitle) {
+        pieChart.getStyler().setAnnotationType(PieStyler.AnnotationType.LabelAndValue);
         pieChart.setTitle("Top rated albums");
         return "";
     }
-
 
 }

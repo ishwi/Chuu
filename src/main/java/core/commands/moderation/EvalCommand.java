@@ -113,7 +113,7 @@ public class EvalCommand extends ConcurrentCommand<CommandParameters> {
                     )
                     .execute();
             EvalClassLoader ecl = new EvalClassLoader();
-            r.getClasses().forEach((name, bytes) -> ecl.define(bytes));
+            r.classes().forEach((name, bytes) -> ecl.define(bytes));
 
             ecl.loadClass("core.commands.Eval").getMethod("run", EvalContext.class).invoke(null, evalContext);
         } catch (CompilationException noSuchMethodException) {
