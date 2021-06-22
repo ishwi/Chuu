@@ -80,7 +80,7 @@ public class RandomLinkRatingCommand extends ConcurrentCommand<NumberParameters<
             return;
         }
         db.addUrlRating(e.getAuthor().getIdLong(), Math.toIntExact(rating), url);
-        Long discordId = randomUrl.discordId();
+        long discordId = randomUrl.discordId();
         try {
             LastFMData lastFMData = db.findLastFMData(discordId);
             if (lastFMData.isImageNotify()) {

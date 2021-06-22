@@ -81,7 +81,7 @@ public class LanguageCommand extends ConcurrentCommand<TimeFrameParameters> {
         BlockingQueue<UrlCapsule> queue = new ArrayBlockingQueue<>(3000);
         LastFMData user = params.getLastFMData();
         String name = user.getName();
-        Long discordId = user.getDiscordId();
+        long discordId = user.getDiscordId();
         List<AlbumInfo> albumInfos;
         if (params.getTime().equals(TimeFrameEnum.ALL)) {
             albumInfos = db.getUserAlbums(name).stream().filter(u -> u.getAlbumMbid() != null && !u.getAlbumMbid().isEmpty()).map(x ->

@@ -54,7 +54,7 @@ public class UnratedAlbums extends ListCommand<AlbumPlays, ChuuDataParams> {
 
     @Override
     public void printList(List<AlbumPlays> list, ChuuDataParams params) {
-        Long discordId = params.getLastFMData().getDiscordId();
+        long discordId = params.getLastFMData().getDiscordId();
         Context e = params.getE();
         DiscordUserDisplay dp = CommandUtil.getUserInfoConsideringGuildOrNot(e, discordId);
         if (list.isEmpty()) {

@@ -22,7 +22,6 @@ public interface TrackDao {
 
     long getTrackIdByName(Connection connection, String track, long artistId) throws InstanceNotFoundException;
 
-    ScrobbledTrack getTrackByName(Connection connection, String album, long artistId) throws InstanceNotFoundException;
 
     void addSrobbledTracks(Connection con, List<ScrobbledTrack> scrobbledAlbums);
 
@@ -63,6 +62,11 @@ public interface TrackDao {
     ResultWrapper<ScrobbledTrack> getGuildTopTracks(Connection connection, Long guildID, int limit, boolean doCount);
 
     Set<String> getTrackTags(Connection connection, Long trackId);
+
+
+    void updateLovedSongs(Connection connection, Set<Long> ids, boolean loved, String lastfmId);
+
+    void resetLovedSongs(Connection connection, String lastfm);
 
 
 }

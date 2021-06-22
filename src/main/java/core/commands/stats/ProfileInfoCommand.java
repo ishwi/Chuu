@@ -1,10 +1,6 @@
 package core.commands.stats;
 
 import core.Chuu;
-import core.apis.discogs.DiscogsApi;
-import core.apis.discogs.DiscogsSingleton;
-import core.apis.spotify.Spotify;
-import core.apis.spotify.SpotifySingleton;
 import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.ChuuEmbedBuilder;
@@ -33,13 +29,9 @@ import java.util.Collections;
 import java.util.List;
 
 public class ProfileInfoCommand extends ConcurrentCommand<ChuuDataParams> {
-    private final Spotify spotify;
-    private final DiscogsApi discogsApi;
 
     public ProfileInfoCommand(ServiceView dao) {
         super(dao);
-        this.discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
-        this.spotify = SpotifySingleton.getInstance();
         this.respondInPrivate = false;
     }
 
@@ -74,7 +66,7 @@ public class ProfileInfoCommand extends ConcurrentCommand<ChuuDataParams> {
 
 
         long guildId = e.getGuild().getIdLong();
-        Long discordId = params.getLastFMData().getDiscordId();
+        long discordId = params.getLastFMData().getDiscordId();
 
         var topArtist = db.getAllUserArtist(discordId, 1).stream().findFirst().orElse(null);
         var topAlbum = db.getUserAlbums(lastFmName, 1).stream().findFirst().orElse(null);

@@ -78,7 +78,7 @@ public class GlobalMatchingCommand extends ConcurrentCommand<NumberParameters<Ch
         int threshold = params.getExtraParam() == null ? 1 : Math.toIntExact(params.getExtraParam());
         List<ArtistLbGlobalEntry> list = db.globalMatchings(innerParams.getLastFMData().getName(), e.isFromGuild() ? e.getGuild().getIdLong() : null, threshold);
 
-        Long discordId = innerParams.getLastFMData().getDiscordId();
+        long discordId = innerParams.getLastFMData().getDiscordId();
         DiscordUserDisplay userInformation = CommandUtil.getUserInfoConsideringGuildOrNot(e, discordId);
         String url = userInformation.getUrlImage();
         String usableName = userInformation.getUsername();

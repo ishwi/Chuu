@@ -1293,9 +1293,9 @@ public class ConcurrentLastFM {//implements LastFMService {
                 JSONObject artistObj = trackObj.getJSONObject("artist");
                 String artistName = artistObj.getString("name");
                 String artistMbid = artistObj.getString("mbid");
-
+                boolean loved = trackObj.getInt("loved") != 0;
                 int utc = trackObj.getJSONObject("date").getInt("uts");
-                TrackWithArtistId track = new TrackWithArtistId(artistName, trackName, 0, false, 0, utc);
+                TrackWithArtistId track = new TrackWithArtistId(artistName, trackName, 0, loved, 0, utc);
                 track.setArtistMbid(artistMbid);
                 track.setMbid(mbid);
                 JSONObject albumObj = trackObj.optJSONObject("album");
@@ -1742,7 +1742,7 @@ public class ConcurrentLastFM {//implements LastFMService {
             String artistMbid = artistObj.getString("mbid");
 
             int utc = trackObj.getJSONObject("date").getInt("uts");
-            TrackWithArtistId track = new TrackWithArtistId(artistName, trackName, 0, false, 0, utc);
+            TrackWithArtistId track = new TrackWithArtistId(artistName, trackName, 0, true, 0, utc);
             track.setArtistMbid(artistMbid);
             track.setMbid(mbid);
             JSONObject albumObj = trackObj.optJSONObject("album");

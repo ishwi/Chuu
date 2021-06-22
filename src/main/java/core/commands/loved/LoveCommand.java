@@ -9,9 +9,11 @@ import core.exceptions.LastFmException;
 import core.parsers.ArtistSongParser;
 import core.parsers.Parser;
 import core.parsers.params.ArtistAlbumParameters;
+import core.services.TrackValidator;
 import dao.ServiceView;
 import dao.entities.LastFMData;
 import dao.entities.ScrobbledArtist;
+import dao.entities.ScrobbledTrack;
 
 import java.util.List;
 
@@ -53,6 +55,15 @@ public class LoveCommand extends AlbumPlaysCommand {
         }
         lastFM.love(user.getSession(), new Scrobble(artist.getArtist(), null, song, null, null));
 
-        sendMessageQueue(e, "Successfully loved **%s** by **%s**.".formatted(song, artist.getArtist()));
+        ScrobbledTrack sT = new TrackValidator(db, lastFM).validate(artist.getArtistId(), artist.getArtist(), song);
+        ScrobbledTrack trackInfo = db.getTrackInfo(user.getName(), sT.getTrackId());
+        String header;
+        if (trackInfo != null && trackInfo.isLoved()) {
+            header = "You already had loved";
+        } else {
+            header = "Successfully loved";
+        }
+        sendMessageQueue(e, "%s **%s** by **%s**.".formatted(header, song, artist.getArtist()));
+        db.loveSong(user.getName(), sT.getTrackId(), true);
     }
 }

@@ -58,7 +58,7 @@ public class ClockCommand extends ConcurrentCommand<ChuuDataParams> {
     protected void onCommand(Context e, @NotNull ChuuDataParams params) throws InstanceNotFoundException {
 
 
-        Long discordId = params.getLastFMData().getDiscordId();
+        long discordId = params.getLastFMData().getDiscordId();
         Week currentWeekId = db.getCurrentWeekId();
         TimeZone userTimezone = db.getUserTimezone(discordId);
         UpdaterUserWrapper userUpdateStatus = db.getUserUpdateStatus(discordId);

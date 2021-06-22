@@ -35,11 +35,8 @@ public class TrackDaoImpl extends BaseDAO implements TrackDao {
 
             /* Fill "preparedStatement". */
             ResultSet resultSet = preparedStatement.executeQuery();
-            Map<String, ScrobbledTrack> secundaryMap = new HashMap<>();
-            Map<String, ScrobbledTrack> trackMap = list.stream().collect(Collectors.toMap(ScrobbledTrack::getMbid, Function.identity(), (scrobbledArtist, scrobbledArtist2) -> {
-                secundaryMap.put(scrobbledArtist2.getMbid(), scrobbledArtist2);
-                return scrobbledArtist;
-            }));
+//            Map<String, ScrobbledTrack> secundaryMap = new HashMap<>();
+            Map<String, ScrobbledTrack> trackMap = list.stream().collect(Collectors.toMap(ScrobbledTrack::getMbid, Function.identity(), (scrobbledArtist, scrobbledArtist2) -> scrobbledArtist));
             while (resultSet.next()) {
                 long id = resultSet.getLong("id");
                 String mbid = resultSet.getString("mbid");
@@ -133,7 +130,7 @@ public class TrackDaoImpl extends BaseDAO implements TrackDao {
         List<ScrobbledTrack> scrobbledTracks = new ArrayList<>();
 
         String mySql = "SELECT b.id,d.id,c.id,c.name,d.album_name,b.duration,b.track_name,coalesce(b.url,d.url,c.url),a.playnumber,a.loved,b.popularity " +
-                       "FROM scrobbled_track a RIGHT JOIN track b ON a.track_id = b.id RIGHT JOIN artist c ON b.artist_id = c.id LEFT JOIN album d ON b.album_id = d.id WHERE a.lastfm_id = ?  AND b.id = ? ";
+                       "FROM scrobbled_track a JOIN track b ON a.track_id = b.id  JOIN artist c ON b.artist_id = c.id LEFT JOIN album d ON b.album_id = d.id WHERE a.lastfm_id = ?  AND b.id = ? ";
 
         try
                 (PreparedStatement preparedStatement = connection.prepareStatement(mySql)) {
@@ -498,6 +495,34 @@ public class TrackDaoImpl extends BaseDAO implements TrackDao {
     }
 
     @Override
+    public void updateLovedSongs(Connection connection, Set<Long> ids, boolean loved, String lastfmId) {
+        String sql = "UPDATE scrobbled_track set loved = ? where lastfm_id = ? and track_id in (" + prepareINQuerySingle(ids.size()) + ")";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            int i = 1;
+            preparedStatement.setBoolean(i++, loved);
+            preparedStatement.setString(i++, lastfmId);
+            for (Long id : ids) {
+                preparedStatement.setLong(i++, id);
+            }
+            preparedStatement.executeUpdate();
+
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    @Override
+    public void resetLovedSongs(Connection connection, String lastfm) {
+        String sql = "UPDATE scrobbled_track SET loved = FALSE WHERE lastfm_id = ?";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            preparedStatement.setString(1, lastfm);
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    @Override
     public List<ScrobbledTrack> getUserTopTracksNoSpotifyId(Connection connection, String lastfmid, int limit) {
         List<ScrobbledTrack> scrobbledTracks = new ArrayList<>();
 
@@ -709,34 +734,6 @@ public class TrackDaoImpl extends BaseDAO implements TrackDao {
         }
     }
 
-    @Override
-    public ScrobbledTrack getTrackByName(Connection connection, String track, long artistId) {
-//         String queryString = "SELECT id,artist_id,album_name,url,duration,mbid,spotify_id FROM  album WHERE album_name = ? and artist_id = ?  ";
-//        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
-//            preparedStatement.setLong(2, artistId);
-//            preparedStatement.setString(1, track);
-//
-//
-//            ResultSet execute = preparedStatement.executeQuery();
-//            if (execute.next()) {
-//                long id = execute.getLong(1);
-//                long artist_id_ = execute.getLong(2);
-//                String albumName = execute.getString(3);
-//                String url = execute.getString(4);
-//                long rym_id = execute.getLong(5);
-//                String mbid = execute.getString(6);
-//                String spotify_id = execute.getString(7);
-//
-//
-//                return null;
-////                new Tr(id, artistId, albumName, url, rym_id, UUID.fromString(mbid), spotify_id);
-//            }
-//            throw new InstanceNotFoundException(track);
-//        } catch (SQLException e) {
-//            throw new ChuuServiceException(e);
-//        }
-        return null;
-    }
 
     @Override
     public void addSrobbledTracks(Connection con, List<ScrobbledTrack> scrobbledTracks) {

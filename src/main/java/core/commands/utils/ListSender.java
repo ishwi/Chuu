@@ -9,15 +9,22 @@ import java.util.function.Function;
 
 public record ListSender<T>(Context e, List<T> elements, Function<T, String> mapper, EmbedBuilder eb) {
     public void doSend() {
+        doSend(true);
+    }
+
+    public void doSend(boolean numberedEntries) {
 
         StringBuilder a = new StringBuilder();
         List<String> s = elements().stream().map(mapper).toList();
         for (int i = 0; i < elements.size() && i < 10; i++) {
             String sb = s.get(i);
-            a.append(i + 1).append(sb);
+            if (numberedEntries) {
+                a.append(i + 1);
+            }
+            a.append(sb);
         }
         e.sendMessage(eb.setDescription(a).build()).queue(mes ->
-                new Reactionary<>(s, mes, eb));
+                new Reactionary<>(s, mes, eb, numberedEntries));
 
     }
 }

@@ -59,7 +59,7 @@ public class DailyCommand extends ConcurrentCommand<ChuuDataParams> {
 
         LastFMData user = params.getLastFMData();
         String lastFmName = user.getName();
-        Long discordId = user.getDiscordId();
+        long discordId = user.getDiscordId();
         String usable = getUserString(e, discordId, lastFmName);
 
         try {

@@ -50,7 +50,7 @@ public class CurveCommand extends ConcurrentCommand<ChuuDataParams> {
 
     @Override
     protected void onCommand(Context e, @NotNull ChuuDataParams params) {
-        Long discordId = params.getLastFMData().getDiscordId();
+        long discordId = params.getLastFMData().getDiscordId();
         Map<Integer, Integer> userCurve = db.getUserCurve(discordId);
         DiscordUserDisplay uInfo = CommandUtil.getUserInfoUnescaped(e, discordId);
         EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e)

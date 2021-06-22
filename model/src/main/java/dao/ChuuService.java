@@ -4148,5 +4148,24 @@ public class ChuuService implements EveryNoiseService {
     }
 
 
+    public void updateLovedSongs(String lastfm, List<ScrobbledTrack> loved) {
+        try (Connection connection = dataSource.getConnection()) {
+            updaterDao.fillIds(connection, loved);
+            trackDao.fillIds(connection, loved);
+            Set<Long> ids = loved.stream().map(ScrobbledTrack::getTrackId).filter(trackId -> trackId > 0).collect(Collectors.toSet());
+            trackDao.resetLovedSongs(connection, lastfm);
+            trackDao.updateLovedSongs(connection, ids, true, lastfm);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    public void loveSong(String lastfm, long trackId, boolean loved) {
+        try (Connection connection = dataSource.getConnection()) {
+            trackDao.updateLovedSongs(connection, Set.of(trackId), loved, lastfm);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
 }
 
