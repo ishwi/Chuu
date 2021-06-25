@@ -48,7 +48,7 @@ public class UserTopTrackCommand extends ChartableCommand<ChartParameters> {
     public ChartableParser<ChartParameters> initParser() {
         ChartParser chartParser = new ChartParser(db);
         chartParser.replaceOptional("list", Optionals.IMAGE.opt);
-        chartParser.addOptional(Optionals.LIST.opt.withBlockedBy("image", "pie"));
+        chartParser.addOptional(Optionals.LIST.opt.withBlockedBy("image", "pie", "aside"));
         chartParser.setExpensiveSearch(false);
         return chartParser;
     }

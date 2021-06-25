@@ -39,7 +39,7 @@ public class AlbumTimeFrameParser extends DaoParser<AlbumTimeFrameParameters> {
 
     @Override
     void setUpOptionals() {
-        opts.add(Optionals.NOREDIRECT.opt);
+        addOptional(Optionals.NOREDIRECT.opt);
     }
 
     @Override

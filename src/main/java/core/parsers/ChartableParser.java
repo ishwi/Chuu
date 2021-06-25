@@ -41,11 +41,8 @@ public abstract class ChartableParser<T extends ChartParameters> extends DaoPars
 
     @Override
     void setUpOptionals() {
-        opts.add(Optionals.NOTITLES.opt);
-        opts.add(Optionals.PLAYS.opt);
-        opts.add(Optionals.LIST.opt);
-        opts.add(Optionals.PIE.opt);
-        opts.add(Optionals.ASIDE.opt);
+        addOptional(Optionals.NOTITLES.opt, Optionals.PLAYS.opt, Optionals.LIST.opt, Optionals.PIE.opt,
+                Optionals.ASIDE.opt);
     }
 
 

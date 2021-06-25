@@ -68,7 +68,7 @@ public record OptionalEntity(String value, String definition, boolean isEnabledB
     }
 
     public OptionalEntity withBlockedBy(String... blockedBy) {
-        return new OptionalEntity(value, definition, false, Set.of(blockedBy), aliases);
+        return new OptionalEntity(value, definition, true, Set.of(blockedBy), aliases);
     }
 
     public OptionalEntity withAlias(String alias) {

@@ -33,7 +33,7 @@ public class MultipleGenresParser extends MultiStringParser<MultipleGenresParame
     @Override
     void setUpOptionals() {
         super.setUpOptionals();
-        opts.add(new OptionalEntity("any", "return artist that match at least one tag"));
+        addOptional(new OptionalEntity("any", "return artist that match at least one tag"));
     }
 
 

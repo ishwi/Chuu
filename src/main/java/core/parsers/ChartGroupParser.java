@@ -18,8 +18,8 @@ public class ChartGroupParser extends ChartableParser<ChartGroupParameters> {
     public ChartGroupParser(ChuuService dao, TimeFrameEnum defaultTFE) {
         super(dao, defaultTFE);
         this.inner = new ChartNormalParser(dao, defaultTFE);
-        this.inner.addOptional(new OptionalEntity("notime", "not display time spent"));
-        this.opts.addAll(this.inner.opts);
+        this.inner.addOptional((new OptionalEntity("notime", "not display time spent")));
+        this.inner.getOptionals().forEach(this::addOptional);
     }
 
     @Override

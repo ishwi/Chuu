@@ -13,7 +13,6 @@ import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 
-import java.util.Arrays;
 import java.util.List;
 
 public class TwoUsersParser extends DaoParser<TwoUsersParamaters> {
@@ -23,7 +22,7 @@ public class TwoUsersParser extends DaoParser<TwoUsersParamaters> {
 
     public TwoUsersParser(ChuuService dao, OptionalEntity... opts) {
         super(dao);
-        this.opts.addAll(Arrays.asList(opts));
+        addOptional(opts);
     }
 
     @Override

@@ -38,9 +38,7 @@ public class GayParser extends ChartableParser<GayParams> {
 
     @Override
     void setUpOptionals() {
-        this.opts.add(Optionals.PLAYS.opt);
-        this.opts.add(Optionals.TITLES.opt);
-        this.opts.add(Optionals.ARTIST.opt);
+        addOptional(Optionals.PLAYS.opt, Optionals.TITLES.opt, Optionals.ARTIST.opt);
     }
 
     @Override

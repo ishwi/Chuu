@@ -2,7 +2,7 @@ package core.parsers.utils;
 
 public enum Optionals {
     LIST(new OptionalEntity("list", "display it in an embed", "l")),
-    PIE(new OptionalEntity("pie", "show it as a pie", "p")),
+    PIE(new OptionalEntity("pie", "show it as a pie", "pi")),
     IMAGE(new OptionalEntity("image", "show this as a chart", "i")),
     GLOBAL(new OptionalEntity("global", "make it global", "g")),
     SERVER(new OptionalEntity("server", "only include people in this server", "s")),

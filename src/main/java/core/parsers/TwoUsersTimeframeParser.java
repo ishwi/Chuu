@@ -16,7 +16,6 @@ import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 
-import java.util.Arrays;
 import java.util.List;
 
 public class TwoUsersTimeframeParser extends DaoParser<TwoUsersTimeframeParamaters> {
@@ -26,7 +25,7 @@ public class TwoUsersTimeframeParser extends DaoParser<TwoUsersTimeframeParamate
 
     public TwoUsersTimeframeParser(ChuuService dao, OptionalEntity... opts) {
         super(dao);
-        this.opts.addAll(Arrays.asList(opts));
+        addOptional(opts);
     }
 
     @Override

@@ -71,7 +71,7 @@ public class ArtistAlbumUrlParser extends DaoParser<ArtistAlbumUrlParameters> {
 
     @Override
     void setUpOptionals() {
-        opts.add(Optionals.NOREDIRECT.opt);
+        addOptional(Optionals.NOREDIRECT.opt);
     }
 
     @Override

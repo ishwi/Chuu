@@ -24,8 +24,8 @@ import java.util.stream.Stream;
 
 public abstract class Parser<T extends CommandParameters> {
     final Map<Integer, String> errorMessages = new HashMap<>(10);
-    final Set<OptionalEntity> opts = new LinkedHashSet<>();
     final Map<String, OptionalEntity> optAliases = new HashMap<>();
+    private final Set<OptionalEntity> opts = new LinkedHashSet<>();
 
 
     Parser() {
@@ -35,9 +35,7 @@ public abstract class Parser<T extends CommandParameters> {
 
     Parser(OptionalEntity... opts) {
         this();
-        for (OptionalEntity opt : opts) {
-            addOptional(opt);
-        }
+        addOptional(opts);
     }
 
     public static <Y> Pair<String[], Y> filterMessage(String[] ogMessage, Predicate<String> filter, Function<String, Y> mapper, Y yDefault) {

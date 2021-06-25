@@ -31,13 +31,13 @@ public class RainbowParser extends ChartableParser<RainbowParams> {
 
     @Override
     void setUpOptionals() {
-        this.opts.add(Optionals.TITLES.opt);
-        this.opts.add(Optionals.PLAYS.opt);
-        this.opts.add(Optionals.ARTIST.opt);
-        this.opts.add(new OptionalEntity("linear", "display the rainbow line by line instead of stair"));
-        this.opts.add(new OptionalEntity("color", "sort by color instead of brightness"));
-        this.opts.add(new OptionalEntity("column", "display rainbow column by column instead of in stair"));
-        this.opts.add(new OptionalEntity("inverse", "show it black to white instead of white to black"));
+        addOptional(Optionals.TITLES.opt,
+                Optionals.PLAYS.opt,
+                Optionals.ARTIST.opt,
+                new OptionalEntity("linear", "display the rainbow line by line instead of stair"),
+                new OptionalEntity("color", "sort by color instead of brightness"),
+                new OptionalEntity("column", "display rainbow column by column instead of in stair"),
+                new OptionalEntity("inverse", "show it black to white instead of white to black"));
     }
 
     @Override

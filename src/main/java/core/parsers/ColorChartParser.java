@@ -53,15 +53,13 @@ public class ColorChartParser extends ChartableParser<ColorChartParams> {
 
     @Override
     void setUpOptionals() {
-        this.opts.add(Optionals.PLAYS.opt);
-        this.opts.add(Optionals.TITLES.opt);
-        this.opts.add(Optionals.ARTIST.opt);
-        this.opts.add(new OptionalEntity("linear", "sort line by line "));
-        this.opts.add(new OptionalEntity("column", "sort column by column"));
-        this.opts.add(new OptionalEntity("color", "sort by color"));
-        this.opts.add(new OptionalEntity("ordered", "sort by plays"));
-        this.opts.add(new OptionalEntity("strict", "reduce the error range to make the color more accurate"));
-        this.opts.add(new OptionalEntity("inverse", " inverse the color ordering on the sorts that use color"));
+        addOptional(Optionals.PLAYS.opt, Optionals.TITLES.opt, Optionals.ARTIST.opt,
+                new OptionalEntity("linear", "sort line by line "),
+                new OptionalEntity("column", "sort column by column"),
+                new OptionalEntity("color", "sort by color"),
+                new OptionalEntity("ordered", "sort by plays"),
+                new OptionalEntity("strict", "reduce the error range to make the color more accurate"),
+                new OptionalEntity("inverse", " inverse the color ordering on the sorts that use color"));
     }
 
     @Override

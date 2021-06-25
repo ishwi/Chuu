@@ -13,7 +13,6 @@ import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -25,9 +24,9 @@ public class OnlyUsernameParser extends DaoParser<ChuuDataParams> {
         super(dao);
     }
 
-    public OnlyUsernameParser(ChuuService dao, OptionalEntity... strings) {
+    public OnlyUsernameParser(ChuuService dao, OptionalEntity... opts) {
         super(dao);
-        opts.addAll(Arrays.asList(strings));
+        addOptional(opts);
     }
 
     @Override

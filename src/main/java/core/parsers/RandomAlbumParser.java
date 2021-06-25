@@ -60,7 +60,7 @@ public class RandomAlbumParser extends DaoParser<RandomUrlParameters> {
     @Override
     void setUpOptionals() {
         super.setUpOptionals();
-        this.opts.add(Optionals.SERVER.opt.withDescription("only include urls from people in this server"));
+        addOptional(Optionals.SERVER.opt.withDescription("only include urls from people in this server"));
     }
 
     @Override

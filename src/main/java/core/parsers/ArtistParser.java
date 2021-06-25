@@ -19,7 +19,6 @@ import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 
-import java.util.Arrays;
 import java.util.List;
 
 public class ArtistParser extends DaoParser<ArtistParameters> {
@@ -31,16 +30,16 @@ public class ArtistParser extends DaoParser<ArtistParameters> {
         this(dao, lastFM, true, strings);
     }
 
-    public ArtistParser(ChuuService dao, ConcurrentLastFM lastFM, boolean forComparison, OptionalEntity... strings) {
+    public ArtistParser(ChuuService dao, ConcurrentLastFM lastFM, boolean forComparison, OptionalEntity... opts) {
         super(dao);
         this.lastFM = lastFM;
         this.forComparison = forComparison;
-        opts.addAll(Arrays.asList(strings));
+        addOptional(opts);
     }
 
     @Override
     void setUpOptionals() {
-        opts.add(Optionals.NOREDIRECT.opt);
+        addOptional(Optionals.NOREDIRECT.opt);
     }
 
 

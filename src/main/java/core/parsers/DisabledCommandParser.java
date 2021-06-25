@@ -32,10 +32,11 @@ public class DisabledCommandParser extends Parser<DisabledCommandParameters> imp
 
     @Override
     void setUpOptionals() {
-        opts.add(new OptionalEntity("channel", "only does the toggle in this specific channel instead of in the whole server"));
-        opts.add(new OptionalEntity("category", "disable all commands from the category of the command introduced"));
-        opts.add(new OptionalEntity("all", "disable all commands from all categories of the command introduced"));
-        opts.add(new OptionalEntity("exceptthis", "disable all commands from all categories ofs the command introduced"));
+        addOptional(
+                new OptionalEntity("channel", "only does the toggle in this specific channel instead of in the whole server"),
+                new OptionalEntity("category", "disable all commands from the category of the command introduced"),
+                new OptionalEntity("all", "disable all commands from all categories of the command introduced"),
+                new OptionalEntity("exceptthis", "disable all commands from all categories ofs the command introduced"));
 
 
     }

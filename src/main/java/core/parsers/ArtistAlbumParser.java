@@ -38,12 +38,12 @@ public class ArtistAlbumParser extends DaoParser<ArtistAlbumParameters> {
         super(dao);
         this.lastFM = lastFM;
         this.forComparison = forComparison;
-        this.opts.addAll(Arrays.asList(o));
+        addOptional(o);
     }
 
     @Override
     void setUpOptionals() {
-        opts.add(Optionals.NOREDIRECT.opt);
+        addOptional(Optionals.NOREDIRECT.opt);
     }
 
 

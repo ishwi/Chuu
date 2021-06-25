@@ -89,7 +89,7 @@ public class ExtraParser<Z extends ExtraParameters<Y, @NotNull J>, Y extends Com
         this.catchFirst = catchFirst;
         this.fromSlash = fromSlash;
         this.finalReducer = finalReducer;
-        this.opts.addAll(innerParser.opts);
+        innerParser.getOptionals().forEach(this::addOptional);
         this.errorMessages.putAll(innerParser.errorMessages);
         this.errorMessages.putAll(errorMessages);
         this.chooserPredicate = chooserPredicate;

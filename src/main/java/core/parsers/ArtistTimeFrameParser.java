@@ -40,7 +40,7 @@ public class ArtistTimeFrameParser extends DaoParser<ArtistTimeFrameParameters> 
 
     @Override
     void setUpOptionals() {
-        opts.add(Optionals.NOREDIRECT.opt);
+        addOptional(Optionals.NOREDIRECT.opt);
     }
 
     @Override

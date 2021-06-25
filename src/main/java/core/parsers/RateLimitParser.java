@@ -17,7 +17,8 @@ public class RateLimitParser extends DaoParser<RateLimitParams> {
 
     public RateLimitParser(ChuuService dao, OptionalEntity... opts) {
         super(dao, opts);
-        this.opts.add(new OptionalEntity("delete", "remove the rate limit from the specific user"));
+        addOptional(opts);
+        addOptional(new OptionalEntity("delete", "remove the rate limit from the specific user"));
     }
 
     @Override

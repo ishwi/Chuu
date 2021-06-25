@@ -40,8 +40,7 @@ public class ChartDecadeParser extends ChartableParser<ChartYearRangeParameters>
     @Override
     protected void setUpOptionals() {
         super.setUpOptionals();
-        opts.add(new OptionalEntity("nolimit", "make the chart as big as possible"));
-        opts.add(new OptionalEntity("time", "to sort by duration"));
+        addOptional(new OptionalEntity("nolimit", "make the chart as big as possible"), new OptionalEntity("time", "to sort by duration"));
     }
 
     @Override
