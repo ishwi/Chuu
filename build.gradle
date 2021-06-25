@@ -70,7 +70,7 @@ dependencies {
     implementation 'com.neovisionaries:nv-i18n:1.28'
     implementation 'com.github.ishwi:java-eval:8de726df14c18523912aa6ff21bfd1b0b7d54924'
     implementation group: 'com.google.guava', name: 'guava', version: '30.1.1-jre'
-    implementation("net.dv8tion:JDA:4.3.0_277")
+    implementation("net.dv8tion:JDA:4.3.0_283")
     implementation group: 'org.jsoup', name: 'jsoup', version: '1.13.1'
 
     implementation group: 'org.apache.commons', name: 'commons-collections4', version: '4.4'
@@ -103,7 +103,7 @@ dependencies {
 // https://mvnrepository.com/artifact/com.pholser/junit-quickcheck-core
     //a
     testImplementation group: 'com.pholser', name: 'junit-quickcheck-core', version: '1.0'
-    testImplementation "org.mockito:mockito-core:3.11.1"
+    testImplementation "org.mockito:mockito-core:3.11.2"
     testImplementation group: 'junit', name: 'junit', version: '4.13.2'
 
     testImplementation group: 'org.openjdk.jmh', name: 'jmh-core', version: '1.32'
