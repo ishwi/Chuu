@@ -8,9 +8,9 @@ import core.commands.Context;
 import core.commands.utils.CommandUtil;
 import core.exceptions.LastFmException;
 import core.parsers.ArtistParser;
-import core.parsers.OptionalEntity;
 import core.parsers.Parser;
 import core.parsers.params.ArtistParameters;
+import core.parsers.utils.Optionals;
 import dao.ServiceView;
 import dao.entities.ScrobbledArtist;
 import dao.entities.WhoKnowsMode;
@@ -36,7 +36,7 @@ public class WhoKnowsCommand extends WhoKnowsBaseCommand<ArtistParameters> {
     @Override
     public Parser<ArtistParameters> initParser() {
         return new ArtistParser(db, lastFM, false,
-                new OptionalEntity("list", "show as a list"));
+                Optionals.LIST.opt);
     }
 
     @Override

@@ -108,7 +108,7 @@ public class BehindArtistsCommand extends ConcurrentCommand<NumberParameters<Two
 
         // Footer doesnt allow markdown characters
         embedBuilder.setDescription(a).setTitle(userName + "'s artist behind " + userName2, CommandUtil
-                .getLastFmUser(ogLastFmId))
+                        .getLastFmUser(ogLastFmId))
                 .setThumbnail(userUrl2)
                 .setFooter(CommandUtil.unescapedUser(userName, resultWrapper.getQuriedId(), e) + " is behind in " + rows + " artists!\n", null);
         e.sendMessage(embedBuilder.build()).queue(m ->

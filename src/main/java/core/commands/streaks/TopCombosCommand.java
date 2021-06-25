@@ -9,10 +9,10 @@ import core.commands.utils.PrivacyUtils;
 import core.otherlisteners.Reactionary;
 import core.parsers.NoOpParser;
 import core.parsers.NumberParser;
-import core.parsers.OptionalEntity;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
 import core.parsers.params.NumberParameters;
+import core.parsers.utils.Optionals;
 import dao.ServiceView;
 import dao.entities.GlobalStreakEntities;
 import dao.entities.Memoized;
@@ -53,8 +53,8 @@ public class TopCombosCommand extends ConcurrentCommand<NumberParameters<Command
                 null,
                 Integer.MAX_VALUE,
                 map, s, false, true, true, "filter");
-        parser.addOptional(new OptionalEntity("server", "only include people in this server"));
-        parser.addOptional(new OptionalEntity("start", "show the moment the streak started"));
+        parser.addOptional(Optionals.SERVER.opt);
+        parser.addOptional(Optionals.SERVER.opt);
         return parser;
     }
 
@@ -132,7 +132,7 @@ public class TopCombosCommand extends ConcurrentCommand<NumberParameters<Command
 
         EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e)
                 .
-                        setAuthor(String.format("%s's Top streaks", CommandUtil.escapeMarkdown(title)))
+                setAuthor(String.format("%s's Top streaks", CommandUtil.escapeMarkdown(title)))
                 .setThumbnail(CommandUtil.noImageUrl(validUrl))
                 .setDescription(a)
                 .setFooter(String.format("%s has a total of %d %s!", CommandUtil.escapeMarkdown(title), topStreaks.size(), CommandUtil.singlePlural(topStreaks.size(), "streak", "streaks")));

@@ -4,9 +4,9 @@ import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
 import core.parsers.EmojeParser;
-import core.parsers.OptionalEntity;
 import core.parsers.Parser;
 import core.parsers.params.EmotiParameters;
+import core.parsers.utils.OptionalEntity;
 import dao.ServiceView;
 import net.dv8tion.jda.api.Permission;
 

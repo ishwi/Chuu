@@ -14,22 +14,22 @@ public class ChapterProcesser implements YtProcessser {
     private static List<Chapter> findChapters(JsonBrowser details) {
 
         return details.values().stream().filter(t -> {
-            JsonBrowser response = t.get("response");
-            return !response.isNull() && !response.get("playerOverlays").isNull();
-        }).findFirst().map(t ->
-                t.get("response")
-                        .get("playerOverlays")
-                        .get("playerOverlayRenderer")
-                        .get("decoratedPlayerBarRenderer")
-                        .get("decoratedPlayerBarRenderer")
-                        .get("playerBar")
-                        .get("multiMarkersPlayerBarRenderer")
-                        .get("markersMap").index(0)
-                        .get("value").get("chapters").values()
-                        .stream()
-                        .map(x -> x.get("chapterRenderer"))
-                        .map(z -> new Chapter(z.get("title").get("simpleText").safeText(), z.get("timeRangeStartMillis").as(Long.class)))
-                        .toList())
+                    JsonBrowser response = t.get("response");
+                    return !response.isNull() && !response.get("playerOverlays").isNull();
+                }).findFirst().map(t ->
+                        t.get("response")
+                                .get("playerOverlays")
+                                .get("playerOverlayRenderer")
+                                .get("decoratedPlayerBarRenderer")
+                                .get("decoratedPlayerBarRenderer")
+                                .get("playerBar")
+                                .get("multiMarkersPlayerBarRenderer")
+                                .get("markersMap").index(0)
+                                .get("value").get("chapters").values()
+                                .stream()
+                                .map(x -> x.get("chapterRenderer"))
+                                .map(z -> new Chapter(z.get("title").get("simpleText").safeText(), z.get("timeRangeStartMillis").as(Long.class)))
+                                .toList())
                 .orElse(null);
     }
 

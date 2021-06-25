@@ -6,6 +6,7 @@ import core.exceptions.LastFmException;
 import core.parsers.explanation.TwoUsersExplanation;
 import core.parsers.explanation.util.Explanation;
 import core.parsers.params.TwoUsersParamaters;
+import core.parsers.utils.OptionalEntity;
 import dao.ChuuService;
 import dao.entities.LastFMData;
 import dao.exceptions.InstanceNotFoundException;

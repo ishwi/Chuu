@@ -8,9 +8,9 @@ import core.apis.spotify.SpotifySingleton;
 import core.commands.utils.CommandUtil;
 import core.exceptions.LastFmException;
 import core.parsers.ArtistSongParser;
-import core.parsers.OptionalEntity;
 import core.parsers.Parser;
 import core.parsers.params.ArtistAlbumParameters;
+import core.parsers.utils.Optionals;
 import dao.ServiceView;
 import dao.entities.*;
 
@@ -32,8 +32,8 @@ public class WhoKnowsSongCommand extends WhoKnowsAlbumCommand {
 
     @Override
     public Parser<ArtistAlbumParameters> initParser() {
-        ArtistSongParser parser = new ArtistSongParser(db, lastFM, true, new OptionalEntity("list", "show as a list")
-                , new OptionalEntity("pie", "display it as a chart pie"));
+        ArtistSongParser parser = new ArtistSongParser(db, lastFM, true, Optionals.LIST.opt
+                , Optionals.PIE.opt);
         parser.setExpensiveSearch(true);
         return parser;
     }

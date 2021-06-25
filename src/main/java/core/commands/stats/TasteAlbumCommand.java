@@ -9,9 +9,9 @@ import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.exceptions.LastFmException;
 import core.parsers.ArtistAlbumParser;
-import core.parsers.OptionalEntity;
 import core.parsers.Parser;
 import core.parsers.params.ArtistAlbumParameters;
+import core.parsers.utils.Optionals;
 import dao.ServiceView;
 import dao.entities.*;
 import dao.exceptions.InstanceNotFoundException;
@@ -49,7 +49,7 @@ public class TasteAlbumCommand extends BaseTasteCommand<ArtistAlbumParameters> {
 
     @Override
     public Parser<ArtistAlbumParameters> initParser() {
-        return new ArtistAlbumParser(db, lastFM, new OptionalEntity("list", "display in a list format"));
+        return new ArtistAlbumParser(db, lastFM, Optionals.LIST.opt);
     }
 
     @Override

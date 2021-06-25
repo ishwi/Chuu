@@ -6,8 +6,8 @@ import core.commands.Context;
 import core.commands.utils.CommandUtil;
 import core.parsers.ChartableParser;
 import core.parsers.OnlyChartSizeParser;
-import core.parsers.OptionalEntity;
 import core.parsers.params.ChartSizeParameters;
+import core.parsers.utils.Optionals;
 import dao.ServiceView;
 import dao.entities.*;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -16,7 +16,6 @@ import org.knowm.xchart.PieChart;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -31,11 +30,11 @@ public class GuildTopTracksCommand extends GuildTopCommand {
     @Override
     public ChartableParser<ChartSizeParameters> initParser() {
         OnlyChartSizeParser onlyChartSizeParser = new OnlyChartSizeParser(db, TimeFrameEnum.ALL,
-                new OptionalEntity("global", " make it global"));
-        onlyChartSizeParser.replaceOptional("plays", new OptionalEntity("noplays", "not show plays"));
-        onlyChartSizeParser.addOptional(new OptionalEntity("plays", "shows this with plays", true, "noplays"));
-        onlyChartSizeParser.replaceOptional("list", new OptionalEntity("image", "show this as a chart "));
-        onlyChartSizeParser.addOptional(new OptionalEntity("list", "shows this in list mode", true, Set.of("image", "pie")));
+                Optionals.GLOBAL.opt);
+        onlyChartSizeParser.replaceOptional("plays", Optionals.NOPLAYS.opt);
+        onlyChartSizeParser.addOptional(Optionals.PLAYS.opt.withBlockedBy("noplays"));
+        onlyChartSizeParser.replaceOptional("list", Optionals.IMAGE.opt);
+        onlyChartSizeParser.addOptional(Optionals.IMAGE.opt.withBlockedBy("image", "pie"));
         onlyChartSizeParser.setExpensiveSearch(false);
         onlyChartSizeParser.setAllowUnaothorizedUsers(true);
         return onlyChartSizeParser;
@@ -77,7 +76,7 @@ public class GuildTopTracksCommand extends GuildTopCommand {
         String footerText = " has listened to " + count + " songs";
         String name = params.getE().getGuild().getName();
         return embedBuilder.setAuthor(name + titleInit,
-                null, params.getE().getGuild().getIconUrl())
+                        null, params.getE().getGuild().getIconUrl())
                 .setFooter(CommandUtil.stripEscapedMarkdown(name) + footerText);
     }
 

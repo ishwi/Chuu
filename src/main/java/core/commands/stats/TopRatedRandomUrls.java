@@ -5,9 +5,10 @@ import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.parsers.NoOpParser;
-import core.parsers.OptionalEntity;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
+import core.parsers.utils.OptionalEntity;
+import core.parsers.utils.Optionals;
 import dao.ServiceView;
 import dao.entities.DiscordUserDisplay;
 import dao.entities.ScoredAlbumRatings;
@@ -27,8 +28,8 @@ public class TopRatedRandomUrls extends ConcurrentCommand<CommandParameters> {
 
     @Override
     public Parser<CommandParameters> initParser() {
-        return new NoOpParser(new OptionalEntity("myself", " show your top rated urls "),
-                new OptionalEntity("server", " show ratings from users only in this server"));
+        return new NoOpParser(new OptionalEntity("myself", "show your top rated urls"),
+                Optionals.SERVER.opt.withDescription("show ratings from users only in this server"));
     }
 
     @Override

@@ -240,7 +240,7 @@ public class ImportCommand extends ConcurrentCommand<UrlParameters> {
             description.append("Finished with errors");
 
             e.getAuthor().openPrivateChannel().flatMap(p ->
-                    complete.editMessage(embedBuilder.setDescription(description).build()))
+                            complete.editMessage(embedBuilder.setDescription(description).build()))
                     .flatMap(x -> x.getChannel().sendFile(jsonObject.toString().getBytes(StandardCharsets.UTF_8), "errors.json"))
                     .queue();
         } else {

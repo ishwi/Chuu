@@ -58,13 +58,13 @@ public class EveryNoiseScrapper {
         List<String> pages = TextSplitter.split(collect, URL_LENGTH, "%2C");
 
         return pages.stream().map(page -> {
-            try {
-                String formatted = GENRE_URL.formatted(page, week.format(DateTimeFormatter.BASIC_ISO_DATE));
-                return Jsoup.connect(formatted).maxBodySize(0).get();
-            } catch (IOException e) {
-                throw new UncheckedIOException(e);
-            }
-        }).flatMap(EveryNoiseScrapper::albumToItem)
+                    try {
+                        String formatted = GENRE_URL.formatted(page, week.format(DateTimeFormatter.BASIC_ISO_DATE));
+                        return Jsoup.connect(formatted).maxBodySize(0).get();
+                    } catch (IOException e) {
+                        throw new UncheckedIOException(e);
+                    }
+                }).flatMap(EveryNoiseScrapper::albumToItem)
                 .collect(
                         Collectors.collectingAndThen(
                                 Collectors.groupingBy(z -> new GenreLess(z.artist(), z.release(), z.href()),

@@ -7,8 +7,9 @@ import core.commands.utils.CommandUtil;
 import core.commands.utils.PrivacyUtils;
 import core.imagerenderer.ChartQuality;
 import core.imagerenderer.WhoKnowsMaker;
-import core.parsers.OptionalEntity;
 import core.parsers.params.CommandParameters;
+import core.parsers.utils.OptionalEntity;
+import core.parsers.utils.Optionals;
 import dao.ServiceView;
 import dao.entities.*;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -24,10 +25,9 @@ public abstract class GlobalBaseWhoKnowCommand<T extends CommandParameters> exte
     public GlobalBaseWhoKnowCommand(ServiceView dao) {
         super(dao);
         this.respondInPrivate = true;
-        parser.addOptional(new OptionalEntity("nobotted", "discard users that have been manually flagged as potentially botted accounts"));
-        parser.addOptional(new OptionalEntity("botted", "show botted accounts in case you have the config show-botted disabled"));
-        parser.addOptional(new OptionalEntity("hideprivate", "only shows public users"));
-        parser.addOptional(new OptionalEntity("hp", "use as a shorthand for hideprivate"));
+        parser.addOptional(Optionals.NOBOTTED.opt);
+        parser.addOptional(Optionals.BOTTED.opt);
+        parser.addOptional(new OptionalEntity("hideprivate", "only shows public users", "hp"));
     }
 
 
@@ -97,7 +97,7 @@ public abstract class GlobalBaseWhoKnowCommand<T extends CommandParameters> exte
     }
 
     boolean hidePrivate(T params) {
-        return params.hasOptional("hp") || params.hasOptional("hideprivate");
+        return params.hasOptional("hideprivate");
     }
 
 

@@ -130,7 +130,7 @@ public class VotingCommand extends ConcurrentCommand<ArtistParameters> {
                     .setDescription(description);
             if (first != null) {
                 finalEmbed.setFooter(String.format("Has %d %s with %d%s", first.getVotes(), CommandUtil.singlePlural(first.getVotes(), "point", "points"), first.getTotalVotes(),
-                        CommandUtil.singlePlural(first.getTotalVotes(), " vote", " votes")))
+                                CommandUtil.singlePlural(first.getTotalVotes(), " vote", " votes")))
                         .setColor(ColorService.computeColor(e));
             } else {
                 finalEmbed.setFooter(null);

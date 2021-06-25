@@ -5,9 +5,9 @@ import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.parsers.OnlyUsernameParser;
-import core.parsers.OptionalEntity;
 import core.parsers.Parser;
 import core.parsers.params.ChuuDataParams;
+import core.parsers.utils.OptionalEntity;
 import dao.ServiceView;
 import dao.entities.LastFMData;
 

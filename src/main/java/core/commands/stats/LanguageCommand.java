@@ -13,13 +13,13 @@ import core.imagerenderer.GraphicUtils;
 import core.imagerenderer.util.pie.IPieableLanguage;
 import core.imagerenderer.util.pie.IPieableMap;
 import core.otherlisteners.Reactionary;
-import core.parsers.OptionalEntity;
 import core.parsers.Parser;
 import core.parsers.TimerFrameParser;
 import core.parsers.params.ChartParameters;
 import core.parsers.params.CommandParameters;
 import core.parsers.params.TimeFrameParameters;
 import core.parsers.utils.CustomTimeFrame;
+import core.parsers.utils.Optionals;
 import dao.ServiceView;
 import dao.entities.*;
 import dao.musicbrainz.MusicBrainzService;
@@ -55,7 +55,7 @@ public class LanguageCommand extends ConcurrentCommand<TimeFrameParameters> {
     @Override
     public Parser<TimeFrameParameters> initParser() {
         TimerFrameParser timerFrameParser = new TimerFrameParser(db, TimeFrameEnum.ALL);
-        timerFrameParser.addOptional(new OptionalEntity("pie", "display it as a chart pie"));
+        timerFrameParser.addOptional(Optionals.PIE.opt);
         return timerFrameParser;
     }
 
@@ -109,7 +109,7 @@ public class LanguageCommand extends ConcurrentCommand<TimeFrameParameters> {
         }
 
         List<String> stringedList = languageCountByMbid.entrySet().stream().sorted(Comparator.comparingLong((ToLongFunction<Map.Entry<Language, Long>>) Map.Entry::getValue).reversed()).map((t) ->
-                String.format(". **%s** - %s %s\n", CommandUtil.escapeMarkdown(t.getKey().getName()), t.getValue().toString(), CommandUtil.singlePlural(Math.toIntExact(t.getValue()), "album", "albums")))
+                        String.format(". **%s** - %s %s\n", CommandUtil.escapeMarkdown(t.getKey().getName()), t.getValue().toString(), CommandUtil.singlePlural(Math.toIntExact(t.getValue()), "album", "albums")))
                 .toList();
 
         for (int i = 0; i < 15 && i < stringedList.size(); i++) {

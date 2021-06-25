@@ -6,9 +6,9 @@ import core.commands.utils.CommandCategory;
 import core.imagerenderer.util.pie.PieableListResultWrapper;
 import core.otherlisteners.Reactionary;
 import core.parsers.NoOpParser;
-import core.parsers.OptionalEntity;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
+import core.parsers.utils.Optionals;
 import dao.ServiceView;
 import dao.entities.TagPlays;
 import dao.utils.LinkUtils;
@@ -46,7 +46,7 @@ public class ServerTagsCommand extends PieableListCommand<List<TagPlays>, Comman
 
     @Override
     public Parser<CommandParameters> initParser() {
-        return new NoOpParser(new OptionalEntity("plays", "sort by scrobbles"));
+        return new NoOpParser(Optionals.PLAYS.opt.withDescription("sort by scrobbles"));
     }
 
     @Override
@@ -73,8 +73,8 @@ public class ServerTagsCommand extends PieableListCommand<List<TagPlays>, Comman
         }
 
         List<String> lines = tags.stream().map(x ->
-                String.format(". [%s](%s) - %d %s\n", LinkUtils.cleanMarkdownCharacter(x.getTag()),
-                        LinkUtils.getLastFmArtistUrl(x.getTag()), x.getCount(), buzzz))
+                        String.format(". [%s](%s) - %d %s\n", LinkUtils.cleanMarkdownCharacter(x.getTag()),
+                                LinkUtils.getLastFmArtistUrl(x.getTag()), x.getCount(), buzzz))
                 .toList();
         EmbedBuilder embedBuilder = initList(lines, e)
                 .setTitle("Server Tags")

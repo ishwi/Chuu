@@ -10,9 +10,9 @@ import core.exceptions.LastFmException;
 import core.imagerenderer.util.bubble.StringFrequency;
 import core.otherlisteners.Reactionary;
 import core.parsers.OnlyUsernameParser;
-import core.parsers.OptionalEntity;
 import core.parsers.Parser;
 import core.parsers.params.ChuuDataParams;
+import core.parsers.utils.Optionals;
 import core.services.AlbumValidator;
 import core.services.TrackValidator;
 import core.services.tags.TagStorer;
@@ -43,7 +43,7 @@ public class TagStreakCommand extends ConcurrentCommand<ChuuDataParams> {
 
     @Override
     public Parser<ChuuDataParams> initParser() {
-        return new OnlyUsernameParser(db, new OptionalEntity("start", "show the moment the streak started"));
+        return new OnlyUsernameParser(db, Optionals.START.opt);
     }
 
     @Override

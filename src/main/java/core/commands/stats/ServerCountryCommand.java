@@ -11,10 +11,10 @@ import core.imagerenderer.WorldMapRenderer;
 import core.otherlisteners.Reactionary;
 import core.parsers.NoOpParser;
 import core.parsers.NumberParser;
-import core.parsers.OptionalEntity;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
 import core.parsers.params.NumberParameters;
+import core.parsers.utils.Optionals;
 import core.services.MbidFetcher;
 import dao.ServiceView;
 import dao.entities.ArtistInfo;
@@ -62,7 +62,7 @@ public class ServerCountryCommand extends ConcurrentCommand<NumberParameters<Com
                 null,
                 5,
                 map, s, false, true, false, "palette");
-        parser.addOptional(new OptionalEntity("list", "show as a list"));
+        parser.addOptional(Optionals.LIST.opt);
         return parser;
 
     }

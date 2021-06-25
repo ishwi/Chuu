@@ -243,8 +243,8 @@ public class AOTYCommand extends ChartableCommand<ChartYearParameters> {
         AtomicInteger ranker = new AtomicInteger(0);
 
         BlockingQueue<UrlCapsule> sortedQ = b.stream().sorted(Comparator.comparing(x -> (
-                ((TrackDurationAlbumArtistChart) x).getSeconds()
-        )).reversed()).peek(x -> x.setPos(ranker.getAndIncrement()))
+                        ((TrackDurationAlbumArtistChart) x).getSeconds()
+                )).reversed()).peek(x -> x.setPos(ranker.getAndIncrement()))
                 .collect(Collectors.toCollection(LinkedBlockingDeque::new));
         return new CountWrapper<>(albumsMbizMatchingYear.size(), sortedQ);
     }

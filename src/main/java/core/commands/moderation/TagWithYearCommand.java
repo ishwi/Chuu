@@ -119,11 +119,11 @@ public class TagWithYearCommand extends ConcurrentCommand<CommandParameters> {
                 TextChannel textChannelById = Chuu.getShardManager().getTextChannelById(Chuu.channelId);
                 if (textChannelById != null)
                     textChannelById.sendMessage(new ChuuEmbedBuilder(e).setTitle("Year submission")
-                            .setColor(CommandUtil.pastelColor())
-                            .setDescription("Artist: **%s**\nAlbum: **%s**\nYear: **%s**\nAuthor: %s".formatted(artist, album, year, e.getAuthor().getAsMention())).build())
+                                    .setColor(CommandUtil.pastelColor())
+                                    .setDescription("Artist: **%s**\nAlbum: **%s**\nYear: **%s**\nAuthor: %s".formatted(artist, album, year, e.getAuthor().getAsMention())).build())
                             .setActionRows(ActionRow.of(
-                                    Button.of(ButtonStyle.PRIMARY, ACCEPT, "Accept", Emoji.fromUnicode(ACCEPT)),
-                                    Button.of(ButtonStyle.DANGER, REJECT, "Reject", Emoji.fromUnicode(REJECT))
+                                            Button.of(ButtonStyle.PRIMARY, ACCEPT, "Accept", Emoji.fromUnicode(ACCEPT)),
+                                            Button.of(ButtonStyle.DANGER, REJECT, "Reject", Emoji.fromUnicode(REJECT))
                                     )
                             )
                             .queue();

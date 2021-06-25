@@ -8,9 +8,9 @@ import core.commands.utils.CommandUtil;
 import core.exceptions.LastFmException;
 import core.imagerenderer.BarChartMaker;
 import core.parsers.OnlyUsernameParser;
-import core.parsers.OptionalEntity;
 import core.parsers.Parser;
 import core.parsers.params.ChuuDataParams;
+import core.parsers.utils.Optionals;
 import dao.ServiceView;
 import dao.entities.*;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -32,7 +32,7 @@ public class WeeklyCommand extends ConcurrentCommand<ChuuDataParams> {
 
     @Override
     public Parser<ChuuDataParams> initParser() {
-        return new OnlyUsernameParser(db, new OptionalEntity("image", "displays it as a bar chart"));
+        return new OnlyUsernameParser(db, Optionals.IMAGE.opt.withDescription("displays it as a bar chart"));
     }
 
     @Override

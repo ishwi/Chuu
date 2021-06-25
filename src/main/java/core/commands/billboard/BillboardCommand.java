@@ -9,10 +9,11 @@ import core.imagerenderer.HotMaker;
 import core.otherlisteners.Reactionary;
 import core.parsers.NoOpParser;
 import core.parsers.NumberParser;
-import core.parsers.OptionalEntity;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
 import core.parsers.params.NumberParameters;
+import core.parsers.utils.OptionalEntity;
+import core.parsers.utils.Optionals;
 import core.services.BillboardHoarder;
 import dao.ServiceView;
 import dao.entities.BillboardEntity;
@@ -63,7 +64,7 @@ public class BillboardCommand extends ConcurrentCommand<NumberParameters<Command
 
         extraParser.addOptional(new OptionalEntity("scrobbles", "sort the top by scrobble count, not listeners"));
         extraParser.addOptional(new OptionalEntity("full", "in case of doing the image show first 100 songs in the image"));
-        extraParser.addOptional(new OptionalEntity("list", "display it in an embed"));
+        extraParser.addOptional(Optionals.LIST.opt);
         return extraParser;
     }
 

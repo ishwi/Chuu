@@ -9,6 +9,7 @@ import core.parsers.explanation.util.Explanation;
 import core.parsers.explanation.util.ExplanationLineType;
 import core.parsers.params.UserConfigParameters;
 import core.parsers.params.UserConfigType;
+import core.parsers.utils.OptionalEntity;
 import dao.ChuuService;
 import dao.entities.ChartMode;
 import dao.entities.RemainingImagesMode;

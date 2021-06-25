@@ -10,9 +10,10 @@ import core.commands.utils.CommandUtil;
 import core.exceptions.LastFmException;
 import core.parsers.ChartableParser;
 import core.parsers.OnlyChartSizeParser;
-import core.parsers.OptionalEntity;
 import core.parsers.params.ChartSizeParameters;
 import core.parsers.utils.CustomTimeFrame;
+import core.parsers.utils.OptionalEntity;
+import core.parsers.utils.Optionals;
 import dao.ServiceView;
 import dao.entities.CountWrapper;
 import dao.entities.DiscordUserDisplay;
@@ -33,8 +34,8 @@ public class TopCommand extends ArtistAbleCommand<ChartSizeParameters> {
     @Override
     public ChartableParser<ChartSizeParameters> initParser() {
         OnlyChartSizeParser parser = new OnlyChartSizeParser(db, null, new OptionalEntity("album", "use albums"));
-        parser.replaceOptional("plays", new OptionalEntity("noplays", "not show plays"));
-        parser.addOptional(new OptionalEntity("plays", "shows this with plays", true, "noplays"));
+        parser.replaceOptional("plays", Optionals.NOPLAYS.opt);
+        parser.addOptional(Optionals.PLAYS.opt.withBlockedBy("noplays"));
         return parser;
     }
 

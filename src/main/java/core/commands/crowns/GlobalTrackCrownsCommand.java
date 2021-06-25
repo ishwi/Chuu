@@ -2,10 +2,10 @@ package core.commands.crowns;
 
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
-import core.parsers.OptionalEntity;
 import core.parsers.Parser;
 import core.parsers.params.ChuuDataParams;
 import core.parsers.params.NumberParameters;
+import core.parsers.utils.Optionals;
 import dao.ServiceView;
 import dao.entities.ArtistPlays;
 import dao.entities.UniqueWrapper;
@@ -54,8 +54,8 @@ public class GlobalTrackCrownsCommand extends CrownsCommand {
     @Override
     public Parser<NumberParameters<ChuuDataParams>> initParser() {
         Parser<NumberParameters<ChuuDataParams>> parser = super.initParser();
-        parser.addOptional(new OptionalEntity("nobotted", "discard users that have been manually flagged as potentially botted accounts"));
-        parser.addOptional(new OptionalEntity("botted", "discard users that have been manually flagged as potentially botted accounts"));
+        parser.addOptional(Optionals.NOBOTTED.opt);
+        parser.addOptional(Optionals.BOTTED.opt);
         return parser;
     }
 

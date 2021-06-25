@@ -11,9 +11,9 @@ import core.commands.utils.CommandUtil;
 import core.exceptions.LastFmException;
 import core.parsers.ChartableParser;
 import core.parsers.GenreChartParser;
-import core.parsers.OptionalEntity;
 import core.parsers.params.ChartableGenreParameters;
 import core.parsers.utils.CustomTimeFrame;
+import core.parsers.utils.Optionals;
 import dao.ServiceView;
 import dao.entities.*;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -36,8 +36,8 @@ public class GenreTracksCommands extends ChartableCommand<ChartableGenreParamete
     public ChartableParser<ChartableGenreParameters> initParser() {
 
         GenreChartParser genreChartParser = new GenreChartParser(db, TimeFrameEnum.WEEK, lastFM);
-        genreChartParser.replaceOptional("list", new OptionalEntity("image", "show this as a chart "));
-        genreChartParser.addOptional(new OptionalEntity("list", "shows this in list mode", true, Set.of("image", "pie")));
+        genreChartParser.replaceOptional("list", Optionals.IMAGE.opt);
+        genreChartParser.addOptional(Optionals.LIST.opt.withBlockedBy("image", "pie"));
         return genreChartParser;
     }
 

@@ -11,12 +11,13 @@ import core.imagerenderer.util.bubble.StringFrequency;
 import core.imagerenderer.util.pie.IPieableMap;
 import core.otherlisteners.Reactionary;
 import core.parsers.NumberParser;
-import core.parsers.OptionalEntity;
 import core.parsers.Parser;
 import core.parsers.TimerFrameParser;
 import core.parsers.params.NumberParameters;
 import core.parsers.params.TimeFrameParameters;
 import core.parsers.utils.CustomTimeFrame;
+import core.parsers.utils.OptionalEntity;
+import core.parsers.utils.Optionals;
 import core.services.tags.TagAlbumService;
 import core.services.tags.TagArtistService;
 import dao.ServiceView;
@@ -85,7 +86,7 @@ public class GenreCommand extends ConcurrentCommand<NumberParameters<TimeFramePa
         timerFrameParser.addOptional(new OptionalEntity("mb", "use only musicbrainz tags"));
 
 
-        timerFrameParser.addOptional(new OptionalEntity("list", "show as a list"));
+        timerFrameParser.addOptional(Optionals.LIST.opt);
 
 
         return new NumberParser<>(timerFrameParser,

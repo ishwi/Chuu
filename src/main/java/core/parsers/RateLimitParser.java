@@ -5,6 +5,7 @@ import core.parsers.explanation.util.Explanation;
 import core.parsers.explanation.util.ExplanationLineType;
 import core.parsers.interactions.InteractionAux;
 import core.parsers.params.RateLimitParams;
+import core.parsers.utils.OptionalEntity;
 import dao.ChuuService;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 

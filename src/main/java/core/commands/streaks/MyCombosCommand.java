@@ -7,9 +7,9 @@ import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.otherlisteners.Reactionary;
 import core.parsers.OnlyUsernameParser;
-import core.parsers.OptionalEntity;
 import core.parsers.Parser;
 import core.parsers.params.ChuuDataParams;
+import core.parsers.utils.Optionals;
 import dao.ServiceView;
 import dao.entities.DiscordUserDisplay;
 import dao.entities.GlobalStreakEntities;
@@ -35,7 +35,7 @@ public class MyCombosCommand extends ConcurrentCommand<ChuuDataParams> {
 
     @Override
     public Parser<ChuuDataParams> initParser() {
-        return new OnlyUsernameParser(db, new OptionalEntity("start", "show the moment the streak started"));
+        return new OnlyUsernameParser(db, Optionals.START.opt);
     }
 
     @Override
@@ -65,10 +65,10 @@ public class MyCombosCommand extends ConcurrentCommand<ChuuDataParams> {
         AtomicInteger atomicInteger = new AtomicInteger(1);
         List<String> streaks = userStreaks
                 .stream().map(combo -> {
-                            String aString = CommandUtil.escapeMarkdown(combo.getCurrentArtist());
+                    String aString = CommandUtil.escapeMarkdown(combo.getCurrentArtist());
                     int andIncrement = atomicInteger.getAndIncrement();
-                            StringBuilder description = new StringBuilder(CommandUtil.getDayNumberSuffix(andIncrement) + "\n");
-                            GlobalStreakEntities.DateHolder holder = params.hasOptional("start") ? CommandUtil.toDateHolder(combo.getStreakStart(), params.getLastFMData().getName()) : null;
+                    StringBuilder description = new StringBuilder(CommandUtil.getDayNumberSuffix(andIncrement) + "\n");
+                    GlobalStreakEntities.DateHolder holder = params.hasOptional("start") ? CommandUtil.toDateHolder(combo.getStreakStart(), params.getLastFMData().getName()) : null;
 
                             return GlobalStreakEntities.getComboString(aString, description, combo.artistCount(), combo.getCurrentArtist(), combo.albumCount(), combo.getCurrentAlbum(), combo.trackCount(), combo.getCurrentSong(), holder);
                         }

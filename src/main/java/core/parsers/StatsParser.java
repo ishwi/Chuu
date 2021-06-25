@@ -222,6 +222,7 @@ public class StatsParser extends DaoParser<StatsParams> {
         return new StatsParams(ctx, apply, help, data, CustomTimeFrame.ofTimeFrameEnum(tfe), param != null ? Math.toIntExact(param) : null, apply.isEmpty());
     }
 
+
     public record StatsParam(Stats mode, Integer param) {
 
     }

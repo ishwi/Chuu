@@ -5,6 +5,8 @@ import core.commands.ContextSlashReceived;
 import core.exceptions.LastFmException;
 import core.parsers.params.ChartParameters;
 import core.parsers.params.RainbowParams;
+import core.parsers.utils.OptionalEntity;
+import core.parsers.utils.Optionals;
 import dao.ChuuService;
 import dao.entities.TimeFrameEnum;
 import dao.exceptions.InstanceNotFoundException;
@@ -29,9 +31,9 @@ public class RainbowParser extends ChartableParser<RainbowParams> {
 
     @Override
     void setUpOptionals() {
-        this.opts.add(new OptionalEntity("titles", "display titles"));
-        this.opts.add(new OptionalEntity("plays", "show plays"));
-        this.opts.add(new OptionalEntity("artist", "use artists instead of albums"));
+        this.opts.add(Optionals.TITLES.opt);
+        this.opts.add(Optionals.PLAYS.opt);
+        this.opts.add(Optionals.ARTIST.opt);
         this.opts.add(new OptionalEntity("linear", "display the rainbow line by line instead of stair"));
         this.opts.add(new OptionalEntity("color", "sort by color instead of brightness"));
         this.opts.add(new OptionalEntity("column", "display rainbow column by column instead of in stair"));

@@ -6,6 +6,7 @@ import core.parsers.explanation.PermissiveUserExplanation;
 import core.parsers.explanation.util.Explanation;
 import core.parsers.interactions.InteractionAux;
 import core.parsers.params.ChuuDataParams;
+import core.parsers.utils.OptionalEntity;
 import dao.ChuuService;
 import dao.entities.LastFMData;
 import dao.exceptions.InstanceNotFoundException;

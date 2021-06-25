@@ -17,8 +17,8 @@ import core.imagerenderer.util.pie.IPieableList;
 import core.imagerenderer.util.pie.PieableListKnows;
 import core.otherlisteners.Reactionary;
 import core.parsers.DaoParser;
-import core.parsers.OptionalEntity;
 import core.parsers.params.CommandParameters;
+import core.parsers.utils.Optionals;
 import dao.ServiceView;
 import dao.entities.ReturnNowPlaying;
 import dao.entities.WKMode;
@@ -46,7 +46,7 @@ public abstract class WhoKnowsBaseCommand<T extends CommandParameters> extends C
             p.setAllowUnaothorizedUsers(true);
         }
         pie = new PieableListKnows<>(parser);
-        parser.addOptional(new OptionalEntity("list", "show as a list"));
+        parser.addOptional(Optionals.LIST.opt);
         this.respondInPrivate = false;
         this.discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
         this.spotify = SpotifySingleton.getInstance();

@@ -4,6 +4,7 @@ import core.apis.last.ConcurrentLastFM;
 import core.commands.Context;
 import core.exceptions.LastFmException;
 import core.parsers.params.MultiArtistParameters;
+import core.parsers.utils.OptionalEntity;
 import dao.ChuuService;
 import dao.entities.LastFMData;
 import dao.entities.NowPlayingArtist;

@@ -7,10 +7,10 @@ import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.otherlisteners.Reactionary;
 import core.parsers.MultipleGenresParser;
-import core.parsers.OptionalEntity;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
 import core.parsers.params.MultipleGenresParameters;
+import core.parsers.utils.Optionals;
 import dao.ServiceView;
 import dao.entities.ScrobbledArtist;
 import dao.entities.SearchMode;
@@ -59,7 +59,7 @@ public class MultipleWhoIsTagCommand extends ConcurrentCommand<MultipleGenresPar
     @Override
     public Parser<MultipleGenresParameters> initParser() {
         MultipleGenresParser genreParser = new MultipleGenresParser(db, lastFM);
-        genreParser.addOptional(new OptionalEntity("global", " show artist with the given tags from all bot users instead of only from this server"));
+        genreParser.addOptional(Optionals.GLOBAL.opt);
         return genreParser;
     }
 

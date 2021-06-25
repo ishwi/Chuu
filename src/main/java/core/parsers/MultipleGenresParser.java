@@ -5,6 +5,7 @@ import core.apis.last.ConcurrentLastFM;
 import core.commands.Context;
 import core.exceptions.LastFmException;
 import core.parsers.params.MultipleGenresParameters;
+import core.parsers.utils.OptionalEntity;
 import core.services.NPService;
 import core.services.tags.TagStorer;
 import dao.ChuuService;

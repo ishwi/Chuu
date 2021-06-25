@@ -4,6 +4,7 @@ import core.commands.Context;
 import core.commands.ContextSlashReceived;
 import core.parsers.explanation.util.Explanation;
 import core.parsers.params.CommandParameters;
+import core.parsers.utils.OptionalEntity;
 import org.apache.commons.lang3.ArrayUtils;
 
 import java.util.Collections;

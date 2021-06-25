@@ -19,10 +19,10 @@ import core.imagerenderer.ChartQuality;
 import core.imagerenderer.CollageMaker;
 import core.otherlisteners.Reactionary;
 import core.parsers.CountryParser;
-import core.parsers.OptionalEntity;
 import core.parsers.Parser;
 import core.parsers.params.ChartParameters;
 import core.parsers.params.CountryParameters;
+import core.parsers.utils.Optionals;
 import core.services.MbidFetcher;
 import dao.ServiceView;
 import dao.entities.DiscordUserDisplay;
@@ -64,7 +64,7 @@ public class ArtistFromCountryCommand extends ConcurrentCommand<CountryParameter
     @Override
     public Parser<CountryParameters> initParser() {
         CountryParser countryParser = new CountryParser(db);
-        countryParser.addOptional(new OptionalEntity("image", "show this as a chart "));
+        countryParser.addOptional(Optionals.IMAGE.opt);
         return countryParser;
     }
 
@@ -119,7 +119,7 @@ public class ArtistFromCountryCommand extends ConcurrentCommand<CountryParameter
         String name = user.getName();
         long discordId = user.getDiscordId();
         List<ScrobbledArtist> userArtists;
-        BlockingQueue<UrlCapsule> queue = null;
+        BlockingQueue<UrlCapsule> queue;
         if (params.getTimeFrame().isAllTime()) {
             userArtists = this.db.getUserArtistByMbid(user.getName());
         } else {

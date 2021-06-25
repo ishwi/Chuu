@@ -10,9 +10,9 @@ import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.otherlisteners.Reactionary;
 import core.parsers.NoOpParser;
-import core.parsers.OptionalEntity;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
+import core.parsers.utils.OptionalEntity;
 import dao.ServiceView;
 import dao.entities.LastFMData;
 import dao.entities.NowPlayingArtist;
@@ -115,13 +115,13 @@ public class PlayingCommand extends ConcurrentCommand<CommandParameters> {
                     NowPlayingArtist value = x.getValue().get(); //Checked previous filter
                     String username = getUserString(e, usersWrapper.getDiscordId(), usersWrapper.getName());
                     String started = !showFresh && value.current() ? "#" : "+";
-            return started + " [" +
-                   username + "](" +
-                   CommandUtil.getLastFmUser(usersWrapper.getName()) +
-                   "): " +
-                   CommandUtil.escapeMarkdown(value.songName() +
-                                              " - " + value.artistName() +
-                                              " | " + value.albumName() + "\n");
+                    return started + " [" +
+                           username + "](" +
+                           CommandUtil.getLastFmUser(usersWrapper.getName()) +
+                           "): " +
+                           CommandUtil.escapeMarkdown(value.songName() +
+                                                      " - " + value.artistName() +
+                                                      " | " + value.albumName() + "\n");
                 }
         ).collect(Collectors.toCollection(ArrayList::new));
         Collections.shuffle(result, CommandUtil.rand);

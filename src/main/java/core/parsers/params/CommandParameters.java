@@ -1,7 +1,7 @@
 package core.parsers.params;
 
 import core.commands.Context;
-import core.parsers.OptionalEntity;
+import core.parsers.utils.OptionalEntity;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -27,10 +27,6 @@ public class CommandParameters {
 
     public Context getE() {
         return e;
-    }
-
-    public boolean hasOptional(OptionalEntity optionalEntity) {
-        return optionals.getOrDefault(optionalEntity, false);
     }
 
     public boolean hasOptional(String optional) {

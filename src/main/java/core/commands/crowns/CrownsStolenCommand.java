@@ -108,7 +108,7 @@ public class CrownsStolenCommand extends ConcurrentCommand<NumberParameters<TwoU
 
         // Footer doesnt allow markdown characters
         embedBuilder.setDescription(a).setTitle(userName + "'s stolen crowns by " + userName2, CommandUtil
-                .getLastFmUser(ogLastFmId))
+                        .getLastFmUser(ogLastFmId))
                 .setThumbnail(userUrl2)
                 .setFooter(CommandUtil.unescapedUser(userName2, resultWrapper.getQuriedId(), e) + " has stolen " + rows + " crowns!\n", null);
         e.sendMessage(embedBuilder.build()).queue(m ->

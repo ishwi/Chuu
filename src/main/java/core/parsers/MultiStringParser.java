@@ -9,6 +9,7 @@ import core.parsers.explanation.util.Explanation;
 import core.parsers.explanation.util.MultiExplanation;
 import core.parsers.interactions.InteractionAux;
 import core.parsers.params.CommandParameters;
+import core.parsers.utils.OptionalEntity;
 import dao.ChuuService;
 import dao.entities.LastFMData;
 import dao.exceptions.InstanceNotFoundException;
@@ -24,6 +25,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static core.parsers.ParserAux.digitMatcher;
 
@@ -79,7 +81,7 @@ public abstract class MultiStringParser<T extends CommandParameters> extends Dao
         } else {
             String str = String.join(" ", getSubMessage(e));
             String[] split = str.split("(?<!\\\\)\\s*[|-]\\s*");
-            Set<String> set = Set.of(split).stream().map(t ->
+            Set<String> set = Stream.of(split).map(t ->
                     t.trim().replaceAll("\\\\(|-)", "$1")
             ).collect(Collectors.toSet());
             if (set.size() > 15) {

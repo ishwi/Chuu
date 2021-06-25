@@ -69,8 +69,8 @@ public class UserExportCommand extends ConcurrentCommand<CommandParameters> {
         try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
             new ObjectMapper().writer(new DefaultPrettyPrinter()).writeValue(baos, all);
             e.getAuthor().openPrivateChannel().flatMap(
-                    x -> x.sendFile(baos.toByteArray(),
-                            "users_" + e.getGuild().getName() + LocalDateTime.now().atOffset(ZoneOffset.UTC).format(DateTimeFormatter.ISO_ZONED_DATE_TIME) + ".json"))
+                            x -> x.sendFile(baos.toByteArray(),
+                                    "users_" + e.getGuild().getName() + LocalDateTime.now().atOffset(ZoneOffset.UTC).format(DateTimeFormatter.ISO_ZONED_DATE_TIME) + ".json"))
                     .queue();
         } catch (IOException ex) {
             Chuu.getLogger().warn(ex.getMessage(), ex);

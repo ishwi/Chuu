@@ -10,9 +10,9 @@ import core.commands.utils.PrivacyUtils;
 import core.exceptions.LastFmException;
 import core.imagerenderer.ProfileMaker;
 import core.parsers.OnlyUsernameParser;
-import core.parsers.OptionalEntity;
 import core.parsers.Parser;
 import core.parsers.params.ChuuDataParams;
+import core.parsers.utils.Optionals;
 import core.services.UserInfoService;
 import dao.ServiceView;
 import dao.entities.CommandStats;
@@ -42,7 +42,7 @@ public class ProfileInfoCommand extends ConcurrentCommand<ChuuDataParams> {
 
     @Override
     public Parser<ChuuDataParams> initParser() {
-        OnlyUsernameParser parser = new OnlyUsernameParser(db, new OptionalEntity("list", "show as a list"));
+        OnlyUsernameParser parser = new OnlyUsernameParser(db, Optionals.LIST.opt);
         parser.setExpensiveSearch(true);
         return parser;
     }

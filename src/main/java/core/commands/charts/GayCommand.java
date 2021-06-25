@@ -176,27 +176,27 @@ public class GayCommand extends OnlyChartCommand<GayParams> {
 
 
         LinkedBlockingDeque<UrlCapsule> retunable = holding.stream().map(x -> (PreComputedByGayness) x).sorted().limit(holding.size()).peek(
-                x -> {
-                    List<Integer> matchingIndices = IntStream.range(0, palettes.size())
-                            .filter(t -> x.getDecidedCOlor().equals(palettes.get(t))).boxed()// Only keep those indices
-                            .toList();
-                    boolean matched = false;
-                    for (Integer i : matchingIndices) {
-                        assert i != -1;
-                        AtomicInteger integer = colourCounter.get(i);
-                        assert integer != null;
+                        x -> {
+                            List<Integer> matchingIndices = IntStream.range(0, palettes.size())
+                                    .filter(t -> x.getDecidedCOlor().equals(palettes.get(t))).boxed()// Only keep those indices
+                                    .toList();
+                            boolean matched = false;
+                            for (Integer i : matchingIndices) {
+                                assert i != -1;
+                                AtomicInteger integer = colourCounter.get(i);
+                                assert integer != null;
 
-                        int andIncrement = integer.getAndIncrement();
-                        if (andIncrement < params.getX()) {
-                            x.setPos(rows * (Math.max(0, i)) + andIncrement);
-                            matched = true;
-                            break;
-                        }
-                    }
-                    if (!matched) {
-                        x.setPos(Integer.MAX_VALUE);
-                    }
-                }).
+                                int andIncrement = integer.getAndIncrement();
+                                if (andIncrement < params.getX()) {
+                                    x.setPos(rows * (Math.max(0, i)) + andIncrement);
+                                    matched = true;
+                                    break;
+                                }
+                            }
+                            if (!matched) {
+                                x.setPos(Integer.MAX_VALUE);
+                            }
+                        }).
                 sorted(Comparator.comparingInt(UrlCapsule::getPos)).limit((long) rows * cols).collect(Collectors.toCollection(LinkedBlockingDeque::new));
         return new CountWrapper<>(count, retunable);
     }

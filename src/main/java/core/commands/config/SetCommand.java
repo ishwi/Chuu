@@ -141,9 +141,9 @@ public class SetCommand extends ConcurrentCommand<WordParameter> {
 
         //Never registered before
         String sb = "**" + CommandUtil.escapeMarkdown(e.getAuthor()
-                .
+                        .
 
-                        getName()) + "** has set their last FM name \n Updating your library, wait a moment";
+                getName()) + "** has set their last FM name \n Updating your library, wait a moment";
         e.sendMessage(sb).
                 queue(t -> e.getChannel().
                         sendTyping().

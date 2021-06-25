@@ -6,9 +6,10 @@ import core.commands.abstracts.MyCommand;
 import core.commands.utils.CommandCategory;
 import core.interactions.InteractionBuilder;
 import core.parsers.NoOpParser;
-import core.parsers.OptionalEntity;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
+import core.parsers.utils.OptionalEntity;
+import core.parsers.utils.Optionals;
 import dao.ServiceView;
 
 import javax.validation.constraints.NotNull;
@@ -32,13 +33,13 @@ public class RefreshSlashCommand extends ConcurrentCommand<CommandParameters> {
 
     @Override
     public Parser<CommandParameters> initParser() {
-        NoOpParser noOpParser = new NoOpParser();
-        noOpParser.addOptional(new OptionalEntity("server", "refresh only this server"));
-        noOpParser.addOptional(new OptionalEntity("global", "global refresh"));
-        noOpParser.addOptional(new OptionalEntity("delete", "clean this server"));
-        noOpParser.addOptional(new OptionalEntity("globaldelete", "clean the bot"));
-        noOpParser.addOptional(new OptionalEntity("missing", "missing"));
-        return noOpParser;
+        return new NoOpParser(
+                Optionals.SERVER.opt.withDescription("refresh only this server"),
+                Optionals.SERVER.opt.withDescription("global refresh"),
+                new OptionalEntity("delete", "clean this server"),
+                new OptionalEntity("globaldelete", "clean the bot"),
+                new OptionalEntity("missing", "missing")
+        );
     }
 
     @Override

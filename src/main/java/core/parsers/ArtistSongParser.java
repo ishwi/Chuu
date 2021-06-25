@@ -6,6 +6,7 @@ import core.parsers.explanation.StrictUserExplanation;
 import core.parsers.explanation.TrackExplanation;
 import core.parsers.explanation.util.Explanation;
 import core.parsers.params.ArtistAlbumParameters;
+import core.parsers.utils.OptionalEntity;
 import dao.ChuuService;
 import dao.entities.LastFMData;
 import dao.entities.NowPlayingArtist;

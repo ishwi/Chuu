@@ -14,10 +14,11 @@ import core.exceptions.LastFmException;
 import core.otherlisteners.Reactionary;
 import core.parsers.ArtistParser;
 import core.parsers.NumberParser;
-import core.parsers.OptionalEntity;
 import core.parsers.Parser;
 import core.parsers.params.ArtistParameters;
 import core.parsers.params.NumberParameters;
+import core.parsers.utils.OptionalEntity;
+import core.parsers.utils.Optionals;
 import dao.ServiceView;
 import dao.entities.*;
 import dao.utils.LinkUtils;
@@ -62,10 +63,10 @@ public class TopArtistComboCommand extends ConcurrentCommand<NumberParameters<Ar
                 null,
                 Integer.MAX_VALUE,
                 map, s, false, true, true, "filter");
-        parser.addOptional(new OptionalEntity("server", "only include people in this server"));
+        parser.addOptional(Optionals.SERVER.opt);
         parser.addOptional(new OptionalEntity("me", "only include author of the command"));
         parser.addOptional(new OptionalEntity("myself", "same as `me`"));
-        parser.addOptional(new OptionalEntity("start", "show the moment the streak started"));
+        parser.addOptional(Optionals.START.opt);
         return parser;
     }
 
@@ -162,7 +163,7 @@ public class TopArtistComboCommand extends ConcurrentCommand<NumberParameters<Ar
 
         EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e)
                 .
-                        setAuthor(String.format("%s's top streaks in %s ", scrobbledArtist.getArtist(), CommandUtil.escapeMarkdown(title)))
+                setAuthor(String.format("%s's top streaks in %s ", scrobbledArtist.getArtist(), CommandUtil.escapeMarkdown(title)))
                 .setThumbnail(scrobbledArtist.getUrl())
                 .setDescription(a)
                 .setFooter(String.format("%s has a total of %d %s %s!", CommandUtil.escapeMarkdown(title), topStreaks.size(), scrobbledArtist.getArtist(), CommandUtil.singlePlural(topStreaks.size(), "streak", "streaks")));

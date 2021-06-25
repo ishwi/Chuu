@@ -12,10 +12,10 @@ import core.commands.utils.CommandUtil;
 import core.exceptions.LastFmException;
 import core.otherlisteners.Reactionary;
 import core.parsers.ArtistParser;
-import core.parsers.OptionalEntity;
 import core.parsers.Parser;
 import core.parsers.params.ArtistParameters;
 import core.parsers.params.NumberParameters;
+import core.parsers.utils.Optionals;
 import dao.ServiceView;
 import dao.entities.DiscordUserDisplay;
 import dao.entities.ScrobbledArtist;
@@ -54,8 +54,8 @@ public class GlobalTrackArtistCrownsCommand extends ConcurrentCommand<NumberPara
     @Override
     public Parser<NumberParameters<ArtistParameters>> initParser() {
         Parser<NumberParameters<ArtistParameters>> parser = generateThresholdParser(new ArtistParser(db, lastFM));
-        parser.addOptional(new OptionalEntity("nobotted", "discard users that have been manually flagged as potentially botted accounts"));
-        parser.addOptional(new OptionalEntity("botted", "show botted accounts in case you have the config show-botted disabled"));
+        parser.addOptional(Optionals.NOBOTTED.opt);
+        parser.addOptional(Optionals.BOTTED.opt);
         return parser;
     }
 

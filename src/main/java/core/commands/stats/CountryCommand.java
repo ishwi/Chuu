@@ -11,12 +11,12 @@ import core.exceptions.LastFmException;
 import core.imagerenderer.WorldMapRenderer;
 import core.otherlisteners.Reactionary;
 import core.parsers.NumberParser;
-import core.parsers.OptionalEntity;
 import core.parsers.Parser;
 import core.parsers.TimerFrameParser;
 import core.parsers.params.NumberParameters;
 import core.parsers.params.TimeFrameParameters;
 import core.parsers.utils.CustomTimeFrame;
+import core.parsers.utils.Optionals;
 import core.scheduledtasks.ArtistMbidUpdater;
 import dao.ServiceView;
 import dao.entities.*;
@@ -56,7 +56,7 @@ public class CountryCommand extends ConcurrentCommand<NumberParameters<TimeFrame
                 null,
                 5,
                 map, s, false, true, false, "palette");
-        parser.addOptional(new OptionalEntity("list", "show as a list"));
+        parser.addOptional(Optionals.LIST.opt);
         return parser;
 
     }

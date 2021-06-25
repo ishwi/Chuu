@@ -5,9 +5,9 @@ import core.commands.abstracts.ConcurrentCommand;
 import core.commands.artists.MultipleWhoIsTagCommand;
 import core.commands.utils.CommandCategory;
 import core.parsers.GenreParser;
-import core.parsers.OptionalEntity;
 import core.parsers.Parser;
 import core.parsers.params.GenreParameters;
+import core.parsers.utils.Optionals;
 import dao.ServiceView;
 import dao.entities.ScrobbledArtist;
 
@@ -28,7 +28,7 @@ public class WhoIsTagCommand extends ConcurrentCommand<GenreParameters> {
     @Override
     public Parser<GenreParameters> initParser() {
         GenreParser genreParser = new GenreParser(db, lastFM);
-        genreParser.addOptional(new OptionalEntity("global", " show artist with the given tags from all bot users instead of only from this server"));
+        genreParser.addOptional(Optionals.GLOBAL.opt);
         return genreParser;
     }
 

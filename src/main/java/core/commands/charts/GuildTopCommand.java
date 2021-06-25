@@ -10,8 +10,8 @@ import core.imagerenderer.GraphicUtils;
 import core.otherlisteners.Reactionary;
 import core.parsers.ChartableParser;
 import core.parsers.OnlyChartSizeParser;
-import core.parsers.OptionalEntity;
 import core.parsers.params.ChartSizeParameters;
+import core.parsers.utils.Optionals;
 import dao.ServiceView;
 import dao.entities.*;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -40,9 +40,9 @@ public class GuildTopCommand extends ChartableCommand<ChartSizeParameters> {
     @Override
     public ChartableParser<ChartSizeParameters> initParser() {
         OnlyChartSizeParser onlyChartSizeParser = new OnlyChartSizeParser(db, TimeFrameEnum.ALL,
-                new OptionalEntity("global", " shows artist from all bot users instead of only from this server"));
-        onlyChartSizeParser.replaceOptional("plays", new OptionalEntity("noplays", "not show plays"));
-        onlyChartSizeParser.addOptional(new OptionalEntity("plays", "shows this with plays", true, "noplays"));
+                Optionals.GLOBAL.opt.withDescription(" shows artist from all bot users instead of only from this server"));
+        onlyChartSizeParser.replaceOptional("plays", Optionals.NOPLAYS.opt);
+        onlyChartSizeParser.addOptional(Optionals.PLAYS.opt.withBlockedBy("noplays"));
         onlyChartSizeParser.setAllowUnaothorizedUsers(true);
         return onlyChartSizeParser;
     }
@@ -104,7 +104,7 @@ public class GuildTopCommand extends ChartableCommand<ChartSizeParameters> {
         String footerText = " has listened to " + count + " artists";
         String name = params.getE().getGuild().getName();
         return embedBuilder.setAuthor(name + titleInit,
-                null, params.getE().getGuild().getIconUrl())
+                        null, params.getE().getGuild().getIconUrl())
                 .setFooter(CommandUtil.stripEscapedMarkdown(name) + footerText);
     }
 

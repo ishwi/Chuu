@@ -93,7 +93,7 @@ public class ServerAOTD extends ChartableCommand<ChartYearRangeParameters> {
         String footerText = " has " + count + " albums from " + s;
         String name = params.getE().getGuild().getName();
         return embedBuilder.setAuthor(name + titleInit,
-                null, params.getE().getGuild().getIconUrl())
+                        null, params.getE().getGuild().getIconUrl())
                 .setFooter(CommandUtil.stripEscapedMarkdown(name) + footerText);
     }
 

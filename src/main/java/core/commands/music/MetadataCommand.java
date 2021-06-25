@@ -87,9 +87,9 @@ public class MetadataCommand extends MusicCommand<CommandParameters> {
         String finalImage = image;
         manager.setMetadata(metadata).thenCompose(v -> manager.getScrobble()).thenAccept(z ->
                 e.sendMessage(new ChuuEmbedBuilder(e).setThumbnail(finalImage)
-                        .setAuthor("Metadata changed", identifier)
-                        .setDescription(z.toLines())
-                        .build()).
+                                .setAuthor("Metadata changed", identifier)
+                                .setDescription(z.toLines())
+                                .build()).
                         queue());
     }
 }

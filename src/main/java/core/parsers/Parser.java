@@ -8,6 +8,7 @@ import core.exceptions.LastFmException;
 import core.parsers.explanation.util.Explanation;
 import core.parsers.explanation.util.UsageLogic;
 import core.parsers.params.CommandParameters;
+import core.parsers.utils.OptionalEntity;
 import dao.exceptions.InstanceNotFoundException;
 import javacutils.Pair;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
@@ -24,6 +25,7 @@ import java.util.stream.Stream;
 public abstract class Parser<T extends CommandParameters> {
     final Map<Integer, String> errorMessages = new HashMap<>(10);
     final Set<OptionalEntity> opts = new LinkedHashSet<>();
+    final Map<String, OptionalEntity> optAliases = new HashMap<>();
 
 
     Parser() {
@@ -33,7 +35,9 @@ public abstract class Parser<T extends CommandParameters> {
 
     Parser(OptionalEntity... opts) {
         this();
-        this.opts.addAll(Arrays.asList(opts));
+        for (OptionalEntity opt : opts) {
+            addOptional(opt);
+        }
     }
 
     public static <Y> Pair<String[], Y> filterMessage(String[] ogMessage, Predicate<String> filter, Function<String, Y> mapper, Y yDefault) {
@@ -49,6 +53,11 @@ public abstract class Parser<T extends CommandParameters> {
 
     }
 
+    private void addOptional(OptionalEntity opt) {
+        opts.add(opt);
+        opt.aliases().forEach(z -> optAliases.put(z, opt));
+    }
+
     void setUpOptionals() {
         //Do nothing
     }
@@ -61,8 +70,8 @@ public abstract class Parser<T extends CommandParameters> {
         List<String> optionals = new ArrayList<>();
         for (String s : subMessage) {
             //eghh asdhi
-            if (OptionalEntity.isWordAValidOptional(opts, s)) {
-                optionals.add(OptionalEntity.getOptPartFromValid(s));
+            if (OptionalEntity.isWordAValidOptional(opts, optAliases, s)) {
+                optionals.add(OptionalEntity.getOptPartFromValid(s, opts, optAliases));
             } else {
                 subMessageBuilding.add(s);
             }
@@ -108,14 +117,14 @@ public abstract class Parser<T extends CommandParameters> {
         for (
                 OptionalEntity aDefault : defaults) {
             boolean block = false;
-            for (String blocked : aDefault.getBlockedBy()) {
+            for (String blocked : aDefault.blockedBy()) {
                 if (optionals.contains(blocked)) {
                     block = true;
                     break;
                 }
             }
             if (!block) {
-                optionals.add(aDefault.getValue());
+                optionals.add(aDefault.value());
             }
         }
     }
@@ -155,7 +164,7 @@ public abstract class Parser<T extends CommandParameters> {
     public boolean hasOptional(String optional, Context e) {
         String[] subMessage = getSubMessage(e);
         List<String> arrayList = Arrays.asList(subMessage);
-        return arrayList.stream().anyMatch(x -> OptionalEntity.isWordAValidOptional(opts, x) && opts.contains(new OptionalEntity(optional, null)));
+        return arrayList.stream().anyMatch(x -> OptionalEntity.isWordAValidOptional(opts, optAliases, x) && (opts.contains(new OptionalEntity(optional, null)) || optAliases.containsKey(optional)));
     }
 
     public String getErrorMessage(int code) {
@@ -181,18 +190,24 @@ public abstract class Parser<T extends CommandParameters> {
 
 
     public Parser<T> replaceOptional(String previousOptional, OptionalEntity optionalEntity) {
-        opts.remove(new OptionalEntity(previousOptional, null));
-        opts.add(optionalEntity);
+        removeOptional(previousOptional);
+        addOptional(optionalEntity);
         return this;
     }
 
     public Parser<T> addOptional(OptionalEntity... optionalEntity) {
-        this.opts.addAll(Arrays.asList(optionalEntity));
+        for (OptionalEntity entity : optionalEntity) {
+            addOptional(entity);
+        }
         return this;
     }
 
     public void removeOptional(String previousOptional) {
-        opts.remove(new OptionalEntity(previousOptional, null));
+        Optional<OptionalEntity> opts = this.opts.stream().filter(w -> w.equals(new OptionalEntity(previousOptional, null))).findAny();
+        opts.ifPresent(w -> {
+            this.opts.remove(w);
+            w.aliases().forEach(this.optAliases::remove);
+        });
     }
 
 

@@ -8,7 +8,7 @@ import test.commands.utils.OneLineUtils;
 
 import java.util.regex.Pattern;
 
-public class AOTYCommandTest extends CommandTest {
+public class AOTYCommanddTest extends CommandTest {
     @Override
     public String giveCommandName() {
         return "!releaseyear";

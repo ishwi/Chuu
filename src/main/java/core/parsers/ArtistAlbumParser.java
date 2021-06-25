@@ -9,6 +9,8 @@ import core.parsers.explanation.StrictUserExplanation;
 import core.parsers.explanation.util.Explanation;
 import core.parsers.interactions.InteractionAux;
 import core.parsers.params.ArtistAlbumParameters;
+import core.parsers.utils.OptionalEntity;
+import core.parsers.utils.Optionals;
 import core.services.NPService;
 import dao.ChuuService;
 import dao.entities.LastFMData;
@@ -41,7 +43,7 @@ public class ArtistAlbumParser extends DaoParser<ArtistAlbumParameters> {
 
     @Override
     void setUpOptionals() {
-        opts.add(new OptionalEntity("noredirect", "not use autocorrections"));
+        opts.add(Optionals.NOREDIRECT.opt);
     }
 
 

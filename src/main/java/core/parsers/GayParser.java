@@ -12,6 +12,7 @@ import core.parsers.explanation.util.ExplanationLineType;
 import core.parsers.interactions.InteractionAux;
 import core.parsers.params.GayParams;
 import core.parsers.utils.CustomTimeFrame;
+import core.parsers.utils.Optionals;
 import dao.ChuuService;
 import dao.entities.GayType;
 import dao.entities.LastFMData;
@@ -37,9 +38,9 @@ public class GayParser extends ChartableParser<GayParams> {
 
     @Override
     void setUpOptionals() {
-        this.opts.add(new OptionalEntity("plays", "show plays"));
-        this.opts.add(new OptionalEntity("titles", "display titles"));
-        this.opts.add(new OptionalEntity("artist", "use artists instead of albums"));
+        this.opts.add(Optionals.PLAYS.opt);
+        this.opts.add(Optionals.TITLES.opt);
+        this.opts.add(Optionals.ARTIST.opt);
     }
 
     @Override

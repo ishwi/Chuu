@@ -15,12 +15,11 @@ import core.parsers.Parser;
 import core.parsers.StatsParser;
 import core.parsers.params.StatsParams;
 import core.parsers.utils.CustomTimeFrame;
+import core.services.TrackValidator;
 import core.services.UserInfoService;
 import core.util.stats.Stats;
 import dao.ServiceView;
-import dao.entities.DiscordUserDisplay;
-import dao.entities.LastFMData;
-import dao.entities.UserInfo;
+import dao.entities.*;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.EmbedBuilder;
 import org.apache.commons.lang3.StringUtils;
@@ -62,6 +61,11 @@ public class StatsCommand extends ConcurrentCommand<StatsParams> {
     @Override
     protected void onCommand(Context e, @NotNull StatsParams params) throws LastFmException, InstanceNotFoundException {
 
+        NowPlayingArtist np = params.getNp();
+        ScrobbledTrack st = null;
+        if (np != null) {
+            st = new TrackValidator(db, lastFM).fromNP(np);
+        }
         Set<StatsParser.StatsParam> enums = params.getEnums();
         HashMap<Stats, Integer> aux = enums.stream().collect(HashMap::new, (a, b) -> a.put(b.mode(), b.param()), HashMap::putAll);
         EnumSet<Stats> enumSet = aux.keySet().stream().collect(Collectors.toCollection(() -> EnumSet.noneOf(Stats.class)));
@@ -122,7 +126,7 @@ public class StatsCommand extends ConcurrentCommand<StatsParams> {
             }
         }
 
-        Stats.StatsResult result = Stats.process(data, db, lastFM, enumSet, userInfo, totalPlays, timestamp, tfe, aux, params.getNp());
+        Stats.StatsResult result = Stats.process(data, db, lastFM, enumSet, userInfo, totalPlays, timestamp, tfe, aux, st);
         DiscordUserDisplay uInfo = CommandUtil.getUserInfoUnescaped(e, e.getAuthor().getIdLong());
         String image = userInfo.getImage();
         image = StringUtils.isBlank(image) ? null : image;

@@ -9,6 +9,8 @@ import core.parsers.explanation.UrlExplanation;
 import core.parsers.explanation.util.Explanation;
 import core.parsers.interactions.InteractionAux;
 import core.parsers.params.ArtistUrlParameters;
+import core.parsers.utils.OptionalEntity;
+import core.parsers.utils.Optionals;
 import dao.ChuuService;
 import dao.entities.LastFMData;
 import dao.exceptions.InstanceNotFoundException;
@@ -18,6 +20,7 @@ import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 
 import java.util.List;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 public class ArtistUrlParser extends DaoParser<ArtistUrlParameters> {
 
@@ -58,7 +61,7 @@ public class ArtistUrlParser extends DaoParser<ArtistUrlParameters> {
 
     @Override
     void setUpOptionals() {
-        opts.add(new OptionalEntity("noredirect", "not use autocorrections"));
+        opts.add(Optionals.NOREDIRECT.opt);
     }
 
     @Override
@@ -108,7 +111,7 @@ public class ArtistUrlParser extends DaoParser<ArtistUrlParameters> {
 
     @Override
     public List<Explanation> getUsages() {
-        return List.of(new ArtistExplanation(), new UrlExplanation()).stream().map(InteractionAux::required).toList();
+        return Stream.of(new ArtistExplanation(), new UrlExplanation()).map(InteractionAux::required).toList();
     }
 
 

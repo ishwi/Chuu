@@ -7,6 +7,7 @@ import core.parsers.explanation.util.Explanation;
 import core.parsers.explanation.util.ExplanationLineType;
 import core.parsers.interactions.InteractionAux;
 import core.parsers.params.WordParameter;
+import core.parsers.utils.OptionalEntity;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;

@@ -73,114 +73,114 @@ public enum UserConfigType {
 
     public static String list(ChuuService dao, long discordId) {
         return ENUM_MAP.entrySet().stream().map(
-                x -> {
-                    String key = x.getKey();
-                    LastFMData lastFMData;
-                    try {
-                        lastFMData = dao.findLastFMData(discordId);
-                    } catch (InstanceNotFoundException e) {
-                        lastFMData = null;
-                    }
+                        x -> {
+                            String key = x.getKey();
+                            LastFMData lastFMData;
+                            try {
+                                lastFMData = dao.findLastFMData(discordId);
+                            } catch (InstanceNotFoundException e) {
+                                lastFMData = null;
+                            }
 
-                    switch (x.getValue()) {
-                        case PRIVATE_UPDATE: {
-                            boolean privateUpdate = lastFMData != null && lastFMData.isPrivateUpdate();
-                            return String.format("**%s** ➜ %s", key, privateUpdate);
-                        }
-                        case NOTIFY_IMAGE: {
-                            boolean privateUpdate;
-                            privateUpdate = lastFMData != null && lastFMData.isImageNotify();
-                            return String.format("**%s** ➜ %s", key, privateUpdate);
-                        }
-                        case CHART_MODE:
-                            String chartMode;
-                            if (lastFMData == null || lastFMData.getChartMode() == null) {
-                                chartMode = "NOT SET";
-                            } else {
-                                chartMode = lastFMData.getChartMode().toString();
+                            switch (x.getValue()) {
+                                case PRIVATE_UPDATE: {
+                                    boolean privateUpdate = lastFMData != null && lastFMData.isPrivateUpdate();
+                                    return String.format("**%s** ➜ %s", key, privateUpdate);
+                                }
+                                case NOTIFY_IMAGE: {
+                                    boolean privateUpdate;
+                                    privateUpdate = lastFMData != null && lastFMData.isImageNotify();
+                                    return String.format("**%s** ➜ %s", key, privateUpdate);
+                                }
+                                case CHART_MODE:
+                                    String chartMode;
+                                    if (lastFMData == null || lastFMData.getChartMode() == null) {
+                                        chartMode = "NOT SET";
+                                    } else {
+                                        chartMode = lastFMData.getChartMode().toString();
+                                    }
+                                    return String.format("**%s** ➜ %s", key, chartMode);
+                                case WHOKNOWS_MODE:
+                                    String whoknowsmode;
+                                    if (lastFMData == null || lastFMData.getWhoKnowsMode() == null) {
+                                        whoknowsmode = "NOT SET";
+                                    } else {
+                                        whoknowsmode = lastFMData.getWhoKnowsMode().toString();
+                                    }
+                                    return String.format("**%s** ➜ %s", key, whoknowsmode);
+                                case REMAINING_MODE: {
+                                    String remaining;
+                                    if (lastFMData == null || lastFMData.getRemainingImagesMode() == null) {
+                                        remaining = "NOT SET";
+                                    } else {
+                                        remaining = lastFMData.getRemainingImagesMode().toString();
+                                    }
+                                    return String.format("**%s** ➜ %s", key, remaining);
+                                }
+                                case CHART_SIZE: {
+                                    String remaining;
+                                    if (lastFMData == null) {
+                                        remaining = "NOT SET";
+                                    } else {
+                                        remaining = String.format("%dx%d", lastFMData.getDefaultX(), lastFMData.getDefaultY());
+                                    }
+                                    return String.format("**%s** ➜ %s", key, remaining);
+                                }
+                                case PRIVACY_MODE: {
+                                    String remaining;
+                                    if (lastFMData == null) {
+                                        remaining = "NOT SET";
+                                    } else {
+                                        remaining = String.format("%s", lastFMData.getPrivacyMode().toString());
+                                    }
+                                    return String.format("**%s** ➜ %s", key, remaining);
+                                }
+                                case NOTIFY_RATING: {
+                                    boolean privateUpdate;
+                                    privateUpdate = lastFMData != null && lastFMData.isRatingNotify();
+                                    return String.format("**%s** ➜ %s", key, privateUpdate);
+                                }
+                                case PRIVATE_LASTFM:
+                                    boolean privateLastfmId = lastFMData != null && lastFMData.isPrivateLastfmId();
+                                    return String.format("**%s** ➜ %s", key, privateLastfmId);
+                                case SHOW_BOTTED:
+                                    boolean showBotted = lastFMData != null && lastFMData.isShowBotted();
+                                    return String.format("**%s** ➜ %s", key, showBotted);
+                                case NP:
+                                    EnumSet<NPMode> modes = dao.getNPModes(discordId);
+                                    String strModes = NPMode.getListedName(modes);
+                                    return String.format("**%s** ➜ %s", key, strModes);
+                                case SCROBBLING:
+                                    boolean scroobling = lastFMData != null && lastFMData.isScrobbling();
+                                    return String.format("**%s** ➜ %s", key, scroobling);
+                                case COLOR:
+                                    return String.format("**%s** ➜ %s", key, lastFMData == null || lastFMData.getEmbedColor() == null ? EmbedColor.defaultColor().toDisplayString() : lastFMData.getEmbedColor().toDisplayString());
+                                case OWN_TAGS:
+                                    boolean ownTags = lastFMData != null && lastFMData.useOwnTags();
+                                    return String.format("**%s** ➜ %s", key, ownTags);
+                                case ARTIST_THRESHOLD: {
+                                    String remaining;
+                                    if (lastFMData == null) {
+                                        remaining = "NOT SET";
+                                    } else {
+                                        remaining = String.valueOf(lastFMData.getArtistThreshold());
+                                    }
+                                    return String.format("**%s** ➜ %s", key, remaining);
+                                }
+                                case CHART_OPTIONS:
+                                    String remaining;
+                                    if (lastFMData == null) {
+                                        remaining = "NOT SET";
+                                    } else {
+                                        EnumSet<ChartOptions> chartOptions = lastFMData.getChartOptions();
+                                        remaining = ChartOptions.getListedName(chartOptions);
+                                    }
+                                    return String.format("**%s** ➜ %s", key, remaining);
+                                case TIMEZONE:
+                                    return null;
                             }
-                            return String.format("**%s** ➜ %s", key, chartMode);
-                        case WHOKNOWS_MODE:
-                            String whoknowsmode;
-                            if (lastFMData == null || lastFMData.getWhoKnowsMode() == null) {
-                                whoknowsmode = "NOT SET";
-                            } else {
-                                whoknowsmode = lastFMData.getWhoKnowsMode().toString();
-                            }
-                            return String.format("**%s** ➜ %s", key, whoknowsmode);
-                        case REMAINING_MODE: {
-                            String remaining;
-                            if (lastFMData == null || lastFMData.getRemainingImagesMode() == null) {
-                                remaining = "NOT SET";
-                            } else {
-                                remaining = lastFMData.getRemainingImagesMode().toString();
-                            }
-                            return String.format("**%s** ➜ %s", key, remaining);
-                        }
-                        case CHART_SIZE: {
-                            String remaining;
-                            if (lastFMData == null) {
-                                remaining = "NOT SET";
-                            } else {
-                                remaining = String.format("%dx%d", lastFMData.getDefaultX(), lastFMData.getDefaultY());
-                            }
-                            return String.format("**%s** ➜ %s", key, remaining);
-                        }
-                        case PRIVACY_MODE: {
-                            String remaining;
-                            if (lastFMData == null) {
-                                remaining = "NOT SET";
-                            } else {
-                                remaining = String.format("%s", lastFMData.getPrivacyMode().toString());
-                            }
-                            return String.format("**%s** ➜ %s", key, remaining);
-                        }
-                        case NOTIFY_RATING: {
-                            boolean privateUpdate;
-                            privateUpdate = lastFMData != null && lastFMData.isRatingNotify();
-                            return String.format("**%s** ➜ %s", key, privateUpdate);
-                        }
-                        case PRIVATE_LASTFM:
-                            boolean privateLastfmId = lastFMData != null && lastFMData.isPrivateLastfmId();
-                            return String.format("**%s** ➜ %s", key, privateLastfmId);
-                        case SHOW_BOTTED:
-                            boolean showBotted = lastFMData != null && lastFMData.isShowBotted();
-                            return String.format("**%s** ➜ %s", key, showBotted);
-                        case NP:
-                            EnumSet<NPMode> modes = dao.getNPModes(discordId);
-                            String strModes = NPMode.getListedName(modes);
-                            return String.format("**%s** ➜ %s", key, strModes);
-                        case SCROBBLING:
-                            boolean scroobling = lastFMData != null && lastFMData.isScrobbling();
-                            return String.format("**%s** ➜ %s", key, scroobling);
-                        case COLOR:
-                            return String.format("**%s** ➜ %s", key, lastFMData == null || lastFMData.getEmbedColor() == null ? EmbedColor.defaultColor().toDisplayString() : lastFMData.getEmbedColor().toDisplayString());
-                        case OWN_TAGS:
-                            boolean ownTags = lastFMData != null && lastFMData.useOwnTags();
-                            return String.format("**%s** ➜ %s", key, ownTags);
-                        case ARTIST_THRESHOLD: {
-                            String remaining;
-                            if (lastFMData == null) {
-                                remaining = "NOT SET";
-                            } else {
-                                remaining = String.valueOf(lastFMData.getArtistThreshold());
-                            }
-                            return String.format("**%s** ➜ %s", key, remaining);
-                        }
-                        case CHART_OPTIONS:
-                            String remaining;
-                            if (lastFMData == null) {
-                                remaining = "NOT SET";
-                            } else {
-                                EnumSet<ChartOptions> chartOptions = lastFMData.getChartOptions();
-                                remaining = ChartOptions.getListedName(chartOptions);
-                            }
-                            return String.format("**%s** ➜ %s", key, remaining);
-                        case TIMEZONE:
                             return null;
-                    }
-                    return null;
-                })
+                        })
                 .filter(Objects::nonNull)
                 .collect(Collectors.joining("\n"));
 

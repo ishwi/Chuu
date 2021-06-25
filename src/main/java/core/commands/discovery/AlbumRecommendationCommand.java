@@ -141,12 +141,12 @@ public class AlbumRecommendationCommand extends ConcurrentCommand<Recommendation
         }
 
         List<String> stringedList = albumRecs.stream().map((t) ->
-        {
-            String link;
-            String albumLink = spotify.getAlbumLink(t.getArtist(), t.getAlbum());
-            link = Objects.requireNonNullElseGet(albumLink, () -> LinkUtils.getLastFmArtistAlbumUrl(t.getArtist(), t.getAlbum()));
-            return String.format(". **[%s - %s](%s)**\n", CommandUtil.escapeMarkdown(t.getArtist()), t.getAlbum(), link);
-        }).limit(params.getRecCount())
+                {
+                    String link;
+                    String albumLink = spotify.getAlbumLink(t.getArtist(), t.getAlbum());
+                    link = Objects.requireNonNullElseGet(albumLink, () -> LinkUtils.getLastFmArtistAlbumUrl(t.getArtist(), t.getAlbum()));
+                    return String.format(". **[%s - %s](%s)**\n", CommandUtil.escapeMarkdown(t.getArtist()), t.getAlbum(), link);
+                }).limit(params.getRecCount())
                 .toList();
 
         StringBuilder a = new StringBuilder();

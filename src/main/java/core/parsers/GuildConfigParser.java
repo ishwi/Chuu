@@ -10,6 +10,7 @@ import core.parsers.explanation.util.ExplanationLine;
 import core.parsers.explanation.util.ExplanationLineType;
 import core.parsers.params.GuildConfigParams;
 import core.parsers.params.GuildConfigType;
+import core.parsers.utils.OptionalEntity;
 import dao.ChuuService;
 import dao.entities.*;
 import dao.exceptions.InstanceNotFoundException;

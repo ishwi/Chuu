@@ -5,6 +5,7 @@ import core.commands.ContextSlashReceived;
 import core.exceptions.LastFmException;
 import core.parsers.params.ChartGroupParameters;
 import core.parsers.params.ChartParameters;
+import core.parsers.utils.OptionalEntity;
 import dao.ChuuService;
 import dao.entities.TimeFrameEnum;
 import dao.exceptions.ChuuServiceException;

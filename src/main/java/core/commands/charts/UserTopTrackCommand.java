@@ -14,8 +14,8 @@ import core.commands.utils.CommandUtil;
 import core.exceptions.LastFmException;
 import core.parsers.ChartParser;
 import core.parsers.ChartableParser;
-import core.parsers.OptionalEntity;
 import core.parsers.params.ChartParameters;
+import core.parsers.utils.Optionals;
 import dao.ServiceView;
 import dao.entities.CountWrapper;
 import dao.entities.DiscordUserDisplay;
@@ -24,7 +24,6 @@ import org.knowm.xchart.PieChart;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 
 public class UserTopTrackCommand extends ChartableCommand<ChartParameters> {
@@ -48,8 +47,8 @@ public class UserTopTrackCommand extends ChartableCommand<ChartParameters> {
     @Override
     public ChartableParser<ChartParameters> initParser() {
         ChartParser chartParser = new ChartParser(db);
-        chartParser.replaceOptional("list", new OptionalEntity("image", "show this as a chart "));
-        chartParser.addOptional(new OptionalEntity("list", "  shows this in list mode", true, Set.of("image", "pie")));
+        chartParser.replaceOptional("list", Optionals.IMAGE.opt);
+        chartParser.addOptional(Optionals.LIST.opt.withBlockedBy("image", "pie"));
         chartParser.setExpensiveSearch(false);
         return chartParser;
     }

@@ -66,8 +66,8 @@ public class AlbumInfoCommand extends AlbumPlaysCommand {
                 trackList.append(x.getPosition()).append(". ")
                         .append(CommandUtil.escapeMarkdown(x.getName()))
                         .append(". ").append(
-                        String
-                                .format("%02d:%02d", x.getDuration() / 60, x.getDuration() % 60))
+                                String
+                                        .format("%02d:%02d", x.getDuration() / 60, x.getDuration() % 60))
                         .append("\n"));
         embedBuilder.setTitle(CommandUtil.escapeMarkdown(albumSummary.getAlbum()), LinkUtils.getLastFmArtistAlbumUrl(albumSummary.getArtist(), albumSummary.getAlbum()))
                 .addField("Artist:", "[" + CommandUtil.escapeMarkdown(albumSummary.getArtist()) + "](" + LinkUtils.getLastFmArtistUrl(albumSummary.getArtist()) + ")", false)
@@ -93,7 +93,7 @@ public class AlbumInfoCommand extends AlbumPlaysCommand {
                             , true);
         }
         embedBuilder.setImage(
-                Chuu.getCoverService().getCover(albumSummary.getArtist(), albumSummary.getAlbum(), albumSummary.getAlbumUrl(), e))
+                        Chuu.getCoverService().getCover(albumSummary.getArtist(), albumSummary.getAlbum(), albumSummary.getAlbumUrl(), e))
                 .setThumbnail(artist.getUrl());
         e.sendMessage(embedBuilder.build()).queue();
         if (!albumSummary.getTagList().isEmpty()) {

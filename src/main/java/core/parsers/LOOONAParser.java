@@ -8,6 +8,7 @@ import core.parsers.explanation.util.Explanation;
 import core.parsers.explanation.util.ExplanationLine;
 import core.parsers.interactions.InteractionAux;
 import core.parsers.params.LOONAParameters;
+import core.parsers.utils.OptionalEntity;
 import dao.ChuuService;
 import dao.entities.LOONA;
 import dao.entities.LastFMData;

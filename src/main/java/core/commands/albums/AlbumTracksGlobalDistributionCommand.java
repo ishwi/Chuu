@@ -12,9 +12,9 @@ import core.imagerenderer.util.pie.PieableListTrack;
 import core.otherlisteners.Reactionary;
 import core.parsers.ArtistAlbumParser;
 import core.parsers.DaoParser;
-import core.parsers.OptionalEntity;
 import core.parsers.Parser;
 import core.parsers.params.ArtistAlbumParameters;
+import core.parsers.utils.Optionals;
 import core.services.AlbumValidator;
 import core.services.tracklist.GlobalTracklistService;
 import core.services.tracklist.TracklistService;
@@ -60,7 +60,7 @@ public class AlbumTracksGlobalDistributionCommand extends AlbumPlaysCommand {
     @Override
     public Parser<ArtistAlbumParameters> initParser() {
         ArtistAlbumParser parser = new ArtistAlbumParser(db, lastFM, false);
-        parser.addOptional(new OptionalEntity("list", "show as a list"));
+        parser.addOptional(Optionals.LIST.opt);
         parser.setExpensiveSearch(true);
         return parser;
     }

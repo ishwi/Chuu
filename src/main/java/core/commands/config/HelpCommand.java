@@ -22,9 +22,9 @@ import core.commands.abstracts.MyCommand;
 import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
 import core.parsers.HelpParser;
-import core.parsers.OptionalEntity;
 import core.parsers.Parser;
 import core.parsers.params.WordParameter;
+import core.parsers.utils.OptionalEntity;
 import dao.ServiceView;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
@@ -111,9 +111,9 @@ public class HelpCommand extends ConcurrentCommand<WordParameter> {
         if (params.hasOptional("all")) {
 
             e.sendMessage(new MessageBuilder()
-                    .append(e.getAuthor())
-                    .append(": Help information was sent as a private message.")
-                    .build(), e.getAuthor())
+                            .append(e.getAuthor())
+                            .append(": Help information was sent as a private message.")
+                            .build(), e.getAuthor())
                     .flatMap(z -> e.getAuthor().openPrivateChannel())
                     .queue(privateChannel -> sendPrivate(privateChannel, e));
             return;

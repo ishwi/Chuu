@@ -10,8 +10,9 @@ import core.commands.utils.CommandUtil;
 import core.exceptions.LastFmException;
 import core.parsers.ChartParser;
 import core.parsers.ChartableParser;
-import core.parsers.OptionalEntity;
 import core.parsers.params.ChartParameters;
+import core.parsers.utils.OptionalEntity;
+import core.parsers.utils.Optionals;
 import dao.ServiceView;
 import dao.entities.CountWrapper;
 import dao.entities.DiscordUserDisplay;
@@ -42,7 +43,7 @@ public class DiscoveredAlbumCommand extends ChartableCommand<ChartParameters> {
     @Override
     public ChartableParser<ChartParameters> initParser() {
         ChartParser chartParser = new ChartParser(db);
-        chartParser.replaceOptional("plays", new OptionalEntity("noplays", "not show plays"));
+        chartParser.replaceOptional("plays", Optionals.NOPLAYS.opt);
         chartParser.addOptional(new OptionalEntity("plays", "shows this with plays", true, "noplays"));
         return chartParser;
     }

@@ -9,6 +9,8 @@ import core.parsers.explanation.util.Explanation;
 import core.parsers.interactions.InteractionAux;
 import core.parsers.params.ColorChartParams;
 import core.parsers.utils.CustomTimeFrame;
+import core.parsers.utils.OptionalEntity;
+import core.parsers.utils.Optionals;
 import dao.ChuuService;
 import dao.entities.LastFMData;
 import dao.entities.TimeFrameEnum;
@@ -51,9 +53,9 @@ public class ColorChartParser extends ChartableParser<ColorChartParams> {
 
     @Override
     void setUpOptionals() {
-        this.opts.add(new OptionalEntity("plays", "show plays"));
-        this.opts.add(new OptionalEntity("titles", "display titles"));
-        this.opts.add(new OptionalEntity("artist", "use artists instead of albums"));
+        this.opts.add(Optionals.PLAYS.opt);
+        this.opts.add(Optionals.TITLES.opt);
+        this.opts.add(Optionals.ARTIST.opt);
         this.opts.add(new OptionalEntity("linear", "sort line by line "));
         this.opts.add(new OptionalEntity("column", "sort column by column"));
         this.opts.add(new OptionalEntity("color", "sort by color"));

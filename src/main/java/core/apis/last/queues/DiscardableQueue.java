@@ -39,18 +39,18 @@ public class DiscardableQueue<T extends UrlCapsule> implements BlockingQueue<Url
     @Override
     public boolean offer(@NotNull UrlCapsule item) {
         CompletableFuture<?> future = CompletableFuture.supplyAsync(() -> {
-            if (innerQueue.size() < maxNumberOfElements) {
+                    if (innerQueue.size() < maxNumberOfElements) {
 
-                T entity = factoryFunction.apply(item);
-                if (!discard.test(entity)) {
-                    innerQueue.add(entity);
-                } else {
-                    cleanUp(entity);
-                }
+                        T entity = factoryFunction.apply(item);
+                        if (!discard.test(entity)) {
+                            innerQueue.add(entity);
+                        } else {
+                            cleanUp(entity);
+                        }
 
-            }
-            return 0;
-        }).
+                    }
+                    return 0;
+                }).
 
                 toCompletableFuture();
         return taskQueue.offer(future);

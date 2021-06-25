@@ -9,6 +9,8 @@ import core.parsers.explanation.util.Explanation;
 import core.parsers.explanation.util.ExplanationLine;
 import core.parsers.interactions.InteractionAux;
 import core.parsers.params.RandomUrlParameters;
+import core.parsers.utils.OptionalEntity;
+import core.parsers.utils.Optionals;
 import dao.ChuuService;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.entities.User;
@@ -58,7 +60,7 @@ public class RandomAlbumParser extends DaoParser<RandomUrlParameters> {
     @Override
     void setUpOptionals() {
         super.setUpOptionals();
-        this.opts.add(new OptionalEntity("server", "only include urls from people in this server"));
+        this.opts.add(Optionals.SERVER.opt.withDescription("only include urls from people in this server"));
     }
 
     @Override

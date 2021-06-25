@@ -4,9 +4,9 @@ import core.apis.last.exceptions.AlbumException;
 import core.apis.last.exceptions.ExceptionEntity;
 import core.commands.stats.NPSpotifyCommand;
 import core.parsers.NoOpParser;
-import core.parsers.OptionalEntity;
 import core.parsers.PrefixParser;
 import core.parsers.UrlParser;
+import core.parsers.utils.OptionalEntity;
 import dao.entities.NowPlayingArtist;
 import org.junit.Assert;
 import org.junit.ClassRule;
@@ -43,7 +43,7 @@ public class UnreachableTests {
     public void OptionalEntityEquals() {
         OptionalEntity optionalEntity = new OptionalEntity("test", "testdef");
         Assert.assertEquals(optionalEntity, optionalEntity);
-        Assert.assertNotEquals(optionalEntity, optionalEntity.getDefinition());
+        Assert.assertNotEquals(optionalEntity, optionalEntity.getDescription());
         Assert.assertNotEquals(null, optionalEntity);
         Assert.assertNotEquals(this, optionalEntity);
     }

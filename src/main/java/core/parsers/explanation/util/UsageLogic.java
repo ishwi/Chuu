@@ -1,6 +1,6 @@
 package core.parsers.explanation.util;
 
-import core.parsers.OptionalEntity;
+import core.parsers.utils.OptionalEntity;
 import org.apache.commons.text.WordUtils;
 import org.jetbrains.annotations.NotNull;
 
@@ -20,7 +20,7 @@ public record UsageLogic(String commandName, List<Explanation> explanations, Set
         StringBuilder a = new StringBuilder();
         for (OptionalEntity opt : optionals) {
             if (!opt.isEnabledByDefault()) {
-                a.append(opt.getDefinition());
+                a.append(opt.getDescription());
             }
         }
         String explanations = "";

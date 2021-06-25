@@ -77,7 +77,7 @@ public class DiscogsApi {
             JSONObject resultObj = results.getJSONObject(i);
 
             if (resultObj.has("year") && new LevenshteinDetailedDistance().apply(
-                    expected.toLowerCase(), resultObj.getString("title").toLowerCase().replaceAll("\\s\\(\\d+\\)", ""))
+                            expected.toLowerCase(), resultObj.getString("title").toLowerCase().replaceAll("\\s\\(\\d+\\)", ""))
                                                  .getDistance() < expected.length() / 2) {
                 return Year.of(resultObj.getInt("year"));
             }
@@ -147,6 +147,9 @@ public class DiscogsApi {
 
         }
         Optional<JSONObject> opt = list.stream().max((obj1, obj2) -> {
+            if (obj1 == obj2) {
+                return 0;
+            }
             float height = obj1.getInt("height");
             float width = obj1.getInt("width");
             float height2 = obj2.getInt("height");

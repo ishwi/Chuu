@@ -10,8 +10,9 @@ import core.commands.utils.CommandUtil;
 import core.exceptions.LastFmException;
 import core.parsers.ChartParser;
 import core.parsers.ChartableParser;
-import core.parsers.OptionalEntity;
 import core.parsers.params.ChartParameters;
+import core.parsers.utils.OptionalEntity;
+import core.parsers.utils.Optionals;
 import dao.ServiceView;
 import dao.entities.CountWrapper;
 import dao.entities.DiscordUserDisplay;
@@ -42,7 +43,7 @@ public class DiscoveredArtistCommand extends ChartableCommand<ChartParameters> {
     @Override
     public ChartableParser<ChartParameters> initParser() {
         ChartParser chartParser = new ChartParser(db);
-        chartParser.replaceOptional("plays", new OptionalEntity("noplays", "not show plays"));
+        chartParser.replaceOptional("plays", Optionals.NOPLAYS.opt);
         chartParser.addOptional(new OptionalEntity("plays", "shows this with plays", true, "noplays"));
         return chartParser;
     }
@@ -88,12 +89,12 @@ public class DiscoveredArtistCommand extends ChartableCommand<ChartParameters> {
         List<ScrobbledArtist> discoveredArtists = db.getDiscoveredArtists(artistToItem.keySet(), param.getUser().getName());
         marker.set(0);
         queue = artistToItem.entrySet().stream().filter(x -> {
-            boolean contains = discoveredArtists.contains(x.getKey());
-            if (contains) {
-                x.getValue().setUrl(x.getKey().getUrl());
-            }
-            return contains;
-        })
+                    boolean contains = discoveredArtists.contains(x.getKey());
+                    if (contains) {
+                        x.getValue().setUrl(x.getKey().getUrl());
+                    }
+                    return contains;
+                })
                 .map(Map.Entry::getValue).sorted(Comparator.comparingInt(UrlCapsule::getPlays).reversed())
                 .peek(x -> x.setPos(marker.getAndIncrement())).limit((long) param.getX() * param.getY())
                 .collect(Collectors.toCollection(LinkedBlockingQueue::new));

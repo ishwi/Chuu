@@ -17,9 +17,9 @@ import core.imagerenderer.ChartQuality;
 import core.imagerenderer.CollageMaker;
 import core.otherlisteners.Reactionary;
 import core.parsers.OnlyCountryParser;
-import core.parsers.OptionalEntity;
 import core.parsers.Parser;
 import core.parsers.params.OnlyCountryParameters;
+import core.parsers.utils.Optionals;
 import core.services.MbidFetcher;
 import dao.ServiceView;
 import dao.entities.LastFMData;
@@ -59,7 +59,7 @@ public class FromCountryServerCommand extends ConcurrentCommand<OnlyCountryParam
     @Override
     public Parser<OnlyCountryParameters> initParser() {
         OnlyCountryParser countryParser = new OnlyCountryParser(db);
-        countryParser.addOptional(new OptionalEntity("image", "show this as a chart "));
+        countryParser.addOptional(Optionals.IMAGE.opt);
         return countryParser;
     }
 

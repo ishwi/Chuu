@@ -12,9 +12,9 @@ import core.commands.utils.CommandUtil;
 import core.commands.utils.PrivacyUtils;
 import core.exceptions.LastFmException;
 import core.parsers.ArtistParser;
-import core.parsers.OptionalEntity;
 import core.parsers.Parser;
 import core.parsers.params.ArtistParameters;
+import core.parsers.utils.Optionals;
 import dao.ServiceView;
 import dao.entities.GlobalCrown;
 import dao.entities.LastFMData;
@@ -46,8 +46,8 @@ public class GlobalArtistCommand extends ConcurrentCommand<ArtistParameters> {
     @Override
     public Parser<ArtistParameters> initParser() {
         ArtistParser parser = new ArtistParser(db, lastFM);
-        parser.addOptional(new OptionalEntity("nobotted", "discard users that have been manually flagged as potentially botted accounts"));
-        parser.addOptional(new OptionalEntity("botted", "discard users that have been manually flagged as potentially botted accounts"));
+        parser.addOptional(Optionals.NOBOTTED.opt);
+        parser.addOptional(Optionals.BOTTED.opt);
         return parser;
     }
 

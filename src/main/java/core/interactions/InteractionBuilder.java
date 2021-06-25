@@ -14,8 +14,8 @@ import core.commands.moderation.RefreshSlashCommand;
 import core.commands.stats.*;
 import core.commands.utils.CommandCategory;
 import core.parsers.Generable;
-import core.parsers.OptionalEntity;
 import core.parsers.explanation.util.Explanation;
+import core.parsers.utils.OptionalEntity;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.interactions.commands.Command;
@@ -257,9 +257,9 @@ public class InteractionBuilder {
         List<OptionalEntity> optionals = myCommand.getParser().getOptionals();
         optionals.stream().filter(t -> !t.isEnabledByDefault()).forEach(t -> {
             OptionData data = new OptionData(OptionType.STRING,
-                    t.getValue()
+                    t.value()
 
-                    , t.getDescription().replace("Can be use to", "").strip());
+                    , t.definition().replace("Can be use to", "").strip());
             data.addChoice("yes", "yes");
             consumer.accept(data);
         });

@@ -9,6 +9,8 @@ import core.parsers.explanation.PermissiveUserExplanation;
 import core.parsers.explanation.TimeframeExplanation;
 import core.parsers.explanation.util.Explanation;
 import core.parsers.params.ChartParameters;
+import core.parsers.utils.OptionalEntity;
+import core.parsers.utils.Optionals;
 import dao.ChuuService;
 import dao.entities.ChartOptions;
 import dao.entities.TimeFrameEnum;
@@ -39,11 +41,11 @@ public abstract class ChartableParser<T extends ChartParameters> extends DaoPars
 
     @Override
     void setUpOptionals() {
-        opts.add(new OptionalEntity("notitles", "not display titles"));
-        opts.add(new OptionalEntity("plays", "show plays"));
-        opts.add(new OptionalEntity("list", "display it as an embed"));
-        opts.add(new OptionalEntity("pie", "display it as a pie chart"));
-        opts.add(new OptionalEntity("aside", "show titles on the side"));
+        opts.add(Optionals.NOTITLES.opt);
+        opts.add(Optionals.PLAYS.opt);
+        opts.add(Optionals.LIST.opt);
+        opts.add(Optionals.PIE.opt);
+        opts.add(Optionals.ASIDE.opt);
     }
 
 

@@ -17,9 +17,9 @@ import core.imagerenderer.GraphicUtils;
 import core.imagerenderer.util.pie.PieableListBand;
 import core.otherlisteners.Reactionary;
 import core.parsers.ArtistParser;
-import core.parsers.OptionalEntity;
 import core.parsers.Parser;
 import core.parsers.params.ArtistParameters;
+import core.parsers.utils.Optionals;
 import dao.ServiceView;
 import dao.entities.*;
 import dao.utils.LinkUtils;
@@ -60,7 +60,7 @@ public class BandInfoCommand extends ConcurrentCommand<ArtistParameters> {
     @Override
     public Parser<ArtistParameters> initParser() {
         ArtistParser ap = new ArtistParser(db, lastFM);
-        ap.addOptional(new OptionalEntity("list", "show as a list"));
+        ap.addOptional(Optionals.LIST.opt);
         ap.setExpensiveSearch(true);
         return ap;
     }
