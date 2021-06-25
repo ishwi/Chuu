@@ -8,7 +8,7 @@ import core.util.stats.generator.GeneratorUtils;
 import core.util.stats.generator.StatsCalculationException;
 import dao.ChuuService;
 import dao.entities.LastFMData;
-import dao.entities.NowPlayingArtist;
+import dao.entities.ScrobbledTrack;
 import dao.entities.UserInfo;
 import org.apache.commons.text.WordUtils;
 
@@ -126,7 +126,7 @@ public enum Stats {
                                       ChuuService db,
                                       ConcurrentLastFM lastFM,
                                       EnumSet<Stats> enumSet,
-                                      UserInfo userInfo, int playsOnPeriod, int timestamp, CustomTimeFrame tfe, Map<Stats, Integer> params, NowPlayingArtist np) {
+                                      UserInfo userInfo, int playsOnPeriod, int timestamp, CustomTimeFrame tfe, Map<Stats, Integer> params, ScrobbledTrack st) {
         CacheHandler cacheHandler = new CacheHandler();
         List<String> stringList = new ArrayList<>();
         boolean exception = false;
@@ -137,7 +137,7 @@ public enum Stats {
         for (Stats stats : enumSet) {
             try {
                 Integer param = params.get(stats);
-                StatsCtx statsCtx = new StatsCtx(lastFMData, db, lastFM, userInfo, playsOnPeriod, timestamp, tfe, param, np);
+                StatsCtx statsCtx = new StatsCtx(lastFMData, db, lastFM, userInfo, playsOnPeriod, timestamp, tfe, param, st);
 
                 String process = cacheHandler.process(stats.cache, statsCtx);
 

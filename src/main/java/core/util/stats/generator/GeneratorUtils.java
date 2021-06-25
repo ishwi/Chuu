@@ -4,7 +4,10 @@ import core.util.stats.Cache;
 import core.util.stats.CacheConsumer;
 import core.util.stats.StatsCtx;
 import core.util.stats.StatsGenerator;
-import dao.entities.*;
+import dao.entities.CountWrapper;
+import dao.entities.ScrobbledAlbum;
+import dao.entities.ScrobbledArtist;
+import dao.entities.ScrobbledTrack;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.List;
@@ -62,7 +65,7 @@ public class GeneratorUtils {
                 Generators.combine(
                         item,
                         Generators.getGenerator(Generators.NP),
-                        (BiFunction<J, NowPlayingArtist, Np<T>>) Np::new);
+                        (BiFunction<J, ScrobbledTrack, Np<T>>) Np::new);
         return new Cache<>(combine, consumer);
     }
 
@@ -75,6 +78,6 @@ public class GeneratorUtils {
                             CountWrapper<List<ScrobbledTrack>> tr) {
     }
 
-    public record Np<T extends ScrobbledArtist>(CountWrapper<List<T>> entities, NowPlayingArtist np) {
+    public record Np<T extends ScrobbledArtist>(CountWrapper<List<T>> entities, ScrobbledTrack np) {
     }
 }

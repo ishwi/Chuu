@@ -7,12 +7,10 @@ import core.exceptions.LastFmException;
 import core.parsers.params.ChartParameters;
 import core.parsers.utils.CustomTimeFrame;
 import core.services.NPService;
+import core.services.TrackValidator;
 import core.util.stats.StatsCtx;
 import core.util.stats.StatsGenerator;
-import dao.entities.CountWrapper;
-import dao.entities.ScrobbledAlbum;
-import dao.entities.ScrobbledArtist;
-import dao.entities.ScrobbledTrack;
+import dao.entities.*;
 import dao.exceptions.InstanceNotFoundException;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -52,7 +50,8 @@ enum Generators {
     NP(data -> {
         if (data.np() == null) {
             try {
-                return new NPService(data.lastFM(), data.lastFMData()).getNowPlaying();
+                NowPlayingArtist nowPlaying = new NPService(data.lastFM(), data.lastFMData()).getNowPlaying();
+                return new TrackValidator(data.chuuService(), data.lastFM()).fromNP(nowPlaying);
             } catch (InstanceNotFoundException | LastFmException e) {
                 throw new StatsCalculationException();
             }
@@ -97,7 +96,7 @@ enum Generators {
         }
     }
 
-    @SuppressWarnings({"unchecked", "RedundantCast"})
+    @SuppressWarnings({"unchecked"})
     private static <T extends ScrobbledArtist> T map(UrlCapsule capsule, TopEntity topEntity, Class<T> clazz) {
         return (T) switch (topEntity) {
             case ALBUM -> new ScrobbledAlbum(capsule.getArtistName(), capsule.getPlays(), null, -1, capsule.getAlbumName(), null);

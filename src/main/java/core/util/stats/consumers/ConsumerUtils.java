@@ -232,34 +232,31 @@ public class ConsumerUtils {
     public static <T extends ScrobbledArtist> String concretePercentage(GeneratorUtils.Np<T> genNp, StatsCtx ctx, Entity entity) {
         CountWrapper<List<T>> cw = genNp.entities();
         List<T> entities = cw.getResult();
-        NowPlayingArtist np = genNp.np();
+        ScrobbledTrack np = genNp.np();
         int plays = switch (entity) {
             case ALBUM -> {
-                String alb = np.albumName();
-                if (alb == null) {
-                    if (np.songName() != null) {
-                        alb = np.songName();
-                    } else {
-                        yield 0;
-                    }
+                long albumId = np.getAlbumId();
+                if (albumId < 1) {
+                    yield 0;
                 }
                 List<ScrobbledAlbum> albums = (List<ScrobbledAlbum>) entities;
-                String finalAlb = alb;
-                yield albums.stream().filter(a -> a.getArtist().equalsIgnoreCase(np.artistName()) && finalAlb.equalsIgnoreCase(a.getAlbum())).findFirst().map(ScrobbledArtist::getCount).orElse(0);
+                yield albums.stream().filter(a -> a.getArtist().equalsIgnoreCase(np.getArtist()) && np.getAlbum().equalsIgnoreCase(a.getAlbum())).findFirst().map(ScrobbledArtist::getCount).orElse(0);
             }
             case TRACK -> {
-                if (np.songName() == null) {
+                long trackId = np.getTrackId();
+                if (trackId < 1) {
                     yield 0;
                 }
                 List<ScrobbledTrack> songs = (List<ScrobbledTrack>) entities;
-                yield songs.stream().filter(a -> a.getArtist().equalsIgnoreCase(np.artistName()) && np.songName().equalsIgnoreCase(a.getName())).findFirst().map(ScrobbledArtist::getCount).orElse(0);
+                yield songs.stream().filter(a -> a.getArtist().equalsIgnoreCase(np.getArtist()) && np.getName().equalsIgnoreCase(a.getName())).findFirst().map(ScrobbledArtist::getCount).orElse(0);
             }
             case ARTIST -> {
-                if (np.artistName() == null) {
+                long artistId = np.getArtistId();
+                if (artistId < 1) {
                     yield 0;
                 }
                 List<ScrobbledArtist> songs = (List<ScrobbledArtist>) entities;
-                yield songs.stream().filter(a -> a.getArtist().equalsIgnoreCase(np.artistName())).findFirst().map(ScrobbledArtist::getCount).orElse(0);
+                yield songs.stream().filter(a -> a.getArtist().equalsIgnoreCase(np.getArtist())).findFirst().map(ScrobbledArtist::getCount).orElse(0);
             }
         };
         return "%s percentage of total %s: %s%%".formatted(entity.fromNp(np), entity.format().toLowerCase(Locale.ROOT), format.format(plays * 100. / ctx.totalPlays()));
@@ -271,34 +268,31 @@ public class ConsumerUtils {
     public static <T extends ScrobbledArtist> String concreteRank(GeneratorUtils.Np<T> genNp, StatsCtx ctx, Entity artist) {
         CountWrapper<List<T>> cw = genNp.entities();
         List<T> entities = cw.getResult();
-        NowPlayingArtist np = genNp.np();
+        ScrobbledTrack np = genNp.np();
         int index = switch (artist) {
             case ALBUM -> {
-                String alb = np.albumName();
-                if (alb == null) {
-                    if (np.songName() != null) {
-                        alb = np.songName();
-                    } else {
-                        yield -1;
-                    }
+                long albumId = np.getAlbumId();
+                if (albumId < 1) {
+                    yield -1;
                 }
                 List<ScrobbledAlbum> albums = (List<ScrobbledAlbum>) entities;
-                String finalAlb = alb;
-                yield ListUtils.indexOf(albums, (a) -> a.getArtist().equalsIgnoreCase(np.artistName()) && finalAlb.equalsIgnoreCase(a.getAlbum()));
+                yield ListUtils.indexOf(albums, (a) -> a.getArtist().equalsIgnoreCase(np.getArtist()) && np.getName().equalsIgnoreCase(a.getAlbum()));
             }
             case TRACK -> {
-                if (np.songName() == null) {
+                long trackId = np.getTrackId();
+                if (trackId < 1) {
                     yield -1;
                 }
                 List<ScrobbledTrack> songs = (List<ScrobbledTrack>) entities;
-                yield ListUtils.indexOf(songs, (a) -> a.getArtist().equalsIgnoreCase(np.artistName()) && np.songName().equalsIgnoreCase(a.getName()));
+                yield ListUtils.indexOf(songs, (a) -> a.getArtist().equalsIgnoreCase(np.getArtist()) && np.getName().equalsIgnoreCase(a.getName()));
             }
             case ARTIST -> {
-                if (np.artistName() == null) {
+                long artistId = np.getArtistId();
+                if (artistId < 1) {
                     yield -1;
                 }
                 List<ScrobbledArtist> songs = (List<ScrobbledArtist>) entities;
-                yield ListUtils.indexOf(songs, (a) -> a.getArtist().equalsIgnoreCase(np.artistName()));
+                yield ListUtils.indexOf(songs, (a) -> a.getArtist().equalsIgnoreCase(np.getArtist()));
             }
         };
         String indexStr;
@@ -347,11 +341,11 @@ public class ConsumerUtils {
             return a;
         }
 
-        public String fromNp(NowPlayingArtist np) {
+        public String fromNp(ScrobbledTrack np) {
             return switch (this) {
-                case ALBUM -> "**%s** by **%s**".formatted(mapNull(WordUtils.capitalize(np.albumName()), WordUtils.capitalize(np.songName())), WordUtils.capitalize(np.artistName()));
-                case TRACK -> "**%s** by **%s**".formatted(mapNull(WordUtils.capitalize(np.songName())), WordUtils.capitalize(np.artistName()));
-                case ARTIST -> "**%s**".formatted(WordUtils.capitalize(np.artistName()));
+                case ALBUM -> "**%s** by **%s**".formatted(mapNull(WordUtils.capitalize(np.getAlbum()), WordUtils.capitalize(np.getName())), WordUtils.capitalize(np.getArtist()));
+                case TRACK -> "**%s** by **%s**".formatted(mapNull(WordUtils.capitalize(np.getName())), WordUtils.capitalize(np.getArtist()));
+                case ARTIST -> "**%s**".formatted(WordUtils.capitalize(np.getArtist()));
             };
         }
     }
