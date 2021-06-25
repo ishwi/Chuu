@@ -154,7 +154,7 @@ public class UrlQueueReview extends ConcurrentCommand<CommandParameters> {
                 if (banned) {
                     TextChannel textChannelById = Chuu.getShardManager().getTextChannelById(Chuu.channel2Id);
                     if (textChannelById != null)
-                        textChannelById.sendMessage(new ChuuEmbedBuilder(e).setTitle("Banned user for adding pics")
+                        textChannelById.sendMessageEmbeds(new ChuuEmbedBuilder(e).setTitle("Banned user for adding pics")
                                 .setDescription("User: **%s**\n".formatted(User.fromId(a.uploader()).getAsMention())).build()).queue();
                 }
             });

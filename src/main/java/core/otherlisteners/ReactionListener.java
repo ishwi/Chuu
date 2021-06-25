@@ -87,10 +87,10 @@ public abstract class ReactionListener implements EventListener {
 
             if (message.isFromGuild()) {
                 message.clearReactions().queue(consumer,
-                        throwable -> message.editMessage(who.setFooter(PERMS_MES).build()).queue());
+                        throwable -> message.editMessageEmbeds(who.setFooter(PERMS_MES).build()).queue());
             }
         } catch (Exception ex) {
-            message.editMessage(who.setFooter(PERMS_MES).build()).queue();
+            message.editMessageEmbeds(who.setFooter(PERMS_MES).build()).queue();
         }
     }
 
@@ -103,15 +103,15 @@ public abstract class ReactionListener implements EventListener {
                 }, throwable ->
                 {
                     MessageEmbed.Footer footer = message.getEmbeds().get(0).getFooter();
-                    message.editMessage(who.setFooter(PERMS_MES + (footer != null ? footer.getText() : "")).build()).queue();
+                    message.editMessageEmbeds(who.setFooter(PERMS_MES + (footer != null ? footer.getText() : "")).build()).queue();
                 });
             } catch (Exception ex) {
                 MessageEmbed.Footer footer = message.getEmbeds().get(0).getFooter();
-                message.editMessage(who.setFooter(PERMS_MES + (footer != null ? footer.getText() : "")).build()).queue();
+                message.editMessageEmbeds(who.setFooter(PERMS_MES + (footer != null ? footer.getText() : "")).build()).queue();
             }
         } else {
             MessageEmbed.Footer footer = message.getEmbeds().get(0).getFooter();
-            message.editMessage(who.setFooter(DMS_MES + (footer != null ? footer.getText() : "")).build()).queue();
+            message.editMessageEmbeds(who.setFooter(DMS_MES + (footer != null ? footer.getText() : "")).build()).queue();
         }
     }
 

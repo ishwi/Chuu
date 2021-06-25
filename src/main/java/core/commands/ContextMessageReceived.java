@@ -68,7 +68,7 @@ public final record ContextMessageReceived(MessageReceivedEvent e) implements Co
 
     @Override
     public RestAction<Message> sendEmbed(EmbedBuilder embedBuilder) {
-        return e.getChannel().sendMessage(embedBuilder.build());
+        return e.getChannel().sendMessageEmbeds(embedBuilder.build());
     }
 
     @Override
@@ -84,19 +84,19 @@ public final record ContextMessageReceived(MessageReceivedEvent e) implements Co
 
     @Override
     public RestAction<Message> sendMessage(MessageEmbed embed) {
-        return e.getChannel().sendMessage(embed);
+        return e.getChannel().sendMessageEmbeds(embed);
     }
 
     @Override
     public RestAction<Message> sendMessage(MessageEmbed embed, List<ActionRow> rows) {
-        return e.getChannel().sendMessage(embed).setActionRows(rows);
+        return e.getChannel().sendMessageEmbeds(embed).setActionRows(rows);
     }
 
     @Override
     public RestAction<Message> editMessage(@NotNull Message message, MessageEmbed embed, List<ActionRow> rows) {
         MessageAction action;
         if (embed != null) {
-            action = message.editMessage(embed);
+            action = message.editMessageEmbeds(embed);
         } else {
             action = message.editMessage(message);
         }
@@ -115,7 +115,7 @@ public final record ContextMessageReceived(MessageReceivedEvent e) implements Co
     public void doSendImage(byte[] img, String format, EmbedBuilder embedBuilder) {
         MessageAction messageAction = e.getChannel().sendFile(img, "cat." + format);
         if (embedBuilder != null) {
-            messageAction = messageAction.embed(embedBuilder.build());
+            messageAction = messageAction.setEmbeds(embedBuilder.build());
         }
         messageAction.queue();
     }

@@ -62,7 +62,7 @@ public class ReactValidator<T> extends ReactionListener {
                 a = context.sendMessage(getLastMessage.apply(who).build());
             } else {
                 check = false;
-                a = message.editMessage(getLastMessage.apply(who).build());
+                a = message.editMessageEmbeds(getLastMessage.apply(who).build());
             }
             a.queue(z -> {
                 if (check) {
@@ -94,7 +94,7 @@ public class ReactValidator<T> extends ReactionListener {
         if (newElement.newResult() || this.message == null) {
             return context.sendMessage(apply.build());
         }
-        return this.message.editMessage(apply.build());
+        return this.message.editMessageEmbeds(apply.build());
     }
 
 

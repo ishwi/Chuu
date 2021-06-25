@@ -94,7 +94,7 @@ public class LoginCommand extends ConcurrentCommand<CommandParameters> {
             consume = (c) -> e.sendMessage(c.build()).queue();
             consumeStr = (c) -> e.sendMessage(c).queue();
             action = e.getAuthor().openPrivateChannel().flatMap(t ->
-                    t.sendMessage(build));
+                    t.sendMessageEmbeds(build));
         }
         action.queue(a -> {
             if (e instanceof ContextMessageReceived t) {

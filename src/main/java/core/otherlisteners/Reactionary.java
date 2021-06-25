@@ -78,7 +78,7 @@ public class Reactionary<T> extends ReactionListener {
         }
         who.setDescription(a);
 //        who.setColor(CommandUtil.pastelColor());
-        message.editMessage(who.build()).queue();
+        message.editMessageEmbeds(who.build()).queue();
     }
 
     @Override
@@ -118,7 +118,7 @@ public class Reactionary<T> extends ReactionListener {
         counter = start;
         who.setDescription(a);
 //        who.setColor(ColorService.computeColor(e));
-        message.editMessage(who.build()).queue();
+        message.editMessageEmbeds(who.build()).queue();
         clearOneReact(event);
 
         if (currentPage == 1 && asCodepoints.equals(LEFT_ARROW)) {

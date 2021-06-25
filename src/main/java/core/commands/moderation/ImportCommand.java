@@ -39,7 +39,7 @@ public class ImportCommand extends ConcurrentCommand<UrlParameters> {
     private final ImportFunctional consumer = (u, m, message, embedBuilder, author, pos, errorCounter) -> () -> {
 
         embedBuilder.setDescription("Processing user #" + pos);
-        message.editMessage(embedBuilder.build()).queue();
+        message.editMessageEmbeds(embedBuilder.build()).queue();
         String lastfmid = u.getName();
         long userId = u.getDiscordId();
         User userById = Chuu.getShardManager().getUserById(userId);
@@ -240,14 +240,14 @@ public class ImportCommand extends ConcurrentCommand<UrlParameters> {
             description.append("Finished with errors");
 
             e.getAuthor().openPrivateChannel().flatMap(p ->
-                            complete.editMessage(embedBuilder.setDescription(description).build()))
+                            complete.editMessageEmbeds(embedBuilder.setDescription(description).build()))
                     .flatMap(x -> x.getChannel().sendFile(jsonObject.toString().getBytes(StandardCharsets.UTF_8), "errors.json"))
                     .queue();
         } else {
             description.append("\n Finished with no errors");
             embedBuilder.setThumbnail(e.getJDA().getSelfUser().getAvatarUrl());
             e.getAuthor().openPrivateChannel()
-                    .flatMap(p -> complete.editMessage(embedBuilder.setDescription(description).build())).queue();
+                    .flatMap(p -> complete.editMessageEmbeds(embedBuilder.setDescription(description).build())).queue();
         }
     }
 

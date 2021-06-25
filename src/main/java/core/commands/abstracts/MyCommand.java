@@ -206,7 +206,7 @@ public abstract class MyCommand<T extends CommandParameters> implements EventLis
             MessageEmbed build = new ChuuEmbedBuilder(e)
                     .setDescription(s).build();
             if (e instanceof ContextMessageReceived mes) {
-                mes.e().getChannel().sendMessage(build).reference(mes.e().getMessage()).queue();
+                mes.e().getChannel().sendMessageEmbeds(build).reference(mes.e().getMessage()).queue();
 
             } else {
                 e.sendMessage(build).queue();
