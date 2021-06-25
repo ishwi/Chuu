@@ -18,8 +18,8 @@ import org.knowm.xchart.PieChart;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingDeque;
 
 public class WastedAlbumChartCommand extends GroupingChartCommand {
     public WastedAlbumChartCommand(ServiceView dao) {
@@ -34,7 +34,7 @@ public class WastedAlbumChartCommand extends GroupingChartCommand {
 
     @Override
     public CountWrapper<GroupingQueue> processGroupedQueue(ChartGroupParameters params) throws LastFmException {
-        BlockingQueue<UrlCapsule> albumQueu = new LinkedBlockingDeque<>();
+        BlockingQueue<UrlCapsule> albumQueu = new ArrayBlockingQueue<>(15 * 100);
         int albumsQueried = lastFM.getChart(params.getUser(), params.getTimeFrameEnum(), 15, 100, TopEntity.ALBUM, ChartUtil.getParser(params.getTimeFrameEnum(), TopEntity.ALBUM, ChartParameters.toListParams(), lastFM, params.getUser()), albumQueu);
         List<UrlCapsule> albumList = new ArrayList<>(albumQueu.size());
         albumQueu.drainTo(albumList);

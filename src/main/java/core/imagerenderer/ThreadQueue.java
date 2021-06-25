@@ -11,6 +11,7 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.List;
 import java.util.*;
+import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -63,7 +64,7 @@ class ThreadQueue implements Runnable {
                 .setStyle(Font.PLAIN).build();
     }
 
-    protected static OptionalInt maxWidth(BlockingQueue<UrlCapsule> queue, int imageHeight, int columns) {
+    protected static WidthResult maxWidth(BlockingQueue<UrlCapsule> queue, int imageHeight, int columns) {
         BufferedImage bufferedImage = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g1 = bufferedImage.createGraphics();
         int actualSize = columns * imageHeight;
@@ -82,8 +83,9 @@ class ThreadQueue implements Runnable {
         }).max();
         g1.dispose();
         bufferedImage.flush();
-        queue.addAll(c);
-        return max;
+        BlockingQueue<UrlCapsule> finalQueue = new ArrayBlockingQueue<>(queue.size());
+        finalQueue.addAll(c);
+        return new WidthResult(max, finalQueue);
     }
 
     final void drawImage(BufferedImage image, UrlCapsule capsule, int x, int y) {
@@ -94,6 +96,7 @@ class ThreadQueue implements Runnable {
         drawImage(image, capsule);
         g.drawImage(image, x * imageSize, y * imageSize, null);
     }
+
 
     public void handleInvalidImage(UrlCapsule capsule, int x, int y) {
         Color temp = g.getColor();
@@ -207,7 +210,6 @@ class ThreadQueue implements Runnable {
         return height;
     }
 
-
     private StringFitter.FontMetadata chooseFont(String string, boolean isTitle) {
         return isTitle ? this.titleFitter.getFontMetadata(g, string) : this.subTitleFitter.getFontMetadata(g, string);
     }
@@ -272,6 +274,9 @@ class ThreadQueue implements Runnable {
                 g.drawString(font.atrribute().getIterator(), x * imageSize + xOffset, y * imageSize + accum);
             }
         }
+    }
+
+    record WidthResult(OptionalInt width, BlockingQueue<UrlCapsule> queue) {
     }
 
 }

@@ -43,7 +43,9 @@ public class CollageMaker {
         }
 
         if (asideMode) {
-            int optionalInt = ThreadQueue.maxWidth(queue, y * imageSize, y).orElse(0);
+            ThreadQueue.WidthResult widthResult = ThreadQueue.maxWidth(queue, y * imageSize, y);
+            int optionalInt = widthResult.width().orElse(0);
+            queue = widthResult.queue();
             if (optionalInt != 0) {
                 optionalInt += 50;
             }
