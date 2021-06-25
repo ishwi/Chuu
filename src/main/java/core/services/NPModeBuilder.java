@@ -317,7 +317,6 @@ public class NPModeBuilder {
                     completableFutures.add(logger.apply(CompletableFuture.runAsync(() -> {
                         try {
                             boolean extended = npModes.contains(NPMode.EXTENDED_TAGS);
-                            Set<Genre> bannedTags = service.getBannedTags();
                             int limit = extended ? 12 : 5;
                             Set<String> tags = new LinkedHashSet<>();
                             if (lastFMName.getSession() != null && lastFMName.useOwnTags()) {

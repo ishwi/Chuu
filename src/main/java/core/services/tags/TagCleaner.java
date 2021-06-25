@@ -14,6 +14,6 @@ public record TagCleaner(ChuuService db) {
             return Collections.emptyList();
         }
         Set<Genre> bannedTags = db.getBannedTags();
-        return strings.stream().filter(o -> bannedTags.contains(new Genre(o))).toList();
+        return strings.stream().filter(o -> !bannedTags.contains(new Genre(o))).toList();
     }
 }
