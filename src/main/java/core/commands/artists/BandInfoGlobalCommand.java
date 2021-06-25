@@ -51,7 +51,7 @@ public class BandInfoGlobalCommand extends BandInfoCommand {
 
         boolean b = ap.hasOptional("list");
         boolean b1 = ap.hasOptional("pie");
-        int limit = b || b1 ? Integer.MAX_VALUE : 4;
+        int limit = b || b1 ? Integer.MAX_VALUE : 9;
         ScrobbledArtist who = ap.getScrobbledArtist();
         List<AlbumUserPlays> userTopArtistAlbums = db.getGlobalTopArtistAlbums(limit, who.getArtistId());
         Context e = ap.getE();
