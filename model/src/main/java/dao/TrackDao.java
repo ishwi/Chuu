@@ -2,6 +2,7 @@ package dao;
 
 import dao.entities.*;
 import dao.exceptions.InstanceNotFoundException;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.sql.Connection;
 import java.util.List;
@@ -68,5 +69,7 @@ public interface TrackDao {
 
     void resetLovedSongs(Connection connection, String lastfm);
 
+
+    Pair<Long, Track> findTrackByName(Connection connection, String track, long artistId) throws InstanceNotFoundException;
 
 }

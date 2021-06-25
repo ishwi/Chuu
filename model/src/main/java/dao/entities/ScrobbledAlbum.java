@@ -19,6 +19,7 @@ public class ScrobbledAlbum extends ScrobbledArtist {
         this.albumId = album.id();
         setArtistId(album.artistId());
         this.album = album.albumName();
+        this.setUrl(album.url());
     }
 
     public ScrobbledAlbum(long albumId, String url) {

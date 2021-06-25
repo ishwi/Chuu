@@ -5,6 +5,7 @@ import core.services.ColorService;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.internal.utils.Checks;
+import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -58,6 +59,15 @@ public class ChuuEmbedBuilder extends EmbedBuilder {
             return super.setAuthor(CommandUtil.stripEscapedMarkdown(name), url, iconUrl);
         }
         return super.setAuthor(null, url, iconUrl);
+    }
+
+    @NotNull
+    @Override
+    public EmbedBuilder setImage(@Nullable String url) {
+        if (StringUtils.isBlank(url)) {
+            return super.setImage(null);
+        }
+        return super.setImage(url);
     }
 
     @Nonnull

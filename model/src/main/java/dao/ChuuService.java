@@ -1076,6 +1076,22 @@ public class ChuuService implements EveryNoiseService {
         }
     }
 
+    public List<GlobalCrown> getGlobalAlbumRanking(Long albumId, boolean includeBottedUsers, long ownerId) {
+        try (Connection connection = dataSource.getConnection()) {
+            return queriesDao.getGlobalRankingAlbum(connection, albumId, includeBottedUsers, ownerId);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    public List<GlobalCrown> getGlobalTrackRanking(Long trackId, boolean includeBottedUsers, long ownerId) {
+        try (Connection connection = dataSource.getConnection()) {
+            return queriesDao.getGlobalRankingSong(connection, trackId, includeBottedUsers, ownerId);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
     public UniqueWrapper<ArtistPlays> getGlobalUniques(String lastfmid) {
         try (Connection connection = dataSource.getConnection()) {
             return queriesDao.getGlobalUniques(connection, lastfmid);
@@ -1209,6 +1225,25 @@ public class ChuuService implements EveryNoiseService {
         }
     }
 
+    public long getAlbumFrequencies(long guildID, long albumId) {
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setReadOnly(true);
+            return queriesDao.getAlbumFrequencies(connection, guildID, albumId);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    public long getSongFrequencies(long guildID, long trackid) {
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setReadOnly(true);
+            return queriesDao.getSongFrequencies(connection, guildID, trackid);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+
     public ResultWrapper<ArtistPlays> getArtistsFrequenciesGlobal() {
         try (Connection connection = dataSource.getConnection()) {
             connection.setReadOnly(true);
@@ -1231,6 +1266,24 @@ public class ChuuService implements EveryNoiseService {
         try (Connection connection = dataSource.getConnection()) {
             connection.setReadOnly(true);
             return queriesDao.getArtistPlays(connection, guildID, artistId);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    public long getServerAlbumPlays(long guildID, long albumId) {
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setReadOnly(true);
+            return queriesDao.getAlbumPlays(connection, guildID, albumId);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    public long getServerTrackPlays(long guildID, long trackId) {
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setReadOnly(true);
+            return queriesDao.getSongPlays(connection, guildID, trackId);
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }
@@ -3195,6 +3248,15 @@ public class ChuuService implements EveryNoiseService {
     public long findTrackIdByName(long artistId, String track) throws InstanceNotFoundException {
         try (Connection connection = dataSource.getConnection()) {
             return trackDao.getTrackIdByName(connection, track, artistId);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+
+    }
+
+    public Pair<Long, Track> findTrackByName(long artistId, String track) throws InstanceNotFoundException {
+        try (Connection connection = dataSource.getConnection()) {
+            return trackDao.findTrackByName(connection, track, artistId);
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }

@@ -188,7 +188,7 @@ public class NPModeBuilder {
         if (npModes.stream().anyMatch(trackModes::contains)) {
             try {
                 if (np.songName() != null && !np.songName().isBlank())
-                    preTrackId = CommandUtil.trackValidate(service, scrobbledArtist, lastFM, np.songName());
+                    preTrackId = new TrackValidator(service, lastFM).validate(scrobbledArtist.getArtistId(), scrobbledArtist.getArtist(), np.songName()).getTrackId();
             } catch (LastFmException ignored) {
             }
         }

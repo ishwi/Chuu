@@ -104,8 +104,16 @@ interface SQLQueriesDao {
     long getArtistPlays(Connection connection, Long guildID, long artistId);
 
 
+    long getAlbumPlays(Connection connection, Long guildID, long albumId);
+
+    long getSongPlays(Connection connection, Long guildID, long trackId);
+
     long getArtistFrequencies(Connection connection, Long guildID, long artistId);
 
+
+    long getAlbumFrequencies(Connection connection, Long guildID, long albumId);
+
+    long getSongFrequencies(Connection connection, Long guildID, long trackId);
 
     int getGuildCrownThreshold(Connection connection, long guildID);
 
@@ -119,6 +127,10 @@ interface SQLQueriesDao {
     Map<Long, Float> getRateLimited(Connection connection);
 
     WrapperReturnNowPlaying getGlobalWhoKnows(Connection connection, long artistId, int limit, boolean includeBottedUsers, long ownerId, boolean hidePrivate);
+
+    List<GlobalCrown> getGlobalRankingAlbum(Connection connection, long albumId, boolean includeBottedUsers, long ownerId);
+
+    List<GlobalCrown> getGlobalRankingSong(Connection connection, long trackId, boolean includeBottedUsers, long ownerId);
 
     WrapperReturnNowPlaying whoKnowsAlbum(Connection con, long albumId, long guildId, int limit);
 

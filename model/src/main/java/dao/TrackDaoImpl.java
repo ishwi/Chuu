@@ -3,6 +3,7 @@ package dao;
 import dao.entities.*;
 import dao.exceptions.ChuuServiceException;
 import dao.exceptions.InstanceNotFoundException;
+import org.apache.commons.lang3.tuple.Pair;
 
 import javax.annotation.Nullable;
 import java.sql.*;
@@ -517,6 +518,27 @@ public class TrackDaoImpl extends BaseDAO implements TrackDao {
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
             preparedStatement.setString(1, lastfm);
             preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    @Override
+    public Pair<Long, Track> findTrackByName(Connection connection, String track, long artistId) throws InstanceNotFoundException {
+        String queryString = "SELECT id,track_name,url FROM  track WHERE track_name = ? AND artist_id = ?  ";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+            preparedStatement.setLong(2, artistId);
+            preparedStatement.setString(1, track);
+            ResultSet execute = preparedStatement.executeQuery();
+            if (execute.next()) {
+                long id = execute.getLong(1);
+                String name = execute.getString(2);
+                String url = execute.getString(3);
+                Track trackR = new Track(null, name, 0, false, 0);
+                trackR.setImageUrl(url);
+                return Pair.of(id, trackR);
+            }
+            throw new InstanceNotFoundException(track);
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }

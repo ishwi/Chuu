@@ -12,6 +12,7 @@ import dao.entities.NowPlayingArtist;
 import dao.entities.ScrobbledAlbum;
 import dao.entities.ScrobbledArtist;
 import dao.entities.ScrobbledTrack;
+import org.jetbrains.annotations.NotNull;
 
 public record TrackValidator(ChuuService db, ConcurrentLastFM lastFM) {
     private static final DiscogsApi discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
@@ -20,20 +21,23 @@ public record TrackValidator(ChuuService db, ConcurrentLastFM lastFM) {
     public ScrobbledTrack validate(String artist, String track) throws LastFmException {
         ScrobbledArtist sa = new ScrobbledArtist(artist, 0, "");
         CommandUtil.validate(db, sa, lastFM, discogsApi, spotifyApi);
-        long l = CommandUtil.trackValidate(db, sa, lastFM, track);
-        ScrobbledTrack scrobbledTrack = new ScrobbledTrack(artist, track, 0, false, -1, null, null, null);
-        scrobbledTrack.setArtistId(sa.getArtistId());
-        scrobbledTrack.setTrackId(l);
-        return scrobbledTrack;
+        return doValidate(artist, track, sa);
     }
 
     public ScrobbledTrack validate(long artistId, String artist, String track) throws LastFmException {
         ScrobbledArtist sa = new ScrobbledArtist(artist, 0, "");
         sa.setArtistId(artistId);
-        long l = CommandUtil.trackValidate(db, sa, lastFM, track);
+        return doValidate(artist, track, sa);
+    }
+
+    @NotNull
+    private ScrobbledTrack doValidate(String artist, String track, ScrobbledArtist sa) throws LastFmException {
+        var l = CommandUtil.trackValidate(db, sa, lastFM, track);
         ScrobbledTrack scrobbledTrack = new ScrobbledTrack(artist, track, 0, false, -1, null, null, null);
         scrobbledTrack.setArtistId(sa.getArtistId());
-        scrobbledTrack.setTrackId(l);
+        scrobbledTrack.setTrackId(l.getLeft());
+        scrobbledTrack.setImageUrl(l.getRight().getImageUrl());
+        scrobbledTrack.setName(l.getRight().getName());
         return scrobbledTrack;
     }
 

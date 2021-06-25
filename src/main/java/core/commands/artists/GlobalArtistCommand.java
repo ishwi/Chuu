@@ -1,14 +1,10 @@
 package core.commands.artists;
 
-import core.apis.discogs.DiscogsApi;
-import core.apis.discogs.DiscogsSingleton;
-import core.apis.spotify.Spotify;
-import core.apis.spotify.SpotifySingleton;
 import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
-import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
+import core.commands.utils.GlobalDoer;
 import core.commands.utils.PrivacyUtils;
 import core.exceptions.LastFmException;
 import core.parsers.ArtistParser;
@@ -16,26 +12,18 @@ import core.parsers.Parser;
 import core.parsers.params.ArtistParameters;
 import core.parsers.utils.Optionals;
 import dao.ServiceView;
+import dao.entities.DiscordUserDisplay;
 import dao.entities.GlobalCrown;
-import dao.entities.LastFMData;
-import dao.entities.PrivacyMode;
 import dao.entities.ScrobbledArtist;
-import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.EmbedBuilder;
 
 import javax.validation.constraints.NotNull;
-import java.util.EnumSet;
 import java.util.List;
-import java.util.Optional;
 
 public class GlobalArtistCommand extends ConcurrentCommand<ArtistParameters> {
-    private final DiscogsApi discogsApi;
-    private final Spotify spotify;
 
     public GlobalArtistCommand(ServiceView dao) {
         super(dao);
-        this.discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
-        this.spotify = SpotifySingleton.getInstance();
     }
 
     @Override
@@ -68,85 +56,32 @@ public class GlobalArtistCommand extends ConcurrentCommand<ArtistParameters> {
 
     @Override
     public String getName() {
-        return "Global Artist Overview";
+        return "Global artist overview";
     }
 
     @Override
     protected void onCommand(Context e, @NotNull ArtistParameters params) throws LastFmException {
 
         long userId = params.getLastFMData().getDiscordId();
-        ScrobbledArtist validable = new ScrobbledArtist(params.getArtist(), 0, "");
-        CommandUtil.validate(db, validable, lastFM, discogsApi, spotify);
-        params.setScrobbledArtist(validable);
-        boolean b = CommandUtil.showBottedAccounts(params.getLastFMData(), params, db);
-        List<GlobalCrown> globalArtistRanking = db.getGlobalArtistRanking(validable.getArtistId(), b, e.getAuthor().getIdLong());
-        String artist = CommandUtil.escapeMarkdown(validable.getArtist());
+        ScrobbledArtist sA = CommandUtil.onlyCorrectionUrl(db, params.getArtist(), lastFM, !params.isNoredirect());
+
+        boolean showBotted = CommandUtil.showBottedAccounts(params.getLastFMData(), params, db);
+
+        List<GlobalCrown> globalArtistRanking = db.getGlobalArtistRanking(sA.getArtistId(), showBotted, e.getAuthor().getIdLong());
+        String artist = CommandUtil.escapeMarkdown(sA.getArtist());
         if (globalArtistRanking.isEmpty()) {
             sendMessageQueue(e, "No one knows " + artist);
             return;
         }
-        Optional<GlobalCrown> yourPosition = globalArtistRanking.stream().filter(x -> x.getDiscordId() == userId).findFirst();
-        int totalPeople = globalArtistRanking.size();
-        int totalPlays = globalArtistRanking.stream().mapToInt(GlobalCrown::getPlaycount).sum();
-        EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e);
 
-        if (yourPosition.isPresent()) {
-            GlobalCrown globalCrown = yourPosition.get();
-            int position = globalCrown.getRanking();
-
-            embedBuilder.addField("Position:", position + "/" + totalPeople, true);
-            //It means we have someone ahead of us
-            if (position != 1) {
-                try {
-                    LastFMData lastFMData = db.findLastFMData(globalArtistRanking.get(0).getDiscordId());
-                    if (EnumSet.of(PrivacyMode.LAST_NAME, PrivacyMode.TAG, PrivacyMode.DISCORD_NAME).contains(lastFMData.getPrivacyMode())) {
-                        String embedText = PrivacyUtils.getPublicStr(lastFMData.getPrivacyMode(), lastFMData.getDiscordId(), lastFMData.getName(), e);
-                        embedBuilder.addField("Crown Holder: ", embedText, true);
-                    }
-                } catch (InstanceNotFoundException ignored) {
-                    // Do Nothing
-                }
-                if (position == 2) {
-                    if (globalArtistRanking.get(0).isBootedAccount()) {
-                        embedBuilder.addField("Plays for global crown:", String.valueOf((globalArtistRanking.get(0).getPlaycount() - globalCrown.getPlaycount() + 1)), true);
-                    }
-                    embedBuilder.addField("Plays for global crown:", String.valueOf((globalArtistRanking.get(0).getPlaycount() - globalCrown.getPlaycount() + 1)), true)
-                            .addField("Your Plays:", String.valueOf(globalCrown.getPlaycount()), true);
-
-                } else {
-                    embedBuilder.addField("Plays to rank up:", String.valueOf((globalArtistRanking.get(position - 2).getPlaycount() - globalCrown.getPlaycount() + 1)), true)
-                            .addField("Plays for first position:", String.valueOf((globalArtistRanking.get(0).getPlaycount() - globalCrown.getPlaycount() + 1)), true)
-                            .addField("Your Plays:", String.valueOf(globalCrown.getPlaycount()), false);
-                }
-
-            } else {
-                if (globalArtistRanking.size() > 1) {
-                    embedBuilder.addField("Ahead of second:", (globalCrown.getPlaycount() - globalArtistRanking.get(1).getPlaycount()) + " plays", true);
-                } else {
-                    embedBuilder.addBlankField(true);
-                }
-                embedBuilder.addField("Your Plays:", String.valueOf(globalCrown.getPlaycount()), true);
-            }
-        } else {
-            embedBuilder.addField("Plays for first position:", String.valueOf((globalArtistRanking.get(0).getPlaycount())), false);
-        }
-        if (e.isFromGuild()) {
-            StringBuilder serverStats = new StringBuilder();
-            long artistFrequencies = db.getArtistFrequencies(e.getGuild().getIdLong(), validable.getArtistId());
-            serverStats.append(String.format("**%d** listeners%n", artistFrequencies));
-            long serverArtistPlays = db.getServerArtistPlays(e.getGuild().getIdLong(), validable.getArtistId());
-            serverStats.append(String.format("**%d** plays%n", serverArtistPlays));
-            embedBuilder.
-                    addField(String.format("%s's stats", CommandUtil.escapeMarkdown(e.getGuild().getName())), serverStats.toString(), true);
-        }
-
-        String globalStats = String.format("**%d** listeners%n", totalPeople) +
-                             String.format("**%d** plays%n", totalPlays);
-        embedBuilder
-                .addField(String.format("%s's stats", CommandUtil.escapeMarkdown(e.getJDA().getSelfUser().getName())), globalStats, true)
-                .setImage(validable.getUrl())
-                .setTitle("Who knows " + artist + " globally?");
-        e.sendMessage(embedBuilder.build()).queue();
+        DiscordUserDisplay uInfo = CommandUtil.getUserInfoUnescaped(e, userId);
+        EmbedBuilder eb = new GlobalDoer(db, globalArtistRanking).
+                generate(userId, e, artist, sA.getUrl(),
+                        () -> db.getServerArtistPlays(e.getGuild().getIdLong(), sA.getArtistId()),
+                        () -> db.getArtistFrequencies(e.getGuild().getIdLong(), sA.getArtistId()),
+                        uInfo.getUrlImage(),
+                        PrivacyUtils.getLastFmArtistUserUrl(sA.getArtist(), params.getLastFMData().getName()));
+        e.sendMessage(eb.build()).queue();
 
     }
 

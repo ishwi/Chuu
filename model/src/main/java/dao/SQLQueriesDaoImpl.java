@@ -472,6 +472,62 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
     }
 
     @Override
+    public long getAlbumPlays(Connection connection, Long guildID, long albumId) {
+        String queryString = "SELECT sum(playnumber) FROM scrobbled_album a " +
+                             "JOIN user b " +
+                             "ON a.lastfm_id = b.lastfm_id ";
+        if (guildID != null) {
+            queryString += " JOIN user_guild c " +
+                           " ON b.discord_id = c.discord_id ";
+        }
+        queryString += " WHERE  album_id = ? ";
+        if (guildID != null) {
+            queryString += " and c.guild_id = ?";
+        }
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+            preparedStatement.setLong(1, albumId);
+            if (guildID != null) {
+                preparedStatement.setLong(2, guildID);
+            }
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                return resultSet.getLong(1);
+            }
+            return 0;
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    @Override
+    public long getSongPlays(Connection connection, Long guildID, long trackId) {
+        String queryString = "SELECT sum(playnumber) FROM scrobbled_track a " +
+                             "JOIN user b " +
+                             "ON a.lastfm_id = b.lastfm_id ";
+        if (guildID != null) {
+            queryString += " JOIN user_guild c " +
+                           " ON b.discord_id = c.discord_id ";
+        }
+        queryString += " WHERE  track_id = ? ";
+        if (guildID != null) {
+            queryString += " and c.guild_id = ?";
+        }
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+            preparedStatement.setLong(1, trackId);
+            if (guildID != null) {
+                preparedStatement.setLong(2, guildID);
+            }
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                return resultSet.getLong(1);
+            }
+            return 0;
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    @Override
     public long getArtistFrequencies(Connection connection, Long guildID, long artistId) {
 
         String queryBody =
@@ -487,6 +543,66 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
 
         try (PreparedStatement preparedStatement2 = connection.prepareStatement(queryBody)) {
             preparedStatement2.setLong(1, artistId);
+            if (guildID != null)
+                preparedStatement2.setLong(2, guildID);
+
+            ResultSet resultSet = preparedStatement2.executeQuery();
+            if (!resultSet.next()) {
+                return 0;
+            }
+            return resultSet.getLong(1);
+
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    @Override
+    public long getAlbumFrequencies(Connection connection, Long guildID, long albumId) {
+
+        String queryBody =
+                "Select count(*) from  scrobbled_album where album_id = ? \n";
+
+        if (guildID != null) queryBody += """
+                and lastfm_id in (
+                (SELECT lastfm_id from user b\s
+                 JOIN user_guild c\s
+                 ON b.discord_id = c.discord_id
+                 WHERE c.guild_id = ?))""";
+        else queryBody += "";
+
+        try (PreparedStatement preparedStatement2 = connection.prepareStatement(queryBody)) {
+            preparedStatement2.setLong(1, albumId);
+            if (guildID != null)
+                preparedStatement2.setLong(2, guildID);
+
+            ResultSet resultSet = preparedStatement2.executeQuery();
+            if (!resultSet.next()) {
+                return 0;
+            }
+            return resultSet.getLong(1);
+
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    @Override
+    public long getSongFrequencies(Connection connection, Long guildID, long trackId) {
+
+        String queryBody =
+                "Select count(*) from  scrobbled_track where track_id = ? \n";
+
+        if (guildID != null) queryBody += """
+                and lastfm_id in (
+                (SELECT lastfm_id from user b\s
+                 JOIN user_guild c\s
+                 ON b.discord_id = c.discord_id
+                 WHERE c.guild_id = ?))""";
+        else queryBody += "";
+
+        try (PreparedStatement preparedStatement2 = connection.prepareStatement(queryBody)) {
+            preparedStatement2.setLong(1, trackId);
             if (guildID != null)
                 preparedStatement2.setLong(2, guildID);
 
@@ -2127,6 +2243,70 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
             preparedStatement.setLong(i, ownerId);
 
 
+            ResultSet resultSet = preparedStatement.executeQuery();
+            int j = 1;
+            while (resultSet.next()) {
+
+                String lastfmId = resultSet.getString("lastfm_id");
+                long discordId = resultSet.getLong("discord_id");
+                int crowns = resultSet.getInt("ord");
+                boolean bootedAccount = resultSet.getBoolean("botted_account");
+
+                returnedList.add(new GlobalCrown(lastfmId, discordId, crowns, j++, bootedAccount));
+            }
+            return returnedList;
+        } catch (SQLException e) {
+            logger.warn(e.getMessage(), e);
+            throw new ChuuServiceException((e));
+        }
+    }
+
+    @Override
+    public List<GlobalCrown> getGlobalRankingAlbum(Connection connection, long albumId, boolean includeBottedUsers, long ownerId) {
+        List<GlobalCrown> returnedList = new ArrayList<>();
+        String queryString = """
+                SELECT  playnumber AS ord, discord_id, l.lastfm_id, l.botted_account
+                 FROM  scrobbled_album ar
+                 	 JOIN user l ON ar.lastfm_id = l.lastfm_id         WHERE  ar.album_id = ?    AND   (? OR NOT l.botted_account OR l.discord_id = ? )            ORDER BY  playnumber DESC""";
+
+
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+            int i = 1;
+            preparedStatement.setLong(i++, albumId);
+            preparedStatement.setBoolean(i++, includeBottedUsers);
+            preparedStatement.setLong(i, ownerId);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            int j = 1;
+            while (resultSet.next()) {
+
+                String lastfmId = resultSet.getString("lastfm_id");
+                long discordId = resultSet.getLong("discord_id");
+                int crowns = resultSet.getInt("ord");
+                boolean bootedAccount = resultSet.getBoolean("botted_account");
+
+                returnedList.add(new GlobalCrown(lastfmId, discordId, crowns, j++, bootedAccount));
+            }
+            return returnedList;
+        } catch (SQLException e) {
+            logger.warn(e.getMessage(), e);
+            throw new ChuuServiceException((e));
+        }
+    }
+
+    @Override
+    public List<GlobalCrown> getGlobalRankingSong(Connection connection, long trackId, boolean includeBottedUsers, long ownerId) {
+        List<GlobalCrown> returnedList = new ArrayList<>();
+        String queryString = """
+                SELECT  playnumber AS ord, discord_id, l.lastfm_id, l.botted_account
+                 FROM  scrobbled_track ar
+                 	 JOIN user l ON ar.lastfm_id = l.lastfm_id         WHERE  ar.track_id = ?    AND   (? OR NOT l.botted_account OR l.discord_id = ? )            ORDER BY  playnumber DESC""";
+
+
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+            int i = 1;
+            preparedStatement.setLong(i++, trackId);
+            preparedStatement.setBoolean(i++, includeBottedUsers);
+            preparedStatement.setLong(i, ownerId);
             ResultSet resultSet = preparedStatement.executeQuery();
             int j = 1;
             while (resultSet.next()) {

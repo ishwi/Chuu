@@ -11,6 +11,7 @@ import core.parsers.ArtistSongParser;
 import core.parsers.Parser;
 import core.parsers.params.ArtistAlbumParameters;
 import core.parsers.utils.Optionals;
+import core.services.TrackValidator;
 import dao.ServiceView;
 import dao.entities.*;
 
@@ -46,8 +47,8 @@ public class LocalWhoKnowsSongCommand extends LocalWhoKnowsAlbumCommand {
         ScrobbledArtist who = ap.getScrobbledArtist();
         long artistId = who.getArtistId();
         WhoKnowsMode effectiveMode = getEffectiveMode(ap.getLastFMData().getWhoKnowsMode(), ap);
-        long trackId = CommandUtil.trackValidate(db, ap
-                .getScrobbledArtist(), lastFM, ap.getAlbum());
+        long trackId = new TrackValidator(db, lastFM).validate(who.getArtistId(), who.getArtist(), ap.getAlbum()).getTrackId();
+
         if (trackId == -1) {
             sendMessageQueue(ap.getE(), "Couldn't confirm the song " + ap.getAlbum() + " by " + ap.getScrobbledArtist().getArtist() + " exists :(");
             return null;

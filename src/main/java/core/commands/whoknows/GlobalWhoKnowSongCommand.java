@@ -6,6 +6,7 @@ import core.exceptions.LastFmException;
 import core.parsers.ArtistSongParser;
 import core.parsers.Parser;
 import core.parsers.params.ArtistAlbumParameters;
+import core.services.TrackValidator;
 import dao.ServiceView;
 import dao.entities.LastFMData;
 import dao.entities.ScrobbledArtist;
@@ -59,7 +60,9 @@ public class GlobalWhoKnowSongCommand extends GlobalBaseWhoKnowCommand<ArtistAlb
         Context e = params.getE();
         long artistId = scrobbledArtist.getArtistId();
         params.setScrobbledArtist(scrobbledArtist);
-        long trackId = CommandUtil.trackValidate(db, scrobbledArtist, lastFM, params.getAlbum());
+
+        long trackId = new TrackValidator(db, lastFM).validate(scrobbledArtist.getArtistId(), params.getArtist(), params.getAlbum()).getTrackId();
+
         WhoKnowsMode effectiveMode = getEffectiveMode(params.getLastFMData().getWhoKnowsMode(), params);
 
         boolean b = CommandUtil.showBottedAccounts(params.getLastFMData(), params, db);

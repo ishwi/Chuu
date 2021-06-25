@@ -15,6 +15,7 @@ import core.parsers.ArtistSongParser;
 import core.parsers.Parser;
 import core.parsers.params.ArtistAlbumParameters;
 import core.services.SpotifyTrackService;
+import core.services.TrackValidator;
 import dao.ServiceView;
 import dao.entities.DiscordUserDisplay;
 import dao.entities.LastFMData;
@@ -67,7 +68,7 @@ public class SongAudioFeaturesCommand extends ConcurrentCommand<ArtistAlbumParam
         LastFMData lastFMData = params.getLastFMData();
 
         ScrobbledArtist scrobbledArtist = CommandUtil.onlyCorrection(db, params.getArtist(), lastFM, true);
-        long trackId = CommandUtil.trackValidate(db, scrobbledArtist, lastFM, params.getAlbum());
+        long trackId = new TrackValidator(db, lastFM).validate(scrobbledArtist.getArtistId(), params.getArtist(), params.getAlbum()).getTrackId();
 
         ScrobbledTrack scrobbledTrack = new ScrobbledTrack(
                 params.getArtist(), params.getAlbum(), 1, false, 0, null, null, null);

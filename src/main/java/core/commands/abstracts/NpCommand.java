@@ -8,6 +8,7 @@ import core.exceptions.LastFmException;
 import core.parsers.NpParser;
 import core.parsers.Parser;
 import core.parsers.params.NowPlayingParameters;
+import core.services.TrackValidator;
 import dao.ServiceView;
 import dao.entities.LastFMData;
 import dao.entities.NowPlayingArtist;
@@ -41,8 +42,8 @@ public abstract class NpCommand extends ConcurrentCommand<NowPlayingParameters> 
                     if (np.url() != null && !np.url().isBlank()) {
                         try {
                             ScrobbledArtist scrobbledArtist = CommandUtil.onlyCorrection(db, np.artistName(), lastFM, true);
-                            long trackValidate = CommandUtil.trackValidate(db, scrobbledArtist, lastFM, np.songName());
-                            db.updateTrackImage(trackValidate, np.url());
+                            long trackId = new TrackValidator(db, lastFM).validate(np.artistName(), np.songName()).getTrackId();
+                            db.updateTrackImage(trackId, np.url());
                         } catch (LastFmException instanceNotFoundException) {
                             Chuu.getLogger().warn(instanceNotFoundException.getMessage(), instanceNotFoundException);
                         }
