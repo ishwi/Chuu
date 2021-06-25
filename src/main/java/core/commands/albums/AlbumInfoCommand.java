@@ -8,6 +8,7 @@ import core.commands.utils.CommandUtil;
 import core.exceptions.LastFmException;
 import core.parsers.params.ArtistAlbumParameters;
 import core.services.tags.TagAlbumService;
+import core.services.tags.TagCleaner;
 import dao.ServiceView;
 import dao.entities.*;
 import dao.musicbrainz.MusicBrainzService;
@@ -54,9 +55,11 @@ public class AlbumInfoCommand extends AlbumPlaysCommand {
         String username = getUserString(e, who, lastFMData.getName());
 
         EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e);
-        String tagsField = albumSummary.getTagList().isEmpty()
+        List<String> tags = new TagCleaner(db).cleanTags(albumSummary.getTagList());
+
+        String tagsField = tags.isEmpty()
                            ? ""
-                           : albumSummary.getTagList().stream()
+                           : tags.stream()
                                    .map(tag -> "[" + CommandUtil.escapeMarkdown(tag) + "](" + LinkUtils.getLastFmTagUrl(tag) + ")")
                                    .collect(Collectors.joining(" - "));
         StringBuilder trackList = new StringBuilder();
@@ -96,8 +99,8 @@ public class AlbumInfoCommand extends AlbumPlaysCommand {
                         Chuu.getCoverService().getCover(albumSummary.getArtist(), albumSummary.getAlbum(), albumSummary.getAlbumUrl(), e))
                 .setThumbnail(artist.getUrl());
         e.sendMessage(embedBuilder.build()).queue();
-        if (!albumSummary.getTagList().isEmpty()) {
-            executor.submit(new TagAlbumService(db, lastFM, albumSummary.getTagList(), new AlbumInfo(albumSummary.getMbid(), albumSummary.getAlbum(), albumSummary.getArtist())));
+        if (!tags.isEmpty()) {
+            executor.submit(new TagAlbumService(db, lastFM, tags, new AlbumInfo(albumSummary.getMbid(), albumSummary.getAlbum(), albumSummary.getArtist())));
 
         }
     }

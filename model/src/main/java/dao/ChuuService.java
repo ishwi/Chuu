@@ -2994,9 +2994,10 @@ public class ChuuService implements EveryNoiseService {
 
     }
 
-    public Set<String> getBannedTags() {
+    public Set<Genre> getBannedTags() {
         try (Connection connection = dataSource.getConnection()) {
-            return queriesDao.getBannedTags(connection);
+            connection.setReadOnly(true);
+            return queriesDao.getBannedTags(connection).stream().map(Genre::new).collect(Collectors.toSet());
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }

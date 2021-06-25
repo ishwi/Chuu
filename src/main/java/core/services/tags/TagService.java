@@ -18,17 +18,17 @@ abstract class TagService<T extends EntityInfo, Y extends ScrobbledArtist> imple
     final ConcurrentLastFM lastFM;
     final Map<Genre, List<T>> genres;
 
-    public TagService(ChuuService dao, ConcurrentLastFM lastFM, List<T> items, String genre) {
+    TagService(ChuuService dao, ConcurrentLastFM lastFM, List<T> items, String genre) {
         this(dao, lastFM, Map.of(new Genre(genre), items));
     }
 
-    public TagService(ChuuService dao, ConcurrentLastFM lastFM, List<String> tags, T albumInfo) {
+    TagService(ChuuService dao, ConcurrentLastFM lastFM, List<String> tags, T albumInfo) {
         this(dao, lastFM, tags.stream()
                 .collect(Collectors.toMap(t -> new Genre(t), t -> Collections.singletonList(albumInfo), (t, y) -> t)));
     }
 
 
-    public TagService(ChuuService dao, ConcurrentLastFM lastFM, Map<Genre, List<T>> genres) {
+    TagService(ChuuService dao, ConcurrentLastFM lastFM, Map<Genre, List<T>> genres) {
         this.dao = dao;
         this.lastFM = lastFM;
         this.genres = genres;
@@ -38,7 +38,7 @@ abstract class TagService<T extends EntityInfo, Y extends ScrobbledArtist> imple
     public void execute() {
         List<T> entities = this.genres.values().stream().flatMap(Collection::stream).toList();
         Map<T, Y> validate = validate(entities);
-        Set<Genre> bannedTags = dao.getBannedTags().stream().map(t -> new Genre(t)).collect(Collectors.toSet());
+        Set<Genre> bannedTags = dao.getBannedTags();
         Set<Pair<String, Genre>> artistBannedTags = dao.getArtistBannedTags().stream().map(t -> Pair.of(t.getLeft(), new Genre(t.getRight()))).collect(Collectors.toSet());
 
         Map<Genre, List<Y>> validatedEntities = this.genres.entrySet().stream()

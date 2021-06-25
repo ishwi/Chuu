@@ -14,6 +14,7 @@ import core.parsers.ArtistParser;
 import core.parsers.Parser;
 import core.parsers.params.ArtistParameters;
 import core.services.tags.TagArtistService;
+import core.services.tags.TagCleaner;
 import dao.ServiceView;
 import dao.entities.*;
 import dao.musicbrainz.MusicBrainzService;
@@ -78,9 +79,10 @@ public class SummaryArtistCommand extends ConcurrentCommand<ArtistParameters> {
 
         String username = getUserString(e, whom, data.getName());
         EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e);
-        String tagsField = summary.getTags().isEmpty()
+        List<String> tags = new TagCleaner(db).cleanTags(summary.getTags());
+        String tagsField = tags.isEmpty()
                            ? ""
-                           : summary.getTags().stream()
+                           : tags.stream()
                                    .map(tag -> "[" + CommandUtil.escapeMarkdown(tag) + "](" + LinkUtils.getLastFmTagUrl(tag) + ")")
                                    .collect(Collectors.joining(" - "));
 
@@ -128,8 +130,8 @@ public class SummaryArtistCommand extends ConcurrentCommand<ArtistParameters> {
                 .setImage(scrobbledArtist.getUrl());
 
         e.sendMessage(embedBuilder.build()).queue();
-        if (!summary.getTags().isEmpty()) {
-            executor.submit(new TagArtistService(db, lastFM, summary.getTags(), new ArtistInfo(scrobbledArtist.getUrl(), summary.getArtistname(), summary.getMbid())));
+        if (!tags.isEmpty()) {
+            executor.submit(new TagArtistService(db, lastFM, tags, new ArtistInfo(scrobbledArtist.getUrl(), summary.getArtistname(), summary.getMbid())));
         }
     }
 }

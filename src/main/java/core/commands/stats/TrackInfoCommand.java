@@ -11,6 +11,7 @@ import core.parsers.ArtistSongParser;
 import core.parsers.Parser;
 import core.parsers.params.ArtistAlbumParameters;
 import core.services.TrackValidator;
+import core.services.tags.TagCleaner;
 import core.services.tags.TrackTagService;
 import dao.ServiceView;
 import dao.entities.LastFMData;
@@ -61,9 +62,10 @@ public class TrackInfoCommand extends AlbumPlaysCommand {
 
         String username = getUserString(e, who, lastFMData.getName());
         EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e);
-        String tagsField = trackInfo.getTags().isEmpty()
+        List<String> tags = new TagCleaner(db).cleanTags(trackInfo.getTags());
+        String tagsField = tags.isEmpty()
                            ? ""
-                           : trackInfo.getTags().stream()
+                           : tags.stream()
                                    .map(tag -> String.format("[%s](%s)", CommandUtil.escapeMarkdown(tag), LinkUtils.getLastFmTagUrl(tag)))
                                    .collect(Collectors.joining(" - "));
 
@@ -99,8 +101,8 @@ public class TrackInfoCommand extends AlbumPlaysCommand {
         e.sendMessage(embedBuilder.build()).
 
                 queue();
-        if (!trackInfo.getTags().isEmpty()) {
-            executor.submit(new TrackTagService(db, lastFM, trackInfo.getTags(), new TrackInfo(trackInfo.getArtist(), null, trackInfo.getName(), null)));
+        if (!tags.isEmpty()) {
+            executor.submit(new TrackTagService(db, lastFM, tags, new TrackInfo(trackInfo.getArtist(), null, trackInfo.getName(), null)));
         }
     }
 }

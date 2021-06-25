@@ -14,6 +14,7 @@ import core.commands.Context;
 import core.commands.utils.CommandUtil;
 import core.commands.utils.PrivacyUtils;
 import core.exceptions.LastFmException;
+import core.services.tags.TagCleaner;
 import core.services.tags.TagStorer;
 import dao.ChuuService;
 import dao.entities.*;
@@ -246,13 +247,15 @@ public class NPModeBuilder {
                     })));
                     break;
                 case POPULARITY:
-                    completableFutures.add(logger.apply(CompletableFuture.runAsync(() -> {
-                        ScrobbledTrack trackInfo = service.getTrackInfo(lastFMName.getName(), trackId);
-                        if (trackInfo != null && trackInfo.getPopularity() != 0) {
-                            footerSpaces[index] =
-                                    "%d%% popular".formatted(trackInfo.getPopularity());
-                        }
-                    })));
+                    if (trackId != null) {
+                        completableFutures.add(logger.apply(CompletableFuture.runAsync(() -> {
+                            ScrobbledTrack trackInfo = service.getTrackInfo(lastFMName.getName(), trackId);
+                            if (trackInfo != null && trackInfo.getPopularity() != 0) {
+                                footerSpaces[index] =
+                                        "%d%% popular".formatted(trackInfo.getPopularity());
+                            }
+                        })));
+                    }
                     break;
                 case NORMAL:
                 case ARTIST_PIC:
@@ -314,7 +317,7 @@ public class NPModeBuilder {
                     completableFutures.add(logger.apply(CompletableFuture.runAsync(() -> {
                         try {
                             boolean extended = npModes.contains(NPMode.EXTENDED_TAGS);
-                            Set<String> bannedTags = service.getBannedTags();
+                            Set<Genre> bannedTags = service.getBannedTags();
                             int limit = extended ? 12 : 5;
                             Set<String> tags = new LinkedHashSet<>();
                             if (lastFMName.getSession() != null && lastFMName.useOwnTags()) {
@@ -323,11 +326,11 @@ public class NPModeBuilder {
                             if (tags.size() < limit) {
                                 tags.addAll(new HashSet<>(new TagStorer(service, lastFM, executor, np).findTags(limit)));
                             }
-                            tags.removeIf(bannedTags::contains);
-                            if (tags.isEmpty()) {
+                            var filteredTags = new TagCleaner(service).cleanTags(tags);
+                            if (filteredTags.isEmpty()) {
                                 return;
                             }
-                            String tagsField = EmbedBuilder.ZERO_WIDTH_SPACE + " • " + String.join(" - ", tags);
+                            String tagsField = EmbedBuilder.ZERO_WIDTH_SPACE + " • " + String.join(" - ", filteredTags);
                             tagsField += '\n';
                             footerSpaces[index] = tagsField;
                         } catch (LastFmException ignored) {
