@@ -2,6 +2,7 @@ package core.commands.stats;
 
 import core.commands.Context;
 import core.commands.abstracts.LeaderboardCommand;
+import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.parsers.EnumParser;
@@ -13,6 +14,8 @@ import dao.entities.LbEntry;
 import net.dv8tion.jda.api.EmbedBuilder;
 import org.apache.commons.text.WordUtils;
 
+import javax.validation.constraints.NotNull;
+import java.util.EnumSet;
 import java.util.List;
 
 public class WhoAudioCommand extends LeaderboardCommand<EnumParameters<AudioStats>, Float> {
@@ -34,7 +37,7 @@ public class WhoAudioCommand extends LeaderboardCommand<EnumParameters<AudioStat
 
     @Override
     public Parser<EnumParameters<AudioStats>> initParser() {
-        return new EnumParser<>(AudioStats.class);
+        return new EnumParser<>(AudioStats.class, true, false, false);
     }
 
     @Override
@@ -44,17 +47,30 @@ public class WhoAudioCommand extends LeaderboardCommand<EnumParameters<AudioStat
 
     @Override
     public String getDescription() {
-        return "Who listened first to an artist on a server";
+        return "Leaderboard of the different audio stats";
     }
 
     @Override
     public List<String> getAliases() {
-        return List.of("whoaudio");
+        return List.of("whoaudio", "whoa", "audiolb", "ftlb", "featureslb");
     }
 
     @Override
     public String getName() {
-        return "Who audio";
+        return "Audio leaderboard";
+    }
+
+    @Override
+    protected void onCommand(Context e, @NotNull EnumParameters<AudioStats> params) {
+        if (params.getElement() == null) {
+            EmbedBuilder eb = new ChuuEmbedBuilder(e).setAuthor("Audio leadearboard help");
+            EnumSet<AudioStats> stats = EnumSet.allOf(AudioStats.class);
+            stats.forEach(z -> eb.addField(WordUtils.capitalizeFully(z.toString().replaceAll("_", " ")), z.description, false));
+            eb.setFooter("Select one of the following stats for the corresponding server leaderboard!");
+            e.sendMessage(eb.build()).queue();
+            return;
+        }
+        super.onCommand(e, params);
     }
 
     @Override
