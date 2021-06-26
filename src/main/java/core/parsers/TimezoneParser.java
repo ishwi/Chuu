@@ -65,18 +65,12 @@ public class TimezoneParser extends DaoParser<TimezoneParams> {
     protected TimezoneParams parseLogic(Context e, String[] words) throws InstanceNotFoundException {
         ParserAux parserAux = new ParserAux(words);
         User oneUser = parserAux.getOneUser(e, dao);
-        if (Arrays.equals(words, parserAux.getMessage())) {
-            String join = String.join(" ", parserAux.getMessage());
-            if (join.isBlank()) {
-                return new TimezoneParams(e, oneUser, null, true);
-            } else {
-                oneUser = e.getAuthor();
-            }
-        } else {
-            words = parserAux.getMessage();
-            oneUser = e.getAuthor();
-        }
+        words = parserAux.getMessage();
         String join = String.join(" ", words);
+        if (join.isBlank()) {
+            return new TimezoneParams(e, oneUser, null, true);
+        }
+
         String id;
         if (join.length() <= 3) {
             join = join.toUpperCase(Locale.ROOT);

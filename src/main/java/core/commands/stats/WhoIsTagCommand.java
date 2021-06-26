@@ -27,9 +27,7 @@ public class WhoIsTagCommand extends ConcurrentCommand<GenreParameters> {
 
     @Override
     public Parser<GenreParameters> initParser() {
-        GenreParser genreParser = new GenreParser(db, lastFM);
-        genreParser.addOptional(Optionals.GLOBAL.opt);
-        return genreParser;
+        return new GenreParser(db, lastFM, Optionals.GLOBAL.opt);
     }
 
     @Override

@@ -13,7 +13,6 @@ import java.util.List;
 import java.util.*;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -69,9 +68,11 @@ class ThreadQueue implements Runnable {
         Graphics2D g1 = bufferedImage.createGraphics();
         int actualSize = columns * imageHeight;
         int heightPerItem = actualSize / queue.size();
-        LinkedBlockingQueue<UrlCapsule> c = new LinkedBlockingQueue<>();
-        queue.drainTo(c);
-        OptionalInt max = Arrays.stream(c.toArray(UrlCapsule[]::new)).mapToInt(x -> {
+
+        BlockingQueue<UrlCapsule> finalQueue = new ArrayBlockingQueue<>(queue.size());
+        queue.drainTo(finalQueue);
+
+        OptionalInt max = Arrays.stream(queue.toArray(UrlCapsule[]::new)).mapToInt(x -> {
             String join = x.getLines().stream().map(ChartLine::getLine).collect(Collectors.joining(" - "));
             Font font = GraphicUtils.chooseFont(join).deriveFont(Font.BOLD, imageHeight / columns == 300 ? 24 : 12);
             g1.setFont(font);
@@ -83,8 +84,6 @@ class ThreadQueue implements Runnable {
         }).max();
         g1.dispose();
         bufferedImage.flush();
-        BlockingQueue<UrlCapsule> finalQueue = new ArrayBlockingQueue<>(queue.size());
-        finalQueue.addAll(c);
         return new WidthResult(max, finalQueue);
     }
 

@@ -10,6 +10,7 @@ import core.parsers.explanation.StrictUserExplanation;
 import core.parsers.explanation.util.Explanation;
 import core.parsers.interactions.InteractionAux;
 import core.parsers.params.GenreParameters;
+import core.parsers.utils.OptionalEntity;
 import core.services.NPService;
 import core.services.tags.TagStorer;
 import dao.ChuuService;
@@ -29,8 +30,8 @@ public class GenreParser extends DaoParser<GenreParameters> {
     private final ConcurrentLastFM lastFM;
     private final ExecutorService executor;
 
-    public GenreParser(ChuuService service, ConcurrentLastFM lastFM) {
-        super(service);
+    public GenreParser(ChuuService service, ConcurrentLastFM lastFM, OptionalEntity... opts) {
+        super(service, opts);
         this.lastFM = lastFM;
         executor = ExecutorsSingleton.getInstance();
     }

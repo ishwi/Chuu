@@ -21,10 +21,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
 
 import javax.validation.constraints.NotNull;
 import java.text.DecimalFormat;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
-import java.util.OptionalDouble;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
@@ -64,56 +61,40 @@ public class AudioFeaturesCommand extends ConcurrentCommand<ChuuDataParams> {
     @Override
     protected void onCommand(Context e, @NotNull ChuuDataParams params) {
         LastFMData lastFMData = params.getLastFMData();
-        SpotifyTrackService spotifyTrackService = new SpotifyTrackService(db, lastFMData.getName());
-        List<ScrobbledTrack> tracksWithId = spotifyTrackService.getTracksWithId();
-        List<AudioFeatures> audioFeatures = spotify.getAudioFeatures(tracksWithId.stream().map(ScrobbledTrack::getSpotifyId).collect(Collectors.toSet()));
-        CompletableFuture.runAsync(() -> {
+
+        CompletableFuture<Void> cF = CompletableFuture.runAsync(() -> {
+            SpotifyTrackService spotifyTrackService = new SpotifyTrackService(db, lastFMData.getName());
+            List<ScrobbledTrack> tracksWithId = spotifyTrackService.getTracksWithId();
+            List<AudioFeatures> audioFeatures = spotify.getAudioFeatures(tracksWithId.stream().map(ScrobbledTrack::getSpotifyId).collect(Collectors.toSet()));
             var audioFeaturesStream = audioFeatures.stream().map(t ->
                     new dao.entities.AudioFeatures(t.getAcousticness(), t.getAnalysisUrl(), t.getDanceability(), t.getDurationMs(), t.getEnergy(), t.getId(), t.getInstrumentalness(), t.getKey(), t.getLiveness(), t.getLoudness(), t.getSpeechiness(), t.getTempo(), t.getTimeSignature(), t.getTrackHref(), t.getUri(), t.getValence())).toList();
             db.insertAudioFeatures(audioFeaturesStream);
         });
-        Optional<AudioFeatures> reduce = audioFeatures.stream().reduce((a, b) -> {
-            if (b == null) {
-                return a;
+        dao.entities.AudioFeatures userFeatures = db.getUserFeatures(lastFMData.getName());
+
+        if (userFeatures == null) {
+            cF.join();
+            userFeatures = db.getUserFeatures(lastFMData.getName());
+            if (userFeatures == null) {
+                sendMessageQueue(e, "Couldn't find any audio feature in your tracks");
+                return;
             }
-            return a.builder().setAcousticness(a.getAcousticness() + b.getAcousticness())
-                    .setDanceability(a.getDanceability() + b.getDanceability())
-                    .setDurationMs(a.getDurationMs() + b.getDurationMs())
-                    .setEnergy(a.getEnergy() + b.getEnergy())
-                    .setInstrumentalness(a.getInstrumentalness() + b.getInstrumentalness())
-                    .setKey(a.getKey() + b.getKey())
-                    .setLiveness(a.getLiveness() + b.getLiveness())
-                    .setLoudness((float) (Math.pow(10, (a.getLoudness() + 60) / 10.0) + Math.pow(10, (a.getLoudness() + 60) / 10.0)))
-                    .setSpeechiness(a.getSpeechiness() + b.getSpeechiness())
-                    .setTempo(a.getTempo() + b.getTempo())
-                    .setValence(a.getValence() + b.getValence())
-                    .build();
-        });
-        double[] doubles = audioFeatures.stream().mapToDouble(AudioFeatures::getLoudness).toArray();
-        OptionalDouble average = Arrays.stream(doubles).map(x -> Math.pow(10, (x + 60) / 10.0)).average();
-        if (reduce.isEmpty()) {
-            sendMessageQueue(e, "Couldn't find any audio feature in your tracks");
-            return;
         }
         DecimalFormat df = new DecimalFormat("##.##%");
         DecimalFormat db = new DecimalFormat("##.# 'dB' ");
 
-        int s = audioFeatures.size();
         DiscordUserDisplay userInfoNotStripped = CommandUtil.getUserInfoUnescaped(e, params.getLastFMData().getDiscordId());
-        AudioFeatures audioFeature = reduce.get();
         EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e)
                 .setAuthor("Audio features for " + userInfoNotStripped.getUsername(), PrivacyUtils.getLastFmUser(lastFMData.getName()), userInfoNotStripped.getUrlImage())
-                .addField("Happiness:", df.format(audioFeature.getValence() / s), true)
-                .addField("Acousticness:", df.format(audioFeature.getAcousticness() / s), true)
-                .addField("Danceability:", df.format(audioFeature.getDanceability() / s), true)
-                .addField("Instrumentalness:", df.format(audioFeature.getInstrumentalness() / s), true)
-                .addField("Liveness:", df.format(audioFeature.getLiveness() / s), true);
-        if (average.isPresent()) {
-            embedBuilder.addField("Loudness:", db.format(10 * Math.log10(average.getAsDouble())), true);
+                .addField("Happiness:", df.format(userFeatures.valence()), true)
+                .addField("Acousticness:", df.format(userFeatures.acousticness()), true)
+                .addField("Danceability:", df.format(userFeatures.danceability()), true)
+                .addField("Instrumentalness:", df.format(userFeatures.instrumentalness()), true)
+                .addField("Liveness:", df.format(userFeatures.liveness()), true);
+        embedBuilder.addField("Loudness:", db.format(userFeatures.loudness().get(0)), true);
 
-        }
-        embedBuilder.addField("Energy:", df.format(audioFeature.getEnergy() / s), true)
-                .addField("Average Tempo:", (int) (audioFeature.getTempo() / s) + " BPM", true);
+        embedBuilder.addField("Energy:", df.format(userFeatures.energy()), true)
+                .addField("Average Tempo:", Math.round(userFeatures.tempo()) + " BPM", true);
 
         e.sendMessage(embedBuilder.build()).queue();
     }

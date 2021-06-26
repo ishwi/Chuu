@@ -683,7 +683,7 @@ public class UpdaterDaoImpl extends BaseDAO implements UpdaterDao {
             ResultSet resultSet = preparedStatement.executeQuery();
 
             Map<String, List<ScrobbledArtist>> artistToScrobbled = list.stream().collect(Collectors.toMap(sb -> unicodeSnatcher.matcher(
-                    Normalizer.normalize(sb.getArtist(), Normalizer.Form.NFKD)
+                            Normalizer.normalize(sb.getArtist(), Normalizer.Form.NFKD)
                     ).replaceAll("").toLowerCase(Locale.ROOT)
                     , z -> {
                         List<ScrobbledArtist> arr = new ArrayList<>();
@@ -1727,7 +1727,7 @@ public class UpdaterDaoImpl extends BaseDAO implements UpdaterDao {
                 preparedStatement.setFloat(12 * i + 5, audioFeatures.get(i).instrumentalness());
                 preparedStatement.setInt(12 * i + 6, audioFeatures.get(i).key());
                 preparedStatement.setFloat(12 * i + 7, audioFeatures.get(i).liveness());
-                preparedStatement.setFloat(12 * i + 8, audioFeatures.get(i).loudness());
+                preparedStatement.setDouble(12 * i + 8, audioFeatures.get(i).loudness().get(0));
                 preparedStatement.setFloat(12 * i + 9, audioFeatures.get(i).speechiness());
                 preparedStatement.setFloat(12 * i + 10, audioFeatures.get(i).tempo());
                 preparedStatement.setFloat(12 * i + 11, audioFeatures.get(i).valence());
