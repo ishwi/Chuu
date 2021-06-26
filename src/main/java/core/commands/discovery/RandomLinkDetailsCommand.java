@@ -65,15 +65,15 @@ public class RandomLinkDetailsCommand extends ConcurrentCommand<RandomUrlParamet
         if (StringUtils.isEmpty(url)) {
             RandomUrlEntity randomUrl;
             if (params.hasOptional("server") && e.isFromGuild()) {
-                randomUrl = db.getRandomUrlFromServer(e.getGuild().getIdLong());
+                randomUrl = db.getRandomUrlFromServer(e.getGuild().getIdLong(), null);
             } else {
-                randomUrl = db.getRandomUrl();
+                randomUrl = db.getRandomUrl(null);
             }
             if (randomUrl == null) {
                 sendMessageQueue(e, "Try to give an url to this command.");
                 return;
             }
-            url = db.getRandomUrl().url();
+            url = db.getRandomUrl(null).url();
         }
         RandomUrlDetails randomUrl = db.findRandomUrlDetails(url);
         if (randomUrl == null) {

@@ -934,19 +934,19 @@ public class ChuuService implements EveryNoiseService {
         }
     }
 
-    public RandomUrlEntity getRandomUrl() {
+    public RandomUrlEntity getRandomUrl(@Nullable RandomTarget randomTarget) {
         try (Connection connection = dataSource.getConnection()) {
             connection.setReadOnly(true);
-            return updaterDao.getRandomUrl(connection);
+            return updaterDao.getRandomUrl(connection, randomTarget);
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }
     }
 
-    public RandomUrlEntity getRandomUrlFromServer(long guildId) {
+    public RandomUrlEntity getRandomUrlFromServer(long guildId, @Nullable RandomTarget randomTarget) {
         try (Connection connection = dataSource.getConnection()) {
             connection.setReadOnly(true);
-            return updaterDao.getRandomUrlFromServer(connection, guildId);
+            return updaterDao.getRandomUrlFromServer(connection, guildId, randomTarget);
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }
@@ -4078,10 +4078,10 @@ public class ChuuService implements EveryNoiseService {
         }
     }
 
-    public RandomUrlEntity getRandomUrlFromUser(long userId) {
+    public RandomUrlEntity getRandomUrlFromUser(long userId, @Nullable RandomTarget randomTarget) {
         try (Connection connection = dataSource.getConnection()) {
             connection.setReadOnly(true);
-            return updaterDao.getRandomUrlFromUser(connection, userId);
+            return updaterDao.getRandomUrlFromUser(connection, userId, randomTarget);
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }

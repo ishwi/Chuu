@@ -18,7 +18,7 @@ public class RandomTest {
         ChuuService dao = new ChuuService(null);
         Map<RandomUrlEntity, Integer> test = new HashMap<>();
         for (int i = 0; i < 10000; i++) {
-            RandomUrlEntity randomUrl = dao.getRandomUrl();
+            RandomUrlEntity randomUrl = dao.getRandomUrl(null);
             test.merge(randomUrl, 1, Integer::sum);
             if (randomUrl == null) {
                 System.out.println(randomUrl);

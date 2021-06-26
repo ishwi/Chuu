@@ -45,9 +45,9 @@ interface UpdaterDao {
 
     boolean insertRandomUrl(Connection con, String url, long discordId, Long guildId);
 
-    RandomUrlEntity getRandomUrl(Connection con);
+    RandomUrlEntity getRandomUrl(Connection con, @Nullable RandomTarget randomTarget);
 
-    RandomUrlEntity getRandomUrlFromServer(Connection con, long discordId);
+    RandomUrlEntity getRandomUrlFromServer(Connection con, long discordId, @Nullable RandomTarget randomTarget);
 
     RandomUrlEntity findRandomUrlById(Connection con, String url);
 
@@ -198,7 +198,7 @@ interface UpdaterDao {
     void insertTrackTags(Connection connection, Map<Genre, List<ScrobbledTrack>> genres, Map<String, String> correctedTags);
 
 
-    RandomUrlEntity getRandomUrlFromUser(Connection connection, long userId);
+    RandomUrlEntity getRandomUrlFromUser(Connection connection, long userId, RandomTarget randomTarget);
 
     List<ImageQueue> getUrlQueue(Connection connection);
 

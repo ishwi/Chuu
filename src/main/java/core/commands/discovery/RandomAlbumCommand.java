@@ -7,19 +7,50 @@ import core.commands.utils.CommandUtil;
 import core.parsers.Parser;
 import core.parsers.RandomAlbumParser;
 import core.parsers.params.RandomUrlParameters;
+import core.parsers.utils.OptionalEntity;
 import dao.ServiceView;
 import dao.entities.LastFMData;
 import dao.entities.PrivacyMode;
+import dao.entities.RandomTarget;
 import dao.entities.RandomUrlEntity;
 import dao.exceptions.InstanceNotFoundException;
+import org.apache.commons.text.WordUtils;
 
+import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
+
 
 public class RandomAlbumCommand extends ConcurrentCommand<RandomUrlParameters> {
     public RandomAlbumCommand(ServiceView dao) {
         super(dao);
+    }
+
+    private @Nullable RandomTarget getRandomTarget(RandomUrlParameters parameters) {
+        if (parameters.hasOptional("spotify")) {
+            return RandomTarget.SPOTIFY;
+        }
+        if (parameters.hasOptional("bandcamp")) {
+            return RandomTarget.BANDCAMP;
+        }
+        if (parameters.hasOptional("youtube")) {
+            return RandomTarget.YOUTUBE;
+        }
+        if (parameters.hasOptional("soundcloud")) {
+            return RandomTarget.SOUNDCLOUD;
+        }
+        if (parameters.hasOptional("deezer")) {
+            return RandomTarget.DEEZER;
+        }
+        return null;
+    }
+
+    private String buildEmptyMessage(@Nullable RandomTarget randomTarget, String target) {
+        String ending = Optional.ofNullable(randomTarget).map(w -> " from %s!".formatted(WordUtils.capitalizeFully(randomTarget.name()))).orElse("!");
+        return "%s doesn't have any random url%s".formatted(target, ending);
+
     }
 
     @Override
@@ -29,7 +60,13 @@ public class RandomAlbumCommand extends ConcurrentCommand<RandomUrlParameters> {
 
     @Override
     public Parser<RandomUrlParameters> initParser() {
-        return new RandomAlbumParser(db);
+        return new RandomAlbumParser(db,
+                new OptionalEntity("spotify", "only include spotify links", "sp"),
+                new OptionalEntity("bandcamp", "only include spotify links", "bc"),
+                new OptionalEntity("youtube", "only include spotify links", "yt"),
+                new OptionalEntity("soundcloud", "only include spotify links", "sc"),
+                new OptionalEntity("deezer", "only include spotify links", "dee")
+        );
     }
 
     @Override
@@ -50,24 +87,25 @@ public class RandomAlbumCommand extends ConcurrentCommand<RandomUrlParameters> {
         if (url.length() == 0) {
             //get randomurl
             RandomUrlEntity randomUrl;
+            RandomTarget randomTarget = getRandomTarget(params);
             if (params.hasOptional("server") && e.isFromGuild()) {
-                randomUrl = db.getRandomUrlFromServer(e.getGuild().getIdLong());
+                randomUrl = db.getRandomUrlFromServer(e.getGuild().getIdLong(), randomTarget);
                 if (randomUrl == null) {
                     String name = e.getGuild().getName();
-                    sendMessageQueue(e, name + " doesn't have any submitted url!");
+                    sendMessageQueue(e, buildEmptyMessage(randomTarget, name));
                     return;
                 }
             } else if (params.getUser().getIdLong() != e.getAuthor().getIdLong()) {
-                randomUrl = db.getRandomUrlFromUser(params.getUser().getIdLong());
+                randomUrl = db.getRandomUrlFromUser(params.getUser().getIdLong(), randomTarget);
                 if (randomUrl == null) {
                     String userString = getUserString(e, params.getUser().getIdLong());
-                    sendMessageQueue(e, userString + " hasn't submitted any url!");
+                    sendMessageQueue(e, buildEmptyMessage(randomTarget, userString));
                     return;
                 }
             } else {
-                randomUrl = db.getRandomUrl();
+                randomUrl = db.getRandomUrl(randomTarget);
                 if (randomUrl == null) {
-                    sendMessageQueue(e, "The pool of urls was empty, add one first!");
+                    sendMessageQueue(e, buildEmptyMessage(randomTarget, e.getJDA().getSelfUser().getName()));
                     return;
                 }
             }
