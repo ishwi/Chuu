@@ -99,17 +99,20 @@ public class ObscurityCommand extends ConcurrentCommand<ChuuDataParams> {
         EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e);
         String danceStr = str(userFeatures.danceability(), avgDanceability);
         String energyStr = str(userFeatures.energy(), avgEnergy);
-        String hapinessStr = str(userFeatures.liveness(), avgHapinnes);
+        String hapinessStr = str(userFeatures.valence(), avgHapinnes);
         String accStr = str(userFeatures.acousticness(), avgAcousticness);
         DiscordUserDisplay uInfo = CommandUtil.getUserInfoUnescaped(e, id);
 
         embedBuilder.setAuthor(e.getGuild().getName() + "'s stats", null, e.getGuild().getIconUrl())
                 .setAuthor(uInfo.getUsername() + "'s obscurity details", PrivacyUtils.getLastFmUser(name), uInfo.getUrlImage())
                 .setTitle(formatter.format(100 - v) + "% obscure" + titleCF.join())
-                .addField("**Happiness:** %s%%".formatted(formatter.format(userFeatures.liveness() * 100)), "**" + hapinessStr + "**", false)
+                .addField("**Happiness:** %s%%".formatted(formatter.format(userFeatures.valence() * 100)), "**" + hapinessStr + "**", false)
                 .addField("**Energy:** %s%%".formatted(formatter.format(userFeatures.energy() * 100)), "**" + energyStr + "**", false)
                 .addField("**Danceability:** %s%%".formatted(formatter.format(userFeatures.danceability() * 100)), "**" + danceStr + "**", false)
                 .addField("**Acousticness:** %s%%".formatted(formatter.format(userFeatures.acousticness() * 100)), "**" + accStr + "**", false);
+        if (CommandUtil.rand.nextFloat() > 0.92f) {
+            embedBuilder.setFooter("Data comes from Spotify");
+        }
 
         e.sendMessage(embedBuilder.build()).queue();
 

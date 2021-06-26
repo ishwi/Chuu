@@ -4230,5 +4230,14 @@ public class ChuuService implements EveryNoiseService {
             throw new ChuuServiceException(e);
         }
     }
+
+    public List<LbEntry<Float>> getServerAudioLeadearboard(AudioStats element, long guildId) {
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setReadOnly(true);
+            return queriesDao.audioLb(connection, element, guildId);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
 }
 

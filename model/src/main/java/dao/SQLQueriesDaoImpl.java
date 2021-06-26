@@ -701,8 +701,8 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
                                      ON temp_2.artist_id = inn.artist_id\s
                             GROUP  BY temp_2.artist_id\s
                             ORDER  BY temp_2.playnumber DESC) main\s
-                    WHERE(? AND RANK = 2 OR ((NOT ?) AND
-                                            ? AND RANK != 1 OR\s
+                    WHERE(? AND rank = 2 OR ((NOT ?) AND
+                                            ? AND rank != 1 OR\s
                                             NOT ? AND NOT ?)) AND (maxplays - plays < ?) LIMIT  500\s""";
         } else {
             guildQuery = """
@@ -724,8 +724,8 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
                              ON temp_2.artist_id = inn.artist_id\s
                     GROUP  BY temp_2.artist_id\s
                     ORDER  BY temp_2.playnumber DESC\s
-                    ) main  WHERE (? AND RANK = 2 OR ((NOT ?) AND
-                                            ? AND RANK != 1 OR\s
+                    ) main  WHERE (? AND rank = 2 OR ((NOT ?) AND
+                                            ? AND rank != 1 OR\s
                                             NOT ? AND NOT ?))  AND (maxplays - plays < ?)  LIMIT 500;""";
         }
 
@@ -1582,35 +1582,34 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
     @Override
     public AudioFeatures userFeatures(Connection connection, String lastfmId) {
 
-        String queryString = "SELECT acousticness,danceability,energy,instrumentalness,`key`,liveness,loudness,speechiness,tempo,valence,time_signature FROM audio_features a JOIN track t ON a.spotify_id = t.spotify_id JOIN scrobbled_track st ON t.id = st.track_id WHERE st.lastfm_id = ?";
+        String queryString = "SELECT avg(acousticness),avg(danceability),avg(energy),avg(instrumentalness),avg(liveness),10 * log10(avg(pow(10,(loudness + 60) / 10))),avg(speechiness),avg(tempo),avg(valence),avg(time_signature)," +
+                             "median(`key`) OVER (PARTITION BY lastfm_id),avg(duration)" +
+                             "FROM audio_features a " +
+                             "JOIN track t ON a.spotify_id = t.spotify_id " +
+                             "JOIN scrobbled_track st ON t.id = st.track_id WHERE st.lastfm_id = ?";
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
             preparedStatement.setString(1, lastfmId);
             ResultSet resultSet = preparedStatement.executeQuery();
             AudioFeatures audioFeatures = null;
             int j = 0;
-            while (resultSet.next()) {
+            if (resultSet.next()) {
                 int i = 0;
                 float acousticness = resultSet.getFloat(i + 1);
                 float danceability = resultSet.getFloat(i + 2);
                 float energy = resultSet.getFloat(i + 3);
                 float instrumentalness = resultSet.getFloat(i + 4);
-                int key = resultSet.getInt(i + 5);
-                float liveness = resultSet.getFloat(i + 6);
-                float loudness = resultSet.getFloat(i + 7);
-                float speechiness = resultSet.getFloat(i + 8);
-                float tempo = resultSet.getFloat(i + 9);
-                float valence = resultSet.getFloat(i + 10);
-                int time_signature = resultSet.getInt(i + 11);
-                AudioFeatures current = new AudioFeatures(acousticness, null, danceability, null, energy, null, instrumentalness, key, liveness, loudness, speechiness, tempo, time_signature, null, null, valence);
-                if (audioFeatures == null) {
-                    audioFeatures = current;
-                } else {
-                    audioFeatures = audioFeatures.combine(current);
-                }
-                j++;
+                float liveness = resultSet.getFloat(i + 5);
+                float loudness = resultSet.getFloat(i + 6);
+                float speechiness = resultSet.getFloat(i + 7);
+                float tempo = resultSet.getFloat(i + 8);
+                float valence = resultSet.getFloat(i + 9);
+                int time_signature = resultSet.getInt(i + 10);
+                int key = resultSet.getInt(i + 11);
+                int duration = resultSet.getInt(i + 12);
+                return new AudioFeatures(acousticness, null, danceability, duration * 1000, energy, null, instrumentalness, key, liveness, loudness, speechiness, tempo, time_signature, null, null, valence);
             }
-            return audioFeatures != null ? audioFeatures.flatten(j) : null;
+            return null;
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }
@@ -1650,6 +1649,32 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
         }
         return scrobbledAlbums;
 
+    }
+
+    @Override
+    public List<LbEntry<Float>> audioLb(Connection con, AudioStats element, long guildId) {
+
+
+        String operation = switch (element) {
+            case LOUDNESS -> "10 * log10(avg(pow(10,(e.loudness + 60) / 10)))";
+            case SONG_LENGTH -> "avg(d.duration)";
+            default -> "avg(e." + element.getDbField() + ")";
+        };
+        String queryString = """
+                (SELECT \s
+                        a.lastfm_id , %s AS ord, c.discord_id
+                    FROM         scrobbled_track a
+
+                    JOIN user b ON a.lastfm_id = b.lastfm_id
+                    JOIN user_guild c ON b.discord_id = c.discord_id
+                    join track d on a.track_id = d.id
+                    join audio_features e on d.spotify_id = e.spotify_id
+                    WHERE         c.guild_id = ?
+                    
+                    GROUP BY a.lastfm_id
+                    ORDER BY ord DESC    )""".formatted(operation);
+
+        return getLbEntries(con, guildId, queryString, (s, aLong, aFloat) -> new AudioLbEntry(s, aLong, aFloat, element), false, 0, Float.class);
     }
 
 
@@ -2345,8 +2370,8 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
                 T order;
                 if (tClass.equals(Integer.class)) {
                     order = tClass.cast(resultSet.getInt("ord"));
-                } else if (tClass.equals(Double.class)) {
-                    order = tClass.cast(resultSet.getDouble("ord"));
+                } else if (tClass.equals(Float.class)) {
+                    order = tClass.cast(resultSet.getFloat("ord"));
                 } else {
                     order = tClass.cast(resultSet.getDouble("ord"));
                 }

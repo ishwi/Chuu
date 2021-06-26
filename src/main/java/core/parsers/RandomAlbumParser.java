@@ -12,6 +12,7 @@ import core.parsers.params.RandomUrlParameters;
 import core.parsers.utils.OptionalEntity;
 import core.parsers.utils.Optionals;
 import dao.ChuuService;
+import dao.entities.RandomTarget;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
@@ -19,21 +20,9 @@ import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 
 import java.util.List;
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class RandomAlbumParser extends DaoParser<RandomUrlParameters> {
 
-    private final Pattern spotify = Pattern
-            .compile("^(https://open.spotify.com/(album|artist|track|playlist)/|spotify:(album|artist|track|playlist):)([a-zA-Z0-9]{22})(?:\\?.*)?$");
-
-    private final Pattern youtubePattern = Pattern
-            .compile("(?:https?://)?(?:(?:www\\.)?|music\\.)?youtu\\.?be(?:\\.com)?/?.*(?:watch|embed)?(?:.*v=|v/|/)([\\w-_]{11}).*?$");
-    private final Pattern deezerPattern = Pattern
-            .compile("^https?://(?:www\\.)?deezer\\.com/(?:\\w+/)?(track|album|playlist)/(\\d+).*$");
-    private final Pattern soundCloundPattern = Pattern
-            .compile("((https://)|(http://)|(www.)|(m\\.)|(\\s))+(soundcloud.com/)+[a-zA-Z0-9\\-.]+(/)+[a-zA-Z0-9\\-.]+(/)?+[a-zA-Z0-9\\-.]+?");
-    private final Pattern bandCampPatter = Pattern
-            .compile("(http://(.*\\.bandcamp\\.com/|.*\\.bandcamp\\.com/track/.*|.*\\.bandcamp\\.com/album/.*))|(https://(.*\\.bandcamp\\.com/|.*\\.bandcamp\\.com/track/.*|.*\\.bandcamp\\.com/album/.*))");
 
     public RandomAlbumParser(ChuuService dao, OptionalEntity... opts) {
         super(dao, opts);
@@ -86,7 +75,7 @@ public class RandomAlbumParser extends DaoParser<RandomUrlParameters> {
         url = url.trim();
         Matcher matches;
 
-        if ((matches = spotify.matcher(url)).matches()) {
+        if ((matches = RandomTarget.SPOTIFY.regex.matcher(url)).matches()) {
             String param;
             if (!url.startsWith("https:"))
                 param = matches.group(3);
@@ -98,15 +87,15 @@ public class RandomAlbumParser extends DaoParser<RandomUrlParameters> {
             url = "https://open.spotify.com/" + param + "/" + id;
 
 
-        } else if ((matches = youtubePattern.matcher(url)).lookingAt()) {
+        } else if ((matches = RandomTarget.YOUTUBE.regex.matcher(url)).lookingAt()) {
             if (matches.group(1) != null) {
                 url = "https://www.youtube.com/watch?v=" + matches.group(1);
             }
-        } else if ((matches = deezerPattern.matcher(url)).matches()) {
+        } else if ((matches = RandomTarget.DEEZER.regex.matcher(url)).matches()) {
             if (matches.group(1) != null && matches.group(2) != null) {
                 url = "https://www.deezer.com/" + matches.group(1) + "/" + matches.group(2);
             }
-        } else if (!soundCloundPattern.matcher(url).matches() && !bandCampPatter.matcher(url).matches()) {
+        } else if (!RandomTarget.SOUNDCLOUD.regex.matcher(url).matches() && !RandomTarget.BANDCAMP.regex.matcher(url).matches()) {
             sendError(getErrorMessage(1), e);
             return null;
         }

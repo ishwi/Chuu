@@ -290,4 +290,6 @@ interface SQLQueriesDao {
     List<ScrobbledArtist> getServerArtistsByMbid(Connection connection, long guildId);
 
 
+    List<LbEntry<Float>> audioLb(Connection connection, AudioStats element, long guildId);
+
 }

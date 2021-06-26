@@ -90,11 +90,15 @@ public class AudioFeaturesCommand extends ConcurrentCommand<ChuuDataParams> {
                 .addField("Acousticness:", df.format(userFeatures.acousticness()), true)
                 .addField("Danceability:", df.format(userFeatures.danceability()), true)
                 .addField("Instrumentalness:", df.format(userFeatures.instrumentalness()), true)
-                .addField("Liveness:", df.format(userFeatures.liveness()), true);
-        embedBuilder.addField("Loudness:", db.format(userFeatures.loudness().get(0)), true);
+                .addField("Liveness:", df.format(userFeatures.liveness()), true)
+                .addField("Loudness:", db.format(userFeatures.loudness()), true)
+                .addField("Energy:", df.format(userFeatures.energy()), true)
+                .addField("Average Tempo:", Math.round(userFeatures.tempo()) + " BPM", true)
+                .addField("Average song length", CommandUtil.getTimestamp(userFeatures.durationMs()), true);
+        if (CommandUtil.rand.nextFloat() > 0.92f) {
+            embedBuilder.setFooter("Data comes from Spotify");
+        }
 
-        embedBuilder.addField("Energy:", df.format(userFeatures.energy()), true)
-                .addField("Average Tempo:", Math.round(userFeatures.tempo()) + " BPM", true);
 
         e.sendMessage(embedBuilder.build()).queue();
     }

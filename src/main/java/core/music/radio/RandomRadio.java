@@ -2,6 +2,7 @@ package core.music.radio;
 
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import core.Chuu;
+import dao.entities.RandomTarget;
 import dao.entities.RandomUrlEntity;
 
 import java.io.ByteArrayOutputStream;
@@ -47,9 +48,9 @@ public final record RandomRadio(String name, long guildId, boolean onlyServer) i
         do {
             youtubeSkipAttemps++;
             if (onlyServer && guildId != -1L) {
-                randomUrl = Chuu.getDb().getRandomUrlFromServer(guildId);
+                randomUrl = Chuu.getDb().getRandomUrlFromServer(guildId, RandomTarget.SPOTIFY);
             } else {
-                randomUrl = Chuu.getDb().getRandomUrl();
+                randomUrl = Chuu.getDb().getRandomUrl(RandomTarget.SPOTIFY);
             }
         } while (randomUrl.url().startsWith("https://www.youtube.com") && youtubeSkipAttemps <= 5);
 

@@ -5,6 +5,7 @@ import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
+import core.commands.utils.PrivacyUtils;
 import core.exceptions.LastFmException;
 import core.imagerenderer.LoveMaker;
 import core.otherlisteners.Reactionary;
@@ -103,11 +104,11 @@ public class AffinityCommand extends ConcurrentCommand<AffinityParameters> {
             String text = lines.get(i);
             stringBuilder.append(i + 1).append(text);
         }
-        DiscordUserDisplay uInfo = CommandUtil.getUserInfoConsideringGuildOrNot(e, e.getAuthor().getIdLong());
+        DiscordUserDisplay uInfo = CommandUtil.getUserInfoUnescaped(e, e.getAuthor().getIdLong());
         EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e)
                 .setDescription(stringBuilder)
-                .setTitle(uInfo.getUsername() + "'s soulmates in " + CommandUtil.escapeMarkdown(e.getGuild().getName()))
-                .setFooter(String.format("%s's affinity using a threshold of %d plays!%n", CommandUtil.stripEscapedMarkdown(uInfo.getUsername()), ap.getThreshold()), null)
+                .setAuthor(uInfo.getUsername() + "'s soulmates in " + e.getGuild().getName(), PrivacyUtils.getLastFmUser(ogData.getName()), uInfo.getUrlImage())
+                .setFooter(String.format("%s's affinity using a threshold of %d plays!%n", uInfo.getUsername(), ap.getThreshold()), null)
                 .setThumbnail(e.getGuild().getIconUrl());
         e.sendMessage(embedBuilder.build()).queue(message1 ->
                 new Reactionary<>(lines, message1, embedBuilder));
