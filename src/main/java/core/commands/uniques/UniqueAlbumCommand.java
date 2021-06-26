@@ -5,6 +5,7 @@ import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
+import core.commands.utils.NotOnServerGuard;
 import core.otherlisteners.Reactionary;
 import core.parsers.OnlyUsernameParser;
 import core.parsers.Parser;
@@ -60,6 +61,14 @@ public class UniqueAlbumCommand extends ConcurrentCommand<ChuuDataParams> {
         String lastFmName = params.getLastFMData().getName();
 
         UniqueWrapper<AlbumPlays> resultWrapper = getList(e.isFromGuild() ? e.getGuild().getIdLong() : -1, lastFmName);
+
+        long discordId = params.getLastFMData().getDiscordId();
+        if (new NotOnServerGuard(db).notOnServer(e.getGuild().getIdLong(), discordId)) {
+            sendMessageQueue(e, ("You are not registered in this server.\n" +
+                                 "You need to do %sset or %slogin to get tracked in this server.").formatted(e.getPrefix(), e.getPrefix()));
+            return;
+        }
+
         int rows = resultWrapper.getUniqueData().size();
         if (rows == 0) {
             sendMessageQueue(e, String.format("You have no %sunique albums :(", isGlobal() ? "global " : ""));
@@ -72,7 +81,6 @@ public class UniqueAlbumCommand extends ConcurrentCommand<ChuuDataParams> {
             a.append(i + 1).append(g.toString());
         }
 
-        long discordId = params.getLastFMData().getDiscordId();
         DiscordUserDisplay userInfo = CommandUtil.getUserInfoConsideringGuildOrNot(e, discordId);
 
         EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e).setAuthor(String.format("%s's%s unique albums", userInfo.getUsername(), isGlobal() ? " global" : ""), CommandUtil.getLastFmUser(lastFmName), userInfo.getUrlImage())

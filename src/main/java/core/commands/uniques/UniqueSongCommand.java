@@ -5,6 +5,7 @@ import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
+import core.commands.utils.NotOnServerGuard;
 import core.otherlisteners.Reactionary;
 import core.parsers.OnlyUsernameParser;
 import core.parsers.Parser;
@@ -59,8 +60,16 @@ public class UniqueSongCommand extends ConcurrentCommand<ChuuDataParams> {
     protected void onCommand(Context e, @NotNull ChuuDataParams params) {
 
         String lastFmName = params.getLastFMData().getName();
+        long discordId = params.getLastFMData().getDiscordId();
 
         UniqueWrapper<TrackPlays> resultWrapper = getList(isGlobal() ? -1 : e.getGuild().getIdLong(), lastFmName);
+
+        if (new NotOnServerGuard(db).notOnServer(e.getGuild().getIdLong(), discordId)) {
+            sendMessageQueue(e, ("You are not registered in this server.\n" +
+                                 "You need to do %sset or %slogin to get tracked in this server.").formatted(e.getPrefix(), e.getPrefix()));
+            return;
+        }
+
         int rows = resultWrapper.getUniqueData().size();
         if (rows == 0) {
             sendMessageQueue(e, String.format("You have no %sunique songs :(", isGlobal() ? "global " : ""));
@@ -73,11 +82,11 @@ public class UniqueSongCommand extends ConcurrentCommand<ChuuDataParams> {
             a.append(i + 1).append(g.toString());
         }
 
-        DiscordUserDisplay userInfo = CommandUtil.getUserInfoConsideringGuildOrNot(e, params.getLastFMData().getDiscordId());
+        DiscordUserDisplay userInfo = CommandUtil.getUserInfoConsideringGuildOrNot(e, discordId);
 
         EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e).setDescription(a)
                 .setAuthor(String.format("%s's%s unique songs", userInfo.getUsername(), isGlobal() ? " global" : ""), CommandUtil.getLastFmUser(lastFmName), userInfo.getUrlImage())
-                .setFooter(String.format("%s has %d%s unique songs!%n", CommandUtil.unescapedUser(userInfo.getUsername(), params.getLastFMData().getDiscordId(), e), rows, isGlobal() ? " global" : ""), null);
+                .setFooter(String.format("%s has %d%s unique songs!%n", CommandUtil.unescapedUser(userInfo.getUsername(), discordId, e), rows, isGlobal() ? " global" : ""), null);
 
         e.sendMessage(embedBuilder.build()).queue(m ->
                 new Reactionary<>(resultWrapper.getUniqueData(), m, embedBuilder));
