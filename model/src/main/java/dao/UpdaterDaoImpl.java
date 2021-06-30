@@ -379,11 +379,12 @@ public class UpdaterDaoImpl extends BaseDAO implements UpdaterDao {
 
     @Override
     public RandomUrlEntity getRandomUrl(Connection con, RandomTarget randomTarget) {
+        String target = buildRandomTargetWhere(randomTarget);
         String queryString = """
                 SELECT * FROM randomlinks WHERE (discord_id IN\s
-                (SELECT discord_id FROM (SELECT discord_id,COUNT(*)   , -LOG(1-RAND()) / LOG(COUNT(*) + 1)    AS ra FROM randomlinks  GROUP BY discord_id HAVING COUNT(*) > 0 ORDER BY ra LIMIT 1) t) OR discord_id IS NULL)
+                (SELECT discord_id FROM (SELECT discord_id,COUNT(*)   , -LOG(1-RAND()) / LOG(COUNT(*) + 1)    AS ra FROM randomlinks WHERE  1= 1 %s GROUP BY discord_id HAVING COUNT(*) > 0 ORDER BY ra LIMIT 1) t) OR discord_id IS NULL)
                  %s
-                 ORDER BY RAND() LIMIT 1;""".formatted(buildRandomTargetWhere(randomTarget));
+                 ORDER BY RAND() LIMIT 1;""".formatted(target, target);
         try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {
 
             /* Execute query. */
@@ -412,11 +413,12 @@ public class UpdaterDaoImpl extends BaseDAO implements UpdaterDao {
 
     @Override
     public RandomUrlEntity getRandomUrlFromServer(Connection con, long discordId, @Nullable RandomTarget randomTarget) {
+        String target = buildRandomTargetWhere(randomTarget);
         String queryString = """
                 SELECT * FROM randomlinks WHERE discord_id IN
                 (SELECT discord_id FROM (SELECT a.discord_id,COUNT(*)   , -LOG(1-RAND()) / LOG(COUNT(*) + 1)  AS ra FROM randomlinks a JOIN user_guild b ON  a.discord_id = b.discord_id
-                WHERE b.guild_id = ?  GROUP BY discord_id HAVING COUNT(*) > 0 ORDER BY ra LIMIT 1) t) %s
-                 ORDER BY RAND() LIMIT 1""".formatted(buildRandomTargetWhere(randomTarget));
+                WHERE b.guild_id = ?  GROUP BY discord_id HAVING COUNT(*) > 0 ORDER BY ra LIMIT 1) t WHERE 1 = 1 %s) %s
+                 ORDER BY RAND() LIMIT 1""".formatted(target, target);
         try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {
             preparedStatement.setLong(1, discordId);
             /* Execute query. */
