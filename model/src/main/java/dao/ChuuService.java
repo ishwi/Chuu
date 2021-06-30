@@ -5,6 +5,7 @@ import dao.everynoise.*;
 import dao.exceptions.ChuuServiceException;
 import dao.exceptions.DuplicateInstanceException;
 import dao.exceptions.InstanceNotFoundException;
+import dao.utils.Order;
 import org.apache.commons.collections4.ListValuedMap;
 import org.apache.commons.collections4.MultiValuedMap;
 import org.apache.commons.lang3.tuple.Pair;
@@ -3601,7 +3602,7 @@ public class ChuuService implements EveryNoiseService {
     public List<UserListened> getServerFirstScrobbledArtist(long artistId, long guildId) {
         try (Connection connection = dataSource.getConnection()) {
             connection.setReadOnly(true);
-            return queriesDao.getServerFirstScrobbledArtist(connection, artistId, guildId, SQLQueriesDaoImpl.Order.ASC);
+            return queriesDao.getServerFirstScrobbledArtist(connection, artistId, guildId, Order.ASC);
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }
@@ -3610,7 +3611,7 @@ public class ChuuService implements EveryNoiseService {
     public List<UserListened> getServerLastScrobbledArtist(long artistId, long guildId) {
         try (Connection connection = dataSource.getConnection()) {
             connection.setReadOnly(true);
-            return queriesDao.getServerFirstScrobbledArtist(connection, artistId, guildId, SQLQueriesDaoImpl.Order.DESC);
+            return queriesDao.getServerFirstScrobbledArtist(connection, artistId, guildId, Order.DESC);
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }
@@ -4231,10 +4232,10 @@ public class ChuuService implements EveryNoiseService {
         }
     }
 
-    public List<LbEntry<Float>> getServerAudioLeadearboard(AudioStats element, long guildId) {
+    public List<LbEntry<Float>> getServerAudioLeadearboard(AudioStats element, long guildId, Order order) {
         try (Connection connection = dataSource.getConnection()) {
             connection.setReadOnly(true);
-            return queriesDao.audioLb(connection, element, guildId);
+            return queriesDao.audioLb(connection, element, guildId, order);
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }

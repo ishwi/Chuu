@@ -2,6 +2,7 @@ package dao;
 
 import dao.entities.*;
 import dao.exceptions.ChuuServiceException;
+import dao.utils.Order;
 import org.apache.commons.collections4.ListValuedMap;
 import org.apache.commons.collections4.multimap.ArrayListValuedHashMap;
 import org.apache.commons.lang3.tuple.Pair;
@@ -1652,7 +1653,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
     }
 
     @Override
-    public List<LbEntry<Float>> audioLb(Connection con, AudioStats element, long guildId) {
+    public List<LbEntry<Float>> audioLb(Connection con, AudioStats element, long guildId, Order order) {
 
 
         String operation = switch (element) {
@@ -1672,7 +1673,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
                     WHERE         c.guild_id = ?
                     
                     GROUP BY a.lastfm_id
-                    ORDER BY ord DESC    )""".formatted(operation);
+                    ORDER BY ord %s    )""".formatted(operation, order.toString());
 
         return getLbEntries(con, guildId, queryString, (s, aLong, aFloat) -> new AudioLbEntry(s, aLong, aFloat, element), false, 0, Float.class);
     }
@@ -4998,19 +4999,6 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
         }
     }
 
-
-    public enum Order {
-        ASC, DESC;
-
-
-        public Order getInverse() {
-            return switch (this) {
-                case ASC -> DESC;
-                case DESC -> ASC;
-            };
-        }
-
-    }
 
 }
 

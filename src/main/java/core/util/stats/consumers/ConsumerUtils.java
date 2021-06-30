@@ -219,7 +219,7 @@ public class ConsumerUtils {
                             return index;
                         }
                     }
-                    throw new IllegalStateException();
+                    return null;
                 }, Collectors.counting()));
         String header = ctx.timeFrameEnum().isAllTime() ? "In your library" : StringUtils.capitalize(ctx.timeFrameEnum().getDisplayString().trim());
         return header + " you have...\n" + collect.entrySet().stream().sorted(Comparator.comparingInt(z -> -z.getKey().start))

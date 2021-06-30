@@ -69,7 +69,7 @@ public class SummaryArtistCommand extends ConcurrentCommand<ArtistParameters> {
     protected void onCommand(Context e, @NotNull ArtistParameters params) throws LastFmException {
 
         final ScrobbledArtist scrobbledArtist = new ScrobbledArtist(params.getArtist(), 0, null);
-        CommandUtil.validate(db, scrobbledArtist, lastFM, discogsApi, spotify);
+        CommandUtil.validate(db, scrobbledArtist, lastFM, discogsApi, spotify, true, !params.isNoredirect());
         LastFMData data = params.getLastFMData();
         long whom = data.getDiscordId();
         ArtistSummary summary = lastFM.getArtistSummary(scrobbledArtist.getArtist(), data);

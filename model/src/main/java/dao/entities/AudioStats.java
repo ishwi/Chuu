@@ -1,6 +1,7 @@
 package dao.entities;
 
 import dao.utils.Constants;
+import org.apache.commons.text.WordUtils;
 
 import java.text.DecimalFormat;
 import java.util.Locale;
@@ -9,6 +10,7 @@ public enum AudioStats {
 
 
     HAPPINESS("measure from 0% to 100% describing the musical positiveness conveyed by a track. Tracks with high valence sound more positive (e.g. happy, cheerful, euphoric), while tracks with low valence sound more negative (e.g. sad, depressed, angry)."),
+    SADNESS(HAPPINESS),
     SONG_LENGTH("Length of the song"),
     ENERGY("Represents a perceptual measure of intensity and activity. Typically, energetic tracks feel fast, loud, and noisy."),
     TEMPO("The overall estimated tempo of a track in beats per minute (BPM). In musical terminology, tempo is the speed or pace of a given piece and derives directly from the average beat duration."),
@@ -17,6 +19,7 @@ public enum AudioStats {
     INSTRUMENTALNESS("Predicts whether a track contains no vocals. The closer the instrumentalness value is to 100%, the greater likelihood the track contains no vocal content."),
     LIVENESS("Detects the presence of an audience in the recording. Higher liveness values represent an increased probability that the track was performed live."),
     LOUDNESS("The overall loudness of a track in decibels (dB). Loudness values are averaged across the entire track. Values typical range between 0 and 60 db."),
+    QUITNESS(LOUDNESS),
     SPEECHINESS("Speechiness detects the presence of spoken words in a track. The more exclusively speech-like the recording (e.g. talk show, audio book, poetry), the closer to 100%");
 
     private static final DecimalFormat df = new DecimalFormat("##.##%");
@@ -27,14 +30,35 @@ public enum AudioStats {
         this.description = description;
     }
 
+    @SuppressWarnings("IncompleteCopyConstructor")
+    AudioStats(AudioStats inverse) {
+        this.description = "The inverse of " + WordUtils.capitalizeFully(inverse.toString());
+    }
+
+    public boolean isReal() {
+        return switch (this) {
+            case QUITNESS, SADNESS -> false;
+            default -> true;
+        };
+    }
+
+    public AudioStats mapToReal() {
+        return switch (this) {
+            case SADNESS -> HAPPINESS;
+            case QUITNESS -> LOUDNESS;
+            default -> this;
+        };
+    }
+
     public String toValue(float value) {
         return switch (this) {
-            case ACOUSTICNESS, DANCEABILITY, ENERGY, INSTRUMENTALNESS, LIVENESS, SPEECHINESS, HAPPINESS -> df.format(value);
-            case LOUDNESS -> db.format(value);
+            case SADNESS, ACOUSTICNESS, DANCEABILITY, ENERGY, INSTRUMENTALNESS, LIVENESS, SPEECHINESS, HAPPINESS -> df.format(value);
+            case QUITNESS, LOUDNESS -> db.format(value);
             case TEMPO -> Math.round(value) + " BPM";
             case SONG_LENGTH -> Constants.getTimestamp((long) (value * 1000));
         };
     }
+
 
     public String getDbField() {
         if (this == AudioStats.HAPPINESS) {

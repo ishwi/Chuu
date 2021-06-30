@@ -62,6 +62,11 @@ public class ScrobblesLbCommand extends LeaderboardCommand<CommandParameters, In
     @Override
     protected void setFooter(EmbedBuilder embedBuilder, List<LbEntry<Integer>> list, CommandParameters params) {
         Context e = params.getE();
-        embedBuilder.setFooter(e.getGuild().getName() + " has " + list.size() + CommandUtil.singlePlural(list.size(), "user", "users") + " with scrobbles!\n", null);
+        String header = "";
+        if (list.size() > 10) {
+            header = e.getGuild().getName() + " has " + list.size() + CommandUtil.singlePlural(list.size(), " user", " users") + " with scrobbles!\n";
+        }
+        String text = header + userStringFooter(embedBuilder, list, params);
+        embedBuilder.setFooter(text, null);
     }
 }

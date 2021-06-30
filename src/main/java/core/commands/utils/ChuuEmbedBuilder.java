@@ -14,7 +14,7 @@ import java.awt.*;
 import java.util.regex.Pattern;
 
 public class ChuuEmbedBuilder extends EmbedBuilder {
-    private static final Pattern linkMatcher = Pattern.compile("\\[([^\\[\\]]*)]\\(.*?\\)");
+    public static final Pattern linkMatcher = Pattern.compile("\\[([^\\[\\]]*)]\\(.*?\\)");
 
     public ChuuEmbedBuilder(Context e) {
         setColor(ColorService.computeColor(e));

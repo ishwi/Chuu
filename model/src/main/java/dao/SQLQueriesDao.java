@@ -1,6 +1,7 @@
 package dao;
 
 import dao.entities.*;
+import dao.utils.Order;
 import org.apache.commons.collections4.ListValuedMap;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -241,7 +242,7 @@ interface SQLQueriesDao {
     Optional<Instant> getFirstScrobbledArtist(Connection connection, String lastfmId, long artistId);
 
 
-    List<UserListened> getServerFirstScrobbledArtist(Connection connection, long artistId, long guildId, SQLQueriesDaoImpl.Order Order);
+    List<UserListened> getServerFirstScrobbledArtist(Connection connection, long artistId, long guildId, Order Order);
 
 
     List<ScrobbledArtist> regexArtist(Connection connection, String regex, long userId);
@@ -290,6 +291,6 @@ interface SQLQueriesDao {
     List<ScrobbledArtist> getServerArtistsByMbid(Connection connection, long guildId);
 
 
-    List<LbEntry<Float>> audioLb(Connection connection, AudioStats element, long guildId);
+    List<LbEntry<Float>> audioLb(Connection connection, AudioStats element, long guildId, Order order);
 
 }

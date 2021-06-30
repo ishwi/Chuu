@@ -127,7 +127,7 @@ public class StatsCommand extends ConcurrentCommand<StatsParams> {
         }
 
         Stats.StatsResult result = Stats.process(data, db, lastFM, enumSet, userInfo, totalPlays, timestamp, tfe, aux, st);
-        DiscordUserDisplay uInfo = CommandUtil.getUserInfoUnescaped(e, e.getAuthor().getIdLong());
+        DiscordUserDisplay uInfo = CommandUtil.getUserInfoUnescaped(e, params.getUser().getDiscordId());
         String image = userInfo.getImage();
         image = StringUtils.isBlank(image) ? null : image;
         EmbedBuilder eb = new ChuuEmbedBuilder(e)

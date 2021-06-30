@@ -114,12 +114,9 @@ public class CommandUtil {
 
 
     public static void validate(ChuuService dao, ScrobbledArtist scrobbledArtist, ConcurrentLastFM lastFM, DiscogsApi discogsApi, Spotify spotify) throws LastFmException {
-        validate(dao, scrobbledArtist, lastFM, discogsApi, spotify, true);
+        validate(dao, scrobbledArtist, lastFM, discogsApi, spotify, true, true);
     }
 
-    private static void validate(ChuuService dao, ScrobbledArtist scrobbledArtist, ConcurrentLastFM lastFM, DiscogsApi discogsApi, Spotify spotify, boolean doUrlCheck) throws LastFmException {
-        validate(dao, scrobbledArtist, lastFM, discogsApi, spotify, doUrlCheck, true);
-    }
 
     public static void validate(ChuuService dao, ScrobbledArtist scrobbledArtist, ConcurrentLastFM lastFM, DiscogsApi discogsApi, Spotify spotify, boolean doUrlCheck, boolean findCorrection) throws LastFmException {
         if (findCorrection) {

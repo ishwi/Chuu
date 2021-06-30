@@ -8,15 +8,18 @@ import core.commands.utils.CommandUtil;
 import core.parsers.EnumParser;
 import core.parsers.Parser;
 import core.parsers.params.EnumParameters;
+import core.parsers.utils.OptionalEntity;
 import dao.ServiceView;
 import dao.entities.AudioStats;
 import dao.entities.LbEntry;
+import dao.utils.Order;
 import net.dv8tion.jda.api.EmbedBuilder;
 import org.apache.commons.text.WordUtils;
 
 import javax.validation.constraints.NotNull;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Locale;
 
 public class WhoAudioCommand extends LeaderboardCommand<EnumParameters<AudioStats>, Float> {
 
@@ -27,7 +30,8 @@ public class WhoAudioCommand extends LeaderboardCommand<EnumParameters<AudioStat
 
     @Override
     public String getEntryName(EnumParameters<AudioStats> params) {
-        return WordUtils.capitalizeFully(params.getElement().toString().replaceAll("_", " "));
+        String elment = params.getElement().toString().toLowerCase(Locale.ROOT).replaceAll("_", " ");
+        return params.hasOptional("reverse") ? "inverted " + elment : elment;
     }
 
     @Override
@@ -37,12 +41,22 @@ public class WhoAudioCommand extends LeaderboardCommand<EnumParameters<AudioStat
 
     @Override
     public Parser<EnumParameters<AudioStats>> initParser() {
-        return new EnumParser<>(AudioStats.class, true, false, false);
+        var parser = new EnumParser<>(AudioStats.class, true, false, false);
+        parser.addOptional(new OptionalEntity("reverse", "sort by lowest to highest instead", "r"));
+        return parser;
     }
 
     @Override
     public List<LbEntry<Float>> getList(EnumParameters<AudioStats> params) {
-        return db.getServerAudioLeadearboard(params.getElement(), params.getE().getGuild().getIdLong());
+        AudioStats element = params.getElement();
+        Order order = Order.DESC;
+        if (params.hasOptional("reverse")) {
+            order = order.getInverse();
+        }
+        if (!element.isReal()) {
+            order = order.getInverse();
+        }
+        return db.getServerAudioLeadearboard(params.getElement().mapToReal(), params.getE().getGuild().getIdLong(), order);
     }
 
     @Override
@@ -76,6 +90,10 @@ public class WhoAudioCommand extends LeaderboardCommand<EnumParameters<AudioStat
     @Override
     protected void setFooter(EmbedBuilder embedBuilder, List<LbEntry<Float>> list, EnumParameters<AudioStats> params) {
         Context e = params.getE();
-        embedBuilder.setFooter(e.getGuild().getName() + " has " + list.size() + " " + CommandUtil.singlePlural(list.size(), "user", "users") + " with audio stats!\n", null);
+        String text = "";
+        if (list.size() > 10) {
+            text = "%s has %d %s with audio stats!\n".formatted(e.getGuild().getName(), list.size(), CommandUtil.singlePlural(list.size(), "user", "users"));
+        }
+        embedBuilder.setFooter(text + userStringFooter(embedBuilder, list, params), null);
     }
 }

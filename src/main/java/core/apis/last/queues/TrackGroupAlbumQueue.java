@@ -61,7 +61,10 @@ public class TrackGroupAlbumQueue extends TrackGroupArtistQueue {
 
         //AlbumInfo -> AlbumChart
         Map<AlbumInfo, UrlCapsule> albumMap = this.albumEntities.stream().collect(Collectors.toMap(o ->
-                new AlbumInfo(o.getAlbumName(), o.getArtistName()), o -> o));
+                new AlbumInfo(o.getAlbumName(), o.getArtistName()), o -> o, (a, b) -> {
+            a.setPlays(a.getPlays() + b.getPlays());
+            return a;
+        }));
 
         // Album Url -> AlbumChart
         Map<String, UrlCapsule> urlMap = this.albumEntities.stream()
