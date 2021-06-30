@@ -9,8 +9,10 @@ import org.imgscalr.Scalr;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.util.HashMap;
 import java.util.List;
-import java.util.*;
+import java.util.Map;
+import java.util.OptionalInt;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -72,7 +74,7 @@ class ThreadQueue implements Runnable {
         BlockingQueue<UrlCapsule> finalQueue = new ArrayBlockingQueue<>(queue.size());
         queue.drainTo(finalQueue);
 
-        OptionalInt max = Arrays.stream(finalQueue.toArray(UrlCapsule[]::new)).mapToInt(x -> {
+        OptionalInt max = finalQueue.stream().mapToInt(x -> {
             String join = x.getLines().stream().map(ChartLine::getLine).collect(Collectors.joining(" - "));
             Font font = GraphicUtils.chooseFont(join).deriveFont(Font.BOLD, imageHeight / columns == 300 ? 24 : 12);
             g1.setFont(font);
