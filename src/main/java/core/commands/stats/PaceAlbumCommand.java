@@ -26,9 +26,11 @@ import dao.entities.FullAlbumEntityExtended;
 import dao.entities.LastFMData;
 import dao.entities.ScrobbledArtist;
 import dao.entities.UserInfo;
+import net.dv8tion.jda.api.utils.TimeFormat;
 
 import javax.validation.constraints.NotNull;
 import java.text.DecimalFormat;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
@@ -168,7 +170,9 @@ public class PaceAlbumCommand extends ConcurrentCommand<NumberParameters<AlbumTi
         if (time.isAllTime()) timeFrame = " overall";
         else
             timeFrame = time.getDisplayString();
-        String format = now.plus((long) remainingUnits, days).format(formatter);
+        ZonedDateTime target = now.plus((long) remainingUnits, days);
+        Instant instant = target.toInstant();
+        String format = CommandUtil.getDateTimestampt(instant, TimeFormat.DATE_LONG);
         String unit = days.name().toLowerCase();
         String s = String.format("**%s** has a rate of **%s** scrobbles of **%s** per %s%s, so they are on pace to hit **%d** scrobbles by **%s**. (They have %d %s scrobbles)",
                 userString, new DecimalFormat("#0.00").format(ratio), scrobbledArtist.getArtist() + " - " + album,

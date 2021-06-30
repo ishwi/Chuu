@@ -3,6 +3,7 @@ package core.commands.stats;
 import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
+import core.commands.utils.CommandUtil;
 import core.exceptions.LastFmException;
 import core.parsers.PaceParser;
 import core.parsers.Parser;
@@ -13,9 +14,11 @@ import dao.ServiceView;
 import dao.entities.LastFMData;
 import dao.entities.NaturalTimeFrameEnum;
 import dao.entities.UserInfo;
+import net.dv8tion.jda.api.utils.TimeFormat;
 
 import javax.validation.constraints.NotNull;
 import java.text.DecimalFormat;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
@@ -111,7 +114,7 @@ public class PaceCommand extends ConcurrentCommand<NumberParameters<NumberParame
             } else {
                 // we only have one null
                 long s = tempS;
-                if (s < playCount) {
+                if (s <= playCount) {
                     unitNumber = s;
                     goal = (long) (Math.ceil(playCount / 10_000.) * 10_000);
                 } else {
@@ -122,7 +125,7 @@ public class PaceCommand extends ConcurrentCommand<NumberParameters<NumberParame
         } else {
             // We only have tempU
             if (tempS == null) {
-                if (tempU < playCount) {
+                if (tempU <= playCount) {
                     unitNumber = tempU;
                     goal = (long) (Math.ceil(playCount / 10_000.) * 10_000);
                 } else {
@@ -167,9 +170,11 @@ public class PaceCommand extends ConcurrentCommand<NumberParameters<NumberParame
         if (naturalTimeFrameEnum.equals(NaturalTimeFrameEnum.ALL)) timeFrame = "overall";
         else
             timeFrame = "over the last" + (unitNumber == 1 ? "" : " " + unitNumber) + " " + (unitNumber == 1 ? naturalTimeFrameEnum.toString().toLowerCase() : naturalTimeFrameEnum.toString().toLowerCase() + "s");
-        String format = now.plus((long) remainingUnits, chronoUnits.get(i)).format(formatter);
+        ZonedDateTime target = now.plus((long) remainingUnits, chronoUnits.get(i));
+        Instant instant = target.toInstant();
+        String format = CommandUtil.getDateTimestampt(instant, TimeFormat.DATE_LONG);
         String unit = chronoUnits.get(i).name().toLowerCase();
-        String s = String.format("**%s** has a rate of **%s** scrobbles per %s %s, so they are on pace to hit **%d** scrobbles on **%s**. (They currently have %d scrobbles)",
+        String s = String.format("**%s** has a rate of **%s** scrobbles per %s %s, so they are on pace to hit **%d** scrobbles by **%s**. (They currently have %d scrobbles)",
                 userString,
                 new DecimalFormat("#0.00").format(ratio),
                 unit.substring(0, unit.length() - 1),

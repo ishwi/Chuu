@@ -102,7 +102,7 @@ public class TimeOnArtistCommand extends ConcurrentCommand<ArtistTimeFrameParame
                 return;
             }
         }
-        String fullStr = "%s has listen to **%s** distinct **%s** tracks (%s scrobbles) for a total of **%s**!".formatted(uInfo.getUsername(),
+        String fullStr = "%s has listened to **%s** distinct **%s** tracks (%s scrobbles) for a total of **%s**!".formatted(uInfo.getUsername(),
                 ai.size(),
                 who.getArtist(),
                 ai.stream().mapToInt(Track::getPlays).sum(),
