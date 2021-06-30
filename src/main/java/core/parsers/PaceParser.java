@@ -45,7 +45,7 @@ public class PaceParser extends NumberParser<NumberParameters<NaturalTimeParams>
         LocalDate now = LocalDate.now();
         return switch (naturalTimeFrameEnum) {
             case YEAR -> number > (int) ChronoUnit.YEARS.between(LASTFM_CREATION_DATE, now);
-            case QUARTER -> number > (int) ChronoUnit.YEARS.between(LASTFM_CREATION_DATE, now) * 4L;
+            case QUARTER -> number > (int) ChronoUnit.YEARS.between(LASTFM_CREATION_DATE, now) * 3L;
             case MONTH -> number > ChronoUnit.MONTHS.between(LASTFM_CREATION_DATE, now);
             case ALL -> false;
             case SEMESTER -> number > ChronoUnit.YEARS.between(LASTFM_CREATION_DATE, now) * 2;

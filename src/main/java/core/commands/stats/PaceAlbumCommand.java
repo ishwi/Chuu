@@ -145,7 +145,7 @@ public class PaceAlbumCommand extends ConcurrentCommand<NumberParameters<AlbumTi
         if (time.isNormal()) {
             timestamp = switch (time.getTimeFrameEnum()) {
                 case YEAR -> (int) now.minus(unitNumber, ChronoUnit.YEARS).toInstant().getEpochSecond();
-                case QUARTER -> (int) now.minus(unitNumber * 4, ChronoUnit.MONTHS).toInstant().getEpochSecond();
+                case QUARTER -> (int) now.minus(unitNumber * 3, ChronoUnit.MONTHS).toInstant().getEpochSecond();
                 case MONTH -> (int) now.minus(unitNumber, ChronoUnit.MONTHS).toInstant().getEpochSecond();
                 case ALL -> unixtimestamp;
                 case SEMESTER -> (int) now.minus(unitNumber * 6, ChronoUnit.MONTHS).toInstant().getEpochSecond();

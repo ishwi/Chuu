@@ -42,7 +42,7 @@ public class PaceCommand extends ConcurrentCommand<NumberParameters<NumberParame
     public static int getTimestamp(NaturalTimeFrameEnum naturalTimeFrameEnum, UserInfo mainUser, long unitNumber, ZonedDateTime now) {
         return switch (naturalTimeFrameEnum) {
             case YEAR -> (int) now.minus(unitNumber, ChronoUnit.YEARS).toEpochSecond();
-            case QUARTER -> (int) now.minus(unitNumber * 4, ChronoUnit.MONTHS).toEpochSecond();
+            case QUARTER -> (int) now.minus(unitNumber * 3, ChronoUnit.MONTHS).toEpochSecond();
             case MONTH -> (int) now.minus(unitNumber, ChronoUnit.MONTHS).toEpochSecond();
             case ALL -> mainUser.getUnixtimestamp();
             case SEMESTER -> (int) now.minus(unitNumber * 6, ChronoUnit.MONTHS).toEpochSecond();
