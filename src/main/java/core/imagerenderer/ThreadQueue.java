@@ -72,7 +72,7 @@ class ThreadQueue implements Runnable {
         BlockingQueue<UrlCapsule> finalQueue = new ArrayBlockingQueue<>(queue.size());
         queue.drainTo(finalQueue);
 
-        OptionalInt max = Arrays.stream(queue.toArray(UrlCapsule[]::new)).mapToInt(x -> {
+        OptionalInt max = Arrays.stream(finalQueue.toArray(UrlCapsule[]::new)).mapToInt(x -> {
             String join = x.getLines().stream().map(ChartLine::getLine).collect(Collectors.joining(" - "));
             Font font = GraphicUtils.chooseFont(join).deriveFont(Font.BOLD, imageHeight / columns == 300 ? 24 : 12);
             g1.setFont(font);
