@@ -79,8 +79,8 @@ public class MilestoneCommand extends ConcurrentCommand<NumberParameters<ChuuDat
 
     private void buildEmbed(Context e, Long extraParam, LastFMData lastFMData, TrackWithArtistId milestone) {
         DiscordUserDisplay uinfo = CommandUtil.getUserInfoUnescaped(e, lastFMData.getDiscordId());
-
-        OffsetDateTime offsetDateTime = OffsetDateTime.ofInstant(Instant.ofEpochSecond(milestone.getUtc()), lastFMData.getTimeZone().toZoneId());
+        Instant instant = Instant.ofEpochSecond(milestone.getUtc());
+        OffsetDateTime offsetDateTime = OffsetDateTime.ofInstant(instant, lastFMData.getTimeZone().toZoneId());
 
         String day = offsetDateTime.toLocalDate().format(DateTimeFormatter.ISO_DATE);
         String date = CommandUtil.getAmericanizedDate(offsetDateTime);

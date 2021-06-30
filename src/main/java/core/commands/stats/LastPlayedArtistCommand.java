@@ -12,10 +12,10 @@ import core.parsers.utils.OptionalEntity;
 import dao.ServiceView;
 import dao.entities.LastFMData;
 import dao.entities.ScrobbledArtist;
+import net.dv8tion.jda.api.utils.TimeFormat;
 
 import javax.validation.constraints.NotNull;
 import java.time.Instant;
-import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -63,9 +63,8 @@ public class LastPlayedArtistCommand extends ConcurrentCommand<ArtistParameters>
             return;
         }
         String usernameString = getUserString(e, params.getLastFMData().getDiscordId(), data.getName());
-        OffsetDateTime offsetDateTime = OffsetDateTime.ofInstant(instant.get(), data.getTimeZone().toZoneId());
-        String date = CommandUtil.getAmericanizedDate(offsetDateTime);
-        sendMessageQueue(e, String.format("Last time that **%s** scrobbled **%s** was at %s", usernameString, CommandUtil.escapeMarkdown(artist.getArtist()), date));
+        String date = CommandUtil.getDateTimestampt(instant.get(), TimeFormat.RELATIVE);
+        sendMessageQueue(e, String.format("Last time that **%s** scrobbled **%s** was %s", usernameString, CommandUtil.escapeMarkdown(artist.getArtist()), date));
     }
 
 

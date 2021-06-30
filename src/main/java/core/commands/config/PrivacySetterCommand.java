@@ -54,7 +54,9 @@ public class PrivacySetterCommand extends ConcurrentCommand<EnumParameters<Priva
         PrivacyMode element = params.getElement();
         LastFMData lastFMData = db.findLastFMData(e.getAuthor().getIdLong());
         String publicStr = PrivacyUtils.getPublicString(element, lastFMData.getDiscordId(), lastFMData.getName(), new AtomicInteger(1), e, new HashSet<>()).discordName();
-
+        if (element == PrivacyMode.DISCORD_NAME) {
+            publicStr = e.getAuthor().getName();
+        }
         if (lastFMData.getPrivacyMode().equals(element)) {
             sendMessageQueue(e, "You already had %s as your privacy config.%nYou are appearing as **%s** for users in other servers".formatted(element, publicStr));
             return;

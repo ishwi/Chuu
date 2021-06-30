@@ -20,9 +20,9 @@ import dao.entities.Memoized;
 import dao.entities.ScrobbledArtist;
 import dao.entities.UserListened;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.utils.TimeFormat;
 
 import javax.validation.constraints.NotNull;
-import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.function.Function;
 
@@ -43,8 +43,7 @@ public class WhoLastCommand extends ConcurrentCommand<ArtistParameters> {
             if (userListened.moment().isEmpty()) {
                 whem = "**Never**";
             } else {
-                OffsetDateTime offsetDateTime = OffsetDateTime.ofInstant(userListened.moment().get(), userListened.timeZone().toZoneId());
-                whem = "**" + CommandUtil.getAmericanizedDate(offsetDateTime) + "**";
+                whem = "**" + CommandUtil.getDateTimestampt(userListened.moment().get(), TimeFormat.RELATIVE) + "**";
             }
             return ". [" + CommandUtil.getUserInfoConsideringGuildOrNot(e, userListened.discordId()).getUsername() + "](" + PrivacyUtils.getLastFmUser(userListened.lastfmId()) + "): " + whem + "\n";
         };

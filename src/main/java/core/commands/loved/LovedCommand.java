@@ -17,7 +17,6 @@ import net.dv8tion.jda.api.EmbedBuilder;
 
 import javax.validation.constraints.NotNull;
 import java.time.Instant;
-import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -71,7 +70,7 @@ public class LovedCommand extends ConcurrentCommand<ChuuDataParams> {
 
         new ListSender<>(e,
                 songs,
-                t -> "**[%s - %s](%s)** - %s\n".formatted(t.getName(), t.getArtist(), PrivacyUtils.getLastFmArtistTrackUserUrl(t.getArtist(), t.getName(), userName), CommandUtil.getAmericanizedDate(OffsetDateTime.ofInstant(Instant.ofEpochSecond(t.getUtc()), zoneId))),
+                t -> "**[%s - %s](%s)** - %s\n".formatted(t.getName(), t.getArtist(), PrivacyUtils.getLastFmArtistTrackUserUrl(t.getArtist(), t.getName(), userName), CommandUtil.getDateTimestampt(Instant.ofEpochSecond(t.getUtc()))),
                 embedBuilder)
                 .doSend(false);
 

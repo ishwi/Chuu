@@ -18,6 +18,7 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.utils.TimeFormat;
 import net.dv8tion.jda.internal.requests.CompletedRestAction;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -389,6 +390,14 @@ public class CommandUtil {
         }
     }
 
+    public static String getDateTimestampt(Instant instant) {
+        return getDateTimestampt(instant, TimeFormat.DATE_TIME_SHORT);
+    }
+
+    public static String getDateTimestampt(Instant instant, TimeFormat timeFormat) {
+        return timeFormat.format(instant);
+    }
+
     public static String getAmericanizedDate(OffsetDateTime offsetDateTime) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d");
 
@@ -397,8 +406,6 @@ public class CommandUtil {
         String year = DateTimeFormatter.ofPattern("yyyy").format(offsetDateTime);
 
         return String.format("%s %s%s, %s", first, day, CommandUtil.getDayNumberSuffix(Integer.parseInt(day)), year);
-
-
     }
 
     public static boolean showBottedAccounts(@Nullable LastFMData lastfmData, CommandParameters parameters, ChuuService chuuService) {
@@ -440,7 +447,7 @@ public class CommandUtil {
             OffsetDateTime offsetDateTime = OffsetDateTime.ofInstant(streakStart, ZoneId.of("UTC"));
 
             String day = offsetDateTime.toLocalDate().format(DateTimeFormatter.ISO_DATE);
-            String date = CommandUtil.getAmericanizedDate(offsetDateTime);
+            String date = CommandUtil.getDateTimestampt(streakStart, TimeFormat.RELATIVE);
             String link = String.format("%s/library?from=%s&rangetype=1day", PrivacyUtils.getLastFmUser(lastfmId), day);
             return new GlobalStreakEntities.DateHolder(streakStart, date, link);
 

@@ -14,8 +14,6 @@ import org.apache.commons.text.WordUtils;
 
 import javax.validation.constraints.NotNull;
 import java.time.Instant;
-import java.time.OffsetDateTime;
-import java.time.ZoneId;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -24,11 +22,9 @@ public enum Stats {
     JOINED(GeneratorUtils.uInfo((a) ->
     {
         if (a.timeFrameEnum().isAllTime()) {
-            return "**Scrobbling since:** " + CommandUtil.getAmericanizedDate(
-                    OffsetDateTime.ofInstant(
-                            Instant.ofEpochSecond(a.userInfo().getUnixtimestamp()),
-                            ZoneId.systemDefault()
-                    ));
+            return "**Scrobbling since:** " + CommandUtil.getDateTimestampt(
+                    Instant.ofEpochSecond(a.userInfo().getUnixtimestamp())
+            );
         }
         return "Showing overview:" + a.timeFrameEnum().getDisplayString();
     }), AllMode.LINE_BREAK, "start", "since", "j"),

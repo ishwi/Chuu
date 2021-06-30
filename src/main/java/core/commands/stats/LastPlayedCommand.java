@@ -11,6 +11,7 @@ import core.parsers.utils.OptionalEntity;
 import dao.ServiceView;
 import dao.entities.LastFMData;
 import dao.entities.ScrobbledArtist;
+import net.dv8tion.jda.api.utils.TimeFormat;
 
 import java.time.Instant;
 import java.time.OffsetDateTime;
@@ -60,8 +61,8 @@ public class LastPlayedCommand extends AlbumPlaysCommand {
         }
         String usernameString = getUserString(e, who, lastFMData.getName());
         OffsetDateTime offsetDateTime = OffsetDateTime.ofInstant(instant.get(), lastFMData.getTimeZone().toZoneId());
-        String date = CommandUtil.getAmericanizedDate(offsetDateTime);
-        sendMessageQueue(e, String.format("Last time that **%s** scrobbled **%s** was at %s", usernameString, CommandUtil.escapeMarkdown(song), date));
+        String date = CommandUtil.getDateTimestampt(instant.get(), TimeFormat.RELATIVE);
+        sendMessageQueue(e, String.format("Last time that **%s** scrobbled **%s** was %s", usernameString, CommandUtil.escapeMarkdown(song), date));
     }
 }
 

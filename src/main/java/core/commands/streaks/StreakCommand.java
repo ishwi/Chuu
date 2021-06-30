@@ -147,7 +147,7 @@ public class StreakCommand extends ConcurrentCommand<ChuuDataParams> {
                 description.append("**Started**: ").append("**-**").append("\n");
             } else {
                 String day = offsetDateTime.toLocalDate().format(DateTimeFormatter.ISO_DATE);
-                String date = CommandUtil.getAmericanizedDate(offsetDateTime);
+                String date = CommandUtil.getDateTimestampt(combo.getStreakStart());
                 String link = String.format("%s/library?from=%s&rangetype=1day", PrivacyUtils.getLastFmUser(user.getName()), day);
                 description.append("**Started**: ").append("**[").append(date).append("](")
                         .append(link).append(")**")

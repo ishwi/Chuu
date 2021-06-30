@@ -11,6 +11,7 @@ import core.parsers.params.DateParameters;
 import dao.ServiceView;
 import dao.entities.LastFMData;
 import dao.exceptions.InstanceNotFoundException;
+import net.dv8tion.jda.api.utils.TimeFormat;
 
 import javax.validation.constraints.NotNull;
 import java.time.ZonedDateTime;
@@ -57,9 +58,7 @@ public class ScrobblesSinceCommand extends ConcurrentCommand<DateParameters> {
         String username = CommandUtil.getUserInfoConsideringGuildOrNot(e, params.getUser().getIdLong()).getUsername();
         String mmmmD = date.format(DateTimeFormatter.ofPattern("MMMM d"));
 
-        String ending = params.isAllTime() ? "" : String.format("since %s%s %d %s", mmmmD, CommandUtil.getDayNumberSuffix(date.getDayOfMonth()),
-                date.getYear(), date.getMinute() == 0 && date.getHour() == 0 && date.getSecond() == 0
-                                ? "" : date.format(DateTimeFormatter.ofPattern("HH:mm x")));
+        String ending = params.isAllTime() ? "" : "since " + CommandUtil.getDateTimestampt(params.getDate().toInstant(), TimeFormat.DATE_TIME_SHORT);
         sendMessageQueue(e, String.format("%s has a total of %d scrobbles %s", username, i, ending));
     }
 
