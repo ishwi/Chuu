@@ -61,24 +61,24 @@ public class AliasCommand extends ConcurrentCommand<TwoArtistParams> {
         long artistId;
         String corrected = db.findCorrection(alias);
         if (corrected != null) {
-            sendMessageQueue(e, "The alias: " + CommandUtil.escapeMarkdown(alias) + " already exists on the bot");
+            sendMessageQueue(e, "The alias **%s** cannot be used because there is already an artist with that name".formatted(CommandUtil.escapeMarkdown(alias)));
             return;
         }
         try {
             artistId = db.getArtistId(to);
         } catch (InstanceNotFoundException ex) {
-            sendMessageQueue(e, "The artist: " + CommandUtil.escapeMarkdown(to) + " doesn't exist in the bot");
+            sendMessageQueue(e, "Cannot use the artist **%s** as a target of an alias because it doesn't exist on the bot".formatted(CommandUtil.escapeMarkdown(to)));
             return;
         }
         try {
             db.getArtistId(alias);
-            sendMessageQueue(e, "The alias: " + CommandUtil.escapeMarkdown(alias) + " points to an existing artist within the bot!");
+            sendMessageQueue(e, "The alias: **%s** cannot be used because there is already an artist with that name".formatted(CommandUtil.escapeMarkdown(alias)));
             return;
         } catch (InstanceNotFoundException ex) {
             try {
                 ArtistSummary artistSummary = lastFM.getArtistSummary(alias, lastFMData);
                 if (artistSummary.getListeners() > 1000) {
-                    sendMessageQueue(e, "The alias: " + CommandUtil.escapeMarkdown(alias) + " is an existing artist in last.fm!");
+                    sendMessageQueue(e, "The alias: **%s** cannot be used because there is already an artist with that name".formatted(CommandUtil.escapeMarkdown(alias)));
                     return;
                 }
             } catch (LastFmEntityNotFoundException ignored) {
@@ -88,7 +88,7 @@ public class AliasCommand extends ConcurrentCommand<TwoArtistParams> {
 
         if (!lastFMData.getRole().equals(Role.ADMIN)) {
             db.enqueAlias(alias, artistId, idLong);
-            sendMessageQueue(e, "Your alias will be added to the review queue, only bot admins can add an alias");
+            sendMessageQueue(e, "Your alias will be added to the review queue");
 
         } else {
             try {

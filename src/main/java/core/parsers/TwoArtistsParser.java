@@ -58,7 +58,7 @@ public class TwoArtistsParser extends Parser<TwoArtistParams> {
     public List<Explanation> getUsages() {
         OptionData al = new OptionData(OptionType.STRING, "alias", "New alias to add", true);
         OptionData existingArtist = new OptionData(OptionType.STRING, "existing-artist", "Existing artist this new alias will point to", true);
-        return Collections.singletonList(() -> new ExplanationLine("firstArtist to: secondArtist", "It's also valid when the two artists are both one word long to write them without the to:", List.of(al, existingArtist)));
+        return Collections.singletonList(() -> new ExplanationLine("new-alias to: artist", "It's also valid when the two artists are both one word long to write them without the to:", List.of(al, existingArtist)));
     }
 
 }
