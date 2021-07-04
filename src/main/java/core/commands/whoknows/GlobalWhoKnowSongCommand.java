@@ -6,7 +6,8 @@ import core.exceptions.LastFmException;
 import core.parsers.ArtistSongParser;
 import core.parsers.Parser;
 import core.parsers.params.ArtistAlbumParameters;
-import core.services.TrackValidator;
+import core.services.validators.ArtistValidator;
+import core.services.validators.TrackValidator;
 import dao.ServiceView;
 import dao.entities.LastFMData;
 import dao.entities.ScrobbledArtist;
@@ -55,13 +56,12 @@ public class GlobalWhoKnowSongCommand extends GlobalBaseWhoKnowCommand<ArtistAlb
 
     @Override
     WrapperReturnNowPlaying generateWrapper(ArtistAlbumParameters params, WhoKnowsMode whoKnowsMode) throws LastFmException {
-        ScrobbledArtist scrobbledArtist = new ScrobbledArtist(params.getArtist(), 0, null);
-        CommandUtil.validate(db, scrobbledArtist, lastFM, discogsApi, spotify, true, !params.isNoredirect());
+        ScrobbledArtist sA = new ArtistValidator(db, lastFM, params.getE()).validate(params.getArtist(), !params.isNoredirect());
         Context e = params.getE();
-        long artistId = scrobbledArtist.getArtistId();
-        params.setScrobbledArtist(scrobbledArtist);
+        long artistId = sA.getArtistId();
+        params.setScrobbledArtist(sA);
 
-        long trackId = new TrackValidator(db, lastFM).validate(scrobbledArtist.getArtistId(), params.getArtist(), params.getAlbum()).getTrackId();
+        long trackId = new TrackValidator(db, lastFM).validate(sA.getArtistId(), sA.getArtist(), params.getAlbum()).getTrackId();
 
         WhoKnowsMode effectiveMode = getEffectiveMode(params.getLastFMData().getWhoKnowsMode(), params);
 
@@ -71,7 +71,7 @@ public class GlobalWhoKnowSongCommand extends GlobalBaseWhoKnowCommand<ArtistAlb
         WrapperReturnNowPlaying wrapperReturnNowPlaying =
                 this.db.getGlobalWhoKnowsTrack(limit, trackId, author, b, hidePrivate(params));
         if (wrapperReturnNowPlaying.getRows() == 0) {
-            sendMessageQueue(params.getE(), "No one knows " + CommandUtil.escapeMarkdown(scrobbledArtist.getArtist() + " - " + params.getAlbum()));
+            sendMessageQueue(params.getE(), "No one knows " + CommandUtil.escapeMarkdown(sA.getArtist() + " - " + params.getAlbum()));
             return null;
         }
         return wrapperReturnNowPlaying;

@@ -1,9 +1,5 @@
 package core.commands.artists;
 
-import core.apis.discogs.DiscogsApi;
-import core.apis.discogs.DiscogsSingleton;
-import core.apis.spotify.Spotify;
-import core.apis.spotify.SpotifySingleton;
 import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
@@ -12,6 +8,7 @@ import core.exceptions.LastFmException;
 import core.parsers.ArtistParser;
 import core.parsers.Parser;
 import core.parsers.params.ArtistParameters;
+import core.services.validators.ArtistValidator;
 import dao.ServiceView;
 import dao.entities.LastFMData;
 import dao.entities.ScrobbledArtist;
@@ -20,13 +17,9 @@ import javax.validation.constraints.NotNull;
 import java.util.List;
 
 public class GuildArtistPlaysCommand extends ConcurrentCommand<ArtistParameters> {
-    private final DiscogsApi discogsApi;
-    private final Spotify spotify;
 
     public GuildArtistPlaysCommand(ServiceView dao) {
         super(dao);
-        this.spotify = SpotifySingleton.getInstance();
-        this.discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
     }
 
     @Override
@@ -64,8 +57,7 @@ public class GuildArtistPlaysCommand extends ConcurrentCommand<ArtistParameters>
 
         String artist = params.getArtist();
 
-        ScrobbledArtist scrobbledArtist = new ScrobbledArtist(artist, 0, null);
-        CommandUtil.validate(db, scrobbledArtist, lastFM, discogsApi, spotify);
+        ScrobbledArtist scrobbledArtist = new ArtistValidator(db, lastFM, e).validate(artist, !params.isNoredirect());
 
         long artistPlays;
         if (e.isFromGuild()) {

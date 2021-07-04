@@ -20,6 +20,7 @@ import core.parsers.ArtistParser;
 import core.parsers.Parser;
 import core.parsers.params.ArtistParameters;
 import core.parsers.utils.Optionals;
+import core.services.validators.ArtistValidator;
 import dao.ServiceView;
 import dao.entities.*;
 import dao.utils.LinkUtils;
@@ -190,9 +191,8 @@ public class BandInfoCommand extends ConcurrentCommand<ArtistParameters> {
 
     @Override
     protected void onCommand(Context e, @NotNull ArtistParameters params) throws LastFmException {
-        ScrobbledArtist scrobbledArtist = new ScrobbledArtist(params.getArtist(), 0, null);
-        CommandUtil.validate(db, scrobbledArtist, lastFM, discogsApi, spotify, true, !params.isNoredirect());
-        params.setScrobbledArtist(scrobbledArtist);
+        ScrobbledArtist sA = new ArtistValidator(db, lastFM, e).validate(params.getArtist(), !params.isNoredirect());
+        params.setScrobbledArtist(sA);
         bandLogic(params);
     }
 

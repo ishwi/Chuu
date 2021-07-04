@@ -13,7 +13,7 @@ import core.otherlisteners.ReactionResult;
 import core.parsers.ArtistAlbumParser;
 import core.parsers.Parser;
 import core.parsers.params.ArtistAlbumParameters;
-import core.services.AlbumValidator;
+import core.services.validators.AlbumValidator;
 import dao.ServiceView;
 import dao.entities.ScrobbledAlbum;
 import net.dv8tion.jda.api.EmbedBuilder;

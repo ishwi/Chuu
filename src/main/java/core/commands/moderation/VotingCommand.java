@@ -11,6 +11,7 @@ import core.parsers.ArtistParser;
 import core.parsers.Parser;
 import core.parsers.params.ArtistParameters;
 import core.services.ColorService;
+import core.services.validators.ArtistValidator;
 import dao.ServiceView;
 import dao.entities.*;
 import dao.exceptions.InstanceNotFoundException;
@@ -94,7 +95,7 @@ public class VotingCommand extends ConcurrentCommand<ArtistParameters> {
             return;
         }
         String preCorrectionArtist = params.getArtist();
-        ScrobbledArtist artist = CommandUtil.onlyCorrection(db, preCorrectionArtist, lastFM, !params.isNoredirect());
+        ScrobbledArtist artist = new ArtistValidator(db, lastFM, e).validate(preCorrectionArtist, false, !params.isNoredirect());
         List<VotingEntity> allArtistImages = db.getAllArtistImages(artist.getArtistId());
         if (allArtistImages.isEmpty()) {
             sendMessageQueue(e, artist.getArtist() + " doesn't have any image");

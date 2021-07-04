@@ -5,12 +5,13 @@ import core.apis.discogs.DiscogsApi;
 import core.apis.discogs.DiscogsSingleton;
 import core.apis.spotify.Spotify;
 import core.apis.spotify.SpotifySingleton;
-import core.commands.utils.CommandUtil;
+import core.commands.Context;
 import core.exceptions.LastFmException;
 import core.parsers.ArtistSongParser;
 import core.parsers.Parser;
 import core.parsers.params.ArtistAlbumParameters;
 import core.parsers.utils.Optionals;
+import core.services.validators.ArtistValidator;
 import dao.ServiceView;
 import dao.entities.*;
 
@@ -39,7 +40,7 @@ public class WhoKnowsSongCommand extends WhoKnowsAlbumCommand {
     }
 
     @Override
-    Map<UsersWrapper, Integer> fillPlayCounter(List<UsersWrapper> userList, String artist, String track, AlbumUserPlays fillWithUrl) throws LastFmException {
+    Map<UsersWrapper, Integer> fillPlayCounter(List<UsersWrapper> userList, String artist, String track, AlbumUserPlays fillWithUrl, Context e) throws LastFmException {
         Map<UsersWrapper, Integer> userMapPlays = new LinkedHashMap<>();
         UsersWrapper usersWrapper = userList.get(0);
         Track temp = lastFM.getTrackInfo(LastFMData.ofUserWrapper(usersWrapper), artist, track);
@@ -48,7 +49,7 @@ public class WhoKnowsSongCommand extends WhoKnowsAlbumCommand {
 
         fillWithUrl.setAlbum(temp.getName());
         if (temp.getImageUrl() == null || temp.getImageUrl().isBlank()) {
-            fillWithUrl.setAlbumUrl(CommandUtil.getArtistImageUrl(db, artist, lastFM, discogsApi, spotify));
+            fillWithUrl.setAlbumUrl(new ArtistValidator(db, lastFM, e).validate(artist).getUrl());
         }
         userList.stream().skip(1).forEach(u -> {
             try {

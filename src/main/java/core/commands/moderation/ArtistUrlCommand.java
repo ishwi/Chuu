@@ -9,6 +9,7 @@ import core.exceptions.LastFmException;
 import core.parsers.ArtistUrlParser;
 import core.parsers.Parser;
 import core.parsers.params.ArtistUrlParameters;
+import core.services.validators.ArtistValidator;
 import dao.ServiceView;
 import dao.entities.LastFMData;
 import dao.entities.Role;
@@ -65,7 +66,7 @@ public class ArtistUrlCommand extends ConcurrentCommand<ArtistUrlParameters> {
                 parser.sendError(parser.getErrorMessage(2), e);
                 return;
             }
-            ScrobbledArtist scrobbledArtist = CommandUtil.onlyCorrection(db, artist, lastFM, !params.isNoredirect());
+            ScrobbledArtist scrobbledArtist = new ArtistValidator(db, lastFM, e).validate(artist, false, !params.isNoredirect());
             OptionalLong persistedId = db.checkArtistUrlExists(scrobbledArtist.getArtistId(), urlParsed);
             OptionalLong queuedId = db.checkQueuedUrlExists(scrobbledArtist.getArtistId(), urlParsed);
 

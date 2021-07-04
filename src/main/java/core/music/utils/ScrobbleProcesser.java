@@ -10,7 +10,7 @@ import core.music.sources.MetadataTrack;
 import core.music.sources.youtube.webscrobbler.ChuuYoutubeAudioTrack;
 import core.music.sources.youtube.webscrobbler.processers.ChuuAudioTrackInfo;
 import core.music.sources.youtube.webscrobbler.processers.Processed;
-import core.services.AlbumFinder;
+import core.services.validators.AlbumFinder;
 import dao.entities.Metadata;
 import org.apache.commons.lang3.StringUtils;
 

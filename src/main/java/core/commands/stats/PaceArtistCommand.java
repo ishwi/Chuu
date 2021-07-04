@@ -21,6 +21,7 @@ import core.parsers.params.ChartParameters;
 import core.parsers.params.NumberParameters;
 import core.parsers.utils.CustomTimeFrame;
 import core.services.UserInfoService;
+import core.services.validators.ArtistValidator;
 import dao.ServiceView;
 import dao.entities.LastFMData;
 import dao.entities.ScrobbledArtist;
@@ -94,12 +95,10 @@ public class PaceArtistCommand extends ConcurrentCommand<NumberParameters<Artist
 
         TimeFrameEnum time = params.getInnerParams().getTimeFrame();
         LastFMData user = params.getInnerParams().getLastFMData();
+        ScrobbledArtist sA = new ArtistValidator(db, lastFM, e).validate(params.getInnerParams().getArtist(), !params.getInnerParams().isNoredirect());
         String artist = params.getInnerParams().getArtist();
-        ScrobbledArtist scrobbledArtist = new ScrobbledArtist(artist, 0, null);
-
-        CommandUtil.validate(db, scrobbledArtist, lastFM, discogsApi, spotify, true, !params.getInnerParams().isNoredirect());
         BlockingQueue<UrlCapsule> queue = new DiscardableQueue<>(
-                x -> !x.getArtistName().equalsIgnoreCase(scrobbledArtist.getArtist())
+                x -> !x.getArtistName().equalsIgnoreCase(sA.getArtist())
                 , x -> x, 1);
         String lastfm = user.getName();
         lastFM.getChart(user,
@@ -116,13 +115,13 @@ public class PaceArtistCommand extends ConcurrentCommand<NumberParameters<Artist
             return;
         }
         UrlCapsule urlCapsule = objects.get(0);
-        scrobbledArtist.setArtist(urlCapsule.getArtistName());
+        sA.setArtist(urlCapsule.getArtistName());
         int metricPlays = urlCapsule.getPlays();
         int artistPlays;
         if (time.equals(TimeFrameEnum.ALL)) {
             artistPlays = metricPlays;
         } else {
-            artistPlays = lastFM.getArtistSummary(scrobbledArtist.getArtist(), user).getUserPlayCount();
+            artistPlays = lastFM.getArtistSummary(sA.getArtist(), user).getUserPlayCount();
         }
         Long goal = params.getExtraParam();
         if (goal == null) {
@@ -164,9 +163,9 @@ public class PaceArtistCommand extends ConcurrentCommand<NumberParameters<Artist
         String format = CommandUtil.getDateTimestampt(instant, TimeFormat.DATE_LONG);
         String unit = days.name().toLowerCase();
         String s = String.format("**%s** has a rate of **%s** scrobbles of **%s** per %s%s, so they are on pace to hit **%d** scrobbles by **%s**. (They have %d %s scrobbles)",
-                userString, new DecimalFormat("#0.00").format(ratio), scrobbledArtist.getArtist(),
+                userString, new DecimalFormat("#0.00").format(ratio), sA.getArtist(),
                 unit.substring(0, unit.length() - 1),
-                timeFrame, goal, format, artistPlays, scrobbledArtist.getArtist());
+                timeFrame, goal, format, artistPlays, sA.getArtist());
 
         sendMessageQueue(e, s);
 

@@ -13,9 +13,10 @@ import core.parsers.OnlyUsernameParser;
 import core.parsers.Parser;
 import core.parsers.params.ChuuDataParams;
 import core.parsers.utils.Optionals;
-import core.services.AlbumValidator;
-import core.services.TrackValidator;
 import core.services.tags.TagStorer;
+import core.services.validators.AlbumValidator;
+import core.services.validators.ArtistValidator;
+import core.services.validators.TrackValidator;
 import dao.ServiceView;
 import dao.entities.*;
 import dao.utils.LinkUtils;
@@ -80,8 +81,7 @@ public class TagStreakCommand extends ConcurrentCommand<ChuuDataParams> {
             try {
                 Long artistId = artistToId.get(artist);
                 if (artistId == null) {
-                    ScrobbledArtist sa = new ScrobbledArtist(artist, 0, null);
-                    CommandUtil.validate(db, sa, lastFM, null, null, false, true);
+                    ScrobbledArtist sa = new ArtistValidator(db, lastFM, e).validate(artist, true);
                     artistToId.put(artist, sa.getArtistId());
                     artistId = sa.getArtistId();
                 }

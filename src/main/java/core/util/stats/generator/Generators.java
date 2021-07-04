@@ -7,7 +7,7 @@ import core.exceptions.LastFmException;
 import core.parsers.params.ChartParameters;
 import core.parsers.utils.CustomTimeFrame;
 import core.services.NPService;
-import core.services.TrackValidator;
+import core.services.validators.TrackValidator;
 import core.util.stats.StatsCtx;
 import core.util.stats.StatsGenerator;
 import dao.entities.*;

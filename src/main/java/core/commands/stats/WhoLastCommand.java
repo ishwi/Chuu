@@ -1,9 +1,5 @@
 package core.commands.stats;
 
-import core.apis.discogs.DiscogsApi;
-import core.apis.discogs.DiscogsSingleton;
-import core.apis.spotify.Spotify;
-import core.apis.spotify.SpotifySingleton;
 import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.ChuuEmbedBuilder;
@@ -15,6 +11,7 @@ import core.otherlisteners.Reactionary;
 import core.parsers.ArtistParser;
 import core.parsers.Parser;
 import core.parsers.params.ArtistParameters;
+import core.services.validators.ArtistValidator;
 import dao.ServiceView;
 import dao.entities.Memoized;
 import dao.entities.ScrobbledArtist;
@@ -27,13 +24,9 @@ import java.util.List;
 import java.util.function.Function;
 
 public class WhoLastCommand extends ConcurrentCommand<ArtistParameters> {
-    private final DiscogsApi discogsApi;
-    private final Spotify spotify;
 
     public WhoLastCommand(ServiceView dao) {
         super(dao, true);
-        this.discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
-        this.spotify = SpotifySingleton.getInstance();
         respondInPrivate = false;
     }
 
@@ -99,14 +92,12 @@ public class WhoLastCommand extends ConcurrentCommand<ArtistParameters> {
     @Override
     protected void onCommand(Context e, @NotNull ArtistParameters params) throws LastFmException {
 
-        String artist = params.getArtist();
+        ScrobbledArtist sA = new ArtistValidator(db, lastFM, e).validate(params.getArtist(), !params.isNoredirect());
+        params.setScrobbledArtist(sA);
 
-        ScrobbledArtist scrobbledArtist = new ScrobbledArtist(artist, 0, null);
-        CommandUtil.validate(db, scrobbledArtist, lastFM, discogsApi, spotify);
-        params.setScrobbledArtist(scrobbledArtist);
-        List<UserListened> lasts = db.getServerLastScrobbledArtist(scrobbledArtist.getArtistId(), e.getGuild().getIdLong());
+        List<UserListened> lasts = db.getServerLastScrobbledArtist(sA.getArtistId(), e.getGuild().getIdLong());
         if (lasts.isEmpty()) {
-            sendMessageQueue(e, "Couldn't get the last time this server scrobbled **" + artist + "**");
+            sendMessageQueue(e, "Couldn't get the last time this server scrobbled **" + sA.getArtist() + "**");
             return;
         }
 

@@ -6,7 +6,6 @@ import core.apis.last.ConcurrentLastFM;
 import core.apis.last.LastFMFactory;
 import core.apis.spotify.Spotify;
 import core.apis.spotify.SpotifySingleton;
-import core.commands.utils.CommandUtil;
 import org.junit.Before;
 import org.junit.Test;
 import test.commands.parsers.NullReturnParsersTest;
@@ -39,13 +38,12 @@ public class GlobalArtistCommand extends CommandTest {
     }
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         ConcurrentLastFM newInstance = LastFMFactory.getNewInstance();
         DiscogsApi discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
         Spotify spotify = SpotifySingleton.getInstance();
         this.commonArtist = TestResources.commonArtist;
-        artistUrl = CommandUtil
-                .getArtistImageUrl(TestResources.dao, TestResources.commonArtist, newInstance, discogsApi, spotify);
+        artistUrl = null;
         this.basicList = new ArrayList<>();
         basicList.add(FieldRowMatcher.numberField("Total Listeners:"));
         basicList.add(FieldRowMatcher.numberField("Total Plays:"));

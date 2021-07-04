@@ -1,9 +1,5 @@
 package core.commands.stats;
 
-import core.apis.discogs.DiscogsApi;
-import core.apis.discogs.DiscogsSingleton;
-import core.apis.spotify.Spotify;
-import core.apis.spotify.SpotifySingleton;
 import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.ChuuEmbedBuilder;
@@ -14,6 +10,7 @@ import core.otherlisteners.Reactionary;
 import core.parsers.ArtistParser;
 import core.parsers.Parser;
 import core.parsers.params.ArtistParameters;
+import core.services.validators.ArtistValidator;
 import dao.ServiceView;
 import dao.entities.ScrobbledArtist;
 import dao.exceptions.InstanceNotFoundException;
@@ -26,13 +23,9 @@ import java.util.List;
 
 public class TagsCommand extends ConcurrentCommand<ArtistParameters> {
 
-    private final Spotify spotify;
-    private final DiscogsApi discogsApi;
 
     public TagsCommand(ServiceView dao) {
         super(dao);
-        this.spotify = SpotifySingleton.getInstance();
-        this.discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
     }
 
     @Override
@@ -72,12 +65,11 @@ public class TagsCommand extends ConcurrentCommand<ArtistParameters> {
 
         String artist = parse.getArtist();
 
-        ScrobbledArtist scrobbledArtist = new ScrobbledArtist(artist, 0, null);
-        CommandUtil.validate(db, scrobbledArtist, lastFM, discogsApi, spotify);
+        ScrobbledArtist sA = new ArtistValidator(db, lastFM, e).validate(artist, !params.isNoredirect());
 
 
-        String correctedArtist = CommandUtil.escapeMarkdown(scrobbledArtist.getArtist());
-        List<String> artistTags = db.getArtistTag(scrobbledArtist.getArtistId())
+        String correctedArtist = CommandUtil.escapeMarkdown(sA.getArtist());
+        List<String> artistTags = db.getArtistTag(sA.getArtistId())
                 .stream().map(x -> String.format(". **[%s](%s)**%n",
                         WordUtils.capitalizeFully(x)
                         , LinkUtils.getLastFmTagUrl(x))).toList();
@@ -94,7 +86,7 @@ public class TagsCommand extends ConcurrentCommand<ArtistParameters> {
 
         EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e)
                 .setDescription(a)
-                .setAuthor(correctedArtist + "'s tags", LinkUtils.getLastFmArtistUrl(scrobbledArtist.getArtist()), scrobbledArtist.getUrl());
+                .setAuthor(correctedArtist + "'s tags", LinkUtils.getLastFmArtistUrl(sA.getArtist()), sA.getUrl());
         e.sendMessage(embedBuilder.build()).queue(message1 ->
                 new Reactionary<>(artistTags, message1, embedBuilder));
     }

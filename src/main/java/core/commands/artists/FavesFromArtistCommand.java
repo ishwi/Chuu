@@ -16,6 +16,7 @@ import core.parsers.ArtistTimeFrameParser;
 import core.parsers.Parser;
 import core.parsers.params.ArtistTimeFrameParameters;
 import core.parsers.params.CommandParameters;
+import core.services.validators.ArtistValidator;
 import dao.ServiceView;
 import dao.entities.*;
 import dao.utils.LinkUtils;
@@ -74,9 +75,9 @@ public class FavesFromArtistCommand extends ConcurrentCommand<ArtistTimeFramePar
 
         long userId = params.getLastFMData().getDiscordId();
         TimeFrameEnum timeframew = params.getTimeFrame();
-        String artist = params.getArtist();
-        ScrobbledArtist who = new ScrobbledArtist(artist, 0, "");
-        CommandUtil.validate(db, who, lastFM, discogs, spotify, true, !params.isNoredirect());
+
+        ScrobbledArtist who = new ArtistValidator(db, lastFM, e).validate(params.getArtist(), !params.isNoredirect());
+        String artist = who.getArtist();
         List<Track> ai;
         String lastFmName = params.getLastFMData().getName();
 

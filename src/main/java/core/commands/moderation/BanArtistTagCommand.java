@@ -3,11 +3,11 @@ package core.commands.moderation;
 import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
-import core.commands.utils.CommandUtil;
 import core.exceptions.LastFmException;
 import core.parsers.NoOpParser;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
+import core.services.validators.ArtistValidator;
 import dao.ServiceView;
 import dao.entities.LastFMData;
 import dao.entities.Role;
@@ -74,7 +74,7 @@ public class BanArtistTagCommand extends ConcurrentCommand<CommandParameters> {
             sendMessageQueue(e, "Bruh.");
             return;
         }
-        ScrobbledArtist scrobbledArtist = CommandUtil.onlyCorrection(db, artist, lastFM, true);
+        ScrobbledArtist scrobbledArtist = new ArtistValidator(db, lastFM, e).validate(artist, false, true);
         db.addArtistBannedTag(tag, scrobbledArtist.getArtistId(), e.getAuthor().getIdLong());
         sendMessageQueue(e, String.format("Deleted tag %s for artist %s.", tag, artist));
 

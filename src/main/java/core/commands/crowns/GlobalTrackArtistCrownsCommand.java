@@ -1,9 +1,5 @@
 package core.commands.crowns;
 
-import core.apis.discogs.DiscogsApi;
-import core.apis.discogs.DiscogsSingleton;
-import core.apis.spotify.Spotify;
-import core.apis.spotify.SpotifySingleton;
 import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.ChuuEmbedBuilder;
@@ -16,6 +12,7 @@ import core.parsers.Parser;
 import core.parsers.params.ArtistParameters;
 import core.parsers.params.NumberParameters;
 import core.parsers.utils.Optionals;
+import core.services.validators.ArtistValidator;
 import dao.ServiceView;
 import dao.entities.DiscordUserDisplay;
 import dao.entities.ScrobbledArtist;
@@ -30,14 +27,10 @@ import java.util.List;
 import static core.parsers.NumberParser.generateThresholdParser;
 
 public class GlobalTrackArtistCrownsCommand extends ConcurrentCommand<NumberParameters<ArtistParameters>> {
-    private final DiscogsApi discogsApi;
-    private final Spotify spotifyApi;
 
     public GlobalTrackArtistCrownsCommand(ServiceView dao) {
         super(dao, true);
         this.respondInPrivate = false;
-        this.discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
-        this.spotifyApi = SpotifySingleton.getInstance();
     }
 
     @Override
@@ -93,8 +86,9 @@ public class GlobalTrackArtistCrownsCommand extends ConcurrentCommand<NumberPara
 
 
         ArtistParameters innerParams = params.getInnerParams();
-        ScrobbledArtist scrobbledArtist = new ScrobbledArtist(innerParams.getArtist(), 0, null);
-        CommandUtil.validate(db, scrobbledArtist, lastFM, discogsApi, spotifyApi);
+        ScrobbledArtist scrobbledArtist = new ArtistValidator(db, lastFM, e)
+                .validate(innerParams.getArtist(), innerParams.isNoredirect());
+
         innerParams.setScrobbledArtist(scrobbledArtist);
         UniqueWrapper<TrackPlays> uniqueDataUniqueWrapper = getList(params);
         DiscordUserDisplay userInformation = CommandUtil.getUserInfoConsideringGuildOrNot(e, innerParams.getLastFMData().getDiscordId());

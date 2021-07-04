@@ -19,6 +19,7 @@ import core.parsers.params.ArtistParameters;
 import core.parsers.params.NumberParameters;
 import core.parsers.utils.OptionalEntity;
 import core.parsers.utils.Optionals;
+import core.services.validators.ArtistValidator;
 import dao.ServiceView;
 import dao.entities.*;
 import dao.utils.LinkUtils;
@@ -106,13 +107,12 @@ public class TopArtistComboCommand extends ConcurrentCommand<NumberParameters<Ar
             title = selfUser.getName();
         }
         ArtistParameters innerParams = params.getInnerParams();
-        ScrobbledArtist scrobbledArtist = new ScrobbledArtist(innerParams.getArtist(), 0, "");
-        CommandUtil.validate(db, scrobbledArtist, lastFM, discogsApi, spotify, true, !innerParams.isNoredirect());
+        ScrobbledArtist sA = new ArtistValidator(db, lastFM, e).validate(innerParams.getArtist(), !innerParams.isNoredirect());
         List<? extends StreakEntity> topStreaks;
         if (myself) {
-            topStreaks = db.getUserArtistTopStreaks(params.getInnerParams().getLastFMData().getDiscordId(), scrobbledArtist.getArtistId(), limit);
+            topStreaks = db.getUserArtistTopStreaks(params.getInnerParams().getLastFMData().getDiscordId(), sA.getArtistId(), limit);
         } else {
-            topStreaks = db.getArtistTopStreaks(params.getExtraParam(), guildId, scrobbledArtist.getArtistId(), limit);
+            topStreaks = db.getArtistTopStreaks(params.getExtraParam(), guildId, sA.getArtistId(), limit);
         }
         Set<Long> showableUsers;
         if (params.getE().isFromGuild()) {
@@ -163,10 +163,10 @@ public class TopArtistComboCommand extends ConcurrentCommand<NumberParameters<Ar
 
         EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e)
                 .
-                setAuthor(String.format("%s's top streaks in %s ", scrobbledArtist.getArtist(), CommandUtil.escapeMarkdown(title)))
-                .setThumbnail(scrobbledArtist.getUrl())
+                setAuthor(String.format("%s's top streaks in %s ", sA.getArtist(), CommandUtil.escapeMarkdown(title)))
+                .setThumbnail(sA.getUrl())
                 .setDescription(a)
-                .setFooter(String.format("%s has a total of %d %s %s!", CommandUtil.escapeMarkdown(title), topStreaks.size(), scrobbledArtist.getArtist(), CommandUtil.singlePlural(topStreaks.size(), "streak", "streaks")));
+                .setFooter(String.format("%s has a total of %d %s %s!", CommandUtil.escapeMarkdown(title), topStreaks.size(), sA.getArtist(), CommandUtil.singlePlural(topStreaks.size(), "streak", "streaks")));
         e.sendMessage(embedBuilder.build()).queue(message1 ->
                 new Reactionary<>(z, message1, 5, embedBuilder));
     }

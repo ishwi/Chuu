@@ -14,9 +14,9 @@ import core.parsers.ArtistAlbumParser;
 import core.parsers.Parser;
 import core.parsers.params.ArtistAlbumParameters;
 import core.parsers.utils.Optionals;
-import core.services.AlbumValidator;
 import core.services.tracklist.TracklistService;
 import core.services.tracklist.UserTrackListService;
+import core.services.validators.AlbumValidator;
 import dao.ServiceView;
 import dao.entities.FullAlbumEntity;
 import dao.entities.ScrobbledAlbum;
@@ -74,14 +74,14 @@ public class AlbumTracksDistributionCommand extends AlbumPlaysCommand {
 
         String artist = scrobbledArtist.getArtist();
 
-        ScrobbledAlbum scrobbledAlbum = new AlbumValidator(db, lastFM).validate(scrobbledArtist.getArtistId(), artist, album);
+        ScrobbledAlbum sAlb = new AlbumValidator(db, lastFM).validate(scrobbledArtist.getArtistId(), artist, album);
 
         TracklistService tracklistService = new UserTrackListService(db, params.getLastFMData().getName());
 
-        Optional<FullAlbumEntity> trackList = tracklistService.getTrackList(scrobbledAlbum, params.getLastFMData(), scrobbledArtist.getUrl(), e);
+        Optional<FullAlbumEntity> trackList = tracklistService.getTrackList(sAlb, params.getLastFMData(), scrobbledArtist.getUrl(), e);
         if (trackList.isEmpty()) {
             sendMessageQueue(e, "Couldn't find a tracklist for " + CommandUtil.escapeMarkdown(artist
-            ) + " - " + CommandUtil.escapeMarkdown(scrobbledAlbum.getAlbum()));
+            ) + " - " + CommandUtil.escapeMarkdown(sAlb.getAlbum()));
         } else {
 
             FullAlbumEntity fullAlbumEntity = trackList.get();
@@ -93,7 +93,7 @@ public class AlbumTracksDistributionCommand extends AlbumPlaysCommand {
                 }
                 case PIE -> {
                     PieChart pieChart = this.pie.doPie(params, fullAlbumEntity.getTrackList());
-                    pieChart.setTitle(params.getArtist() + " - " + params.getAlbum() + " tracklist");
+                    pieChart.setTitle(artist + " - " + sAlb.getAlbum() + " tracklist");
                     BufferedImage bufferedImage = new BufferedImage(1000, 750, BufferedImage.TYPE_INT_ARGB);
                     Graphics2D g = bufferedImage.createGraphics();
                     GraphicUtils.setQuality(g);

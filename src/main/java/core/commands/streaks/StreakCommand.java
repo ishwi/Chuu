@@ -1,10 +1,6 @@
 package core.commands.streaks;
 
-import core.apis.discogs.DiscogsApi;
-import core.apis.discogs.DiscogsSingleton;
 import core.apis.last.queues.TrackGroupAlbumQueue;
-import core.apis.spotify.Spotify;
-import core.apis.spotify.SpotifySingleton;
 import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.ChuuEmbedBuilder;
@@ -16,6 +12,8 @@ import core.parsers.OnlyUsernameParser;
 import core.parsers.Parser;
 import core.parsers.params.ChuuDataParams;
 import core.parsers.utils.Optionals;
+import core.services.CoverService;
+import core.services.validators.ArtistValidator;
 import dao.ServiceView;
 import dao.entities.DiscordUserDisplay;
 import dao.entities.LastFMData;
@@ -36,13 +34,9 @@ import java.util.concurrent.CompletableFuture;
  * Credits: to lfmwhoknows bot owner for the idea
  */
 public class StreakCommand extends ConcurrentCommand<ChuuDataParams> {
-    private final DiscogsApi discogsApi;
-    private final Spotify spotifyApi;
 
     public StreakCommand(ServiceView dao) {
         super(dao);
-        discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
-        spotifyApi = SpotifySingleton.getInstance();
 
     }
 
@@ -86,11 +80,11 @@ public class StreakCommand extends ConcurrentCommand<ChuuDataParams> {
         String userUrl = userInformation.getUrlImage();
         StreakEntity combo = lastFM.getCombo(user);
 
-        ScrobbledArtist artist = new ScrobbledArtist(combo.getCurrentArtist(), 0, "");
-        CommandUtil.validate(db, artist, lastFM, discogsApi, spotifyApi);
+        ScrobbledArtist sA = new ArtistValidator(db, lastFM, e).validate(combo.getCurrentArtist(), false);
+
         Long albumId = null;
         if (combo.albumCount() > 1) {
-            albumId = CommandUtil.albumvalidate(db, artist, lastFM, combo.getCurrentAlbum()).id();
+            albumId = CommandUtil.albumvalidate(db, sA, lastFM, combo.getCurrentAlbum()).id();
         }
 
         if (combo.artistCount() >= 3) {
@@ -99,16 +93,16 @@ public class StreakCommand extends ConcurrentCommand<ChuuDataParams> {
                 combo.setStreakStart(Instant.EPOCH.plus(1, ChronoUnit.DAYS));
             }
             Long fId = albumId;
-            CompletableFuture.runAsync(() -> db.insertCombo(combo, discordID, artist.getArtistId(), fId));
+            CompletableFuture.runAsync(() -> db.insertCombo(combo, discordID, sA.getArtistId(), fId));
         }
 
 
-        int artistPlays = db.getArtistPlays(artist.getArtistId(), lastfmId);
-        String aString = CommandUtil.escapeMarkdown(artist.getArtist());
+        int artistPlays = db.getArtistPlays(sA.getArtistId(), lastfmId);
+        String aString = CommandUtil.escapeMarkdown(sA.getArtist());
         StringBuilder description = new StringBuilder();
         EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e)
                 .setAuthor(String.format("%s 's current listening streak", CommandUtil.unescapedUser(userName, discordID, e)), CommandUtil.getLastFmUser(lastfmId), userUrl)
-                .setThumbnail(CommandUtil.noImageUrl(artist.getUrl()))
+                .setThumbnail(CommandUtil.noImageUrl(sA.getUrl()))
                 .setDescription("");
 
         if (combo.artistCount() > 1) {
@@ -118,7 +112,10 @@ public class StreakCommand extends ConcurrentCommand<ChuuDataParams> {
         }
         if (combo.albumCount() > 1) {
             if (combo.getUrl() == null || combo.getUrl().isBlank() || combo.getUrl().equals(TrackGroupAlbumQueue.defaultTrackImage)) {
-                String s = CommandUtil.albumUrl(db, lastFM, combo.getCurrentArtist(), combo.getCurrentAlbum(), discogsApi, spotifyApi);
+                String s = null;
+                if (albumId != null) {
+                    s = new CoverService(db).getCover(albumId, null, e);
+                }
                 if (s != null && !s.isBlank()) {
                     embedBuilder.setThumbnail(s);
                 }
@@ -156,7 +153,7 @@ public class StreakCommand extends ConcurrentCommand<ChuuDataParams> {
         }
 
         embedBuilder.setDescription(description)
-                .setFooter(String.format("%s has played %s %d %s!", CommandUtil.unescapedUser(userName, discordID, e), artist.getArtist(), artistPlays, CommandUtil.singlePlural(artistPlays, "time", "times")));
+                .setFooter(String.format("%s has played %s %d %s!", CommandUtil.unescapedUser(userName, discordID, e), sA.getArtist(), artistPlays, CommandUtil.singlePlural(artistPlays, "time", "times")));
         e.sendMessage(embedBuilder.build()).
                 queue();
 

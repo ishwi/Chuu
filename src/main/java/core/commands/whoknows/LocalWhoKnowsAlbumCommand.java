@@ -11,6 +11,7 @@ import core.parsers.ArtistAlbumParser;
 import core.parsers.Parser;
 import core.parsers.params.ArtistAlbumParameters;
 import core.parsers.utils.Optionals;
+import core.services.validators.ArtistValidator;
 import dao.ServiceView;
 import dao.entities.*;
 
@@ -63,9 +64,8 @@ public class LocalWhoKnowsAlbumCommand extends WhoKnowsBaseCommand<ArtistAlbumPa
 
     @Override
     WrapperReturnNowPlaying generateWrapper(ArtistAlbumParameters ap, WhoKnowsMode whoKnowsMode) throws LastFmException {
-        ScrobbledArtist validable = new ScrobbledArtist(ap.getArtist(), 0, "");
-        CommandUtil.validate(db, validable, lastFM, discogsApi, spotify, false, !ap.isNoredirect());
-        ap.setScrobbledArtist(validable);
+        ScrobbledArtist sA = new ArtistValidator(db, lastFM, ap.getE()).validate(ap.getArtist(), !ap.isNoredirect());
+        ap.setScrobbledArtist(sA);
         ScrobbledArtist who = ap.getScrobbledArtist();
         long artistId = who.getArtistId();
         WhoKnowsMode effectiveMode = getEffectiveMode(ap.getLastFMData().getWhoKnowsMode(), ap);
@@ -73,7 +73,7 @@ public class LocalWhoKnowsAlbumCommand extends WhoKnowsBaseCommand<ArtistAlbumPa
                 .getScrobbledArtist(), lastFM, ap.getAlbum());
         long albumId = album.id();
         if (albumId == -1) {
-            sendMessageQueue(ap.getE(), "Couldn't confirm the album " + ap.getAlbum() + " by " + ap.getScrobbledArtist().getArtist() + " exists :(");
+            sendMessageQueue(ap.getE(), "Couldn't confirm the album " + album.albumName() + " by " + sA.getArtist() + " exists :(");
             return null;
         }
         WrapperReturnNowPlaying wrapperReturnNowPlaying =
@@ -83,7 +83,7 @@ public class LocalWhoKnowsAlbumCommand extends WhoKnowsBaseCommand<ArtistAlbumPa
         wrapperReturnNowPlaying.setArtist(ap.getScrobbledArtist().getArtist());
         try {
 
-            AlbumUserPlays playsAlbumArtist = lastFM.getPlaysAlbumArtist(ap.getLastFMData(), ap.getArtist(), ap.getAlbum());
+            AlbumUserPlays playsAlbumArtist = lastFM.getPlaysAlbumArtist(ap.getLastFMData(), sA.getArtist(), album.albumName());
             if (playsAlbumArtist.getAlbumUrl() != null && !playsAlbumArtist.getAlbumUrl().isBlank()) {
                 db.updateAlbumImage(albumId, playsAlbumArtist.getAlbumUrl());
                 wrapperReturnNowPlaying.setUrl(Chuu.getCoverService().getCover(album, ap.getE()));

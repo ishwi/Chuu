@@ -20,6 +20,7 @@ import core.parsers.ArtistParser;
 import core.parsers.Parser;
 import core.parsers.params.ArtistParameters;
 import core.parsers.params.ChuuDataParams;
+import core.services.validators.ArtistValidator;
 import dao.ServiceView;
 import dao.entities.AlbumUserPlays;
 import dao.entities.RemainingImagesMode;
@@ -136,8 +137,8 @@ public class GlobalFavesFromArtistCommand extends ConcurrentCommand<ArtistParame
         long userId = params.getLastFMData().getDiscordId();
         String artist = params.getArtist();
 
-        ScrobbledArtist who = new ScrobbledArtist(artist, 0, "");
-        CommandUtil.validate(db, who, lastFM, discogs, spotify);
+        ScrobbledArtist who = new ArtistValidator(db, lastFM, e)
+                .validate(artist, !params.isNoredirect());
         String validArtist = who.getArtist();
 
         String lastFmName = params.getLastFMData().getName();

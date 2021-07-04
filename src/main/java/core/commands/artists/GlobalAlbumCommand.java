@@ -11,8 +11,9 @@ import core.parsers.ArtistAlbumParser;
 import core.parsers.Parser;
 import core.parsers.params.ArtistAlbumParameters;
 import core.parsers.utils.Optionals;
-import core.services.AlbumValidator;
 import core.services.CoverService;
+import core.services.validators.AlbumValidator;
+import core.services.validators.ArtistValidator;
 import dao.ServiceView;
 import dao.entities.GlobalCrown;
 import dao.entities.ScrobbledAlbum;
@@ -65,7 +66,7 @@ public class GlobalAlbumCommand extends ConcurrentCommand<ArtistAlbumParameters>
     protected void onCommand(Context e, @NotNull ArtistAlbumParameters params) throws LastFmException {
 
         long userId = params.getLastFMData().getDiscordId();
-        ScrobbledArtist sA = CommandUtil.onlyCorrectionUrl(db, params.getArtist(), lastFM, !params.isNoredirect());
+        ScrobbledArtist sA = new ArtistValidator(db, lastFM, e).validate(params.getArtist(), true, !params.isNoredirect());
         ScrobbledAlbum sAlb = new AlbumValidator(db, lastFM).validate(sA.getArtistId(), sA.getArtist(), params.getAlbum());
 
         boolean showBotted = CommandUtil.showBottedAccounts(params.getLastFMData(), params, db);

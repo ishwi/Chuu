@@ -23,6 +23,7 @@ import core.music.utils.ScrobbleProcesser;
 import core.otherlisteners.AwaitReady;
 import core.otherlisteners.ConstantListener;
 import core.services.*;
+import core.services.validators.AlbumFinder;
 import core.util.botlists.BotListPoster;
 import dao.ChuuDatasource;
 import dao.ChuuService;

@@ -7,6 +7,7 @@ import core.exceptions.LastFmException;
 import core.parsers.ArtistAlbumParser;
 import core.parsers.Parser;
 import core.parsers.params.ArtistAlbumParameters;
+import core.services.validators.ArtistValidator;
 import dao.ServiceView;
 import dao.entities.*;
 
@@ -48,11 +49,9 @@ public class WhoKnowsAlbumCommand extends WhoKnowsBaseCommand<ArtistAlbumParamet
 
     @Override
     WrapperReturnNowPlaying generateWrapper(ArtistAlbumParameters ap, WhoKnowsMode whoKnowsMode) throws LastFmException {
-        ScrobbledArtist validable = new ScrobbledArtist(ap.getArtist(), 0, "");
-        CommandUtil.validate(db, validable, lastFM, discogsApi, spotify, true, !ap.isNoredirect());
-        ap.setScrobbledArtist(validable);
+        ScrobbledArtist sA = new ArtistValidator(db, lastFM, ap.getE()).validate(ap.getArtist(), !ap.isNoredirect());
+        ap.setScrobbledArtist(sA);
         Context e = ap.getE();
-        ScrobbledArtist artist = ap.getScrobbledArtist();
         long id = e.getGuild().getIdLong();
         // Gets list of users registered in guild
         List<UsersWrapper> userList = db.getAll(id);
@@ -63,7 +62,7 @@ public class WhoKnowsAlbumCommand extends WhoKnowsBaseCommand<ArtistAlbumParamet
 
         // Gets play number for each registered artist
         AlbumUserPlays urlContainter = new AlbumUserPlays("", "");
-        Set<Long> usersThatKnow = db.whoKnows(artist.getArtistId(), id, 25).getReturnNowPlayings().stream()
+        Set<Long> usersThatKnow = db.whoKnows(sA.getArtistId(), id, 25).getReturnNowPlayings().stream()
                 .map(ReturnNowPlaying::getDiscordId)
                 .collect(Collectors.toSet());
 
@@ -79,11 +78,11 @@ public class WhoKnowsAlbumCommand extends WhoKnowsBaseCommand<ArtistAlbumParamet
             sendMessageQueue(e, String.format(" No one knows %s - %s", CommandUtil.escapeMarkdown(ap.getArtist()), CommandUtil.escapeMarkdown(ap.getAlbum())));
             return null;
         }
-        Map<UsersWrapper, Integer> userMapPlays = fillPlayCounter(userList, artist.getArtist(), ap.getAlbum(), urlContainter);
+        Map<UsersWrapper, Integer> userMapPlays = fillPlayCounter(userList, sA.getArtist(), ap.getAlbum(), urlContainter, e);
 
         String correctedAlbum = urlContainter.getAlbum() == null || urlContainter.getAlbum().isEmpty() ? ap.getAlbum()
                                                                                                        : urlContainter.getAlbum();
-        String correctedArtist = urlContainter.getArtist() == null || urlContainter.getArtist().isEmpty() ? artist.getArtist()
+        String correctedArtist = urlContainter.getArtist() == null || urlContainter.getArtist().isEmpty() ? sA.getArtist()
                                                                                                           : urlContainter.getArtist();
 
         // Manipulate data in order to pass it to the image Maker
@@ -103,9 +102,9 @@ public class WhoKnowsAlbumCommand extends WhoKnowsBaseCommand<ArtistAlbumParamet
         }
 
 
-        doExtraThings(list2, id, artist.getArtistId(), correctedAlbum);
+        doExtraThings(list2, id, sA.getArtistId(), correctedAlbum);
 
-        return new WrapperReturnNowPlaying(list2, userCounts.size(), Chuu.getCoverService().getCover(artist.getArtistId(), urlContainter.getAlbumUrl(), ap.getE()),
+        return new WrapperReturnNowPlaying(list2, userCounts.size(), Chuu.getCoverService().getCover(sA.getArtistId(), urlContainter.getAlbumUrl(), ap.getE()),
                 correctedArtist + " - " + correctedAlbum);
     }
 
@@ -116,7 +115,7 @@ public class WhoKnowsAlbumCommand extends WhoKnowsBaseCommand<ArtistAlbumParamet
     }
 
     Map<UsersWrapper, Integer> fillPlayCounter(List<UsersWrapper> userList, String artist, String album,
-                                               AlbumUserPlays fillWithUrl) throws LastFmException {
+                                               AlbumUserPlays fillWithUrl, Context e) throws LastFmException {
         Map<UsersWrapper, Integer> userMapPlays = new HashMap<>();
 
         UsersWrapper usersWrapper = userList.get(0);

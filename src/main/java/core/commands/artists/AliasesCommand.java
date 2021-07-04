@@ -1,9 +1,5 @@
 package core.commands.artists;
 
-import core.apis.discogs.DiscogsApi;
-import core.apis.discogs.DiscogsSingleton;
-import core.apis.spotify.Spotify;
-import core.apis.spotify.SpotifySingleton;
 import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.ChuuEmbedBuilder;
@@ -14,8 +10,10 @@ import core.otherlisteners.Reactionary;
 import core.parsers.ArtistParser;
 import core.parsers.Parser;
 import core.parsers.params.ArtistParameters;
+import core.services.validators.ArtistValidator;
 import dao.ServiceView;
 import dao.entities.ScrobbledArtist;
+import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
 
 import javax.validation.constraints.NotNull;
@@ -23,13 +21,9 @@ import java.util.List;
 
 public class AliasesCommand extends ConcurrentCommand<ArtistParameters> {
 
-    private final Spotify spotify;
-    private final DiscogsApi discogsApi;
 
     public AliasesCommand(ServiceView dao) {
         super(dao);
-        this.spotify = SpotifySingleton.getInstance();
-        this.discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
     }
 
     @Override
@@ -63,8 +57,8 @@ public class AliasesCommand extends ConcurrentCommand<ArtistParameters> {
         String artist = params.getArtist();
         char prefix = CommandUtil.getMessagePrefix(e);
 
-        ScrobbledArtist scrobbledArtist = new ScrobbledArtist(artist, 0, null);
-        CommandUtil.validate(db, scrobbledArtist, lastFM, discogsApi, spotify);
+        ScrobbledArtist scrobbledArtist = new ArtistValidator(db, lastFM, e)
+                .validate(artist, false, !params.isNoredirect());
 
         String correctedArtist = CommandUtil.escapeMarkdown(scrobbledArtist.getArtist());
         List<String> artistAliases = db.getArtistAliases(scrobbledArtist.getArtistId())
@@ -79,12 +73,12 @@ public class AliasesCommand extends ConcurrentCommand<ArtistParameters> {
             a.append(i + 1).append(artistAliases.get(i));
         }
 
-
         EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e)
                 .setDescription(a)
-                .setTitle(correctedArtist + "'s aliases")
-                .setFooter("You can submit an alias using " + prefix + "alias", null)
-                .setThumbnail(scrobbledArtist.getUrl());
+                .setAuthor(correctedArtist + "'s aliases", LinkUtils.getLastFmArtistUrl(correctedArtist), scrobbledArtist.getUrl())
+                .setFooter("You can submit an alias using " + prefix + "alias", null);
+
+
         e.sendMessage(embedBuilder.build()).queue(message1 ->
                 new Reactionary<>(artistAliases, message1, embedBuilder));
     }

@@ -1,17 +1,13 @@
 package core.commands.stats;
 
-import core.apis.discogs.DiscogsApi;
-import core.apis.discogs.DiscogsSingleton;
-import core.apis.spotify.Spotify;
-import core.apis.spotify.SpotifySingleton;
 import core.commands.Context;
 import core.commands.utils.CommandCategory;
-import core.commands.utils.CommandUtil;
 import core.exceptions.LastFmException;
 import core.parsers.ArtistParser;
 import core.parsers.Parser;
 import core.parsers.params.ArtistParameters;
 import core.parsers.utils.OptionalEntity;
+import core.services.validators.ArtistValidator;
 import dao.ServiceView;
 import dao.entities.*;
 import dao.exceptions.InstanceNotFoundException;
@@ -22,13 +18,9 @@ import javax.annotation.Nullable;
 import java.util.List;
 
 public class TasteArtistCommand extends BaseTasteCommand<ArtistParameters> {
-    private final DiscogsApi discogsApi;
-    private final Spotify spotifyApi;
 
     public TasteArtistCommand(ServiceView dao) {
         super(dao);
-        this.discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
-        this.spotifyApi = SpotifySingleton.getInstance();
         this.thumbnailPerRow = true;
     }
 
@@ -78,11 +70,11 @@ public class TasteArtistCommand extends BaseTasteCommand<ArtistParameters> {
     @Override
     public ResultWrapper<UserArtistComparison> getResult(LastFMData og, LastFMData second, ArtistParameters params) throws LastFmException {
         boolean isList = params.hasOptional("list");
-        String artist = params.getArtist();
-        ScrobbledArtist scrobbledArtist = new ScrobbledArtist(artist, 0, null);
-        params.setScrobbledArtist(scrobbledArtist);
-        CommandUtil.validate(db, scrobbledArtist, lastFM, discogsApi, spotifyApi);
-        return db.getSimilaritiesAlbum(List.of(og.getName(), second.getName()), scrobbledArtist.getArtistId(), isList ? 200 : Integer.MAX_VALUE);
+
+        ScrobbledArtist sA = new ArtistValidator(db, lastFM, params.getE()).validate(params.getArtist(), !params.isNoredirect());
+        params.setScrobbledArtist(sA);
+
+        return db.getSimilaritiesAlbum(List.of(og.getName(), second.getName()), sA.getArtistId(), isList ? 200 : Integer.MAX_VALUE);
     }
 
     @Override

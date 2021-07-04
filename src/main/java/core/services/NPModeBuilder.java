@@ -16,6 +16,7 @@ import core.commands.utils.PrivacyUtils;
 import core.exceptions.LastFmException;
 import core.services.tags.TagCleaner;
 import core.services.tags.TagStorer;
+import core.services.validators.TrackValidator;
 import dao.ChuuService;
 import dao.entities.*;
 import dao.exceptions.InstanceNotFoundException;

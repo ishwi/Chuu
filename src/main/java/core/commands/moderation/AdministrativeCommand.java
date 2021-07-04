@@ -149,7 +149,7 @@ public class AdministrativeCommand extends ConcurrentCommand<UrlParameters> {
 //                    //if user in app but not in guild -> mark to delete
 //                    usersToDelete = user.stream().filter(eachUser -> !guildList.contains(eachUser))
 //                            .toList();
-//                    usersToDelete.forEach(u -> db.removeUserFromOneGuildConsequent(u, key));
+//                    usersToDelete.forEach(u -> dao.removeUserFromOneGuildConsequent(u, key));
 //                    Chuu.getLogger().info("Deleted Users: {}", usersToDelete.size());
 //                });
                 List<Member> memberList = guild.getMembers();

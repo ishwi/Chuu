@@ -65,7 +65,7 @@ public class SetCommand extends ConcurrentCommand<WordParameter> {
 
         try {
             try {
-                // Just a db check to avoid one api call
+                // Just a dao check to avoid one api call
                 LastFMData byLastfmName = db.findByLastfmName(lastFmName);
             } catch (InstanceNotFoundException ex) {
                 String encode = URLEncoder.encode(lastFmName, StandardCharsets.UTF_8);

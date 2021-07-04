@@ -24,6 +24,7 @@ import core.parsers.params.ChartParameters;
 import core.parsers.params.CountryParameters;
 import core.parsers.utils.Optionals;
 import core.services.MbidFetcher;
+import core.services.validators.ArtistValidator;
 import dao.ServiceView;
 import dao.entities.DiscordUserDisplay;
 import dao.entities.LastFMData;
@@ -95,7 +96,7 @@ public class ArtistFromCountryCommand extends ConcurrentCommand<CountryParameter
                         return;
                     }
                     try {
-                        String artistImageUrl = CommandUtil.getArtistImageUrl(db, x.getArtistName(), lastFM, discogsApi, spotifyApi);
+                        String artistImageUrl = new ArtistValidator(db, lastFM, countryParameters.getE()).validate(x.getArtistName()).getUrl();
                         x.setUrl(artistImageUrl);
                     } catch (LastFmException ignored) {
                     }

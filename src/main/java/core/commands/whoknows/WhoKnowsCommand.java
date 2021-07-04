@@ -11,6 +11,7 @@ import core.parsers.ArtistParser;
 import core.parsers.Parser;
 import core.parsers.params.ArtistParameters;
 import core.parsers.utils.Optionals;
+import core.services.validators.ArtistValidator;
 import dao.ServiceView;
 import dao.entities.ScrobbledArtist;
 import dao.entities.WhoKnowsMode;
@@ -57,19 +58,18 @@ public class WhoKnowsCommand extends WhoKnowsBaseCommand<ArtistParameters> {
 
     @Override
     WrapperReturnNowPlaying generateWrapper(ArtistParameters params, WhoKnowsMode whoKnowsMode) throws LastFmException {
-        ScrobbledArtist scrobbledArtist = new ScrobbledArtist(params.getArtist(), 0, null);
-        CommandUtil.validate(db, scrobbledArtist, lastFM, discogsApi, spotify, true, !params.isNoredirect());
-        params.setScrobbledArtist(scrobbledArtist);
+        ScrobbledArtist sA = new ArtistValidator(db, lastFM, params.getE()).validate(params.getArtist(), !params.isNoredirect());
+        params.setScrobbledArtist(sA);
         Context e = params.getE();
         WrapperReturnNowPlaying wrapperReturnNowPlaying =
-                whoKnowsMode.equals(WhoKnowsMode.IMAGE) ? this.db.whoKnows(scrobbledArtist.getArtistId(), e.getGuild().getIdLong()) : this.db.whoKnows(scrobbledArtist.getArtistId(), e.getGuild().getIdLong(), Integer.MAX_VALUE);
+                whoKnowsMode.equals(WhoKnowsMode.IMAGE) ? this.db.whoKnows(sA.getArtistId(), e.getGuild().getIdLong()) : this.db.whoKnows(sA.getArtistId(), e.getGuild().getIdLong(), Integer.MAX_VALUE);
         if (wrapperReturnNowPlaying.getRows() == 0) {
-            sendMessageQueue(e, "No one knows " + CommandUtil.escapeMarkdown(scrobbledArtist.getArtist()));
+            sendMessageQueue(e, "No one knows " + CommandUtil.escapeMarkdown(sA.getArtist()));
             return null;
         }
         wrapperReturnNowPlaying.getReturnNowPlayings()
                 .forEach(x -> x.setDiscordName(CommandUtil.getUserInfoUnescaped(e, x.getDiscordId()).getUsername()));
-        wrapperReturnNowPlaying.setUrl(scrobbledArtist.getUrl());
+        wrapperReturnNowPlaying.setUrl(sA.getUrl());
         return wrapperReturnNowPlaying;
     }
 

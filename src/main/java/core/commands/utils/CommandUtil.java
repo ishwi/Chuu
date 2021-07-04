@@ -10,6 +10,7 @@ import core.exceptions.LastFmEntityNotFoundException;
 import core.exceptions.LastFmException;
 import core.parsers.params.CommandParameters;
 import core.services.ColorService;
+import core.services.validators.ArtistValidator;
 import dao.ChuuService;
 import dao.entities.*;
 import dao.exceptions.InstanceNotFoundException;
@@ -106,12 +107,6 @@ public class CommandUtil {
         return newUrl;
     }
 
-    public static String getArtistImageUrl(ChuuService dao, String artist, ConcurrentLastFM lastFM, DiscogsApi discogsApi, Spotify spotify) throws LastFmException {
-        ScrobbledArtist scrobbledArtist = new ScrobbledArtist(artist, 0, "");
-        CommandUtil.validate(dao, scrobbledArtist, lastFM, discogsApi, spotify);
-        return scrobbledArtist.getUrl();
-    }
-
 
     public static void validate(ChuuService dao, ScrobbledArtist scrobbledArtist, ConcurrentLastFM lastFM, DiscogsApi discogsApi, Spotify spotify) throws LastFmException {
         validate(dao, scrobbledArtist, lastFM, discogsApi, spotify, true, true);
@@ -191,17 +186,6 @@ public class CommandUtil {
         }
     }
 
-    public static Pair<Long, Track> trackValidate(ChuuService dao, ScrobbledArtist scrobbledArtist, ConcurrentLastFM lastFM, String track) throws LastFmException {
-        try {
-            return dao.findTrackByName(scrobbledArtist.getArtistId(), track);
-        } catch (InstanceNotFoundException exception) {
-            Track trackInfo = lastFM.getTrackInfo(LastFMData.ofDefault(), scrobbledArtist.getArtist(), track);
-            ScrobbledTrack scrobbledTrack = new ScrobbledTrack(scrobbledArtist.getArtist(), track, 0, false, trackInfo.getDuration(), trackInfo.getImageUrl(), null, trackInfo.getMbid());
-            scrobbledTrack.setArtistId(scrobbledArtist.getArtistId());
-            dao.insertTrack(scrobbledTrack);
-            return Pair.of(scrobbledTrack.getTrackId(), trackInfo);
-        }
-    }
 
     public static String albumUrl(ChuuService dao, ConcurrentLastFM lastFM, String artist, String album, DiscogsApi discogsApi, Spotify spotifyApi) throws LastFmException {
         ScrobbledArtist scrobbledArtist = new ScrobbledArtist(artist, 0, null);
@@ -225,23 +209,11 @@ public class CommandUtil {
         }
     }
 
-    public static ScrobbledArtist onlyCorrectionUrl(ChuuService dao, String artist, ConcurrentLastFM lastFM, boolean doCorrection) throws LastFmException {
-        ScrobbledArtist scrobbledArtist = new ScrobbledArtist(artist, 0, null);
-        validate(dao, scrobbledArtist, lastFM, null, null, true, doCorrection);
-        return scrobbledArtist;
-    }
-
-    public static ScrobbledArtist onlyCorrection(ChuuService dao, String artist, ConcurrentLastFM lastFM, boolean doCorrection) throws LastFmException {
-        ScrobbledArtist scrobbledArtist = new ScrobbledArtist(artist, 0, null);
-        validate(dao, scrobbledArtist, lastFM, null, null, false, doCorrection);
-        return scrobbledArtist;
-    }
 
     public static ScrobbledAlbum validateAlbum(ChuuService dao, String artist, String albumName, ConcurrentLastFM lastFM, DiscogsApi discogsApi, Spotify spotify, boolean doUrlCheck, boolean findCorrection) throws LastFmException {
-        ScrobbledArtist scrobbledArtist = new ScrobbledArtist(artist, 0, "");
-        CommandUtil.validate(dao, scrobbledArtist, lastFM, discogsApi, spotify, doUrlCheck, findCorrection);
-        Album album = CommandUtil.albumvalidate(dao, scrobbledArtist, lastFM, albumName);
-        return new ScrobbledAlbum(album, scrobbledArtist.getArtist());
+        ScrobbledArtist sA = new ArtistValidator(dao, lastFM, null).validate(artist, false, findCorrection);
+        Album album = CommandUtil.albumvalidate(dao, sA, lastFM, albumName);
+        return new ScrobbledAlbum(album, sA.getArtist());
     }
 
     public static ScrobbledAlbum validateAlbum(ChuuService dao, long artistId, String artist, String albumName, ConcurrentLastFM lastFM) throws LastFmException {
@@ -252,10 +224,9 @@ public class CommandUtil {
     }
 
     public static ScrobbledAlbum lightAlbumValidate(ChuuService dao, String artist, String albumName, ConcurrentLastFM lastFM) throws LastFmException {
-        ScrobbledArtist scrobbledArtist = new ScrobbledArtist(artist, 0, "");
-        CommandUtil.validate(dao, scrobbledArtist, lastFM, null, null, false, true);
-        Album album = CommandUtil.albumvalidate(dao, scrobbledArtist, lastFM, albumName);
-        return new ScrobbledAlbum(album, scrobbledArtist.getArtist());
+        ScrobbledArtist sA = new ArtistValidator(dao, lastFM, null).validate(artist, false, true);
+        Album album = CommandUtil.albumvalidate(dao, sA, lastFM, albumName);
+        return new ScrobbledAlbum(album, sA.getArtist());
     }
 
 

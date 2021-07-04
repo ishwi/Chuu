@@ -1,8 +1,8 @@
 package core.services.tags;
 
 import core.apis.last.ConcurrentLastFM;
-import core.commands.utils.CommandUtil;
 import core.exceptions.LastFmException;
+import core.services.validators.ArtistValidator;
 import dao.ChuuService;
 import dao.entities.ArtistInfo;
 import dao.entities.Genre;
@@ -47,7 +47,7 @@ public class TagArtistService extends TagService<ArtistInfo, ScrobbledArtist> {
         List<ArtistInfo> notFoundAlbums = hasMbidToArtists.get(false);
         notFoundAlbums.stream().map(x -> {
             try {
-                return Pair.of(x, CommandUtil.onlyCorrection(dao, x.getArtist(), lastFM, true));
+                return Pair.of(x, new ArtistValidator(dao, lastFM, null).validate(x.getArtist(), false, true));
             } catch (LastFmException exception) {
                 return null;
             }

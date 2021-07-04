@@ -7,6 +7,7 @@ import core.exceptions.LastFmException;
 import core.parsers.ArtistAlbumParser;
 import core.parsers.Parser;
 import core.parsers.params.ArtistAlbumParameters;
+import core.services.validators.ArtistValidator;
 import dao.ServiceView;
 import dao.entities.*;
 
@@ -52,12 +53,11 @@ public class GlobalWhoKnowsAlbumCommand extends GlobalBaseWhoKnowCommand<ArtistA
 
     @Override
     WrapperReturnNowPlaying generateWrapper(ArtistAlbumParameters params, WhoKnowsMode whoKnowsMode) throws LastFmException {
-        ScrobbledArtist scrobbledArtist = new ScrobbledArtist(params.getArtist(), 0, null);
-        CommandUtil.validate(db, scrobbledArtist, lastFM, discogsApi, spotify, true, !params.isNoredirect());
+        ScrobbledArtist sA = new ArtistValidator(db, lastFM, params.getE()).validate(params.getArtist(), !params.isNoredirect());
         Context e = params.getE();
-        long artistId = scrobbledArtist.getArtistId();
-        params.setScrobbledArtist(scrobbledArtist);
-        Album album = CommandUtil.albumvalidate(db, scrobbledArtist, lastFM, params.getAlbum());
+        long artistId = sA.getArtistId();
+        params.setScrobbledArtist(sA);
+        Album album = CommandUtil.albumvalidate(db, sA, lastFM, params.getAlbum());
         WhoKnowsMode effectiveMode = getEffectiveMode(params.getLastFMData().getWhoKnowsMode(), params);
 
         boolean b = CommandUtil.showBottedAccounts(params.getLastFMData(), params, db);
@@ -66,7 +66,7 @@ public class GlobalWhoKnowsAlbumCommand extends GlobalBaseWhoKnowCommand<ArtistA
         WrapperReturnNowPlaying wrapperReturnNowPlaying =
                 this.db.getGlobalWhoKnowsAlbum(limit, album.id(), author, b, hidePrivate(params));
         if (wrapperReturnNowPlaying.getRows() == 0) {
-            sendMessageQueue(params.getE(), "No one knows " + CommandUtil.escapeMarkdown(scrobbledArtist.getArtist() + " - " + params.getAlbum()));
+            sendMessageQueue(params.getE(), "No one knows " + CommandUtil.escapeMarkdown(sA.getArtist() + " - " + album.albumName()));
             return null;
         }
         wrapperReturnNowPlaying.setUrl(Chuu.getCoverService().getCover(album, e));

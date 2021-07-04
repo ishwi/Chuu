@@ -3,12 +3,12 @@ package core.commands.abstracts;
 import core.Chuu;
 import core.commands.Context;
 import core.commands.utils.CommandCategory;
-import core.commands.utils.CommandUtil;
 import core.exceptions.LastFmException;
 import core.parsers.NpParser;
 import core.parsers.Parser;
 import core.parsers.params.NowPlayingParameters;
-import core.services.TrackValidator;
+import core.services.validators.ArtistValidator;
+import core.services.validators.TrackValidator;
 import dao.ServiceView;
 import dao.entities.LastFMData;
 import dao.entities.NowPlayingArtist;
@@ -41,7 +41,7 @@ public abstract class NpCommand extends ConcurrentCommand<NowPlayingParameters> 
         CompletableFuture.runAsync(() -> {
                     if (np.url() != null && !np.url().isBlank()) {
                         try {
-                            ScrobbledArtist scrobbledArtist = CommandUtil.onlyCorrection(db, np.artistName(), lastFM, true);
+                            ScrobbledArtist scrobbledArtist = new ArtistValidator(db, lastFM, e).validate(np.artistName(), false, true);
                             long trackId = new TrackValidator(db, lastFM).validate(np.artistName(), np.songName()).getTrackId();
                             db.updateTrackImage(trackId, np.url());
                         } catch (LastFmException instanceNotFoundException) {

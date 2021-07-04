@@ -21,6 +21,7 @@ import core.parsers.params.ChartParameters;
 import core.parsers.params.NumberParameters;
 import core.parsers.utils.CustomTimeFrame;
 import core.services.UserInfoService;
+import core.services.validators.ArtistValidator;
 import dao.ServiceView;
 import dao.entities.FullAlbumEntityExtended;
 import dao.entities.LastFMData;
@@ -95,14 +96,13 @@ public class PaceAlbumCommand extends ConcurrentCommand<NumberParameters<AlbumTi
 
         CustomTimeFrame time = params.getInnerParams().getTimeFrame();
         LastFMData user = params.getInnerParams().getLastFMData();
-        String artist = params.getInnerParams().getArtist();
-        ScrobbledArtist scrobbledArtist = new ScrobbledArtist(artist, 0, null);
+        ScrobbledArtist sA = new ArtistValidator(db, lastFM, e).validate(params.getInnerParams().getArtist(), !params.getInnerParams().isNoredirect());
+        String artist = sA.getArtist();
 
-        CommandUtil.validate(db, scrobbledArtist, lastFM, discogsApi, spotify, true, !params.getInnerParams().isNoredirect());
         String album = params.getInnerParams().getAlbum();
         String finalAlbum = album;
         BlockingQueue<UrlCapsule> queue = new DiscardableQueue<>(
-                x -> !(x.getArtistName().equalsIgnoreCase(scrobbledArtist.getArtist()) && x.getAlbumName().equalsIgnoreCase(finalAlbum))
+                x -> !(x.getArtistName().equalsIgnoreCase(sA.getArtist()) && x.getAlbumName().equalsIgnoreCase(finalAlbum))
                 , x -> x, 1);
         lastFM.getChart(user,
                 time,
@@ -118,13 +118,13 @@ public class PaceAlbumCommand extends ConcurrentCommand<NumberParameters<AlbumTi
             return;
         }
         UrlCapsule urlCapsule = objects.get(0);
-        scrobbledArtist.setArtist(urlCapsule.getArtistName());
+        sA.setArtist(urlCapsule.getArtistName());
         int metricPlays = urlCapsule.getPlays();
         int albumPlays;
         if (time.isAllTime()) {
             albumPlays = metricPlays;
         } else {
-            FullAlbumEntityExtended albumSummary = lastFM.getAlbumSummary(user, scrobbledArtist.getArtist(), album);
+            FullAlbumEntityExtended albumSummary = lastFM.getAlbumSummary(user, sA.getArtist(), album);
             albumPlays = albumSummary.getTotalPlayNumber();
             album = albumSummary.getAlbum();
         }
@@ -175,7 +175,7 @@ public class PaceAlbumCommand extends ConcurrentCommand<NumberParameters<AlbumTi
         String format = CommandUtil.getDateTimestampt(instant, TimeFormat.DATE_LONG);
         String unit = days.name().toLowerCase();
         String s = String.format("**%s** has a rate of **%s** scrobbles of **%s** per %s%s, so they are on pace to hit **%d** scrobbles by **%s**. (They have %d %s scrobbles)",
-                userString, new DecimalFormat("#0.00").format(ratio), scrobbledArtist.getArtist() + " - " + album,
+                userString, new DecimalFormat("#0.00").format(ratio), sA.getArtist() + " - " + album,
                 unit.substring(0, unit.length() - 1),
                 timeFrame, goal, format, albumPlays, album);
 

@@ -11,7 +11,8 @@ import core.parsers.ArtistSongParser;
 import core.parsers.Parser;
 import core.parsers.params.ArtistAlbumParameters;
 import core.parsers.utils.Optionals;
-import core.services.TrackValidator;
+import core.services.validators.ArtistValidator;
+import core.services.validators.TrackValidator;
 import dao.ServiceView;
 import dao.entities.*;
 
@@ -41,16 +42,19 @@ public class LocalWhoKnowsSongCommand extends LocalWhoKnowsAlbumCommand {
 
     @Override
     WrapperReturnNowPlaying generateWrapper(ArtistAlbumParameters ap, WhoKnowsMode whoKnowsMode) throws LastFmException {
-        ScrobbledArtist validable = new ScrobbledArtist(ap.getArtist(), 0, "");
-        CommandUtil.validate(db, validable, lastFM, discogsApi, spotify, false, !ap.isNoredirect());
-        ap.setScrobbledArtist(validable);
+        ScrobbledArtist sA = new ArtistValidator(db, lastFM, ap.getE()).validate(ap.getArtist(), !ap.isNoredirect());
+        ap.setScrobbledArtist(sA);
+        String artist = sA.getArtist();
+
         ScrobbledArtist who = ap.getScrobbledArtist();
         long artistId = who.getArtistId();
         WhoKnowsMode effectiveMode = getEffectiveMode(ap.getLastFMData().getWhoKnowsMode(), ap);
-        long trackId = new TrackValidator(db, lastFM).validate(who.getArtistId(), who.getArtist(), ap.getAlbum()).getTrackId();
+        ScrobbledTrack sT = new TrackValidator(db, lastFM).validate(who.getArtistId(), who.getArtist(), ap.getAlbum());
+        String track = sT.getName();
+        long trackId = sT.getTrackId();
 
         if (trackId == -1) {
-            sendMessageQueue(ap.getE(), "Couldn't confirm the song " + ap.getAlbum() + " by " + ap.getScrobbledArtist().getArtist() + " exists :(");
+            sendMessageQueue(ap.getE(), "Couldn't confirm the song " + sT.getName() + " by " + sA.getArtist() + " exists :(");
             return null;
         }
         WrapperReturnNowPlaying wrapperReturnNowPlaying =
@@ -59,7 +63,7 @@ public class LocalWhoKnowsSongCommand extends LocalWhoKnowsAlbumCommand {
                 this.db.getWhoKnowsTrack(Integer.MAX_VALUE, trackId, ap.getE().getGuild().getIdLong());
         wrapperReturnNowPlaying.setArtist(ap.getScrobbledArtist().getArtist());
         try {
-            TrackExtended trackInfo = lastFM.getTrackInfoExtended(ap.getLastFMData(), ap.getArtist(), ap.getAlbum());
+            TrackExtended trackInfo = lastFM.getTrackInfoExtended(ap.getLastFMData(), artist, track);
             if (trackInfo.getImageUrl() != null && !trackInfo.getImageUrl().isBlank()) {
                 db.updateTrackImage(trackId, trackInfo.getImageUrl());
                 wrapperReturnNowPlaying.setUrl(trackInfo.getImageUrl());
@@ -69,7 +73,7 @@ public class LocalWhoKnowsSongCommand extends LocalWhoKnowsAlbumCommand {
                 if (any.isPresent()) {
                     any.get().setPlayNumber(trackInfo.getPlays());
                 } else {
-                    wrapperReturnNowPlaying.getReturnNowPlayings().add(new ReturnNowPlaying(ap.getLastFMData().getDiscordId(), ap.getLastFMData().getName(), ap.getArtist(), trackInfo.getPlays()));
+                    wrapperReturnNowPlaying.getReturnNowPlayings().add(new ReturnNowPlaying(ap.getLastFMData().getDiscordId(), ap.getLastFMData().getName(), artist, trackInfo.getPlays()));
                     wrapperReturnNowPlaying.setRows(wrapperReturnNowPlaying.getRows() + 1);
 
                 }
@@ -79,18 +83,18 @@ public class LocalWhoKnowsSongCommand extends LocalWhoKnowsAlbumCommand {
             //Ignored
         }
         if (wrapperReturnNowPlaying.getRows() == 0) {
-            sendMessageQueue(ap.getE(), "No one knows " + CommandUtil.escapeMarkdown(who.getArtist() + " - " + ap.getAlbum()));
+            sendMessageQueue(ap.getE(), "No one knows " + CommandUtil.escapeMarkdown(who.getArtist() + " - " + track));
             return null;
         }
         wrapperReturnNowPlaying.setReturnNowPlayings(
                 wrapperReturnNowPlaying.getReturnNowPlayings()
-                        .stream().<ReturnNowPlaying>map(x -> new ReturnNowPlayingSong(x, ap.getAlbum()))
+                        .stream().<ReturnNowPlaying>map(x -> new ReturnNowPlayingSong(x, track))
                         .peek(x -> x.setArtist(who.getArtist()))
                         .peek(x -> x.setDiscordName(CommandUtil.getUserInfoUnescaped(ap.getE(), x.getDiscordId()).getUsername()))
                         .toList());
 
 
-        wrapperReturnNowPlaying.setArtist(who.getArtist() + " - " + ap.getAlbum());
+        wrapperReturnNowPlaying.setArtist(who.getArtist() + " - " + track);
         return wrapperReturnNowPlaying;
     }
 

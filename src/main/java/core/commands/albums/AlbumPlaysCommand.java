@@ -12,6 +12,7 @@ import core.exceptions.LastFmException;
 import core.parsers.ArtistAlbumParser;
 import core.parsers.Parser;
 import core.parsers.params.ArtistAlbumParameters;
+import core.services.validators.ArtistValidator;
 import dao.ServiceView;
 import dao.entities.LastFMData;
 import dao.entities.ScrobbledArtist;
@@ -62,8 +63,7 @@ public class AlbumPlaysCommand extends ConcurrentCommand<ArtistAlbumParameters> 
     @Override
     protected void onCommand(Context e, @NotNull ArtistAlbumParameters params) throws LastFmException, InstanceNotFoundException {
 
-        ScrobbledArtist validable = new ScrobbledArtist(params.getArtist(), 0, "");
-        CommandUtil.validate(db, validable, lastFM, discogsApi, spotify);
+        ScrobbledArtist validable = new ArtistValidator(db, lastFM, e).validate(params.getArtist(), false, !params.isNoredirect());
         params.setScrobbledArtist(validable);
         doSomethingWithAlbumArtist(validable, params.getAlbum(), e, params.getLastFMData().getDiscordId(), params);
 

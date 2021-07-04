@@ -8,6 +8,7 @@ import core.exceptions.LastFmException;
 import core.parsers.ArtistParser;
 import core.parsers.Parser;
 import core.parsers.params.ArtistParameters;
+import core.services.validators.ArtistValidator;
 import dao.ServiceView;
 import dao.entities.LastFMData;
 import dao.entities.ScrobbledArtist;
@@ -51,7 +52,7 @@ public class FirstArtistCommand extends ConcurrentCommand<ArtistParameters> {
 
     @Override
     protected void onCommand(Context e, @NotNull ArtistParameters params) throws LastFmException {
-        ScrobbledArtist artist = CommandUtil.onlyCorrection(db, params.getArtist(), lastFM, !params.isNoredirect());
+        ScrobbledArtist artist = new ArtistValidator(db, lastFM, e).validate(params.getArtist(), false, !params.isNoredirect());
         long whom = params.getLastFMData().getDiscordId();
         int a;
         LastFMData data = params.getLastFMData();

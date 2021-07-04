@@ -7,6 +7,7 @@ import core.exceptions.LastFmException;
 import core.parsers.ArtistParser;
 import core.parsers.Parser;
 import core.parsers.params.ArtistParameters;
+import core.services.validators.ArtistValidator;
 import dao.ServiceView;
 import dao.entities.*;
 import dao.exceptions.InstanceNotFoundException;
@@ -56,7 +57,7 @@ public class ArtistLovedCommand extends ConcurrentCommand<ArtistParameters> {
     @Override
     protected void onCommand(Context e, @NotNull ArtistParameters params) throws LastFmException, InstanceNotFoundException {
         CountWrapper<List<TrackWithArtistId>> wrapper = lastFM.getLovedSongs(params.getLastFMData());
-        ScrobbledArtist sA = CommandUtil.onlyCorrection(db, params.getArtist(), lastFM, !params.isNoredirect());
+        ScrobbledArtist sA = new ArtistValidator(db, lastFM, e).validate(params.getArtist(), false, !params.isNoredirect());
         List<TrackWithArtistId> artists = wrapper.getResult().stream().filter(w -> w.getArtist().equalsIgnoreCase(sA.getArtist())).toList();
         DiscordUserDisplay uInfo = CommandUtil.getUserInfoUnescaped(e, params.getLastFMData().getDiscordId());
         int size = artists.size();

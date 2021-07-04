@@ -133,7 +133,7 @@ public class RandomAlbumCommand extends ConcurrentCommand<RandomUrlParameters> {
             return;
         }
         //add url
-        //db.findLastFMData(e.getAuthor().getIdLong());
+        //dao.findLastFMData(e.getAuthor().getIdLong());
 
         if (!db.addToRandomPool(new RandomUrlEntity(url, e.getAuthor().getIdLong()))) {
             sendMessageQueue(e, String.format("The provided url: <%s> was already on the pool", url));

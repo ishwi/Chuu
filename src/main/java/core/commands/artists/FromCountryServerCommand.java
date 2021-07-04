@@ -11,7 +11,6 @@ import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
-import core.commands.utils.CommandUtil;
 import core.exceptions.LastFmException;
 import core.imagerenderer.ChartQuality;
 import core.imagerenderer.CollageMaker;
@@ -21,6 +20,7 @@ import core.parsers.Parser;
 import core.parsers.params.OnlyCountryParameters;
 import core.parsers.utils.Optionals;
 import core.services.MbidFetcher;
+import core.services.validators.ArtistValidator;
 import dao.ServiceView;
 import dao.entities.LastFMData;
 import dao.entities.ScrobbledArtist;
@@ -112,7 +112,7 @@ public class FromCountryServerCommand extends ConcurrentCommand<OnlyCountryParam
                         return;
                     }
                     try {
-                        String artistImageUrl = CommandUtil.getArtistImageUrl(db, t.getArtistName(), lastFM, discogsApi, spotifyApi);
+                        String artistImageUrl = new ArtistValidator(db, lastFM, countryParameters.getE()).validate(t.getArtistName()).getUrl();
                         t.setUrl(artistImageUrl);
                     } catch (LastFmException ignored) {
                         // Whatever

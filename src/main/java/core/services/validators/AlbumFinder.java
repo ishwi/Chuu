@@ -1,4 +1,4 @@
-package core.services;
+package core.services.validators;
 
 import core.apis.discogs.DiscogsApi;
 import core.apis.discogs.DiscogsSingleton;

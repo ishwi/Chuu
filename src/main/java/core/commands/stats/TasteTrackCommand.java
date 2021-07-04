@@ -1,13 +1,9 @@
 package core.commands.stats;
 
-import core.apis.discogs.DiscogsApi;
-import core.apis.discogs.DiscogsSingleton;
-import core.apis.spotify.Spotify;
-import core.apis.spotify.SpotifySingleton;
 import core.commands.utils.CommandCategory;
-import core.commands.utils.CommandUtil;
 import core.exceptions.LastFmException;
 import core.parsers.params.ArtistParameters;
+import core.services.validators.ArtistValidator;
 import dao.ServiceView;
 import dao.entities.LastFMData;
 import dao.entities.ResultWrapper;
@@ -17,13 +13,9 @@ import dao.entities.UserArtistComparison;
 import java.util.List;
 
 public class TasteTrackCommand extends TasteArtistCommand {
-    private final DiscogsApi discogsApi;
-    private final Spotify spotifyApi;
 
     public TasteTrackCommand(ServiceView dao) {
         super(dao);
-        this.discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
-        this.spotifyApi = SpotifySingleton.getInstance();
         this.thumbnailPerRow = true;
     }
 
@@ -52,11 +44,11 @@ public class TasteTrackCommand extends TasteArtistCommand {
     @Override
     public ResultWrapper<UserArtistComparison> getResult(LastFMData og, LastFMData second, ArtistParameters params) throws LastFmException {
         boolean isList = params.hasOptional("list");
-        String artist = params.getArtist();
-        ScrobbledArtist scrobbledArtist = new ScrobbledArtist(artist, 0, null);
-        params.setScrobbledArtist(scrobbledArtist);
-        CommandUtil.validate(db, scrobbledArtist, lastFM, discogsApi, spotifyApi);
-        return db.getSimilaritiesTracks(List.of(og.getName(), second.getName()), scrobbledArtist.getArtistId(), isList ? 200 : Integer.MAX_VALUE);
+
+        ScrobbledArtist sA = new ArtistValidator(db, lastFM, params.getE()).validate(params.getArtist(), !params.isNoredirect());
+        params.setScrobbledArtist(sA);
+
+        return db.getSimilaritiesTracks(List.of(og.getName(), second.getName()), sA.getArtistId(), isList ? 200 : Integer.MAX_VALUE);
     }
 
 

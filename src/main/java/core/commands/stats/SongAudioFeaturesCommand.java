@@ -15,7 +15,8 @@ import core.parsers.ArtistSongParser;
 import core.parsers.Parser;
 import core.parsers.params.ArtistAlbumParameters;
 import core.services.SpotifyTrackService;
-import core.services.TrackValidator;
+import core.services.validators.ArtistValidator;
+import core.services.validators.TrackValidator;
 import dao.ServiceView;
 import dao.entities.DiscordUserDisplay;
 import dao.entities.LastFMData;
@@ -67,8 +68,8 @@ public class SongAudioFeaturesCommand extends ConcurrentCommand<ArtistAlbumParam
     protected void onCommand(Context e, @NotNull ArtistAlbumParameters params) throws LastFmException {
         LastFMData lastFMData = params.getLastFMData();
 
-        ScrobbledArtist scrobbledArtist = CommandUtil.onlyCorrection(db, params.getArtist(), lastFM, true);
-        long trackId = new TrackValidator(db, lastFM).validate(scrobbledArtist.getArtistId(), params.getArtist(), params.getAlbum()).getTrackId();
+        ScrobbledArtist sA = new ArtistValidator(db, lastFM, e).validate(params.getArtist(), false, true);
+        long trackId = new TrackValidator(db, lastFM).validate(sA.getArtistId(), params.getArtist(), params.getAlbum()).getTrackId();
 
         ScrobbledTrack scrobbledTrack = new ScrobbledTrack(
                 params.getArtist(), params.getAlbum(), 1, false, 0, null, null, null);
@@ -79,7 +80,7 @@ public class SongAudioFeaturesCommand extends ConcurrentCommand<ArtistAlbumParam
         List<Pair<ScrobbledTrack, com.wrapper.spotify.model_objects.specification.Track>> pairs = spotifyTrackService.searchTracks(List.of(scrobbledTrack));
 
         if (pairs.isEmpty() || pairs.get(0).getValue() == null) {
-            sendMessageQueue(e, "Couldn't find any audio feature for **%s by %s**".formatted(params.getAlbum(), scrobbledArtist.getArtist()));
+            sendMessageQueue(e, "Couldn't find any audio feature for **%s by %s**".formatted(params.getAlbum(), sA.getArtist()));
             return;
         }
         Track value = pairs.get(0).getValue();
@@ -92,7 +93,7 @@ public class SongAudioFeaturesCommand extends ConcurrentCommand<ArtistAlbumParam
 
 
         if (audioFeatures.isEmpty()) {
-            sendMessageQueue(e, "Couldn't find any audio feature for **%s by %s**".formatted(scrobbledArtist.getArtist(), params.getAlbum()));
+            sendMessageQueue(e, "Couldn't find any audio feature for **%s by %s**".formatted(sA.getArtist(), params.getAlbum()));
             return;
         }
         DecimalFormat df = new DecimalFormat("##.##%");

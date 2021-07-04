@@ -6,6 +6,7 @@ import core.exceptions.LastFmException;
 import core.parsers.ArtistParser;
 import core.parsers.Parser;
 import core.parsers.params.ArtistParameters;
+import core.services.validators.ArtistValidator;
 import dao.ServiceView;
 import dao.entities.LastFMData;
 import dao.entities.ScrobbledArtist;
@@ -48,11 +49,10 @@ public class GlobalWhoKnowsCommand extends GlobalBaseWhoKnowCommand<ArtistParame
 
     @Override
     WrapperReturnNowPlaying generateWrapper(ArtistParameters params, WhoKnowsMode whoKnowsMode) throws LastFmException {
-        ScrobbledArtist scrobbledArtist = new ScrobbledArtist(params.getArtist(), 0, null);
-        CommandUtil.validate(db, scrobbledArtist, lastFM, discogsApi, spotify, true, !params.isNoredirect());
-        params.setScrobbledArtist(scrobbledArtist);
+        ScrobbledArtist sA = new ArtistValidator(db, lastFM, params.getE()).validate(params.getArtist(), !params.isNoredirect());
+        params.setScrobbledArtist(sA);
         Context e = params.getE();
-        long artistId = scrobbledArtist.getArtistId();
+        long artistId = sA.getArtistId();
         WhoKnowsMode effectiveMode = getEffectiveMode(params.getLastFMData().getWhoKnowsMode(), params);
 
         boolean b = CommandUtil.showBottedAccounts(params.getLastFMData(), params, db);
@@ -61,10 +61,10 @@ public class GlobalWhoKnowsCommand extends GlobalBaseWhoKnowCommand<ArtistParame
         WrapperReturnNowPlaying wrapperReturnNowPlaying =
                 effectiveMode.equals(WhoKnowsMode.IMAGE) ? this.db.globalWhoKnows(artistId, b, author, hidePrivate(params)) : this.db.globalWhoKnows(artistId, Integer.MAX_VALUE, b, author, hidePrivate(params));
         if (wrapperReturnNowPlaying.getRows() == 0) {
-            sendMessageQueue(params.getE(), "No one knows " + CommandUtil.escapeMarkdown(scrobbledArtist.getArtist()));
+            sendMessageQueue(params.getE(), "No one knows " + CommandUtil.escapeMarkdown(sA.getArtist()));
             return null;
         }
-        wrapperReturnNowPlaying.setUrl(scrobbledArtist.getUrl());
+        wrapperReturnNowPlaying.setUrl(sA.getUrl());
         return wrapperReturnNowPlaying;
     }
 

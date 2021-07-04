@@ -9,12 +9,12 @@ import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
-import core.commands.utils.CommandUtil;
 import core.exceptions.LastFmException;
 import core.otherlisteners.Reactionary;
 import core.parsers.ArtistParser;
 import core.parsers.Parser;
 import core.parsers.params.ArtistParameters;
+import core.services.validators.ArtistValidator;
 import dao.ServiceView;
 import dao.entities.AlbumRatings;
 import dao.entities.Rating;
@@ -70,10 +70,9 @@ public class ArtistRatingsCommand extends ConcurrentCommand<ArtistParameters> {
     protected void onCommand(Context e, @NotNull ArtistParameters params) throws LastFmException {
 
 
-        ScrobbledArtist scrobbledArtist = new ScrobbledArtist(params.getArtist(), 0, null);
-        CommandUtil.validate(db, scrobbledArtist, lastFM, discogsApi, spotify, true, !params.isNoredirect());
-        String artist = scrobbledArtist.getArtist();
-        List<AlbumRatings> rating = db.getArtistRatings(scrobbledArtist.getArtistId(), e.getGuild().getIdLong()).stream()
+        ScrobbledArtist sA = new ArtistValidator(db, lastFM, e).validate(params.getArtist(), !params.isNoredirect());
+        String artist = sA.getArtist();
+        List<AlbumRatings> rating = db.getArtistRatings(sA.getArtistId(), e.getGuild().getIdLong()).stream()
                 .sorted(Comparator.comparingDouble((AlbumRatings y) -> y.getUserRatings().stream().filter(Rating::isSameGuild).mapToLong(Rating::getRating).average().orElse(0) * y.getUserRatings().size()).reversed()).toList();
         EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e);
 
@@ -111,7 +110,7 @@ public class ArtistRatingsCommand extends ConcurrentCommand<ArtistParameters> {
         embedBuilder.setTitle(String.format("%s albums rated in %s", artist, e.getGuild().getName()), LinkUtils.getLastFmArtistUrl(artist))
                 .setFooter(String.format("%s has been rated %d times in this server", artist, counter.get()))
                 .setDescription(a)
-                .setThumbnail(scrobbledArtist.getUrl());
+                .setThumbnail(sA.getUrl());
 
         e.sendMessage(embedBuilder.build()).
                 queue(message1 ->

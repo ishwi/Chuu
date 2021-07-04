@@ -1,9 +1,5 @@
 package core.commands.stats;
 
-import core.apis.discogs.DiscogsApi;
-import core.apis.discogs.DiscogsSingleton;
-import core.apis.spotify.Spotify;
-import core.apis.spotify.SpotifySingleton;
 import core.commands.Context;
 import core.commands.abstracts.NpCommand;
 import core.commands.utils.ChuuEmbedBuilder;
@@ -11,6 +7,7 @@ import core.commands.utils.CommandUtil;
 import core.exceptions.LastFmException;
 import core.parsers.params.NowPlayingParameters;
 import core.services.NPModeBuilder;
+import core.services.validators.ArtistValidator;
 import dao.ServiceView;
 import dao.entities.*;
 import dao.exceptions.InstanceNotFoundException;
@@ -33,14 +30,10 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class NowPlayingCommand extends NpCommand {
-    private final DiscogsApi discogsApi;
-    private final Spotify spotifyApi;
     private final MusicBrainzService mb;
 
     public NowPlayingCommand(ServiceView dao) {
         super(dao);
-        discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
-        spotifyApi = SpotifySingleton.getInstance();
         mb = MusicBrainzServiceSingleton.getInstance();
         order = 1;
     }
@@ -78,9 +71,9 @@ public class NowPlayingCommand extends NpCommand {
                 .setDescription(a);
 
 
-        ScrobbledArtist scrobbledArtist = new ScrobbledArtist(nowPlayingArtist.artistName(), 0, null);
+        ScrobbledArtist sA = new ScrobbledArtist(nowPlayingArtist.artistName(), 0, null);
         try {
-            CommandUtil.validate(db, scrobbledArtist, lastFM, discogsApi, spotifyApi);
+            sA = new ArtistValidator(db, lastFM, e).validate(nowPlayingArtist.artistName());
         } catch (LastFmException ignored) {
 
         }
@@ -93,7 +86,7 @@ public class NowPlayingCommand extends NpCommand {
 
             npModes = EnumSet.copyOf(IntStream.range(0, CommandUtil.rand.nextInt(4) + 1).mapToObj(x -> allModes.get(CommandUtil.rand.nextInt(allModes.size()))).collect(Collectors.toSet()));
         }
-        NPModeBuilder npModeBuilder = new NPModeBuilder(nowPlayingArtist, e, footerSpaces, discordId, userName, npModes, user, embedBuilder, scrobbledArtist, db, lastFM, serverName, mb, outputList, parameters.getData());
+        NPModeBuilder npModeBuilder = new NPModeBuilder(nowPlayingArtist, e, footerSpaces, discordId, userName, npModes, user, embedBuilder, sA, db, lastFM, serverName, mb, outputList, parameters.getData());
         CompletableFuture<?> completableFutures = npModeBuilder.buildNp();
 
 
@@ -121,8 +114,8 @@ public class NowPlayingCommand extends NpCommand {
         }
 
         //
-        String url = npModes.contains(NPMode.ARTIST_PIC) && scrobbledArtist.getUrl() != null && !scrobbledArtist.getUrl().isBlank()
-                     ? scrobbledArtist.getUrl()
+        String url = npModes.contains(NPMode.ARTIST_PIC) && sA.getUrl() != null && !sA.getUrl().isBlank()
+                     ? sA.getUrl()
                      : null;
         if (url != null && footer.isBlank()) {
             footer += EmbedBuilder.ZERO_WIDTH_SPACE;

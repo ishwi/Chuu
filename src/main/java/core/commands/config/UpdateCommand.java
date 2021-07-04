@@ -110,7 +110,7 @@ public class UpdateCommand extends ConcurrentCommand<ChuuDataParams> {
                     int i = updaterHoarder.updateUser();
                     sendMessageQueue(e, "Successfully updated %s info with %d new %s".formatted(userString, i, CommandUtil.singlePlural(i, "scrobble", "scrobbles")));
 
-                    //db.incrementalUpdate(artistDataLinkedList, userUpdateStatus.getLastFMName());
+                    //dao.incrementalUpdate(artistDataLinkedList, userUpdateStatus.getLastFMName());
                 } catch (LastFMNoPlaysException ex) {
                     db.updateUserTimeStamp(userUpdateStatus.getLastFMName(), userUpdateStatus.getTimestamp(),
                             (int) (Instant.now().getEpochSecond() + 4000));

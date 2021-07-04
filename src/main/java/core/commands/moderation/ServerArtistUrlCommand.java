@@ -37,7 +37,7 @@
 //
 //    @Override
 //    public Parser<ArtistUrlParameters> initParser() {
-//        return new ArtistUrlParser(db);
+//        return new ArtistUrlParser(dao);
 //    }
 //
 //    @Override
@@ -65,19 +65,19 @@
 //                parser.sendError(parser.getErrorMessage(2), e);
 //                return;
 //            }
-//            ScrobbledArtist scrobbledArtist = CommandUtil.onlyCorrection(db, artist, lastFM, !params.isNoredirect());
-//            OptionalLong persistedId = db.checkArtistUrlExists(scrobbledArtist.getArtistId(), urlParsed);
-//            OptionalLong queuedId = db.checkQueuedUrlExists(scrobbledArtist.getArtistId(), urlParsed);
+//            ScrobbledArtist scrobbledArtist = new ArtistValidator(dao,lastFM,e).validate(artist,false,!params.isNoredirect());
+//            OptionalLong persistedId = dao.checkArtistUrlExists(scrobbledArtist.getArtistId(), urlParsed);
+//            OptionalLong queuedId = dao.checkQueuedUrlExists(scrobbledArtist.getArtistId(), urlParsed);
 //
 //            if (persistedId.isPresent()) {
-//                db.insertServerCustomUrl(persistedId.getAsLong(), params.getE().getGuild().getIdLong(), scrobbledArtist.getArtistId());
+//                dao.insertServerCustomUrl(persistedId.getAsLong(), params.getE().getGuild().getIdLong(), scrobbledArtist.getArtistId());
 //                sendMessageQueue(e, "Set this as the server image for " + CommandUtil.cleanMarkdownCharacter(scrobbledArtist.getArtist()) + ".");
 //                return;
 //            } else if (queuedId.isPresent()) {
 //                sendMessageQueue(e, "That image for **" + CommandUtil.cleanMarkdownCharacter(scrobbledArtist.getArtist()) + "** is already on the review queue.");
 //                return;
 //            }
-//            db.userInsertQueueUrlForServer(urlParsed, scrobbledArtist.getArtistId(), e.getAuthor().getIdLong(),e.getGuild().getIdLong());
+//            dao.userInsertQueueUrlForServer(urlParsed, scrobbledArtist.getArtistId(), e.getAuthor().getIdLong(),e.getGuild().getIdLong());
 //            sendMessageQueue(e, "Submitted a server image for " + CommandUtil.cleanMarkdownCharacter(scrobbledArtist.getArtist()) + ".\nIt will be reviewed by a bot moderator.\nIf it gets accepted it will be set as the default image.");
 //
 //        } catch (IOException exception) {

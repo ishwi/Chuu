@@ -9,7 +9,7 @@ import core.exceptions.LastFmException;
 import core.parsers.ArtistSongParser;
 import core.parsers.Parser;
 import core.parsers.params.ArtistAlbumParameters;
-import core.services.TrackValidator;
+import core.services.validators.TrackValidator;
 import dao.ServiceView;
 import dao.entities.LastFMData;
 import dao.entities.ScrobbledArtist;

@@ -1,12 +1,8 @@
 package core.commands.stats;
 
-import core.apis.discogs.DiscogsApi;
-import core.apis.discogs.DiscogsSingleton;
 import core.apis.lyrics.EvanLyrics;
 import core.apis.lyrics.Lyrics;
 import core.apis.lyrics.TextSplitter;
-import core.apis.spotify.Spotify;
-import core.apis.spotify.SpotifySingleton;
 import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.ChuuEmbedBuilder;
@@ -18,6 +14,7 @@ import core.otherlisteners.Reactionary;
 import core.parsers.ArtistSongParser;
 import core.parsers.Parser;
 import core.parsers.params.ArtistAlbumParameters;
+import core.services.validators.ArtistValidator;
 import dao.ServiceView;
 import dao.entities.ScrobbledArtist;
 import dao.utils.LinkUtils;
@@ -29,15 +26,11 @@ import java.util.Optional;
 
 public class LyricsCommand extends ConcurrentCommand<ArtistAlbumParameters> {
     private final EvanLyrics evanLyrics;
-    private final DiscogsApi discogsApi;
-    private final Spotify spotifyApi;
 
 
     public LyricsCommand(ServiceView dao) {
         super(dao);
         evanLyrics = new EvanLyrics();
-        discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
-        spotifyApi = SpotifySingleton.getInstance();
 
     }
 
@@ -73,7 +66,7 @@ public class LyricsCommand extends ConcurrentCommand<ArtistAlbumParameters> {
         String url = null;
         ScrobbledArtist scrobbledArtist = new ScrobbledArtist(artist, 0, null);
         try {
-            CommandUtil.validate(db, scrobbledArtist, lastFM, discogsApi, spotifyApi);
+            scrobbledArtist = new ArtistValidator(db, lastFM, e).validate(artist, !params.isNoredirect());
             url = scrobbledArtist.getUrl();
         } catch (LastFmEntityNotFoundException exception) {
             //Ignored

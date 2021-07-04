@@ -11,6 +11,7 @@ import core.parsers.ArtistParser;
 import core.parsers.Parser;
 import core.parsers.params.ArtistParameters;
 import core.parsers.utils.Optionals;
+import core.services.validators.ArtistValidator;
 import dao.ServiceView;
 import dao.entities.DiscordUserDisplay;
 import dao.entities.GlobalCrown;
@@ -63,7 +64,7 @@ public class GlobalArtistCommand extends ConcurrentCommand<ArtistParameters> {
     protected void onCommand(Context e, @NotNull ArtistParameters params) throws LastFmException {
 
         long userId = params.getLastFMData().getDiscordId();
-        ScrobbledArtist sA = CommandUtil.onlyCorrectionUrl(db, params.getArtist(), lastFM, !params.isNoredirect());
+        ScrobbledArtist sA = new ArtistValidator(db, lastFM, e).validate(params.getArtist(), true, !params.isNoredirect());
 
         boolean showBotted = CommandUtil.showBottedAccounts(params.getLastFMData(), params, db);
 

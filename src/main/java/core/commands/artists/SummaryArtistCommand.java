@@ -15,6 +15,7 @@ import core.parsers.Parser;
 import core.parsers.params.ArtistParameters;
 import core.services.tags.TagArtistService;
 import core.services.tags.TagCleaner;
+import core.services.validators.ArtistValidator;
 import dao.ServiceView;
 import dao.entities.*;
 import dao.musicbrainz.MusicBrainzService;
@@ -68,14 +69,13 @@ public class SummaryArtistCommand extends ConcurrentCommand<ArtistParameters> {
     @Override
     protected void onCommand(Context e, @NotNull ArtistParameters params) throws LastFmException {
 
-        final ScrobbledArtist scrobbledArtist = new ScrobbledArtist(params.getArtist(), 0, null);
-        CommandUtil.validate(db, scrobbledArtist, lastFM, discogsApi, spotify, true, !params.isNoredirect());
+        final ScrobbledArtist sA = new ArtistValidator(db, lastFM, e).validate(params.getArtist(), !params.isNoredirect());
         LastFMData data = params.getLastFMData();
         long whom = data.getDiscordId();
-        ArtistSummary summary = lastFM.getArtistSummary(scrobbledArtist.getArtist(), data);
+        ArtistSummary summary = lastFM.getArtistSummary(sA.getArtist(), data);
         ArtistMusicBrainzDetails artistDetails = mb.getArtistDetails(new ArtistInfo(null, summary.getArtistname(), summary.getMbid()));
-        long globalArtistPlays = db.getGlobalArtistPlays(scrobbledArtist.getArtistId());
-        long globalArtistFrequencies = db.getGlobalArtistFrequencies(scrobbledArtist.getArtistId());
+        long globalArtistPlays = db.getGlobalArtistPlays(sA.getArtistId());
+        long globalArtistFrequencies = db.getGlobalArtistFrequencies(sA.getArtistId());
 
         String username = getUserString(e, whom, data.getName());
         EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e);
@@ -93,13 +93,13 @@ public class SummaryArtistCommand extends ConcurrentCommand<ArtistParameters> {
                         .map(art -> "[" + CommandUtil.escapeMarkdown(art) + "](" + LinkUtils.getLastFmArtistUrl(art) + ")")
                         .collect(Collectors.joining(" - "));
 
-        embedBuilder.setTitle("Information about " + CommandUtil.escapeMarkdown(summary.getArtistname()), LinkUtils.getLastFmArtistUrl(scrobbledArtist.getArtist()));
+        embedBuilder.setTitle("Information about " + CommandUtil.escapeMarkdown(summary.getArtistname()), LinkUtils.getLastFmArtistUrl(sA.getArtist()));
 
         if (e.isFromGuild()) {
             StringBuilder serverStats = new StringBuilder();
-            long artistFrequencies = db.getArtistFrequencies(e.getGuild().getIdLong(), scrobbledArtist.getArtistId());
+            long artistFrequencies = db.getArtistFrequencies(e.getGuild().getIdLong(), sA.getArtistId());
             serverStats.append(String.format("**%d** listeners%n", artistFrequencies));
-            long serverArtistPlays = db.getServerArtistPlays(e.getGuild().getIdLong(), scrobbledArtist.getArtistId());
+            long serverArtistPlays = db.getServerArtistPlays(e.getGuild().getIdLong(), sA.getArtistId());
             serverStats.append(String.format("**%d** plays%n", serverArtistPlays));
             embedBuilder.
                     addField(String.format("%s's stats", CommandUtil.escapeMarkdown(e.getGuild().getName())), serverStats.toString(), true);
@@ -127,11 +127,11 @@ public class SummaryArtistCommand extends ConcurrentCommand<ArtistParameters> {
         embedBuilder.addField("Tags:", tagsField, false)
                 .addField("Similars:", similarField, false)
                 .addField("Bio:", CommandUtil.escapeMarkdown(summary.getSummary()), false)
-                .setImage(scrobbledArtist.getUrl());
+                .setImage(sA.getUrl());
 
         e.sendMessage(embedBuilder.build()).queue();
         if (!tags.isEmpty()) {
-            executor.submit(new TagArtistService(db, lastFM, tags, new ArtistInfo(scrobbledArtist.getUrl(), summary.getArtistname(), summary.getMbid())));
+            executor.submit(new TagArtistService(db, lastFM, tags, new ArtistInfo(sA.getUrl(), summary.getArtistname(), summary.getMbid())));
         }
     }
 }

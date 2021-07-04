@@ -1,9 +1,5 @@
 package core.commands.stats;
 
-import core.apis.discogs.DiscogsApi;
-import core.apis.discogs.DiscogsSingleton;
-import core.apis.spotify.Spotify;
-import core.apis.spotify.SpotifySingleton;
 import core.commands.Context;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
@@ -12,6 +8,7 @@ import core.parsers.ArtistAlbumParser;
 import core.parsers.Parser;
 import core.parsers.params.ArtistAlbumParameters;
 import core.parsers.utils.Optionals;
+import core.services.validators.ArtistValidator;
 import dao.ServiceView;
 import dao.entities.*;
 import dao.exceptions.InstanceNotFoundException;
@@ -22,13 +19,9 @@ import javax.annotation.Nullable;
 import java.util.List;
 
 public class TasteAlbumCommand extends BaseTasteCommand<ArtistAlbumParameters> {
-    private final DiscogsApi discogsApi;
-    private final Spotify spotifyApi;
 
     public TasteAlbumCommand(ServiceView dao) {
         super(dao);
-        this.discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
-        this.spotifyApi = SpotifySingleton.getInstance();
         this.thumbnailPerRow = false;
     }
 
@@ -80,10 +73,10 @@ public class TasteAlbumCommand extends BaseTasteCommand<ArtistAlbumParameters> {
     public ResultWrapper<UserArtistComparison> getResult(LastFMData og, LastFMData second, ArtistAlbumParameters params) throws LastFmException {
         boolean isList = params.hasOptional("list");
         String artist = params.getArtist();
-        ScrobbledArtist scrobbledArtist = new ScrobbledArtist(artist, 0, null);
-        params.setScrobbledArtist(scrobbledArtist);
-        CommandUtil.validate(db, scrobbledArtist, lastFM, discogsApi, spotifyApi);
-        long albumId = CommandUtil.albumvalidate(db, scrobbledArtist, lastFM, params.getAlbum()).id();
+        ScrobbledArtist sA = new ArtistValidator(db, lastFM, params.getE()).validate(artist, true, !params.isNoredirect());
+        params.setScrobbledArtist(sA);
+
+        long albumId = CommandUtil.albumvalidate(db, sA, lastFM, params.getAlbum()).id();
         return db.getSimilaritiesAlbumTracks(List.of(og.getName(), second.getName()), albumId, isList ? 200 : Integer.MAX_VALUE);
     }
 
