@@ -69,7 +69,7 @@ public class UnsetCommand extends ConcurrentCommand<CommandParameters> {
 
         EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e)
                 .setColor(Color.RED)
-                .setAuthor("User Deletion Confirmation", PrivacyUtils.getLastFmUser(data.getName()), uInfo.getUrlImage())
+                .setAuthor("User Deletion Confirmation", PrivacyUtils.getLastFmUser(data.getName()), uInfo.urlImage())
                 .setFooter("Unsetting doesn't fix any issue that might exist with scrobbles and will delete all your info including pictures submitted!")
                 .setDescription(String.format("%s, are you sure you want to delete all your info from the bot?", userString));
 

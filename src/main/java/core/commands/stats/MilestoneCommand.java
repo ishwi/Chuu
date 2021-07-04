@@ -85,7 +85,7 @@ public class MilestoneCommand extends ConcurrentCommand<NumberParameters<ChuuDat
         String day = offsetDateTime.toLocalDate().format(DateTimeFormatter.ISO_DATE);
         String date = CommandUtil.getAmericanizedDate(offsetDateTime);
         EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e)
-                .setAuthor(String.format("%s's #%d scrobble was:", uinfo.getUsername(), extraParam), String.format("%s/library?from=%s&rangetype=1day", PrivacyUtils.getLastFmUser(lastFMData.getName()), day), uinfo.getUrlImage())
+                .setAuthor(String.format("%s's #%d scrobble was:", uinfo.username(), extraParam), String.format("%s/library?from=%s&rangetype=1day", PrivacyUtils.getLastFmUser(lastFMData.getName()), day), uinfo.urlImage())
                 .setTitle(milestone.getName(), LinkUtils.getLastFMArtistTrack(milestone.getArtist(), milestone.getName()))
                 .setThumbnail(milestone.getImageUrl() == null || milestone.getImageUrl().isBlank() ? null : milestone.getImageUrl())
                 .setDescription("**" + milestone.getArtist() + "** | " + milestone.getAlbum())

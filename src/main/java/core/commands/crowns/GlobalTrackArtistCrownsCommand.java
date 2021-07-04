@@ -92,8 +92,8 @@ public class GlobalTrackArtistCrownsCommand extends ConcurrentCommand<NumberPara
         innerParams.setScrobbledArtist(scrobbledArtist);
         UniqueWrapper<TrackPlays> uniqueDataUniqueWrapper = getList(params);
         DiscordUserDisplay userInformation = CommandUtil.getUserInfoConsideringGuildOrNot(e, innerParams.getLastFMData().getDiscordId());
-        String userName = userInformation.getUsername();
-        String userUrl = userInformation.getUrlImage();
+        String userName = userInformation.username();
+        String userUrl = userInformation.urlImage();
         List<TrackPlays> resultWrapper = uniqueDataUniqueWrapper.getUniqueData();
 
         int rows = resultWrapper.size();
@@ -116,7 +116,7 @@ public class GlobalTrackArtistCrownsCommand extends ConcurrentCommand<NumberPara
         long discordId = params.getInnerParams().getLastFMData().getDiscordId();
         EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e)
                 .setDescription(a)
-                .setAuthor(String.format("%s's %scrowns", userName, getTitle(scrobbledArtist)), CommandUtil.getLastFmUser(uniqueDataUniqueWrapper.getLastFmId()), userInformation.getUrlImage())
+                .setAuthor(String.format("%s's %scrowns", userName, getTitle(scrobbledArtist)), CommandUtil.getLastFmUser(uniqueDataUniqueWrapper.getLastFmId()), userInformation.urlImage())
                 .setThumbnail(scrobbledArtist.getUrl())
                 .setFooter(String.format("%s has %d %scrowns!!%n", CommandUtil.unescapedUser(userName, discordId, e), resultWrapper.size(), getTitle(scrobbledArtist)), null);
         e.sendMessage(embedBuilder.build()).queue(message1 ->

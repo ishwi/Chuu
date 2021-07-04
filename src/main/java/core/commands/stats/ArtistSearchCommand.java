@@ -66,7 +66,7 @@ public class ArtistSearchCommand extends ListCommand<ScrobbledArtist, UserString
         String abbreviate = StringUtils.abbreviate(value, 120);
 
         if (list.isEmpty()) {
-            e.sendMessage(uInfo.getUsername() + " doesnt have any artist searching by `" + abbreviate + "`").queue();
+            e.sendMessage(uInfo.username() + " doesnt have any artist searching by `" + abbreviate + "`").queue();
             return;
         }
         List<String> strs = list.stream().map(t ->
@@ -79,8 +79,8 @@ public class ArtistSearchCommand extends ListCommand<ScrobbledArtist, UserString
             a.append(i + 1).append(strs.get(i));
         }
 
-        String title = uInfo.getUsername() + "'s artist that match " + abbreviate;
-        EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e).setAuthor(title, PrivacyUtils.getLastFmUser(params.getLastFMData().getName()), uInfo.getUrlImage())
+        String title = uInfo.username() + "'s artist that match " + abbreviate;
+        EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e).setAuthor(title, PrivacyUtils.getLastFmUser(params.getLastFMData().getName()), uInfo.urlImage())
                 .setFooter(list.size() + " matching artists!")
                 .setDescription(a);
         e.sendMessage(embedBuilder.build()).queue(mes ->

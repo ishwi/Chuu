@@ -70,7 +70,7 @@ public class WastedAlbumChartCommand extends GroupingChartCommand {
         Context e = parameters.getE();
 
         DiscordUserDisplay ingo = CommandUtil.getUserInfoConsideringGuildOrNot(e, parameters.getDiscordId());
-        sendMessageQueue(e, String.format("%s didn't listen to any album%s!", ingo.getUsername(), parameters.getTimeFrameEnum().getDisplayString()));
+        sendMessageQueue(e, String.format("%s didn't listen to any album%s!", ingo.username(), parameters.getTimeFrameEnum().getDisplayString()));
     }
 
     @Override

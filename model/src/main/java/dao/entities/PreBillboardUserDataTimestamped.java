@@ -1,9 +1,11 @@
 package dao.entities;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.sql.Timestamp;
 
 public class PreBillboardUserDataTimestamped extends PreBillboardUserData implements Serializable {
+    @Serial
     private static final long serialVersionUID = 1231231L;
 
     private final Timestamp timestamp;

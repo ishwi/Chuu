@@ -85,9 +85,9 @@ public class LoveMaker {
                 .setStyle(Font.BOLD)
                 .setMinSize(18).build();
         StringFitter.FontMetadata u1 = userBuilder
-                .getFontMetadata(g, firstUser.getUsername());
+                .getFontMetadata(g, firstUser.username());
         StringFitter.FontMetadata u2 = userBuilder
-                .getFontMetadata(g, secondUser.getUsername());
+                .getFontMetadata(g, secondUser.username());
 
 
         int baseline = (int) Math.max(u1.bounds().getHeight(), u2.bounds().getHeight());
@@ -161,7 +161,7 @@ public class LoveMaker {
 
     public static int drawRecommendation(String artist, DiscordUserDisplay secondUser, BufferedImage canvas, Graphics2D g, int yAccum) {
         if (artist != null) {
-            String headerLine = String.format("Recommendation from %s: ", secondUser.getUsername());
+            String headerLine = String.format("Recommendation from %s: ", secondUser.username());
             StringFitter recFitter = new StringFitterBuilder(DESC_SIZE, (int) (X_SIZE * 0.8))
                     .setStyle(Font.BOLD)
                     .setMinSize(18).build();
@@ -174,7 +174,7 @@ public class LoveMaker {
             GraphicUtils.drawStringNicely(g, fontMetadata, secondPartStart, secondPartBaseline + yAccum, canvas);
             return (int) secondPartBounds.getHeight();
         } else {
-            String title = secondUser.getUsername() + " couldn't give a reccomendation :( ";
+            String title = secondUser.username() + " couldn't give a reccomendation :( ";
             g.setFont(NORMAL_FONT.deriveFont(DESC_SIZE));
             StringFitter recFitter = new StringFitterBuilder(DESC_SIZE, (int) (X_SIZE * 0.8))
                     .setMinSize(18).build();

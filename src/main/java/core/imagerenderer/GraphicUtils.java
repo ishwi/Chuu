@@ -227,7 +227,7 @@ public class GraphicUtils {
     }
 
 
-    public static void inserArtistImage(String urlImage, Graphics2D g) {
+    public static void drawImageInCorner(String urlImage, Graphics2D g) {
         BufferedImage read = GraphicUtils.getImage(urlImage);
         if (read != null) {
             BufferedImage image = Scalr.resize(read, 100, 100);

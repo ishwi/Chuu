@@ -68,7 +68,7 @@ public class ServerCommandsIssuedCommand extends ConcurrentCommand<CommandParame
             return;
         }
 
-        Function<UserCount, String> toMemoize = (userListened) -> ". [" + CommandUtil.getUserInfoConsideringGuildOrNot(e, userListened.discordId()).getUsername() + "]" +
+        Function<UserCount, String> toMemoize = (userListened) -> ". [" + CommandUtil.getUserInfoConsideringGuildOrNot(e, userListened.discordId()).username() + "]" +
                                                                   "(" + PrivacyUtils.getLastFmUser(userListened.lastfmId()) + ")" +
                                                                   ": " + userListened.count() + " " + CommandUtil.singlePlural(userListened.count(), "command", "commands") + "\n";
 

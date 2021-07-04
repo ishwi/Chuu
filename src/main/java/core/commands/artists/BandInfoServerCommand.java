@@ -68,7 +68,7 @@ public class BandInfoServerCommand extends BandInfoCommand {
         }
         WrapperReturnNowPlaying np = db.whoKnows(who.getArtistId(), e.getGuild().getIdLong(), 5);
         np.getReturnNowPlayings().forEach(element ->
-                element.setDiscordName(CommandUtil.getUserInfoUnescaped(e, element.getDiscordId()).getUsername())
+                element.setDiscordName(CommandUtil.getUserInfoUnescaped(e, element.getDiscordId()).username())
         );
         BufferedImage logo = CommandUtil.getLogo(db, e);
         if (b1) {

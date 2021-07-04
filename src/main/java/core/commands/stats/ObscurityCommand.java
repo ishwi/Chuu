@@ -104,7 +104,7 @@ public class ObscurityCommand extends ConcurrentCommand<ChuuDataParams> {
         DiscordUserDisplay uInfo = CommandUtil.getUserInfoUnescaped(e, id);
 
         embedBuilder.setAuthor(e.getGuild().getName() + "'s stats", null, e.getGuild().getIconUrl())
-                .setAuthor(uInfo.getUsername() + "'s obscurity details", PrivacyUtils.getLastFmUser(name), uInfo.getUrlImage())
+                .setAuthor(uInfo.username() + "'s obscurity details", PrivacyUtils.getLastFmUser(name), uInfo.urlImage())
                 .setTitle(formatter.format(100 - v) + "% obscure" + titleCF.join())
                 .addField("**Happiness:** %s%%".formatted(formatter.format(userFeatures.valence() * 100)), "**" + hapinessStr + "**", false)
                 .addField("**Energy:** %s%%".formatted(formatter.format(userFeatures.energy() * 100)), "**" + energyStr + "**", false)

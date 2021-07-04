@@ -1,10 +1,6 @@
 package core.commands.rym;
 
 
-import core.apis.discogs.DiscogsApi;
-import core.apis.discogs.DiscogsSingleton;
-import core.apis.spotify.Spotify;
-import core.apis.spotify.SpotifySingleton;
 import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.ChuuEmbedBuilder;
@@ -31,13 +27,9 @@ import java.util.OptionalDouble;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class ArtistRatingsCommand extends ConcurrentCommand<ArtistParameters> {
-    private final DiscogsApi discogsApi;
-    private final Spotify spotify;
 
     public ArtistRatingsCommand(ServiceView dao) {
         super(dao);
-        discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
-        spotify = SpotifySingleton.getInstance();
         respondInPrivate = false;
     }
 
@@ -73,7 +65,7 @@ public class ArtistRatingsCommand extends ConcurrentCommand<ArtistParameters> {
         ScrobbledArtist sA = new ArtistValidator(db, lastFM, e).validate(params.getArtist(), !params.isNoredirect());
         String artist = sA.getArtist();
         List<AlbumRatings> rating = db.getArtistRatings(sA.getArtistId(), e.getGuild().getIdLong()).stream()
-                .sorted(Comparator.comparingDouble((AlbumRatings y) -> y.getUserRatings().stream().filter(Rating::isSameGuild).mapToLong(Rating::getRating).average().orElse(0) * y.getUserRatings().size()).reversed()).toList();
+                .sorted(Comparator.comparingDouble((AlbumRatings y) -> y.userRatings().stream().filter(Rating::isSameGuild).mapToLong(Rating::getRating).average().orElse(0) * y.userRatings().size()).reversed()).toList();
         EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e);
 
 
@@ -85,9 +77,9 @@ public class ArtistRatingsCommand extends ConcurrentCommand<ArtistParameters> {
         }
         AtomicInteger counter = new AtomicInteger(0);
         List<String> mappedString = rating.stream().map(ratings -> {
-            long userScore = ratings.getUserRatings().stream().filter(x -> x.getDiscordId() == params.getLastFMData().getDiscordId()).mapToLong(Rating::getRating).sum();
-            List<Rating> serverList = ratings.getUserRatings().stream().filter(Rating::isSameGuild).toList();
-            List<Rating> globalList = ratings.getUserRatings();
+            long userScore = ratings.userRatings().stream().filter(x -> x.getDiscordId() == params.getLastFMData().getDiscordId()).mapToLong(Rating::getRating).sum();
+            List<Rating> serverList = ratings.userRatings().stream().filter(Rating::isSameGuild).toList();
+            List<Rating> globalList = ratings.userRatings();
             OptionalDouble serverAverage = serverList.stream().mapToDouble(x -> x.getRating() / 2f).average();
             OptionalDouble globalAverage = globalList.stream().mapToDouble(x -> x.getRating() / 2f).average();
             String sAverage = serverAverage.isPresent() ? average.format(serverAverage.getAsDouble()) : "~~No Ratings~~";
@@ -95,9 +87,9 @@ public class ArtistRatingsCommand extends ConcurrentCommand<ArtistParameters> {
             String userString = userScore != 0 ? formatter.format((float) userScore / 2f) : "~~Unrated~~";
             String format = String.format("Your rating: **%s** \nServer Average: **%s** | # in server **%d**\n Global Average **%s** | # in total **%d**", userString, sAverage, serverList.size(), gAverage, globalList.size());
             counter.addAndGet(serverList.size());
-            String s = ratings.getReleaseYear() != null ? " \\(" + ratings.getReleaseYear().toString() + "\\)" : "";
-            return ". **[" + ratings.getAlbumName() + s +
-                   "](" + LinkUtils.getLastFmArtistAlbumUrl(artist, ratings.getAlbumName()) +
+            String s = ratings.releaseYear() != null ? " \\(" + ratings.releaseYear() + "\\)" : "";
+            return ". **[" + ratings.albumName() + s +
+                   "](" + LinkUtils.getLastFmArtistAlbumUrl(artist, ratings.albumName()) +
                    ")** - " + format +
                    "\n\n";
         }).toList();

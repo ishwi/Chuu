@@ -72,7 +72,7 @@ public class UserRatings extends ConcurrentCommand<RYMRatingParams> {
         NumberFormat formatter = new DecimalFormat("#0.##");
         DiscordUserDisplay userInfoConsideringGuildOrNot = CommandUtil.getUserInfoConsideringGuildOrNot(e, params.getLastFMData().getDiscordId());
         EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e).
-                setTitle(userInfoConsideringGuildOrNot.getUsername() + "'s albums rated with a **" + formatter.format(params.getRating() / 2f) + "**");
+                setTitle(userInfoConsideringGuildOrNot.username() + "'s albums rated with a **" + formatter.format(params.getRating() / 2f) + "**");
         List<String> stringList = new ArrayList<>();
         for (ScoredAlbumRatings x : myRatings) {
             String s = "# ***[" + CommandUtil.escapeMarkdown(x.getArtist()) + " - " + CommandUtil.escapeMarkdown(x.getName())
@@ -91,7 +91,7 @@ public class UserRatings extends ConcurrentCommand<RYMRatingParams> {
         NumberFormat formatter = new DecimalFormat("#0.##");
         DiscordUserDisplay userInfoConsideringGuildOrNot = CommandUtil.getUserInfoConsideringGuildOrNot(e, params.getLastFMData().getDiscordId());
         EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e).
-                setTitle(userInfoConsideringGuildOrNot.getUsername() + "'s rating overview");
+                setTitle(userInfoConsideringGuildOrNot.username() + "'s rating overview");
         List<String> stringList = new ArrayList<>();
         double prevRating = -1d;
         int indexer = 0;
@@ -121,8 +121,8 @@ public class UserRatings extends ConcurrentCommand<RYMRatingParams> {
         }
         RymStats stats = db.getUserRymStatms(params.getLastFMData().getDiscordId());
         embedBuilder
-                .setThumbnail(userInfoConsideringGuildOrNot.getUrlImage())
-                .setFooter(userInfoConsideringGuildOrNot.getUsername() + " has rated " + stats.getNumberOfRatings() + " albums with an average of " + formatter.format(stats.getAverage() / 2f))
+                .setThumbnail(userInfoConsideringGuildOrNot.urlImage())
+                .setFooter(userInfoConsideringGuildOrNot.username() + " has rated " + stats.getNumberOfRatings() + " albums with an average of " + formatter.format(stats.getAverage() / 2f))
                 .setDescription(a);
         e.sendMessage(embedBuilder.build()).queue(message1 ->
                 new Reactionary<>(stringList, message1, 8, embedBuilder, false));

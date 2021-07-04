@@ -133,7 +133,7 @@ public class WhoKnowsLoonasCommand extends WhoKnowsBaseCommand<LOONAParameters> 
         whoKnowsArtistSet.stream().flatMap(x -> x.getReturnNowPlayings().stream()).forEach(x -> {
             String s = mapper.get(x.getDiscordId());
             if (s == null) {
-                s = CommandUtil.getUserInfoUnescaped(e, x.getDiscordId()).getUsername();
+                s = CommandUtil.getUserInfoUnescaped(e, x.getDiscordId()).username();
                 mapper.put(x.getDiscordId(), s);
             }
             x.setDiscordName(s);

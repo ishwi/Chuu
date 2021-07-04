@@ -46,7 +46,7 @@ public abstract class GlobalBaseWhoKnowCommand<T extends CommandParameters> exte
             DiscordUserDisplay uInfo = CommandUtil.getUserInfoUnescaped(e, e.getAuthor().getIdLong());
             EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e)
                     .setTitle("Did you know?")
-                    .setAuthor(uInfo.getUsername(), null, uInfo.getUrlImage())
+                    .setAuthor(uInfo.username(), null, uInfo.urlImage())
                     .setDescription(MessageFormat.format("Your privacy setting is set to **normal**. This means people outside this server cannot see you on the global leaderboards. To show your name do {0}privacy and change your setting to **Tag**, **Last-Name** or **Discord-Name**. Do {1}help privacy for extra info.", prefix, prefix));
             sendImage(image, e, ChartQuality.PNG_BIG, embedBuilder);
         } else {

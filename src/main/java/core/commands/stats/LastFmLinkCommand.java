@@ -49,6 +49,6 @@ public class LastFmLinkCommand extends ConcurrentCommand<ChuuDataParams> {
 
         DiscordUserDisplay userInfoConsideringGuildOrNot = CommandUtil.getUserInfoConsideringGuildOrNot(e, params.getLastFMData().getDiscordId());
 
-        sendMessageQueue(e, userInfoConsideringGuildOrNot.getUsername() + "'s Last.fm page is: " + CommandUtil.getLastFmUser(params.getLastFMData().getName()));
+        sendMessageQueue(e, userInfoConsideringGuildOrNot.username() + "'s Last.fm page is: " + CommandUtil.getLastFmUser(params.getLastFMData().getName()));
     }
 }

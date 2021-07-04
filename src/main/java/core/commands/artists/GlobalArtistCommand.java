@@ -80,7 +80,7 @@ public class GlobalArtistCommand extends ConcurrentCommand<ArtistParameters> {
                 generate(userId, e, artist, sA.getUrl(),
                         () -> db.getServerArtistPlays(e.getGuild().getIdLong(), sA.getArtistId()),
                         () -> db.getArtistFrequencies(e.getGuild().getIdLong(), sA.getArtistId()),
-                        uInfo.getUrlImage(),
+                        uInfo.urlImage(),
                         PrivacyUtils.getLastFmArtistUserUrl(sA.getArtist(), params.getLastFMData().getName()));
         e.sendMessage(eb.build()).queue();
 

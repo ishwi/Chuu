@@ -56,10 +56,10 @@ public class ArtistPlaysCommand extends ConcurrentCommand<ArtistParameters> {
         int a;
         LastFMData data = params.getLastFMData();
         ArtistSummary artistSummary = lastFM.getArtistSummary(scrobbledArtist.getArtist(), data);
-        a = artistSummary.getUserPlayCount();
+        a = artistSummary.userPlayCount();
         String usernameString = getUserString(e, whom, data.getName());
         String ending = a != 1 ? "times" : "time";
-        sendMessageQueue(e, "**" + usernameString + "** has scrobbled **" + CommandUtil.escapeMarkdown(artistSummary.getArtistname()) + " " + a + "** " + ending);
+        sendMessageQueue(e, "**" + usernameString + "** has scrobbled **" + CommandUtil.escapeMarkdown(artistSummary.artistname()) + " " + a + "** " + ending);
 
     }
 }

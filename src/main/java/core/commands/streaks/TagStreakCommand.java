@@ -129,8 +129,8 @@ public class TagStreakCommand extends ConcurrentCommand<ChuuDataParams> {
         }
 
         DiscordUserDisplay userInformation = CommandUtil.getUserInfoConsideringGuildOrNot(e, discordID);
-        String userName = userInformation.getUsername();
-        String userUrl = userInformation.getUrlImage();
+        String userName = userInformation.username();
+        String userUrl = userInformation.urlImage();
 
         EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e)
                 .setAuthor(String.format("%s's current tag streak", CommandUtil.unescapedUser(userName, discordID, e)), CommandUtil.getLastFmUser(lastfmId), userUrl)

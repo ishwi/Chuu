@@ -77,8 +77,8 @@ public class CrownsCommand extends ConcurrentCommand<NumberParameters<ChuuDataPa
         ChuuDataParams innerParams = params.getInnerParams();
         UniqueWrapper<ArtistPlays> uniqueDataUniqueWrapper = getList(params);
         DiscordUserDisplay userInformation = CommandUtil.getUserInfoConsideringGuildOrNot(e, innerParams.getLastFMData().getDiscordId());
-        String userName = userInformation.getUsername();
-        String userUrl = userInformation.getUrlImage();
+        String userName = userInformation.username();
+        String userUrl = userInformation.urlImage();
         List<ArtistPlays> resultWrapper = uniqueDataUniqueWrapper.getUniqueData();
 
         int rows = resultWrapper.size();

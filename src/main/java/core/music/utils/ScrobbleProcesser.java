@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import java.util.UUID;
 
 public record ScrobbleProcesser(AlbumFinder albumFinder) {
-    public static Cache<String, TrackScrobble> processed = Caffeine.newBuilder()
+    public static final Cache<String, TrackScrobble> processed = Caffeine.newBuilder()
             .maximumSize(500).build();
 
 

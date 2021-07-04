@@ -183,7 +183,7 @@ public class ChartParserAux {
     }
 
     private int getDecade(int year) {
-        return year < 2000 ? (year / 10 * 10) : (year / 10 * 10);
+        return (year / 10 * 10);
     }
 
     int parseDecade() {

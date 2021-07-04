@@ -1,20 +1,12 @@
 package core.commands.artists;
 
-import core.apis.discogs.DiscogsApi;
-import core.apis.discogs.DiscogsSingleton;
-import core.apis.spotify.Spotify;
-import core.apis.spotify.SpotifySingleton;
 import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
-import core.commands.utils.ChuuEmbedBuilder;
-import core.commands.utils.CommandCategory;
-import core.commands.utils.CommandUtil;
-import core.commands.utils.PrivacyUtils;
+import core.commands.utils.*;
 import core.exceptions.LastFmException;
 import core.imagerenderer.util.pie.DefaultList;
 import core.imagerenderer.util.pie.IPieableList;
 import core.imagerenderer.util.pie.OptionalPie;
-import core.imagerenderer.util.pie.PieSetUp;
 import core.otherlisteners.Reactionary;
 import core.parsers.ArtistParser;
 import core.parsers.Parser;
@@ -38,16 +30,12 @@ import java.util.function.Consumer;
 
 public class GlobalFavesFromArtistCommand extends ConcurrentCommand<ArtistParameters> {
 
-    private final DiscogsApi discogs;
-    private final Spotify spotify;
     private final IPieableList<AlbumUserPlays, ChuuDataParams> pie;
 
     public GlobalFavesFromArtistCommand(ServiceView dao) {
         super(dao);
         respondInPrivate = true;
         new OptionalPie(this.getParser());
-        this.discogs = DiscogsSingleton.getInstanceUsingDoubleLocking();
-        this.spotify = SpotifySingleton.getInstance();
         this.pie = DefaultList.fillPie(AlbumUserPlays::getAlbum, AlbumUserPlays::getPlays);
     }
 
@@ -94,7 +82,7 @@ public class GlobalFavesFromArtistCommand extends ConcurrentCommand<ArtistParame
             case PIE -> {
                 PieChart pieChart = pie.doPie(params, songs);
                 pieChart.setTitle(title);
-                BufferedImage image = new PieSetUp(footer, who.getUrl(), pieChart).setUp();
+                BufferedImage image = new PieDoer(footer, who.getUrl(), pieChart).fill();
                 pieConsumer.accept(image);
             }
         }

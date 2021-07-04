@@ -109,7 +109,6 @@ public class UserGuildDaoImpl implements UserGuildDao {
             }
 
             /* Get results. */
-            i = 1;
             long resDiscordID = resultSet.getLong(i++);
             String lastFmID = resultSet.getString(i++);
             Role role = Role.valueOf(resultSet.getString(i++));

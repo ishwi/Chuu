@@ -62,7 +62,7 @@ public class HardwareStatsCommand extends ConcurrentCommand<CommandParameters> {
                 .setTitle(e.getJDA().getSelfUser().getName() + "'s stats")
                 .addField("**Registered users:**", "**" + botStats.userCount() + "**", true)
                 .addField("**Number of Servers:**", "**" + Chuu.getShardManager().getGuildCache().size() + "**", true)
-                .addField("**Total setted users:**", "**" + botStats.setCount() + "**", true)
+                .addField("**Total set users:**", "**" + botStats.setCount() + "**", true)
                 .addField("**Artist Count:**", "**" + botStats.artistCount() + "**", true)
                 .addField("**Album Count:**", "**" + botStats.albumCount() + "**", true)
                 .addField("**Scrobble Count:**", "**" + botStats.scrobbledCount() + "**", true)

@@ -58,7 +58,7 @@ public class UnratedAlbums extends ListCommand<AlbumPlays, ChuuDataParams> {
         Context e = params.getE();
         DiscordUserDisplay dp = CommandUtil.getUserInfoConsideringGuildOrNot(e, discordId);
         if (list.isEmpty()) {
-            sendMessageQueue(e, "Couldn't find any unrated album in " + dp.getUsername() + " albums");
+            sendMessageQueue(e, "Couldn't find any unrated album in " + dp.username() + " albums");
             return;
         }
 
@@ -71,9 +71,9 @@ public class UnratedAlbums extends ListCommand<AlbumPlays, ChuuDataParams> {
 
         EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e)
                 .setDescription(a)
-                .setTitle(dp.getUsername() + "'s Unrated Albums")
+                .setTitle(dp.username() + "'s Unrated Albums")
                 .setFooter("You can link your rym account using " + prefix + "rymimport\n You have " + list.size() + " unrated albums", null)
-                .setThumbnail(dp.getUrlImage());
+                .setThumbnail(dp.urlImage());
         e.sendMessage(embedBuilder.build()).queue(message1 ->
                 new Reactionary<>(list, message1, embedBuilder));
     }

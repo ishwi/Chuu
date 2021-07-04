@@ -93,7 +93,7 @@ public class WhoKnowsAlbumCommand extends WhoKnowsBaseCommand<ArtistAlbumParamet
         List<ReturnNowPlaying> list2 = userCounts.stream().sequential().limit(effectiveMode.equals(WhoKnowsMode.IMAGE) ? 10 : Integer.MAX_VALUE).map(t -> {
             long id2 = t.getKey().getDiscordID();
             ReturnNowPlaying np = new ReturnNowPlayingAlbum(id2, t.getKey().getLastFMName(), correctedArtist, t.getValue(), correctedAlbum);
-            np.setDiscordName(CommandUtil.getUserInfoUnescaped(e, id2).getUsername());
+            np.setDiscordName(CommandUtil.getUserInfoUnescaped(e, id2).username());
             return np;
         }).filter(x -> x.getPlayNumber() > 0).toList();
         if (list2.isEmpty()) {

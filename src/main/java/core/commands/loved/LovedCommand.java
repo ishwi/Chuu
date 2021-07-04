@@ -56,7 +56,7 @@ public class LovedCommand extends ConcurrentCommand<ChuuDataParams> {
         CountWrapper<List<TrackWithArtistId>> wrapper = lastFM.getLovedSongs(params.getLastFMData());
         DiscordUserDisplay uInfo = CommandUtil.getUserInfoUnescaped(e, params.getLastFMData().getDiscordId());
         if (wrapper.getRows() == 0) {
-            sendMessageQueue(e, "%s doesn't have any loved track. Consider using the `%slove` command!".formatted(uInfo.getUsername(), CommandUtil.getMessagePrefix(e)));
+            sendMessageQueue(e, "%s doesn't have any loved track. Consider using the `%slove` command!".formatted(uInfo.username(), CommandUtil.getMessagePrefix(e)));
             return;
         }
 
@@ -65,7 +65,7 @@ public class LovedCommand extends ConcurrentCommand<ChuuDataParams> {
         List<TrackWithArtistId> songs = wrapper.getResult();
         ZoneId zoneId = params.getLastFMData().getTimeZone().toZoneId();
 
-        EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e).setAuthor("%s's loved songs".formatted(uInfo.getUsername()), PrivacyUtils.getLastFmUser(userName) + "/loved", uInfo.getUrlImage())
+        EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e).setAuthor("%s's loved songs".formatted(uInfo.username()), PrivacyUtils.getLastFmUser(userName) + "/loved", uInfo.urlImage())
                 .setFooter("%d total %s loved".formatted(wrapper.getRows(), CommandUtil.singlePlural(wrapper.getRows(), "song", "songs")));
 
         new ListSender<>(e,

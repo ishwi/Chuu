@@ -1,13 +1,9 @@
 package core.commands.stats;
 
-import core.apis.discogs.DiscogsApi;
-import core.apis.discogs.DiscogsSingleton;
 import core.apis.last.entities.chartentities.ChartUtil;
 import core.apis.last.entities.chartentities.TopEntity;
 import core.apis.last.entities.chartentities.UrlCapsule;
 import core.apis.last.queues.DiscardableQueue;
-import core.apis.spotify.Spotify;
-import core.apis.spotify.SpotifySingleton;
 import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
@@ -49,13 +45,9 @@ import static core.parsers.ExtraParser.LIMIT_ERROR;
 
 public class PaceArtistCommand extends ConcurrentCommand<NumberParameters<ArtistTimeFrameParameters>> {
 
-    private final DiscogsApi discogsApi;
-    private final Spotify spotify;
 
     public PaceArtistCommand(ServiceView dao) {
         super(dao);
-        discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
-        spotify = SpotifySingleton.getInstance();
     }
 
     @Override
@@ -121,7 +113,7 @@ public class PaceArtistCommand extends ConcurrentCommand<NumberParameters<Artist
         if (time.equals(TimeFrameEnum.ALL)) {
             artistPlays = metricPlays;
         } else {
-            artistPlays = lastFM.getArtistSummary(sA.getArtist(), user).getUserPlayCount();
+            artistPlays = lastFM.getArtistSummary(sA.getArtist(), user).userPlayCount();
         }
         Long goal = params.getExtraParam();
         if (goal == null) {

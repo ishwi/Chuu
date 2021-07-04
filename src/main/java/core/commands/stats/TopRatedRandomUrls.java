@@ -73,8 +73,8 @@ public class TopRatedRandomUrls extends ConcurrentCommand<CommandParameters> {
                 long idLong = e.getAuthor().getIdLong();
                 ratings = db.getByUserTopRatedUrls(idLong);
                 DiscordUserDisplay userInfoConsideringGuildOrNot = CommandUtil.getUserInfoConsideringGuildOrNot(params.getE(), idLong);
-                title = userInfoConsideringGuildOrNot.getUsername();
-                url = userInfoConsideringGuildOrNot.getUrlImage();
+                title = userInfoConsideringGuildOrNot.username();
+                url = userInfoConsideringGuildOrNot.urlImage();
 
             }
         }

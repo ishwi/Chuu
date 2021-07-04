@@ -131,7 +131,7 @@ public class StatsCommand extends ConcurrentCommand<StatsParams> {
         String image = userInfo.getImage();
         image = StringUtils.isBlank(image) ? null : image;
         EmbedBuilder eb = new ChuuEmbedBuilder(e)
-                .setAuthor(uInfo.getUsername(), PrivacyUtils.getLastFmUser(data.getName()), image == null ? uInfo.getUrlImage() : image)
+                .setAuthor(uInfo.username(), PrivacyUtils.getLastFmUser(data.getName()), image == null ? uInfo.urlImage() : image)
                 .setDescription(result.description())
                 .setFooter(result.footer());
 

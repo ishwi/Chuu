@@ -79,9 +79,7 @@ public class NPModeSetterCommand extends ConcurrentCommand<EnumListParameters<NP
             EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e).setTitle("NP Configuration help")
                     .setDescription(split.get(0));
             e.sendMessage(new ChuuEmbedBuilder(e).setTitle("NP Configuration help")
-                    .setDescription(split.get(0)).build()).queue(w -> {
-                new Reactionary<>(split, w, 1, embedBuilder, false);
-            });
+                    .setDescription(split.get(0)).build()).queue(w -> new Reactionary<>(split, w, 1, embedBuilder, false));
             return;
         }
         if (params.isListing()) {

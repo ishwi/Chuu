@@ -95,8 +95,8 @@ public class LanguageCommand extends ConcurrentCommand<TimeFrameParameters> {
         Map<Language, Long> languageCountByMbid = this.mb.getLanguageCountByMbid(albumInfos);
 
         DiscordUserDisplay userInformation = CommandUtil.getUserInfoConsideringGuildOrNot(e, discordId);
-        String userName = userInformation.getUsername();
-        String userUrl = userInformation.getUrlImage();
+        String userName = userInformation.username();
+        String userUrl = userInformation.urlImage();
         String usableTime = params.getTime().getDisplayString();
         if (languageCountByMbid.isEmpty()) {
             sendMessageQueue(e, "Couldn't find any language in " + userName + " albums" + usableTime);
@@ -130,7 +130,7 @@ public class LanguageCommand extends ConcurrentCommand<TimeFrameParameters> {
         PieChart pieChart = this.iPie.doPie(parameters, map);
         DiscordUserDisplay uInfo = CommandUtil.getUserInfoUnescaped(parameters.getE(), parameters.getLastFMData().getDiscordId());
 
-        pieChart.setTitle(uInfo.getUsername() + "'s languages" + parameters.getTime().getDisplayString());
+        pieChart.setTitle(uInfo.username() + "'s languages" + parameters.getTime().getDisplayString());
         BufferedImage bufferedImage = new BufferedImage(1000, 750, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g = bufferedImage.createGraphics();
         GraphicUtils.setQuality(g);

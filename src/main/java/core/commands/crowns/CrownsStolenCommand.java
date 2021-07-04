@@ -87,11 +87,11 @@ public class CrownsStolenCommand extends ConcurrentCommand<NumberParameters<TwoU
         int rows = resultWrapper.getList().size();
 
         DiscordUserDisplay userInformation = CommandUtil.getUserInfoConsideringGuildOrNot(e, ogDiscordID);
-        String userName = userInformation.getUsername();
+        String userName = userInformation.username();
 
         DiscordUserDisplay userInformation2 = CommandUtil.getUserInfoConsideringGuildOrNot(e, secondDiscordId);
-        String userName2 = userInformation2.getUsername();
-        String userUrl2 = userInformation2.getUrlImage();
+        String userName2 = userInformation2.username();
+        String userUrl2 = userInformation2.urlImage();
         if (rows == 0) {
             sendMessageQueue(e, userName2 + " hasn't stolen anything from " + userName);
             return;

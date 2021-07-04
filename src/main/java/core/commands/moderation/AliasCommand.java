@@ -77,7 +77,7 @@ public class AliasCommand extends ConcurrentCommand<TwoArtistParams> {
         } catch (InstanceNotFoundException ex) {
             try {
                 ArtistSummary artistSummary = lastFM.getArtistSummary(alias, lastFMData);
-                if (artistSummary.getListeners() > 1000) {
+                if (artistSummary.listeners() > 1000) {
                     sendMessageQueue(e, "The alias: **%s** cannot be used because there is already an artist with that name".formatted(CommandUtil.escapeMarkdown(alias)));
                     return;
                 }

@@ -2,10 +2,6 @@ package core.commands.artists;
 
 
 import core.Chuu;
-import core.apis.discogs.DiscogsApi;
-import core.apis.discogs.DiscogsSingleton;
-import core.apis.spotify.Spotify;
-import core.apis.spotify.SpotifySingleton;
 import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.ChuuEmbedBuilder;
@@ -38,14 +34,10 @@ import java.util.Arrays;
 import java.util.List;
 
 public class BandInfoCommand extends ConcurrentCommand<ArtistParameters> {
-    private final DiscogsApi discogsApi;
-    private final Spotify spotify;
     private final PieableListBand pie;
 
     public BandInfoCommand(ServiceView dao) {
         super(dao);
-        this.discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
-        this.spotify = SpotifySingleton.getInstance();
         this.respondInPrivate = true;
         pie = new PieableListBand(this.parser);
         order = 7;
@@ -110,7 +102,7 @@ public class BandInfoCommand extends ConcurrentCommand<ArtistParameters> {
                 forEach(element ->
                         element.setDiscordName(CommandUtil.getUserInfoUnescaped(e, element.getDiscordId()).
 
-                                getUsername())
+                                username())
                 );
         BufferedImage logo = CommandUtil.getLogo(db, e);
         if (b1) {
@@ -128,7 +120,7 @@ public class BandInfoCommand extends ConcurrentCommand<ArtistParameters> {
 
     void doImage(ArtistParameters ap, WrapperReturnNowPlaying np, ArtistAlbums ai, int plays, BufferedImage logo, long threshold) {
         BufferedImage returnedImage = BandRendered
-                .makeBandImage(np, ai, plays, logo, CommandUtil.getUserInfoUnescaped(ap.getE(), ap.getLastFMData().getDiscordId()).getUsername(), threshold);
+                .makeBandImage(np, ai, plays, logo, CommandUtil.getUserInfoUnescaped(ap.getE(), ap.getLastFMData().getDiscordId()).username(), threshold);
         sendImage(returnedImage, ap.getE());
     }
 
@@ -151,7 +143,7 @@ public class BandInfoCommand extends ConcurrentCommand<ArtistParameters> {
 
     void configEmbedBuilder(EmbedBuilder embedBuilder, ArtistParameters ap, ArtistAlbums ai) {
         DiscordUserDisplay uInfo = CommandUtil.getUserInfoConsideringGuildOrNot(ap.getE(), ap.getLastFMData().getDiscordId());
-        embedBuilder.setTitle(uInfo.getUsername() + "'s top " + CommandUtil.escapeMarkdown(ai.getArtist()) + " albums");
+        embedBuilder.setTitle(uInfo.username() + "'s top " + CommandUtil.escapeMarkdown(ai.getArtist()) + " albums");
 
     }
 
@@ -159,7 +151,7 @@ public class BandInfoCommand extends ConcurrentCommand<ArtistParameters> {
         PieChart pieChart = this.pie.doPie(ap, ai.getAlbumList());
         DiscordUserDisplay uInfo = CommandUtil.getUserInfoUnescaped(ap.getE(), ap.getLastFMData().getDiscordId());
 
-        pieChart.setTitle(uInfo.getUsername() + "'s top " + CommandUtil.escapeMarkdown(ap.getScrobbledArtist().getArtist()) + " albums");
+        pieChart.setTitle(uInfo.username() + "'s top " + CommandUtil.escapeMarkdown(ap.getScrobbledArtist().getArtist()) + " albums");
         BufferedImage bufferedImage = new BufferedImage(1000, 750, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g = bufferedImage.createGraphics();
         GraphicUtils.setQuality(g);

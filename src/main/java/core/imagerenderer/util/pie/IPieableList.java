@@ -35,16 +35,6 @@ public interface IPieableList<T, Y extends CommandParameters> extends IPieable<L
         return parted;
     }
 
-    @Override
-    default Map<Boolean, Map<String, Integer>> getData(List<T> data, Function<List<T>, String> keyMapping, ToIntFunction<List<T>> valueMapping, Predicate<List<T>> partitioner) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default void fillSeries(PieChart pieChart, Function<List<T>, String> keyMapping, ToIntFunction<List<T>> valueMapping, Predicate<List<T>> partitioner, List<T> data) {
-        throw new UnsupportedOperationException();
-    }
-
     static <T> void fillListedSeries(PieChart pieChart, Function<T, String> keyMapping, ToIntFunction<T> valueMapping, Predicate<T> partitioner, List<T> data) {
         Map<Boolean, Map<String, Integer>> parted = getListedData(data, keyMapping, valueMapping, partitioner);
         AtomicInteger counter = new AtomicInteger(1);
@@ -64,6 +54,16 @@ public interface IPieableList<T, Y extends CommandParameters> extends IPieable<L
             //To avoid having an artist called others and colliding bc no duplicates allowed
             pieChart.addSeries("Others​", sum);
         }
+    }
+
+    @Override
+    default Map<Boolean, Map<String, Integer>> getData(List<T> data, Function<List<T>, String> keyMapping, ToIntFunction<List<T>> valueMapping, Predicate<List<T>> partitioner) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    default void fillSeries(PieChart pieChart, Function<List<T>, String> keyMapping, ToIntFunction<List<T>> valueMapping, Predicate<List<T>> partitioner, List<T> data) {
+        throw new UnsupportedOperationException();
     }
 
 }

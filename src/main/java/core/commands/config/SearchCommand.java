@@ -98,7 +98,7 @@ public class SearchCommand extends ConcurrentCommand<WordParameter> {
         DiscordUserDisplay uInfo = CommandUtil.getUserInfoUnescaped(e, e.getAuthor().getIdLong());
         EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e)
                 .setDescription(a)
-                .setAuthor(title, SourceCommand.REPO_URL, uInfo.getUrlImage())
+                .setAuthor(title, SourceCommand.REPO_URL, uInfo.urlImage())
                 .setFooter(footer);
         e.sendMessage(embedBuilder.build()).queue(message1 ->
                 new Reactionary<>(found, message1, embedBuilder, false));

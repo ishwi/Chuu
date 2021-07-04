@@ -5,7 +5,7 @@ import core.apis.last.entities.chartentities.UrlCapsule;
 import core.commands.Context;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
-import core.imagerenderer.util.pie.PieSetUp;
+import core.commands.utils.PieDoer;
 import core.parsers.ChartDecadeParser;
 import core.parsers.ChartableParser;
 import core.parsers.params.ChartYearRangeParameters;
@@ -100,7 +100,7 @@ public class GlobalAOTD extends ChartableCommand<ChartYearRangeParameters> {
     public void doPie(PieChart pieChart, ChartYearRangeParameters gp, int count) {
         String subtitle = configPieChart(pieChart, gp, count, gp.getE().getJDA().getSelfUser().getName());
         String urlImage = gp.getE().getJDA().getSelfUser().getAvatarUrl();
-        BufferedImage bufferedImage = new PieSetUp(subtitle, urlImage, pieChart).setUp();
+        BufferedImage bufferedImage = new PieDoer(subtitle, urlImage, pieChart).fill();
         sendImage(bufferedImage, gp.getE());
     }
 

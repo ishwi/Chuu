@@ -64,11 +64,11 @@ public class UpdaterHoarder {
                 }, Collectors.counting()));
         TimestampWrapper<ArrayList<ScrobbledAlbum>> albumDataList = new TimestampWrapper<>(
                 a.entrySet().stream().map(
-                        entry -> {
-                            ScrobbledAlbum artist = entry.getKey();
-                            artist.setCount(Math.toIntExact(entry.getValue()));
-                            return artist;
-                        })
+                                entry -> {
+                                    ScrobbledAlbum artist = entry.getKey();
+                                    artist.setCount(Math.toIntExact(entry.getValue()));
+                                    return artist;
+                                })
                         .collect(Collectors.toCollection(ArrayList::new)), max);
         // Correction with current last fm implementation should return the same name so
         // no correction gives

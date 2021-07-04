@@ -110,7 +110,7 @@ public abstract class WhoKnowsBaseCommand<T extends CommandParameters> extends C
 
             case IMAGE, PIE -> {
                 wrapperReturnNowPlaying.getReturnNowPlayings().stream().limit(15)
-                        .forEach(x -> x.setDiscordName(CommandUtil.getUserInfoUnescaped(ap.getE(), x.getDiscordId()).getUsername()));
+                        .forEach(x -> x.setDiscordName(CommandUtil.getUserInfoUnescaped(ap.getE(), x.getDiscordId()).username()));
                 if (effectiveMode.equals(WhoKnowsMode.IMAGE)) {
                     doImage(ap, wrapperReturnNowPlaying);
                 } else {

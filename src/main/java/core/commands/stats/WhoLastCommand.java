@@ -38,7 +38,7 @@ public class WhoLastCommand extends ConcurrentCommand<ArtistParameters> {
             } else {
                 whem = "**" + CommandUtil.getDateTimestampt(userListened.moment().get(), TimeFormat.RELATIVE) + "**";
             }
-            return ". [" + CommandUtil.getUserInfoConsideringGuildOrNot(e, userListened.discordId()).getUsername() + "](" + PrivacyUtils.getLastFmUser(userListened.lastfmId()) + "): " + whem + "\n";
+            return ". [" + CommandUtil.getUserInfoConsideringGuildOrNot(e, userListened.discordId()).username() + "](" + PrivacyUtils.getLastFmUser(userListened.lastfmId()) + "): " + whem + "\n";
         };
 
         List<Memoized<UserListened, String>> strings = firsts.stream().map(t -> new Memoized<>(t, toMemoize)).toList();

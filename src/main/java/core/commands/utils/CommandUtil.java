@@ -284,7 +284,7 @@ public class CommandUtil {
 
     public static DiscordUserDisplay getUserInfoConsideringGuildOrNot(Context e, long discordID) {
         DiscordUserDisplay discordUserDisplay = handleUser(e, discordID);
-        return new DiscordUserDisplay(escapeMarkdown(discordUserDisplay.getUsername()), discordUserDisplay.getUrlImage());
+        return new DiscordUserDisplay(escapeMarkdown(discordUserDisplay.username()), discordUserDisplay.urlImage());
     }
 
 
@@ -306,7 +306,7 @@ public class CommandUtil {
     }
 
     public static String unescapedUser(String string, long discordId, Context e) {
-        return getUserInfoUnescaped(e, discordId).getUsername();
+        return getUserInfoUnescaped(e, discordId).username();
     }
 
     public static void handleConditionalMessage(CompletableFuture<Message> future) {

@@ -1,10 +1,6 @@
 package core.commands.whoknows;
 
-import core.apis.discogs.DiscogsApi;
-import core.apis.discogs.DiscogsSingleton;
 import core.apis.last.entities.TrackExtended;
-import core.apis.spotify.Spotify;
-import core.apis.spotify.SpotifySingleton;
 import core.commands.utils.CommandUtil;
 import core.exceptions.LastFmException;
 import core.parsers.ArtistSongParser;
@@ -22,13 +18,9 @@ import java.util.List;
 import java.util.Optional;
 
 public class LocalWhoKnowsSongCommand extends LocalWhoKnowsAlbumCommand {
-    private final DiscogsApi discogsApi;
-    private final Spotify spotify;
 
     public LocalWhoKnowsSongCommand(ServiceView dao) {
         super(dao);
-        this.discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
-        this.spotify = SpotifySingleton.getInstance();
     }
 
 
@@ -90,7 +82,7 @@ public class LocalWhoKnowsSongCommand extends LocalWhoKnowsAlbumCommand {
                 wrapperReturnNowPlaying.getReturnNowPlayings()
                         .stream().<ReturnNowPlaying>map(x -> new ReturnNowPlayingSong(x, track))
                         .peek(x -> x.setArtist(who.getArtist()))
-                        .peek(x -> x.setDiscordName(CommandUtil.getUserInfoUnescaped(ap.getE(), x.getDiscordId()).getUsername()))
+                        .peek(x -> x.setDiscordName(CommandUtil.getUserInfoUnescaped(ap.getE(), x.getDiscordId()).username()))
                         .toList());
 
 

@@ -9,10 +9,10 @@ import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
+import core.commands.utils.PieDoer;
 import core.exceptions.LastFmException;
 import core.imagerenderer.ChartQuality;
 import core.imagerenderer.CollageMaker;
-import core.imagerenderer.GraphicUtils;
 import core.imagerenderer.util.pie.IPieableList;
 import core.imagerenderer.util.pie.PieableListChart;
 import core.otherlisteners.Reactionary;
@@ -29,8 +29,6 @@ import net.dv8tion.jda.api.entities.Message;
 import org.knowm.xchart.PieChart;
 
 import javax.validation.constraints.NotNull;
-import java.awt.*;
-import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
@@ -188,25 +186,18 @@ public abstract class ChartableCommand<T extends ChartParameters> extends Concur
 
         EmbedBuilder embedBuilder = configEmbed(new ChuuEmbedBuilder(params.getE())
                 .setDescription(a)
-                .setThumbnail(userInfoConsideringGuildOrNot.getUrlImage()), params, count);
+                .setThumbnail(userInfoConsideringGuildOrNot.urlImage()), params, count);
         params.getE().sendMessage(embedBuilder.build()).queue(message1 ->
                 new Reactionary<>(urlCapsules, message1, embedBuilder));
     }
 
     public void doPie(PieChart pieChart, T chartParameters, int count) {
         DiscordUserDisplay userInfoNotStripped = CommandUtil.getUserInfoUnescaped(chartParameters.getE(), chartParameters.getDiscordId());
-        String subtitle = configPieChart(pieChart, chartParameters, count, userInfoNotStripped.getUsername());
-        String urlImage = userInfoNotStripped.getUrlImage();
-        BufferedImage bufferedImage = new BufferedImage(1000, 750, BufferedImage.TYPE_INT_ARGB);
-        Graphics2D g = bufferedImage.createGraphics();
-        GraphicUtils.setQuality(g);
-        Font annotationsFont = pieChart.getStyler().getAnnotationsFont();
-        pieChart.paint(g, 1000, 750);
-        g.setFont(annotationsFont.deriveFont(11.0f));
-        Rectangle2D stringBounds = g.getFontMetrics().getStringBounds(subtitle, g);
-        g.drawString(subtitle, 1000 - 10 - (int) stringBounds.getWidth(), 740 - 2);
-        GraphicUtils.inserArtistImage(urlImage, g);
-        sendImage(bufferedImage, chartParameters.getE());
+        String subtitle = configPieChart(pieChart, chartParameters, count, userInfoNotStripped.username());
+        String urlImage = userInfoNotStripped.urlImage();
+
+
+        sendImage(new PieDoer(subtitle, urlImage, pieChart).fill(), chartParameters.getE());
     }
 
 

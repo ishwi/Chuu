@@ -117,14 +117,14 @@ public class AlbumRecommendationCommand extends ConcurrentCommand<Recommendation
 
         List<AlbumGenre> albumRecs = mb.getAlbumRecommendationsByGenre(map, recs);
         Map<String, Long> m = recs.stream().collect(Collectors.groupingBy(ScrobbledArtist::getArtist, Collectors.summingLong(ScrobbledArtist::getCount)));
-        albumRecs = albumRecs.stream().sorted(Comparator.comparingLong((AlbumGenre x) -> map.get(new Genre(x.getGenre())) * m.get(x.getArtist())).reversed()).toList();
+        albumRecs = albumRecs.stream().sorted(Comparator.comparingLong((AlbumGenre x) -> map.get(new Genre(x.genre())) * m.get(x.artist())).reversed()).toList();
 
         String receiver = "you";
         if (firstDiscordID != e.getAuthor().getIdLong()) {
             receiver = getUserString(e, firstDiscordID);
         }
         DiscordUserDisplay giverUI = CommandUtil.getUserInfoConsideringGuildOrNot(e, secondDiscordID);
-        String giver = giverUI.getUsername();
+        String giver = giverUI.username();
 
         if (albumRecs.isEmpty()) {
             sendMessageQueue(e, String.format("Couldn't get %s any album recommendation from %s", receiver, giver));
@@ -132,20 +132,20 @@ public class AlbumRecommendationCommand extends ConcurrentCommand<Recommendation
         }
         if (params.getRecCount() == 1 || recs.size() == 1) {
             String appendable = "";
-            String albumLink = spotify.getAlbumLink(albumRecs.get(0).getArtist(), albumRecs.get(0).getAlbum());
+            String albumLink = spotify.getAlbumLink(albumRecs.get(0).artist(), albumRecs.get(0).album());
             if (albumLink != null)
                 appendable += "\n" + albumLink;
             sendMessageQueue(e, String.format("**%s** has recommended %s to listen to **%s - %s**%s",
-                    giver, receiver, albumRecs.get(0).getArtist(), albumRecs.get(0).getAlbum(), appendable));
+                    giver, receiver, albumRecs.get(0).artist(), albumRecs.get(0).album(), appendable));
             return;
         }
 
         List<String> stringedList = albumRecs.stream().map((t) ->
                 {
                     String link;
-                    String albumLink = spotify.getAlbumLink(t.getArtist(), t.getAlbum());
-                    link = Objects.requireNonNullElseGet(albumLink, () -> LinkUtils.getLastFmArtistAlbumUrl(t.getArtist(), t.getAlbum()));
-                    return String.format(". **[%s - %s](%s)**\n", CommandUtil.escapeMarkdown(t.getArtist()), t.getAlbum(), link);
+                    String albumLink = spotify.getAlbumLink(t.artist(), t.album());
+                    link = Objects.requireNonNullElseGet(albumLink, () -> LinkUtils.getLastFmArtistAlbumUrl(t.artist(), t.album()));
+                    return String.format(". **[%s - %s](%s)**\n", CommandUtil.escapeMarkdown(t.artist()), t.album(), link);
                 }).limit(params.getRecCount())
                 .toList();
 
@@ -157,7 +157,7 @@ public class AlbumRecommendationCommand extends ConcurrentCommand<Recommendation
 
         EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e);
         embedBuilder.setTitle(String.format("%s album recommendations for %s", giver, receiver))
-                .setThumbnail(giverUI.getUrlImage())
+                .setThumbnail(giverUI.urlImage())
                 .setDescription(a);
         e.sendMessage(embedBuilder.build()).queue(mes ->
                 new Reactionary<>(stringedList, mes, 10, embedBuilder));

@@ -128,7 +128,7 @@ public class GenreAlbumsCommands extends ChartableCommand<ChartableGenreParamete
         params.initEmbed("'s top " + params.getGenreParameters().getGenre() + " albums", embedBuilder, ""
                 , params.getUser().getName());
         DiscordUserDisplay discordUserDisplay = CommandUtil.getUserInfoUnescaped(params.getE(), params.getDiscordId());
-        String us = CommandUtil.stripEscapedMarkdown(discordUserDisplay.getUsername());
+        String us = CommandUtil.stripEscapedMarkdown(discordUserDisplay.username());
         String s = "Showing %s top %d %s albums".formatted(us, count, params.getGenreParameters().getGenre());
         embedBuilder.setFooter(s + params.getTimeFrameEnum().getDisplayString() + footerText);
         return embedBuilder;
@@ -146,6 +146,6 @@ public class GenreAlbumsCommands extends ChartableCommand<ChartableGenreParamete
     public void noElementsMessage(ChartableGenreParameters parameters) {
         Context e = parameters.getE();
         DiscordUserDisplay ingo = CommandUtil.getUserInfoConsideringGuildOrNot(e, parameters.getDiscordId());
-        sendMessageQueue(e, String.format("Couldn't find any %s album in %s's albums%s!", parameters.getGenreParameters().getGenre(), ingo.getUsername(), parameters.getTimeFrameEnum().getDisplayString()));
+        sendMessageQueue(e, String.format("Couldn't find any %s album in %s's albums%s!", parameters.getGenreParameters().getGenre(), ingo.username(), parameters.getTimeFrameEnum().getDisplayString()));
     }
 }

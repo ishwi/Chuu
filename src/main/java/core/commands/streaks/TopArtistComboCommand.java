@@ -1,9 +1,5 @@
 package core.commands.streaks;
 
-import core.apis.discogs.DiscogsApi;
-import core.apis.discogs.DiscogsSingleton;
-import core.apis.spotify.Spotify;
-import core.apis.spotify.SpotifySingleton;
 import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.ChuuEmbedBuilder;
@@ -40,14 +36,9 @@ import static core.parsers.ExtraParser.LIMIT_ERROR;
 
 public class TopArtistComboCommand extends ConcurrentCommand<NumberParameters<ArtistParameters>> {
 
-    private final DiscogsApi discogsApi;
-    private final Spotify spotify;
-
 
     public TopArtistComboCommand(ServiceView dao) {
         super(dao);
-        discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
-        spotify = SpotifySingleton.getInstance();
     }
 
     @Override
@@ -97,7 +88,7 @@ public class TopArtistComboCommand extends ConcurrentCommand<NumberParameters<Ar
         boolean myself = params.hasOptional("me") || params.hasOptional("myself");
         if (myself) {
             DiscordUserDisplay uInfo = CommandUtil.getUserInfoUnescaped(e, params.getInnerParams().getLastFMData().getDiscordId());
-            title = uInfo.getUsername();
+            title = uInfo.username();
         } else if (e.isFromGuild() && params.hasOptional("server")) {
             Guild guild = e.getGuild();
             guildId = guild.getIdLong();

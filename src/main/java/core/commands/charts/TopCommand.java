@@ -77,7 +77,7 @@ public class TopCommand extends ArtistAbleCommand<ChartSizeParameters> {
         String s = params.hasOptional("album") ? "albums" : "artists";
         Context e = params.getE();
         DiscordUserDisplay ingo = CommandUtil.getUserInfoConsideringGuildOrNot(e, params.getDiscordId());
-        sendMessageQueue(e, String.format("%s didn't listen to any %s%s!", ingo.getUsername(), s, params.getTimeFrameEnum().getDisplayString()));
+        sendMessageQueue(e, String.format("%s didn't listen to any %s%s!", ingo.username(), s, params.getTimeFrameEnum().getDisplayString()));
     }
 
     @Override

@@ -65,7 +65,7 @@ public class TrackSearchCommand extends ListCommand<ScrobbledTrack, UserStringPa
         String abbreviate = StringUtils.abbreviate(value, 120);
         DiscordUserDisplay uInfo = CommandUtil.getUserInfoConsideringGuildOrNot(e, params.getLastFMData().getDiscordId());
         if (list.isEmpty()) {
-            e.sendMessage(uInfo.getUsername() + " doesnt have any track searching by `" + abbreviate + '`').queue();
+            e.sendMessage(uInfo.username() + " doesnt have any track searching by `" + abbreviate + '`').queue();
             return;
         }
         List<String> strs = list.stream().map(t ->
@@ -79,8 +79,8 @@ public class TrackSearchCommand extends ListCommand<ScrobbledTrack, UserStringPa
             a.append(i + 1).append(strs.get(i));
         }
 
-        String title = uInfo.getUsername() + "'s tracks that match " + abbreviate + "";
-        EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e).setAuthor(title, PrivacyUtils.getLastFmUser(params.getLastFMData().getName()), uInfo.getUrlImage())
+        String title = uInfo.username() + "'s tracks that match " + abbreviate + "";
+        EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e).setAuthor(title, PrivacyUtils.getLastFmUser(params.getLastFMData().getName()), uInfo.urlImage())
                 .setFooter(list.size() + " matching tracks!")
                 .setDescription(a);
         e.sendMessage(embedBuilder.build()).queue(mes ->

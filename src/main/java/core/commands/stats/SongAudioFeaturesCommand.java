@@ -103,7 +103,7 @@ public class SongAudioFeaturesCommand extends ConcurrentCommand<ArtistAlbumParam
         DiscordUserDisplay userInfoNotStripped = CommandUtil.getUserInfoUnescaped(e, params.getLastFMData().getDiscordId());
         AudioFeatures audioFeature = audioFeatures.get(0);
         EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e)
-                .setAuthor("Audio features for " + scrobbledTrack.getName() + " by " + scrobbledTrack.getArtist(), PrivacyUtils.getLastFmUser(lastFMData.getName()), userInfoNotStripped.getUrlImage())
+                .setAuthor("Audio features for " + scrobbledTrack.getName() + " by " + scrobbledTrack.getArtist(), PrivacyUtils.getLastFmUser(lastFMData.getName()), userInfoNotStripped.urlImage())
                 .addField("Happiness:", df.format(audioFeature.getValence() / s), true)
                 .addField("Acousticness:", df.format(audioFeature.getAcousticness() / s), true)
                 .addField("Danceability:", df.format(audioFeature.getDanceability() / s), true)

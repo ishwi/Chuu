@@ -107,8 +107,8 @@ public class AffinityCommand extends ConcurrentCommand<AffinityParameters> {
         DiscordUserDisplay uInfo = CommandUtil.getUserInfoUnescaped(e, e.getAuthor().getIdLong());
         EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e)
                 .setDescription(stringBuilder)
-                .setAuthor(uInfo.getUsername() + "'s soulmates in " + e.getGuild().getName(), PrivacyUtils.getLastFmUser(ogData.getName()), uInfo.getUrlImage())
-                .setFooter(String.format("%s's affinity using a threshold of %d plays!%n", uInfo.getUsername(), ap.getThreshold()), null)
+                .setAuthor(uInfo.username() + "'s soulmates in " + e.getGuild().getName(), PrivacyUtils.getLastFmUser(ogData.getName()), uInfo.urlImage())
+                .setFooter(String.format("%s's affinity using a threshold of %d plays!%n", uInfo.username(), ap.getThreshold()), null)
                 .setThumbnail(e.getGuild().getIconUrl());
         e.sendMessage(embedBuilder.build()).queue(message1 ->
                 new Reactionary<>(lines, message1, embedBuilder));

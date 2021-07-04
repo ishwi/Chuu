@@ -122,8 +122,8 @@ public class ChartParameters extends CommandParameters {
 
     public EmbedBuilder initEmbed(String titleInit, EmbedBuilder embedBuilder, String footerText, String lastfmid) {
         DiscordUserDisplay uInfo = CommandUtil.getUserInfoUnescaped(getE(), getDiscordId());
-        return embedBuilder.setAuthor(uInfo.getUsername() + titleInit + this.getTimeFrameEnum().getDisplayString(), CommandUtil.getLastFmUser(lastfmid), uInfo.getUrlImage())
-                .setFooter(CommandUtil.stripEscapedMarkdown(uInfo.getUsername()) + footerText + this.getTimeFrameEnum().getDisplayString());
+        return embedBuilder.setAuthor(uInfo.username() + titleInit + this.getTimeFrameEnum().getDisplayString(), CommandUtil.getLastFmUser(lastfmid), uInfo.urlImage())
+                .setFooter(CommandUtil.stripEscapedMarkdown(uInfo.username()) + footerText + this.getTimeFrameEnum().getDisplayString());
     }
 
 

@@ -59,16 +59,16 @@ public class MyCombosCommand extends ConcurrentCommand<ChuuDataParams> {
 
         long discordID = params.getLastFMData().getDiscordId();
         DiscordUserDisplay userInformation = CommandUtil.getUserInfoConsideringGuildOrNot(e, discordID);
-        String userName = userInformation.getUsername();
-        String userUrl = userInformation.getUrlImage();
+        String userName = userInformation.username();
+        String userUrl = userInformation.urlImage();
         List<StreakEntity> userStreaks = db.getUserStreaks(discordID);
         AtomicInteger atomicInteger = new AtomicInteger(1);
         List<String> streaks = userStreaks
                 .stream().map(combo -> {
-                    String aString = CommandUtil.escapeMarkdown(combo.getCurrentArtist());
-                    int andIncrement = atomicInteger.getAndIncrement();
-                    StringBuilder description = new StringBuilder(CommandUtil.getDayNumberSuffix(andIncrement) + "\n");
-                    GlobalStreakEntities.DateHolder holder = params.hasOptional("start") ? CommandUtil.toDateHolder(combo.getStreakStart(), params.getLastFMData().getName()) : null;
+                            String aString = CommandUtil.escapeMarkdown(combo.getCurrentArtist());
+                            int andIncrement = atomicInteger.getAndIncrement();
+                            StringBuilder description = new StringBuilder(CommandUtil.getDayNumberSuffix(andIncrement) + "\n");
+                            GlobalStreakEntities.DateHolder holder = params.hasOptional("start") ? CommandUtil.toDateHolder(combo.getStreakStart(), params.getLastFMData().getName()) : null;
 
                             return GlobalStreakEntities.getComboString(aString, description, combo.artistCount(), combo.getCurrentArtist(), combo.albumCount(), combo.getCurrentAlbum(), combo.trackCount(), combo.getCurrentSong(), holder);
                         }

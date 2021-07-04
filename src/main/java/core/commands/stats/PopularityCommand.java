@@ -76,7 +76,7 @@ public class PopularityCommand extends ConcurrentCommand<ChuuDataParams> {
         }
         DiscordUserDisplay uInfo = CommandUtil.getUserInfoUnescaped(e, params.getLastFMData().getDiscordId());
         if (topTracks.isEmpty()) {
-            e.sendMessage(uInfo.getUsername() + " doesnt have any song.").queue();
+            e.sendMessage(uInfo.username() + " doesnt have any song.").queue();
             return;
         }
         Function<ScrobbledTrack, String> popularity = (s) -> {
@@ -97,8 +97,8 @@ public class PopularityCommand extends ConcurrentCommand<ChuuDataParams> {
             a.append(i + 1).append(strs.get(i));
         }
 
-        String title = uInfo.getUsername() + "'s tracks";
-        EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e).setAuthor(title, PrivacyUtils.getLastFmUser(params.getLastFMData().getName()), uInfo.getUrlImage())
+        String title = uInfo.username() + "'s tracks";
+        EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e).setAuthor(title, PrivacyUtils.getLastFmUser(params.getLastFMData().getName()), uInfo.urlImage())
                 .setFooter("Showing top %s songs".formatted(topTracks.size()))
                 .setDescription(a);
         e.sendMessage(embedBuilder.build()).queue(mes ->

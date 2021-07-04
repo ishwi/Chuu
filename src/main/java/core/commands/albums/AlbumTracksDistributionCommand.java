@@ -1,15 +1,11 @@
 package core.commands.albums;
 
 import core.commands.Context;
-import core.commands.utils.ChuuEmbedBuilder;
-import core.commands.utils.CommandCategory;
-import core.commands.utils.CommandUtil;
+import core.commands.utils.*;
 import core.exceptions.LastFmException;
-import core.imagerenderer.GraphicUtils;
 import core.imagerenderer.TrackDistributor;
 import core.imagerenderer.util.pie.IPieableList;
 import core.imagerenderer.util.pie.PieableListTrack;
-import core.otherlisteners.Reactionary;
 import core.parsers.ArtistAlbumParser;
 import core.parsers.Parser;
 import core.parsers.params.ArtistAlbumParameters;
@@ -24,10 +20,8 @@ import dao.entities.ScrobbledArtist;
 import dao.entities.Track;
 import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
-import org.imgscalr.Scalr;
 import org.knowm.xchart.PieChart;
 
-import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.Arrays;
 import java.util.List;
@@ -92,36 +86,27 @@ public class AlbumTracksDistributionCommand extends AlbumPlaysCommand {
                     sendImage(bufferedImage, e);
                 }
                 case PIE -> {
+
                     PieChart pieChart = this.pie.doPie(params, fullAlbumEntity.getTrackList());
                     pieChart.setTitle(artist + " - " + sAlb.getAlbum() + " tracklist");
-                    BufferedImage bufferedImage = new BufferedImage(1000, 750, BufferedImage.TYPE_INT_ARGB);
-                    Graphics2D g = bufferedImage.createGraphics();
-                    GraphicUtils.setQuality(g);
-                    pieChart.paint(g, 1000, 750);
-                    BufferedImage image = GraphicUtils.getImage(fullAlbumEntity.getAlbumUrl());
-                    if (image != null) {
-                        BufferedImage backgroundImage = Scalr.resize(image, 150);
-                        g.drawImage(backgroundImage, 10, 750 - 10 - backgroundImage.getHeight(), null);
-                    }
+                    BufferedImage bufferedImage = new PieDoer("", fullAlbumEntity.getAlbumUrl(), pieChart).fill();
+
+
                     sendImage(bufferedImage, params.getE());
                 }
                 case LIST -> {
-                    StringBuilder a = new StringBuilder();
-                    List<String> lines = fullAlbumEntity.getTrackList().stream().map(t -> ". " + "[" +
-                                                                                          CommandUtil.escapeMarkdown(t.getName()) +
-                                                                                          "](" + LinkUtils.getLastFMArtistTrack(artist, t.getName()) +
-                                                                                          ")" + " - " + t.getPlays() + CommandUtil.singlePlural(t.getPlays(), " play", " plays") + "\n").toList();
-                    for (int i = 0; i < fullAlbumEntity.getTrackList().size() && i <= 20; i++) {
-                        String s = lines.get(i);
-                        a.append(i + 1).append(s);
-                    }
                     EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e)
-                            .setDescription(a)
                             .setTitle(String.format("%s tracklist", album), LinkUtils.getLastFmArtistAlbumUrl(artist, album))
                             .setFooter(String.format("%s has %d total plays on the album!!%n", CommandUtil.unescapedUser(getUserString(e, params.getLastFMData().getDiscordId()), params.getLastFMData().getDiscordId(), e), fullAlbumEntity.getTotalPlayNumber()), null)
                             .setThumbnail(fullAlbumEntity.getAlbumUrl());
-                    e.sendMessage(embedBuilder.build()).queue(message ->
-                            new Reactionary<>(lines, message, 20, embedBuilder));
+                    new ListSenderBuilder<>(e, fullAlbumEntity.getTrackList())
+                            .setMapper(t -> ". " + "[" +
+                                            CommandUtil.escapeMarkdown(t.getName()) +
+                                            "](" + LinkUtils.getLastFMArtistTrack(artist, t.getName()) +
+                                            ")" + " - " + t.getPlays() + CommandUtil.singlePlural(t.getPlays(), " play", " plays") + "\n")
+                            .setEmbedBuilder(embedBuilder).build()
+                            .doSend();
+
                 }
             }
         }

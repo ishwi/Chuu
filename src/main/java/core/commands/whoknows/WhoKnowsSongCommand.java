@@ -1,10 +1,6 @@
 package core.commands.whoknows;
 
 import core.Chuu;
-import core.apis.discogs.DiscogsApi;
-import core.apis.discogs.DiscogsSingleton;
-import core.apis.spotify.Spotify;
-import core.apis.spotify.SpotifySingleton;
 import core.commands.Context;
 import core.exceptions.LastFmException;
 import core.parsers.ArtistSongParser;
@@ -21,13 +17,9 @@ import java.util.List;
 import java.util.Map;
 
 public class WhoKnowsSongCommand extends WhoKnowsAlbumCommand {
-    private final DiscogsApi discogsApi;
-    private final Spotify spotify;
 
     public WhoKnowsSongCommand(ServiceView dao) {
         super(dao);
-        this.discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
-        this.spotify = SpotifySingleton.getInstance();
     }
 
 

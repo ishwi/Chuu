@@ -65,8 +65,8 @@ TrackCrownsCommand extends ConcurrentCommand<NumberParameters<ChuuDataParams>> {
 
         ChuuDataParams innerParams = params.getInnerParams();
         DiscordUserDisplay userInfo = CommandUtil.getUserInfoConsideringGuildOrNot(e, innerParams.getLastFMData().getDiscordId());
-        String name = userInfo.getUsername();
-        String url = userInfo.getUrlImage();
+        String name = userInfo.username();
+        String url = userInfo.urlImage();
         Long threshold = params.getExtraParam();
         long idLong = innerParams.getE().getGuild().getIdLong();
 

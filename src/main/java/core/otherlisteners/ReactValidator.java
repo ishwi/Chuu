@@ -52,6 +52,37 @@ public class ReactValidator<T> extends ReactionListener {
         init();
     }
 
+    @org.jetbrains.annotations.NotNull
+    public static ReactionResult leftMove(int size, AtomicInteger counter, MessageReactionAddEvent r, boolean isSame) {
+        int i = counter.decrementAndGet();
+        if (i == 0) {
+            if (isSame) {
+                r.getReaction().clearReactions().queue();
+            } else {
+                r.getChannel().removeReactionById(r.getMessageId(), LEFT_ARROW).queue();
+            }
+        }
+        if (i == size - 2) {
+            r.getChannel().addReactionById(r.getMessageIdLong(), RIGHT_ARROW).queue();
+        }
+        return () -> false;
+    }
+
+    @org.jetbrains.annotations.NotNull
+    public static ReactionResult rightMove(int size, AtomicInteger counter, MessageReactionAddEvent r, boolean isSame) {
+        int i = counter.incrementAndGet();
+        if (i == size - 1) {
+            if (isSame) {
+                r.getReaction().clearReactions().queue();
+            } else {
+                r.getChannel().removeReactionById(r.getMessageId(), RIGHT_ARROW).queue();
+            }
+        }
+        if (i == 1) {
+            r.getChannel().addReactionById(r.getMessageIdLong(), LEFT_ARROW).queue();
+        }
+        return () -> false;
+    }
 
     private void noMoreElements() {
         RestAction<Message> a;
@@ -96,7 +127,6 @@ public class ReactValidator<T> extends ReactionListener {
         }
         return this.message.editMessageEmbeds(apply.build());
     }
-
 
     @Override
     public void init() {
@@ -163,38 +193,6 @@ public class ReactValidator<T> extends ReactionListener {
             this.message = mes;
             this.initEmotes();
         });
-    }
-
-    @org.jetbrains.annotations.NotNull
-    public static ReactionResult leftMove(int size, AtomicInteger counter, MessageReactionAddEvent r, boolean isSame) {
-        int i = counter.decrementAndGet();
-        if (i == 0) {
-            if (isSame) {
-                r.getReaction().clearReactions().queue();
-            } else {
-                r.getChannel().removeReactionById(r.getMessageId(), LEFT_ARROW).queue();
-            }
-        }
-        if (i == size - 2) {
-            r.getChannel().addReactionById(r.getMessageIdLong(), RIGHT_ARROW).queue();
-        }
-        return () -> false;
-    }
-
-    @org.jetbrains.annotations.NotNull
-    public static ReactionResult rightMove(int size, AtomicInteger counter, MessageReactionAddEvent r, boolean isSame) {
-        int i = counter.incrementAndGet();
-        if (i == size - 1) {
-            if (isSame) {
-                r.getReaction().clearReactions().queue();
-            } else {
-                r.getChannel().removeReactionById(r.getMessageId(), RIGHT_ARROW).queue();
-            }
-        }
-        if (i == 1) {
-            r.getChannel().addReactionById(r.getMessageIdLong(), LEFT_ARROW).queue();
-        }
-        return () -> false;
     }
 
 }

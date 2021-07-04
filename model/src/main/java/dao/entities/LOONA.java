@@ -37,75 +37,43 @@ public enum LOONA {
     }
 
     public static String getRepresentative(LOONA.Type type) {
-        switch (type) {
-            case GROUP:
-                return "LOONA";
-            case SUBUNIT:
-                return "LOONA SUBUNITS";
-            case MEMBER:
-                return "LOONA MEMBERS";
-            case MISC:
-                return "MISC";
-            default:
-                throw new IllegalStateException();
-        }
+        return switch (type) {
+            case GROUP -> "LOONA";
+            case SUBUNIT -> "LOONA SUBUNITS";
+            case MEMBER -> "LOONA MEMBERS";
+            case MISC -> "MISC";
+        };
     }
 
     public static String getRepresentative(LOONA loona) {
-        switch (loona) {
-            case MAIN:
-                return "LOONA";
-            case YYXY:
-                return "LOONA YYXY";
-            case ONETHIRD:
-                return "LOONA 1/3";
-            case OEC:
-                return "LOONA OEC";
-            case CHUU:
-                return "CHUU";
-            case YVES:
-                return "YVES";
-            case GOWON:
-                return "GOWON";
-            case HEEJIN:
-                return "HEEJIN";
-            case CHOERRY:
-                return "CHOERRY";
-
-            case HASEUL:
-                return "HASEUL";
-            case OLIVIA:
-                return "OLIVIA HYE";
-            case HYUNJIN:
-                return "HYUNJIN";
-            case JINSOUL:
-                return "JINSOUL";
-            case VIVI:
-                return "VIVI";
-            case KIM_LIP:
-                return "KIM LIP";
-            case YEOJIN:
-                return "YEOJIN";
-            case MISC:
-                return "MISC";
-            default:
-                throw new IllegalStateException();
-        }
+        return switch (loona) {
+            case MAIN -> "LOONA";
+            case YYXY -> "LOONA YYXY";
+            case ONETHIRD -> "LOONA 1/3";
+            case OEC -> "LOONA OEC";
+            case CHUU -> "CHUU";
+            case YVES -> "YVES";
+            case GOWON -> "GOWON";
+            case HEEJIN -> "HEEJIN";
+            case CHOERRY -> "CHOERRY";
+            case HASEUL -> "HASEUL";
+            case OLIVIA -> "OLIVIA HYE";
+            case HYUNJIN -> "HYUNJIN";
+            case JINSOUL -> "JINSOUL";
+            case VIVI -> "VIVI";
+            case KIM_LIP -> "KIM LIP";
+            case YEOJIN -> "YEOJIN";
+            case MISC -> "MISC";
+        };
     }
 
     public static Predicate<String> getTypeParser(Type type) {
-        switch (type) {
-            case GROUP:
-                return LOONA.MAIN.getParser();
-            case SUBUNIT:
-                return s -> s.equalsIgnoreCase("subunit") || s.equalsIgnoreCase("subunits");
-            case MEMBER:
-                return s -> s.equalsIgnoreCase("member") || s.equalsIgnoreCase("members");
-            case MISC:
-                return LOONA.MISC.getParser();
-            default:
-                throw new IllegalStateException();
-        }
+        return switch (type) {
+            case GROUP -> LOONA.MAIN.getParser();
+            case SUBUNIT -> s -> s.equalsIgnoreCase("subunit") || s.equalsIgnoreCase("subunits");
+            case MEMBER -> s -> s.equalsIgnoreCase("member") || s.equalsIgnoreCase("members");
+            case MISC -> LOONA.MISC.getParser();
+        };
     }
 
     public Type getType() {
@@ -117,45 +85,25 @@ public enum LOONA {
     }
 
     public Predicate<String> getParser() {
-        switch (this) {
-            case MAIN:
-                return Pattern.compile("LOONA|LOOΠΔ|이달의 소녀|LOOPIDELTA", Pattern.CASE_INSENSITIVE).asPredicate();
-            case YYXY:
-                return Pattern.compile("YYXY|LOOΠΔ|이달의 소녀|LOOPIDELTA", Pattern.CASE_INSENSITIVE).asPredicate();
-            case ONETHIRD:
-                return Pattern.compile("1[\\s]*[/\\\\][\\s]*3").asPredicate();
-            case OEC:
-                return Pattern.compile("오드아이써클|O(dd)?[\\s]*?e(ye)?[\\s]*C(ircle)?", Pattern.CASE_INSENSITIVE).asPredicate();
-            case CHUU:
-                return (s) -> s.equalsIgnoreCase("chuu") || s.equalsIgnoreCase("츄");
-            case YVES:
-                return (s) -> s.equalsIgnoreCase("yves") || s.equalsIgnoreCase("이브");
-            case GOWON:
-                return Pattern.compile("go[\\s]*won", Pattern.CASE_INSENSITIVE).asPredicate().or(s -> s.equalsIgnoreCase("고원"));
-            case HEEJIN:
-                return (s) -> s.equalsIgnoreCase("heejin") || s.equalsIgnoreCase("희진");
-            case CHOERRY:
-                return (s) -> s.equalsIgnoreCase("choerry") || s.equalsIgnoreCase("최리");
-            case HASEUL:
-                return (s) -> s.equalsIgnoreCase("haseul") || s.equalsIgnoreCase("하슬");
-            case OLIVIA:
-                return Pattern.compile("(olivia hye)|(hye)|(olivia)", Pattern.CASE_INSENSITIVE).asPredicate().or(s -> s.equalsIgnoreCase("올리비아"));
-            case HYUNJIN:
-                return (s) -> s.equalsIgnoreCase("HYUNJIN") || s.equalsIgnoreCase("현진");
-
-            case JINSOUL:
-                return (s) -> s.equalsIgnoreCase("jinsoul") || s.equalsIgnoreCase("진솔");
-            case VIVI:
-                return (s) -> s.equalsIgnoreCase("vivi") || s.equalsIgnoreCase("비비");
-            case KIM_LIP:
-                return Pattern.compile("kim[\\s]*lip", Pattern.CASE_INSENSITIVE).asPredicate().or(s -> s.equalsIgnoreCase("김립"));
-            case YEOJIN:
-                return (s) -> s.equalsIgnoreCase("YEOJIN") || s.equalsIgnoreCase("여진");
-            case MISC:
-                return (s) -> s.toLowerCase().startsWith("misc");
-            default:
-                throw new IllegalStateException();
-        }
+        return switch (this) {
+            case MAIN -> Pattern.compile("LOONA|LOOΠΔ|이달의 소녀|LOOPIDELTA", Pattern.CASE_INSENSITIVE).asPredicate();
+            case YYXY -> Pattern.compile("YYXY|LOOΠΔ|이달의 소녀|LOOPIDELTA", Pattern.CASE_INSENSITIVE).asPredicate();
+            case ONETHIRD -> Pattern.compile("1[\\s]*[/\\\\][\\s]*3").asPredicate();
+            case OEC -> Pattern.compile("오드아이써클|O(dd)?[\\s]*?e(ye)?[\\s]*C(ircle)?", Pattern.CASE_INSENSITIVE).asPredicate();
+            case CHUU -> (s) -> s.equalsIgnoreCase("chuu") || s.equalsIgnoreCase("츄");
+            case YVES -> (s) -> s.equalsIgnoreCase("yves") || s.equalsIgnoreCase("이브");
+            case GOWON -> Pattern.compile("go[\\s]*won", Pattern.CASE_INSENSITIVE).asPredicate().or(s -> s.equalsIgnoreCase("고원"));
+            case HEEJIN -> (s) -> s.equalsIgnoreCase("heejin") || s.equalsIgnoreCase("희진");
+            case CHOERRY -> (s) -> s.equalsIgnoreCase("choerry") || s.equalsIgnoreCase("최리");
+            case HASEUL -> (s) -> s.equalsIgnoreCase("haseul") || s.equalsIgnoreCase("하슬");
+            case OLIVIA -> Pattern.compile("(olivia hye)|(hye)|(olivia)", Pattern.CASE_INSENSITIVE).asPredicate().or(s -> s.equalsIgnoreCase("올리비아"));
+            case HYUNJIN -> (s) -> s.equalsIgnoreCase("HYUNJIN") || s.equalsIgnoreCase("현진");
+            case JINSOUL -> (s) -> s.equalsIgnoreCase("jinsoul") || s.equalsIgnoreCase("진솔");
+            case VIVI -> (s) -> s.equalsIgnoreCase("vivi") || s.equalsIgnoreCase("비비");
+            case KIM_LIP -> Pattern.compile("kim[\\s]*lip", Pattern.CASE_INSENSITIVE).asPredicate().or(s -> s.equalsIgnoreCase("김립"));
+            case YEOJIN -> (s) -> s.equalsIgnoreCase("YEOJIN") || s.equalsIgnoreCase("여진");
+            case MISC -> (s) -> s.toLowerCase().startsWith("misc");
+        };
     }
 
     public enum Type {

@@ -349,7 +349,7 @@ public class NPModeBuilder {
                             if (!returnNowPlayings.isEmpty()) {
 
                                 ReturnNowPlaying returnNowPlaying = returnNowPlayings.get(0);
-                                String userString = CommandUtil.getUserInfoUnescaped(e, returnNowPlaying.getDiscordId()).getUsername();
+                                String userString = CommandUtil.getUserInfoUnescaped(e, returnNowPlaying.getDiscordId()).username();
                                 if (npModes.contains(NPMode.CROWN))
                                     footerSpaces[footerIndexes.get(NPMode.CROWN)] =
                                             "👑 " + returnNowPlaying.getPlayNumber() + " (" + userString + ")";
@@ -380,7 +380,7 @@ public class NPModeBuilder {
                             if (!returnNowPlayings.isEmpty()) {
 
                                 ReturnNowPlaying returnNowPlaying = returnNowPlayings.get(0);
-                                String userString = CommandUtil.getUserInfoUnescaped(e, returnNowPlaying.getDiscordId()).getUsername();
+                                String userString = CommandUtil.getUserInfoUnescaped(e, returnNowPlaying.getDiscordId()).username();
                                 if (npModes.contains(NPMode.ALBUM_CROWN))
                                     footerSpaces[footerIndexes.get(NPMode.ALBUM_CROWN)] =
                                             "Album 👑 " + returnNowPlaying.getPlayNumber() + " (" + userString + ")";
@@ -411,7 +411,7 @@ public class NPModeBuilder {
                             if (!returnNowPlayings.isEmpty()) {
 
                                 ReturnNowPlaying returnNowPlaying = returnNowPlayings.get(0);
-                                String userString = CommandUtil.getUserInfoUnescaped(e, returnNowPlaying.getDiscordId()).getUsername();
+                                String userString = CommandUtil.getUserInfoUnescaped(e, returnNowPlaying.getDiscordId()).username();
                                 if (npModes.contains(NPMode.TRACK_CROWN))
                                     footerSpaces[footerIndexes.get(NPMode.TRACK_CROWN)] =
                                             "Track 👑 " + returnNowPlaying.getPlayNumber() + " (" + userString + ")";
@@ -462,14 +462,14 @@ public class NPModeBuilder {
                     completableFutures.add(logger.apply(CompletableFuture.runAsync(() -> {
                         try {
                             ArtistSummary summary = lastFM.getArtistSummary(scrobbledArtist.getArtist(), lastFMName);
-                            long artistFrequencies = summary.getListeners();
-                            long serverArtistPlays = summary.getPlaycount();
+                            long artistFrequencies = summary.listeners();
+                            long serverArtistPlays = summary.playcount();
                             if (npModes.contains(NPMode.LFM_LISTENERS))
                                 footerSpaces[footerIndexes.get(NPMode.LFM_LISTENERS)] =
                                         (String.format("%d %s listeners", artistFrequencies, "Last.fm"));
                             if (npModes.contains(NPMode.ARTIST_PLAYS))
                                 footerSpaces[footerIndexes.get(NPMode.ARTIST_PLAYS)] =
-                                        (String.format("%d artist %s", summary.getUserPlayCount(), CommandUtil.singlePlural(summary.getUserPlayCount(), "play", "plays")));
+                                        (String.format("%d artist %s", summary.userPlayCount(), CommandUtil.singlePlural(summary.userPlayCount(), "play", "plays")));
                             if (npModes.contains(NPMode.LFM_SCROBBLES)) {
                                 footerSpaces[footerIndexes.get(NPMode.LFM_SCROBBLES)] =
                                         (String.format("%d %s plays", serverArtistPlays, "Last.fm"));
@@ -497,7 +497,7 @@ public class NPModeBuilder {
                             if ((npModes.contains(NPMode.SERVER_ALBUM_RYM) || npModes.contains(NPMode.BOT_ALBUM_RYM) || npModes.contains(NPMode.ALBUM_RYM) && (npModes.contains(NPMode.SERVER_ALBUM_RYM) || npModes.contains(NPMode.BOT_ALBUM_RYM)))) {
 
                                 AlbumRatings albumRatings = service.getRatingsByName(e.isFromGuild() ? guildId : -1L, np.albumName(), scrobbledArtist.getArtistId());
-                                List<Rating> userRatings = albumRatings.getUserRatings();
+                                List<Rating> userRatings = albumRatings.userRatings();
                                 if (npModes.contains(NPMode.SERVER_ALBUM_RYM)) {
                                     List<Rating> serverList = userRatings.stream().filter(Rating::isSameGuild).toList();
                                     if (!serverList.isEmpty()) {
@@ -653,13 +653,13 @@ public class NPModeBuilder {
                     }
                     completableFutures.add(logger.apply(CompletableFuture.runAsync(() -> {
                         ArtistMusicBrainzDetails artistDetails = mb.getArtistDetails(new ArtistInfo(null, np.artistName(), np.artistMbid()));
-                        if (npModes.contains(NPMode.GENDER) && artistDetails != null && artistDetails.getGender() != null) {
+                        if (npModes.contains(NPMode.GENDER) && artistDetails != null && artistDetails.gender() != null) {
                             footerSpaces[footerIndexes.get(NPMode.GENDER)] =
-                                    artistDetails.getGender();
+                                    artistDetails.gender();
                         }
-                        if (npModes.contains(NPMode.COUNTRY) && artistDetails != null && artistDetails.getCountryCode() != null) {
+                        if (npModes.contains(NPMode.COUNTRY) && artistDetails != null && artistDetails.countryCode() != null) {
                             footerSpaces[footerIndexes.get(NPMode.BOT_SCROBBLES)] =
-                                    CountryCode.getByAlpha2Code(artistDetails.getCountryCode()).getName();
+                                    CountryCode.getByAlpha2Code(artistDetails.countryCode()).getName();
                         }
                     })));
 
@@ -818,7 +818,7 @@ public class NPModeBuilder {
             if (EnumSet.of(PrivacyMode.LAST_NAME, PrivacyMode.TAG, PrivacyMode.DISCORD_NAME).contains(lastFMData.getPrivacyMode())) {
 
                 holder = switch (lastFMData.getPrivacyMode()) {
-                    case DISCORD_NAME -> CommandUtil.getUserInfoUnescaped(e, discordId).getUsername();
+                    case DISCORD_NAME -> CommandUtil.getUserInfoUnescaped(e, discordId).username();
                     case TAG -> e.getJDA().retrieveUserById(lastFMData.getDiscordId()).complete().getAsTag();
                     case LAST_NAME -> lastFMData.getName() + " (lastfm)";
                     default -> "Private User #1";

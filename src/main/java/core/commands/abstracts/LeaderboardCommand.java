@@ -3,8 +3,8 @@ package core.commands.abstracts;
 import core.commands.Context;
 import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandUtil;
+import core.commands.utils.ListSender;
 import core.commands.utils.PrivacyUtils;
-import core.otherlisteners.Reactionary;
 import core.parsers.params.CommandParameters;
 import dao.ServiceView;
 import dao.entities.LbEntry;
@@ -30,27 +30,17 @@ public abstract class LeaderboardCommand<T extends CommandParameters, Y extends 
         Context e = params.getE();
         list.forEach(cl -> cl.setDiscordName(getUserString(e, cl.getDiscordId(), cl.getLastFmId())));
 
-        EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e);
-        StringBuilder a = new StringBuilder();
-
         if (list.isEmpty()) {
             sendMessageQueue(e, "This guild has no registered users:(");
             return;
         }
 
-        List<String> strings = list.stream().map(PrivacyUtils::toString).toList();
-        for (int i = 0; i < 10 && i < strings.size(); i++) {
-            a.append(i + 1).append(strings.get(i));
-        }
-        if (strings.size() > 10) {
-            embedBuilder.setFooter("%s has %d users with %s\n".formatted(e.getGuild().getName(), list.size(), getEntryName(params)), null);
-        }
-        embedBuilder.setDescription(a)
+        EmbedBuilder eb = new ChuuEmbedBuilder(e)
                 .setAuthor(e.getGuild().getName() + "'s " + getEntryName(params) + " leaderboard", null, e.getGuild().getIconUrl());
+        setFooter(eb, list, params);
 
-        setFooter(embedBuilder, list, params);
-        e.sendMessage(embedBuilder.build()).queue(message ->
-                new Reactionary<>(strings, message, embedBuilder));
+        new ListSender<>(e, list, PrivacyUtils::toString, eb)
+                .doSend();
     }
 
     protected void setFooter(EmbedBuilder embedBuilder, List<LbEntry<Y>> list, T params) {

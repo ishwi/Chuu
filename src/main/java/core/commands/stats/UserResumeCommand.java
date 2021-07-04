@@ -73,8 +73,8 @@ public class UserResumeCommand extends ConcurrentCommand<TimeFrameParameters> {
         int i = lastFM.scrobblesSince(name, localDateTime.atOffset(ZoneOffset.UTC));
         DiscordUserDisplay info = CommandUtil.getUserInfoConsideringGuildOrNot(e, params.getLastFMData().getDiscordId());
         EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e)
-                .setTitle(info.getUsername() + "'s summary" + time.getDisplayString())
-                .setThumbnail(info.getUrlImage())
+                .setTitle(info.username() + "'s summary" + time.getDisplayString())
+                .setThumbnail(info.urlImage())
                 .addField("Total scrobbles:", i + " scrobbles", false)
                 .addField("Total songs:", trackCount + " songs", true)
                 .addField("Total albums:", albumCount + " albums", true)

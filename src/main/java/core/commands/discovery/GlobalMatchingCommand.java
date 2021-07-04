@@ -80,8 +80,8 @@ public class GlobalMatchingCommand extends ConcurrentCommand<NumberParameters<Ch
 
         long discordId = innerParams.getLastFMData().getDiscordId();
         DiscordUserDisplay userInformation = CommandUtil.getUserInfoConsideringGuildOrNot(e, discordId);
-        String url = userInformation.getUrlImage();
-        String usableName = userInformation.getUsername();
+        String url = userInformation.urlImage();
+        String usableName = userInformation.username();
 
         EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e).setThumbnail(url);
         Set<Long> found;

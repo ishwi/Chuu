@@ -146,8 +146,8 @@ public class CountryCommand extends ConcurrentCommand<NumberParameters<TimeFrame
 
             var embedBuilder = new ChuuEmbedBuilder(e)
                     .setDescription(a)
-                    .setAuthor(String.format("%s's countries", uInfo.getUsername()), PrivacyUtils.getLastFmUser(user.getName()), uInfo.getUrlImage())
-                    .setFooter("%s has artist from %d different %s".formatted(uInfo.getUsername(), lines.size(), CommandUtil.singlePlural(lines.size(), "country", "countries")), null);
+                    .setAuthor(String.format("%s's countries", uInfo.username()), PrivacyUtils.getLastFmUser(user.getName()), uInfo.urlImage())
+                    .setFooter("%s has artist from %d different %s".formatted(uInfo.username(), lines.size(), CommandUtil.singlePlural(lines.size(), "country", "countries")), null);
 
             e.sendMessage(embedBuilder.build()).queue(m ->
                     new Reactionary<>(lines, m, 10, embedBuilder));
@@ -157,7 +157,7 @@ public class CountryCommand extends ConcurrentCommand<NumberParameters<TimeFrame
                 indexPalette = Math.toIntExact(palette - 1);
             else
                 indexPalette = null;
-            byte[] b = WorldMapRenderer.generateImage(map, CommandUtil.getUserInfoUnescaped(e, discordId).getUsername(), indexPalette);
+            byte[] b = WorldMapRenderer.generateImage(map, CommandUtil.getUserInfoUnescaped(e, discordId).username(), indexPalette);
             CommandUtil.handleConditionalMessage(future);
             if (b == null) {
                 parser.sendError("Unknown error happened while creating the map", e);

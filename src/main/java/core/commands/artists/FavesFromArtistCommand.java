@@ -1,9 +1,5 @@
 package core.commands.artists;
 
-import core.apis.discogs.DiscogsApi;
-import core.apis.discogs.DiscogsSingleton;
-import core.apis.spotify.Spotify;
-import core.apis.spotify.SpotifySingleton;
 import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.*;
@@ -11,7 +7,6 @@ import core.exceptions.LastFmException;
 import core.imagerenderer.util.pie.DefaultList;
 import core.imagerenderer.util.pie.IPieableList;
 import core.imagerenderer.util.pie.OptionalPie;
-import core.imagerenderer.util.pie.PieSetUp;
 import core.parsers.ArtistTimeFrameParser;
 import core.parsers.Parser;
 import core.parsers.params.ArtistTimeFrameParameters;
@@ -31,8 +26,6 @@ import java.util.List;
 
 public class FavesFromArtistCommand extends ConcurrentCommand<ArtistTimeFrameParameters> {
 
-    private final DiscogsApi discogs;
-    private final Spotify spotify;
     private final IPieableList<Track, CommandParameters> pie;
 
     public FavesFromArtistCommand(ServiceView dao) {
@@ -40,8 +33,6 @@ public class FavesFromArtistCommand extends ConcurrentCommand<ArtistTimeFramePar
         this.pie = DefaultList.fillPie(Track::getPie, Track::getPlays);
         new OptionalPie(this.getParser());
         respondInPrivate = true;
-        this.discogs = DiscogsSingleton.getInstanceUsingDoubleLocking();
-        this.spotify = SpotifySingleton.getInstance();
     }
 
     @Override
@@ -78,11 +69,12 @@ public class FavesFromArtistCommand extends ConcurrentCommand<ArtistTimeFramePar
 
         ScrobbledArtist who = new ArtistValidator(db, lastFM, e).validate(params.getArtist(), !params.isNoredirect());
         String artist = who.getArtist();
-        List<Track> ai;
         String lastFmName = params.getLastFMData().getName();
 
         DiscordUserDisplay uInfo = CommandUtil.getUserInfoUnescaped(e, userId);
-        String userString = uInfo.getUsername();
+        String userString = uInfo.username();
+
+        List<Track> ai;
         if (timeframew.equals(TimeFrameEnum.ALL)) {
             ai = db.getTopArtistTracks(lastFmName, who.getArtistId(), Integer.MAX_VALUE);
             if (ai.isEmpty()) {
@@ -102,7 +94,7 @@ public class FavesFromArtistCommand extends ConcurrentCommand<ArtistTimeFramePar
         switch (effectiveMode) {
             case IMAGE, LIST -> {
                 EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e)
-                        .setAuthor(title, PrivacyUtils.getLastFmArtistUserUrl(who.getArtist(), lastFmName), uInfo.getUrlImage())
+                        .setAuthor(title, PrivacyUtils.getLastFmArtistUserUrl(who.getArtist(), lastFmName), uInfo.urlImage())
                         .setThumbnail(CommandUtil.noImageUrl(who.getUrl()));
 
                 if (ai.size() > 10) {
@@ -120,7 +112,7 @@ public class FavesFromArtistCommand extends ConcurrentCommand<ArtistTimeFramePar
             case PIE -> {
                 PieChart pieChart = this.pie.doPie(params, ai);
                 pieChart.setTitle(title);
-                BufferedImage image = new PieSetUp(footer, who.getUrl(), pieChart).setUp();
+                BufferedImage image = new PieDoer(footer, who.getUrl(), pieChart).fill();
                 sendImage(image, e);
             }
         }

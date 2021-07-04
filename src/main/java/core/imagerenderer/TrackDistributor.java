@@ -28,11 +28,6 @@ public class TrackDistributor {
     private static final int HEIGHT_BOTTOM = 0;
     private static final int FONT_SIZE = 30;
     private static final Font NORMAL_FONT = new Font("Noto Sans Display SemiBold", Font.PLAIN, FONT_SIZE);
-
-
-    private static final BufferedImage template;
-    private static final BufferedImage noalbumImage;
-    private static final List<Color> lightPalettes;
     private static final StringFitter trackFitter = new StringFitterBuilder(FONT_SIZE, 400)
             .setMinSize(8)
             .setBaseFont(NORMAL_FONT)
@@ -41,6 +36,9 @@ public class TrackDistributor {
             .setMinSize(14)
             .setBaseFont(NORMAL_FONT)
             .build();
+    private static final BufferedImage template;
+    private static final BufferedImage noalbumImage;
+    private static final List<Color> lightPalettes;
 
     static {
 

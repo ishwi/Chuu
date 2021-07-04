@@ -86,10 +86,10 @@ public abstract class BaseTasteCommand<T extends CommandParameters> extends Conc
         UserInfo userInfo = userInfoService.getUserInfo(LastFMData.ofUser(userA));
         UserInfo userInfo1 = userInfoService.getUserInfo(LastFMData.ofUser(userB));
         if (Chuu.getLastFmId(userInfo.getUsername()).equals(Chuu.DEFAULT_LASTFM_ID)) {
-            userInfo.setUsername(CommandUtil.getUserInfoUnescaped(e, firstId).getUsername());
+            userInfo.setUsername(CommandUtil.getUserInfoUnescaped(e, firstId).username());
         }
         if (Chuu.getLastFmId(userInfo1.getUsername()).equals(Chuu.DEFAULT_LASTFM_ID)) {
-            userInfo1.setUsername(CommandUtil.getUserInfoUnescaped(e, secondId).getUsername());
+            userInfo1.setUsername(CommandUtil.getUserInfoUnescaped(e, secondId).username());
         }
         Pair<Integer, Integer> tasteBar = getTasteBar(resultWrapper, userInfo, userInfo1, params);
         var palette = getColor(e, firstId)
@@ -113,9 +113,9 @@ public abstract class BaseTasteCommand<T extends CommandParameters> extends Conc
         DiscordUserDisplay uinfo1 = CommandUtil.getUserInfoConsideringGuildOrNot(e, secondDiscordId);
         EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e)
                 .setDescription(stringBuilder)
-                .setTitle(String.format("%s vs %s", uinfo.getUsername(), uinfo1.getUsername()))
+                .setTitle(String.format("%s vs %s", uinfo.username(), uinfo1.username()))
                 .setFooter(String.format("Both user have %d common %s", resultWrapper.getRows(), getEntity(params)), null)
-                .setThumbnail(uinfo1.getUrlImage());
+                .setThumbnail(uinfo1.urlImage());
         e.sendMessage(embedBuilder.build()).queue(message1 ->
                 new Reactionary<>(strings, message1, embedBuilder));
     }

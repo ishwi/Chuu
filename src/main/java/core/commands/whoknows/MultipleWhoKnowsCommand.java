@@ -48,7 +48,7 @@ public class MultipleWhoKnowsCommand extends WhoKnowsBaseCommand<MultiArtistPara
                 0, first.getUrl(), ""
         );
         wrapperReturnNowPlaying.getReturnNowPlayings()
-                .forEach(x -> x.setDiscordName(CommandUtil.getUserInfoUnescaped(params.getE(), x.getDiscordId()).getUsername()));
+                .forEach(x -> x.setDiscordName(CommandUtil.getUserInfoUnescaped(params.getE(), x.getDiscordId()).username()));
         wrapperReturnNowPlaying.setUrl((first.getUrl()));
         wrapperReturnNowPlaying.setArtist(whoKnowsArtistSet.stream().map(WrapperReturnNowPlaying::getArtist).collect(Collectors.joining(",")));
         return wrapperReturnNowPlaying;

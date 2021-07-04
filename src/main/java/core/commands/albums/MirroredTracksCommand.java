@@ -84,9 +84,9 @@ public class MirroredTracksCommand extends AlbumPlaysCommand {
         }
         UserInfoService userInfoService = new UserInfoService(db);
         UserInfo userInfo = userInfoService.getUserInfo(ogData);
-        userInfo.setUsername(CommandUtil.getUserInfoUnescaped(e, ogData.getDiscordId()).getUsername());
+        userInfo.setUsername(CommandUtil.getUserInfoUnescaped(e, ogData.getDiscordId()).username());
         UserInfo userInfo2 = userInfoService.getUserInfo(secondUser);
-        userInfo2.setUsername(CommandUtil.getUserInfoUnescaped(e, secondUser.getDiscordId()).getUsername());
+        userInfo2.setUsername(CommandUtil.getUserInfoUnescaped(e, secondUser.getDiscordId()).username());
         BufferedImage bufferedImage = TrackDistributor.drawImageMirrored(trackList1.get(), trackList2.get(), userInfo, userInfo2);
         sendImage(bufferedImage, e);
     }

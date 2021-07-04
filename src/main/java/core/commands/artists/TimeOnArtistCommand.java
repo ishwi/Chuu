@@ -7,7 +7,6 @@ import core.exceptions.LastFmException;
 import core.imagerenderer.util.pie.DefaultList;
 import core.imagerenderer.util.pie.IPieableList;
 import core.imagerenderer.util.pie.OptionalPie;
-import core.imagerenderer.util.pie.PieSetUp;
 import core.parsers.ArtistTimeFrameParser;
 import core.parsers.Parser;
 import core.parsers.params.ArtistTimeFrameParameters;
@@ -79,7 +78,7 @@ public class TimeOnArtistCommand extends ConcurrentCommand<ArtistTimeFrameParame
         String lastFmName = params.getLastFMData().getName();
 
         DiscordUserDisplay uInfo = CommandUtil.getUserInfoUnescaped(e, userId);
-        String userString = uInfo.getUsername();
+        String userString = uInfo.username();
 
         if (timeframew.equals(TimeFrameEnum.ALL)) {
             ai = db.getTopArtistTracksDuration(lastFmName, sA.getArtistId(), Integer.MAX_VALUE);
@@ -94,7 +93,7 @@ public class TimeOnArtistCommand extends ConcurrentCommand<ArtistTimeFrameParame
                 return;
             }
         }
-        String fullStr = "%s has listened to **%s** distinct **%s** tracks (%s scrobbles) for a total of **%s**!".formatted(uInfo.getUsername(),
+        String fullStr = "%s has listened to **%s** distinct **%s** tracks (%s scrobbles) for a total of **%s**!".formatted(uInfo.username(),
                 ai.size(),
                 sA.getArtist(),
                 ai.stream().mapToInt(Track::getPlays).sum(),
@@ -106,7 +105,7 @@ public class TimeOnArtistCommand extends ConcurrentCommand<ArtistTimeFrameParame
             case LIST -> {
                 String footer = fullStr.replaceAll("\\*\\*", "");
                 EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e)
-                        .setAuthor(title, PrivacyUtils.getLastFmArtistUserUrl(sA.getArtist(), lastFmName), uInfo.getUrlImage())
+                        .setAuthor(title, PrivacyUtils.getLastFmArtistUserUrl(sA.getArtist(), lastFmName), uInfo.urlImage())
                         .setThumbnail(CommandUtil.noImageUrl(sA.getUrl()));
 
                 if (!StringUtils.isBlank(ai.get(0).getImageUrl())) {
@@ -123,7 +122,7 @@ public class TimeOnArtistCommand extends ConcurrentCommand<ArtistTimeFrameParame
                 String footer = fullStr.replaceAll("\\*\\*", "");
                 PieChart pieChart = pie.doPie(params, ai);
                 pieChart.setTitle(title);
-                sendImage(new PieSetUp(footer, sA.getUrl(), pieChart).setUp(), e);
+                sendImage(new PieDoer(footer, sA.getUrl(), pieChart).fill(), e);
             }
         }
     }

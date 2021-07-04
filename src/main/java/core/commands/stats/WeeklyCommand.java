@@ -128,8 +128,8 @@ public class WeeklyCommand extends ConcurrentCommand<ChuuDataParams> {
             sendImage(bufferedImage, e);
         } else {
             DiscordUserDisplay userInfo = CommandUtil.getUserInfoConsideringGuildOrNot(e, discordID);
-            String url = userInfo.getUrlImage();
-            String usableName = userInfo.getUsername();
+            String url = userInfo.urlImage();
+            String usableName = userInfo.username();
             minutesWastedOnMusicDaily.setSeconds(totalSeconds.get());
             EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e).setDescription(s)
                     .setTitle(usableName + "'s week", CommandUtil.getLastFmUser(lastFmName.getName()))

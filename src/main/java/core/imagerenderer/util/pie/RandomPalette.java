@@ -17,19 +17,19 @@ public class RandomPalette extends PieColourer {
     static {
         List<String[]> palette = new ArrayList<>();
         palettes = Stream.of(
-                new String[]{"#ddf3f5", "a6dcef", "e36387", "f2aaaa", "cff6cf", "e5cfe5", "cfe5cf"},
-                new String[]{"142850", "27496d", "00909e", "dae1e7", "fbe6d4", "fecb89"},
-                new String[]{"f67280", "e23e57", "88304e", "522546", "311d3f", "355c7d"},
-                new String[]{"#648FFF", "785EF0", "DC267F", "FE6100", "FFB000", "B54325", "48B02A", "#522779"},
-                new String[]{"#332288", "#117733", "#44AA99", "#88CCEE", "#DDCC77", "#CC6677", "#AA4499", "#882255"},
-                new String[]{"#000000", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7"},
-                new String[]{"#CC79A7", "#bfeeb2", "#4c6452", "#c8bbca", "#b2fb7e", "#dbf674", "#ac88ee", "#36ad46", "#a43e3d", "#800c6b", "#3bcd92"},
-                new String[]{"#68FFE0", "#2c1efa", "#4bc6c6", "#fc3e00", "#41a873", "#44039b", "#3a5930", "#67db91", "#51c33f", "#277e1f", "#ab4761", "#4e8e93"},
-                new String[]{"#FFBC9F", "#846853", "#a0e3b2", "#23270d", "#1c261b", "#af293e", "#23f224", "#f1196c", "#272c81", "#5ac146"},
-                new String[]{"#FFFFFF", "#df66f1", "#646acb", "#3d1a4c", "#b1b259", "#bf0869", "#afdac2"},
-                new String[]{"#000000", "#5f2735", "#fd9f40", "#ca86d6", "#bdbade", "#37b6d6", "#fecaf1"},
-                new String[]{"#FF00BF", "#5586b3", "#b2c7e8", "#1e589f", "#9f1f97", "#8c0f7d", "#3f4474"},
-                new String[]{"#FFE47E", "#4720df", "#2baa71", "#6925eb", "#69c671", "#9ef4e6", "#ada630", "#e93dac"})
+                        new String[]{"#ddf3f5", "a6dcef", "e36387", "f2aaaa", "cff6cf", "e5cfe5", "cfe5cf"},
+                        new String[]{"142850", "27496d", "00909e", "dae1e7", "fbe6d4", "fecb89"},
+                        new String[]{"f67280", "e23e57", "88304e", "522546", "311d3f", "355c7d"},
+                        new String[]{"#648FFF", "785EF0", "DC267F", "FE6100", "FFB000", "B54325", "48B02A", "#522779"},
+                        new String[]{"#332288", "#117733", "#44AA99", "#88CCEE", "#DDCC77", "#CC6677", "#AA4499", "#882255"},
+                        new String[]{"#000000", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7"},
+                        new String[]{"#CC79A7", "#bfeeb2", "#4c6452", "#c8bbca", "#b2fb7e", "#dbf674", "#ac88ee", "#36ad46", "#a43e3d", "#800c6b", "#3bcd92"},
+                        new String[]{"#68FFE0", "#2c1efa", "#4bc6c6", "#fc3e00", "#41a873", "#44039b", "#3a5930", "#67db91", "#51c33f", "#277e1f", "#ab4761", "#4e8e93"},
+                        new String[]{"#FFBC9F", "#846853", "#a0e3b2", "#23270d", "#1c261b", "#af293e", "#23f224", "#f1196c", "#272c81", "#5ac146"},
+                        new String[]{"#FFFFFF", "#df66f1", "#646acb", "#3d1a4c", "#b1b259", "#bf0869", "#afdac2"},
+                        new String[]{"#000000", "#5f2735", "#fd9f40", "#ca86d6", "#bdbade", "#37b6d6", "#fecaf1"},
+                        new String[]{"#FF00BF", "#5586b3", "#b2c7e8", "#1e589f", "#9f1f97", "#8c0f7d", "#3f4474"},
+                        new String[]{"#FFE47E", "#4720df", "#2baa71", "#6925eb", "#69c671", "#9ef4e6", "#ada630", "#e93dac"})
                 .map(t -> Arrays.stream(t).map(ColorFactory::valueOf).toList()).toList();
     }
 

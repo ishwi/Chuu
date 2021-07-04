@@ -4,8 +4,6 @@ import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioSourceManager
 import com.sedmelluq.discord.lavaplayer.track.AudioItem;
 import com.sedmelluq.discord.lavaplayer.track.AudioReference;
 import com.sedmelluq.discord.lavaplayer.track.BasicAudioPlaylist;
-import core.apis.youtube.InvidousSearch;
-import core.apis.youtube.YoutubeSearch;
 import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
@@ -24,12 +22,10 @@ import java.util.List;
 
 public class YoutubeSearchCommand extends ConcurrentCommand<ExtraParameters<WordParameter, User>> {
     public static boolean ONLY_YT = false;
-    private final YoutubeSearch optionalSearch;
     private final YoutubeAudioSourceManager audioSourceManager;
 
     public YoutubeSearchCommand(ServiceView dao) {
         super(dao);
-        optionalSearch = new InvidousSearch();
         audioSourceManager = YoutubeSearchManagerSingleton.getInstance();
 
     }

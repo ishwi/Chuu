@@ -76,7 +76,7 @@ public class TopCommandsCommand extends ConcurrentCommand<ChuuDataParams> {
         DiscordUserDisplay uInfo = CommandUtil.getUserInfoUnescaped(e, params.getLastFMData().getDiscordId());
 
         if (userCommands.isEmpty()) {
-            sendMessageQueue(e, uInfo.getUsername() + " hasn't run any command.");
+            sendMessageQueue(e, uInfo.username() + " hasn't run any command.");
             return;
         }
 
@@ -89,7 +89,7 @@ public class TopCommandsCommand extends ConcurrentCommand<ChuuDataParams> {
 
         EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e)
                 .setDescription(a)
-                .setAuthor(uInfo.getUsername() + "'s commands", PrivacyUtils.getLastFmUser(params.getLastFMData().getName()), uInfo.getUrlImage());
+                .setAuthor(uInfo.username() + "'s commands", PrivacyUtils.getLastFmUser(params.getLastFMData().getName()), uInfo.urlImage());
         e.sendMessage(embedBuilder.build()).queue(message1 ->
                 new Reactionary<>(strings, message1, embedBuilder));
     }

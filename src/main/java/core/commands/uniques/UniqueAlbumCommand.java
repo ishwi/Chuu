@@ -83,9 +83,9 @@ public class UniqueAlbumCommand extends ConcurrentCommand<ChuuDataParams> {
 
         DiscordUserDisplay userInfo = CommandUtil.getUserInfoConsideringGuildOrNot(e, discordId);
 
-        EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e).setAuthor(String.format("%s's%s unique albums", userInfo.getUsername(), isGlobal() ? " global" : ""), CommandUtil.getLastFmUser(lastFmName), userInfo.getUrlImage())
+        EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e).setAuthor(String.format("%s's%s unique albums", userInfo.username(), isGlobal() ? " global" : ""), CommandUtil.getLastFmUser(lastFmName), userInfo.urlImage())
                 .setDescription(a)
-                .setFooter(String.format("%s has %d%s unique albums!%n", CommandUtil.unescapedUser(userInfo.getUsername(), discordId, e), rows, isGlobal() ? " global" : ""), null);
+                .setFooter(String.format("%s has %d%s unique albums!%n", CommandUtil.unescapedUser(userInfo.username(), discordId, e), rows, isGlobal() ? " global" : ""), null);
 
         e.sendMessage(embedBuilder.build()).queue(m ->
                 new Reactionary<>(resultWrapper.getUniqueData(), m, embedBuilder));

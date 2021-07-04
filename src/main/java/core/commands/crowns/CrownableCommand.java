@@ -77,12 +77,12 @@ public class CrownableCommand extends ListCommand<CrownableArtist, NumberParamet
         StringBuilder a = new StringBuilder();
         List<String> lines = list.stream().map(x ->
                 String.format(". [%s](%s) - **%d**/**%d** with **%d plays** %s%n",
-                        CommandUtil.escapeMarkdown(x.getArtistName()),
-                        LinkUtils.getLastFmArtistUrl(x.getArtistName()),
-                        x.getRank(),
-                        x.getTotalListeners(),
-                        x.getPlayNumber(),
-                        x.getRank() != 1 ? "(need " + (x.getMaxPlaynumber() - x.getPlayNumber() + 1) + " more plays for first)" : "")
+                        CommandUtil.escapeMarkdown(x.artistName()),
+                        LinkUtils.getLastFmArtistUrl(x.artistName()),
+                        x.rank(),
+                        x.totalListeners(),
+                        x.playNumber(),
+                        x.rank() != 1 ? "(need " + (x.maxPlaynumber() - x.playNumber() + 1) + " more plays for first)" : "")
         ).toList();
         for (int i = 0; i < 10 && i < lines.size(); i++) {
             a.append(i + 1).append(lines.get(i));
@@ -100,15 +100,15 @@ public class CrownableCommand extends ListCommand<CrownableArtist, NumberParamet
         String footer;
         String conditionalFiltering = outerParmams.getExtraParam() != Integer.MAX_VALUE ? " and you are less than " + outerParmams.getExtraParam() + " plays away from first" : "";
         if (onlySecond) {
-            footer = String.format("Displaying artist where %s is the second top listener%s in %s", uInfo.getUsername(), conditionalFiltering, s);
+            footer = String.format("Displaying artist where %s is the second top listener%s in %s", uInfo.username(), conditionalFiltering, s);
         } else if (outerParmams.hasOptional("nofirst")) {
-            footer = String.format("Displaying artist where %s is yet to be the top listener%s in %s", uInfo.getUsername(), conditionalFiltering, s);
+            footer = String.format("Displaying artist where %s is yet to be the top listener%s in %s", uInfo.username(), conditionalFiltering, s);
         } else {
-            footer = String.format("Displaying rank of %s's artist%s in %s", uInfo.getUsername(), conditionalFiltering, s);
+            footer = String.format("Displaying rank of %s's artist%s in %s", uInfo.username(), conditionalFiltering, s);
         }
         embedBuilder.setDescription(a)
                 .setFooter("")
-                .setAuthor(String.format("%s's artist resume in %s", (uInfo.getUsername()), s), CommandUtil.getLastFmUser(params.getLastFMData().getName()), uInfo.getUrlImage())
+                .setAuthor(String.format("%s's artist resume in %s", (uInfo.username()), s), CommandUtil.getLastFmUser(params.getLastFMData().getName()), uInfo.urlImage())
                 .setThumbnail(thumbnail)
                 .setFooter(footer);
         e.sendMessage(embedBuilder.build()).queue(message ->

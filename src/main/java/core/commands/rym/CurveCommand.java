@@ -54,7 +54,7 @@ public class CurveCommand extends ConcurrentCommand<ChuuDataParams> {
         Map<Integer, Integer> userCurve = db.getUserCurve(discordId);
         DiscordUserDisplay uInfo = CommandUtil.getUserInfoUnescaped(e, discordId);
         EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e)
-                .setAuthor("Breakdown by rating for " + uInfo.getUsername(), PrivacyUtils.getLastFmUser(params.getLastFMData().getName()), uInfo.getUrlImage());
+                .setAuthor("Breakdown by rating for " + uInfo.username(), PrivacyUtils.getLastFmUser(params.getLastFMData().getName()), uInfo.urlImage());
         userCurve.entrySet().stream().sorted(Comparator.comparingInt(Map.Entry::getKey)).forEachOrdered(x -> {
 
             Integer key = x.getKey();

@@ -1,9 +1,5 @@
 package core.commands.albums;
 
-import core.apis.discogs.DiscogsApi;
-import core.apis.discogs.DiscogsSingleton;
-import core.apis.spotify.Spotify;
-import core.apis.spotify.SpotifySingleton;
 import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
@@ -24,13 +20,9 @@ import java.util.List;
 
 
 public class AlbumPlaysCommand extends ConcurrentCommand<ArtistAlbumParameters> {
-    private final DiscogsApi discogsApi;
-    private final Spotify spotify;
 
     public AlbumPlaysCommand(ServiceView dao) {
         super(dao);
-        this.discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
-        this.spotify = SpotifySingleton.getInstance();
     }
 
 

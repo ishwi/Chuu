@@ -62,7 +62,7 @@ public class ArtistLovedCommand extends ConcurrentCommand<ArtistParameters> {
         DiscordUserDisplay uInfo = CommandUtil.getUserInfoUnescaped(e, params.getLastFMData().getDiscordId());
         int size = artists.size();
         if (size == 0) {
-            sendMessageQueue(e, "%s doesn't have any **%s** loved track. Consider using the `%slove` command!".formatted(uInfo.getUsername(),
+            sendMessageQueue(e, "%s doesn't have any **%s** loved track. Consider using the `%slove` command!".formatted(uInfo.username(),
                     sA.getArtist(),
                     CommandUtil.getMessagePrefix(e)));
             return;
@@ -73,7 +73,7 @@ public class ArtistLovedCommand extends ConcurrentCommand<ArtistParameters> {
         ZoneId zoneId = params.getLastFMData().getTimeZone().toZoneId();
 
         EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e)
-                .setAuthor("%s's %s loved songs".formatted(uInfo.getUsername(), sA.getArtist()), PrivacyUtils.getLastFmUser(userName) + "/loved", uInfo.getUrlImage())
+                .setAuthor("%s's %s loved songs".formatted(uInfo.username(), sA.getArtist()), PrivacyUtils.getLastFmUser(userName) + "/loved", uInfo.urlImage())
                 .setFooter("%d total %s %s loved".formatted(size, sA.getArtist(), CommandUtil.singlePlural(size, "song", "songs")));
 
         new ListSender<>(e,

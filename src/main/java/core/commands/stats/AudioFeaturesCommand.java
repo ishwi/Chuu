@@ -85,7 +85,7 @@ public class AudioFeaturesCommand extends ConcurrentCommand<ChuuDataParams> {
 
         DiscordUserDisplay userInfoNotStripped = CommandUtil.getUserInfoUnescaped(e, params.getLastFMData().getDiscordId());
         EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e)
-                .setAuthor("Audio features for " + userInfoNotStripped.getUsername(), PrivacyUtils.getLastFmUser(lastFMData.getName()), userInfoNotStripped.getUrlImage())
+                .setAuthor("Audio features for " + userInfoNotStripped.username(), PrivacyUtils.getLastFmUser(lastFMData.getName()), userInfoNotStripped.urlImage())
                 .addField("Happiness:", df.format(userFeatures.valence()), true)
                 .addField("Acousticness:", df.format(userFeatures.acousticness()), true)
                 .addField("Danceability:", df.format(userFeatures.danceability()), true)

@@ -321,7 +321,7 @@ public class SQLRYMDaoImpl implements SQLRYMDao {
                     albumRatings = new AlbumRatings(0L, artistId, "", album, new ArrayList<>(), releaseYear);
                     retunMap.put(album, albumRatings);
                 }
-                albumRatings.getUserRatings().add(new Rating(discord_id, rating, isThisGuild));
+                albumRatings.userRatings().add(new Rating(discord_id, rating, isThisGuild));
 //                returnedMap.put(rymId, artistId);
             }
             return retunMap.values();

@@ -126,8 +126,8 @@ public class GenreCommand extends ConcurrentCommand<NumberParameters<TimeFramePa
 
         TimeFrameEnum timeframe = innerParams.getTime();
         DiscordUserDisplay userInfo = CommandUtil.getUserInfoUnescaped(e, discordId);
-        String usableString = userInfo.getUsername();
-        String urlImage = userInfo.getUrlImage();
+        String usableString = userInfo.username();
+        String urlImage = userInfo.urlImage();
         boolean mb = params.hasOptional("mb");
         boolean lastfm = params.hasOptional("lastfm");
         String service = mb ? "Musicbrainz" : lastfm ? "Last.fm" : "Last.fm and Musicbrainz";
@@ -217,7 +217,7 @@ public class GenreCommand extends ConcurrentCommand<NumberParameters<TimeFramePa
             Graphics2D g = bufferedImage.createGraphics();
             GraphicUtils.setQuality(g);
             pieChart.paint(g, 1000, 750);
-            GraphicUtils.inserArtistImage(urlImage, g);
+            GraphicUtils.drawImageInCorner(urlImage, g);
             sendImage(bufferedImage, e);
         }
     }

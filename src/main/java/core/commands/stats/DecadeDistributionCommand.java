@@ -92,8 +92,8 @@ public class DecadeDistributionCommand extends ConcurrentCommand<TimeFrameParame
 
         var embedBuilder = new ChuuEmbedBuilder(e)
                 .setDescription(a)
-                .setAuthor(String.format("%s's years%s", uInfo.getUsername(), params.getTime().getDisplayString()), CommandUtil.getLastFmUser(params.getLastFMData().getName()), uInfo.getUrlImage())
-                .setFooter("%s has albums from %d different %s".formatted(CommandUtil.stripEscapedMarkdown(uInfo.getUsername()), counts.size(), CommandUtil.singlePlural(counts.size(), "decade", "decades")), null);
+                .setAuthor(String.format("%s's years%s", uInfo.username(), params.getTime().getDisplayString()), CommandUtil.getLastFmUser(params.getLastFMData().getName()), uInfo.urlImage())
+                .setFooter("%s has albums from %d different %s".formatted(CommandUtil.stripEscapedMarkdown(uInfo.username()), counts.size(), CommandUtil.singlePlural(counts.size(), "decade", "decades")), null);
 
         e.sendMessage(embedBuilder.build()).queue(m ->
                 new Reactionary<>(lines, m, 10, embedBuilder));

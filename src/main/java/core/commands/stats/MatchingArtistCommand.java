@@ -74,8 +74,8 @@ public class MatchingArtistCommand extends ConcurrentCommand<NumberParameters<Ch
         List<LbEntry<Integer>> list = db.matchingArtistsCount(innerParams.getLastFMData().getName(), e.getGuild().getIdLong(), threshold);
         list.forEach(cl -> cl.setDiscordName(getUserString(e, cl.getDiscordId(), cl.getLastFmId())));
         DiscordUserDisplay userInformation = CommandUtil.getUserInfoConsideringGuildOrNot(e, discordId);
-        String url = userInformation.getUrlImage();
-        String usableName = userInformation.getUsername();
+        String url = userInformation.urlImage();
+        String usableName = userInformation.username();
 
         EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e).setThumbnail(url);
         StringBuilder a = new StringBuilder();

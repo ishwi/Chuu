@@ -66,7 +66,7 @@ public class AlbumSearchCommand extends ListCommand<ScrobbledAlbum, UserStringPa
 
         DiscordUserDisplay uInfo = CommandUtil.getUserInfoConsideringGuildOrNot(e, params.getLastFMData().getDiscordId());
         if (list.isEmpty()) {
-            e.sendMessage(uInfo.getUsername() + " doesnt have any album searching by `" + abbreviate + '`').queue();
+            e.sendMessage(uInfo.username() + " doesnt have any album searching by `" + abbreviate + '`').queue();
             return;
         }
 
@@ -81,8 +81,8 @@ public class AlbumSearchCommand extends ListCommand<ScrobbledAlbum, UserStringPa
             a.append(i + 1).append(strs.get(i));
         }
 
-        String title = uInfo.getUsername() + "'s albums that match " + abbreviate;
-        EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e).setAuthor(title, PrivacyUtils.getLastFmUser(params.getLastFMData().getName()), uInfo.getUrlImage())
+        String title = uInfo.username() + "'s albums that match " + abbreviate;
+        EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e).setAuthor(title, PrivacyUtils.getLastFmUser(params.getLastFMData().getName()), uInfo.urlImage())
                 .setFooter(list.size() + " matching albums!")
                 .setDescription(a);
         e.sendMessage(embedBuilder.build()).queue(mes ->

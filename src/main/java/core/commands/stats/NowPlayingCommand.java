@@ -46,8 +46,8 @@ public class NowPlayingCommand extends NpCommand {
         // Author fields cant have escaped markdown characters
         DiscordUserDisplay uInfo = CommandUtil.getUserInfoUnescaped(e, discordId);
 
-        String urlHolder = uInfo.getUrlImage();
-        String userName = uInfo.getUsername();
+        String urlHolder = uInfo.urlImage();
+        String userName = uInfo.username();
 
         EnumSet<NPMode> npModes = EnumSet.noneOf(NPMode.class);
         if (e.isFromGuild()) {

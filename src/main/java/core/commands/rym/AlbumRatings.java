@@ -1,9 +1,5 @@
 package core.commands.rym;
 
-import core.apis.discogs.DiscogsApi;
-import core.apis.discogs.DiscogsSingleton;
-import core.apis.spotify.Spotify;
-import core.apis.spotify.SpotifySingleton;
 import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.ChuuEmbedBuilder;
@@ -34,13 +30,9 @@ import java.util.Optional;
 import java.util.function.Function;
 
 public class AlbumRatings extends ConcurrentCommand<ArtistAlbumParameters> {
-    private final DiscogsApi discogsApi;
-    private final Spotify spotify;
 
     public AlbumRatings(ServiceView dao) {
         super(dao);
-        discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
-        spotify = SpotifySingleton.getInstance();
     }
 
     @NotNull
@@ -95,8 +87,8 @@ public class AlbumRatings extends ConcurrentCommand<ArtistAlbumParameters> {
         Year releaseYear = null;
         if (e.isFromGuild()) {
             dao.entities.AlbumRatings userrat = db.getRatingsByName(e.getGuild().getIdLong(), album, sA.getArtistId());
-            userRatings = userrat.getUserRatings();
-            releaseYear = userrat.getReleaseYear();
+            userRatings = userrat.userRatings();
+            releaseYear = userrat.releaseYear();
         } else {
             userRatings = Optional.ofNullable(db.getUserAlbumRating(params.getLastFMData().getDiscordId(), validate.getAlbumId(), validate.getArtistId())).map(List::of).orElse(Collections.emptyList());
         }

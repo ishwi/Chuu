@@ -124,9 +124,7 @@ public class ColorChartCommand extends OnlyChartCommand<ColorChartParams> {
                     String cover = Chuu.getCoverService().getCover(capsule.getArtistName(), capsule.getAlbumName(), capsule.getUrl(), params.getE());
                     capsule.setUrl(cover);
                     BufferedImage image = GraphicUtils.getImage(cover);
-                    PreComputedChartEntity.ImageComparison comparison = params.getColors().size() > 1 ?
-                                                                        PreComputedChartEntity.ImageComparison.AVERAGE_AND_DOMINANT_PALETTE :
-                                                                        PreComputedChartEntity.ImageComparison.AVERAGE_AND_DOMINANT_PALETTE;
+                    PreComputedChartEntity.ImageComparison comparison = PreComputedChartEntity.ImageComparison.AVERAGE_AND_DOMINANT_PALETTE;
                     boolean isDarkToWhite = params.isInverse();
                     if (params.isSorted()) {
                         return new PreComputedPlays(capsule, image, isDarkToWhite, comparison);

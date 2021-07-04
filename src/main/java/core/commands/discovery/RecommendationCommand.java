@@ -101,7 +101,7 @@ public class RecommendationCommand extends ConcurrentCommand<RecommendationsPara
             receiver = getUserString(e, firstDiscordID);
         }
         DiscordUserDisplay giverUI = CommandUtil.getUserInfoConsideringGuildOrNot(e, secondDiscordID);
-        String giver = giverUI.getUsername();
+        String giver = giverUI.username();
 
         if (recs.isEmpty()) {
             sendMessageQueue(e, String.format("Couldn't get %s any recommendation from %s", receiver, giver));
@@ -120,7 +120,7 @@ public class RecommendationCommand extends ConcurrentCommand<RecommendationsPara
                 EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e);
 
                 embedBuilder.setTitle(String.format("%s recommendations for %s", giver, receiver))
-                        .setThumbnail(giverUI.getUrlImage())
+                        .setThumbnail(giverUI.urlImage())
                         .setDescription(s);
                 e.sendMessage(embedBuilder.build()).queue();
             }

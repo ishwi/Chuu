@@ -76,8 +76,8 @@ public class StreakCommand extends ConcurrentCommand<ChuuDataParams> {
 
 
         DiscordUserDisplay userInformation = CommandUtil.getUserInfoConsideringGuildOrNot(e, discordID);
-        String userName = userInformation.getUsername();
-        String userUrl = userInformation.getUrlImage();
+        String userName = userInformation.username();
+        String userUrl = userInformation.urlImage();
         StreakEntity combo = lastFM.getCombo(user);
 
         ScrobbledArtist sA = new ArtistValidator(db, lastFM, e).validate(combo.getCurrentArtist(), false);

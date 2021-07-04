@@ -116,8 +116,8 @@ public class RYMChartCommand extends ChartableCommand<ChartSizeParameters> {
         } else {
             long discordId = params.getUser().getDiscordId();
             DiscordUserDisplay userInfoConsideringGuildOrNot = CommandUtil.getUserInfoConsideringGuildOrNot(params.getE(), discordId);
-            title = userInfoConsideringGuildOrNot.getUsername();
-            url = userInfoConsideringGuildOrNot.getUrlImage();
+            title = userInfoConsideringGuildOrNot.username();
+            url = userInfoConsideringGuildOrNot.urlImage();
         }
         String tile = "Top rated albums in " + title;
         return embedBuilder.setAuthor(tile, PrivacyUtils.getLastFmUser(params.getUser().getName()), url)
