@@ -65,17 +65,17 @@ dependencies {
     implementation 'com.sedmelluq:lavaplayer-ext-youtube-rotator:0.2.3'
     implementation 'com.sedmelluq:jda-nas:1.1.0'
 
-    implementation 'com.github.ben-manes.caffeine:caffeine:3.0.2'
+    implementation 'com.github.ben-manes.caffeine:caffeine:3.0.3'
 
     implementation 'com.neovisionaries:nv-i18n:1.28'
     implementation 'com.github.ishwi:java-eval:8de726df14c18523912aa6ff21bfd1b0b7d54924'
     implementation group: 'com.google.guava', name: 'guava', version: '30.1.1-jre'
-    implementation("net.dv8tion:JDA:4.3.0_288")
+    implementation("net.dv8tion:JDA:4.3.0_294")
     implementation group: 'org.jsoup', name: 'jsoup', version: '1.13.1'
 
     implementation group: 'org.apache.commons', name: 'commons-collections4', version: '4.4'
     implementation group: 'org.json', name: 'json', version: '20210307'
-    implementation group: 'io.github.classgraph', name: 'classgraph', version: '4.8.108'
+    implementation group: 'io.github.classgraph', name: 'classgraph', version: '4.8.110'
     implementation group: 'com.twelvemonkeys.imageio', name: 'imageio-core', version: '3.7.0'
     implementation group: 'com.twelvemonkeys.imageio', name: 'imageio-jpeg', version: '3.7.0'
     implementation group: 'com.twelvemonkeys.imageio', name: 'imageio-webp', version: '3.7.0'

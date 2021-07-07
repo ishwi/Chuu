@@ -37,11 +37,11 @@ repositories {
 
 dependencies {
     testImplementation group: 'junit', name: 'junit', version: '4.13.2'
-    implementation group: 'org.postgresql', name: 'postgresql', version: '42.2.22'
+    implementation group: 'org.postgresql', name: 'postgresql', version: '42.2.23'
     implementation 'com.google.code.findbugs:jsr305:3.0.2'
     api group: 'org.apache.commons', name: 'commons-lang3', version: '3.12.0'
     api group: 'org.apache.commons', name: 'commons-text', version: '1.9'
-    api group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.12.3'
+    api group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.12.4'
     api 'org.jetbrains:annotations:21.0.1'
     api 'com.neovisionaries:nv-i18n:1.28'
     api 'org.beryx:awt-color-factory:1.0.2'

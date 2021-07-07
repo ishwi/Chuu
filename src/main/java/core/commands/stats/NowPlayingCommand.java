@@ -99,7 +99,7 @@ public class NowPlayingCommand extends NpCommand {
 
         List<String> footerMax = new ArrayList<>(footerSpaces.length);
         for (String x : outputList) {
-            if (counter.longValue() + x.length() < MessageEmbed.TEXT_MAX_LENGTH) {
+            if (counter.longValue() + x.length() < MessageEmbed.DESCRIPTION_MAX_LENGTH) {
                 counter.add(x.length());
                 footerMax.add(x);
             } else {

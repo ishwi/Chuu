@@ -137,12 +137,11 @@ public class BandRendered {
             g.drawImage(Scalr
                     .resize(artistImageFill, yBaseLine, Scalr.OP_ANTIALIAS), X_MARGIN + 40 + (400 - 380) / 2, 25, null);
         }
-        width = metrics.stringWidth(artist);
         yBaseLine += metrics.getAscent() + metrics.getDescent() + metrics.getLeading() + 20;
         StringFitter.FontMetadata fontMetadata = new StringFitterBuilder(g.getFont().getSize(), 380)
                 .setBaseFont(g.getFont())
                 .build().getFontMetadata(g, artist);
-        GraphicUtils.drawStringNicely(g, fontMetadata, X_MARGIN + 40 + (380 / 2) - width / 2, yBaseLine, canvas);
+        GraphicUtils.drawStringNicely(g, fontMetadata, (int) (X_MARGIN + 40 + (380 / 2) - fontMetadata.bounds().getWidth() / 2), yBaseLine, canvas);
 
 
         ReturnNowPlaying myRow = new ReturnNowPlaying(1, user, artist, plays);

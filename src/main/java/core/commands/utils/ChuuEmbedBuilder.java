@@ -36,7 +36,7 @@ public class ChuuEmbedBuilder extends EmbedBuilder {
     @NotNull
     @Override
     public MessageEmbed build() {
-        if (this.getDescriptionBuilder().length() > MessageEmbed.TEXT_MAX_LENGTH) {
+        if (this.getDescriptionBuilder().length() > MessageEmbed.DESCRIPTION_MAX_LENGTH) {
 
             this.setDescription(linkMatcher.matcher(this.getDescriptionBuilder().toString()).replaceAll("$1"));
         }
@@ -73,7 +73,7 @@ public class ChuuEmbedBuilder extends EmbedBuilder {
     @Nonnull
     public EmbedBuilder appendDescription(@Nonnull CharSequence description) {
         Checks.notNull(description, "description");
-        if (this.getDescriptionBuilder().length() + description.length() > MessageEmbed.TEXT_MAX_LENGTH) {
+        if (this.getDescriptionBuilder().length() + description.length() > MessageEmbed.DESCRIPTION_MAX_LENGTH) {
             return super.appendDescription(linkMatcher.matcher(description.toString()).replaceAll("$1"));
         }
         return super.appendDescription(description);
