@@ -5,6 +5,7 @@ import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
+import core.commands.utils.ListSender;
 import core.exceptions.LastFmException;
 import core.parsers.NumberParser;
 import core.parsers.OnlyUsernameParser;
@@ -12,8 +13,10 @@ import core.parsers.Parser;
 import core.parsers.params.ChuuDataParams;
 import core.parsers.params.NumberParameters;
 import dao.ServiceView;
+import dao.entities.DiscordUserDisplay;
 import dao.entities.LastFMData;
 import dao.entities.NowPlayingArtist;
+import dao.entities.Rank;
 import net.dv8tion.jda.api.EmbedBuilder;
 
 import javax.validation.constraints.NotNull;
@@ -21,6 +24,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static core.parsers.ExtraParser.LIMIT_ERROR;
 
@@ -38,11 +42,11 @@ public class RecentListCommand extends ConcurrentCommand<NumberParameters<ChuuDa
     @Override
     public Parser<NumberParameters<ChuuDataParams>> initParser() {
         Map<Integer, String> map = new HashMap<>(1);
-        map.put(LIMIT_ERROR, "The number introduced must be lower than 15");
-        String s = "You can also introduce a number to vary the number of songs shown, defaults to " + 5 + ", max " + 15;
+        map.put(LIMIT_ERROR, "The number introduced must be lower than 1000");
+        String s = "You can also introduce a number to vary the number of songs shown, defaults to " + 5 + ", max " + 1000;
         return new NumberParser<>(new OnlyUsernameParser(db),
                 5L,
-                15L,
+                1000L,
                 map, s, false, true);
     }
 
@@ -65,23 +69,25 @@ public class RecentListCommand extends ConcurrentCommand<NumberParameters<ChuuDa
         LastFMData user = innerParams.getLastFMData();
         String lastFmName = user.getName();
         long discordID = user.getDiscordId();
-        String usable = getUserString(e, discordID, lastFmName);
+        DiscordUserDisplay uInfo = CommandUtil.getUserInfoUnescaped(e, discordID);
 
         List<NowPlayingArtist> list = lastFM.getRecent(user, (int) limit);
         //Can't be empty because NoPLaysException
         NowPlayingArtist header = list.get(0);
 
         EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e).setThumbnail(CommandUtil.noImageUrl(header.url()))
-                .setTitle(String.format("%s's last %d tracks", usable, limit),
-                        CommandUtil.getLastFmUser(lastFmName));
+                .setAuthor(String.format("%s's last %d tracks", uInfo.username(), limit),
+                        CommandUtil.getLastFmUser(lastFmName), uInfo.urlImage());
 
-        int counter = 1;
-        for (NowPlayingArtist nowPlayingArtist : list) {
-            embedBuilder.addField("Track #" + counter++ + ":", String.format("**%s** - %s | %s%n", CommandUtil.escapeMarkdown(nowPlayingArtist.songName()), CommandUtil.escapeMarkdown(nowPlayingArtist.artistName()), CommandUtil.escapeMarkdown(nowPlayingArtist
-                    .albumName())), false);
-        }
-
-        e.sendMessage(embedBuilder.build()).queue();
+        AtomicInteger ranker = new AtomicInteger(0);
+        List<Rank<NowPlayingArtist>> elements = list.stream().map(w -> new Rank<>(w, ranker.incrementAndGet())).toList();
+        new ListSender<>(e, elements, rank -> {
+            NowPlayingArtist np = rank.entity();
+            return "**Track #%d:**%n%s%n".formatted(rank.rank(),
+                    String.format("**%s** - %s | %s%n", CommandUtil.escapeMarkdown(np.songName()), CommandUtil.escapeMarkdown(np.artistName()), CommandUtil.escapeMarkdown(np
+                            .albumName())));
+        }, embedBuilder)
+                .doSend(false);
 
 
     }

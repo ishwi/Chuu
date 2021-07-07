@@ -53,8 +53,10 @@ public sealed interface Context permits ContextMessageReceived, ContextSlashRece
     @CheckReturnValue
     RestAction<Message> sendMessage(MessageEmbed embed);
 
+    @CheckReturnValue
     RestAction<Message> sendMessage(MessageEmbed embed, List<ActionRow> rows);
 
+    @CheckReturnValue
     default RestAction<Message> sendMessage(MessageEmbed embed, ActionRow row) {
         return sendMessage(embed, List.of(row));
     }
@@ -73,8 +75,10 @@ public sealed interface Context permits ContextMessageReceived, ContextSlashRece
     }
 
 
+    @CheckReturnValue
     RestAction<Message> editMessage(@Nullable Message message, @Nullable MessageEmbed embed, @Nullable List<ActionRow> rows);
 
+    @CheckReturnValue
     RestAction<Message> sendMessage(Message message, User toMention);
 
     void doSendImage(byte[] img, String format, @Nullable EmbedBuilder embedBuilder);
@@ -110,6 +114,7 @@ public sealed interface Context permits ContextMessageReceived, ContextSlashRece
         }
     }
 
+    @CheckReturnValue
     RestAction<Message> sendFile(InputStream inputStream, String s, String title);
 
     default long getMaxFileSize() {

@@ -55,23 +55,27 @@ public class RecentChartCommand extends ChartableCommand<ChartSizeParameters> {
     public CountWrapper<BlockingQueue<UrlCapsule>> processQueue(ChartSizeParameters param) throws LastFmException {
         AtomicInteger ranker = new AtomicInteger();
         BlockingQueue<UrlCapsule> queue = lastFM.getRecent(param.getUser(), param.getX() * param.getY()).stream()
-                .map(w -> new TrackChart(w.url(), ranker.getAndIncrement(), w.songName(), w.albumName(), null, param.isWriteTitles(), param.isWritePlays(), param.isAside()))
+                .map(w -> {
+                    TrackChart tc = new TrackChart(w.url(), ranker.getAndIncrement(), w.songName(), w.albumName(), null, param.isWriteTitles(), param.isWritePlays(), param.isAside());
+                    tc.setPlays(1);
+                    return tc;
+                })
                 .collect(Collectors.toCollection(() -> new ArrayBlockingQueue<>(param.getX() * param.getY())));
         return new CountWrapper<>(ranker.get(), queue);
     }
 
     @Override
     public EmbedBuilder configEmbed(EmbedBuilder embedBuilder, ChartSizeParameters params, int count) {
-        String handleCount;
-        handleCount = "'s " + count + " recent tracks";
+        String handleCount = "'s " + count + " recent tracks";
 
-        return params.initEmbed("'s recent tracks", embedBuilder, handleCount, params.getUser().getName());
+        return params.initEmbed("'s recent tracks", embedBuilder, handleCount, params.getUser().getName())
+                .setFooter("Showing last " + count + CommandUtil.singlePlural(count, "song", "songs"));
     }
 
     @Override
     public String configPieChart(PieChart pieChart, ChartSizeParameters params, int count, String initTitle) {
         pieChart.setTitle(initTitle + "'s recent songs");
-        return String.format("%s %d recent songs", initTitle, count);
+        return String.format("Last %d %s", count, CommandUtil.singlePlural(count, "song", "songs"));
     }
 
 
