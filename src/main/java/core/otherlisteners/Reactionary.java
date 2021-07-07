@@ -64,6 +64,19 @@ public class Reactionary<T> extends ReactionListener {
     }
 
     @Override
+    public boolean isValid(MessageReactionAddEvent event) {
+        if (message == null) {
+            return false;
+        }
+        return event.getMessageIdLong() == message.getIdLong() && ((event.getUser() == null || !event.getUser().isBot()) && event.getReaction().getReactionEmote().isEmoji());
+    }
+
+    @Override
+    public boolean isValid(ButtonClickEvent event) {
+        return false;
+    }
+
+    @Override
     public void dispose() {
         clearReacts();
         StringBuilder a = new StringBuilder();

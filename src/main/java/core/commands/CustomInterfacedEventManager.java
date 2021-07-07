@@ -28,14 +28,13 @@ import net.dv8tion.jda.internal.JDAImpl;
 
 import javax.annotation.Nonnull;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.stream.Stream;
 
 @SuppressWarnings("UnstableApiUsage")
 public class CustomInterfacedEventManager implements IEventManager {
 
+    private static final ExecutorService reactionExecutor = Executors.newSingleThreadExecutor();
     private final Set<EventListener> otherListeners = ConcurrentHashMap.newKeySet();
     private final Map<String, MyCommand<? extends CommandParameters>> commandListeners = new HashMap<>();
     private final Map<Long, ConstantListener> constantListeners = new HashMap<>();
@@ -48,6 +47,28 @@ public class CustomInterfacedEventManager implements IEventManager {
     public CustomInterfacedEventManager(int a) {
     }
 
+    private void handleReaction(@Nonnull GenericEvent event) {
+        long channelId;
+        if (event instanceof MessageReactionAddEvent e3) {
+            e3.getMessageId();
+            channelId = e3.getChannel().getIdLong();
+        } else {
+            ButtonClickEvent e4 = (ButtonClickEvent) event;
+            e4.getMessageIdLong();
+            channelId = e4.getChannel().getIdLong();
+        }
+        ConstantListener c = constantListeners.get(channelId);
+        if (c != null) {
+            c.onEvent(event);
+            return;
+        }
+
+        for (ReactionListener listener : reactionaries.keySet()) {
+            listener.onEvent(event);
+        }
+
+
+    }
 
     public void setVoiceListener(VoiceListener voiceListener) {
         this.voiceListener = voiceListener;
@@ -186,34 +207,27 @@ public class CustomInterfacedEventManager implements IEventManager {
         } else
             try {
                 if (!isReady) {
+
                     if (event instanceof ReadyEvent) {
                         for (EventListener listener : otherListeners) {
                             listener.onEvent(event);
                         }
                     }
+
                 } else if (event instanceof GuildMemberRemoveEvent || event instanceof GuildMemberJoinEvent || event instanceof GuildJoinEvent) {
+
                     administrativeCommand.onEvent(event);
+
                 } else if ((event instanceof MessageReactionAddEvent e3) || (event instanceof ButtonClickEvent e4)) {
-                    long channelId;
-                    if (event instanceof MessageReactionAddEvent e3) {
-                        channelId = e3.getChannel().getIdLong();
-                    } else {
-                        ButtonClickEvent e4 = (ButtonClickEvent) event;
-                        channelId = e4.getChannel().getIdLong();
-                    }
-                    ConstantListener c = constantListeners.get(channelId);
-                    if (c != null) {
-                        c.onEvent(event);
-                        return;
-                    }
-                    for (ReactionListener listener : reactionaries.keySet()) {
-                        listener.onEvent(event);
-                    }
+
+                    reactionExecutor.submit(() -> this.handleReaction(event));
+
                 } else if (event instanceof GuildVoiceJoinEvent || event instanceof GuildVoiceLeaveEvent || event instanceof GuildVoiceMoveEvent) {
 
                     this.voiceListener.onEvent(event);
 
                 }
+
             } catch (Throwable throwable) {
                 JDAImpl.LOG.error("One of the EventListeners had an uncaught exception", throwable);
             }
@@ -244,4 +258,7 @@ public class CustomInterfacedEventManager implements IEventManager {
     public void setSlashVariants(Map<String, MyCommand<?>> slashVariants) {
         this.slashVariants = slashVariants;
     }
+
 }
+
+

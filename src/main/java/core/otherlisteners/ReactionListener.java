@@ -1,6 +1,7 @@
 package core.otherlisteners;
 
 import core.Chuu;
+import core.apis.ExecutorsSingleton;
 import core.commands.CustomInterfacedEventManager;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
@@ -14,9 +15,11 @@ import net.dv8tion.jda.api.hooks.EventListener;
 import net.dv8tion.jda.api.hooks.IEventManager;
 
 import javax.annotation.Nonnull;
+import java.util.concurrent.ExecutorService;
 import java.util.function.Consumer;
 
 public abstract class ReactionListener implements EventListener {
+    static final ExecutorService executor = ExecutorsSingleton.getInstance();
 
     private static final String PERMS_MES = "Don't have permissions to clear reactions :(\nYou can still manually remove the reaction\n";
     private static final String DMS_MES = "Can't clear reactions on dm's, please manually remove the reaction\n";
@@ -46,9 +49,13 @@ public abstract class ReactionListener implements EventListener {
     @Override
     public void onEvent(@Nonnull GenericEvent event) {
         if (event instanceof MessageReactionAddEvent e) {
-            onMessageReactionAdd(e);
+            if (isValid(e)) {
+                executor.execute(() -> onMessageReactionAdd(e));
+            }
         } else if (event instanceof ButtonClickEvent e) {
-            onButtonClickedEvent(e);
+            if (isValid(e)) {
+                executor.execute(() -> onButtonClickedEvent(e));
+            }
         }
     }
 
@@ -70,6 +77,10 @@ public abstract class ReactionListener implements EventListener {
     }
 
     public abstract void init();
+
+    public abstract boolean isValid(MessageReactionAddEvent event);
+
+    public abstract boolean isValid(ButtonClickEvent event);
 
     public abstract void dispose();
 

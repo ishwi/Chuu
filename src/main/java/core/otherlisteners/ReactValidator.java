@@ -7,6 +7,7 @@ import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.requests.RestAction;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import java.util.List;
@@ -152,18 +153,14 @@ public class ReactValidator<T> extends ReactionListener {
     @Override
     public void onEvent(@Nonnull GenericEvent event) {
         if (event instanceof MessageReactionAddEvent e) {
-            onMessageReactionAdd(e);
+            if (isValid(e)) {
+                executor.execute(() -> onMessageReactionAdd(e));
+            }
         }
     }
 
     @Override
     public void onMessageReactionAdd(@Nonnull MessageReactionAddEvent event) {
-        if (this.message == null) {
-            return;
-        }
-        if (event.getMessageIdLong() != message.getIdLong() || (!this.allowOtherUsers && event.getUserIdLong() != whom) ||
-            event.getUserIdLong() == event.getJDA().getSelfUser().getIdLong() || !event.getReaction().getReactionEmote().isEmoji())
-            return;
         Reaction<T, MessageReactionAddEvent, ReactionResult> action = this.actionMap.get(event.getReaction().getReactionEmote().getEmoji());
         if (action == null)
             return;
@@ -182,6 +179,19 @@ public class ReactValidator<T> extends ReactionListener {
             }
         }
         refresh(event.getJDA());
+    }
+
+    public boolean isValid(@NotNull MessageReactionAddEvent event) {
+        if (this.message == null) {
+            return false;
+        }
+        return !(event.getMessageIdLong() != message.getIdLong() || (!this.allowOtherUsers && event.getUserIdLong() != whom) ||
+                 event.getUserIdLong() == event.getJDA().getSelfUser().getIdLong() || !event.getReaction().getReactionEmote().isEmoji());
+    }
+
+    @Override
+    public boolean isValid(ButtonClickEvent event) {
+        return false;
     }
 
     @Override

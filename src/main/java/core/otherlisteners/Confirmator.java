@@ -24,7 +24,6 @@ import java.util.stream.Collectors;
  */
 public class Confirmator extends ReactionListener {
     private final long author;
-    private final List<ConfirmatorItem> items;
     private final core.commands.Context context;
     private final UnaryOperator<EmbedBuilder> timeoutCallback;
     private final Map<String, ConfirmatorItem> idMap;
@@ -40,7 +39,6 @@ public class Confirmator extends ReactionListener {
         super(who, message, seconds);
         this.context = context;
         this.author = author;
-        this.items = items;
         this.timeoutCallback = timeoutCallback;
         this.idMap = items.stream().collect(Collectors.toMap(ConfirmatorItem::reaction, z -> z, (a, b) -> a, LinkedHashMap::new));
         this.runLastEmbed = runLastEmbed;
@@ -49,6 +47,25 @@ public class Confirmator extends ReactionListener {
 
     @Override
     public void init() {
+    }
+
+    @Override
+    public boolean isValid(MessageReactionAddEvent event) {
+        return false;
+    }
+
+    @Override
+    public boolean isValid(ButtonClickEvent event) {
+        if (event.getUser() == null) {
+            return false;
+        }
+        if (event.getMessageIdLong() != message.getIdLong()) {
+            return false;
+        }
+        if (event.getUser().isBot()) {
+            return false;
+        }
+        return event.getUser().getIdLong() == author;
     }
 
     @Override
@@ -72,18 +89,6 @@ public class Confirmator extends ReactionListener {
 
     @Override
     public void onButtonClickedEvent(@Nonnull ButtonClickEvent event) {
-        if (event.getUser() == null) {
-            return;
-        }
-        if (event.getMessageIdLong() != message.getIdLong()) {
-            return;
-        }
-        if (event.getUser().isBot()) {
-            return;
-        }
-        if (event.getUser().getIdLong() != author) {
-            return;
-        }
         event.deferEdit().queue();
         ConfirmatorItem item = this.idMap.get(event.getComponentId());
         if (item != null) {

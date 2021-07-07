@@ -160,7 +160,9 @@ public class ButtonValidator<T> extends ReactionListener {
     @Override
     public void onEvent(@Nonnull GenericEvent event) {
         if (event instanceof ButtonClickEvent e) {
-            onButtonClickedEvent(e);
+            if (isValid(e)) {
+                executor.execute(() -> onButtonClickedEvent(e));
+            }
         }
     }
 
@@ -181,6 +183,26 @@ public class ButtonValidator<T> extends ReactionListener {
     }
 
     @Override
+    public boolean isValid(MessageReactionAddEvent event) {
+        return false;
+    }
+
+    @Override
+    public boolean isValid(ButtonClickEvent event) {
+        if (this.message == null) {
+            return false;
+        }
+        if (event.getMessageIdLong() != message.getIdLong()) {
+            return false;
+        }
+        if (event.getUser() == null) {
+            return false;
+        }
+        return event.getMessageIdLong() == message.getIdLong() && (this.allowOtherUsers || event.getUser().getIdLong() == whom) &&
+               event.getUser().getIdLong() != event.getJDA().getSelfUser().getIdLong();
+    }
+
+    @Override
     public void dispose() {
         noMoreElements();
     }
@@ -192,22 +214,10 @@ public class ButtonValidator<T> extends ReactionListener {
 
     @Override
     public void onButtonClickedEvent(@Nonnull ButtonClickEvent event) {
-        if (this.message == null) {
-            return;
-        }
-        if (event.getMessageIdLong() != message.getIdLong()) {
-            return;
-        }
-        if (event.getUser() == null) {
-            return;
-        }
-        if (event.getMessageIdLong() != message.getIdLong() || (!this.allowOtherUsers && event.getUser().getIdLong() != whom) ||
-            event.getUser().getIdLong() == event.getJDA().getSelfUser().getIdLong())
-            return;
+        event.deferEdit().queue();
         Reaction<T, ButtonClickEvent, ButtonResult> action = this.actionMap.get(event.getComponentId());
         if (action == null)
             return;
-        event.deferEdit().queue();
         ButtonResult apply = action.release(currentElement, event);
         RestAction<Message> messageAction = this.doTheThing(apply);
         if (messageAction != null) {
