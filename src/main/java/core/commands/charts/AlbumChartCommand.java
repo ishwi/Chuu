@@ -16,8 +16,8 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import org.knowm.xchart.PieChart;
 
 import java.util.List;
+import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
 
 public class AlbumChartCommand extends ChartableCommand<ChartParameters> {
 
@@ -52,7 +52,7 @@ public class AlbumChartCommand extends ChartableCommand<ChartParameters> {
 
     @Override
     public CountWrapper<BlockingQueue<UrlCapsule>> processQueue(ChartParameters param) throws LastFmException {
-        BlockingQueue<UrlCapsule> queue = new LinkedBlockingQueue<>();
+        BlockingQueue<UrlCapsule> queue = new ArrayBlockingQueue<>(param.getX() * param.getY());
         int i = param.makeCommand(lastFM, queue, TopEntity.ALBUM, ChartUtil.getParser(param.getTimeFrameEnum(), TopEntity.ALBUM, param, lastFM, param.getUser()));
         return new CountWrapper<>(i, queue);
     }

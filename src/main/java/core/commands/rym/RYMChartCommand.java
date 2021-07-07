@@ -14,7 +14,6 @@ import dao.ServiceView;
 import dao.entities.CountWrapper;
 import dao.entities.DiscordUserDisplay;
 import dao.entities.ScoredAlbumRatings;
-import dao.entities.TimeFrameEnum;
 import net.dv8tion.jda.api.EmbedBuilder;
 import org.knowm.xchart.PieChart;
 import org.knowm.xchart.style.PieStyler;
@@ -37,7 +36,7 @@ public class RYMChartCommand extends ChartableCommand<ChartSizeParameters> {
 
     @Override
     public ChartableParser<ChartSizeParameters> initParser() {
-        OnlyChartSizeParser p = new OnlyChartSizeParser(db, TimeFrameEnum.ALL);
+        OnlyChartSizeParser p = new OnlyChartSizeParser(db);
         p.addOptional(new OptionalEntity("global", " show ratings from all bot users instead of only from this server"))
                 .addOptional(new OptionalEntity("server", " show ratings from users only in this server"))
                 .addOptional(new OptionalEntity("usestars", "show stars instead of numbers on global and server chart"))

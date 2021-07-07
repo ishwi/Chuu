@@ -9,7 +9,10 @@ import core.parsers.OnlyChartSizeParser;
 import core.parsers.params.ChartSizeParameters;
 import core.parsers.utils.Optionals;
 import dao.ServiceView;
-import dao.entities.*;
+import dao.entities.ChartMode;
+import dao.entities.CountWrapper;
+import dao.entities.ResultWrapper;
+import dao.entities.ScrobbledTrack;
 import net.dv8tion.jda.api.EmbedBuilder;
 import org.knowm.xchart.PieChart;
 
@@ -29,7 +32,7 @@ public class GuildTopTracksCommand extends GuildTopCommand {
 
     @Override
     public ChartableParser<ChartSizeParameters> initParser() {
-        OnlyChartSizeParser onlyChartSizeParser = new OnlyChartSizeParser(db, TimeFrameEnum.ALL,
+        OnlyChartSizeParser onlyChartSizeParser = new OnlyChartSizeParser(db,
                 Optionals.GLOBAL.opt);
         onlyChartSizeParser.replaceOptional("plays", Optionals.NOPLAYS.opt);
         onlyChartSizeParser.addOptional(Optionals.PLAYS.opt.withBlockedBy("noplays"));

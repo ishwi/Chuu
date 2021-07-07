@@ -21,8 +21,8 @@ import java.awt.*;
 import java.util.List;
 
 public class OnlyChartSizeParser extends ChartableParser<ChartSizeParameters> {
-    public OnlyChartSizeParser(ChuuService dao, TimeFrameEnum defaultT, OptionalEntity... optionalEntity) {
-        super(dao, defaultT, optionalEntity);
+    public OnlyChartSizeParser(ChuuService dao, OptionalEntity... optionalEntity) {
+        super(dao, TimeFrameEnum.ALL, optionalEntity);
     }
 
 

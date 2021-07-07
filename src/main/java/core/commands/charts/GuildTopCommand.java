@@ -13,7 +13,10 @@ import core.parsers.OnlyChartSizeParser;
 import core.parsers.params.ChartSizeParameters;
 import core.parsers.utils.Optionals;
 import dao.ServiceView;
-import dao.entities.*;
+import dao.entities.ChartMode;
+import dao.entities.CountWrapper;
+import dao.entities.ResultWrapper;
+import dao.entities.ScrobbledArtist;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import org.knowm.xchart.PieChart;
@@ -36,7 +39,7 @@ public class GuildTopCommand extends ChartableCommand<ChartSizeParameters> {
 
     @Override
     public ChartableParser<ChartSizeParameters> initParser() {
-        OnlyChartSizeParser onlyChartSizeParser = new OnlyChartSizeParser(db, TimeFrameEnum.ALL,
+        OnlyChartSizeParser onlyChartSizeParser = new OnlyChartSizeParser(db,
                 Optionals.GLOBAL.opt.withDescription(" shows artist from all bot users instead of only from this server"));
         onlyChartSizeParser.replaceOptional("plays", Optionals.NOPLAYS.opt);
         onlyChartSizeParser.addOptional(Optionals.PLAYS.opt.withBlockedBy("noplays"));
