@@ -73,10 +73,15 @@ public class ParserAux {
                     }
                 } else if (e.isFromGuild() && lfmM.matches()) {
                     String userName = lfmM.group(1);
-                    long discordIdFromLastfm = dao.getDiscordIdFromLastfm(userName, e.getGuild().getIdLong());
+                    long discordIdFromLastfm = dao.getDiscordIdFromLastfm(userName);
                     Member memberById = e.getGuild().getMemberById(discordIdFromLastfm);
                     if (memberById != null) {
                         return memberById.getUser();
+                    } else {
+                        User complete = Chuu.getShardManager().retrieveUserById(discordIdFromLastfm).complete();
+                        if (complete != null) {
+                            return complete;
+                        }
                     }
                 }
                 Member memberByTag = null;
@@ -131,11 +136,17 @@ public class ParserAux {
                     }
                 } else if (e.isFromGuild() && lfmM.matches()) {
                     String userName = lfmM.group(1);
-                    long discordIdFromLastfm = dao.getDiscordIdFromLastfm(userName, e.getGuild().getIdLong());
+                    long discordIdFromLastfm = dao.getDiscordIdFromLastfm(userName);
                     Member memberById = e.getGuild().getMemberById(discordIdFromLastfm);
                     if (memberById != null) {
                         hasMatched = true;
                         sample = memberById.getUser();
+                    } else {
+                        User complete = Chuu.getShardManager().retrieveUserById(discordIdFromLastfm).complete();
+                        if (complete != null) {
+                            hasMatched = true;
+                            sample = complete;
+                        }
                     }
                 } else if (user.matcher(s).matches()) {
                     User userByTag = e.getJDA().getUserByTag(s);

@@ -149,6 +149,8 @@ CREATE TABLE IF NOT EXISTS `randomlinks`
   COLLATE = utf8mb4_unicode_ci
   ROW_FORMAT = DYNAMIC;
 
+
+
 /*!40101 SET @saved_cs_client = @@character_set_client */;
 /*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `week`
@@ -158,6 +160,25 @@ CREATE TABLE `week`
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
+
+
+DELIMITER $$
+
+CREATE PROCEDURE insert_weeks()
+BEGIN
+    SET @t_current = date(curdate() - INTERVAL weekday(curdate()) DAY);
+    SET @t_end = DATE_ADD(date(curdate() - INTERVAL weekday(curdate()) DAY), INTERVAL 5 YEAR);
+    WHILE(@t_current < @t_end)
+        DO
+            INSERT INTO week(week_start) VALUES (@t_current);
+            SET @t_current = DATE_ADD(@t_current, INTERVAL 7 DAY);
+        END WHILE;
+END;
+$$
+DELIMITER ;
+
+
+CALL insert_weeks();
 
 /* break*/
 

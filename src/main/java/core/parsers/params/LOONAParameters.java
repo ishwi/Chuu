@@ -56,7 +56,7 @@ public class LOONAParameters extends ChuuDataParams {
     }
 
     public enum Mode {
-        GROUPED, UNGROUPED
+        GROUPED, ALL, UNGROUPED
     }
 
     public enum Display {

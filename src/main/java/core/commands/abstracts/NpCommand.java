@@ -7,12 +7,11 @@ import core.exceptions.LastFmException;
 import core.parsers.NpParser;
 import core.parsers.Parser;
 import core.parsers.params.NowPlayingParameters;
-import core.services.validators.ArtistValidator;
 import core.services.validators.TrackValidator;
 import dao.ServiceView;
 import dao.entities.LastFMData;
 import dao.entities.NowPlayingArtist;
-import dao.entities.ScrobbledArtist;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.validation.constraints.NotNull;
 import java.util.concurrent.CompletableFuture;
@@ -39,15 +38,14 @@ public abstract class NpCommand extends ConcurrentCommand<NowPlayingParameters> 
         NowPlayingArtist np = params.getNowPlayingArtist();
         doSomethingWithArtist(np, e, params.getLastFMData().getDiscordId(), params.getLastFMData(), params);
         CompletableFuture.runAsync(() -> {
-                    if (np.url() != null && !np.url().isBlank()) {
-                        try {
-                            ScrobbledArtist scrobbledArtist = new ArtistValidator(db, lastFM, e).validate(np.artistName(), false, true);
-                            long trackId = new TrackValidator(db, lastFM).validate(np.artistName(), np.songName()).getTrackId();
-                            db.updateTrackImage(trackId, np.url());
-                        } catch (LastFmException instanceNotFoundException) {
-                            Chuu.getLogger().warn(instanceNotFoundException.getMessage(), instanceNotFoundException);
-                        }
-                    }
+            if (!StringUtils.isBlank(np.url())) {
+                try {
+                    long trackId = new TrackValidator(db, lastFM).validate(np.artistName(), np.songName()).getTrackId();
+                    db.updateTrackImage(trackId, np.url());
+                } catch (LastFmException instanceNotFoundException) {
+                    Chuu.getLogger().warn(instanceNotFoundException.getMessage(), instanceNotFoundException);
+                }
+            }
                 }
         );
 

@@ -16,6 +16,7 @@ import dao.exceptions.InstanceNotFoundException;
 import javacutils.Pair;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import org.apache.commons.lang3.StringUtils;
@@ -47,14 +48,40 @@ public class LOOONAParser extends DaoParser<LOONAParameters> {
         SlashCommandEvent e = ctx.e();
         User user = InteractionAux.parseUser(e);
         LastFMData data = findLastfmFromID(user, ctx);
+        LOONAParameters.Display display = LOONAParameters.Display.COLLAGE;
+        LOONAParameters.SubCommand subCommand = LOONAParameters.SubCommand.GENERAL;
+        LOONAParameters.Subject subject = LOONAParameters.Subject.SERVER;
+        LOONA targetedLOONA = null;
+        LOONA.Type targetedType = null;
+        LOONAParameters.Mode mode = LOONAParameters.Mode.GROUPED;
 
 
-        LOONA.Type type = LOONA.Type.valueOf(e.getOption("group-selector").getAsString());
-        LOONAParameters.Display display = LOONAParameters.Display.valueOf(e.getOption("operations").getAsString());
-
-        LOONAParameters.Mode modes = LOONAParameters.Mode.valueOf(e.getOption("modes").getAsString());
-        LOONAParameters.Subject target = LOONAParameters.Subject.valueOf(e.getOption("target").getAsString());
-        return new LOONAParameters(ctx, data, LOONAParameters.SubCommand.GENERAL, display, null, type, target, modes);
+        OptionMapping selector = e.getOption("selector");
+        if (selector != null) {
+            subCommand = LOONAParameters.SubCommand.SPECIFIC;
+            targetedLOONA = LOONA.valueOf(selector.getAsString());
+        }
+        OptionMapping option = e.getOption("group-selector");
+        if (option != null) {
+            subCommand = LOONAParameters.SubCommand.GROUPED;
+            targetedType = LOONA.Type.valueOf(option.getAsString());
+        }
+        OptionMapping operations = e.getOption("operations");
+        if (operations != null) {
+            display = LOONAParameters.Display.valueOf(operations.getAsString());
+        }
+        OptionMapping optModes = e.getOption("modes");
+        if (optModes != null) {
+            mode = LOONAParameters.Mode.valueOf(optModes.getAsString());
+        }
+        if (optModes != null) {
+            mode = LOONAParameters.Mode.valueOf(optModes.getAsString());
+        }
+        OptionMapping optTarget = e.getOption("target");
+        if (optTarget != null) {
+            subject = LOONAParameters.Subject.valueOf(optTarget.getAsString());
+        }
+        return new LOONAParameters(ctx, data, subCommand, display, targetedLOONA, targetedType, subject, mode);
     }
 
     @Override
@@ -66,7 +93,7 @@ public class LOOONAParser extends DaoParser<LOONAParameters> {
         LOONAParameters.Subject subject = LOONAParameters.Subject.SERVER;
         LOONA targetedLOONA = null;
         LOONA.Type targetedType = null;
-        LOONAParameters.Mode mode = LOONAParameters.Mode.UNGROUPED;
+        LOONAParameters.Mode mode = LOONAParameters.Mode.GROUPED;
 
 
         for (Predicate<String> stringPredicate : predicateToLOONA.keySet()) {
@@ -85,6 +112,7 @@ public class LOOONAParser extends DaoParser<LOONAParameters> {
                 Pair<String[], LOONA.Type> stringPair = filterMessage(words, stringPredicate, x -> typeMap.get(stringPredicate), null);
                 if (stringPair.second != null) {
                     subCommand = LOONAParameters.SubCommand.GROUPED;
+                    mode = LOONAParameters.Mode.ALL;
                     targetedType = stringPair.second;
                     words = stringPair.first;
                     break;
@@ -110,6 +138,7 @@ public class LOOONAParser extends DaoParser<LOONAParameters> {
             Pair<String[], LOONAParameters.Subject> stringPair = filterMessage(words, stringPredicate, x -> subJectMap.get(stringPredicate), null);
             if (stringPair.second != null) {
                 subject = stringPair.second;
+                mode = LOONAParameters.Mode.ALL;
                 words = stringPair.first;
                 break;
             }
@@ -147,23 +176,34 @@ public class LOOONAParser extends DaoParser<LOONAParameters> {
         String target = String.format(("[%s]"), subject);
 
 
-        OptionData selectorData = new OptionData(OptionType.STRING, "group-selector", StringUtils.abbreviate("You can either select all the members, a specific member,all subgroups, a specific subgroup,the main group or what is tagged as Misc.", 100), true);
-        for (LOONA.Type value : LOONA.Type.values()) {
+        OptionData selectorData = new OptionData(OptionType.STRING, "selector", StringUtils.abbreviate("You can either select all the members, a specific member,all subgroups, a specific subgroup,the main group or what is tagged as Misc.", 100), false);
+        for (LOONA value : LOONA.values()) {
             String s = value.toString().replaceAll("_", " ");
             selectorData.addChoice(s, s);
         }
-        OptionData opsData = new OptionData(OptionType.STRING, "operations", "The possible operations on the resulting image/embed", true);
+        OptionData groupSelector = new OptionData(OptionType.STRING, "group-selector", StringUtils.abbreviate("Instead of selecting a specific unit you can select a group", 100), false);
+        for (LOONA.Type value : LOONA.Type.values()) {
+            String s = value.toString().replaceAll("_", " ");
+            groupSelector.addChoice(s, s);
+        }
+        OptionData opsData = new OptionData(OptionType.STRING, "operations", "The possible operations on the resulting image/embed", false);
         Arrays.stream(LOONAParameters.Display.values()).map(Enum::toString).forEach(t -> opsData.addChoice(t, t));
-        OptionData modsDatga = new OptionData(OptionType.STRING, "modes", "Whether the results will be shown grouped within the selector or not", true);
+        OptionData modsDatga = new OptionData(OptionType.STRING, "modes", "Whether the results will be shown grouped within the selector or not", false);
         Arrays.stream(LOONAParameters.Mode.values()).map(Enum::toString).forEach(t -> modsDatga.addChoice(t, t));
-        OptionData targetData = new OptionData(OptionType.STRING, "target", "Whether the results contains info from all the server members or only the caller of the command.", true);
+        OptionData targetData = new OptionData(OptionType.STRING, "target", "Whether the results contains info from all the server members or only the caller of the command.", false);
         Arrays.stream(LOONAParameters.Subject.values()).map(Enum::toString).forEach(t -> targetData.addChoice(t, t));
         return List.of(
                 () ->
                         new ExplanationLine(
-                                "group-selector",
-                                "The first group means the selector you can use. You can either select all the members, a specific member,all subgroups, a specific subgroup,the main group or what is tagged as Misc.",
+                                "selector",
+                                "The first group means the selector you can use. You can either select all the members, a specific member, a specific subgroup,the main group or what is tagged as Misc.",
                                 selectorData
+                        ),
+                () ->
+                        new ExplanationLine(
+                                "group-selector",
+                                "Posible to select all members, all subunits or the whole group",
+                                groupSelector
                         ),
                 () -> new ExplanationLine(
                         "Operations",

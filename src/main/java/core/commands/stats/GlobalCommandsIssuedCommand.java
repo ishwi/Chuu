@@ -3,17 +3,12 @@ package core.commands.stats;
 import core.apis.ExecutorsSingleton;
 import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
-import core.commands.utils.ChuuEmbedBuilder;
-import core.commands.utils.CommandCategory;
-import core.commands.utils.CommandUtil;
-import core.commands.utils.PrivacyUtils;
+import core.commands.utils.*;
 import core.exceptions.LastFmException;
-import core.otherlisteners.Reactionary;
 import core.parsers.OnlyUsernameParser;
 import core.parsers.Parser;
 import core.parsers.params.ChuuDataParams;
 import dao.ServiceView;
-import dao.entities.Memoized;
 import dao.entities.PrivacyUserCount;
 import dao.entities.Rank;
 import dao.entities.UsersWrapper;
@@ -114,30 +109,26 @@ public class GlobalCommandsIssuedCommand extends ConcurrentCommand<ChuuDataParam
             set = Set.of(idLong);
         }
         AtomicInteger atomicInteger = new AtomicInteger(1);
-        Function<PrivacyUserCount, String> toMemoize = (userListened) -> {
-            PrivacyUtils.PrivateString pbStr = PrivacyUtils.getPublicString(userListened.privacyMode(), userListened.discordId(), userListened.lastfmId(), atomicInteger, e, set);
-            return ". [" + pbStr.discordName() + "]" +
-                   "(" + PrivacyUtils.getLastFmUser(pbStr.lastfmName()) + ")" +
-                   ": " + userListened.count() + " " + CommandUtil.singlePlural(userListened.count(), "command", "commands") + "\n";
-        };
-
-        List<Memoized<PrivacyUserCount, String>> strings = globalCommandLb.stream().map(t -> new Memoized<>(t, toMemoize)).toList();
-
-        StringBuilder a = new StringBuilder();
-        for (int i = 0; i < 10 && i < strings.size(); i++) {
-            a.append(i + 1).append(strings.get(i));
-        }
 
         EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e)
-                .setDescription(a)
                 .setAuthor(e.getJDA().getSelfUser().getName() + "'s spammers", null, e.getGuild().getIconUrl());
         if (rank.isPresent()) {
             Rank<PrivacyUserCount> me = rank.get();
             String userString = getUserString(e, me.entity().discordId());
             embedBuilder.setFooter("%s is ranked %d%s with %d commands".formatted(userString, me.rank(), CommandUtil.getRank(me.rank()), me.entity().count()));
         }
-        e.sendMessage(embedBuilder.build()).queue(message1 ->
-                new Reactionary<>(strings, message1, embedBuilder));
+
+        Function<PrivacyUserCount, String> mapper = (userListened) -> {
+            PrivacyUtils.PrivateString pbStr = PrivacyUtils.getPublicString(userListened.privacyMode(), userListened.discordId(), userListened.lastfmId(), atomicInteger, e, set);
+            return ". [" + pbStr.discordName() + "]" +
+                   "(" + PrivacyUtils.getLastFmUser(pbStr.lastfmName()) + ")" +
+                   ": " + userListened.count() + " " + CommandUtil.singlePlural(userListened.count(), "command", "commands") + "\n";
+        };
+
+        new ListSender<>(e, globalCommandLb, mapper, embedBuilder)
+                .withMemoize()
+                .doSend();
+
     }
 
 }
