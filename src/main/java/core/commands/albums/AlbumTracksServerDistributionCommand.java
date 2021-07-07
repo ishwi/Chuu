@@ -31,8 +31,10 @@ import org.knowm.xchart.PieChart;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class AlbumTracksServerDistributionCommand extends AlbumPlaysCommand {
     private final IPieableList<Track, ArtistAlbumParameters> pie;
@@ -60,7 +62,7 @@ public class AlbumTracksServerDistributionCommand extends AlbumPlaysCommand {
     @Override
     public Parser<ArtistAlbumParameters> initParser() {
         ArtistAlbumParser parser = new ArtistAlbumParser(db, lastFM);
-        parser.addOptional(Optionals.LIST.opt);
+        parser.addOptional(Optionals.LIST.opt, Optionals.PLAYS.opt);
         parser.setExpensiveSearch(true);
         return parser;
     }
@@ -95,7 +97,9 @@ public class AlbumTracksServerDistributionCommand extends AlbumPlaysCommand {
         } else {
 
             FullAlbumEntity fullAlbumEntity = trackList.get();
-
+            if (params.hasOptional("plays")) {
+                fullAlbumEntity.setTrackList(fullAlbumEntity.getTrackList().stream().sorted(Comparator.comparingInt(Track::getPlays)).collect(Collectors.toList()));
+            }
             switch (CommandUtil.getEffectiveMode(params.getLastFMData().getRemainingImagesMode(), params)) {
                 case IMAGE -> {
                     BufferedImage bufferedImage = TrackDistributor.drawImage(fullAlbumEntity);
