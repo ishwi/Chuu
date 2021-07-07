@@ -42,6 +42,10 @@ public class WhoKnowsMaker {
     }
 
     public static BufferedImage generateWhoKnows(WrapperReturnNowPlaying wrapperReturnNowPlaying, EnumSet<WKMode> modes, String discordName, BufferedImage logo, long author) {
+        return generateWhoKnows(wrapperReturnNowPlaying, modes, discordName, logo, author, GraphicUtils.getImage(wrapperReturnNowPlaying.getUrl()));
+    }
+
+    public static BufferedImage generateWhoKnows(WrapperReturnNowPlaying wrapperReturnNowPlaying, EnumSet<WKMode> modes, String discordName, BufferedImage logo, long author, BufferedImage leftSide) {
 
         BufferedImage canvas = new BufferedImage(X_MAX, Y_MAX, BufferedImage.TYPE_INT_RGB);
         String artist;
@@ -52,12 +56,11 @@ public class WhoKnowsMaker {
         int width;
         int yCounter = 0;
         yCounter += Y_MARGIN;
-        BufferedImage backgroundImage;
         BufferedImage lastFmLogo = null;
 
         Graphics2D g = canvas.createGraphics();
         GraphicUtils.setQuality(g);
-        backgroundImage = GraphicUtils.getImage(wrapperReturnNowPlaying.getUrl());
+        BufferedImage backgroundImage = leftSide;
         if (backgroundImage == null) {
             backgroundImage = GraphicUtils.noArtistImage;
         }

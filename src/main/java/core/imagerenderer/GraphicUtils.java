@@ -1,6 +1,7 @@
 package core.imagerenderer;
 
 import core.Chuu;
+import core.commands.Context;
 import core.imagerenderer.stealing.blur.GaussianFilter;
 import core.imagerenderer.util.CIELab;
 import core.imagerenderer.util.D;
@@ -8,6 +9,7 @@ import core.imagerenderer.util.fitter.StringFitter;
 import core.imagerenderer.util.fitter.StringFitterBuilder;
 import dao.entities.ReturnNowPlaying;
 import dao.entities.WrapperReturnNowPlaying;
+import net.dv8tion.jda.api.entities.Message;
 import org.imgscalr.Scalr;
 
 import javax.annotation.Nullable;
@@ -249,23 +251,6 @@ public class GraphicUtils {
         return g;
     }
 
-    public static void setQuality(Graphics2D g) {
-        g.setRenderingHint(
-                RenderingHints.KEY_TEXT_ANTIALIASING,
-                RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-        g.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
-                RenderingHints.VALUE_INTERPOLATION_BILINEAR);
-
-        g.setRenderingHint(RenderingHints.KEY_RENDERING,
-                RenderingHints.VALUE_RENDER_QUALITY);
-
-        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-                RenderingHints.VALUE_ANTIALIAS_ON);
-        g.setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY);
-        g.setRenderingHint(RenderingHints.KEY_COLOR_RENDERING, RenderingHints.VALUE_COLOR_RENDER_QUALITY);
-        g.setRenderingHint(RenderingHints.KEY_DITHERING, RenderingHints.VALUE_DITHER_ENABLE);
-    }
-
     static Color getFontColorBackground(BufferedImage canvas) {
         int a = canvas.getRGB(0, 0);
         return new Color(a);
@@ -388,7 +373,6 @@ public class GraphicUtils {
 
     }
 
-
     static void drawStringNicely(Graphics2D g, String string, int x, int y, BufferedImage bufferedImage) {
 
         Color temp = g.getColor();
@@ -446,7 +430,6 @@ public class GraphicUtils {
         g.drawString(string.atrribute().getIterator(), x + 1, y);
         g.setColor(temp);
     }
-
 
     public static void initRandomImageBlurredBackground(final Graphics2D g, final int SIZE_X, final int SIZE_Y) {
         BufferedImage bim;
@@ -536,6 +519,46 @@ public class GraphicUtils {
         } catch (IOException | ArrayIndexOutOfBoundsException ex) {
             return null;
         }
+    }
+
+    public static void setQuality(Graphics2D g) {
+        g.setRenderingHint(
+                RenderingHints.KEY_TEXT_ANTIALIASING,
+                RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+        g.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
+                RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+
+        g.setRenderingHint(RenderingHints.KEY_RENDERING,
+                RenderingHints.VALUE_RENDER_QUALITY);
+
+        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+                RenderingHints.VALUE_ANTIALIAS_ON);
+        g.setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY);
+        g.setRenderingHint(RenderingHints.KEY_COLOR_RENDERING, RenderingHints.VALUE_COLOR_RENDER_QUALITY);
+        g.setRenderingHint(RenderingHints.KEY_DITHERING, RenderingHints.VALUE_DITHER_ENABLE);
+    }
+
+    public static ChartQuality getQuality(int chartSize, Context e) {
+        ChartQuality chartQuality = ChartQuality.PNG_BIG;
+        if ((e.isFromGuild() && e.getGuild().getMaxFileSize() == Message.MAX_FILE_SIZE) || !e.isFromGuild()) {
+            if (chartSize > 45 && chartSize < 200)
+                chartQuality = ChartQuality.JPEG_BIG;
+            else if (chartSize >= 200)
+                chartQuality = ChartQuality.JPEG_SMALL;
+        } else if (e.getGuild().getMaxFileSize() == (50 << 20)) {
+            if (chartSize > (45 * (50 / 8.)) && chartSize < 10000) {
+                chartQuality = ChartQuality.JPEG_BIG;
+            } else if (chartSize >= 10000) {
+                chartQuality = ChartQuality.JPEG_SMALL;
+            }
+        } else {
+            if (chartSize > (45 * (100 / 8.)) && chartSize < 20000) {
+                chartQuality = ChartQuality.JPEG_BIG;
+            } else if (chartSize >= 20000) {
+                chartQuality = ChartQuality.JPEG_SMALL;
+            }
+        }
+        return chartQuality;
     }
 
 }

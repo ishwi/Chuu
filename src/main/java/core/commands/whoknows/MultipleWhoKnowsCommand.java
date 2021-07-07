@@ -1,18 +1,19 @@
 package core.commands.whoknows;
 
+import core.commands.Context;
 import core.commands.utils.CommandUtil;
+import core.imagerenderer.WhoKnowsMaker;
 import core.parsers.MultipleArtistsParser;
 import core.parsers.Parser;
 import core.parsers.params.MultiArtistParameters;
 import dao.ServiceView;
 import dao.entities.ReturnNowPlaying;
+import dao.entities.WKMode;
 import dao.entities.WhoKnowsMode;
 import dao.entities.WrapperReturnNowPlaying;
 
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.awt.image.BufferedImage;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class MultipleWhoKnowsCommand extends WhoKnowsBaseCommand<MultiArtistParameters> {
@@ -29,6 +30,22 @@ public class MultipleWhoKnowsCommand extends WhoKnowsBaseCommand<MultiArtistPara
         return String.join(",", a);
     }
 
+    @Override
+    BufferedImage doImage(MultiArtistParameters ap, WrapperReturnNowPlaying wrapperReturnNowPlaying) {
+        Context e = ap.getE();
+        BufferedImage logo = null;
+        String title;
+        if (e.isFromGuild()) {
+            logo = CommandUtil.getLogo(db, e);
+            title = e.getGuild().getName();
+        } else {
+            title = e.getJDA().getSelfUser().getName();
+        }
+        BufferedImage image = WhoKnowsMaker.generateWhoKnows(wrapperReturnNowPlaying, EnumSet.allOf(WKMode.class), title, logo, ap.getE().getAuthor().getIdLong());
+        sendImage(image, e);
+
+        return logo;
+    }
 
     @Override
     WrapperReturnNowPlaying generateWrapper(MultiArtistParameters params, WhoKnowsMode whoKnowsMode) {

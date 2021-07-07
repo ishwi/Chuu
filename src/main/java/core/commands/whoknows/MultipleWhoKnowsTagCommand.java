@@ -1,9 +1,10 @@
 package core.commands.whoknows;
 
-import core.Chuu;
 import core.commands.Context;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
+import core.imagerenderer.ThumbsMaker;
+import core.imagerenderer.WhoKnowsMaker;
 import core.parsers.MultipleGenresParser;
 import core.parsers.Parser;
 import core.parsers.params.MultipleGenresParameters;
@@ -12,12 +13,16 @@ import dao.entities.*;
 import dao.exceptions.InstanceNotFoundException;
 import org.apache.commons.text.WordUtils;
 import org.jetbrains.annotations.NotNull;
+import org.jsoup.internal.StringUtil;
 
+import java.awt.image.BufferedImage;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
+
+import static java.util.function.Predicate.not;
 
 public class MultipleWhoKnowsTagCommand extends WhoKnowsBaseCommand<MultipleGenresParameters> {
     public MultipleWhoKnowsTagCommand(ServiceView dao) {
@@ -25,15 +30,9 @@ public class MultipleWhoKnowsTagCommand extends WhoKnowsBaseCommand<MultipleGenr
     }
 
     @NotNull
-    static WrapperReturnNowPlaying formatTag(Context e, CompletableFuture<Optional<ScrobbledArtist>> completableFuture, WrapperReturnNowPlaying wrapperReturnNowPlaying) {
+    static WrapperReturnNowPlaying formatTag(Context e, WrapperReturnNowPlaying wrapperReturnNowPlaying) {
         wrapperReturnNowPlaying.getReturnNowPlayings()
                 .forEach(x -> x.setDiscordName(CommandUtil.getUserInfoUnescaped(e, x.getDiscordId()).username()));
-        try {
-            Optional<ScrobbledArtist> scrobbledArtist = completableFuture.get();
-            scrobbledArtist.ifPresent((sc) -> wrapperReturnNowPlaying.setUrl(sc.getUrl()));
-        } catch (InterruptedException | ExecutionException interruptedException) {
-            Chuu.getLogger().warn(interruptedException.getMessage(), interruptedException);
-        }
         return wrapperReturnNowPlaying;
     }
 
@@ -51,6 +50,26 @@ public class MultipleWhoKnowsTagCommand extends WhoKnowsBaseCommand<MultipleGenr
         } else {
             return lastFMData.getWhoKnowsMode();
         }
+    }
+
+    @Override
+    BufferedImage doImage(MultipleGenresParameters ap, WrapperReturnNowPlaying wrapperReturnNowPlaying) {
+        Context e = ap.getE();
+
+        BufferedImage logo = null;
+        String title;
+        if (e.isFromGuild()) {
+            logo = CommandUtil.getLogo(db, e);
+            title = e.getGuild().getName();
+        } else {
+            title = e.getJDA().getSelfUser().getName();
+        }
+        List<String> urls = db.getTopInTag(ap.getGenres(), e.getGuild().getIdLong(), 100, ap.getMode()).stream().map(ScrobbledArtist::getUrl).filter(not(StringUtil::isBlank)).toList();
+        BufferedImage thumb = ThumbsMaker.generate(urls);
+
+        BufferedImage image = WhoKnowsMaker.generateWhoKnows(wrapperReturnNowPlaying, EnumSet.allOf(WKMode.class), title, logo, ap.getE().getAuthor().getIdLong(), thumb);
+        sendImage(image, e);
+        return logo;
     }
 
     @Override
@@ -76,7 +95,7 @@ public class MultipleWhoKnowsTagCommand extends WhoKnowsBaseCommand<MultipleGenr
             return null;
         }
 
-        return formatTag(e, completableFuture, wrapperReturnNowPlaying);
+        return formatTag(e, wrapperReturnNowPlaying);
     }
 
     @Override
