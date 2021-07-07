@@ -82,7 +82,7 @@ public class GlobalBillboardCommand extends BillboardCommand {
             sendMessageQueue(e, "Didn't found any scrobble in the whole bot");
             return;
         }
-        doBillboard(e, params, doListeners, entities, weekBeggining, weekStart, name);
+        doBillboard(e, params, doListeners, entities, weekBeggining, weekStart, name, false);
     }
 
     // You have to call the insert_weeks procedure first that is declared in MariadBnew. on the mysql client it would be something like `call inert_weeks()`

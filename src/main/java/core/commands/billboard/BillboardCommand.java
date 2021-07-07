@@ -1,10 +1,14 @@
 package core.commands.billboard;
 
+import core.apis.last.entities.chartentities.*;
 import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
+import core.imagerenderer.ChartQuality;
+import core.imagerenderer.CollageMaker;
+import core.imagerenderer.GraphicUtils;
 import core.imagerenderer.HotMaker;
 import core.otherlisteners.Reactionary;
 import core.parsers.NoOpParser;
@@ -16,9 +20,8 @@ import core.parsers.utils.OptionalEntity;
 import core.parsers.utils.Optionals;
 import core.services.BillboardHoarder;
 import dao.ServiceView;
-import dao.entities.BillboardEntity;
-import dao.entities.UsersWrapper;
-import dao.entities.Week;
+import dao.entities.*;
+import dao.exceptions.InstanceNotFoundException;
 import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
 
@@ -29,8 +32,10 @@ import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
+import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static core.parsers.ExtraParser.LIMIT_ERROR;
 
@@ -62,9 +67,14 @@ public class BillboardCommand extends ConcurrentCommand<NumberParameters<Command
                 100L,
                 map, s, false, true, false, "count");
 
-        extraParser.addOptional(new OptionalEntity("scrobbles", "sort the top by scrobble count, not listeners"));
-        extraParser.addOptional(new OptionalEntity("full", "in case of doing the image show first 100 songs in the image"));
-        extraParser.addOptional(Optionals.LIST.opt);
+        extraParser.addOptional(new OptionalEntity("scrobbles", "sort the top by scrobble count, not listeners"),
+                new OptionalEntity("full", "in case of doing the image show first 100 songs in the image"),
+                Optionals.LIST.opt,
+                Optionals.IMAGE.opt,
+                Optionals.NOTITLES.opt,
+                Optionals.ASIDE.opt,
+                Optionals.PLAYS_REPLACE.opt);
+        extraParser.replaceOptional("plays", Optionals.NOPLAYS.opt);
         return extraParser;
     }
 
@@ -162,15 +172,24 @@ public class BillboardCommand extends ConcurrentCommand<NumberParameters<Command
         }
 
         String name = e.getGuild().getName();
-        doBillboard(e, params, doListeners, entities, weekStart.toLocalDate().atStartOfDay(), weekBeggining, name);
+        doBillboard(e, params, doListeners, entities, weekStart.toLocalDate().atStartOfDay(), weekBeggining, name, true);
     }
 
 
-    protected void doBillboard(Context e, NumberParameters<CommandParameters> params, boolean doListeners, List<BillboardEntity> entities, LocalDateTime weekStart, LocalDateTime weekBeggining, String name) {
+    protected void doBillboard(Context e, NumberParameters<CommandParameters> params, boolean doListeners, List<BillboardEntity> entities, LocalDateTime weekStart, LocalDateTime weekBeggining, String name, boolean isFromGuild) {
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMMM");
+        String one = formatter.format(weekBeggining.toLocalDate());
+        String dayOne = weekBeggining.getDayOfMonth() + CommandUtil.getDayNumberSuffix(weekBeggining.getDayOfMonth());
+        String second = formatter.format(weekStart.toLocalDate());
+        String daySecond = weekStart.toLocalDate().getDayOfMonth() + CommandUtil.getDayNumberSuffix(weekStart.toLocalDate().getDayOfMonth());
+        String subtitle = dayOne + " " + one + " - " + daySecond + " " + second;
+        String url = isFromGuild ? e.getGuild().getIconUrl() : e.getJDA().getSelfUser().getAvatarUrl();
+
         if (params.hasOptional("list")) {
             EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e);
             List<String> artistAliases = entities
-                    .stream().map(x -> String.format(". **[%s](%s):**\n Rank: %d | Previous Week: %s | Peak: %s | Weeks on top: %s | %s: %d\n",
+                    .stream().map(x -> String.format(". **[%s](%s):**\n Rank: %d | Previous Week: %s | Peak: %s | Weeks on top: %s | %s: %d%n%n",
                             x.getArtist() == null ? CommandUtil.escapeMarkdown(x.getName()) : CommandUtil.escapeMarkdown(x.getName() + " - " + x.getArtist()),
                             x.getArtist() == null ? LinkUtils.getLastFmArtistUrl(x.getName()) : LinkUtils.getLastFMArtistTrack(x.getArtist(), x.getName()),
                             x.getPosition(),
@@ -186,21 +205,59 @@ public class BillboardCommand extends ConcurrentCommand<NumberParameters<Command
                 a.append(i + 1).append(artistAliases.get(i));
             }
 
-            embedBuilder.setTitle("Billboard Top 100 " + getTitle() + "from " + name)
+            embedBuilder.setAuthor("Top 100 " + getTitle() + "from " + name + " in " + subtitle, null, url)
                     .setDescription(a);
             e.sendMessage(embedBuilder.build()).queue(message1 ->
                     new Reactionary<>(artistAliases, message1, embedBuilder));
+        } else if (params.hasOptional("image")) {
+            AtomicInteger ranker = new AtomicInteger(0);
+            int size = entities.size();
+            int x = Math.max((int) Math.ceil(Math.sqrt(size)), 1);
+            int y = (int) Math.ceil((double) size / x);
+            if (y == 1) {
+                x = size;
+            }
+            boolean drawTitles = !params.hasOptional("notitles");
+            boolean drawPlays = !params.hasOptional("noplays");
+            boolean isAside = params.hasOptional("aside");
+            try {
+                LastFMData data = e.isFromGuild() ? db.computeLastFmData(e.getAuthor().getIdLong(), e.getGuild().getIdLong()) : db.findLastFMData(e.getAuthor().getIdLong());
+                isAside = isAside || EnumSet.of(ChartMode.IMAGE_ASIDE, ChartMode.IMAGE_ASIDE_INFO).contains(data.getChartMode());
+            } catch (InstanceNotFoundException ex) {
+                // Shallowed
+            }
+
+
+            boolean finalIsAside = isAside;
+            List<UrlCapsule> urlEntities = entities.stream()
+                    .limit(size)
+                    .map(w -> {
+                        if (w.getName() == null) {
+                            if (doListeners) {
+                                return new ArtistListenersChart(w.getUrl(), ranker.getAndIncrement(), w.getArtist(), null, Math.toIntExact(w.getListeners()), drawTitles, drawPlays, finalIsAside);
+                            } else {
+                                return new ArtistChart(w.getUrl(), ranker.getAndIncrement(), w.getArtist(), null, Math.toIntExact(w.getListeners()), drawTitles, drawPlays, finalIsAside);
+                            }
+                        } else {
+                            if (doListeners) {
+                                return new AlbumListenersChart(w.getUrl(), ranker.getAndIncrement(), w.getName(), w.getArtist(), null, Math.toIntExact(w.getListeners()), drawTitles, drawPlays, finalIsAside);
+                            } else {
+                                return new AlbumChart(w.getUrl(), ranker.getAndIncrement(), w.getName(), w.getArtist(), null, Math.toIntExact(w.getListeners()), drawTitles, drawPlays, finalIsAside);
+                            }
+                        }
+                    })
+                    .toList();
+
+            ChartQuality quality = GraphicUtils.getQuality(urlEntities.size(), e);
+            BufferedImage image = CollageMaker.generateCollageThreaded(x, y, new ArrayBlockingQueue<>(urlEntities.size(), false, urlEntities), quality,
+                    isAside);
+            sendImage(image, e, quality, new ChuuEmbedBuilder(e).setAuthor("Top 100 " + getTitle() + "from " + name + " in " + subtitle, null, url));
         } else {
             BufferedImage logo = CommandUtil.getLogo(db, e);
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMMM");
-            String one = formatter.format(weekBeggining.toLocalDate());
-            String dayOne = weekBeggining.getDayOfMonth() + CommandUtil.getDayNumberSuffix(weekBeggining.getDayOfMonth());
-            String second = formatter.format(weekStart.toLocalDate());
-            String daySecond = weekStart.toLocalDate().getDayOfMonth() + CommandUtil.getDayNumberSuffix(weekStart.toLocalDate().getDayOfMonth());
 
 
             int size = params.hasOptional("full") ? 100 : Math.toIntExact(params.getExtraParam());
-            sendImage(HotMaker.doHotMaker(name + "'s " + getTitle() + "chart", dayOne + " " + one + " - " + daySecond + " " + second, entities, doListeners, size, logo), e);
+            sendImage(HotMaker.doHotMaker(name + "'s " + getTitle() + "chart", subtitle, entities, doListeners, size, logo), e);
         }
     }
 

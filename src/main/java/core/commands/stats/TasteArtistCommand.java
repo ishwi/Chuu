@@ -6,7 +6,7 @@ import core.exceptions.LastFmException;
 import core.parsers.ArtistParser;
 import core.parsers.Parser;
 import core.parsers.params.ArtistParameters;
-import core.parsers.utils.OptionalEntity;
+import core.parsers.utils.Optionals;
 import core.services.validators.ArtistValidator;
 import dao.ServiceView;
 import dao.entities.*;
@@ -41,7 +41,7 @@ public class TasteArtistCommand extends BaseTasteCommand<ArtistParameters> {
 
     @Override
     public Parser<ArtistParameters> initParser() {
-        return new ArtistParser(db, lastFM, new OptionalEntity("list", "display in a list format"));
+        return new ArtistParser(db, lastFM, Optionals.LIST.opt);
     }
 
     @Override

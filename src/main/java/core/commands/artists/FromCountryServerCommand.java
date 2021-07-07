@@ -1,6 +1,7 @@
 package core.commands.artists;
 
 import com.neovisionaries.i18n.CountryCode;
+import core.Chuu;
 import core.apis.discogs.DiscogsApi;
 import core.apis.discogs.DiscogsSingleton;
 import core.apis.last.entities.chartentities.ArtistChart;
@@ -11,10 +12,12 @@ import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
+import core.commands.utils.ListSender;
+import core.commands.utils.PrivacyUtils;
 import core.exceptions.LastFmException;
 import core.imagerenderer.ChartQuality;
 import core.imagerenderer.CollageMaker;
-import core.otherlisteners.Reactionary;
+import core.imagerenderer.GraphicUtils;
 import core.parsers.OnlyCountryParser;
 import core.parsers.Parser;
 import core.parsers.params.OnlyCountryParameters;
@@ -91,12 +94,13 @@ public class FromCountryServerCommand extends ConcurrentCommand<OnlyCountryParam
         int y;
         int x1;
         int y1;
+        Context e = countryParameters.getE();
         try {
-            LastFMData data = db.computeLastFmData(countryParameters.getE().getAuthor().getIdLong(), countryParameters.getE().getGuild().getIdLong());
+            LastFMData data = db.computeLastFmData(e.getAuthor().getIdLong(), e.getGuild().getIdLong());
             size1 = data.getDefaultX() * data.getDefaultY();
             x1 = data.getDefaultX();
             y1 = data.getDefaultY();
-        } catch (InstanceNotFoundException e) {
+        } catch (InstanceNotFoundException ex) {
             size1 = 25;
             x1 = 5;
             y1 = 5;
@@ -112,7 +116,7 @@ public class FromCountryServerCommand extends ConcurrentCommand<OnlyCountryParam
                         return;
                     }
                     try {
-                        String artistImageUrl = new ArtistValidator(db, lastFM, countryParameters.getE()).validate(t.getArtistName()).getUrl();
+                        String artistImageUrl = new ArtistValidator(db, lastFM, e).validate(t.getArtistName()).getUrl();
                         t.setUrl(artistImageUrl);
                     } catch (LastFmException ignored) {
                         // Whatever
@@ -125,9 +129,11 @@ public class FromCountryServerCommand extends ConcurrentCommand<OnlyCountryParam
             y = x;
         }
 
+        ChartQuality quality = GraphicUtils.getQuality(urlEntities.size(), e);
+
         BufferedImage image = CollageMaker.generateCollageThreaded(x, y, new ArrayBlockingQueue<>(urlEntities.size(), false, urlEntities), ChartQuality.PNG_BIG,
                 false);
-        sendImage(image, countryParameters.getE());
+        sendImage(image, e);
 
     }
 
@@ -159,19 +165,13 @@ public class FromCountryServerCommand extends ConcurrentCommand<OnlyCountryParam
             doImage(list, params);
             return;
         }
-        StringBuilder a = new StringBuilder();
-
-        for (int i = 0; i < 10 && i < list.size(); i++) {
-            a.append(i + 1).append(list.get(i).toString());
-        }
-
         String title = guild + "'s top artists from " + countryRep + (":");
-        EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e).setThumbnail(userUrl)
+        EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e)
                 .setFooter(guild + " has " + list.size() +
                            (list.size() == 1 ? " artist " : " artists ") + "from " + country.getName(), null)
-                .setTitle(title)
-                .setDescription(a);
-        e.sendMessage(embedBuilder.build()).queue(mes ->
-                new Reactionary<>(list, mes, embedBuilder));
+                .setAuthor(title, PrivacyUtils.getLastFmUser(Chuu.DEFAULT_LASTFM_ID), userUrl);
+
+        new ListSender<>(e, list, Object::toString, embedBuilder)
+                .doSend();
     }
 }

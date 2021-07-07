@@ -13,6 +13,7 @@ import core.commands.utils.PieDoer;
 import core.exceptions.LastFmException;
 import core.imagerenderer.ChartQuality;
 import core.imagerenderer.CollageMaker;
+import core.imagerenderer.GraphicUtils;
 import core.imagerenderer.util.pie.IPieableList;
 import core.imagerenderer.util.pie.PieableListChart;
 import core.otherlisteners.Reactionary;
@@ -25,7 +26,6 @@ import dao.entities.CountWrapper;
 import dao.entities.DiscordUserDisplay;
 import dao.entities.ScrobbledAlbum;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.Message;
 import org.knowm.xchart.PieChart;
 
 import javax.validation.constraints.NotNull;
@@ -115,28 +115,11 @@ public abstract class ChartableCommand<T extends ChartParameters> extends Concur
     void generateImage(BlockingQueue<UrlCapsule> queue, int x, int y, Context e, T params, int size) {
         int chartSize = queue.size();
 
-        ChartQuality chartQuality = ChartQuality.PNG_BIG;
         int minx = (int) Math.ceil((double) chartSize / x);
         if (minx == 1)
             x = chartSize;
-        if ((e.isFromGuild() && e.getGuild().getMaxFileSize() == Message.MAX_FILE_SIZE) || !e.isFromGuild()) {
-            if (chartSize > 45 && chartSize < 200)
-                chartQuality = ChartQuality.JPEG_BIG;
-            else if (chartSize >= 200)
-                chartQuality = ChartQuality.JPEG_SMALL;
-        } else if (e.getGuild().getMaxFileSize() == (50 << 20)) {
-            if (chartSize > (45 * (50 / 8.)) && chartSize < 10000) {
-                chartQuality = ChartQuality.JPEG_BIG;
-            } else if (chartSize >= 10000) {
-                chartQuality = ChartQuality.JPEG_SMALL;
-            }
-        } else {
-            if (chartSize > (45 * (100 / 8.)) && chartSize < 20000) {
-                chartQuality = ChartQuality.JPEG_BIG;
-            } else if (chartSize >= 20000) {
-                chartQuality = ChartQuality.JPEG_SMALL;
-            }
-        }
+        ChartQuality chartQuality = GraphicUtils.getQuality(chartSize, e);
+
         BufferedImage image = CollageMaker
                 .generateCollageThreaded(x, minx, queue, chartQuality, params.isAside() || params.chartMode().equals(ChartMode.IMAGE_ASIDE) || params.chartMode().equals(ChartMode.IMAGE_ASIDE_INFO));
         boolean info = params.chartMode().equals(ChartMode.IMAGE_INFO) || params.chartMode().equals(ChartMode.IMAGE_ASIDE_INFO);

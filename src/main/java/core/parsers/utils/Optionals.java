@@ -1,5 +1,7 @@
 package core.parsers.utils;
 
+import java.util.Set;
+
 public enum Optionals {
     LIST(new OptionalEntity("list", "display it in an embed", "l")),
     PIE(new OptionalEntity("pie", "show it as a pie", "pi")),
@@ -10,6 +12,7 @@ public enum Optionals {
     BOTTED(new OptionalEntity("botted", "show botted accounts in case you have the config show-botted disabled", "b")),
     NOPLAYS(new OptionalEntity("noplays", "hide the plays", "np")),
     PLAYS(new OptionalEntity("plays", "shows this with plays", "p")),
+    PLAYS_REPLACE(new OptionalEntity("plays", "shows this with plays", true, Set.of("noplays"), Set.of("p"))),
     START(new OptionalEntity("start", "show the moment the streak started")),
     NOREDIRECT(new OptionalEntity("noredirect", "not use autocorrections", "nr")),
     NOTITLES(new OptionalEntity("notitles", "not display titles", "nt")),

@@ -11,13 +11,10 @@ import core.apis.spotify.Spotify;
 import core.apis.spotify.SpotifySingleton;
 import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
-import core.commands.utils.ChuuEmbedBuilder;
-import core.commands.utils.CommandCategory;
-import core.commands.utils.CommandUtil;
+import core.commands.utils.*;
 import core.exceptions.LastFmException;
 import core.imagerenderer.ChartQuality;
 import core.imagerenderer.CollageMaker;
-import core.otherlisteners.Reactionary;
 import core.parsers.CountryParser;
 import core.parsers.Parser;
 import core.parsers.params.ChartParameters;
@@ -156,19 +153,15 @@ public class ArtistFromCountryCommand extends ConcurrentCommand<CountryParameter
             doImage(list, params);
             return;
         }
-        StringBuilder a = new StringBuilder();
-
-        for (int i = 0; i < 10 && i < list.size(); i++) {
-            a.append(i + 1).append(list.get(i).toString());
-        }
 
         String title = userName + "'s top artists from " + countryRep + (":");
-        EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e).setThumbnail(userUrl)
+        EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e)
                 .setFooter(CommandUtil.unescapedUser(userName, discordId, e) + " has " + list.size() +
                            (list.size() == 1 ? " artist " : " artists ") + "from " + country.getName() + " " + usableTime, null)
-                .setTitle(title)
-                .setDescription(a);
-        e.sendMessage(embedBuilder.build()).queue(mes ->
-                new Reactionary<>(list, mes, embedBuilder));
+                .setAuthor(title, PrivacyUtils.getLastFmUser(params.getLastFMData().getName()), userUrl);
+
+        new ListSender<>(e, list, Object::toString, embedBuilder)
+                .doSend();
+
     }
 }

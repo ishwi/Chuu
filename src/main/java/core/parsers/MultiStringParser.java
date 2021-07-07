@@ -79,7 +79,7 @@ public abstract class MultiStringParser<T extends CommandParameters> extends Dao
             return doSomethingNoWords(x, lastFMData, e);
 
         } else {
-            String str = String.join(" ", getSubMessage(e));
+            String str = String.join(" ", words);
             String[] split = str.split("(?<!\\\\)\\s*[|-]\\s*");
             Set<String> set = Stream.of(split).map(t ->
                     t.trim().replaceAll("\\\\(|-)", "$1")
