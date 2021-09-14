@@ -49,6 +49,10 @@ public class LoveCommand extends AlbumPlaysCommand {
 
     protected void doSomethingWithAlbumArtist(ScrobbledArtist artist, String song, Context e, long who, ArtistAlbumParameters params) throws LastFmException {
         LastFMData user = params.getLastFMData();
+        if (user.getDiscordId() != e.getAuthor().getIdLong()) {
+            sendMessageQueue(e, "Cant love on behalf of other users??");
+            return;
+        }
         if (user.getSession() == null || user.getSession().isBlank()) {
             sendMessageQueue(e, "Only users that have linked their account via `%slogin` can love/unlove songs!".formatted(CommandUtil.getMessagePrefix(e)));
             return;
