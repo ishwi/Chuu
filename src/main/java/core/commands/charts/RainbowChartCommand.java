@@ -166,7 +166,7 @@ public class RainbowChartCommand extends OnlyChartCommand<RainbowParams> {
     public void noElementsMessage(RainbowParams parameters) {
         String s = parameters.isArtist() ? "artists" : "albums";
         Context e = parameters.getE();
-        DiscordUserDisplay ingo = CommandUtil.getUserInfoConsideringGuildOrNot(e, parameters.getDiscordId());
+        DiscordUserDisplay ingo = CommandUtil.getUserInfoEscaped(e, parameters.getDiscordId());
         sendMessageQueue(e, String.format("%s didn't listen to any %s%s!", ingo.username(), s, parameters.getTimeFrameEnum().getDisplayString()));
 
     }

@@ -71,7 +71,7 @@ public class UserResumeCommand extends ConcurrentCommand<TimeFrameParameters> {
         int trackCount = lastFM.getChart(name, customTimeFrame, 1, 1, TopEntity.TRACK, ChartUtil.getParser(customTimeFrame, TopEntity.TRACK, ChartParameters.toListParams(), lastFM, name), capsules);
         LocalDateTime localDateTime = time.toLocalDate(1);
         int i = lastFM.scrobblesSince(name, localDateTime.atOffset(ZoneOffset.UTC));
-        DiscordUserDisplay info = CommandUtil.getUserInfoConsideringGuildOrNot(e, params.getLastFMData().getDiscordId());
+        DiscordUserDisplay info = CommandUtil.getUserInfoEscaped(e, params.getLastFMData().getDiscordId());
         EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e)
                 .setTitle(info.username() + "'s summary" + time.getDisplayString())
                 .setThumbnail(info.urlImage())

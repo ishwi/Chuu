@@ -147,7 +147,7 @@ public class AOTDCommand extends ChartableCommand<ChartYearRangeParameters> {
     @Override
     public void noElementsMessage(ChartYearRangeParameters parameters) {
         Context e = parameters.getE();
-        DiscordUserDisplay ingo = CommandUtil.getUserInfoConsideringGuildOrNot(e, parameters.getDiscordId());
+        DiscordUserDisplay ingo = CommandUtil.getUserInfoEscaped(e, parameters.getDiscordId());
         sendMessageQueue(e, String.format("Couldn't find any %s album in %s top %d albums%s!", parameters.getDisplayString(), ingo.username(), searchSpace, parameters.getTimeFrameEnum().getDisplayString()));
     }
 

@@ -117,7 +117,7 @@ public class ChuuYoutubeAudioTrack extends YoutubeAudioTrack {
         }
     }
 
-    private synchronized FormatWithUrl loadBestFormatWithUrl(HttpInterface httpInterface) throws Exception {
+    private FormatWithUrl loadBestFormatWithUrl(HttpInterface httpInterface) throws Exception {
         if (this.isSet.compareAndSet(false, false)) {
             YoutubeTrackDetails details = sourceManager.getTrackDetailsLoader()
                     .loadDetails(httpInterface, getIdentifier(), true);

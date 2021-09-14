@@ -70,7 +70,7 @@ dependencies {
     implementation 'com.neovisionaries:nv-i18n:1.28'
     implementation 'com.github.ishwi:java-eval:8de726df14c18523912aa6ff21bfd1b0b7d54924'
     implementation group: 'com.google.guava', name: 'guava', version: '30.1.1-jre'
-    implementation("net.dv8tion:JDA:4.3.0_294")
+    implementation("net.dv8tion:JDA:4.3.0_295")
     implementation group: 'org.jsoup', name: 'jsoup', version: '1.13.1'
 
     implementation group: 'org.apache.commons', name: 'commons-collections4', version: '4.4'

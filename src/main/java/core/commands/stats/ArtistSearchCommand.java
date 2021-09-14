@@ -62,7 +62,7 @@ public class ArtistSearchCommand extends ListCommand<ScrobbledArtist, UserString
     public void printList(List<ScrobbledArtist> list, UserStringParameters params) {
         Context e = params.getE();
         String value = params.getInput();
-        DiscordUserDisplay uInfo = CommandUtil.getUserInfoConsideringGuildOrNot(e, params.getLastFMData().getDiscordId());
+        DiscordUserDisplay uInfo = CommandUtil.getUserInfoEscaped(e, params.getLastFMData().getDiscordId());
         String abbreviate = StringUtils.abbreviate(value, 120);
 
         if (list.isEmpty()) {

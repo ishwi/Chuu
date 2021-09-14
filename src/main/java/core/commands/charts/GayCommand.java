@@ -218,7 +218,7 @@ public class GayCommand extends OnlyChartCommand<GayParams> {
     @Override
     public void noElementsMessage(GayParams parameters) {
         Context e = parameters.getE();
-        DiscordUserDisplay ingo = CommandUtil.getUserInfoConsideringGuildOrNot(e, parameters.getDiscordId());
+        DiscordUserDisplay ingo = CommandUtil.getUserInfoEscaped(e, parameters.getDiscordId());
         sendMessageQueue(e, String.format("Couldn't find enough matching covers for %s's pride chart%s", ingo.username(), parameters.getTimeFrameEnum().getDisplayString()));
 
     }

@@ -75,7 +75,7 @@ public class StreakCommand extends ConcurrentCommand<ChuuDataParams> {
         long discordID = user.getDiscordId();
 
 
-        DiscordUserDisplay userInformation = CommandUtil.getUserInfoConsideringGuildOrNot(e, discordID);
+        DiscordUserDisplay userInformation = CommandUtil.getUserInfoEscaped(e, discordID);
         String userName = userInformation.username();
         String userUrl = userInformation.urlImage();
         StreakEntity combo = lastFM.getCombo(user);

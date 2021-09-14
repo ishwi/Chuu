@@ -81,7 +81,7 @@ public class UniqueAlbumCommand extends ConcurrentCommand<ChuuDataParams> {
             a.append(i + 1).append(g.toString());
         }
 
-        DiscordUserDisplay userInfo = CommandUtil.getUserInfoConsideringGuildOrNot(e, discordId);
+        DiscordUserDisplay userInfo = CommandUtil.getUserInfoEscaped(e, discordId);
 
         EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e).setAuthor(String.format("%s's%s unique albums", userInfo.username(), isGlobal() ? " global" : ""), CommandUtil.getLastFmUser(lastFmName), userInfo.urlImage())
                 .setDescription(a)

@@ -86,10 +86,10 @@ public class BehindArtistsCommand extends ConcurrentCommand<NumberParameters<Two
 
         int rows = resultWrapper.getList().size();
 
-        DiscordUserDisplay userInformation = CommandUtil.getUserInfoConsideringGuildOrNot(e, ogDiscordID);
+        DiscordUserDisplay userInformation = CommandUtil.getUserInfoEscaped(e, ogDiscordID);
         String userName = userInformation.username();
 
-        DiscordUserDisplay userInformation2 = CommandUtil.getUserInfoConsideringGuildOrNot(e, secondDiscordId);
+        DiscordUserDisplay userInformation2 = CommandUtil.getUserInfoEscaped(e, secondDiscordId);
         String userName2 = userInformation2.username();
         String userUrl2 = userInformation2.urlImage();
         if (rows == 0) {

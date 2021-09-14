@@ -134,7 +134,7 @@ public class ArtistFromCountryCommand extends ConcurrentCommand<CountryParameter
                         () -> userArtists,
                         (mbids) -> this.mb.getArtistFromCountry(country, mbids, null),
                         Comparator.comparingInt(ScrobbledArtist::getCount).reversed());
-        DiscordUserDisplay userInformation = CommandUtil.getUserInfoConsideringGuildOrNot(e, discordId);
+        DiscordUserDisplay userInformation = CommandUtil.getUserInfoEscaped(e, discordId);
         String userName = userInformation.username();
         String userUrl = userInformation.urlImage();
         String countryRep;

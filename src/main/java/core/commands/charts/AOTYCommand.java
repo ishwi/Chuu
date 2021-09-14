@@ -188,7 +188,7 @@ public class AOTYCommand extends ChartableCommand<ChartYearParameters> {
     @Override
     public void noElementsMessage(ChartYearParameters parameters) {
         Context e = parameters.getE();
-        DiscordUserDisplay ingo = CommandUtil.getUserInfoConsideringGuildOrNot(e, parameters.getDiscordId());
+        DiscordUserDisplay ingo = CommandUtil.getUserInfoEscaped(e, parameters.getDiscordId());
         String s;
         if (parameters.getYear().getValue() != Year.now().getValue()) {
             s = "in their library";

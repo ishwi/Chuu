@@ -165,7 +165,7 @@ public abstract class ChartableCommand<T extends ChartParameters> extends Concur
         for (int i = 0; i < 10 && i < urlCapsules.size(); i++) {
             a.append(i + 1).append(urlCapsules.get(i).toEmbedDisplay());
         }
-        DiscordUserDisplay userInfoConsideringGuildOrNot = CommandUtil.getUserInfoConsideringGuildOrNot(params.getE(), params.getDiscordId());
+        DiscordUserDisplay userInfoConsideringGuildOrNot = CommandUtil.getUserInfoEscaped(params.getE(), params.getDiscordId());
 
         EmbedBuilder embedBuilder = configEmbed(new ChuuEmbedBuilder(params.getE())
                 .setDescription(a)

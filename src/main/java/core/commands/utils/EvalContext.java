@@ -50,6 +50,7 @@ public record EvalContext(JDA jda, Context e,
     }
 
     public void setLog(String level) {
+
         var rootLogger = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
         var newLevel = Level.toLevel(level);
         rootLogger.setLevel(newLevel);

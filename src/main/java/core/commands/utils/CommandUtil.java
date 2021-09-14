@@ -15,7 +15,7 @@ import dao.ChuuService;
 import dao.entities.*;
 import dao.exceptions.InstanceNotFoundException;
 import dao.utils.LinkUtils;
-import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
@@ -239,8 +239,12 @@ public class CommandUtil {
     }
 
 
-    public static String getGlobalUsername(JDA jda, long discordID) {
-        return CommandUtil.escapeMarkdown(jda.retrieveUserById(discordID, false).complete().getName());
+    public static String getGlobalUsername(long discordID) {
+        return getGlobalUsername(null, discordID);
+    }
+
+    public static String getGlobalUsername(@Nullable Guild guild, long discordID) {
+        return CommandUtil.escapeMarkdown(handleUser(guild, discordID, false).username());
     }
 
     public static int getDecade(int year) {
@@ -251,39 +255,50 @@ public class CommandUtil {
     }
 
     // ugh
-    private static DiscordUserDisplay handleUser(Context e, long discordID) {
+    private static DiscordUserDisplay handleUser(@Nullable Guild g, long discordID, boolean isFromServer) {
         User user;
         String username;
-        if (e.isFromGuild()) {
-            Member whoD = e.getGuild().getMemberById(discordID);
+        if (g != null) {
+            Member whoD = g.getMemberById(discordID);
             if (whoD == null) {
-                Member member = e.getGuild().retrieveMemberById(discordID).onErrorFlatMap((t) -> new CompletedRestAction<>(e.getJDA(), null, null)).complete();
-                if (member == null) {
-                    user = e.getJDA().retrieveUserById(discordID, false).complete();
+                if (isFromServer) {
+                    whoD = g.retrieveMemberById(discordID).onErrorFlatMap((t) -> new CompletedRestAction<>(g.getJDA(), null, null)).complete();
+                }
+                if (whoD == null) {
+                    user = core.Chuu.getShardManager().retrieveUserById(discordID).complete();
                     username = user.getName();
                 } else {
-                    user = member.getUser();
-                    username = member.getEffectiveName();
+                    user = whoD.getUser();
+                    username = whoD.getEffectiveName();
                 }
             } else {
                 username = whoD.getEffectiveName();
                 user = whoD.getUser();
             }
         } else {
-            user = e.getJDA().retrieveUserById(discordID, false).complete();
+            user = core.Chuu.getShardManager().retrieveUserById(discordID).complete();
             username = user.getName();
 
         }
-        return new DiscordUserDisplay((username), user.getAvatarUrl() == null || user.getAvatarUrl().isBlank() ? null : user.getAvatarUrl());
+        return new DiscordUserDisplay((username), user.getAvatarUrl());
 
+    }
+
+    public static DiscordUserDisplay getUserInfoUnescaped(Context e, long discordID, boolean isFromServer) {
+        return handleUser(e.isFromGuild() ? e.getGuild() : null, discordID, isFromServer);
     }
 
     public static DiscordUserDisplay getUserInfoUnescaped(Context e, long discordID) {
-        return handleUser(e, discordID);
+        return getUserInfoUnescaped(e, discordID, true);
     }
 
-    public static DiscordUserDisplay getUserInfoConsideringGuildOrNot(Context e, long discordID) {
-        DiscordUserDisplay discordUserDisplay = handleUser(e, discordID);
+
+    public static DiscordUserDisplay getUserInfoEscaped(Context e, long discordID) {
+        return getUserInfoEscaped(e, discordID, true);
+    }
+
+    public static DiscordUserDisplay getUserInfoEscaped(Context e, long discordID, boolean isFromServer) {
+        DiscordUserDisplay discordUserDisplay = handleUser(e.isFromGuild() ? e.getGuild() : null, discordID, isFromServer);
         return new DiscordUserDisplay(escapeMarkdown(discordUserDisplay.username()), discordUserDisplay.urlImage());
     }
 

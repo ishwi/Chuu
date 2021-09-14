@@ -90,7 +90,7 @@ public class GlobalAffinityCommand extends ConcurrentCommand<NumberParameters<Ch
             stringBuilder.append(i + 1).append(text);
         }
 
-        DiscordUserDisplay uinfo = CommandUtil.getUserInfoConsideringGuildOrNot(e, ogData.getDiscordId());
+        DiscordUserDisplay uinfo = CommandUtil.getUserInfoEscaped(e, ogData.getDiscordId());
         String name = e.getJDA().getSelfUser().getName();
         EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e)
                 .setDescription(stringBuilder)

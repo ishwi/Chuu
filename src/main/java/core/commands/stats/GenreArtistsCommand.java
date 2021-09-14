@@ -160,7 +160,7 @@ public class GenreArtistsCommand extends ChartableCommand<ChartableGenreParamete
     @Override
     public void noElementsMessage(ChartableGenreParameters parameters) {
         Context e = parameters.getE();
-        DiscordUserDisplay display = CommandUtil.getUserInfoConsideringGuildOrNot(e, parameters.getDiscordId());
+        DiscordUserDisplay display = CommandUtil.getUserInfoEscaped(e, parameters.getDiscordId());
         sendMessageQueue(e, String.format("Couldn't find any %s album in %s's artists%s!", parameters.getGenreParameters().getGenre(), display.username(), parameters.getTimeFrameEnum().getDisplayString()));
     }
 }

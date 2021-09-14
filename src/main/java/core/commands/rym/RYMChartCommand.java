@@ -114,7 +114,7 @@ public class RYMChartCommand extends ChartableCommand<ChartSizeParameters> {
             url = params.getE().getJDA().getSelfUser().getAvatarUrl();
         } else {
             long discordId = params.getUser().getDiscordId();
-            DiscordUserDisplay userInfoConsideringGuildOrNot = CommandUtil.getUserInfoConsideringGuildOrNot(params.getE(), discordId);
+            DiscordUserDisplay userInfoConsideringGuildOrNot = CommandUtil.getUserInfoEscaped(params.getE(), discordId);
             title = userInfoConsideringGuildOrNot.username();
             url = userInfoConsideringGuildOrNot.urlImage();
         }

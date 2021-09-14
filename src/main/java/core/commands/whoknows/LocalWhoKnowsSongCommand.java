@@ -26,7 +26,7 @@ public class LocalWhoKnowsSongCommand extends LocalWhoKnowsAlbumCommand {
 
     @Override
     public Parser<ArtistAlbumParameters> initParser() {
-        ArtistSongParser parser = new ArtistSongParser(db, lastFM, Optionals.LIST.opt
+        ArtistSongParser parser = new ArtistSongParser(db, lastFM, false, Optionals.LIST.opt
                 , Optionals.PIE.opt);
         parser.setExpensiveSearch(true);
         return parser;

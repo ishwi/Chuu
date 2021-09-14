@@ -91,7 +91,7 @@ public class MyTopRatedRandomUrls extends ConcurrentCommand<ChuuDataParams> {
             return;
 
         }
-        DiscordUserDisplay userInfoConsideringGuildOrNot = CommandUtil.getUserInfoConsideringGuildOrNot(params.getE(), idLong);
+        DiscordUserDisplay userInfoConsideringGuildOrNot = CommandUtil.getUserInfoEscaped(params.getE(), idLong);
         String title = userInfoConsideringGuildOrNot.username();
         String url = userInfoConsideringGuildOrNot.urlImage();
 

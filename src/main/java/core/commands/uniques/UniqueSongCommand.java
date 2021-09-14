@@ -82,7 +82,7 @@ public class UniqueSongCommand extends ConcurrentCommand<ChuuDataParams> {
             a.append(i + 1).append(g.toString());
         }
 
-        DiscordUserDisplay userInfo = CommandUtil.getUserInfoConsideringGuildOrNot(e, discordId);
+        DiscordUserDisplay userInfo = CommandUtil.getUserInfoEscaped(e, discordId);
 
         EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e).setDescription(a)
                 .setAuthor(String.format("%s's%s unique songs", userInfo.username(), isGlobal() ? " global" : ""), CommandUtil.getLastFmUser(lastFmName), userInfo.urlImage())

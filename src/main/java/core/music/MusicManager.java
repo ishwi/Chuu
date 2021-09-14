@@ -59,7 +59,7 @@ public class MusicManager extends AudioEventAdapter implements AudioSendHandler 
     private final ScrobbleProcesser scrobbleProcesser;
     private final long guildId;
     private final AudioPlayer player;
-    private final Queue<String> queue = new ArrayDeque<>();
+    private final Deque<String> queue = new ArrayDeque<>();
     private final long lastVoteTime = 0L;
     private final boolean isVotingToSkip = false;
     private final boolean isVotingToPlay = false;
@@ -190,7 +190,7 @@ public class MusicManager extends AudioEventAdapter implements AudioSendHandler 
         if (!player.startTrack(track, true)) {
             var encoded = manager.encodeAudioTrack(track);
             if (isNext) {
-                queue.add(encoded);
+                queue.addFirst(encoded);
             } else {
                 queue.offer(encoded);
             }
@@ -212,7 +212,7 @@ public class MusicManager extends AudioEventAdapter implements AudioSendHandler 
             audioManager.setSendingHandler(this);
             audioManager.openAudioConnection(channel);
 
-            e.sendMessage(new ChuuEmbedBuilder(e).setTitle("Music Playback").setDescription("Joining channel <#" + channel.getId() + ">").build()).queue();
+            e.sendMessage(new ChuuEmbedBuilder(e).setTitle("Music Playback").setDescription("Joining channel " + channel.getAsMention()).build()).queue();
 
             return true;
         }

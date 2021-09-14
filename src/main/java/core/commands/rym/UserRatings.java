@@ -70,7 +70,7 @@ public class UserRatings extends ConcurrentCommand<RYMRatingParams> {
     private void listOnlyOneRating(List<ScoredAlbumRatings> myRatings, RYMRatingParams params) {
         Context e = params.getE();
         NumberFormat formatter = new DecimalFormat("#0.##");
-        DiscordUserDisplay userInfoConsideringGuildOrNot = CommandUtil.getUserInfoConsideringGuildOrNot(e, params.getLastFMData().getDiscordId());
+        DiscordUserDisplay userInfoConsideringGuildOrNot = CommandUtil.getUserInfoEscaped(e, params.getLastFMData().getDiscordId());
         EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e).
                 setTitle(userInfoConsideringGuildOrNot.username() + "'s albums rated with a **" + formatter.format(params.getRating() / 2f) + "**");
         List<String> stringList = new ArrayList<>();
@@ -89,7 +89,7 @@ public class UserRatings extends ConcurrentCommand<RYMRatingParams> {
     private void listWithRating(List<ScoredAlbumRatings> myRatings, RYMRatingParams params) {
         Context e = params.getE();
         NumberFormat formatter = new DecimalFormat("#0.##");
-        DiscordUserDisplay userInfoConsideringGuildOrNot = CommandUtil.getUserInfoConsideringGuildOrNot(e, params.getLastFMData().getDiscordId());
+        DiscordUserDisplay userInfoConsideringGuildOrNot = CommandUtil.getUserInfoEscaped(e, params.getLastFMData().getDiscordId());
         EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e).
                 setTitle(userInfoConsideringGuildOrNot.username() + "'s rating overview");
         List<String> stringList = new ArrayList<>();

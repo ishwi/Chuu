@@ -142,7 +142,7 @@ public class BandInfoCommand extends ConcurrentCommand<ArtistParameters> {
     }
 
     void configEmbedBuilder(EmbedBuilder embedBuilder, ArtistParameters ap, ArtistAlbums ai) {
-        DiscordUserDisplay uInfo = CommandUtil.getUserInfoConsideringGuildOrNot(ap.getE(), ap.getLastFMData().getDiscordId());
+        DiscordUserDisplay uInfo = CommandUtil.getUserInfoEscaped(ap.getE(), ap.getLastFMData().getDiscordId());
         embedBuilder.setTitle(uInfo.username() + "'s top " + CommandUtil.escapeMarkdown(ai.getArtist()) + " albums");
 
     }

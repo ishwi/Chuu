@@ -109,7 +109,7 @@ public class UserTopTrackCommand extends ChartableCommand<ChartParameters> {
     public void noElementsMessage(ChartParameters parameters) {
         Context e = parameters.getE();
 
-        DiscordUserDisplay ingo = CommandUtil.getUserInfoConsideringGuildOrNot(e, parameters.getDiscordId());
+        DiscordUserDisplay ingo = CommandUtil.getUserInfoEscaped(e, parameters.getDiscordId());
         sendMessageQueue(e, String.format("%s didn't listen to any track%s!", ingo.username(), parameters.getTimeFrameEnum().getDisplayString()));
     }
 

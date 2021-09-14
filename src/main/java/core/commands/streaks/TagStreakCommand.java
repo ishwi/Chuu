@@ -128,7 +128,7 @@ public class TagStreakCommand extends ConcurrentCommand<ChuuDataParams> {
             return;
         }
 
-        DiscordUserDisplay userInformation = CommandUtil.getUserInfoConsideringGuildOrNot(e, discordID);
+        DiscordUserDisplay userInformation = CommandUtil.getUserInfoEscaped(e, discordID);
         String userName = userInformation.username();
         String userUrl = userInformation.urlImage();
 

@@ -22,8 +22,8 @@ public class PrivacyUtils {
         String dayNumberSuffix = CommandUtil.getDayNumberSuffix(andIncrement);
         switch (privacyMode) {
             case STRICT, NORMAL -> x.setCalculatedDisplayName(dayNumberSuffix + " **Private User #" + c.getAndIncrement() + "**");
-            case DISCORD_NAME -> x.setCalculatedDisplayName(dayNumberSuffix + " **" + CommandUtil.getUserInfoUnescaped(e, x.getDiscordId()).username() + "**");
-            case TAG -> x.setCalculatedDisplayName(dayNumberSuffix + " **" + e.getJDA().retrieveUserById(x.getDiscordId(), false).complete().getAsTag() + "**");
+            case DISCORD_NAME -> x.setCalculatedDisplayName(dayNumberSuffix + " **" + CommandUtil.getUserInfoEscaped(e, x.getDiscordId(), false).username() + "**");
+            case TAG -> x.setCalculatedDisplayName(dayNumberSuffix + " **" + core.Chuu.getShardManager().retrieveUserById(x.getDiscordId()).complete().getAsTag() + "**");
             case LAST_NAME -> x.setCalculatedDisplayName(dayNumberSuffix + " **" + x.getLastfmId() + " (last.fm)**");
         }
 
@@ -79,7 +79,7 @@ public class PrivacyUtils {
         }
         return switch (privacyMode) {
             case STRICT, NORMAL -> new PrivateString("Private User #" + atomicInteger.getAndIncrement(), Chuu.DEFAULT_LASTFM_ID);
-            case DISCORD_NAME -> new PrivateString(CommandUtil.getUserInfoUnescaped(e, discordId).username(), Chuu.getLastFmId(lastfmId));
+            case DISCORD_NAME -> new PrivateString(CommandUtil.getUserInfoUnescaped(e, discordId, false).username(), Chuu.getLastFmId(lastfmId));
             case TAG -> new PrivateString(Chuu.getShardManager().retrieveUserById(discordId).complete().getAsTag(), Chuu.getLastFmId(lastfmId));
             case LAST_NAME -> new PrivateString(lastfmId + " (last.fm)", Chuu.getLastFmId(lastfmId));
         };

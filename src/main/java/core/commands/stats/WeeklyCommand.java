@@ -127,7 +127,7 @@ public class WeeklyCommand extends ConcurrentCommand<ChuuDataParams> {
             BufferedImage bufferedImage = BarChartMaker.makeBarChart(imageMap);
             sendImage(bufferedImage, e);
         } else {
-            DiscordUserDisplay userInfo = CommandUtil.getUserInfoConsideringGuildOrNot(e, discordID);
+            DiscordUserDisplay userInfo = CommandUtil.getUserInfoEscaped(e, discordID);
             String url = userInfo.urlImage();
             String usableName = userInfo.username();
             minutesWastedOnMusicDaily.setSeconds(totalSeconds.get());

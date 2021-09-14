@@ -63,7 +63,7 @@ public class TrackSearchCommand extends ListCommand<ScrobbledTrack, UserStringPa
         Context e = params.getE();
         String value = params.getInput();
         String abbreviate = StringUtils.abbreviate(value, 120);
-        DiscordUserDisplay uInfo = CommandUtil.getUserInfoConsideringGuildOrNot(e, params.getLastFMData().getDiscordId());
+        DiscordUserDisplay uInfo = CommandUtil.getUserInfoEscaped(e, params.getLastFMData().getDiscordId());
         if (list.isEmpty()) {
             e.sendMessage(uInfo.username() + " doesnt have any track searching by `" + abbreviate + '`').queue();
             return;

@@ -10,7 +10,7 @@ public class ClientSingleton {
     private ClientSingleton() {
     }
 
-    public static synchronized HttpClient getInstance() {
+    public static  HttpClient getInstance() {
 
         //HTTP/2 priority
         return InstanceHolder.instance;

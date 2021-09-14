@@ -82,7 +82,7 @@ public class RecentChartCommand extends ChartableCommand<ChartSizeParameters> {
     @Override
     public void noElementsMessage(ChartSizeParameters parameters) {
         Context e = parameters.getE();
-        DiscordUserDisplay ingo = CommandUtil.getUserInfoConsideringGuildOrNot(e, parameters.getDiscordId());
+        DiscordUserDisplay ingo = CommandUtil.getUserInfoEscaped(e, parameters.getDiscordId());
         sendMessageQueue(e, String.format("%s didn't listen to any song!", ingo.username()));
     }
 

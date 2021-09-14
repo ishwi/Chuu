@@ -76,7 +76,7 @@ public class YearDistributionCommand extends ConcurrentCommand<TimeFrameParamete
             List<AlbumInfo> albums = queue.stream().map(t -> new AlbumInfo(t.getAlbumName(), t.getArtistName())).toList();
             counts = db.getUserYearsFromList(user.getName(), albums);
         }
-        DiscordUserDisplay uInfo = CommandUtil.getUserInfoConsideringGuildOrNot(e, user.getDiscordId());
+        DiscordUserDisplay uInfo = CommandUtil.getUserInfoEscaped(e, user.getDiscordId());
         List<String> lines = counts.entrySet().stream().sorted(Map.Entry.comparingByValue((Comparator.reverseOrder()))).map(t ->
                 ". **%d**: %d %s%n".formatted(t.getKey().getValue(), t.getValue(), CommandUtil.singlePlural(t.getValue(), "album", "albums"))
         ).toList();

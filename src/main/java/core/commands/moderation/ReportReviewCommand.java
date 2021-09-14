@@ -46,7 +46,7 @@ public class ReportReviewCommand extends ConcurrentCommand<CommandParameters> {
 
     private final TriFunction<JDA, Integer, Supplier<Integer>, BiFunction<ReportEntity, EmbedBuilder, EmbedBuilder>> builder = (jda, integer, pos) -> (reportEntity, embedBuilder) ->
             embedBuilder.clearFields()
-                    .addField("Author", CommandUtil.getGlobalUsername(jda, reportEntity.getWhoGotReported()), true)
+                    .addField("Author", CommandUtil.getGlobalUsername(reportEntity.getWhoGotReported()), true)
                     .addField("#Times user got reported:", String.valueOf(reportEntity.getUserTotalReports()), true)
                     .addField("Image score:", String.valueOf(reportEntity.getCurrentScore()), false)
                     .addField("Number of reports on this image:", String.valueOf(reportEntity.getReportCount()), true)

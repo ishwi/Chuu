@@ -122,7 +122,7 @@ public class DiscoveredArtistCommand extends ChartableCommand<ChartParameters> {
 
         }
         Context e = parameters.getE();
-        DiscordUserDisplay ingo = CommandUtil.getUserInfoConsideringGuildOrNot(e, parameters.getDiscordId());
+        DiscordUserDisplay ingo = CommandUtil.getUserInfoEscaped(e, parameters.getDiscordId());
         sendMessageQueue(e, String.format("%s hasn't discovered any artist%s!", ingo.username(), parameters.getTimeFrameEnum().getDisplayString()));
     }
 }

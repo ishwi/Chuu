@@ -96,14 +96,12 @@ public class ObscurityCommand extends ConcurrentCommand<ChuuDataParams> {
         final var avgHapinnes = 0.45;
         final var avgAcousticness = 0.22;
         AudioFeatures userFeatures = uF.join();
-        EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e);
         String danceStr = str(userFeatures.danceability(), avgDanceability);
         String energyStr = str(userFeatures.energy(), avgEnergy);
         String hapinessStr = str(userFeatures.valence(), avgHapinnes);
         String accStr = str(userFeatures.acousticness(), avgAcousticness);
         DiscordUserDisplay uInfo = CommandUtil.getUserInfoUnescaped(e, id);
-
-        embedBuilder.setAuthor(e.getGuild().getName() + "'s stats", null, e.getGuild().getIconUrl())
+        EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e)
                 .setAuthor(uInfo.username() + "'s obscurity details", PrivacyUtils.getLastFmUser(name), uInfo.urlImage())
                 .setTitle(formatter.format(100 - v) + "% obscure" + titleCF.join())
                 .addField("**Happiness:** %s%%".formatted(formatter.format(userFeatures.valence() * 100)), "**" + hapinessStr + "**", false)

@@ -64,7 +64,7 @@ public class AlbumSearchCommand extends ListCommand<ScrobbledAlbum, UserStringPa
         String value = params.getInput();
         String abbreviate = StringUtils.abbreviate(value, 120);
 
-        DiscordUserDisplay uInfo = CommandUtil.getUserInfoConsideringGuildOrNot(e, params.getLastFMData().getDiscordId());
+        DiscordUserDisplay uInfo = CommandUtil.getUserInfoEscaped(e, params.getLastFMData().getDiscordId());
         if (list.isEmpty()) {
             e.sendMessage(uInfo.username() + " doesnt have any album searching by `" + abbreviate + '`').queue();
             return;

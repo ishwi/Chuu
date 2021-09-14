@@ -100,7 +100,7 @@ public class RecommendationCommand extends ConcurrentCommand<RecommendationsPara
         if (firstDiscordID != e.getAuthor().getIdLong()) {
             receiver = getUserString(e, firstDiscordID);
         }
-        DiscordUserDisplay giverUI = CommandUtil.getUserInfoConsideringGuildOrNot(e, secondDiscordID);
+        DiscordUserDisplay giverUI = CommandUtil.getUserInfoEscaped(e, secondDiscordID);
         String giver = giverUI.username();
 
         if (recs.isEmpty()) {

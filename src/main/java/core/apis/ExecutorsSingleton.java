@@ -11,13 +11,13 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class ExecutorsSingleton {
 
     private static final AtomicInteger counter = new AtomicInteger(0);
-    private static ExecutorService instance;
+    private volatile static ExecutorService instance;
 
     private ExecutorsSingleton() {
     }
 
 
-    public static synchronized ExecutorService getInstance() {
+    public static ExecutorService getInstance() {
         if (instance == null) {
 
             instance = new ThreadPoolExecutor(

@@ -94,7 +94,7 @@ public class LanguageCommand extends ConcurrentCommand<TimeFrameParameters> {
         }
         Map<Language, Long> languageCountByMbid = this.mb.getLanguageCountByMbid(albumInfos);
 
-        DiscordUserDisplay userInformation = CommandUtil.getUserInfoConsideringGuildOrNot(e, discordId);
+        DiscordUserDisplay userInformation = CommandUtil.getUserInfoEscaped(e, discordId);
         String userName = userInformation.username();
         String userUrl = userInformation.urlImage();
         String usableTime = params.getTime().getDisplayString();

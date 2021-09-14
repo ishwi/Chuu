@@ -109,8 +109,8 @@ public abstract class BaseTasteCommand<T extends CommandParameters> extends Conc
             String text = strings.get(i);
             stringBuilder.append(i + 1).append(text);
         }
-        DiscordUserDisplay uinfo = CommandUtil.getUserInfoConsideringGuildOrNot(e, ogDiscordID);
-        DiscordUserDisplay uinfo1 = CommandUtil.getUserInfoConsideringGuildOrNot(e, secondDiscordId);
+        DiscordUserDisplay uinfo = CommandUtil.getUserInfoEscaped(e, ogDiscordID);
+        DiscordUserDisplay uinfo1 = CommandUtil.getUserInfoEscaped(e, secondDiscordId);
         EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e)
                 .setDescription(stringBuilder)
                 .setTitle(String.format("%s vs %s", uinfo.username(), uinfo1.username()))

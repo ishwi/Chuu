@@ -56,7 +56,7 @@ public class UnratedAlbums extends ListCommand<AlbumPlays, ChuuDataParams> {
     public void printList(List<AlbumPlays> list, ChuuDataParams params) {
         long discordId = params.getLastFMData().getDiscordId();
         Context e = params.getE();
-        DiscordUserDisplay dp = CommandUtil.getUserInfoConsideringGuildOrNot(e, discordId);
+        DiscordUserDisplay dp = CommandUtil.getUserInfoEscaped(e, discordId);
         if (list.isEmpty()) {
             sendMessageQueue(e, "Couldn't find any unrated album in " + dp.username() + " albums");
             return;

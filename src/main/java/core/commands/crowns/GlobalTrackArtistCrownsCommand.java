@@ -91,7 +91,7 @@ public class GlobalTrackArtistCrownsCommand extends ConcurrentCommand<NumberPara
 
         innerParams.setScrobbledArtist(scrobbledArtist);
         UniqueWrapper<TrackPlays> uniqueDataUniqueWrapper = getList(params);
-        DiscordUserDisplay userInformation = CommandUtil.getUserInfoConsideringGuildOrNot(e, innerParams.getLastFMData().getDiscordId());
+        DiscordUserDisplay userInformation = CommandUtil.getUserInfoEscaped(e, innerParams.getLastFMData().getDiscordId());
         String userName = userInformation.username();
         String userUrl = userInformation.urlImage();
         List<TrackPlays> resultWrapper = uniqueDataUniqueWrapper.getUniqueData();

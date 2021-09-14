@@ -37,7 +37,7 @@ public class CountryParse {
             } else if (value.equalsIgnoreCase("northen macedonia")) {
                 value = "mk";
                 country = CountryCode.getByAlpha2Code(value.toUpperCase());
-            } else if (value.equalsIgnoreCase("eSwatini ")) {
+            } else if (value.equalsIgnoreCase("eSwatini")) {
                 value = "sz";
                 country = CountryCode.getByAlpha2Code(value.toUpperCase());
             } else {

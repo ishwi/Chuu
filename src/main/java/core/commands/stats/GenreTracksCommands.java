@@ -135,7 +135,7 @@ public class GenreTracksCommands extends ChartableCommand<ChartableGenreParamete
     @Override
     public void noElementsMessage(ChartableGenreParameters parameters) {
         Context e = parameters.getE();
-        DiscordUserDisplay ingo = CommandUtil.getUserInfoConsideringGuildOrNot(e, parameters.getDiscordId());
+        DiscordUserDisplay ingo = CommandUtil.getUserInfoEscaped(e, parameters.getDiscordId());
         sendMessageQueue(e, String.format("Couldn't find any %s track in %s's tracks%s!", parameters.getGenreParameters().getGenre(), ingo.username(), parameters.getTimeFrameEnum().getDisplayString()));
     }
 }

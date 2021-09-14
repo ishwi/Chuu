@@ -55,7 +55,7 @@ public class ScrobblesSinceCommand extends ConcurrentCommand<DateParameters> {
         LastFMData lastFMData = db.findLastFMData(params.getUser().getIdLong());
         ZonedDateTime date = params.getDate().atZoneSameInstant(lastFMData.getTimeZone().toZoneId());
         int i = lastFM.scrobblesSince(lastFMData, date.toOffsetDateTime());
-        String username = CommandUtil.getUserInfoConsideringGuildOrNot(e, params.getUser().getIdLong()).username();
+        String username = CommandUtil.getUserInfoEscaped(e, params.getUser().getIdLong()).username();
         String mmmmD = date.format(DateTimeFormatter.ofPattern("MMMM d"));
 
         String ending = params.isAllTime() ? "" : "since " + CommandUtil.getDateTimestampt(params.getDate().toInstant(), TimeFormat.DATE_TIME_SHORT);

@@ -205,7 +205,7 @@ public class HelpCommand extends ConcurrentCommand<WordParameter> {
                 boolean resend = false;
                 String realUsageInstructions = usageInstructions;
                 String remainingUsageInstructions = null;
-                List<String> pagees = TextSplitter.split(realUsageInstructions, 1900);
+                List<String> pagees = TextSplitter.split(realUsageInstructions, 1600);
                 e.sendMessage("**Name:** " + name + "\n" +
                               "**Description:** " + description + "\n" +
                               "**Aliases:** " + prefix +

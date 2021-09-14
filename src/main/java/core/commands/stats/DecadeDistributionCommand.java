@@ -79,7 +79,7 @@ public class DecadeDistributionCommand extends ConcurrentCommand<TimeFrameParame
             counts = db.getUserDecadesFromList(user.getName(), albums);
         }
 
-        DiscordUserDisplay uInfo = CommandUtil.getUserInfoConsideringGuildOrNot(e, user.getDiscordId());
+        DiscordUserDisplay uInfo = CommandUtil.getUserInfoEscaped(e, user.getDiscordId());
         List<String> lines = counts.entrySet().stream().sorted(Map.Entry.comparingByValue((Comparator.reverseOrder()))).map(t ->
                 ". **%ds**: %d %s%n".formatted(CommandUtil.getDecade(t.getKey().getValue()), t.getValue(), CommandUtil.singlePlural(t.getValue(), "album", "albums"))
         ).toList();

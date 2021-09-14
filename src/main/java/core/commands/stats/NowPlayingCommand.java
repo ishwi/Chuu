@@ -106,7 +106,6 @@ public class NowPlayingCommand extends NpCommand {
                 break;
             }
         }
-
         String footer = String.join(" • ", footerMax);
         // The first line needs the zws to align up with the rest of the lines
         if (!footer.isBlank() && !footer.startsWith(EmbedBuilder.ZERO_WIDTH_SPACE)) {

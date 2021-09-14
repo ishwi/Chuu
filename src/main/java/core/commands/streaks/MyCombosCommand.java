@@ -58,7 +58,7 @@ public class MyCombosCommand extends ConcurrentCommand<ChuuDataParams> {
 
 
         long discordID = params.getLastFMData().getDiscordId();
-        DiscordUserDisplay userInformation = CommandUtil.getUserInfoConsideringGuildOrNot(e, discordID);
+        DiscordUserDisplay userInformation = CommandUtil.getUserInfoEscaped(e, discordID);
         String userName = userInformation.username();
         String userUrl = userInformation.urlImage();
         List<StreakEntity> userStreaks = db.getUserStreaks(discordID);

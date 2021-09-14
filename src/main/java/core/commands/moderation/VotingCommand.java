@@ -45,7 +45,7 @@ public class VotingCommand extends ConcurrentCommand<ArtistParameters> {
 
     private final TriFunction<JDA, AtomicInteger, AtomicInteger, BiFunction<VotingEntity, EmbedBuilder, EmbedBuilder>> builder = (jda, size, counter) -> (votingEntity, embedBuilder) ->
             embedBuilder.clearFields()
-                    .addField("Added by", CommandUtil.getGlobalUsername(jda, votingEntity.getOwner()), true)
+                    .addField("Added by", CommandUtil.getGlobalUsername(votingEntity.getOwner()), true)
                     .addBlankField(true)
                     .addField("Submitted:", votingEntity.getDateTime().atOffset(ZoneOffset.UTC).format(DateTimeFormatter.ofPattern("yyyy MM dd HH:mm ")), true)
                     .addField("Points:", String.valueOf(votingEntity.getVotes()), true)
@@ -118,7 +118,7 @@ public class VotingCommand extends ConcurrentCommand<ArtistParameters> {
                 description = "This artist no longer has any image";
             } else {
                 title = "Voting timed out";
-                description = "Submitted by: " + CommandUtil.getGlobalUsername(e.getJDA(), first.getOwner()) + "\n\n";
+                description = "Submitted by: " + CommandUtil.getGlobalUsername(first.getOwner()) + "\n\n";
                 if (first != allArtistImages.get(0)) {
                     description += "The artist image for " + CommandUtil.escapeMarkdown(first.getArtist()) + " has changed to:";
                 } else {

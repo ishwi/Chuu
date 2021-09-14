@@ -256,7 +256,7 @@ public abstract class MyCommand<T extends CommandParameters> implements EventLis
 
     protected String getUserString(Context e, long discordId, String replacement) {
         try {
-            return CommandUtil.getUserInfoConsideringGuildOrNot(e, discordId).username();
+            return CommandUtil.getUserInfoEscaped(e, discordId).username();
         } catch (Exception ex) {
             return replacement != null ? replacement : "Unknown";
         }

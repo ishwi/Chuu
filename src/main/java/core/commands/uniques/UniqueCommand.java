@@ -87,7 +87,7 @@ public class UniqueCommand extends ConcurrentCommand<ChuuDataParams> {
             a.append(i + 1).append(g.toString());
         }
 
-        DiscordUserDisplay userInfo = CommandUtil.getUserInfoConsideringGuildOrNot(e, discordId);
+        DiscordUserDisplay userInfo = CommandUtil.getUserInfoEscaped(e, discordId);
 
 
         EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e).setDescription(a)
