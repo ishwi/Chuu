@@ -115,7 +115,7 @@ public class GayCommand extends OnlyChartCommand<GayParams> {
 
     @Override
     public List<String> getAliases() {
-        return List.of("pride", "gay", "flag", "trans", "ace", "lesbian", "nonbinary", "nb", "bi");
+        return List.of("pride", "gay", "flag", "trans", "ace", "lesbian", "nonbinary", "nb", "bi", "enby");
     }
 
     @Override

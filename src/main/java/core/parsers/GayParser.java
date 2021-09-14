@@ -30,7 +30,7 @@ import java.util.Optional;
 import java.util.regex.Pattern;
 
 public class GayParser extends ChartableParser<GayParams> {
-    private final static Pattern gayRegex = Pattern.compile("((lgtb).*|(gay)|(bi)(?:sexual)?|(trans)(?:exual)?|(non( )?binary)|(nb)|(lesb)(ian)?|(ace|asexual))", Pattern.CASE_INSENSITIVE);
+    private final static Pattern gayRegex = Pattern.compile("((lgtb).*|(gay)|(bi)(?:sexual)?|(trans)(?:exual)?|(non( )?binary)|(nb)|(enby)|(lesb)(ian)?|(ace|asexual))", Pattern.CASE_INSENSITIVE);
 
     public GayParser(ChuuService service, TimeFrameEnum defaultTimeFrame) {
         super(service, defaultTimeFrame);
@@ -60,7 +60,7 @@ public class GayParser extends ChartableParser<GayParams> {
             type = switch (substring) {
                 case "trans" -> GayType.TRANS;
                 case "ace" -> GayType.ACE;
-                case "nonbinary", "nb" -> GayType.NB;
+                case "nonbinary", "nb", "enby" -> GayType.NB;
                 case "lesbian" -> GayType.LESBIAN;
                 case "bi" -> GayType.BI;
                 default -> null;
