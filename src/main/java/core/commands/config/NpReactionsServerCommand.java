@@ -3,6 +3,7 @@ package core.commands.config;
 import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
+import core.commands.utils.CommandUtil;
 import core.parsers.EmojeParser;
 import core.parsers.Parser;
 import core.parsers.params.EmotiParameters;
@@ -64,8 +65,8 @@ public class NpReactionsServerCommand extends ConcurrentCommand<EmotiParameters>
             return;
 
         }
-        if (e.getMember() == null || !e.getMember().hasPermission(Permission.MESSAGE_MANAGE)) {
-            sendMessageQueue(e, "Only server mods can use this command");
+        if (CommandUtil.notEnoughPerms(e)) {
+            sendMessageQueue(e, CommandUtil.notEnoughPermsTemplate() + "set reactions for the whole server");
             return;
         }
         if (params.getEmotis().isEmpty()) {

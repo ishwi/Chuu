@@ -14,7 +14,6 @@ import core.parsers.utils.OptionalEntity;
 import dao.ChuuService;
 import dao.entities.*;
 import dao.exceptions.InstanceNotFoundException;
-import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.interactions.commands.Command;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
@@ -56,10 +55,12 @@ public class GuildConfigParser extends DaoParser<GuildConfigParams> implements G
     @Override
     protected GuildConfigParams parseLogic(Context e, String[] words) {
 
-        if (e.getMember() == null || !e.getMember().hasPermission(Permission.ADMINISTRATOR)) {
-            sendError("Only admins can modify the server configuration", e);
+        if (CommandUtil.notEnoughPerms(e)) {
+            sendError(CommandUtil.notEnoughPermsTemplate() + "modify the server configuration", e);
             return null;
         }
+
+
         if (words.length == 1) {
             String line = Arrays.stream(GuildConfigType.values()).filter(x -> x.getCommandName().equalsIgnoreCase(words[0])).map(x ->
                     String.format("\t**%s** ➜ %s", x.getCommandName(), x.getExplanation())).collect(Collectors.joining("\n"));

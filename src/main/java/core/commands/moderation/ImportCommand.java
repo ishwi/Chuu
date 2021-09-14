@@ -5,6 +5,7 @@ import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
+import core.commands.utils.CommandUtil;
 import core.exceptions.LastFMNoPlaysException;
 import core.exceptions.LastFmEntityNotFoundException;
 import core.exceptions.LastFmException;
@@ -16,7 +17,6 @@ import core.parsers.utils.CustomTimeFrame;
 import dao.ServiceView;
 import dao.entities.*;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
@@ -174,8 +174,8 @@ public class ImportCommand extends ConcurrentCommand<UrlParameters> {
     @Override
     protected void onCommand(Context e, @NotNull UrlParameters params) {
         Member member = e.getGuild().getMember(e.getAuthor());
-        if (member == null || !member.hasPermission(Permission.ADMINISTRATOR)) {
-            sendMessageQueue(e, "Only an admin can export the data");
+        if (CommandUtil.notEnoughPerms(e)) {
+            sendMessageQueue(e, CommandUtil.notEnoughPermsTemplate() + "export the data");
             return;
         }
 

@@ -15,6 +15,7 @@ import dao.ChuuService;
 import dao.entities.*;
 import dao.exceptions.InstanceNotFoundException;
 import dao.utils.LinkUtils;
+import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
@@ -46,6 +47,15 @@ public class CommandUtil {
     public static final Random rand = new Random();
 
     private CommandUtil() {
+    }
+
+    public static boolean notEnoughPerms(Context e) {
+        Member member = e.getMember();
+        return member == null || !member.hasPermission(Permission.MESSAGE_MANAGE);
+    }
+
+    public static String notEnoughPermsTemplate() {
+        return "Only a member with permission: **%s can ".formatted(Permission.MESSAGE_MANAGE);
     }
 
     public static String secondFormatter(int seconds) {

@@ -5,6 +5,7 @@ import core.commands.ContextMessageReceived;
 import core.commands.ContextSlashReceived;
 import core.commands.abstracts.MyCommand;
 import core.commands.moderation.DisabledCommand;
+import core.commands.utils.CommandUtil;
 import core.exceptions.LastFmException;
 import core.interactions.InteractionBuilder;
 import core.parsers.explanation.CommandExplanation;
@@ -13,7 +14,6 @@ import core.parsers.explanation.util.ExplanationLineType;
 import core.parsers.params.DisabledCommandParameters;
 import core.parsers.utils.OptionalEntity;
 import dao.exceptions.InstanceNotFoundException;
-import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
@@ -65,8 +65,9 @@ public class DisabledCommandParser extends Parser<DisabledCommandParameters> imp
             };
         }
         List<Character> acceptecChars = PrefixParser.acceptecChars;
-        if (e.getMember() == null || !e.getMember().hasPermission(Permission.MESSAGE_MANAGE)) {
-            sendError("Only server admins can disable commands", e);
+
+        if (CommandUtil.notEnoughPerms(e)) {
+            sendError(CommandUtil.notEnoughPermsTemplate() + "disable commands", e);
             return null;
         }
         if (words.length != 1) {

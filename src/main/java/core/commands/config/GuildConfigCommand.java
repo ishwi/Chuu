@@ -159,8 +159,9 @@ public class GuildConfigCommand extends ConcurrentCommand<GuildConfigParams> {
             case DELETE_MESSAGE -> {
                 boolean b = Boolean.parseBoolean(value);
                 if (b) {
+
                     if (!e.getGuild().getSelfMember().hasPermission(Permission.MESSAGE_MANAGE)) {
-                        sendMessageQueue(e, "Don't have MESSAGE_MANAGE permissions so can't delete messages :(");
+                        sendMessageQueue(e, "Don't have the permission **%s** so can't delete messages :(".formatted(Permission.MESSAGE_MANAGE.getName()));
                     }
                 }
                 db.setServerDeleteMessage(guildId, b);

@@ -9,7 +9,6 @@ import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
 import dao.ServiceView;
 import dao.entities.UsersWrapper;
-import net.dv8tion.jda.api.Permission;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
@@ -49,8 +48,8 @@ public class IndexCommand extends ConcurrentCommand<CommandParameters> {
 
     @Override
     protected void onCommand(Context e, @NotNull CommandParameters params) {
-        if (e.getMember() == null || !e.getMember().hasPermission(Permission.MESSAGE_MANAGE)) {
-            sendMessageQueue(e, "Only server mods can use this command");
+        if (CommandUtil.notEnoughPerms(e)) {
+            sendMessageQueue(e, CommandUtil.notEnoughPermsTemplate() + "re-index the whole serverlist");
             return;
         }
         Set<Long> allBot = db.getAllALL().stream().map(UsersWrapper::getDiscordID).collect(Collectors.toUnmodifiableSet());

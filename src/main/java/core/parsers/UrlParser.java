@@ -3,6 +3,7 @@ package core.parsers;
 import core.commands.Context;
 import core.commands.ContextMessageReceived;
 import core.commands.ContextSlashReceived;
+import core.commands.utils.CommandUtil;
 import core.exceptions.LastFmException;
 import core.parsers.explanation.UrlExplanation;
 import core.parsers.explanation.util.Explanation;
@@ -41,8 +42,9 @@ public class UrlParser extends Parser<UrlParameters> {
     @Override
     public UrlParameters parseSlashLogic(ContextSlashReceived ctx) throws LastFmException, InstanceNotFoundException {
         SlashCommandEvent e = ctx.e();
-        if (permCheck && (e.getMember() == null || !e.getMember().hasPermission(Permission.MESSAGE_MANAGE))) {
-            sendError(getErrorMessage(2), ctx);
+
+        if (permCheck && (CommandUtil.notEnoughPerms(ctx))) {
+            sendError(CommandUtil.notEnoughPermsTemplate() + "submit links", ctx);
             return null;
         }
 

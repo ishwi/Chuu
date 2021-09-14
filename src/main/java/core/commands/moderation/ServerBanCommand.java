@@ -3,11 +3,11 @@ package core.commands.moderation;
 import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
+import core.commands.utils.CommandUtil;
 import core.parsers.OnlyUsernameParser;
 import core.parsers.Parser;
 import core.parsers.params.ChuuDataParams;
 import dao.ServiceView;
-import net.dv8tion.jda.api.Permission;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
@@ -30,7 +30,7 @@ public class ServerBanCommand extends ConcurrentCommand<ChuuDataParams> {
 
     @Override
     public String getDescription() {
-        return "Lets server administrators to block/unblock one user from this server leaderboard";
+        return "Lets server administrators block/unblock one user from this server leaderboard";
     }
 
     @Override
@@ -46,11 +46,11 @@ public class ServerBanCommand extends ConcurrentCommand<ChuuDataParams> {
     @Override
     protected void onCommand(Context e, @NotNull ChuuDataParams params) {
 
-
-        if (e.getMember() != null && !e.getMember().hasPermission(Permission.ADMINISTRATOR)) {
-            sendMessageQueue(e, "Only server administrators can block one person from crowns/leaderboards.");
+        if (CommandUtil.notEnoughPerms(e)) {
+            sendMessageQueue(e, CommandUtil.notEnoughPermsTemplate() + "block one person from crowns/leaderboards");
             return;
         }
+
         long discordId = params.getLastFMData().getDiscordId();
         if (discordId == e.getAuthor().getIdLong()) {
             sendMessageQueue(e, "You can't block/unblock yourself.");

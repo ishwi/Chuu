@@ -2,12 +2,12 @@ package core.parsers;
 
 import core.commands.Context;
 import core.commands.ContextSlashReceived;
+import core.commands.utils.CommandUtil;
 import core.exceptions.LastFmException;
 import core.parsers.explanation.util.Explanation;
 import core.parsers.explanation.util.ExplanationLine;
 import core.parsers.params.CharacterParameters;
 import dao.exceptions.InstanceNotFoundException;
-import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
@@ -37,8 +37,8 @@ public class PrefixParser extends Parser<CharacterParameters> {
 
     @Override
     protected CharacterParameters parseLogic(Context e, String[] words) {
-        if (e.getMember() == null || !e.getMember().hasPermission(Permission.MESSAGE_MANAGE)) {
-            sendError(getErrorMessage(2), e);
+        if (CommandUtil.notEnoughPerms(e)) {
+            sendError(CommandUtil.notEnoughPermsTemplate() + "change the prefix", e);
             return null;
         }
         if (words.length != 1) {

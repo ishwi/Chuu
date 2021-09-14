@@ -6,12 +6,12 @@ import core.Chuu;
 import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
+import core.commands.utils.CommandUtil;
 import core.parsers.NoOpParser;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
 import dao.ServiceView;
 import dao.entities.UsersWrapper;
-import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 
 import javax.validation.constraints.NotNull;
@@ -59,8 +59,8 @@ public class UserExportCommand extends ConcurrentCommand<CommandParameters> {
 
 
         Member member = e.getGuild().getMember(e.getAuthor());
-        if (member == null || !member.hasPermission(Permission.ADMINISTRATOR)) {
-            sendMessageQueue(e, "Only an admin can export the data");
+        if (CommandUtil.notEnoughPerms(e)) {
+            sendMessageQueue(e, CommandUtil.notEnoughPermsTemplate() + "export the user list");
             return;
         }
         sendMessage(e, "Check your DMs!").queue();
