@@ -35,7 +35,7 @@ public class MetadataCommand extends MusicCommand<CommandParameters> {
 
     @Override
     public String getDescription() {
-        return "Changes the metadata of the current playing track for scrobbling porpouses";
+        return "Changes the metadata of the current playing track for scrobbling purposes.";
     }
 
     @Override
