@@ -25,7 +25,7 @@ import dao.entities.ScrobbledArtist;
 import dao.entities.UserInfo;
 import net.dv8tion.jda.api.utils.TimeFormat;
 
-import javax.validation.constraints.NotNull;
+import javax.annotation.Nonnull;
 import java.text.DecimalFormat;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -83,7 +83,7 @@ public class PaceAlbumCommand extends ConcurrentCommand<NumberParameters<AlbumTi
     }
 
     @Override
-    protected void onCommand(Context e, @NotNull NumberParameters<AlbumTimeFrameParameters> params) throws LastFmException {
+    protected void onCommand(Context e, @Nonnull NumberParameters<AlbumTimeFrameParameters> params) throws LastFmException {
 
 
         CustomTimeFrame time = params.getInnerParams().getTimeFrame();

@@ -13,7 +13,7 @@ import dao.entities.LastFMData;
 import dao.entities.Role;
 import dao.exceptions.InstanceNotFoundException;
 
-import javax.validation.constraints.NotNull;
+import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.Map;
 
@@ -49,7 +49,7 @@ public class RateLimitCommand extends ConcurrentCommand<RateLimitParams> {
     }
 
     @Override
-    protected void onCommand(Context e, @NotNull RateLimitParams params) throws InstanceNotFoundException {
+    protected void onCommand(Context e, @Nonnull RateLimitParams params) throws InstanceNotFoundException {
 
 
         long idLong = e.getAuthor().getIdLong();

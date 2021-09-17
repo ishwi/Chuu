@@ -15,7 +15,7 @@ import dao.entities.TimeFrameEnum;
 import net.dv8tion.jda.api.EmbedBuilder;
 import org.json.JSONObject;
 
-import javax.validation.constraints.NotNull;
+import javax.annotation.Nonnull;
 import java.util.concurrent.BlockingQueue;
 import java.util.function.BiFunction;
 
@@ -26,7 +26,7 @@ public class ChartParameters extends CommandParameters {
     private int y;
 
 
-    public ChartParameters(Context e, @NotNull LastFMData lastFMData, CustomTimeFrame timeFrameEnum, int x, int y) {
+    public ChartParameters(Context e, @Nonnull LastFMData lastFMData, CustomTimeFrame timeFrameEnum, int x, int y) {
         super(e);
         this.user = lastFMData;
         this.timeFrameEnum = timeFrameEnum;
@@ -34,7 +34,7 @@ public class ChartParameters extends CommandParameters {
         this.y = y;
     }
 
-    public ChartParameters(Context e, @NotNull LastFMData user, CustomTimeFrame timeFrameEnum, int x, int y, boolean writeTitles, boolean writePlays, boolean isList) {
+    public ChartParameters(Context e, @Nonnull LastFMData user, CustomTimeFrame timeFrameEnum, int x, int y, boolean writeTitles, boolean writePlays, boolean isList) {
         super(e);
         this.user = user;
         this.timeFrameEnum = timeFrameEnum;

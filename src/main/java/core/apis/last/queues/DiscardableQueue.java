@@ -2,9 +2,9 @@ package core.apis.last.queues;
 
 import core.Chuu;
 import core.apis.last.entities.chartentities.UrlCapsule;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import javax.annotation.Nonnull;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Objects;
@@ -37,7 +37,7 @@ public class DiscardableQueue<T extends UrlCapsule> implements BlockingQueue<Url
     }
 
     @Override
-    public boolean offer(@NotNull UrlCapsule item) {
+    public boolean offer(@Nonnull UrlCapsule item) {
         CompletableFuture<?> future = CompletableFuture.supplyAsync(() -> {
                     if (innerQueue.size() < maxNumberOfElements) {
 
@@ -62,7 +62,7 @@ public class DiscardableQueue<T extends UrlCapsule> implements BlockingQueue<Url
 
 
     @Override
-    public int drainTo(@NotNull Collection<? super UrlCapsule> c, int maxElements) {
+    public int drainTo(@Nonnull Collection<? super UrlCapsule> c, int maxElements) {
         Objects.requireNonNull(c);
         if (c == this)
             throw new IllegalArgumentException();
@@ -91,7 +91,7 @@ public class DiscardableQueue<T extends UrlCapsule> implements BlockingQueue<Url
     }
 
     @Override
-    public boolean add(@NotNull UrlCapsule capsule) {
+    public boolean add(@Nonnull UrlCapsule capsule) {
         return this.offer(capsule);
     }
 
@@ -116,17 +116,17 @@ public class DiscardableQueue<T extends UrlCapsule> implements BlockingQueue<Url
     }
 
     @Override
-    public void put(@NotNull UrlCapsule capsule) throws InterruptedException {
+    public void put(@Nonnull UrlCapsule capsule) throws InterruptedException {
         innerQueue.put(capsule);
     }
 
     @Override
-    public boolean offer(UrlCapsule capsule, long timeout, @NotNull TimeUnit unit) {
+    public boolean offer(UrlCapsule capsule, long timeout, @Nonnull TimeUnit unit) {
         throw new UnsupportedOperationException();
     }
 
 
-    @NotNull
+    @Nonnull
     @Override
     public UrlCapsule take() throws InterruptedException {
         return innerQueue.take();
@@ -134,7 +134,7 @@ public class DiscardableQueue<T extends UrlCapsule> implements BlockingQueue<Url
 
     @Nullable
     @Override
-    public UrlCapsule poll(long timeout, @NotNull TimeUnit unit) {
+    public UrlCapsule poll(long timeout, @Nonnull TimeUnit unit) {
         return innerQueue.poll();
     }
 
@@ -149,12 +149,12 @@ public class DiscardableQueue<T extends UrlCapsule> implements BlockingQueue<Url
     }
 
     @Override
-    public boolean containsAll(@NotNull Collection<?> c) {
+    public boolean containsAll(@Nonnull Collection<?> c) {
         return innerQueue.containsAll(c);
     }
 
     @Override
-    public boolean addAll(@NotNull Collection<? extends UrlCapsule> c) {
+    public boolean addAll(@Nonnull Collection<? extends UrlCapsule> c) {
         for (UrlCapsule urlCapsule : c) {
             this.offer(urlCapsule);
         }
@@ -162,12 +162,12 @@ public class DiscardableQueue<T extends UrlCapsule> implements BlockingQueue<Url
     }
 
     @Override
-    public boolean removeAll(@NotNull Collection<?> c) {
+    public boolean removeAll(@Nonnull Collection<?> c) {
         return innerQueue.removeAll(c);
     }
 
     @Override
-    public boolean retainAll(@NotNull Collection<?> c) {
+    public boolean retainAll(@Nonnull Collection<?> c) {
         return innerQueue.retainAll(c);
     }
 
@@ -181,26 +181,26 @@ public class DiscardableQueue<T extends UrlCapsule> implements BlockingQueue<Url
         return innerQueue.contains(o);
     }
 
-    @NotNull
+    @Nonnull
     @Override
     public Iterator<UrlCapsule> iterator() {
         return innerQueue.iterator();
     }
 
-    @NotNull
+    @Nonnull
     @Override
-    public Object @NotNull [] toArray() {
+    public Object[] toArray() {
         return innerQueue.toArray();
     }
 
-    @NotNull
+    @Nonnull
     @Override
-    public <Z> Z @NotNull [] toArray(@NotNull Z @NotNull [] a) {
+    public <Z> Z[] toArray(@Nonnull Z[] a) {
         return innerQueue.toArray(a);
     }
 
     @Override
-    public int drainTo(@NotNull Collection<? super UrlCapsule> c) {
+    public int drainTo(@Nonnull Collection<? super UrlCapsule> c) {
         return this.drainTo(c, Integer.MAX_VALUE);
     }
 }

@@ -25,7 +25,7 @@ import dao.entities.TimeFrameEnum;
 import dao.entities.UserInfo;
 import net.dv8tion.jda.api.utils.TimeFormat;
 
-import javax.validation.constraints.NotNull;
+import javax.annotation.Nonnull;
 import java.text.DecimalFormat;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -82,7 +82,7 @@ public class PaceArtistCommand extends ConcurrentCommand<NumberParameters<Artist
     }
 
     @Override
-    protected void onCommand(Context e, @NotNull NumberParameters<ArtistTimeFrameParameters> params) throws LastFmException {
+    protected void onCommand(Context e, @Nonnull NumberParameters<ArtistTimeFrameParameters> params) throws LastFmException {
 
 
         TimeFrameEnum time = params.getInnerParams().getTimeFrame();

@@ -26,11 +26,12 @@ import net.dv8tion.jda.api.events.guild.voice.GuildVoiceJoinEvent;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceLeaveEvent;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceMoveEvent;
 import net.dv8tion.jda.api.hooks.EventListener;
-import org.jetbrains.annotations.NotNull;
+
+import javax.annotation.Nonnull;
 
 public class VoiceListener implements EventListener {
 
-    public void onEvent(@NotNull GenericEvent event) {
+    public void onEvent(@Nonnull GenericEvent event) {
         if (!(event instanceof GenericGuildVoiceEvent) || !core.Chuu.isLoaded()) {
             return;
         }

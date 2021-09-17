@@ -12,10 +12,10 @@ import core.parsers.utils.OptionalEntity;
 import dao.ChuuService;
 import dao.entities.LastFMData;
 import dao.exceptions.InstanceNotFoundException;
-import javacutils.Pair;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.List;
 import java.util.Optional;
@@ -42,7 +42,7 @@ public class RYMRatingParser extends DaoParser<RYMRatingParams> {
     protected RYMRatingParams parseLogic(Context e, String[] words) throws InstanceNotFoundException {
         Predicate<String> stringPredicate = doublePatter.asMatchPredicate();
         Pair<String[], Double> doubleFilter = filterMessage(words, stringPredicate, x -> Double.valueOf(x.replaceAll(",", ".")), null);
-        Double decimalRating = doubleFilter.second;
+        Double decimalRating = doubleFilter.getRight();
         Short rating;
         if (decimalRating != null) {
             if (decimalRating < 0) {
@@ -65,7 +65,7 @@ public class RYMRatingParser extends DaoParser<RYMRatingParams> {
             }
         } else {
             Pair<String[], Integer> intFilter = filterMessage(words, ParserAux.digitMatcher.asMatchPredicate(), Integer::valueOf, null);
-            Integer numericRating = intFilter.second;
+            Integer numericRating = intFilter.getRight();
             if (numericRating != null) {
                 if (numericRating < 0) {
                     sendError("The rating can only be interpreted in the scale 0-5 (with .5 decimals), 0-10 and 0-100", e);
@@ -85,7 +85,7 @@ public class RYMRatingParser extends DaoParser<RYMRatingParams> {
                 rating = null;
             }
         }
-        words = doubleFilter.first;
+        words = doubleFilter.getLeft();
         LastFMData lastFMData = atTheEndOneUser(e, words);
         return new RYMRatingParams(e, lastFMData, rating);
     }

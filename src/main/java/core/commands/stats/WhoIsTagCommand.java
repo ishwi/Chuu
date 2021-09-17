@@ -11,7 +11,7 @@ import core.parsers.utils.Optionals;
 import dao.ServiceView;
 import dao.entities.ScrobbledArtist;
 
-import javax.validation.constraints.NotNull;
+import javax.annotation.Nonnull;
 import java.util.List;
 
 public class WhoIsTagCommand extends ConcurrentCommand<GenreParameters> {
@@ -46,7 +46,7 @@ public class WhoIsTagCommand extends ConcurrentCommand<GenreParameters> {
     }
 
     @Override
-    protected void onCommand(Context e, @NotNull GenreParameters params) {
+    protected void onCommand(Context e, @Nonnull GenreParameters params) {
 
 
         String genre = params.getGenre();

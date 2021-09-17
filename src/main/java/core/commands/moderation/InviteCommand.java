@@ -9,7 +9,7 @@ import core.parsers.params.CommandParameters;
 import dao.ServiceView;
 import net.dv8tion.jda.api.Permission;
 
-import javax.validation.constraints.NotNull;
+import javax.annotation.Nonnull;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
@@ -47,7 +47,7 @@ public class InviteCommand extends ConcurrentCommand<CommandParameters> {
     }
 
     @Override
-    protected void onCommand(Context e, @NotNull CommandParameters params) {
+    protected void onCommand(Context e, @Nonnull CommandParameters params) {
         EnumSet<Permission> permissions = Permission.getPermissions(PERMISSIONS);
         // TODO when there is proper support for creating url with JDA
         String inviteUrl = e.getJDA().getInviteUrl(permissions).replaceAll("&scope=bot", "&scope=bot%20applications.commands");

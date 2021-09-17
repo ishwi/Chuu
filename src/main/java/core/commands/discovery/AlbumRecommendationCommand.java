@@ -22,7 +22,7 @@ import dao.musicbrainz.MusicBrainzServiceSingleton;
 import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
 
-import javax.validation.constraints.NotNull;
+import javax.annotation.Nonnull;
 import java.util.*;
 import java.util.function.ToIntFunction;
 import java.util.stream.Collectors;
@@ -63,7 +63,7 @@ public class AlbumRecommendationCommand extends ConcurrentCommand<Recommendation
     }
 
     @Override
-    protected void onCommand(Context e, @NotNull RecommendationsParams params) throws LastFmException, InstanceNotFoundException {
+    protected void onCommand(Context e, @Nonnull RecommendationsParams params) throws LastFmException, InstanceNotFoundException {
 
         long firstDiscordID;
         long secondDiscordID;

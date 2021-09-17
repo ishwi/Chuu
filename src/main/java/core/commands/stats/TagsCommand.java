@@ -18,7 +18,7 @@ import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import org.apache.commons.text.WordUtils;
 
-import javax.validation.constraints.NotNull;
+import javax.annotation.Nonnull;
 import java.util.List;
 
 public class TagsCommand extends ConcurrentCommand<ArtistParameters> {
@@ -60,7 +60,7 @@ public class TagsCommand extends ConcurrentCommand<ArtistParameters> {
     }
 
     @Override
-    protected void onCommand(Context e, @NotNull ArtistParameters params) throws LastFmException, InstanceNotFoundException {
+    protected void onCommand(Context e, @Nonnull ArtistParameters params) throws LastFmException, InstanceNotFoundException {
         ArtistParameters parse = this.parser.parse(e);
 
         String artist = parse.getArtist();

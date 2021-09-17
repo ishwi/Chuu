@@ -3,6 +3,7 @@ package core.imagerenderer;
 import org.knowm.xchart.CategoryChart;
 import org.knowm.xchart.CategoryChartBuilder;
 import org.knowm.xchart.CategorySeries;
+import org.knowm.xchart.style.CategoryStyler;
 import org.knowm.xchart.style.Styler;
 
 import java.awt.*;
@@ -39,16 +40,19 @@ public class BarChartMaker {
                 .setPlotGridLinesVisible(false)
                 .setTimezone(TimeZone.getTimeZone(ZoneOffset.UTC));
 
-        chart.getStyler().setLegendVisible(false)
-                .setChartBackgroundColor(color)
-                .setChartBackgroundColor(color)
-                .setAnnotationsFontColor(Color.white)
-                .setPlotBorderColor(color)
-                .setLegendPosition(Styler.LegendPosition.InsideN).setHasAnnotations(true)
-                .setShowTotalAnnotations(true)
+        CategoryStyler styler = chart.getStyler();
+
+        styler.setLabelsFontColor(Color.WHITE)
+                .setLabelsVisible(true)
                 .setPlotBackgroundColor(color)
                 .setXAxisTitleColor(Color.white)
-                .setYAxisTitleColor(Color.white);
+                .setYAxisTitleColor(Color.white)
+                .setPlotBorderColor(color)
+                .setLegendVisible(false)
+                .setChartBackgroundColor(color)
+                .setChartBackgroundColor(color)
+                .setLegendPosition(Styler.LegendPosition.InsideN);
+
         final List<Date> xAxis = new ArrayList<>(dates.size());
         List<Integer> valueList = new ArrayList<>(dates.size());
         dates.entrySet().stream().sorted(Map.Entry.comparingByKey()).forEach(

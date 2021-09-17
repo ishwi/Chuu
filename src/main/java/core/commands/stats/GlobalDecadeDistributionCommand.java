@@ -11,7 +11,7 @@ import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
 import dao.ServiceView;
 
-import javax.validation.constraints.NotNull;
+import javax.annotation.Nonnull;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -57,7 +57,7 @@ public class GlobalDecadeDistributionCommand extends ConcurrentCommand<CommandPa
 
 
     @Override
-    protected void onCommand(Context e, @NotNull CommandParameters params) {
+    protected void onCommand(Context e, @Nonnull CommandParameters params) {
         var counts = db.getGlobalDecades();
         List<String> lines = counts.entrySet().stream().sorted(Map.Entry.comparingByValue((Comparator.reverseOrder()))).map(t ->
                 ". **%ds**: %d %s%n".formatted(CommandUtil.getDecade(t.getKey().getValue()), t.getValue(), CommandUtil.singlePlural(t.getValue(), "album", "albums"))

@@ -21,8 +21,8 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.validation.constraints.NotNull;
 import java.awt.image.BufferedImage;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -102,7 +102,7 @@ public class WhoKnowsLoonasCommand extends WhoKnowsBaseCommand<LOONAParameters> 
     }
 
     @Override
-    protected void onCommand(Context e, @NotNull LOONAParameters params) {
+    protected void onCommand(Context e, @Nonnull LOONAParameters params) {
 
 
         @Nullable String nullableOwner = params.getSubject() == LOONAParameters.Subject.ME ? params.getLastFMData().getName() : null;

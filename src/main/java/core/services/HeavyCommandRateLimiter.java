@@ -5,8 +5,8 @@ import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import core.Chuu;
 import core.commands.Context;
-import org.jetbrains.annotations.NotNull;
 
+import javax.annotation.Nonnull;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
@@ -29,7 +29,7 @@ public class HeavyCommandRateLimiter {
             })
             .build(
                     new CacheLoader<>() {
-                        public AtomicInteger load(@NotNull Long key) {
+                        public AtomicInteger load(@Nonnull Long key) {
                             accesibleAgain.put(key, LocalDateTime.now().plus(10, ChronoUnit.MINUTES));
                             return new AtomicInteger();
                         }
@@ -45,7 +45,7 @@ public class HeavyCommandRateLimiter {
             })
             .build(
                     new CacheLoader<>() {
-                        public AtomicInteger load(@NotNull Boolean key) {
+                        public AtomicInteger load(@Nonnull Boolean key) {
                             globalAccesibleAgain = LocalDateTime.now().plus(10, ChronoUnit.MINUTES);
                             return new AtomicInteger();
                         }

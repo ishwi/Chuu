@@ -12,9 +12,9 @@ import dao.ServiceView;
 import dao.entities.*;
 import dao.exceptions.InstanceNotFoundException;
 import org.apache.commons.text.WordUtils;
-import org.jetbrains.annotations.NotNull;
 import org.jsoup.internal.StringUtil;
 
+import javax.annotation.Nonnull;
 import java.awt.image.BufferedImage;
 import java.util.EnumSet;
 import java.util.List;
@@ -29,7 +29,7 @@ public class MultipleWhoKnowsTagCommand extends WhoKnowsBaseCommand<MultipleGenr
         super(dao, true);
     }
 
-    @NotNull
+    @Nonnull
     static WrapperReturnNowPlaying formatTag(Context e, WrapperReturnNowPlaying wrapperReturnNowPlaying) {
         wrapperReturnNowPlaying.getReturnNowPlayings()
                 .forEach(x -> x.setDiscordName(CommandUtil.getUserInfoUnescaped(e, x.getDiscordId()).username()));

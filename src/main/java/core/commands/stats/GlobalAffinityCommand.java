@@ -19,7 +19,7 @@ import dao.entities.LastFMData;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.EmbedBuilder;
 
-import javax.validation.constraints.NotNull;
+import javax.annotation.Nonnull;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -68,7 +68,7 @@ public class GlobalAffinityCommand extends ConcurrentCommand<NumberParameters<Ch
     }
 
     @Override
-    protected void onCommand(Context e, @NotNull NumberParameters<ChuuDataParams> params) throws InstanceNotFoundException {
+    protected void onCommand(Context e, @Nonnull NumberParameters<ChuuDataParams> params) throws InstanceNotFoundException {
 
 
         LastFMData ogData = params.getInnerParams().getLastFMData();

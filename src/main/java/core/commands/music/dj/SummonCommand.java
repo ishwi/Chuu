@@ -28,7 +28,7 @@ import dao.ServiceView;
 import net.dv8tion.jda.api.entities.GuildChannel;
 import net.dv8tion.jda.api.entities.VoiceChannel;
 
-import javax.validation.constraints.NotNull;
+import javax.annotation.Nonnull;
 import java.util.List;
 
 public class SummonCommand extends MusicCommand<ChannelParameters> {
@@ -59,7 +59,7 @@ public class SummonCommand extends MusicCommand<ChannelParameters> {
     }
 
     @Override
-    protected void onCommand(Context e, @NotNull ChannelParameters params) {
+    protected void onCommand(Context e, @Nonnull ChannelParameters params) {
         MusicManager manager = Chuu.playerRegistry.get(e.getGuild());
         GuildChannel targetChannel = params.getGuildChannel();
         if (targetChannel instanceof VoiceChannel voiceChannel) {

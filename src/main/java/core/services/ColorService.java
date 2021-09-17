@@ -6,8 +6,8 @@ import core.commands.utils.CommandUtil;
 import dao.ChuuService;
 import dao.entities.EmbedColor;
 import net.dv8tion.jda.api.entities.Role;
-import org.jetbrains.annotations.NotNull;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.awt.*;
 import java.util.Map;
@@ -31,7 +31,8 @@ public class ColorService {
         hasEmptyGuild = chuuService.getGuildsWithEmptyColorOverride();
     }
 
-    public static @NotNull Color computeColor(Context event) {
+    public static @Nonnull
+    Color computeColor(Context event) {
         long idLong;
         if (event.isFromGuild()) {
             EmbedColor.EmbedColorType colorType = guildColorTypes.get(event.getGuild().getIdLong());

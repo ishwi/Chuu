@@ -8,7 +8,6 @@ import dao.entities.LastFMData;
 import dao.entities.ScrobbledArtist;
 import dao.entities.UniqueWrapper;
 import dao.exceptions.ChuuServiceException;
-import net.dv8tion.jda.api.AccountType;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.*;
@@ -111,9 +110,9 @@ public class TestResources extends ExternalResource {
             }
             developerId = Long.parseLong(properties.getProperty("DEVELOPER_ID"));
 
-            JDABuilder builder = new JDABuilder(AccountType.BOT).setEventManager(new CustomInterfacedEventManager(0));
+            JDABuilder builder = JDABuilder.createLight(properties.getProperty("DISCORD_TOKEN")).setEventManager(new CustomInterfacedEventManager(0));
             try {
-                testerJDA = builder.setToken(properties.getProperty("DISCORD_TOKEN")).setAutoReconnect(true)
+                testerJDA = builder.setAutoReconnect(true)
                         .build().awaitReady();
             } catch (LoginException | InterruptedException e) {
                 e.printStackTrace();

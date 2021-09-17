@@ -13,7 +13,7 @@ import dao.entities.*;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.EmbedBuilder;
 
-import javax.validation.constraints.NotNull;
+import javax.annotation.Nonnull;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.util.List;
@@ -55,7 +55,7 @@ public class ArtistLovedCommand extends ConcurrentCommand<ArtistParameters> {
     }
 
     @Override
-    protected void onCommand(Context e, @NotNull ArtistParameters params) throws LastFmException, InstanceNotFoundException {
+    protected void onCommand(Context e, @Nonnull ArtistParameters params) throws LastFmException, InstanceNotFoundException {
         CountWrapper<List<TrackWithArtistId>> wrapper = lastFM.getLovedSongs(params.getLastFMData());
         ScrobbledArtist sA = new ArtistValidator(db, lastFM, e).validate(params.getArtist(), false, !params.isNoredirect());
         List<TrackWithArtistId> artists = wrapper.getResult().stream().filter(w -> w.getArtist().equalsIgnoreCase(sA.getArtist())).toList();

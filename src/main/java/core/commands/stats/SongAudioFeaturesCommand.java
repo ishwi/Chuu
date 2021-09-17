@@ -25,7 +25,7 @@ import dao.entities.ScrobbledTrack;
 import net.dv8tion.jda.api.EmbedBuilder;
 import org.apache.commons.lang3.tuple.Pair;
 
-import javax.validation.constraints.NotNull;
+import javax.annotation.Nonnull;
 import java.text.DecimalFormat;
 import java.util.List;
 import java.util.Set;
@@ -65,7 +65,7 @@ public class SongAudioFeaturesCommand extends ConcurrentCommand<ArtistAlbumParam
     }
 
     @Override
-    protected void onCommand(Context e, @NotNull ArtistAlbumParameters params) throws LastFmException {
+    protected void onCommand(Context e, @Nonnull ArtistAlbumParameters params) throws LastFmException {
         LastFMData lastFMData = params.getLastFMData();
 
         ScrobbledArtist sA = new ArtistValidator(db, lastFM, e).validate(params.getArtist(), false, true);

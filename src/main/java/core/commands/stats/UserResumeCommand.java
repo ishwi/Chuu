@@ -20,7 +20,7 @@ import dao.entities.LastFMData;
 import dao.entities.TimeFrameEnum;
 import net.dv8tion.jda.api.EmbedBuilder;
 
-import javax.validation.constraints.NotNull;
+import javax.annotation.Nonnull;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
@@ -58,7 +58,7 @@ public class UserResumeCommand extends ConcurrentCommand<TimeFrameParameters> {
     }
 
     @Override
-    protected void onCommand(Context e, @NotNull TimeFrameParameters params) throws LastFmException {
+    protected void onCommand(Context e, @Nonnull TimeFrameParameters params) throws LastFmException {
 
         LastFMData name = params.getLastFMData();
         BlockingQueue<UrlCapsule> capsules = new LinkedBlockingQueue<>();

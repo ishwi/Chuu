@@ -21,7 +21,7 @@ import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.Button;
 import net.dv8tion.jda.api.interactions.components.ButtonStyle;
 
-import javax.validation.constraints.NotNull;
+import javax.annotation.Nonnull;
 import java.awt.*;
 import java.util.Collections;
 import java.util.List;
@@ -60,7 +60,7 @@ public class UnsetCommand extends ConcurrentCommand<CommandParameters> {
     }
 
     @Override
-    protected void onCommand(Context e, @NotNull CommandParameters params) throws InstanceNotFoundException {
+    protected void onCommand(Context e, @Nonnull CommandParameters params) throws InstanceNotFoundException {
         long idLong = e.getAuthor().getIdLong();
         // Check if it exists
         LastFMData data = db.findLastFMData(idLong);

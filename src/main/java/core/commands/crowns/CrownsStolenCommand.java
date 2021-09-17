@@ -16,7 +16,7 @@ import dao.entities.StolenCrown;
 import dao.entities.StolenCrownWrapper;
 import net.dv8tion.jda.api.EmbedBuilder;
 
-import javax.validation.constraints.NotNull;
+import javax.annotation.Nonnull;
 import java.util.Collections;
 import java.util.List;
 
@@ -61,7 +61,7 @@ public class CrownsStolenCommand extends ConcurrentCommand<NumberParameters<TwoU
     }
 
     @Override
-    protected void onCommand(Context e, @NotNull NumberParameters<TwoUsersParamaters> params) {
+    protected void onCommand(Context e, @Nonnull NumberParameters<TwoUsersParamaters> params) {
 
 
         TwoUsersParamaters innerParams = params.getInnerParams();

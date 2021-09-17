@@ -10,7 +10,7 @@ import core.parsers.utils.OptionalEntity;
 import dao.ServiceView;
 import net.dv8tion.jda.api.Permission;
 
-import javax.validation.constraints.NotNull;
+import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -53,7 +53,7 @@ public class NpReactionsCommand extends ConcurrentCommand<EmotiParameters> {
     }
 
     @Override
-    protected void onCommand(Context e, @NotNull EmotiParameters params) {
+    protected void onCommand(Context e, @Nonnull EmotiParameters params) {
         boolean append = params.hasOptional("append");
 
         if (params.hasOptional("check")) {

@@ -2,9 +2,7 @@ package core.parsers.params;
 
 import core.commands.Context;
 
-import javax.validation.constraints.NotNull;
-
-public class ExtraParameters<T extends CommandParameters, @NotNull J> extends CommandParameters {
+public class ExtraParameters<T extends CommandParameters, J> extends CommandParameters {
     private final T innerParams;
     private final J extraParam;
 

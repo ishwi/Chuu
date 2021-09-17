@@ -68,7 +68,7 @@ public class ChuuYTAudioSourceManager extends YoutubeAudioSourceManager {
 
     public AudioItem loadTrackWithVideoId(String videoId, boolean mustExist) {
         try (HttpInterface httpInterface = getHttpInterface()) {
-            YoutubeTrackDetails details = this.getTrackDetailsLoader().loadDetails(httpInterface, videoId, false);
+            YoutubeTrackDetails details = this.getTrackDetailsLoader().loadDetails(httpInterface, videoId, false, this);
 
             if (details == null) {
                 if (mustExist) {

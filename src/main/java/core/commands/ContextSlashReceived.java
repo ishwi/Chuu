@@ -13,7 +13,6 @@ import net.dv8tion.jda.api.requests.restaction.WebhookMessageAction;
 import net.dv8tion.jda.api.requests.restaction.WebhookMessageUpdateAction;
 
 import javax.annotation.Nullable;
-import javax.validation.constraints.NotNull;
 import java.io.InputStream;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -97,7 +96,7 @@ public final record ContextSlashReceived(SlashCommandEvent e) implements Context
     }
 
     @Override
-    public RestAction<Message> editMessage(Message ignored, @Nullable MessageEmbed embed, @NotNull List<ActionRow> rows) {
+    public RestAction<Message> editMessage(Message ignored, @Nullable MessageEmbed embed, @Nullable List<ActionRow> rows) {
         WebhookMessageUpdateAction<Message> action;
         if (embed != null) {
             action = e.getHook().editMessageEmbedsById("@original", embed).setActionRows(rows);

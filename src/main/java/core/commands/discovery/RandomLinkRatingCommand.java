@@ -16,7 +16,7 @@ import dao.entities.RandomUrlEntity;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.entities.User;
 
-import javax.validation.constraints.NotNull;
+import javax.annotation.Nonnull;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -60,7 +60,7 @@ public class RandomLinkRatingCommand extends ConcurrentCommand<NumberParameters<
     }
 
     @Override
-    protected void onCommand(Context e, @NotNull NumberParameters<RandomUrlParameters> params) {
+    protected void onCommand(Context e, @Nonnull NumberParameters<RandomUrlParameters> params) {
 
 
         Long rating = params.getExtraParam();

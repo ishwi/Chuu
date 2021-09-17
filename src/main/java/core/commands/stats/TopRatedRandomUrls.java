@@ -13,7 +13,7 @@ import dao.ServiceView;
 import dao.entities.DiscordUserDisplay;
 import dao.entities.ScoredAlbumRatings;
 
-import javax.validation.constraints.NotNull;
+import javax.annotation.Nonnull;
 import java.util.List;
 
 public class TopRatedRandomUrls extends ConcurrentCommand<CommandParameters> {
@@ -48,7 +48,7 @@ public class TopRatedRandomUrls extends ConcurrentCommand<CommandParameters> {
     }
 
     @Override
-    protected void onCommand(Context e, @NotNull CommandParameters params) {
+    protected void onCommand(Context e, @Nonnull CommandParameters params) {
 
 
         boolean server = params.hasOptional("server");

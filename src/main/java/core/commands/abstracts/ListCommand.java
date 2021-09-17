@@ -5,7 +5,7 @@ import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
 import dao.ServiceView;
 
-import javax.validation.constraints.NotNull;
+import javax.annotation.Nonnull;
 import java.util.List;
 
 public abstract class ListCommand<T, Y extends CommandParameters> extends ConcurrentCommand<Y> {
@@ -22,7 +22,7 @@ public abstract class ListCommand<T, Y extends CommandParameters> extends Concur
     public abstract Parser<Y> initParser();
 
     @Override
-    protected void onCommand(Context e, @NotNull Y params) {
+    protected void onCommand(Context e, @Nonnull Y params) {
 
 
         List<T> list = getList(params);

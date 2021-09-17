@@ -14,7 +14,7 @@ import dao.entities.ArtistSummary;
 import dao.entities.LastFMData;
 import dao.entities.ScrobbledArtist;
 
-import javax.validation.constraints.NotNull;
+import javax.annotation.Nonnull;
 import java.util.List;
 
 public class ArtistPlaysCommand extends ConcurrentCommand<ArtistParameters> {
@@ -49,7 +49,7 @@ public class ArtistPlaysCommand extends ConcurrentCommand<ArtistParameters> {
     }
 
     @Override
-    protected void onCommand(Context e, @NotNull ArtistParameters params) throws LastFmException {
+    protected void onCommand(Context e, @Nonnull ArtistParameters params) throws LastFmException {
 
         ScrobbledArtist scrobbledArtist = new ArtistValidator(db, lastFM, e).validate(params.getArtist(), false, !params.isNoredirect());
         long whom = params.getLastFMData().getDiscordId();

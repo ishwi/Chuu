@@ -19,7 +19,7 @@ import net.dv8tion.jda.api.entities.ISnowflake;
 import org.apache.commons.collections4.MultiValuedMap;
 import org.apache.commons.lang3.tuple.Pair;
 
-import javax.validation.constraints.NotNull;
+import javax.annotation.Nonnull;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -57,7 +57,7 @@ public class DisabledStatusCommand extends ConcurrentCommand<CommandParameters> 
     }
 
     @Override
-    protected void onCommand(Context e, @NotNull CommandParameters params) {
+    protected void onCommand(Context e, @Nonnull CommandParameters params) {
         MessageDisablingService messageDisablingService = Chuu.getMessageDisablingService();
         MultiValuedMap<Pair<Long, Long>, MyCommand<?>> disabledChannelsMap = messageDisablingService.disabledChannelsMap;
         MultiValuedMap<Pair<Long, Long>, MyCommand<?>> enabledChannelsMap = messageDisablingService.enabledChannelsMap;

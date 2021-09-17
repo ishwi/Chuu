@@ -31,7 +31,7 @@ import dao.musicbrainz.MusicBrainzServiceSingleton;
 import net.dv8tion.jda.api.EmbedBuilder;
 import org.apache.commons.lang3.StringUtils;
 
-import javax.validation.constraints.NotNull;
+import javax.annotation.Nonnull;
 import java.awt.image.BufferedImage;
 import java.util.Collections;
 import java.util.Comparator;
@@ -110,7 +110,7 @@ public class ArtistFromCountryCommand extends ConcurrentCommand<CountryParameter
     }
 
     @Override
-    protected void onCommand(Context e, @NotNull CountryParameters params) throws LastFmException {
+    protected void onCommand(Context e, @Nonnull CountryParameters params) throws LastFmException {
 
         CountryCode country = params.getCode();
         LastFMData user = params.getLastFMData();

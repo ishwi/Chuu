@@ -12,7 +12,7 @@ import core.parsers.utils.OptionalEntity;
 import core.parsers.utils.Optionals;
 import dao.ServiceView;
 
-import javax.validation.constraints.NotNull;
+import javax.annotation.Nonnull;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -58,7 +58,7 @@ public class RefreshSlashCommand extends ConcurrentCommand<CommandParameters> {
     }
 
     @Override
-    protected void onCommand(Context e, @NotNull CommandParameters params) {
+    protected void onCommand(Context e, @Nonnull CommandParameters params) {
         e.getJDA().retrieveApplicationInfo().queue(t -> {
             if (t.getOwner().getIdLong() == e.getAuthor().getIdLong()) {
                 if (params.hasOptional("delete")) {

@@ -29,7 +29,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import org.imgscalr.Scalr;
 import org.knowm.xchart.PieChart;
 
-import javax.validation.constraints.NotNull;
+import javax.annotation.Nonnull;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.EnumSet;
@@ -76,7 +76,7 @@ public abstract class WhoKnowsBaseCommand<T extends CommandParameters> extends C
     }
 
     @Override
-    protected void onCommand(Context e, @NotNull T params) throws LastFmException {
+    protected void onCommand(Context e, @Nonnull T params) throws LastFmException {
 
 
         WhoKnowsMode whoknowsMode = getWhoknowsMode(params);

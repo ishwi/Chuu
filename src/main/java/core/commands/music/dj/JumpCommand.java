@@ -26,7 +26,7 @@ import core.parsers.Parser;
 import core.parsers.params.MinutesParameters;
 import dao.ServiceView;
 
-import javax.validation.constraints.NotNull;
+import javax.annotation.Nonnull;
 import java.util.List;
 
 public class JumpCommand extends MusicCommand<MinutesParameters> {
@@ -58,7 +58,7 @@ public class JumpCommand extends MusicCommand<MinutesParameters> {
     }
 
     @Override
-    protected void onCommand(Context e, @NotNull MinutesParameters params) {
+    protected void onCommand(Context e, @Nonnull MinutesParameters params) {
         MusicManager manager = getManager(e);
         AudioTrack track = manager.getPlayer().getPlayingTrack();
         if (!track.isSeekable()) {

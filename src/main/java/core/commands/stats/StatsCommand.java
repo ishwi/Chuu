@@ -24,7 +24,7 @@ import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.EmbedBuilder;
 import org.apache.commons.lang3.StringUtils;
 
-import javax.validation.constraints.NotNull;
+import javax.annotation.Nonnull;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -59,7 +59,7 @@ public class StatsCommand extends ConcurrentCommand<StatsParams> {
     }
 
     @Override
-    protected void onCommand(Context e, @NotNull StatsParams params) throws LastFmException, InstanceNotFoundException {
+    protected void onCommand(Context e, @Nonnull StatsParams params) throws LastFmException, InstanceNotFoundException {
 
         NowPlayingArtist np = params.getNp();
         ScrobbledTrack st = null;

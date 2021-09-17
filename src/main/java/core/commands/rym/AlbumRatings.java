@@ -19,8 +19,8 @@ import dao.entities.ScrobbledAlbum;
 import dao.entities.ScrobbledArtist;
 import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
-import org.jetbrains.annotations.NotNull;
 
+import javax.annotation.Nonnull;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.time.Year;
@@ -35,7 +35,7 @@ public class AlbumRatings extends ConcurrentCommand<ArtistAlbumParameters> {
         super(dao);
     }
 
-    @NotNull
+    @Nonnull
     public static Function<Byte, String> getStartsFromScore() {
         return (score) -> {
             float number = score / 2f;
@@ -73,7 +73,7 @@ public class AlbumRatings extends ConcurrentCommand<ArtistAlbumParameters> {
     }
 
     @Override
-    protected void onCommand(Context e, @javax.validation.constraints.NotNull ArtistAlbumParameters params) throws LastFmException {
+    protected void onCommand(Context e, @Nonnull ArtistAlbumParameters params) throws LastFmException {
         EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e);
 
         ScrobbledArtist sA = new ArtistValidator(db, lastFM, e).validate(params.getArtist(), !params.isNoredirect());

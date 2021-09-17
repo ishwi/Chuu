@@ -15,7 +15,7 @@ import core.services.MessageDisablingService;
 import dao.ServiceView;
 import net.dv8tion.jda.api.EmbedBuilder;
 
-import javax.validation.constraints.NotNull;
+import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -60,7 +60,7 @@ public class DisabledCommand extends ConcurrentCommand<DisabledCommandParameters
     }
 
     @Override
-    protected void onCommand(Context e, @NotNull DisabledCommandParameters params) {
+    protected void onCommand(Context e, @Nonnull DisabledCommandParameters params) {
 
         MessageDisablingService messageDisablingService = Chuu.getMessageDisablingService();
 

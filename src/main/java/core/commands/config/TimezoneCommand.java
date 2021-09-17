@@ -8,7 +8,7 @@ import core.parsers.TimezoneParser;
 import core.parsers.params.TimezoneParams;
 import dao.ServiceView;
 
-import javax.validation.constraints.NotNull;
+import javax.annotation.Nonnull;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -45,7 +45,7 @@ public class TimezoneCommand extends ConcurrentCommand<TimezoneParams> {
     }
 
     @Override
-    protected void onCommand(Context e, @NotNull TimezoneParams params) {
+    protected void onCommand(Context e, @Nonnull TimezoneParams params) {
 
 
         TimeZone timeZone = params.getTimeZone();

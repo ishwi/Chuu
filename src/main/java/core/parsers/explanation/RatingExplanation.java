@@ -11,10 +11,9 @@ public class RatingExplanation implements Explanation {
     private static final OptionData optionData;
 
     static {
-        optionData = new OptionData(OptionType.INTEGER, NAME, "Value of the rating");
+        optionData = new OptionData(OptionType.NUMBER, NAME, "Value of the rating");
         for (int i = 1; i <= 10; i++) {
-            String name = String.valueOf(i);
-            optionData.addChoice(name, i);
+            optionData.addChoice(String.valueOf(i), (double) i);
         }
     }
 

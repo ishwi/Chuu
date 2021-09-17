@@ -13,13 +13,13 @@ import dao.ChuuService;
 import dao.entities.LOONA;
 import dao.entities.LastFMData;
 import dao.exceptions.InstanceNotFoundException;
-import javacutils.Pair;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.Arrays;
 import java.util.EnumSet;
@@ -98,10 +98,10 @@ public class LOOONAParser extends DaoParser<LOONAParameters> {
 
         for (Predicate<String> stringPredicate : predicateToLOONA.keySet()) {
             Pair<String[], LOONA> stringPair = filterMessage(words, stringPredicate, x -> predicateToLOONA.get(stringPredicate), null);
-            if (stringPair.second != null) {
+            if (stringPair.getRight() != null) {
                 subCommand = LOONAParameters.SubCommand.SPECIFIC;
-                targetedLOONA = stringPair.second;
-                words = stringPair.first;
+                targetedLOONA = stringPair.getRight();
+                words = stringPair.getLeft();
                 break;
             }
         }
@@ -110,11 +110,11 @@ public class LOOONAParser extends DaoParser<LOONAParameters> {
             Map<Predicate<String>, LOONA.Type> typeMap = types.stream().collect(Collectors.toMap(LOONA::getTypeParser, x -> x));
             for (Predicate<String> stringPredicate : typeMap.keySet()) {
                 Pair<String[], LOONA.Type> stringPair = filterMessage(words, stringPredicate, x -> typeMap.get(stringPredicate), null);
-                if (stringPair.second != null) {
+                if (stringPair.getRight() != null) {
                     subCommand = LOONAParameters.SubCommand.GROUPED;
                     mode = LOONAParameters.Mode.ALL;
-                    targetedType = stringPair.second;
-                    words = stringPair.first;
+                    targetedType = stringPair.getRight();
+                    words = stringPair.getLeft();
                     break;
                 }
             }
@@ -126,9 +126,9 @@ public class LOOONAParser extends DaoParser<LOONAParameters> {
         Map<Predicate<String>, LOONAParameters.Display> displayMap = types.stream().collect(Collectors.toMap(x -> (String s) -> s.equalsIgnoreCase(x.toString()), x -> x));
         for (Predicate<String> stringPredicate : displayMap.keySet()) {
             Pair<String[], LOONAParameters.Display> stringPair = filterMessage(words, stringPredicate, x -> displayMap.get(stringPredicate), null);
-            if (stringPair.second != null) {
-                display = stringPair.second;
-                words = stringPair.first;
+            if (stringPair.getRight() != null) {
+                display = stringPair.getRight();
+                words = stringPair.getLeft();
                 break;
             }
         }
@@ -136,10 +136,10 @@ public class LOOONAParser extends DaoParser<LOONAParameters> {
         Map<Predicate<String>, LOONAParameters.Subject> subJectMap = subjects.stream().collect(Collectors.toMap(x -> (String s) -> s.equalsIgnoreCase(x.toString()), x -> x));
         for (Predicate<String> stringPredicate : subJectMap.keySet()) {
             Pair<String[], LOONAParameters.Subject> stringPair = filterMessage(words, stringPredicate, x -> subJectMap.get(stringPredicate), null);
-            if (stringPair.second != null) {
-                subject = stringPair.second;
+            if (stringPair.getRight() != null) {
+                subject = stringPair.getRight();
                 mode = LOONAParameters.Mode.ALL;
-                words = stringPair.first;
+                words = stringPair.getLeft();
                 break;
             }
         }
@@ -147,10 +147,10 @@ public class LOOONAParser extends DaoParser<LOONAParameters> {
         Map<Predicate<String>, LOONAParameters.Mode> modeMap = modes.stream().collect(Collectors.toMap(x -> (String s) -> s.equalsIgnoreCase(x.toString()), x -> x));
         for (Predicate<String> stringPredicate : modeMap.keySet()) {
             Pair<String[], LOONAParameters.Mode> stringPair = filterMessage(words, stringPredicate, x -> modeMap.get(stringPredicate), null);
-            if (stringPair.second != null) {
-                mode = stringPair.second;
+            if (stringPair.getRight() != null) {
+                mode = stringPair.getRight();
 
-                words = stringPair.first;
+                words = stringPair.getLeft();
                 break;
             }
         }

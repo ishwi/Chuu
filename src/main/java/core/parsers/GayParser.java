@@ -18,12 +18,12 @@ import dao.entities.GayType;
 import dao.entities.LastFMData;
 import dao.entities.TimeFrameEnum;
 import dao.exceptions.InstanceNotFoundException;
-import javacutils.Pair;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.List;
 import java.util.Optional;
@@ -82,8 +82,8 @@ public class GayParser extends ChartableParser<GayParams> {
                 }
                 return GayType.LGTBQ;
             }, GayType.LGTBQ);
-            subMessage = gayPair.first;
-            type = gayPair.second;
+            subMessage = gayPair.getLeft();
+            type = gayPair.getRight();
         }
         int y = type.getColumns();
 
@@ -91,8 +91,8 @@ public class GayParser extends ChartableParser<GayParams> {
         timeFrame = chartParserAux.parseTimeframe(timeFrame);
         subMessage = chartParserAux.getMessage();
         Pair<String[], Integer> integerPair = filterMessage(subMessage, ParserAux.digitMatcher.asMatchPredicate(), Integer::parseInt, 5);
-        subMessage = integerPair.first;
-        int x = integerPair.second;
+        subMessage = integerPair.getLeft();
+        int x = integerPair.getRight();
         LastFMData data = atTheEndOneUser(e, subMessage);
         return new GayParams(e, data, new CustomTimeFrame(timeFrame), x, y, x, type);
 

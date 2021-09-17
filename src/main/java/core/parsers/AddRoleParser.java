@@ -5,8 +5,8 @@ import core.exceptions.LastFmException;
 import core.parsers.explanation.util.Explanation;
 import core.parsers.params.AddRoleParameters;
 import dao.exceptions.InstanceNotFoundException;
-import javacutils.Pair;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.beryx.awt.color.ColorFactory;
 
 import java.awt.*;
@@ -55,13 +55,13 @@ public class AddRoleParser extends Parser<AddRoleParameters> {
                 return false;
             }
         }, ColorFactory::valueOf, null);
-        Color color = colorPair.second;
+        Color color = colorPair.getRight();
         if (color == null) {
             sendError("You need to provide a colour", e);
             return null;
         }
 
-        words = colorPair.first;
+        words = colorPair.getLeft();
         String rest = String.join(" ", words);
         if (StringUtils.isBlank(rest)) {
             sendError("You need to provide a role name!", e);

@@ -20,7 +20,7 @@ import dao.entities.ScrobbledAlbum;
 import dao.entities.ScrobbledArtist;
 import net.dv8tion.jda.api.EmbedBuilder;
 
-import javax.validation.constraints.NotNull;
+import javax.annotation.Nonnull;
 import java.util.List;
 
 public class GlobalAlbumCommand extends ConcurrentCommand<ArtistAlbumParameters> {
@@ -63,7 +63,7 @@ public class GlobalAlbumCommand extends ConcurrentCommand<ArtistAlbumParameters>
     }
 
     @Override
-    protected void onCommand(Context e, @NotNull ArtistAlbumParameters params) throws LastFmException {
+    protected void onCommand(Context e, @Nonnull ArtistAlbumParameters params) throws LastFmException {
 
         long userId = params.getLastFMData().getDiscordId();
         ScrobbledArtist sA = new ArtistValidator(db, lastFM, e).validate(params.getArtist(), true, !params.isNoredirect());

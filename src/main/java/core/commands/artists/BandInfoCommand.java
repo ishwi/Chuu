@@ -24,8 +24,8 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import org.imgscalr.Scalr;
 import org.knowm.xchart.PieChart;
 
+import javax.annotation.Nonnull;
 import javax.imageio.ImageIO;
-import javax.validation.constraints.NotNull;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
@@ -182,7 +182,7 @@ public class BandInfoCommand extends ConcurrentCommand<ArtistParameters> {
     }
 
     @Override
-    protected void onCommand(Context e, @NotNull ArtistParameters params) throws LastFmException {
+    protected void onCommand(Context e, @Nonnull ArtistParameters params) throws LastFmException {
         ScrobbledArtist sA = new ArtistValidator(db, lastFM, e).validate(params.getArtist(), !params.isNoredirect());
         params.setScrobbledArtist(sA);
         bandLogic(params);

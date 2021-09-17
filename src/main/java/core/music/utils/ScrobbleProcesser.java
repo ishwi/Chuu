@@ -14,8 +14,8 @@ import core.services.validators.AlbumFinder;
 import dao.entities.Metadata;
 import org.apache.commons.lang3.StringUtils;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.UUID;
 
@@ -28,7 +28,7 @@ public record ScrobbleProcesser(AlbumFinder albumFinder) {
         return processed.get(song.getIdentifier(), (s) -> newScrobble(metadata, song));
     }
 
-    public TrackScrobble setMetadata(@NotNull Metadata metadata, @NotNull AudioTrack song, UUID previous, long current, long total) {
+    public TrackScrobble setMetadata(@Nonnull Metadata metadata, @Nonnull AudioTrack song, UUID previous, long current, long total) {
         TrackScrobble prev = processed.getIfPresent(song.getIdentifier());
         assert prev != null;
 
@@ -39,7 +39,7 @@ public record ScrobbleProcesser(AlbumFinder albumFinder) {
         return b;
     }
 
-    public TrackScrobble setMetadata(@NotNull Metadata metadata, @NotNull AudioTrack song, UUID previous) {
+    public TrackScrobble setMetadata(@Nonnull Metadata metadata, @Nonnull AudioTrack song, UUID previous) {
         TrackScrobble newMapping = newScrobble(metadata, song);
         newMapping = new TrackScrobble(newMapping.scrobble(), newMapping.processeds(), song.getIdentifier(), previous);
         processed.put(song.getIdentifier(), newMapping);

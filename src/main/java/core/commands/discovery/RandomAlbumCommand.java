@@ -16,8 +16,8 @@ import dao.entities.RandomUrlEntity;
 import dao.exceptions.InstanceNotFoundException;
 import org.apache.commons.text.WordUtils;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.validation.constraints.NotNull;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -80,7 +80,7 @@ public class RandomAlbumCommand extends ConcurrentCommand<RandomUrlParameters> {
     }
 
     @Override
-    protected void onCommand(Context e, @NotNull RandomUrlParameters params) {
+    protected void onCommand(Context e, @Nonnull RandomUrlParameters params) {
 
 
         String url = params.getUrl();

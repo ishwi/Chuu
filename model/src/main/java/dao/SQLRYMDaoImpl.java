@@ -2,8 +2,8 @@ package dao;
 
 import dao.entities.*;
 import dao.exceptions.ChuuServiceException;
-import org.jetbrains.annotations.NotNull;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -458,7 +458,7 @@ public class SQLRYMDaoImpl implements SQLRYMDao {
         }
     }
 
-    @NotNull
+    @Nonnull
     private RymStats getRymStats(Connection connection, long discordId, String s) {
         try (PreparedStatement preparedStatement = connection.prepareStatement(s)) {
             preparedStatement.setLong(1, discordId);

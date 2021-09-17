@@ -2,9 +2,9 @@ package dao;
 
 import dao.entities.*;
 import dao.exceptions.ChuuServiceException;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import javax.annotation.Nonnull;
 import java.sql.*;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -245,7 +245,7 @@ public class BillboardDaoImpl implements BillboardDao {
 
     }
 
-    @NotNull
+    @Nonnull
     private List<BillboardEntity> getBillboardEntities(String metric, PreparedStatement preparedStatement) throws SQLException {
         List<BillboardEntity> bills = new ArrayList<>();
         ResultSet resultSet = preparedStatement.executeQuery();
@@ -355,7 +355,7 @@ public class BillboardDaoImpl implements BillboardDao {
 
     }
 
-    @NotNull
+    @Nonnull
     private List<PreBillboardUserDataTimestamped> getPreBillboardUserDataTimestampeds(String lastfmId, PreparedStatement preparedStatement) throws SQLException {
         ResultSet resultSet = preparedStatement.executeQuery();
         List<PreBillboardUserDataTimestamped> a = new ArrayList<>();

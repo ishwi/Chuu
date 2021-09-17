@@ -19,7 +19,7 @@ import dao.entities.LastFMData;
 import dao.entities.ScrobbledTrack;
 import net.dv8tion.jda.api.EmbedBuilder;
 
-import javax.validation.constraints.NotNull;
+import javax.annotation.Nonnull;
 import java.text.DecimalFormat;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -59,7 +59,7 @@ public class AudioFeaturesCommand extends ConcurrentCommand<ChuuDataParams> {
     }
 
     @Override
-    protected void onCommand(Context e, @NotNull ChuuDataParams params) {
+    protected void onCommand(Context e, @Nonnull ChuuDataParams params) {
         LastFMData lastFMData = params.getLastFMData();
 
         CompletableFuture<Void> cF = CompletableFuture.runAsync(() -> {

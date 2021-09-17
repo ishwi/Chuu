@@ -9,7 +9,7 @@ import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.requests.RestAction;
 import net.dv8tion.jda.api.requests.restaction.MessageAction;
 
-import javax.validation.constraints.NotNull;
+import javax.annotation.Nullable;
 import java.io.InputStream;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -93,7 +93,8 @@ public final record ContextMessageReceived(MessageReceivedEvent e) implements Co
     }
 
     @Override
-    public RestAction<Message> editMessage(@NotNull Message message, MessageEmbed embed, List<ActionRow> rows) {
+    public RestAction<Message> editMessage(@Nullable Message message, MessageEmbed embed, @Nullable List<ActionRow> rows) {
+        assert message != null;
         MessageAction action;
         if (embed != null) {
             action = message.editMessageEmbeds(embed);

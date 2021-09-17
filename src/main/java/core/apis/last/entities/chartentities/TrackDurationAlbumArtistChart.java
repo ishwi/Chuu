@@ -11,7 +11,7 @@ import dao.utils.LinkUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import javax.validation.constraints.NotNull;
+import javax.annotation.Nonnull;
 import java.util.*;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
@@ -21,7 +21,7 @@ public class TrackDurationAlbumArtistChart extends TrackDurationArtistChart {
         super(url, pos, trackName, artistName, mbid, plays, seconds, drawTitles, drawPlays, showDuration, isAside);
     }
 
-    @NotNull
+    @Nonnull
     public static List<UrlCapsule> getGrouped(List<UrlCapsule> urlCapsules) {
         Map<AlbumInfo, List<UrlCapsule>> groupedAlbums = urlCapsules.stream().collect(Collectors.groupingBy(x -> new AlbumInfo(x.getAlbumName(), x.getArtistName())));
         return groupedAlbums.entrySet().stream().map(x -> {

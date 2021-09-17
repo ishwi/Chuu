@@ -25,7 +25,7 @@ import dao.exceptions.InstanceNotFoundException;
 import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
 
-import javax.validation.constraints.NotNull;
+import javax.annotation.Nonnull;
 import java.awt.image.BufferedImage;
 import java.sql.Date;
 import java.time.*;
@@ -105,7 +105,7 @@ public class BillboardCommand extends ConcurrentCommand<NumberParameters<Command
     }
 
     @Override
-    protected void onCommand(Context e, @NotNull NumberParameters<CommandParameters> params) {
+    protected void onCommand(Context e, @Nonnull NumberParameters<CommandParameters> params) {
 
 
         long guildId = e.getGuild().getIdLong();

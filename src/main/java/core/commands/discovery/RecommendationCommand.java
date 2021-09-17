@@ -18,7 +18,7 @@ import dao.exceptions.InstanceNotFoundException;
 import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
 
-import javax.validation.constraints.NotNull;
+import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -55,7 +55,7 @@ public class RecommendationCommand extends ConcurrentCommand<RecommendationsPara
     }
 
     @Override
-    protected void onCommand(Context e, @NotNull RecommendationsParams params) throws InstanceNotFoundException {
+    protected void onCommand(Context e, @Nonnull RecommendationsParams params) throws InstanceNotFoundException {
 
         long firstDiscordID;
         long secondDiscordID;

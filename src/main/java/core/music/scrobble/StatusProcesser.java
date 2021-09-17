@@ -8,8 +8,8 @@ import core.exceptions.LastFmException;
 import dao.ChuuService;
 import dao.entities.LastFMData;
 import net.dv8tion.jda.api.entities.ISnowflake;
-import org.jetbrains.annotations.NotNull;
 
+import javax.annotation.Nonnull;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
@@ -80,7 +80,7 @@ public class StatusProcesser {
         status.callback().accept(status, scrobbleableUsers);
     }
 
-    @NotNull
+    @Nonnull
     private Set<LastFMData> getUsers(ScrobbleStatus status) {
         var channel = status.voiceChannelSupplier().get();
         if (channel == null) return Collections.emptySet();

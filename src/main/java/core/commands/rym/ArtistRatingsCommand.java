@@ -18,7 +18,7 @@ import dao.entities.ScrobbledArtist;
 import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
 
-import javax.validation.constraints.NotNull;
+import javax.annotation.Nonnull;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.Comparator;
@@ -59,7 +59,7 @@ public class ArtistRatingsCommand extends ConcurrentCommand<ArtistParameters> {
     }
 
     @Override
-    protected void onCommand(Context e, @NotNull ArtistParameters params) throws LastFmException {
+    protected void onCommand(Context e, @Nonnull ArtistParameters params) throws LastFmException {
 
 
         ScrobbledArtist sA = new ArtistValidator(db, lastFM, e).validate(params.getArtist(), !params.isNoredirect());

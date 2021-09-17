@@ -13,7 +13,7 @@ import dao.entities.GenreInfo;
 import dao.entities.NowPlayingArtist;
 import net.dv8tion.jda.api.EmbedBuilder;
 
-import javax.validation.constraints.NotNull;
+import javax.annotation.Nonnull;
 import java.util.List;
 
 public class GenreInfoCommand extends ConcurrentCommand<GenreParameters> {
@@ -47,7 +47,7 @@ public class GenreInfoCommand extends ConcurrentCommand<GenreParameters> {
     }
 
     @Override
-    protected void onCommand(Context e, @NotNull GenreParameters params) throws LastFmException {
+    protected void onCommand(Context e, @Nonnull GenreParameters params) throws LastFmException {
 
 
         String genre = params.getGenre();

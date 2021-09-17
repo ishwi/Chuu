@@ -13,7 +13,7 @@ import dao.ServiceView;
 import dao.entities.LastFMData;
 import dao.entities.ScrobbledArtist;
 
-import javax.validation.constraints.NotNull;
+import javax.annotation.Nonnull;
 import java.util.List;
 
 public class GuildArtistPlaysCommand extends ConcurrentCommand<ArtistParameters> {
@@ -53,7 +53,7 @@ public class GuildArtistPlaysCommand extends ConcurrentCommand<ArtistParameters>
     }
 
     @Override
-    protected void onCommand(Context e, @NotNull ArtistParameters params) throws LastFmException {
+    protected void onCommand(Context e, @Nonnull ArtistParameters params) throws LastFmException {
 
         String artist = params.getArtist();
 

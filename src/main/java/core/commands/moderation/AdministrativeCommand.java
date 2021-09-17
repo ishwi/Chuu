@@ -24,7 +24,6 @@ import org.imgscalr.Scalr;
 
 import javax.annotation.Nonnull;
 import javax.imageio.ImageIO;
-import javax.validation.constraints.NotNull;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
@@ -187,7 +186,7 @@ public class AdministrativeCommand extends ConcurrentCommand<UrlParameters> {
     }
 
     @Override
-    protected void onCommand(Context e, @NotNull UrlParameters urlParameters) {
+    protected void onCommand(Context e, @Nonnull UrlParameters urlParameters) {
         String url = urlParameters.getUrl();
         if (url.length() == 0) {
             db.removeLogo(e.getGuild().getIdLong());

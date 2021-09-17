@@ -14,7 +14,7 @@ import dao.ServiceView;
 import dao.entities.UsersWrapper;
 import net.dv8tion.jda.api.entities.Member;
 
-import javax.validation.constraints.NotNull;
+import javax.annotation.Nonnull;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -55,7 +55,7 @@ public class UserExportCommand extends ConcurrentCommand<CommandParameters> {
     }
 
     @Override
-    protected void onCommand(Context e, @NotNull CommandParameters params) {
+    protected void onCommand(Context e, @Nonnull CommandParameters params) {
 
 
         Member member = e.getGuild().getMember(e.getAuthor());

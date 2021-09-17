@@ -7,7 +7,7 @@ import dao.ServiceView;
 import dao.entities.ResultWrapper;
 import org.knowm.xchart.PieChart;
 
-import javax.validation.constraints.NotNull;
+import javax.annotation.Nonnull;
 
 public abstract class ResultWrappedCommand<T, Y extends CommandParameters> extends PieableListCommand<ResultWrapper<T>, Y> {
     public PieableListResultWrapper<T, Y> pie;
@@ -18,7 +18,7 @@ public abstract class ResultWrappedCommand<T, Y extends CommandParameters> exten
     }
 
     @Override
-    protected void onCommand(Context e, @NotNull Y params) {
+    protected void onCommand(Context e, @Nonnull Y params) {
 
         if (params.hasOptional("pie")) {
             doPie(getList(params), params);

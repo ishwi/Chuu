@@ -19,7 +19,7 @@ import dao.entities.*;
 import dao.exceptions.InstanceNotFoundException;
 import org.apache.commons.text.WordUtils;
 
-import javax.validation.constraints.NotNull;
+import javax.annotation.Nonnull;
 import java.awt.*;
 import java.util.EnumSet;
 import java.util.HashSet;
@@ -58,7 +58,7 @@ public class UserConfigCommand extends ConcurrentCommand<UserConfigParameters> {
     }
 
     @Override
-    protected void onCommand(Context e, @NotNull UserConfigParameters params) throws LastFmException, InstanceNotFoundException {
+    protected void onCommand(Context e, @Nonnull UserConfigParameters params) throws LastFmException, InstanceNotFoundException {
 
         UserConfigType config = params.getConfig();
         String value = params.getValue().trim();

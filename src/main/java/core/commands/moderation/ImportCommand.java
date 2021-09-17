@@ -24,7 +24,7 @@ import net.dv8tion.jda.api.entities.User;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import javax.validation.constraints.NotNull;
+import javax.annotation.Nonnull;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -172,7 +172,7 @@ public class ImportCommand extends ConcurrentCommand<UrlParameters> {
     }
 
     @Override
-    protected void onCommand(Context e, @NotNull UrlParameters params) {
+    protected void onCommand(Context e, @Nonnull UrlParameters params) {
         Member member = e.getGuild().getMember(e.getAuthor());
         if (CommandUtil.notEnoughPerms(e)) {
             sendMessageQueue(e, CommandUtil.notEnoughPermsTemplate() + "export the data");

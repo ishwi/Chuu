@@ -21,7 +21,7 @@ import dao.entities.DiscordUserDisplay;
 import dao.entities.LastFMData;
 import dao.entities.TimeFrameEnum;
 
-import javax.validation.constraints.NotNull;
+import javax.annotation.Nonnull;
 import java.time.Year;
 import java.util.Comparator;
 import java.util.List;
@@ -63,7 +63,7 @@ public class YearDistributionCommand extends ConcurrentCommand<TimeFrameParamete
     }
 
     @Override
-    protected void onCommand(Context e, @NotNull TimeFrameParameters params) throws LastFmException {
+    protected void onCommand(Context e, @Nonnull TimeFrameParameters params) throws LastFmException {
         LastFMData user = params.getLastFMData();
         Map<Year, Integer> counts;
         if (params.getTime() == TimeFrameEnum.ALL) {

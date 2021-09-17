@@ -16,7 +16,7 @@ import dao.ServiceView;
 import dao.entities.AlbumUserPlays;
 import dao.entities.ScrobbledArtist;
 
-import javax.validation.constraints.NotNull;
+import javax.annotation.Nonnull;
 import java.util.Arrays;
 import java.util.List;
 
@@ -64,7 +64,7 @@ public class ServerFavesFromArtistCommand extends ConcurrentCommand<ArtistParame
     }
 
     @Override
-    protected void onCommand(Context e, @NotNull ArtistParameters params) throws LastFmException {
+    protected void onCommand(Context e, @Nonnull ArtistParameters params) throws LastFmException {
 
         long userId = params.getLastFMData().getDiscordId();
 

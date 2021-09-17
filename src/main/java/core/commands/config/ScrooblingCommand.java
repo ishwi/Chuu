@@ -11,7 +11,7 @@ import core.parsers.utils.OptionalEntity;
 import dao.ServiceView;
 import dao.entities.LastFMData;
 
-import javax.validation.constraints.NotNull;
+import javax.annotation.Nonnull;
 import java.util.List;
 
 public class ScrooblingCommand extends ConcurrentCommand<ChuuDataParams> {
@@ -47,7 +47,7 @@ public class ScrooblingCommand extends ConcurrentCommand<ChuuDataParams> {
     }
 
     @Override
-    protected void onCommand(Context e, @NotNull ChuuDataParams params) {
+    protected void onCommand(Context e, @Nonnull ChuuDataParams params) {
         LastFMData lastFMData = params.getLastFMData();
         boolean scrobbling = lastFMData.isScrobbling();
         char messagePrefix = CommandUtil.getMessagePrefix(e);

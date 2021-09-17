@@ -33,7 +33,7 @@ import dao.musicbrainz.MusicBrainzServiceSingleton;
 import net.dv8tion.jda.api.EmbedBuilder;
 import org.apache.commons.lang3.StringUtils;
 
-import javax.validation.constraints.NotNull;
+import javax.annotation.Nonnull;
 import java.awt.image.BufferedImage;
 import java.util.Comparator;
 import java.util.List;
@@ -138,7 +138,7 @@ public class FromCountryServerCommand extends ConcurrentCommand<OnlyCountryParam
     }
 
     @Override
-    protected void onCommand(Context e, @NotNull OnlyCountryParameters params) throws LastFmException {
+    protected void onCommand(Context e, @Nonnull OnlyCountryParameters params) throws LastFmException {
 
         CountryCode country = params.getCode();
         MbidFetcher mbidFetcher = new MbidFetcher(db, mb);

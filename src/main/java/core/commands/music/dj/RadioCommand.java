@@ -19,8 +19,8 @@ import net.dv8tion.jda.api.entities.VoiceChannel;
 import net.dv8tion.jda.api.requests.RestAction;
 import org.apache.commons.text.WordUtils;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.validation.constraints.NotNull;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
@@ -58,7 +58,7 @@ public class RadioCommand extends MusicCommand<EnumParameters<Station>> {
     }
 
     @Override
-    protected void onCommand(Context e, @NotNull EnumParameters<Station> params) {
+    protected void onCommand(Context e, @Nonnull EnumParameters<Station> params) {
         Station element = params.getElement();
         String input = params.getParams();
         if (element == null) {

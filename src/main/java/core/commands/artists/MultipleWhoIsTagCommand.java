@@ -17,7 +17,7 @@ import dao.entities.SearchMode;
 import net.dv8tion.jda.api.EmbedBuilder;
 import org.apache.commons.text.WordUtils;
 
-import javax.validation.constraints.NotNull;
+import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -79,7 +79,7 @@ public class MultipleWhoIsTagCommand extends ConcurrentCommand<MultipleGenresPar
     }
 
     @Override
-    protected void onCommand(Context e, @NotNull MultipleGenresParameters params) {
+    protected void onCommand(Context e, @Nonnull MultipleGenresParameters params) {
 
 
         Set<String> genres = params.getGenres();

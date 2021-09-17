@@ -24,9 +24,9 @@ import net.dv8tion.jda.api.utils.TimeFormat;
 import net.dv8tion.jda.internal.requests.CompletedRestAction;
 import org.apache.commons.lang3.tuple.Pair;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.imageio.ImageIO;
-import javax.validation.constraints.NotNull;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
@@ -94,7 +94,7 @@ public class CommandUtil {
         return null;
     }
 
-    public static String updateUrl(DiscogsApi discogsApi, @NotNull ScrobbledArtist scrobbledArtist, ChuuService dao, Spotify spotify) {
+    public static String updateUrl(DiscogsApi discogsApi, @Nonnull ScrobbledArtist scrobbledArtist, ChuuService dao, Spotify spotify) {
         String newUrl = null;
         try {
             newUrl = discogsApi.findArtistImage(scrobbledArtist.getArtist());

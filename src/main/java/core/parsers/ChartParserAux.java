@@ -6,7 +6,7 @@ import core.parsers.utils.CustomTimeFrame;
 import core.parsers.utils.DateUtils;
 import dao.entities.NaturalTimeFrameEnum;
 import dao.entities.TimeFrameEnum;
-import javacutils.Pair;
+import org.apache.commons.lang3.tuple.Pair;
 
 import javax.annotation.Nullable;
 import java.awt.*;
@@ -82,8 +82,8 @@ public class ChartParserAux {
 
         String[] ogMessage = message;
         Pair<String[], Long> unitCount = filterMessage(message, ParserAux.digitMatcher.asMatchPredicate(), Long::parseLong, 1L);
-        message = unitCount.first;
-        long count = unitCount.second;
+        message = unitCount.getLeft();
+        long count = unitCount.getRight();
         String words = String.join(" ", message);
         Matcher matcher = naturalPattern.matcher(words);
         if (matcher.matches()) {

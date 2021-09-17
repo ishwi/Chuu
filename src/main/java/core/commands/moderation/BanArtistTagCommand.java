@@ -14,7 +14,7 @@ import dao.entities.Role;
 import dao.entities.ScrobbledArtist;
 import dao.exceptions.InstanceNotFoundException;
 
-import javax.validation.constraints.NotNull;
+import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -50,7 +50,7 @@ public class BanArtistTagCommand extends ConcurrentCommand<CommandParameters> {
     }
 
     @Override
-    protected void onCommand(Context e, @NotNull CommandParameters params) throws LastFmException, InstanceNotFoundException {
+    protected void onCommand(Context e, @Nonnull CommandParameters params) throws LastFmException, InstanceNotFoundException {
 
         long idLong = e.getAuthor().getIdLong();
         LastFMData lastFMData = db.findLastFMData(idLong);

@@ -1,9 +1,6 @@
 package core.music.sources.youtube.webscrobbler;
 
-import com.sedmelluq.discord.lavaplayer.source.youtube.DefaultYoutubeTrackDetailsLoader;
-import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeTrackDetails;
-import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeTrackDetailsLoader;
-import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeTrackJsonData;
+import com.sedmelluq.discord.lavaplayer.source.youtube.*;
 import com.sedmelluq.discord.lavaplayer.tools.ExceptionTools;
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.tools.JsonBrowser;
@@ -29,9 +26,9 @@ public class ChuuTrackLoader extends DefaultYoutubeTrackDetailsLoader implements
 
 
     @Override
-    public YoutubeTrackDetails loadDetails(HttpInterface httpInterface, String videoId, boolean requireFormats) {
+    public YoutubeTrackDetails loadDetails(HttpInterface httpInterface, String videoId, boolean requireFormats, YoutubeAudioSourceManager manager) {
         try {
-            return this.load(httpInterface, videoId, requireFormats);
+            return this.load(httpInterface, videoId, requireFormats, manager);
         } catch (IOException e) {
             throw ExceptionTools.toRuntimeException(e);
         }
@@ -40,11 +37,12 @@ public class ChuuTrackLoader extends DefaultYoutubeTrackDetailsLoader implements
     private YoutubeTrackDetails load(
             HttpInterface httpInterface,
             String videoId,
-            boolean requireFormats
+            boolean requireFormats,
+            YoutubeAudioSourceManager manager
     ) throws IOException {
         JsonBrowser mainInfo = loadTrackInfoFromMainPage(httpInterface, videoId);
         try {
-            YoutubeTrackJsonData initialData = loadBaseResponse(mainInfo, httpInterface, videoId, requireFormats);
+            YoutubeTrackJsonData initialData = loadBaseResponse(mainInfo, httpInterface, videoId);
             if (initialData == null) {
                 return null;
             }

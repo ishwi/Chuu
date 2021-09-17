@@ -14,7 +14,7 @@ import dao.ServiceView;
 import dao.entities.NPMode;
 import net.dv8tion.jda.api.EmbedBuilder;
 
-import javax.validation.constraints.NotNull;
+import javax.annotation.Nonnull;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.function.Function;
@@ -66,7 +66,7 @@ public class NPModeSetterCommand extends ConcurrentCommand<EnumListParameters<NP
     }
 
     @Override
-    protected void onCommand(Context e, @NotNull EnumListParameters<NPMode> params) {
+    protected void onCommand(Context e, @Nonnull EnumListParameters<NPMode> params) {
 
         EnumSet<NPMode> modes = params.getEnums();
         if (params.isHelp()) {

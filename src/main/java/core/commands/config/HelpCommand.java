@@ -33,7 +33,7 @@ import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.requests.RestAction;
 
-import javax.validation.constraints.NotNull;
+import javax.annotation.Nonnull;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -106,7 +106,7 @@ public class HelpCommand extends ConcurrentCommand<WordParameter> {
     }
 
     @Override
-    protected void onCommand(Context e, @NotNull WordParameter params) {
+    protected void onCommand(Context e, @Nonnull WordParameter params) {
         Character prefix = e.getPrefix();
         if (params.hasOptional("all")) {
 

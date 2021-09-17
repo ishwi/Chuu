@@ -10,7 +10,7 @@ import core.parsers.params.ChuuDataParams;
 import core.services.UserInfoService;
 import dao.ServiceView;
 
-import javax.validation.constraints.NotNull;
+import javax.annotation.Nonnull;
 import java.util.List;
 
 public class RefreshLastfmDataCommand extends ConcurrentCommand<ChuuDataParams> {
@@ -45,7 +45,7 @@ public class RefreshLastfmDataCommand extends ConcurrentCommand<ChuuDataParams> 
     }
 
     @Override
-    protected void onCommand(Context e, @NotNull ChuuDataParams params) throws LastFmException {
+    protected void onCommand(Context e, @Nonnull ChuuDataParams params) throws LastFmException {
         new UserInfoService(db).refreshUserInfo(params.getLastFMData());
         sendMessageQueue(e, "Successfully updated %s's profile data".formatted(getUserString(e, params.getLastFMData().getDiscordId(), params.getLastFMData().getName())));
     }

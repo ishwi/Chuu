@@ -8,7 +8,7 @@ import dao.ServiceView;
 import net.dv8tion.jda.api.EmbedBuilder;
 import org.knowm.xchart.PieChart;
 
-import javax.validation.constraints.NotNull;
+import javax.annotation.Nonnull;
 import java.awt.*;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
@@ -26,7 +26,7 @@ public abstract class PieableListCommand<T, Y extends CommandParameters> extends
     }
 
     @Override
-    protected void onCommand(Context e, @NotNull Y params) {
+    protected void onCommand(Context e, @Nonnull Y params) {
 
         if (params.hasOptional("pie")) {
             doPie(getList(params), params);
@@ -56,7 +56,7 @@ public abstract class PieableListCommand<T, Y extends CommandParameters> extends
         GraphicUtils.setQuality(g);
         pieChart.paint(g, 1000, 750);
 
-        Font annotationsFont = pieChart.getStyler().getAnnotationsFont();
+        Font annotationsFont = pieChart.getStyler().getAnnotationTextFont();
         pieChart.paint(g, 1000, 750);
         g.setFont(annotationsFont.deriveFont(11.0f));
         Rectangle2D stringBounds = g.getFontMetrics().getStringBounds(s, g);

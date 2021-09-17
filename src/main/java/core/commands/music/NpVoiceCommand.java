@@ -35,7 +35,7 @@ import dao.ServiceView;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 
-import javax.validation.constraints.NotNull;
+import javax.annotation.Nonnull;
 import java.util.List;
 
 
@@ -68,7 +68,7 @@ public class NpVoiceCommand extends MusicCommand<CommandParameters> {
     }
 
     @Override
-    protected void onCommand(Context e, @NotNull CommandParameters params) {
+    protected void onCommand(Context e, @Nonnull CommandParameters params) {
         MusicManager manager = Chuu.playerRegistry.get(e.getGuild());
         AudioTrack playingTrack = manager.getPlayer().getPlayingTrack();
         manager.getTrackScrobble().thenAccept(l -> {

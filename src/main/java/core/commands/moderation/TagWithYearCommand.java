@@ -24,7 +24,7 @@ import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.Button;
 import net.dv8tion.jda.api.interactions.components.ButtonStyle;
 
-import javax.validation.constraints.NotNull;
+import javax.annotation.Nonnull;
 import java.time.Year;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -67,7 +67,7 @@ public class TagWithYearCommand extends ConcurrentCommand<CommandParameters> {
     }
 
     @Override
-    protected void onCommand(Context e, @NotNull CommandParameters params) throws InstanceNotFoundException {
+    protected void onCommand(Context e, @Nonnull CommandParameters params) throws InstanceNotFoundException {
         long idLong = e.getAuthor().getIdLong();
         Pattern a = Pattern.compile(".*(?:year|y):(\\d{4}).*");
         // Check if it exists

@@ -6,8 +6,8 @@ import dao.utils.Order;
 import org.apache.commons.collections4.ListValuedMap;
 import org.apache.commons.collections4.multimap.ArrayListValuedHashMap;
 import org.apache.commons.lang3.tuple.Pair;
-import org.jetbrains.annotations.NotNull;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.sql.*;
 import java.time.Instant;
@@ -165,7 +165,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
         return getArtistPlaysResultWrapper(connection, guildId, normalQuery, countQuery);
     }
 
-    @NotNull
+    @Nonnull
     private ResultWrapper<ArtistPlays> getArtistPlaysResultWrapper(Connection connection, Long guildId, String normalQuery, String countQuery) {
         try (PreparedStatement preparedStatement2 = connection.prepareStatement(countQuery)) {
             preparedStatement2.setLong(1, guildId);
@@ -233,7 +233,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
         return returnList;
     }
 
-    @NotNull
+    @Nonnull
     private ResultWrapper<ArtistPlays> getArtistPlaysResultWrapper(int rows, PreparedStatement preparedStatement) throws SQLException {
         ResultSet resultSet;
         resultSet = preparedStatement.executeQuery();
@@ -263,7 +263,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
 
     }
 
-    @NotNull
+    @Nonnull
     private ResultWrapper<ArtistPlays> getArtistPlaysResultWrapper(Connection connection, String normalQuery, String countQuery) {
         int rows;
         try (PreparedStatement preparedStatement2 = connection.prepareStatement(countQuery)) {
@@ -2352,7 +2352,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
     }
 
     //TriFunction is not the simplest approach but i felt like using it so :D
-    @NotNull
+    @Nonnull
     private <T extends Number> List<LbEntry<T>> getLbEntries(Connection connection, long guildId, String
             queryString, TriFunction<String, Long, T, LbEntry<T>> fun, boolean needsReSet, int resetThreshold, Class<T> tClass) {
         List<LbEntry<T>> returnedList = new ArrayList<>();

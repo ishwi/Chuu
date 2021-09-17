@@ -13,7 +13,7 @@ import dao.entities.LastFMData;
 import dao.entities.NowPlayingArtist;
 import org.apache.commons.lang3.StringUtils;
 
-import javax.validation.constraints.NotNull;
+import javax.annotation.Nonnull;
 import java.util.concurrent.CompletableFuture;
 
 public abstract class NpCommand extends ConcurrentCommand<NowPlayingParameters> {
@@ -34,7 +34,7 @@ public abstract class NpCommand extends ConcurrentCommand<NowPlayingParameters> 
     }
 
     @Override
-    protected void onCommand(Context e, @NotNull NowPlayingParameters params) {
+    protected void onCommand(Context e, @Nonnull NowPlayingParameters params) {
         NowPlayingArtist np = params.getNowPlayingArtist();
         doSomethingWithArtist(np, e, params.getLastFMData().getDiscordId(), params.getLastFMData(), params);
         CompletableFuture.runAsync(() -> {

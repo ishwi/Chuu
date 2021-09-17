@@ -13,7 +13,7 @@ import dao.entities.Role;
 import dao.exceptions.InstanceNotFoundException;
 import org.apache.commons.lang3.StringUtils;
 
-import javax.validation.constraints.NotNull;
+import javax.annotation.Nonnull;
 import java.util.List;
 
 public class RandomDeleteCommand extends ConcurrentCommand<RandomUrlParameters> {
@@ -47,7 +47,7 @@ public class RandomDeleteCommand extends ConcurrentCommand<RandomUrlParameters> 
     }
 
     @Override
-    protected void onCommand(Context e, @NotNull RandomUrlParameters params) throws InstanceNotFoundException {
+    protected void onCommand(Context e, @Nonnull RandomUrlParameters params) throws InstanceNotFoundException {
 
 
         String url = params.getUrl();

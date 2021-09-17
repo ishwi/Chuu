@@ -27,7 +27,7 @@ import core.parsers.Parser;
 import core.parsers.params.WordParameter;
 import dao.ServiceView;
 
-import javax.validation.constraints.NotNull;
+import javax.annotation.Nonnull;
 import java.util.List;
 
 public class EnqueueCommand extends core.commands.abstracts.MusicCommand<WordParameter> {
@@ -81,7 +81,7 @@ public class EnqueueCommand extends core.commands.abstracts.MusicCommand<WordPar
     }
 
     @Override
-    protected void onCommand(Context e, @NotNull WordParameter params) {
+    protected void onCommand(Context e, @Nonnull WordParameter params) {
 
         var newManager = Chuu.playerRegistry.get(e.getGuild());
         play(e, newManager, params.getWord(), false, false);

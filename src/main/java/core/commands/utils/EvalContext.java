@@ -17,7 +17,7 @@ import net.dv8tion.jda.api.entities.User;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.slf4j.LoggerFactory;
 
-import javax.validation.constraints.NotNull;
+import javax.annotation.Nonnull;
 import java.util.function.Consumer;
 
 public record EvalContext(JDA jda, Context e,
@@ -64,7 +64,7 @@ public record EvalContext(JDA jda, Context e,
             }
 
             @Override
-            protected void onCommand(Context e, @NotNull CommandParameters params) {
+            protected void onCommand(Context e, @Nonnull CommandParameters params) {
                 if (e instanceof ContextMessageReceived f) {
                     mes.accept(f);
                 }

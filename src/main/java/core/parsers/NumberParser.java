@@ -8,8 +8,8 @@ import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
-import org.jetbrains.annotations.NotNull;
 
+import javax.annotation.Nonnull;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -166,7 +166,7 @@ public class NumberParser<K extends CommandParameters, T extends Parser<K>> exte
         return Long.parseLong(str) * multiplier;
     }
 
-    @NotNull
+    @Nonnull
     public static <T extends CommandParameters> Parser<NumberParameters<T>> generateThresholdParser(Parser<T> parser) {
         Map<Integer, String> map = new HashMap<>(2);
         map.put(LIMIT_ERROR, "The number introduced must be positive and not very big");

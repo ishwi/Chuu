@@ -9,8 +9,8 @@ import dao.entities.AlbumInfo;
 import dao.entities.ArtistInfo;
 import dao.entities.NowPlayingArtist;
 import dao.entities.TrackInfo;
-import org.jetbrains.annotations.NotNull;
 
+import javax.annotation.Nonnull;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.function.Supplier;
@@ -32,7 +32,7 @@ public record TagStorer(ChuuService db, ConcurrentLastFM lastFM,
         return new ArrayList<>(tags);
     }
 
-    @NotNull
+    @Nonnull
     private Set<String> getStrings(int limit, Supplier<List<String>> first, Supplier<List<String>> fallback) {
         Set<String> tags;
         tags = new HashSet<>(first.get());

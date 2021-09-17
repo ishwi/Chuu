@@ -81,6 +81,7 @@ public class AlbumTracksDistributionCommand extends AlbumPlaysCommand {
         } else {
 
             FullAlbumEntity fullAlbumEntity = trackList.get();
+            fullAlbumEntity.setArtistUrl(scrobbledArtist.getUrl());
             if (params.hasOptional("plays")) {
                 fullAlbumEntity.setTrackList(fullAlbumEntity.getTrackList().stream().sorted(Comparator.comparingInt(Track::getPlays)).collect(Collectors.toList()));
             }
@@ -101,7 +102,7 @@ public class AlbumTracksDistributionCommand extends AlbumPlaysCommand {
                 case LIST -> {
                     EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e)
                             .setTitle(String.format("%s tracklist", album), LinkUtils.getLastFmArtistAlbumUrl(artist, album))
-                            .setFooter(String.format("%s has %d total plays on the album!!%n", CommandUtil.unescapedUser(getUserString(e, params.getLastFMData().getDiscordId()), params.getLastFMData().getDiscordId(), e), fullAlbumEntity.getTotalPlayNumber()), null)
+                            .setFooter(String.format("%s has %d total plays on the album!%n", CommandUtil.unescapedUser(getUserString(e, params.getLastFMData().getDiscordId()), params.getLastFMData().getDiscordId(), e), fullAlbumEntity.getTotalPlayNumber()), null)
                             .setThumbnail(fullAlbumEntity.getAlbumUrl());
                     new ListSenderBuilder<>(e, fullAlbumEntity.getTrackList())
                             .setMapper(t -> ". " + "[" +

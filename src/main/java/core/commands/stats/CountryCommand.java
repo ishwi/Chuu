@@ -24,7 +24,7 @@ import dao.musicbrainz.MusicBrainzService;
 import dao.musicbrainz.MusicBrainzServiceSingleton;
 import net.dv8tion.jda.api.entities.Message;
 
-import javax.validation.constraints.NotNull;
+import javax.annotation.Nonnull;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
@@ -82,7 +82,7 @@ public class CountryCommand extends ConcurrentCommand<NumberParameters<TimeFrame
     }
 
     @Override
-    protected void onCommand(Context e, @NotNull NumberParameters<TimeFrameParameters> params) throws LastFmException {
+    protected void onCommand(Context e, @Nonnull NumberParameters<TimeFrameParameters> params) throws LastFmException {
 
 
         Long palette = params.getExtraParam();

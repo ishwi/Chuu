@@ -16,7 +16,7 @@ import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.EmbedBuilder;
 import org.apache.commons.lang3.StringUtils;
 
-import javax.validation.constraints.NotNull;
+import javax.annotation.Nonnull;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.List;
@@ -58,7 +58,7 @@ public class RandomLinkDetailsCommand extends ConcurrentCommand<RandomUrlParamet
     }
 
     @Override
-    protected void onCommand(Context e, @NotNull RandomUrlParameters params) {
+    protected void onCommand(Context e, @Nonnull RandomUrlParameters params) {
 
 
         String url = params.getUrl();

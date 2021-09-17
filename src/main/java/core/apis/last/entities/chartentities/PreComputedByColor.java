@@ -1,7 +1,6 @@
 package core.apis.last.entities.chartentities;
 
-import org.jetbrains.annotations.NotNull;
-
+import javax.annotation.Nonnull;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 
@@ -16,7 +15,7 @@ public class PreComputedByColor extends PreComputedChartEntity {
     }
 
     @Override
-    public int compareTo(@NotNull PreComputedChartEntity o) {
+    public int compareTo(@Nonnull PreComputedChartEntity o) {
         return switch (getComparisonType()) {
             case ONLY_AVERAGE -> compareTwoByColor(this.getAverageColor(), o.getAverageColor());
             case AVERAGE_AND_DOMINANT, AVERAGE_AND_DOMINANT_PALETTE, ONLY_DOMINANT, ONLY_DOMINANT_PALETTE -> compareTwoByColor(this.getDominantColor() == null || this.getDominantColor().isEmpty() ? null : this.getDominantColor().get(0),

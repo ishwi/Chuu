@@ -12,7 +12,7 @@ import dao.entities.ScrobbledTrack;
 import dao.entities.UserInfo;
 import org.apache.commons.text.WordUtils;
 
-import javax.validation.constraints.NotNull;
+import javax.annotation.Nonnull;
 import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -94,11 +94,11 @@ public enum Stats {
     }
 
 
-    Stats(@NotNull Cache<?> cache) {
+    Stats(@Nonnull Cache<?> cache) {
         this(cache, AllMode.NORMAL, new String[]{});
     }
 
-    Stats(@NotNull Cache<?> cache, String... aliases) {
+    Stats(@Nonnull Cache<?> cache, String... aliases) {
         this(cache, AllMode.NORMAL, aliases);
     }
 

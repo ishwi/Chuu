@@ -28,7 +28,7 @@ import dao.entities.ScrobbledAlbum;
 import net.dv8tion.jda.api.EmbedBuilder;
 import org.knowm.xchart.PieChart;
 
-import javax.validation.constraints.NotNull;
+import javax.annotation.Nonnull;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
@@ -76,7 +76,7 @@ public abstract class ChartableCommand<T extends ChartParameters> extends Concur
     }
 
     @Override
-    protected void onCommand(Context e, @NotNull T params) throws LastFmException {
+    protected void onCommand(Context e, @Nonnull T params) throws LastFmException {
 
 
         CountWrapper<BlockingQueue<UrlCapsule>> countWrapper = processQueue(params);

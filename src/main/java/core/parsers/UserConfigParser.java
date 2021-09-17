@@ -158,11 +158,11 @@ public class UserConfigParser extends DaoParser<UserConfigParameters> implements
                     data.addOptions(mode);
                 }
                 case CHART_SIZE -> {
-                    OptionData columns = new OptionData(OptionType.INTEGER, "columns", "number of columns for the chart", true);
-                    OptionData rows = new OptionData(OptionType.INTEGER, "rows", "number of rows for the chart", true);
+                    OptionData columns = new OptionData(OptionType.NUMBER, "columns", "number of columns for the chart", true);
+                    OptionData rows = new OptionData(OptionType.NUMBER, "rows", "number of rows for the chart", true);
                     for (int i = 1; i <= 7; i++) {
-                        columns.addChoice(String.valueOf(i), i);
-                        rows.addChoice(String.valueOf(i), i);
+                        columns.addChoice(String.valueOf(i), (double) i);
+                        rows.addChoice(String.valueOf(i), (double) i);
                     }
                     data.addOptions(columns, rows);
                 }
@@ -177,9 +177,7 @@ public class UserConfigParser extends DaoParser<UserConfigParameters> implements
                 case TIMEZONE -> {
                 }
             }
-            if (!data.getOptions().isEmpty()) {
                 commandData.addSubcommands(data);
-            }
         }
         return commandData;
     }

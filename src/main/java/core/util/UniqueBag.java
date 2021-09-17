@@ -1,8 +1,8 @@
 package core.util;
 
 import org.apache.commons.collections4.Bag;
-import org.jetbrains.annotations.NotNull;
 
+import javax.annotation.Nonnull;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -64,7 +64,7 @@ public class UniqueBag<T> implements Bag<T> {
 
 
     @Override
-    public boolean containsAll(@NotNull Collection<?> c) {
+    public boolean containsAll(@Nonnull Collection<?> c) {
         return c.stream().map(this::getT).collect(
                 Collectors.collectingAndThen(
                         Collectors.groupingBy(Function.identity(), Collectors.counting()),
@@ -74,13 +74,13 @@ public class UniqueBag<T> implements Bag<T> {
     }
 
     @Override
-    public boolean addAll(@NotNull Collection<? extends T> c) {
+    public boolean addAll(@Nonnull Collection<? extends T> c) {
         c.forEach(this::add);
         return c.size() > 0;
     }
 
     @Override
-    public boolean removeAll(@NotNull Collection<?> c) {
+    public boolean removeAll(@Nonnull Collection<?> c) {
         int size = c.size();
         c.forEach(this::remove);
         return c.size() != size;
@@ -88,7 +88,7 @@ public class UniqueBag<T> implements Bag<T> {
     }
 
     @Override
-    public boolean retainAll(@NotNull Collection<?> c) {
+    public boolean retainAll(@Nonnull Collection<?> c) {
         return this.inner.keySet().retainAll(c);
     }
 
@@ -117,21 +117,21 @@ public class UniqueBag<T> implements Bag<T> {
         return inner.containsKey(getT(o));
     }
 
-    @NotNull
+    @Nonnull
     @Override
     public Iterator<T> iterator() {
         return inner.keySet().iterator();
     }
 
-    @NotNull
+    @Nonnull
     @Override
-    public Object @NotNull [] toArray() {
+    public Object[] toArray() {
         return this.inner.keySet().toArray();
     }
 
-    @NotNull
+    @Nonnull
     @Override
-    public <T1> T1 @NotNull [] toArray(@NotNull T1 @NotNull [] a) {
+    public <T1> T1[] toArray(@Nonnull T1[] a) {
         throw new UnsupportedOperationException();
     }
 

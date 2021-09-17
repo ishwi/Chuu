@@ -11,7 +11,7 @@ import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
 import dao.ServiceView;
 
-import javax.validation.constraints.NotNull;
+import javax.annotation.Nonnull;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -58,7 +58,7 @@ public class ServerYearDistributionCommand extends ConcurrentCommand<CommandPara
 
 
     @Override
-    protected void onCommand(Context e, @NotNull CommandParameters params) {
+    protected void onCommand(Context e, @Nonnull CommandParameters params) {
         var yearCounts = db.getGuildYears(e.getGuild().getIdLong());
         List<String> lines = yearCounts.entrySet().stream().sorted(Map.Entry.comparingByValue((Comparator.reverseOrder()))).map(t ->
                 ". **%d**: %d %s%n".formatted(t.getKey().getValue(), t.getValue(), CommandUtil.singlePlural(t.getValue(), "album", "albums"))

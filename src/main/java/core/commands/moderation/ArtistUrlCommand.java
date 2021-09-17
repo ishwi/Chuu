@@ -15,8 +15,8 @@ import dao.entities.LastFMData;
 import dao.entities.Role;
 import dao.entities.ScrobbledArtist;
 
+import javax.annotation.Nonnull;
 import javax.imageio.ImageIO;
-import javax.validation.constraints.NotNull;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
@@ -52,7 +52,7 @@ public class ArtistUrlCommand extends ConcurrentCommand<ArtistUrlParameters> {
     }
 
     @Override
-    protected void onCommand(Context e, @NotNull ArtistUrlParameters params) throws LastFmException {
+    protected void onCommand(Context e, @Nonnull ArtistUrlParameters params) throws LastFmException {
         LastFMData lastFMData = params.getLastFMData();
         if (lastFMData.getRole().equals(Role.IMAGE_BLOCKED)) {
             sendMessageQueue(e, "You don't have enough permissions to add an image!");

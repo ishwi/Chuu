@@ -4,8 +4,8 @@ import core.apis.discogs.DiscogsApi;
 import core.apis.last.entities.chartentities.UrlCapsule;
 import core.apis.spotify.Spotify;
 import dao.ChuuService;
-import org.jetbrains.annotations.NotNull;
 
+import javax.annotation.Nonnull;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -41,7 +41,7 @@ public abstract class GroupingQueue extends ArtistQueue {
     }
 
     @Override
-    public boolean offer(@NotNull UrlCapsule item) {
+    public boolean offer(@Nonnull UrlCapsule item) {
         artistMap.merge(mappingFunction().apply(item), item, reductorFunction());
         return true;
     }

@@ -12,7 +12,7 @@ import dao.ServiceView;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.sharding.ShardManager;
 
-import javax.validation.constraints.NotNull;
+import javax.annotation.Nonnull;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -44,7 +44,7 @@ public class PrefixCommand extends ConcurrentCommand<CharacterParameters> {
     }
 
     @Override
-    protected void onCommand(Context e, @NotNull CharacterParameters params) {
+    protected void onCommand(Context e, @Nonnull CharacterParameters params) {
 
 
         char newPrefix = params.getaChar();

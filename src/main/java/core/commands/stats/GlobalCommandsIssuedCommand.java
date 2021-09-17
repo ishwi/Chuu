@@ -15,7 +15,7 @@ import dao.entities.UsersWrapper;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.EmbedBuilder;
 
-import javax.validation.constraints.NotNull;
+import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -63,7 +63,7 @@ public class GlobalCommandsIssuedCommand extends ConcurrentCommand<ChuuDataParam
 
 
     @Override
-    protected void onCommand(Context e, @NotNull ChuuDataParams params) throws LastFmException, InstanceNotFoundException {
+    protected void onCommand(Context e, @Nonnull ChuuDataParams params) throws LastFmException, InstanceNotFoundException {
 
         long idLong = params.getLastFMData().getDiscordId();
         CompletableFuture<Optional<Rank<PrivacyUserCount>>> rankOpt = CompletableFuture.supplyAsync(() -> {

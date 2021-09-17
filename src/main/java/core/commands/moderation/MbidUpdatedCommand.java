@@ -14,7 +14,7 @@ import dao.entities.Role;
 import dao.entities.ScrobbledArtist;
 import dao.exceptions.InstanceNotFoundException;
 
-import javax.validation.constraints.NotNull;
+import javax.annotation.Nonnull;
 import java.util.List;
 
 public class MbidUpdatedCommand extends ConcurrentCommand<ChuuDataParams> {
@@ -50,7 +50,7 @@ public class MbidUpdatedCommand extends ConcurrentCommand<ChuuDataParams> {
 
 
     @Override
-    protected void onCommand(Context e, @NotNull ChuuDataParams params) throws LastFmException, InstanceNotFoundException {
+    protected void onCommand(Context e, @Nonnull ChuuDataParams params) throws LastFmException, InstanceNotFoundException {
         long issuer = e.getAuthor().getIdLong();
         LastFMData lastFMData = db.findLastFMData(issuer);
         if (lastFMData.getRole() != Role.ADMIN) {

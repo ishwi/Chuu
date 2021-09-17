@@ -23,7 +23,7 @@ import net.dv8tion.jda.api.entities.ChannelType;
 import net.dv8tion.jda.api.entities.GuildChannel;
 import org.apache.commons.text.WordUtils;
 
-import javax.validation.constraints.NotNull;
+import javax.annotation.Nonnull;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
@@ -60,7 +60,7 @@ public class GuildConfigCommand extends ConcurrentCommand<GuildConfigParams> {
     }
 
     @Override
-    protected void onCommand(Context e, @NotNull GuildConfigParams params) throws LastFmException, InstanceNotFoundException {
+    protected void onCommand(Context e, @Nonnull GuildConfigParams params) throws LastFmException, InstanceNotFoundException {
         GuildConfigParams parse = this.parser.parse(e);
 
         GuildConfigType config = parse.getConfig();

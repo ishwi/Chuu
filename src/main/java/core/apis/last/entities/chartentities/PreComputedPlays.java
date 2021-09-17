@@ -1,7 +1,6 @@
 package core.apis.last.entities.chartentities;
 
-import org.jetbrains.annotations.NotNull;
-
+import javax.annotation.Nonnull;
 import java.awt.image.BufferedImage;
 
 public class PreComputedPlays extends PreComputedChartEntity {
@@ -14,7 +13,7 @@ public class PreComputedPlays extends PreComputedChartEntity {
     }
 
     @Override
-    public int compareTo(@NotNull PreComputedChartEntity o) {
+    public int compareTo(@Nonnull PreComputedChartEntity o) {
         return -Integer.compare(this.getPlays(), o.getPlays());
     }
 }

@@ -134,7 +134,7 @@ public class RYMChartCommand extends ChartableCommand<ChartSizeParameters> {
 
     @Override
     public String configPieChart(PieChart pieChart, ChartSizeParameters params, int count, String initTitle) {
-        pieChart.getStyler().setAnnotationType(PieStyler.AnnotationType.LabelAndValue);
+        pieChart.getStyler().setLabelType(PieStyler.LabelType.NameAndValue);
         pieChart.setTitle("Top rated albums");
         return "";
     }

@@ -16,7 +16,7 @@ import core.parsers.params.WordParameter;
 import dao.ServiceView;
 import net.dv8tion.jda.api.entities.User;
 
-import javax.validation.constraints.NotNull;
+import javax.annotation.Nonnull;
 import java.util.Arrays;
 import java.util.List;
 
@@ -51,7 +51,7 @@ public class YoutubeSearchCommand extends ConcurrentCommand<ExtraParameters<Word
     }
 
     @Override
-    protected void onCommand(Context e, @NotNull ExtraParameters<WordParameter, User> params) {
+    protected void onCommand(Context e, @Nonnull ExtraParameters<WordParameter, User> params) {
 
 
         String query = params.getInnerParams().getWord();

@@ -13,13 +13,13 @@ import core.parsers.utils.OptionalEntity;
 import dao.ChuuService;
 import dao.entities.LastFMData;
 import dao.exceptions.InstanceNotFoundException;
-import javacutils.Pair;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.List;
 import java.util.Optional;
@@ -69,12 +69,12 @@ public abstract class MultiStringParser<T extends CommandParameters> extends Dao
         words = parserAux.getMessage();
         LastFMData lastFMData = findLastfmFromID(oneUser, e);
         Pair<String[], Integer> integerPair = filterMessage(words, digitMatcher.asMatchPredicate(), Integer::parseInt, 2);
-        int x = integerPair.second;
+        int x = integerPair.getRight();
         if (x > 15) {
             sendError("Can't do more than 15 " + entityNamePlural, e);
             return null;
         }
-        words = integerPair.first;
+        words = integerPair.getLeft();
         if (words.length == 0) {
             return doSomethingNoWords(x, lastFMData, e);
 

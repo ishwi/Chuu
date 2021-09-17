@@ -11,7 +11,8 @@ import dao.ChuuService;
 import dao.entities.*;
 import dao.exceptions.InstanceNotFoundException;
 import org.apache.commons.lang3.tuple.Pair;
-import org.jetbrains.annotations.NotNull;
+
+import javax.annotation.Nonnull;
 
 public record TrackValidator(ChuuService db, ConcurrentLastFM lastFM) {
     private static final DiscogsApi discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
@@ -29,7 +30,7 @@ public record TrackValidator(ChuuService db, ConcurrentLastFM lastFM) {
         return doValidate(artist, track, sa);
     }
 
-    @NotNull
+    @Nonnull
     private ScrobbledTrack doValidate(String artist, String track, ScrobbledArtist sA) throws LastFmException {
         var l = trackValidate(sA, track);
         ScrobbledTrack scrobbledTrack = new ScrobbledTrack(artist, track, 0, false, -1, null, null, null);

@@ -21,7 +21,7 @@ import dao.entities.UniqueWrapper;
 import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
 
-import javax.validation.constraints.NotNull;
+import javax.annotation.Nonnull;
 import java.util.List;
 
 import static core.parsers.NumberParser.generateThresholdParser;
@@ -82,7 +82,7 @@ public class GlobalTrackArtistCrownsCommand extends ConcurrentCommand<NumberPara
     }
 
     @Override
-    protected void onCommand(Context e, @NotNull NumberParameters<ArtistParameters> params) throws LastFmException {
+    protected void onCommand(Context e, @Nonnull NumberParameters<ArtistParameters> params) throws LastFmException {
 
 
         ArtistParameters innerParams = params.getInnerParams();

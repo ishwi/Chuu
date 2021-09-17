@@ -28,7 +28,7 @@ import core.parsers.params.CommandParameters;
 import core.parsers.params.NumberParameters;
 import dao.ServiceView;
 
-import javax.validation.constraints.NotNull;
+import javax.annotation.Nonnull;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -67,7 +67,7 @@ public class SkipToCommand extends MusicCommand<NumberParameters<CommandParamete
     }
 
     @Override
-    protected void onCommand(Context e, @NotNull NumberParameters<CommandParameters> params) {
+    protected void onCommand(Context e, @Nonnull NumberParameters<CommandParameters> params) {
         Long toIndex = params.getExtraParam();
         MusicManager manager = getManager(e);
         if (toIndex == null || toIndex <= 0) {

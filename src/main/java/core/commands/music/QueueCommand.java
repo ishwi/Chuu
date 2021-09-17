@@ -33,7 +33,7 @@ import dao.ServiceView;
 import net.dv8tion.jda.api.EmbedBuilder;
 import org.apache.commons.lang3.tuple.Pair;
 
-import javax.validation.constraints.NotNull;
+import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
@@ -124,7 +124,7 @@ public class QueueCommand extends MusicCommand<CommandParameters> {
 
 
     @Override
-    protected void onCommand(Context e, @NotNull CommandParameters params) {
+    protected void onCommand(Context e, @Nonnull CommandParameters params) {
         MusicManager manager = Chuu.playerRegistry.getExisting(e.getGuild().getIdLong());
         if (manager == null) {
             sendMessageQueue(e, "There's no music manager in this server");

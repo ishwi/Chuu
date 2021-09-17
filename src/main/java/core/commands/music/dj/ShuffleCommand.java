@@ -25,7 +25,7 @@ import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
 import dao.ServiceView;
 
-import javax.validation.constraints.NotNull;
+import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -60,7 +60,7 @@ public class ShuffleCommand extends MusicCommand<CommandParameters> {
     }
 
     @Override
-    protected void onCommand(Context e, @NotNull CommandParameters params) {
+    protected void onCommand(Context e, @Nonnull CommandParameters params) {
         MusicManager manager = getManager(e);
         Queue<String> queue = manager.getQueue();
         if (queue.isEmpty()) {

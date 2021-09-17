@@ -12,7 +12,7 @@ import dao.ServiceView;
 import dao.entities.SecondsTimeFrameCount;
 import dao.entities.TimeFrameEnum;
 
-import javax.validation.constraints.NotNull;
+import javax.annotation.Nonnull;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Stream;
@@ -43,7 +43,7 @@ public class TimeSpentCommand extends ConcurrentCommand<TimeFrameParameters> {
     }
 
     @Override
-    protected void onCommand(Context e, @NotNull TimeFrameParameters params) throws LastFmException {
+    protected void onCommand(Context e, @Nonnull TimeFrameParameters params) throws LastFmException {
 
         String username = params.getLastFMData().getName();
         long discordId = params.getLastFMData().getDiscordId();

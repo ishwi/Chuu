@@ -12,7 +12,7 @@ import dao.BotStats;
 import dao.ServiceView;
 import net.dv8tion.jda.api.EmbedBuilder;
 
-import javax.validation.constraints.NotNull;
+import javax.annotation.Nonnull;
 import java.text.DecimalFormat;
 import java.util.List;
 
@@ -52,7 +52,7 @@ public class HardwareStatsCommand extends ConcurrentCommand<CommandParameters> {
     }
 
     @Override
-    protected void onCommand(Context e, @NotNull CommandParameters params) {
+    protected void onCommand(Context e, @Nonnull CommandParameters params) {
         BotStats botStats = db.getBotStats();
         int shardTotal = e.getJDA().getShardInfo().getShardTotal();
         int mb = 1024 * 1024;

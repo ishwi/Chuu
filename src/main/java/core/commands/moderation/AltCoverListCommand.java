@@ -15,7 +15,7 @@ import dao.ServiceView;
 import dao.entities.CoverItem;
 import net.dv8tion.jda.api.EmbedBuilder;
 
-import javax.validation.constraints.NotNull;
+import javax.annotation.Nonnull;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -51,7 +51,7 @@ public class AltCoverListCommand extends ConcurrentCommand<CommandParameters> {
     }
 
     @Override
-    protected void onCommand(Context e, @NotNull CommandParameters params) {
+    protected void onCommand(Context e, @Nonnull CommandParameters params) {
         CoverService coverService = Chuu.getCoverService();
         Map<CoverItem, Integer> counts = coverService.getCounts();
         List<String> str = counts.entrySet().stream().map((t -> "**%s - %s**: %d %s%n".formatted(t.getKey().artist(), t.getKey().album(), t.getValue(), CommandUtil.singlePlural(t.getValue(), "cover", "covers"))))

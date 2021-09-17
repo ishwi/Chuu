@@ -21,7 +21,7 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.requests.RestAction;
 
-import javax.validation.constraints.NotNull;
+import javax.annotation.Nonnull;
 import java.awt.*;
 import java.util.Collections;
 import java.util.List;
@@ -66,7 +66,7 @@ public class LoginCommand extends ConcurrentCommand<CommandParameters> {
     }
 
     @Override
-    protected void onCommand(Context e, @NotNull CommandParameters params) throws LastFmException {
+    protected void onCommand(Context e, @Nonnull CommandParameters params) throws LastFmException {
         boolean notExisting = false;
         LastFMData lastFMData = null;
         String tempUser = null;

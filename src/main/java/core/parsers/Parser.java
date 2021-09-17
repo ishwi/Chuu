@@ -10,10 +10,10 @@ import core.parsers.explanation.util.UsageLogic;
 import core.parsers.params.CommandParameters;
 import core.parsers.utils.OptionalEntity;
 import dao.exceptions.InstanceNotFoundException;
-import javacutils.Pair;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;

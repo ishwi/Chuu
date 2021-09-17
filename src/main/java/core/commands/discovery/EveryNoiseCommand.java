@@ -14,7 +14,7 @@ import dao.ServiceView;
 import dao.everynoise.NoiseGenre;
 import dao.exceptions.InstanceNotFoundException;
 
-import javax.validation.constraints.NotNull;
+import javax.annotation.Nonnull;
 import java.util.List;
 
 public class EveryNoiseCommand extends ConcurrentCommand<UserStringParameters> {
@@ -48,7 +48,7 @@ public class EveryNoiseCommand extends ConcurrentCommand<UserStringParameters> {
     }
 
     @Override
-    protected void onCommand(Context e, @NotNull UserStringParameters params) throws LastFmException, InstanceNotFoundException {
+    protected void onCommand(Context e, @Nonnull UserStringParameters params) throws LastFmException, InstanceNotFoundException {
         String input = params.getInput();
         List<NoiseGenre> genres;
         boolean isSearchResult = !input.isBlank();

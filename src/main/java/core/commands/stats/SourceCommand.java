@@ -8,7 +8,7 @@ import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
 import dao.ServiceView;
 
-import javax.validation.constraints.NotNull;
+import javax.annotation.Nonnull;
 import java.util.List;
 
 public class SourceCommand extends ConcurrentCommand<CommandParameters> {
@@ -45,7 +45,7 @@ public class SourceCommand extends ConcurrentCommand<CommandParameters> {
     }
 
     @Override
-    protected void onCommand(Context e, @NotNull CommandParameters params) {
+    protected void onCommand(Context e, @Nonnull CommandParameters params) {
         sendMessageQueue(e, String.format("This is the GitHub link of the bot:%n%s", REPO_URL));
     }
 }

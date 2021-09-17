@@ -10,7 +10,7 @@ import core.parsers.params.CommandParameters;
 import dao.ServiceView;
 import dao.entities.UsersWrapper;
 
-import javax.validation.constraints.NotNull;
+import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -47,7 +47,7 @@ public class IndexCommand extends ConcurrentCommand<CommandParameters> {
     }
 
     @Override
-    protected void onCommand(Context e, @NotNull CommandParameters params) {
+    protected void onCommand(Context e, @Nonnull CommandParameters params) {
         if (CommandUtil.notEnoughPerms(e)) {
             sendMessageQueue(e, CommandUtil.notEnoughPermsTemplate() + "re-index the whole serverlist");
             return;

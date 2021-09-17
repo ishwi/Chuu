@@ -18,7 +18,7 @@ import dao.entities.*;
 import dao.exceptions.DuplicateInstanceException;
 import dao.exceptions.InstanceNotFoundException;
 
-import javax.validation.constraints.NotNull;
+import javax.annotation.Nonnull;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
@@ -55,7 +55,7 @@ public class SetCommand extends ConcurrentCommand<WordParameter> {
     }
 
     @Override
-    protected void onCommand(Context e, @NotNull WordParameter params) throws LastFmException, InstanceNotFoundException {
+    protected void onCommand(Context e, @Nonnull WordParameter params) throws LastFmException, InstanceNotFoundException {
 
 
         String lastFmName = params.getWord();

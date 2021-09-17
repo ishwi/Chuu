@@ -17,7 +17,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import org.apache.commons.collections4.MultiValuedMap;
 import org.apache.commons.collections4.multimap.HashSetValuedHashMap;
 
-import javax.validation.constraints.NotNull;
+import javax.annotation.Nonnull;
 import java.awt.image.BufferedImage;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
@@ -56,7 +56,7 @@ public class WeeklyCommand extends ConcurrentCommand<ChuuDataParams> {
     }
 
     @Override
-    protected void onCommand(Context e, @NotNull ChuuDataParams params) throws LastFmException {
+    protected void onCommand(Context e, @Nonnull ChuuDataParams params) throws LastFmException {
 
 
         LastFMData lastFmName = params.getLastFMData();

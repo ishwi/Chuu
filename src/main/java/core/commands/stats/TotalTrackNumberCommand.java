@@ -11,7 +11,7 @@ import core.parsers.params.ChuuDataParams;
 import core.parsers.params.NumberParameters;
 import dao.ServiceView;
 
-import javax.validation.constraints.NotNull;
+import javax.annotation.Nonnull;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -52,7 +52,7 @@ public class TotalTrackNumberCommand extends ConcurrentCommand<NumberParameters<
     }
 
     @Override
-    protected void onCommand(Context e, @NotNull NumberParameters<ChuuDataParams> params) {
+    protected void onCommand(Context e, @Nonnull NumberParameters<ChuuDataParams> params) {
 
         ChuuDataParams innerParams = params.getInnerParams();
         String lastFmName = innerParams.getLastFMData().getName();

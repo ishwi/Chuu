@@ -9,10 +9,10 @@ import dao.utils.Order;
 import org.apache.commons.collections4.ListValuedMap;
 import org.apache.commons.collections4.MultiValuedMap;
 import org.apache.commons.lang3.tuple.Pair;
-import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -167,7 +167,7 @@ public class ChuuService implements EveryNoiseService {
         }
     }
 
-    @NotNull
+    @Nonnull
     private <T extends ScrobbledArtist> Long handleNonExistingArtistFromAlbum(Connection connection, T x, Long artistId) {
         if (artistId == null) {
             String correction = updaterDao.findCorrection(connection, x.getArtist());
@@ -1725,7 +1725,7 @@ public class ChuuService implements EveryNoiseService {
         }
     }
 
-    public void setChartEmbed(long discordId, @NotNull ChartMode chartMode) {
+    public void setChartEmbed(long discordId, @Nonnull ChartMode chartMode) {
         try (Connection connection = dataSource.getConnection()) {
             userGuildDao.setUserProperty(connection, discordId, "chart_mode", chartMode);
         } catch (SQLException e) {
@@ -1804,7 +1804,7 @@ public class ChuuService implements EveryNoiseService {
 
     }
 
-    public void setWhoknowsMode(long discordId, @NotNull WhoKnowsMode whoKnowsMode) {
+    public void setWhoknowsMode(long discordId, @Nonnull WhoKnowsMode whoKnowsMode) {
         try (Connection connection = dataSource.getConnection()) {
             userGuildDao.setUserProperty(connection, discordId, "whoknows_mode", whoKnowsMode);
         } catch (SQLException e) {
@@ -1813,7 +1813,7 @@ public class ChuuService implements EveryNoiseService {
 
     }
 
-    public void setRemainingImagesMode(long discordId, @NotNull RemainingImagesMode remainingImagesMode) {
+    public void setRemainingImagesMode(long discordId, @Nonnull RemainingImagesMode remainingImagesMode) {
         try (Connection connection = dataSource.getConnection()) {
             userGuildDao.setUserProperty(connection, discordId, "remaining_mode", remainingImagesMode);
         } catch (SQLException e) {
@@ -1822,7 +1822,7 @@ public class ChuuService implements EveryNoiseService {
 
     }
 
-    public void setPrivacyMode(long discordId, @NotNull PrivacyMode privacyMode) {
+    public void setPrivacyMode(long discordId, @Nonnull PrivacyMode privacyMode) {
         try (Connection connection = dataSource.getConnection()) {
             userGuildDao.setUserProperty(connection, discordId, "privacy_mode", privacyMode);
         } catch (SQLException e) {
@@ -4236,6 +4236,15 @@ public class ChuuService implements EveryNoiseService {
         try (Connection connection = dataSource.getConnection()) {
             connection.setReadOnly(true);
             return queriesDao.audioLb(connection, element, guildId, order);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    public void removeQueuedPictures(long uploader) {
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setReadOnly(true);
+            userGuildDao.removeQueuedPictures(connection, uploader);
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }

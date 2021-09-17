@@ -25,9 +25,9 @@ import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 import net.dv8tion.jda.api.requests.restaction.CommandListUpdateAction;
 import org.apache.commons.lang3.StringUtils;
-import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.CheckReturnValue;
+import javax.annotation.Nonnull;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
@@ -232,7 +232,7 @@ public class InteractionBuilder {
         return commandData.toData().toString().length();
     }
 
-    @NotNull
+    @Nonnull
     private static SubcommandData processSubComand(MyCommand<?> myCommand) {
         SubcommandData commandData = new SubcommandData(myCommand.slashName(), StringUtils.abbreviate(myCommand.getDescription(), 100));
         List<Explanation> usages = myCommand.getParser().getUsages();
@@ -244,7 +244,7 @@ public class InteractionBuilder {
         return commandData;
     }
 
-    @NotNull
+    @Nonnull
     private static CommandData processCommand(MyCommand<?> myCommand) {
         CommandData commandData = new CommandData(myCommand.slashName(), StringUtils.abbreviate(myCommand.getDescription(), 100));
         List<Explanation> usages = myCommand.getParser().getUsages();

@@ -17,7 +17,7 @@ import dao.ServiceView;
 import dao.entities.*;
 import dao.exceptions.InstanceNotFoundException;
 
-import javax.validation.constraints.NotNull;
+import javax.annotation.Nonnull;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
@@ -55,7 +55,7 @@ public class UpdateCommand extends ConcurrentCommand<ChuuDataParams> {
     }
 
     @Override
-    protected void onCommand(Context e, @NotNull ChuuDataParams params) throws LastFmException, InstanceNotFoundException {
+    protected void onCommand(Context e, @Nonnull ChuuDataParams params) throws LastFmException, InstanceNotFoundException {
 
         LastFMData lastFMData = params.getLastFMData();
         String lastFmName = lastFMData.getName();

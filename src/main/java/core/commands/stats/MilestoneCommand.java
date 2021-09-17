@@ -19,7 +19,7 @@ import dao.entities.TrackWithArtistId;
 import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
 
-import javax.validation.constraints.NotNull;
+import javax.annotation.Nonnull;
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
@@ -70,7 +70,7 @@ public class MilestoneCommand extends ConcurrentCommand<NumberParameters<ChuuDat
     }
 
     @Override
-    protected void onCommand(Context e, @NotNull NumberParameters<ChuuDataParams> params) throws LastFmException {
+    protected void onCommand(Context e, @Nonnull NumberParameters<ChuuDataParams> params) throws LastFmException {
         Long extraParam = params.getExtraParam();
         LastFMData lastFMData = params.getInnerParams().getLastFMData();
         Optional<TrackWithArtistId> milestoneOpt = lastFM.getMilestone(lastFMData, extraParam);

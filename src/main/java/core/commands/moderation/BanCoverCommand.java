@@ -16,8 +16,8 @@ import dao.entities.LastFMData;
 import dao.entities.Role;
 import dao.entities.ScrobbledAlbum;
 
+import javax.annotation.Nonnull;
 import javax.imageio.ImageIO;
-import javax.validation.constraints.NotNull;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
@@ -56,7 +56,7 @@ public class BanCoverCommand extends ConcurrentCommand<ArtistAlbumUrlParameters>
     }
 
     @Override
-    protected void onCommand(Context e, @NotNull ArtistAlbumUrlParameters params) throws LastFmException {
+    protected void onCommand(Context e, @Nonnull ArtistAlbumUrlParameters params) throws LastFmException {
         LastFMData lastFMData = params.getLastFMData();
         if (lastFMData.getRole() != Role.ADMIN) {
             sendMessageQueue(e, "Not enough chuu perms to do this");

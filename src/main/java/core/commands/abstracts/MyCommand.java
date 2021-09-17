@@ -32,7 +32,7 @@ import net.dv8tion.jda.api.requests.ErrorResponse;
 import net.dv8tion.jda.api.requests.RestAction;
 
 import javax.annotation.CheckReturnValue;
-import javax.validation.constraints.NotNull;
+import javax.annotation.Nonnull;
 import java.awt.image.BufferedImage;
 import java.time.Instant;
 import java.util.List;
@@ -98,7 +98,7 @@ public abstract class MyCommand<T extends CommandParameters> implements EventLis
         onMessageReceived(((MessageReceivedEvent) event));
     }
 
-    public void onSlashCommandReceived(@NotNull SlashCommandEvent event) {
+    public void onSlashCommandReceived(@Nonnull SlashCommandEvent event) {
         if (!event.isFromGuild() && !respondInPrivate) {
             event.reply("This command only works in a server").queue();
             return;
@@ -248,7 +248,7 @@ public abstract class MyCommand<T extends CommandParameters> implements EventLis
         }
     }
 
-    protected abstract void onCommand(Context e, @NotNull T params) throws LastFmException, InstanceNotFoundException;
+    protected abstract void onCommand(Context e, @Nonnull T params) throws LastFmException, InstanceNotFoundException;
 
     protected final String getUserString(Context e, long discordId) {
         return getUserString(e, discordId, "Unknown");

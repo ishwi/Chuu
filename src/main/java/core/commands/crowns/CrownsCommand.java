@@ -16,7 +16,7 @@ import dao.entities.DiscordUserDisplay;
 import dao.entities.UniqueWrapper;
 import net.dv8tion.jda.api.EmbedBuilder;
 
-import javax.validation.constraints.NotNull;
+import javax.annotation.Nonnull;
 import java.util.Collections;
 import java.util.List;
 
@@ -71,7 +71,7 @@ public class CrownsCommand extends ConcurrentCommand<NumberParameters<ChuuDataPa
     }
 
     @Override
-    protected void onCommand(Context e, @NotNull NumberParameters<ChuuDataParams> params) {
+    protected void onCommand(Context e, @Nonnull NumberParameters<ChuuDataParams> params) {
 
 
         ChuuDataParams innerParams = params.getInnerParams();

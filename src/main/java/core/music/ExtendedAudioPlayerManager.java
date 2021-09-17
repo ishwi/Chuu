@@ -38,7 +38,6 @@ import com.sedmelluq.lava.extensions.youtuberotator.YoutubeIpRotatorSetup;
 import com.sedmelluq.lava.extensions.youtuberotator.planner.RotatingNanoIpRoutePlanner;
 import com.sedmelluq.lava.extensions.youtuberotator.tools.ip.IpBlock;
 import com.sedmelluq.lava.extensions.youtuberotator.tools.ip.Ipv6Block;
-import com.sun.istack.Nullable;
 import core.Chuu;
 import core.music.scrobble.ScrobbleEventManager;
 import core.music.sources.attachments.DiscordAttachmentAudioSourceManager;
@@ -50,6 +49,7 @@ import core.music.utils.YoutubeSearchManagerSingleton;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import javax.annotation.Nullable;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -113,7 +113,8 @@ public class ExtendedAudioPlayerManager extends DefaultAudioPlayerManager {
     /**
      * @return An AudioTrack with possibly-null user data.
      */
-    public @Nullable AudioTrack decodeTrack(String base64) throws IOException {
+    public @Nullable
+    AudioTrack decodeTrack(String base64) throws IOException {
         var decoded = Base64.getDecoder().decode(base64);
         var bais = new ByteArrayInputStream(decoded);
         DecodedTrackHolder track = super.decodeTrack(new MessageInput(bais));

@@ -28,7 +28,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import org.apache.commons.text.WordUtils;
 import org.knowm.xchart.PieChart;
 
-import javax.validation.constraints.NotNull;
+import javax.annotation.Nonnull;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.Collections;
@@ -116,7 +116,7 @@ public class GenreCommand extends ConcurrentCommand<NumberParameters<TimeFramePa
     }
 
     @Override
-    protected void onCommand(Context e, @NotNull NumberParameters<TimeFrameParameters> params) throws LastFmException {
+    protected void onCommand(Context e, @Nonnull NumberParameters<TimeFrameParameters> params) throws LastFmException {
 
 
         TimeFrameParameters innerParams = params.getInnerParams();

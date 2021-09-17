@@ -22,7 +22,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import org.apache.commons.lang3.StringUtils;
 import org.knowm.xchart.PieChart;
 
-import javax.validation.constraints.NotNull;
+import javax.annotation.Nonnull;
 import java.awt.image.BufferedImage;
 import java.util.Arrays;
 import java.util.List;
@@ -120,7 +120,7 @@ public class GlobalFavesFromArtistCommand extends ConcurrentCommand<ArtistParame
     }
 
     @Override
-    protected void onCommand(Context e, @NotNull ArtistParameters params) throws LastFmException {
+    protected void onCommand(Context e, @Nonnull ArtistParameters params) throws LastFmException {
 
         long userId = params.getLastFMData().getDiscordId();
         String artist = params.getArtist();

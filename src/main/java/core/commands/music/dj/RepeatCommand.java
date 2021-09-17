@@ -26,7 +26,7 @@ import core.parsers.Parser;
 import core.parsers.params.EnumParameters;
 import dao.ServiceView;
 
-import javax.validation.constraints.NotNull;
+import javax.annotation.Nonnull;
 import java.util.List;
 
 public class RepeatCommand extends MusicCommand<EnumParameters<RepeatOption>> {
@@ -57,7 +57,7 @@ public class RepeatCommand extends MusicCommand<EnumParameters<RepeatOption>> {
     }
 
     @Override
-    protected void onCommand(Context e, @NotNull EnumParameters<RepeatOption> params) {
+    protected void onCommand(Context e, @Nonnull EnumParameters<RepeatOption> params) {
         RepeatOption element = params.getElement();
         MusicManager manager = getManager(e);
         manager.setRepeatOption(element);

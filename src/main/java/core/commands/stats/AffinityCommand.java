@@ -20,7 +20,7 @@ import dao.entities.LastFMData;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.EmbedBuilder;
 
-import javax.validation.constraints.NotNull;
+import javax.annotation.Nonnull;
 import java.awt.image.BufferedImage;
 import java.util.Comparator;
 import java.util.List;
@@ -62,7 +62,7 @@ public class AffinityCommand extends ConcurrentCommand<AffinityParameters> {
     }
 
     @Override
-    protected void onCommand(Context e, @NotNull AffinityParameters params) throws LastFmException, InstanceNotFoundException {
+    protected void onCommand(Context e, @Nonnull AffinityParameters params) throws LastFmException, InstanceNotFoundException {
         if (params.isDoServer()) {
             doGuild(params);
         } else {

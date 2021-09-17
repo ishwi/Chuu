@@ -29,7 +29,7 @@ import core.parsers.params.CommandParameters;
 import core.parsers.params.NumberParameters;
 import dao.ServiceView;
 
-import javax.validation.constraints.NotNull;
+import javax.annotation.Nonnull;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -71,7 +71,7 @@ public class VolumeCommand extends MusicCommand<NumberParameters<CommandParamete
     }
 
     @Override
-    protected void onCommand(Context e, @NotNull NumberParameters<CommandParameters> params) {
+    protected void onCommand(Context e, @Nonnull NumberParameters<CommandParameters> params) {
         Long volume = params.getExtraParam();
         MusicManager manager = getManager(e);
         int currentVolume = manager.getPlayer().getVolume();

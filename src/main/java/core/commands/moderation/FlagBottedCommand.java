@@ -11,7 +11,7 @@ import dao.entities.LastFMData;
 import dao.entities.Role;
 import dao.exceptions.InstanceNotFoundException;
 
-import javax.validation.constraints.NotNull;
+import javax.annotation.Nonnull;
 import java.util.List;
 
 public class FlagBottedCommand extends ConcurrentCommand<ChuuDataParams> {
@@ -45,7 +45,7 @@ public class FlagBottedCommand extends ConcurrentCommand<ChuuDataParams> {
     }
 
     @Override
-    protected void onCommand(Context e, @NotNull ChuuDataParams params) throws InstanceNotFoundException {
+    protected void onCommand(Context e, @Nonnull ChuuDataParams params) throws InstanceNotFoundException {
         LastFMData lastFMData = db.findLastFMData(e.getAuthor().getIdLong());
         if (lastFMData.getRole() != Role.ADMIN) {
             sendMessageQueue(e, "Only bot admins can flag people as bots!");

@@ -14,7 +14,7 @@ import dao.entities.LastFMData;
 import dao.entities.ScrobbledArtist;
 import net.dv8tion.jda.api.utils.TimeFormat;
 
-import javax.validation.constraints.NotNull;
+import javax.annotation.Nonnull;
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.util.List;
@@ -51,7 +51,7 @@ public class FirstArtistCommand extends ConcurrentCommand<ArtistParameters> {
     }
 
     @Override
-    protected void onCommand(Context e, @NotNull ArtistParameters params) throws LastFmException {
+    protected void onCommand(Context e, @Nonnull ArtistParameters params) throws LastFmException {
         ScrobbledArtist artist = new ArtistValidator(db, lastFM, e).validate(params.getArtist(), false, !params.isNoredirect());
         long whom = params.getLastFMData().getDiscordId();
         int a;

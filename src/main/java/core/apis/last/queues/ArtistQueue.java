@@ -9,8 +9,8 @@ import dao.ChuuService;
 import dao.entities.ScrobbledArtist;
 import dao.entities.UpdaterStatus;
 import dao.exceptions.InstanceNotFoundException;
-import org.jetbrains.annotations.NotNull;
 
+import javax.annotation.Nonnull;
 import java.io.Serial;
 import java.util.Collection;
 import java.util.Objects;
@@ -48,7 +48,7 @@ public class ArtistQueue extends LinkedBlockingQueue<UrlCapsule> {
     }
 
     @Override
-    public boolean offer(@NotNull UrlCapsule item) {
+    public boolean offer(@Nonnull UrlCapsule item) {
         CompletableFuture<UrlCapsule> future = CompletableFuture.supplyAsync(() -> {
             if (needsImages) {
                 if ((item.getUrl() != null && item.getUrl().isBlank()) || (item.getUrl() != null && item.getUrl().equalsIgnoreCase(defaultTrackImage))) {
@@ -62,7 +62,7 @@ public class ArtistQueue extends LinkedBlockingQueue<UrlCapsule> {
 
     }
 
-    public void getUrl(@NotNull UrlCapsule item) {
+    public void getUrl(@Nonnull UrlCapsule item) {
         try {
             UpdaterStatus updaterStatusByName = dao.getUpdaterStatusByName(item.getArtistName());
             String url = updaterStatusByName.getArtistUrl();
@@ -78,7 +78,7 @@ public class ArtistQueue extends LinkedBlockingQueue<UrlCapsule> {
     }
 
 
-    @NotNull
+    @Nonnull
     @Override
     public UrlCapsule take() throws InterruptedException {
         try {

@@ -20,8 +20,8 @@ import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import org.apache.commons.lang3.StringUtils;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.validation.constraints.NotNull;
 import java.awt.*;
 import java.time.Year;
 import java.util.List;
@@ -130,7 +130,7 @@ public class InteractionAux {
         }
     }
 
-    public static <T> T processAlbum(@NotNull ArtistAlbum album, ConcurrentLastFM lastFM,
+    public static <T> T processAlbum(@Nonnull ArtistAlbum album, ConcurrentLastFM lastFM,
                                      LastFMData callerData, boolean forComparison,
                                      User author,
                                      User caller,

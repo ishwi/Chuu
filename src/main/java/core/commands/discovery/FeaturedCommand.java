@@ -15,7 +15,7 @@ import dao.entities.PresenceInfo;
 import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
 
-import javax.validation.constraints.NotNull;
+import javax.annotation.Nonnull;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Collections;
@@ -72,7 +72,7 @@ public class FeaturedCommand extends ConcurrentCommand<CommandParameters> {
     }
 
     @Override
-    protected void onCommand(Context e, @NotNull CommandParameters params) {
+    protected void onCommand(Context e, @Nonnull CommandParameters params) {
         String userString = this.getUserString(e, currentPresence.getDiscordId(), DEFAULT_USER);
         EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e)
                 .setThumbnail(CommandUtil.noImageUrl(currentPresence.getUrl()))

@@ -17,7 +17,7 @@ import dao.entities.DiscordUserDisplay;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.EmbedBuilder;
 
-import javax.validation.constraints.NotNull;
+import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -55,7 +55,7 @@ public class SearchCommand extends ConcurrentCommand<WordParameter> {
     }
 
     @Override
-    protected void onCommand(Context e, @NotNull WordParameter params) throws LastFmException, InstanceNotFoundException {
+    protected void onCommand(Context e, @Nonnull WordParameter params) throws LastFmException, InstanceNotFoundException {
         String word = params.getWord().toLowerCase(Locale.ROOT);
         List<? extends MyCommand<?>> strings;
         String title;

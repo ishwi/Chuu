@@ -17,7 +17,7 @@ import dao.entities.UsersWrapper;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
 
-import javax.validation.constraints.NotNull;
+import javax.annotation.Nonnull;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
@@ -84,7 +84,7 @@ public class ObscurityLeaderboardCommand extends LeaderboardCommand<ChuuDataPara
     }
 
     @Override
-    protected void onCommand(Context e, @NotNull ChuuDataParams params) {
+    protected void onCommand(Context e, @Nonnull ChuuDataParams params) {
 
         var list = getList(params);
         if (list == null) {

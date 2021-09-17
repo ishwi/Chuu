@@ -21,8 +21,8 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.requests.RestAction;
 import org.apache.commons.text.WordUtils;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.validation.constraints.NotNull;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
@@ -63,7 +63,7 @@ public class ReleasesEveryNoiseCommand extends ConcurrentCommand<UserStringParam
     }
 
     @Override
-    protected void onCommand(Context e, @NotNull UserStringParameters params) throws LastFmException, InstanceNotFoundException {
+    protected void onCommand(Context e, @Nonnull UserStringParameters params) throws LastFmException, InstanceNotFoundException {
         String input = params.getInput();
         boolean isSearchResult = !input.isBlank();
         if (!isSearchResult) {

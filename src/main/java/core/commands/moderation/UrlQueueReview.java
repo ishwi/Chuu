@@ -27,7 +27,7 @@ import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.Button;
 
-import javax.validation.constraints.NotNull;
+import javax.annotation.Nonnull;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -38,13 +38,13 @@ import static core.otherlisteners.Reactions.*;
 
 public class UrlQueueReview extends ConcurrentCommand<CommandParameters> {
 
-    private final HexaFunction<JDA, Integer, Supplier<Integer>, Map<Long, Integer>, Map<Long, Integer>, Map<Long, Integer>, BiFunction<ImageQueue, EmbedBuilder, EmbedBuilder>> builder = (jda, totalCount, pos, strikes, rejected, accepted) -> (reportEntity, embedBuilder) ->
+    private final HexaFunction<JDA, AtomicInteger, Supplier<Integer>, Map<Long, Integer>, Map<Long, Integer>, Map<Long, Integer>, BiFunction<ImageQueue, EmbedBuilder, EmbedBuilder>> builder = (jda, totalCount, pos, strikes, rejected, accepted) -> (reportEntity, embedBuilder) ->
             addStrikeField(reportEntity, strikes, embedBuilder.clearFields()
                     .addField("Artist:", String.format("[%s](%s)", CommandUtil.escapeMarkdown(reportEntity.artistName()), LinkUtils.getLastFmArtistUrl(reportEntity.artistName())), false)
                     .addField("Author", CommandUtil.getGlobalUsername(reportEntity.uploader()), true)
                     .addField("# Rejected:", String.valueOf(reportEntity.userRejectedCount() + rejected.getOrDefault(reportEntity.uploader(), 0)), true)
                     .addField("# Approved:", String.valueOf(reportEntity.count() + accepted.getOrDefault(reportEntity.uploader(), 0)), true)
-                    .setFooter(String.format("%d/%d%nUse 👩🏾‍⚖️ to reject this image", pos.get() + 1, totalCount))
+                    .setFooter(String.format("%d/%d%nUse 👩🏾‍⚖️ to reject this image", pos.get() + 1, totalCount.get()))
                     .setImage(CommandUtil.noImageUrl(reportEntity.url()))
                     .setColor(CommandUtil.pastelColor()));
 
@@ -53,7 +53,7 @@ public class UrlQueueReview extends ConcurrentCommand<CommandParameters> {
     }
 
     private static EmbedBuilder addStrikeField(ImageQueue q, Map<Long, Integer> strikesMap, EmbedBuilder embedBuilder) {
-        int strikes = q.strikes();
+        int strikes = q.strikes() + strikesMap.getOrDefault(q.uploader(), 0);
         if (strikes != 0) {
             embedBuilder
                     .addField("# Strikes:", String.valueOf(q.strikes() + strikesMap.getOrDefault(q.uploader(), 0)), true);
@@ -91,7 +91,7 @@ public class UrlQueueReview extends ConcurrentCommand<CommandParameters> {
     }
 
     @Override
-    protected void onCommand(Context e, @NotNull CommandParameters params) throws InstanceNotFoundException {
+    protected void onCommand(Context e, @Nonnull CommandParameters params) throws InstanceNotFoundException {
         long idLong = e.getAuthor().getIdLong();
         LastFMData lastFMData = db.findLastFMData(idLong);
         if (lastFMData.getRole() != Role.ADMIN) {
@@ -106,7 +106,7 @@ public class UrlQueueReview extends ConcurrentCommand<CommandParameters> {
         Map<Long, Integer> rejectedMap = new HashMap<>();
         Map<Long, Integer> approvedMap = new HashMap<>();
         Queue<ImageQueue> queue = new ArrayDeque<>(db.getNextQueue());
-        int totalReports = queue.size();
+        AtomicInteger totalImages = new AtomicInteger(queue.size());
         HashMap<String, Reaction<ImageQueue, ButtonClickEvent, ButtonResult>> actionMap = new LinkedHashMap<>();
         actionMap.put(DELETE, (q, r) -> {
             rejectedMap.merge(q.uploader(), 1, Integer::sum);
@@ -153,6 +153,9 @@ public class UrlQueueReview extends ConcurrentCommand<CommandParameters> {
                 strikesMap.merge(a.uploader(), 1, Integer::sum);
                 if (banned) {
                     TextChannel textChannelById = Chuu.getShardManager().getTextChannelById(Chuu.channel2Id);
+                    db.removeQueuedPictures(a.uploader());
+                    queue.removeIf(qI -> qI.uploader() == a.uploader());
+                    totalImages.set(queue.size());
                     if (textChannelById != null)
                         textChannelById.sendMessageEmbeds(new ChuuEmbedBuilder(e).setTitle("Banned user for adding pics")
                                 .setDescription("User: **%s**\n".formatted(User.fromId(a.uploader()).getAsMention())).build()).queue();
@@ -182,7 +185,7 @@ public class UrlQueueReview extends ConcurrentCommand<CommandParameters> {
                     String title;
                     if (navigationCounter.get() == 0) {
                         title = "There are no images in the queue";
-                    } else if (navigationCounter.get() == totalReports) {
+                    } else if (navigationCounter.get() == totalImages.get()) {
                         title = "There are no more images in the queue";
                     } else {
                         title = "Timed Out";
@@ -195,7 +198,7 @@ public class UrlQueueReview extends ConcurrentCommand<CommandParameters> {
                             .setColor(CommandUtil.pastelColor());
                 },
                 queue::poll,
-                builder.apply(e.getJDA(), totalReports, navigationCounter::get, strikesMap, rejectedMap, approvedMap)
+                builder.apply(e.getJDA(), totalImages, navigationCounter::get, strikesMap, rejectedMap, approvedMap)
                 , embedBuilder, e, e.getAuthor().getIdLong(), actionMap, List.of(of), false, true, 60);
 
     }

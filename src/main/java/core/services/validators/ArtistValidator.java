@@ -61,6 +61,7 @@ public record ArtistValidator(ChuuService dao, ConcurrentLastFM lastFM, Context 
             status = dao.getUpdaterStatusByName(scrobbledArtist.getArtist());
             scrobbledArtist.setArtistId(status.getArtistId());
             scrobbledArtist.setArtist(status.getArtistName());
+            scrobbledArtist.setUrl(status.getArtistUrl());
             existed = true;
         } catch (InstanceNotFoundException e) {
             //Artist doesnt exists

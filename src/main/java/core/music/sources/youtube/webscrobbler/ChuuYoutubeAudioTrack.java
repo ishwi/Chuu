@@ -120,7 +120,7 @@ public class ChuuYoutubeAudioTrack extends YoutubeAudioTrack {
     private FormatWithUrl loadBestFormatWithUrl(HttpInterface httpInterface) throws Exception {
         if (this.isSet.compareAndSet(false, false)) {
             YoutubeTrackDetails details = sourceManager.getTrackDetailsLoader()
-                    .loadDetails(httpInterface, getIdentifier(), true);
+                    .loadDetails(httpInterface, getIdentifier(), true, sourceManager);
 
             // If the error reason is "Video unavailable" details will return null
             if (details == null) {

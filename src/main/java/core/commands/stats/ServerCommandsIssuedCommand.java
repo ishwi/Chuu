@@ -17,7 +17,7 @@ import dao.entities.UserCount;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.EmbedBuilder;
 
-import javax.validation.constraints.NotNull;
+import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.function.Function;
 
@@ -60,7 +60,7 @@ public class ServerCommandsIssuedCommand extends ConcurrentCommand<CommandParame
 
 
     @Override
-    protected void onCommand(Context e, @NotNull CommandParameters params) throws LastFmException, InstanceNotFoundException {
+    protected void onCommand(Context e, @Nonnull CommandParameters params) throws LastFmException, InstanceNotFoundException {
         List<UserCount> userCommands = db.getServerCommandsLb(e.getGuild().getIdLong());
 
         if (userCommands.isEmpty()) {

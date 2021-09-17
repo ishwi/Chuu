@@ -16,7 +16,7 @@ import dao.entities.TrackPlays;
 import dao.entities.UniqueWrapper;
 import net.dv8tion.jda.api.EmbedBuilder;
 
-import javax.validation.constraints.NotNull;
+import javax.annotation.Nonnull;
 import java.util.Arrays;
 import java.util.List;
 
@@ -61,7 +61,7 @@ TrackCrownsCommand extends ConcurrentCommand<NumberParameters<ChuuDataParams>> {
     }
 
     @Override
-    protected void onCommand(Context e, @NotNull NumberParameters<ChuuDataParams> params) {
+    protected void onCommand(Context e, @Nonnull NumberParameters<ChuuDataParams> params) {
 
         ChuuDataParams innerParams = params.getInnerParams();
         DiscordUserDisplay userInfo = CommandUtil.getUserInfoEscaped(e, innerParams.getLastFMData().getDiscordId());

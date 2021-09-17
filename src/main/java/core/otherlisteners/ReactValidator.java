@@ -7,7 +7,6 @@ import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.requests.RestAction;
-import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import java.util.List;
@@ -181,7 +180,7 @@ public class ReactValidator<T> extends ReactionListener {
         refresh(event.getJDA());
     }
 
-    public boolean isValid(@NotNull MessageReactionAddEvent event) {
+    public boolean isValid(@Nonnull MessageReactionAddEvent event) {
         if (this.message == null) {
             return false;
         }

@@ -13,7 +13,7 @@ public record PieDoer(@Nullable String subtitle, String url, PieChart pieChart) 
         BufferedImage bufferedImage = new BufferedImage(1000, 750, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g = bufferedImage.createGraphics();
         GraphicUtils.setQuality(g);
-        Font annotationsFont = pieChart.getStyler().getAnnotationsFont();
+        Font annotationsFont = pieChart.getStyler().getLabelsFont();
         pieChart.paint(g, 1000, 750);
         g.setFont(annotationsFont.deriveFont(11.0f));
         if (subtitle != null) {

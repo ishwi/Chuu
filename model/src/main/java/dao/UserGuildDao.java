@@ -181,4 +181,6 @@ interface UserGuildDao {
     ServerStats getServerStats(Connection connection, long guildId);
 
     OptionalDouble obtainObscurity(Connection connection, String lastfmId);
+
+    void removeQueuedPictures(Connection connection, long uploader);
 }

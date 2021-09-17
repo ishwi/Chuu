@@ -11,7 +11,7 @@ import dao.entities.RYMImportRating;
 import dao.exceptions.InstanceNotFoundException;
 import org.apache.commons.text.StringEscapeUtils;
 
-import javax.validation.constraints.NotNull;
+import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.net.URL;
 import java.time.Year;
@@ -93,7 +93,7 @@ public class RYMDumpImportCommand extends ConcurrentCommand<UrlParameters> {
     }
 
     @Override
-    protected void onCommand(Context e, @NotNull UrlParameters params) {
+    protected void onCommand(Context e, @Nonnull UrlParameters params) {
 
 
         List<RYMImportRating> ratings = new ArrayList<>();

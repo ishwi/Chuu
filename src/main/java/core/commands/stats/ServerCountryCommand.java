@@ -26,7 +26,7 @@ import dao.musicbrainz.MusicBrainzServiceSingleton;
 import net.dv8tion.jda.api.entities.Message;
 import org.apache.commons.io.FileUtils;
 
-import javax.validation.constraints.NotNull;
+import javax.annotation.Nonnull;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -88,7 +88,7 @@ public class ServerCountryCommand extends ConcurrentCommand<NumberParameters<Com
     }
 
     @Override
-    protected void onCommand(Context e, @NotNull NumberParameters<CommandParameters> params) throws LastFmException {
+    protected void onCommand(Context e, @Nonnull NumberParameters<CommandParameters> params) throws LastFmException {
 
 
         Long palette = params.getExtraParam();

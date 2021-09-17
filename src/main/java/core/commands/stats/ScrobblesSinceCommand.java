@@ -13,7 +13,7 @@ import dao.entities.LastFMData;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.utils.TimeFormat;
 
-import javax.validation.constraints.NotNull;
+import javax.annotation.Nonnull;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -50,7 +50,7 @@ public class ScrobblesSinceCommand extends ConcurrentCommand<DateParameters> {
     }
 
     @Override
-    protected void onCommand(Context e, @NotNull DateParameters params) throws LastFmException, InstanceNotFoundException {
+    protected void onCommand(Context e, @Nonnull DateParameters params) throws LastFmException, InstanceNotFoundException {
 
         LastFMData lastFMData = db.findLastFMData(params.getUser().getIdLong());
         ZonedDateTime date = params.getDate().atZoneSameInstant(lastFMData.getTimeZone().toZoneId());

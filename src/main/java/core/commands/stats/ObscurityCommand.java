@@ -16,7 +16,7 @@ import dao.entities.DiscordUserDisplay;
 import dao.entities.LbEntry;
 import net.dv8tion.jda.api.EmbedBuilder;
 
-import javax.validation.constraints.NotNull;
+import javax.annotation.Nonnull;
 import java.text.DecimalFormat;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -68,7 +68,7 @@ public class ObscurityCommand extends ConcurrentCommand<ChuuDataParams> {
     }
 
     @Override
-    protected void onCommand(Context e, @NotNull ChuuDataParams params) {
+    protected void onCommand(Context e, @Nonnull ChuuDataParams params) {
         String name = params.getLastFMData().getName();
         CompletableFuture<AudioFeatures> uF = CompletableFuture.supplyAsync(() -> db.getUserFeatures(name));
         double v;

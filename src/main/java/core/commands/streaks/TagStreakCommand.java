@@ -23,7 +23,7 @@ import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import org.apache.commons.collections4.Bag;
 
-import javax.validation.constraints.NotNull;
+import javax.annotation.Nonnull;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -67,7 +67,7 @@ public class TagStreakCommand extends ConcurrentCommand<ChuuDataParams> {
     }
 
     @Override
-    protected void onCommand(Context e, @NotNull ChuuDataParams params) throws LastFmException {
+    protected void onCommand(Context e, @Nonnull ChuuDataParams params) throws LastFmException {
 
 
         LastFMData user = params.getLastFMData();

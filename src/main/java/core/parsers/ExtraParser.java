@@ -9,7 +9,6 @@ import core.parsers.params.ExtraParameters;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 
-import javax.validation.constraints.NotNull;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -28,7 +27,7 @@ import java.util.stream.Stream;
  * @param <T> THe Inner Parser class
  * @param <J> The class of the item in the extra parser
  */
-public class ExtraParser<Z extends ExtraParameters<Y, @NotNull J>, Y extends CommandParameters, T extends Parser<Y>, J> extends Parser<Z> {
+public class ExtraParser<Z extends ExtraParameters<Y, J>, Y extends CommandParameters, T extends Parser<Y>, J> extends Parser<Z> {
 
     public static final int LIMIT_ERROR = 999;
     public static final int INNER_ERROR = 1000;

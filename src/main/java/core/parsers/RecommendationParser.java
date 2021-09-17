@@ -21,15 +21,13 @@ import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 public class RecommendationParser extends DaoParser<RecommendationsParams> {
     private static final OptionData recs;
 
     static {
-        recs = new OptionData(OptionType.INTEGER, "number-of-recs", "Indicates the number of recommendations allowed. Defaults to 1");
-        IntStream.range(1, 26).forEachOrdered(t -> recs.addChoice(String.valueOf(t), t));
+        recs = new OptionData(OptionType.NUMBER, "number-of-recs", "Indicates the number of recommendations allowed. Defaults to 1");
     }
 
     private final int defaultCount;
@@ -61,6 +59,10 @@ public class RecommendationParser extends DaoParser<RecommendationsParams> {
         int threshold = defaultCount;
         if (recCount != null)
             threshold = Math.toIntExact(recCount.getAsLong());
+        if (threshold >= 25 || threshold <= 0) {
+            sendError("Recommendation count must be between 1 and 25", ctx);
+            return null;
+        }
         User user = InteractionAux.parseUser(e);
         boolean doServer = user == e.getUser();
         if (!doServer) {

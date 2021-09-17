@@ -7,9 +7,9 @@ import org.apache.commons.collections4.MultiValuedMap;
 import org.apache.commons.collections4.multimap.ArrayListValuedHashMap;
 import org.apache.commons.collections4.multimap.HashSetValuedHashMap;
 import org.apache.commons.lang3.tuple.Pair;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import javax.annotation.Nonnull;
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -316,7 +316,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
         }
     }
 
-    @NotNull
+    @Nonnull
     private List<UsersWrapper> getUsersWrappers(PreparedStatement preparedStatement) throws SQLException {
         ResultSet resultSet = preparedStatement.executeQuery();
         List<UsersWrapper> returnList = new ArrayList<>();
@@ -333,7 +333,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
         return returnList;
     }
 
-    @NotNull
+    @Nonnull
     private List<UsersWrapper> getUsersWrappersTimestamp(PreparedStatement preparedStatement) throws SQLException {
         ResultSet resultSet = preparedStatement.executeQuery();
         List<UsersWrapper> returnList = new ArrayList<>();
@@ -1729,6 +1729,13 @@ public class UserGuildDaoImpl implements UserGuildDao {
 
     }
 
+    @Override
+    public void removeQueuedPictures(Connection connection, long uploader) {
+        String queryString = "DELETE FROM  queued_url WHERE discord_id = ?";
+
+        deleteIdLong(connection, uploader, queryString);
+    }
+
     private List<LastFMData> getServerData(Connection con, long guildId, String queryString) {
         List<LastFMData> lastFMData = new ArrayList<>();
         try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {
@@ -1779,7 +1786,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
         return lastFMData;
     }
 
-    @NotNull
+    @Nonnull
     private Set<Long> getIdList(Connection connection, String queryString) {
         Set<Long> returnSet = new HashSet<>();
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
