@@ -54,10 +54,13 @@ compileTestJava.options.encoding = 'UTF-8'
 dependencies {
 // https://mvnrepository.com/artifact/org.knowm.xchart/xchart
     implementation project(':model')
-    implementation group: 'org.knowm.xchart', name: 'xchart', version: '3.8.0'
+    implementation group: 'org.knowm.xchart', name: 'xchart', version: '3.8.1'
     implementation 'se.michaelthelin.spotify:spotify-web-api-java:6.5.4'
 
-    implementation 'ch.qos.logback:logback-classic:1.3.0-alpha5'
+    implementation 'ch.qos.logback:logback-classic:1.3.0-alpha10'
+
+
+    implementation group: 'com.github.Walkyst', name: 'lavaplayer-fork', version: '3a54cbd43b'
 
     // Audio
     implementation 'com.sedmelluq:lavaplayer:1.3.78'
@@ -65,17 +68,17 @@ dependencies {
     implementation 'com.sedmelluq:lavaplayer-ext-youtube-rotator:0.2.3'
     implementation 'com.sedmelluq:jda-nas:1.1.0'
 
-    implementation 'com.github.ben-manes.caffeine:caffeine:3.0.3'
+    implementation 'com.github.ben-manes.caffeine:caffeine:3.0.4'
 
-    implementation 'com.neovisionaries:nv-i18n:1.28'
+    implementation 'com.neovisionaries:nv-i18n:1.29'
     implementation 'com.github.ishwi:java-eval:8de726df14c18523912aa6ff21bfd1b0b7d54924'
     implementation group: 'com.google.guava', name: 'guava', version: '30.1.1-jre'
-    implementation("net.dv8tion:JDA:4.3.0_295")
-    implementation group: 'org.jsoup', name: 'jsoup', version: '1.13.1'
+    implementation("net.dv8tion:JDA:4.3.0_324")
+    implementation group: 'org.jsoup', name: 'jsoup', version: '1.14.2'
 
     implementation group: 'org.apache.commons', name: 'commons-collections4', version: '4.4'
     implementation group: 'org.json', name: 'json', version: '20210307'
-    implementation group: 'io.github.classgraph', name: 'classgraph', version: '4.8.110'
+    implementation group: 'io.github.classgraph', name: 'classgraph', version: '4.8.116'
     implementation group: 'com.twelvemonkeys.imageio', name: 'imageio-core', version: '3.7.0'
     implementation group: 'com.twelvemonkeys.imageio', name: 'imageio-jpeg', version: '3.7.0'
     implementation group: 'com.twelvemonkeys.imageio', name: 'imageio-webp', version: '3.7.0'
@@ -83,7 +86,7 @@ dependencies {
     implementation group: 'org.apache.xmlgraphics', name: 'batik-transcoder', version: '1.14'
     implementation group: 'org.apache.xmlgraphics', name: 'batik-codec', version: '1.14'
     implementation group: 'org.apache.xmlgraphics', name: 'batik-svggen', version: '1.14'
-    implementation group: 'com.zaxxer', name: 'HikariCP', version: '4.0.3'
+    implementation group: 'com.zaxxer', name: 'HikariCP', version: '5.0.0'
     implementation 'com.vdurmont:emoji-java:5.1.1'
 
 
@@ -103,11 +106,11 @@ dependencies {
 // https://mvnrepository.com/artifact/com.pholser/junit-quickcheck-core
     //a
     testImplementation group: 'com.pholser', name: 'junit-quickcheck-core', version: '1.0'
-    testImplementation "org.mockito:mockito-core:3.11.2"
+    testImplementation "org.mockito:mockito-core:3.12.4"
     testImplementation group: 'junit', name: 'junit', version: '4.13.2'
 
-    testImplementation group: 'org.openjdk.jmh', name: 'jmh-core', version: '1.32'
-    testAnnotationProcessor group: 'org.openjdk.jmh', name: 'jmh-generator-annprocess', version: '1.32'
+    testImplementation group: 'org.openjdk.jmh', name: 'jmh-core', version: '1.33'
+    testAnnotationProcessor group: 'org.openjdk.jmh', name: 'jmh-generator-annprocess', version: '1.33'
 
 
 }
