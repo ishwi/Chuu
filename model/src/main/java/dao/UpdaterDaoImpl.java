@@ -682,6 +682,8 @@ public class UpdaterDaoImpl extends BaseDAO implements UpdaterDao {
 
     @Override
     public void fillIds(Connection connection, List<? extends ScrobbledArtist> list) {
+
+
         String queryString = "SELECT id, name FROM  artist WHERE name IN (%s)  ";
         String sql = String.format(queryString, list.isEmpty() ? null : preparePlaceHolders(list.size()));
 

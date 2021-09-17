@@ -3,6 +3,7 @@ package dao;
 import dao.entities.*;
 import dao.exceptions.ChuuServiceException;
 import dao.exceptions.InstanceNotFoundException;
+import dao.utils.SQLUtils;
 
 import java.sql.*;
 import java.text.Normalizer;
@@ -355,34 +356,48 @@ public class AlbumDaoImpl extends BaseDAO implements AlbumDao {
         }
     }
 
+
     @Override
     public void addSrobbledAlbums(Connection con, List<ScrobbledAlbum> scrobbledAlbums) {
 
-        StringBuilder mySql =
-                new StringBuilder("INSERT INTO  scrobbled_album" +
-                                  "                  (artist_id,album_id,lastfm_id,playnumber) VALUES (?,?,?,?) ");
+        SQLUtils.doBatches(con, "INSERT INTO scrobbled_album(artist_id,album_id,lastfm_id,playnumber) VALUES ", scrobbledAlbums, (ps, sc, page) -> {
+            ps.setLong(4 * page + 1, sc.getArtistId());
+            ps.setLong(4 * page + 2, sc.getAlbumId());
+            ps.setString(4 * page + 3, sc.getDiscordID());
+            ps.setInt(4 * page + 4, sc.getCount());
+        }, 4, " ON DUPLICATE KEY UPDATE playnumber =  VALUES(playnumber) + playnumber");
 
-        mySql.append(", (?,?,?,?)".repeat(Math.max(0, scrobbledAlbums.size() - 1)));
-        mySql.append(" ON DUPLICATE KEY UPDATE playnumber =  VALUES(playnumber) + playnumber");
 
-        try {
-            PreparedStatement preparedStatement = con.prepareStatement(mySql.toString());
-            for (int i = 0; i < scrobbledAlbums.size(); i++) {
-                ScrobbledAlbum scrobbledAlbum = scrobbledAlbums.get(i);
-                preparedStatement.setLong(4 * i + 1, scrobbledAlbum.getArtistId());
-                preparedStatement.setLong(4 * i + 2, scrobbledAlbum.getAlbumId());
-                preparedStatement.setString(4 * i + 3, scrobbledAlbum.getDiscordID());
-                preparedStatement.setInt(4 * i + 4, scrobbledAlbum.getCount());
-
-            }
-            preparedStatement.execute();
-        } catch (SQLException e) {
-            throw new ChuuServiceException(e);
-        }
+//        int batches = scrobbledAlbums.size() / 8000;
+//        int j = 0;
+//        for (int x = 0; x < batches; x++) {
+//
+//            StringBuilder mySql =
+//                    new StringBuilder("INSERT INTO  scrobbled_album" +
+//                                      "                  (artist_id,album_id,lastfm_id,playnumber) VALUES (?,?,?,?) ");
+//            int startingPoint = x * batches;
+//            x
+//            mySql.append(", (?,?,?,?)".repeat(Math.max(0, Math.min(8000 - 1, scrobbledAlbums.size() - 1))));
+//            mySql.append(" ON DUPLICATE KEY UPDATE playnumber =  VALUES(playnumber) + playnumber");
+//            try {
+//                PreparedStatement preparedStatement = con.prepareStatement(mySql.toString());
+//                for (int i = 0; i < 8000; i++) {
+//                    ScrobbledAlbum scrobbledAlbum = scrobbledAlbums.get(j++);
+//                    preparedStatement.setLong(4 * i + 1, scrobbledAlbum.getArtistId());
+//                    preparedStatement.setLong(4 * i + 2, scrobbledAlbum.getAlbumId());
+//                    preparedStatement.setString(4 * i + 3, scrobbledAlbum.getDiscordID());
+//                    preparedStatement.setInt(4 * i + 4, scrobbledAlbum.getCount());
+//                }
+//                preparedStatement.execute();
+//            } catch (SQLException e) {
+//                throw new ChuuServiceException(e);
+//            }
+//        }
     }
 
     @Override
-    public List<AlbumUserPlays> getUserTopArtistAlbums(Connection connection, long discord_id, long artistId, int limit) {
+    public List<AlbumUserPlays> getUserTopArtistAlbums(Connection connection, long discord_id, long artistId,
+                                                       int limit) {
         List<AlbumUserPlays> returnList = new ArrayList<>();
         String mySql = "SELECT a.playnumber,b.album_name,d.name,b.url FROM scrobbled_album a JOIN album b ON a.album_id = b.id JOIN user c ON a.lastfm_id = c.lastfm_id " +
                        "JOIN artist d ON b.artist_id = d.id  WHERE c.discord_id = ? AND a.artist_id = ?  ORDER BY a.playnumber DESC  LIMIT ? ";
@@ -403,7 +418,8 @@ public class AlbumDaoImpl extends BaseDAO implements AlbumDao {
     }
 
     @Override
-    public List<AlbumUserPlays> getServerTopArtistAlbums(Connection connection, long guildId, long artistId, int limit) {
+    public List<AlbumUserPlays> getServerTopArtistAlbums(Connection connection, long guildId, long artistId,
+                                                         int limit) {
         List<AlbumUserPlays> returnList = new ArrayList<>();
         String mySql = "SELECT sum(a.playnumber) AS ord,b.album_name,d.name,b.url FROM scrobbled_album a JOIN album b ON a.album_id = b.id JOIN user c ON a.lastfm_id = c.lastfm_id" +
                        " JOIN user_guild e ON c.discord_id = e.discord_id " +
@@ -427,6 +443,24 @@ public class AlbumDaoImpl extends BaseDAO implements AlbumDao {
 
     }
 
+    private void processArtistAlbums(int limit, List<AlbumUserPlays> returnList, PreparedStatement
+            preparedStatement, int i) throws SQLException {
+        preparedStatement.setInt(i, limit);
+        ResultSet resultSet = preparedStatement.executeQuery();
+        while (resultSet.next()) {
+            int plays = resultSet.getInt(1);
+            String albumName = resultSet.getString(2);
+            String artist = resultSet.getString(3);
+            String url = resultSet.getString(4);
+
+
+            AlbumUserPlays e = new AlbumUserPlays(albumName, url);
+            e.setArtist(artist);
+            e.setPlays(plays);
+            returnList.add(e);
+        }
+    }
+
     @Override
     public List<AlbumUserPlays> getGlobalTopArtistAlbums(Connection connection, long artistId, int limit) {
         List<AlbumUserPlays> returnList = new ArrayList<>();
@@ -447,22 +481,6 @@ public class AlbumDaoImpl extends BaseDAO implements AlbumDao {
 
     }
 
-    private void processArtistAlbums(int limit, List<AlbumUserPlays> returnList, PreparedStatement preparedStatement, int i) throws SQLException {
-        preparedStatement.setInt(i, limit);
-        ResultSet resultSet = preparedStatement.executeQuery();
-        while (resultSet.next()) {
-            int plays = resultSet.getInt(1);
-            String albumName = resultSet.getString(2);
-            String artist = resultSet.getString(3);
-            String url = resultSet.getString(4);
-
-
-            AlbumUserPlays e = new AlbumUserPlays(albumName, url);
-            e.setArtist(artist);
-            e.setPlays(plays);
-            returnList.add(e);
-        }
-    }
 
     @Override
     public Map<Genre, Integer> genreCountsByAlbum(Connection connection, List<AlbumInfo> albumInfos) {

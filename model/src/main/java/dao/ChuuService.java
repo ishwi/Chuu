@@ -2213,8 +2213,9 @@ public class ChuuService implements EveryNoiseService {
         Map<Boolean, List<ScrobbledAlbum>> whyDoesThisNotHaveAnId = scrobbledAlbums.stream().collect(Collectors.partitioningBy(x -> x.getAlbumId() >= 1 && x.getArtistId() >= 1));
         whyDoesThisNotHaveAnId.get(false).forEach(x -> logger.warn(String.format("%s %s caused a foreign key for user %s", x.getAlbum(), x.getArtist(), id)));
         List<ScrobbledAlbum> finalTruer = whyDoesThisNotHaveAnId.get(true);
-        if (!finalTruer.isEmpty())
+        if (!finalTruer.isEmpty()) {
             albumDao.addSrobbledAlbums(connection, finalTruer);
+        }
     }
 
     private void insertTracks(List<ScrobbledTrack> list, String id, Connection connection) throws SQLException {

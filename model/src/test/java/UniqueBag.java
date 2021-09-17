@@ -1,23 +1,21 @@
-package core.util;
-
 import org.apache.commons.collections4.Bag;
 
 import javax.annotation.Nonnull;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-public class UniqueBag<T> implements Bag<T> {
-    private final HashMap<T, Integer> inner;
+class UniqueBag<T> implements Bag<T> {
+    private final ConcurrentHashMap<T, Integer> inner;
     private final Class<T> clazz;
 
 
     public UniqueBag(Class<T> clazz) {
         this.clazz = clazz;
-        this.inner = new HashMap<>();
+        this.inner = new ConcurrentHashMap<>();
     }
 
     private T getT(Object object) {

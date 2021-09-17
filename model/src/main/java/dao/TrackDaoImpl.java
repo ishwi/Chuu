@@ -3,6 +3,7 @@ package dao;
 import dao.entities.*;
 import dao.exceptions.ChuuServiceException;
 import dao.exceptions.InstanceNotFoundException;
+import dao.utils.SQLUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
 import javax.annotation.Nullable;
@@ -583,51 +584,37 @@ public class TrackDaoImpl extends BaseDAO implements TrackDao {
 
     @Override
     public void fillIds(Connection connection, List<ScrobbledTrack> list) {
-        if (list.isEmpty()) {
-            return;
-        }
-        String queryString = "SELECT id,artist_id,track_name FROM track USE INDEX (track_and_artist) WHERE  (artist_id,track_name) in  (%s)  ";
+        String seed = UUID.randomUUID().toString();
 
-        String sql = String.format(queryString, prepareINQueryTuple(list.size()));
+        Map<String, ScrobbledTrack> trackMap = list.stream().collect(Collectors.toMap(scrobbledTrack -> scrobbledTrack.getArtistId() + "_" + seed + "_" + scrobbledTrack.getName().toLowerCase(), Function.identity(), (scrobbledArtist, scrobbledArtist2) -> {
+            scrobbledArtist.setCount(scrobbledArtist.getCount() + scrobbledArtist2.getCount());
+            return scrobbledArtist;
+        }));
+        Pattern compile = Pattern.compile("\\p{M}");
+        SQLUtils.doBatchesSelect(connection, "SELECT id,artist_id,track_name FROM track USE INDEX (track_and_artist) WHERE  (artist_id,track_name) in  ( ",
+                list, (ps, st, i) -> {
+                    ps.setLong(2 * i + 1, st.getArtistId());
+                    ps.setString(2 * i + 2, st.getName());
+                }, rs -> {
+                    long id = rs.getLong("id");
+                    long artist_id = rs.getLong("artist_id");
 
-        UUID a = UUID.randomUUID();
-        String seed = a.toString();
-        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-            for (int i = 0; i < list.size(); i++) {
-                preparedStatement.setLong(2 * i + 1, list.get(i).getArtistId());
-                preparedStatement.setString(2 * i + 2, list.get(i).getName());
-            }
-
-            /* Fill "preparedStatement". */
-            ResultSet resultSet = preparedStatement.executeQuery();
-            Map<String, ScrobbledTrack> trackMap = list.stream().collect(Collectors.toMap(scrobbledTrack -> scrobbledTrack.getArtistId() + "_" + seed + "_" + scrobbledTrack.getName().toLowerCase(), Function.identity(), (scrobbledArtist, scrobbledArtist2) -> {
-                scrobbledArtist.setCount(scrobbledArtist.getCount() + scrobbledArtist2.getCount());
-                return scrobbledArtist;
-            }));
-            Pattern compile = Pattern.compile("\\p{M}");
-
-            while (resultSet.next()) {
-                long id = resultSet.getLong("id");
-                long artist_id = resultSet.getLong("artist_id");
-
-                String name = resultSet.getString("track_name");
-                ScrobbledTrack scrobbledTrack = trackMap.get(artist_id + "_" + seed + "_" + name.toLowerCase());
-                if (scrobbledTrack != null) {
-                    scrobbledTrack.setTrackId(id);
-                } else {
-                    // name can be stripped or maybe the element is collect is the stripped one
-                    String normalizeArtistName = compile.matcher(
-                            Normalizer.normalize(name, Normalizer.Form.NFKD)
-                    ).replaceAll("");
-                    ScrobbledTrack normalizedArtist = trackMap.get(artist_id + "_" + seed + "_" + normalizeArtistName.toLowerCase());
-                    if (normalizedArtist != null) {
-                        normalizedArtist.setTrackId(id);
+                    String name = rs.getString("track_name");
+                    ScrobbledTrack scrobbledTrack = trackMap.get(artist_id + "_" + seed + "_" + name.toLowerCase());
+                    if (scrobbledTrack != null) {
+                        scrobbledTrack.setTrackId(id);
+                    } else {
+                        // name can be stripped or maybe the element is collect is the stripped one
+                        String normalizeArtistName = compile.matcher(
+                                Normalizer.normalize(name, Normalizer.Form.NFKD)
+                        ).replaceAll("");
+                        ScrobbledTrack normalizedArtist = trackMap.get(artist_id + "_" + seed + "_" + normalizeArtistName.toLowerCase());
+                        if (normalizedArtist != null) {
+                            normalizedArtist.setTrackId(id);
+                        }
                     }
-                }
-            }
-        } catch (SQLException e) {
-            throw new ChuuServiceException(e);
-        }
+                }, 2, " )");
+
     }
 
     @Override
@@ -760,27 +747,36 @@ public class TrackDaoImpl extends BaseDAO implements TrackDao {
     @Override
     public void addSrobbledTracks(Connection con, List<ScrobbledTrack> scrobbledTracks) {
 
-        StringBuilder mySql =
-                new StringBuilder("INSERT INTO  scrobbled_track" +
-                                  "                  (artist_id,track_id,lastfm_id,playnumber,loved) VALUES (?,?,?,?,?) ");
+        SQLUtils.doBatches(con, "INSERT INTO scrobbled_track(artist_id,track_id,lastfm_id,playnumber,loved) VALUES ", scrobbledTracks, (ps, st, i) -> {
+            ps.setLong(5 * i + 1, st.getArtistId());
+            ps.setLong(5 * i + 2, st.getTrackId());
+            ps.setString(5 * i + 3, st.getDiscordID());
+            ps.setInt(5 * i + 4, st.getCount());
+            ps.setBoolean(5 * i + 5, st.isLoved());
+        }, 5, " ON DUPLICATE KEY UPDATE playnumber =  VALUES(playnumber) + playnumber, loved = VALUES(loved) ");
 
-        mySql.append(", (?,?,?,?,?)".repeat(Math.max(0, scrobbledTracks.size() - 1)));
-        mySql.append(" ON DUPLICATE KEY UPDATE playnumber =  VALUES(playnumber) + playnumber, loved = VALUES(loved)");
 
-        try {
-            PreparedStatement preparedStatement = con.prepareStatement(mySql.toString());
-            for (int i = 0; i < scrobbledTracks.size(); i++) {
-                ScrobbledTrack scrobbledTrack = scrobbledTracks.get(i);
-                preparedStatement.setLong(5 * i + 1, scrobbledTrack.getArtistId());
-                preparedStatement.setLong(5 * i + 2, scrobbledTrack.getTrackId());
-                preparedStatement.setString(5 * i + 3, scrobbledTrack.getDiscordID());
-                preparedStatement.setInt(5 * i + 4, scrobbledTrack.getCount());
-                preparedStatement.setBoolean(5 * i + 5, scrobbledTrack.isLoved());
-            }
-            preparedStatement.execute();
-        } catch (SQLException e) {
-            throw new ChuuServiceException(e);
-        }
+//        StringBuilder mySql =
+//                new StringBuilder("INSERT INTO  scrobbled_track" +
+//                                  "                  (artist_id,track_id,lastfm_id,playnumber,loved) VALUES (?,?,?,?,?) ");
+//
+//        mySql.append(", (?,?,?,?,?)".repeat(Math.max(0, scrobbledTracks.size() - 1)));
+//        mySql.append(" ON DUPLICATE KEY UPDATE playnumber =  VALUES(playnumber) + playnumber, loved = VALUES(loved)");
+//
+//        try {
+//            PreparedStatement preparedStatement = con.prepareStatement(mySql.toString());
+//            for (int i = 0; i < scrobbledTracks.size(); i++) {
+//                ScrobbledTrack scrobbledTrack = scrobbledTracks.get(i);
+//                preparedStatement.setLong(5 * i + 1, scrobbledTrack.getArtistId());
+//                preparedStatement.setLong(5 * i + 2, scrobbledTrack.getTrackId());
+//                preparedStatement.setString(5 * i + 3, scrobbledTrack.getDiscordID());
+//                preparedStatement.setInt(5 * i + 4, scrobbledTrack.getCount());
+//                preparedStatement.setBoolean(5 * i + 5, scrobbledTrack.isLoved());
+//            }
+//            preparedStatement.execute();
+//        } catch (SQLException e) {
+//            throw new ChuuServiceException(e);
+//        }
     }
 
 

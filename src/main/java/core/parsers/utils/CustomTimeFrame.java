@@ -6,6 +6,7 @@ import dao.entities.TimeFrameEnum;
 
 import javax.annotation.Nonnull;
 import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.EnumSet;
 import java.util.Objects;
@@ -32,7 +33,7 @@ public class CustomTimeFrame {
     public CustomTimeFrame(NaturalTimeFrameEnum naturalTimeFrameEnum, long count) {
         this.naturalTimeFrameEnum = naturalTimeFrameEnum;
         this.count = count;
-        this.from = null;
+        this.from = naturalTimeFrameEnum.toLocalDate(1).atOffset(ZoneOffset.UTC);
         this.to = null;
         this.type = Type.NATURAL;
         this.timeFrameEnum = null;
@@ -42,7 +43,7 @@ public class CustomTimeFrame {
     public CustomTimeFrame(@Nonnull TimeFrameEnum timeFrameEnum) {
         this.timeFrameEnum = timeFrameEnum;
         this.count = -1;
-        this.from = null;
+        this.from = timeFrameEnum.toLocalDate(1).atOffset(ZoneOffset.UTC);
         this.to = null;
         this.type = Type.NORMAL;
         this.naturalTimeFrameEnum = null;
