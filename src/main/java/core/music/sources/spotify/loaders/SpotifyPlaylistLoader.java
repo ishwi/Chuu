@@ -91,7 +91,7 @@ public class SpotifyPlaylistLoader extends Loader {
                 String url = Arrays.stream(album.getImages()).max(Comparator.comparingInt((Image x) -> x.getHeight() * x.getWidth())).map(Image::getUrl).orElse(null);
                 String songName = tr.getName();
                 String artistName = tr.getArtists()[0].getName();
-                CompletableFuture<AudioTrack> task = queueYoutubeSearch(manager, "ytsearch:" + songName + " " + artistName).thenApply(ai -> {
+                CompletableFuture<AudioTrack> task = queueYoutubeSearch(manager, "ytmsearch:" + songName + " " + artistName).thenApply(ai -> {
                     if (ai instanceof AudioPlaylist ap) {
                         return new SpotifyAudioTrack((YoutubeAudioTrack) ap.getTracks().get(0), artistName, name, songName, url, this.sourceManager);
                     } else {

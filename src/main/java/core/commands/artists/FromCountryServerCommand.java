@@ -169,7 +169,7 @@ public class FromCountryServerCommand extends ConcurrentCommand<OnlyCountryParam
         EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e)
                 .setFooter(guild + " has " + list.size() +
                            (list.size() == 1 ? " artist " : " artists ") + "from " + country.getName(), null)
-                .setAuthor(title, PrivacyUtils.getLastFmUser(Chuu.DEFAULT_LASTFM_ID), userUrl);
+                .setTitle(title, PrivacyUtils.getLastFmUser(Chuu.DEFAULT_LASTFM_ID));
 
         new ListSender<>(e, list, Object::toString, embedBuilder)
                 .doSend();

@@ -55,7 +55,7 @@ public class YoutubeSearchCommand extends ConcurrentCommand<ExtraParameters<Word
 
 
         String query = params.getInnerParams().getWord();
-        AudioItem audioItem = audioSourceManager.loadItem(null, new AudioReference("ytsearch: " + query, null));
+        AudioItem audioItem = audioSourceManager.loadItem(null, new AudioReference("ytsearch:" + query, null));
         String s = null;
         if (audioItem instanceof BasicAudioPlaylist playlist) {
             s = playlist.getTracks().stream().findFirst().map(t -> t.getInfo().uri).orElse(null);

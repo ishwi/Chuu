@@ -70,7 +70,7 @@ public class SpotifyTrackLoader extends Loader {
         AlbumSimplified album = execute.getAlbum();
         String name = album.getName();
         String url = Arrays.stream(album.getImages()).max(Comparator.comparingInt((Image x) -> x.getHeight() * x.getWidth())).map(Image::getUrl).orElse(null);
-        AudioItem ai = doYoutubeSearch(manager, "ytsearch:" + song + " " + artist);
+        AudioItem ai = doYoutubeSearch(manager, "ytmsearch:" + song + " " + artist);
         if (ai instanceof AudioPlaylist ap) {
             return new SpotifyAudioTrack((YoutubeAudioTrack) ap.getTracks().get(0), artist, name, song, url, this.sourceManager);
         } else {

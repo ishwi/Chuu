@@ -71,7 +71,9 @@ public class ExtendedAudioPlayerManager extends DefaultAudioPlayerManager {
         if (Chuu.ipv6Block != null && !Chuu.ipv6Block.isEmpty()) {
             @SuppressWarnings("rawtypes") List<IpBlock> blocks = List.of(new Ipv6Block(Chuu.ipv6Block));
             RotatingNanoIpRoutePlanner planner = new RotatingNanoIpRoutePlanner(blocks);
-            new YoutubeIpRotatorSetup(planner).forSource(youtubeAudioSourceManager).setup();
+            new YoutubeIpRotatorSetup(planner)
+                    .withRetryLimit(6)
+                    .forSource(youtubeAudioSourceManager).setup();
         }
         registerSourceManagers(
                 new SpotifyAudioSourceManager(youtubeAudioSourceManager),

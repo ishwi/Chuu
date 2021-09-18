@@ -16,7 +16,6 @@ repositories {
     maven { url 'https://jitpack.io' }
 
 
-    jcenter()
 
 
 }
@@ -60,10 +59,9 @@ dependencies {
     implementation 'ch.qos.logback:logback-classic:1.3.0-alpha10'
 
 
-    implementation group: 'com.github.Walkyst', name: 'lavaplayer-fork', version: '3a54cbd43b'
+    implementation group: 'com.github.Walkyst', name: 'lavaplayer-fork', version: '3a54cbd43b2578ff6b2874b2545941ac29c14b02'
 
     // Audio
-    implementation 'com.sedmelluq:lavaplayer:1.3.78'
     implementation 'com.github.natanbc:lavadsp:0.7.7'
     implementation 'com.sedmelluq:lavaplayer-ext-youtube-rotator:0.2.3'
     implementation 'com.sedmelluq:jda-nas:1.1.0'

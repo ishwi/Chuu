@@ -40,7 +40,7 @@ public class ChuuTrackLoader extends DefaultYoutubeTrackDetailsLoader implements
             boolean requireFormats,
             YoutubeAudioSourceManager manager
     ) throws IOException {
-        JsonBrowser mainInfo = loadTrackInfoFromMainPage(httpInterface, videoId);
+        JsonBrowser mainInfo = loadTrackInfoFromInnertube(httpInterface, videoId, manager);
         try {
             YoutubeTrackJsonData initialData = loadBaseResponse(mainInfo, httpInterface, videoId);
             if (initialData == null) {

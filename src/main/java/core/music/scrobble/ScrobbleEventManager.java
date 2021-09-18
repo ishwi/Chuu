@@ -10,17 +10,17 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class ScrobbleEventManager {
-    private static final BlockingQueue<ScrobbleStatus> queue = new ArrayBlockingQueue<>(10);
-    private static final int CONSUMER_COUNT = 2;
+    private static final BlockingQueue<ScrobbleStatus> queue = new ArrayBlockingQueue<>(100);
+    private static final int CONSUMER_COUNT = 3;
     private static final AtomicBoolean doLoop = new AtomicBoolean(true);
     private final ThreadPoolExecutor manager;
     private final StatusProcesser processer;
 
     {
         AtomicInteger ranker = new AtomicInteger();
-        manager = new ThreadPoolExecutor(CONSUMER_COUNT, CONSUMER_COUNT, 0, TimeUnit.SECONDS, new ArrayBlockingQueue<>(2),
+        manager = new ThreadPoolExecutor(CONSUMER_COUNT, CONSUMER_COUNT, 0, TimeUnit.SECONDS, new ArrayBlockingQueue<>(CONSUMER_COUNT),
                 r -> new Thread(r, "Scrobble-executor-" + ranker.getAndIncrement()),
-                (r, executor) -> Chuu.getLogger().warn("TRYING TO CREATE MORE THAN 2 THREADS ON SCROBBLE LOOP")
+                (r, executor) -> Chuu.getLogger().warn("TRYING TO CREATE MORE THAN 3 THREADS ON SCROBBLE LOOP")
         );
         for (int i = 0; i < CONSUMER_COUNT; i++) {
             manager.submit(new ScrobbleLoop());

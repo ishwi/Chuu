@@ -158,7 +158,7 @@ public class ArtistFromCountryCommand extends ConcurrentCommand<CountryParameter
         EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e)
                 .setFooter(CommandUtil.unescapedUser(userName, discordId, e) + " has " + list.size() +
                            (list.size() == 1 ? " artist " : " artists ") + "from " + country.getName() + " " + usableTime, null)
-                .setAuthor(title, PrivacyUtils.getLastFmUser(params.getLastFMData().getName()), userUrl);
+                .setTitle(title, PrivacyUtils.getLastFmUser(params.getLastFMData().getName()));
 
         new ListSender<>(e, list, Object::toString, embedBuilder)
                 .doSend();

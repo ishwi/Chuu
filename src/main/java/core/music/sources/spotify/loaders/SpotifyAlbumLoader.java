@@ -86,7 +86,7 @@ public class SpotifyAlbumLoader extends Loader {
             String title = trackSimplified.getName();
             String artist = trackSimplified.getArtists()[0].getName();
 
-            CompletableFuture<AudioTrack> task = queueYoutubeSearch(manager, "ytsearch:" + title + " " + artist).thenApply(ai -> {
+            CompletableFuture<AudioTrack> task = queueYoutubeSearch(manager, "ytmsearch:" + title + " " + artist).thenApply(ai -> {
                 if (ai instanceof AudioPlaylist ap) {
                     return new SpotifyAudioTrack((YoutubeAudioTrack) ap.getTracks().get(0), artist, name, title, url, this.sourceManager);
                 } else {
