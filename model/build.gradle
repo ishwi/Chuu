@@ -23,8 +23,8 @@ test {
 }
 
 compileJava.options.encoding = 'UTF-8'
-sourceCompatibility = 16
-targetCompatibility = 16
+sourceCompatibility = 17
+targetCompatibility = 17
 group 'ish'
 version '1.0'
 update.dependsOn processResources
