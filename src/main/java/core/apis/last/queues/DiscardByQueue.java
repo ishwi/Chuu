@@ -1,17 +1,17 @@
 package core.apis.last.queues;
 
 import core.apis.discogs.DiscogsApi;
-import core.apis.last.chartentities.PreComputedChartEntity;
-import core.apis.last.chartentities.UrlCapsule;
+import core.apis.last.entities.chartentities.PreComputedChartEntity;
+import core.apis.last.entities.chartentities.UrlCapsule;
 import core.apis.spotify.Spotify;
-import core.commands.CommandUtil;
+import core.commands.utils.CommandUtil;
 import dao.ChuuService;
 import dao.entities.ScrobbledArtist;
 import dao.entities.TriFunction;
 import dao.entities.UpdaterStatus;
 import dao.exceptions.InstanceNotFoundException;
-import org.jetbrains.annotations.NotNull;
 
+import javax.annotation.Nonnull;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
@@ -36,7 +36,7 @@ public class DiscardByQueue extends DiscardableQueue<PreComputedChartEntity> {
 
     }
 
-    private static void getUrl(@NotNull UrlCapsule item, ChuuService dao, DiscogsApi discogsApi, Spotify spotifyApi) {
+    private static void getUrl(@Nonnull UrlCapsule item, ChuuService dao, DiscogsApi discogsApi, Spotify spotifyApi) {
         try {
             UpdaterStatus updaterStatusByName = dao.getUpdaterStatusByName(item.getArtistName());
             String url = updaterStatusByName.getArtistUrl();

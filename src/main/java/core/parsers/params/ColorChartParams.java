@@ -1,9 +1,8 @@
 package core.parsers.params;
 
-import dao.entities.ChartMode;
+import core.commands.Context;
+import core.parsers.utils.CustomTimeFrame;
 import dao.entities.LastFMData;
-import dao.entities.TimeFrameEnum;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.awt.*;
 import java.util.Set;
@@ -13,8 +12,9 @@ public class ColorChartParams extends ChartParameters {
     private int x;
     private int y;
 
-    public ColorChartParams(MessageReceivedEvent e, String lastfmID, long discordId, TimeFrameEnum timeFrameEnum, int x, int y, Set<Color> colors, ChartMode chartMode, LastFMData lastFMData) {
-        super(e, lastfmID, discordId, chartMode, lastFMData, timeFrameEnum, x, y);
+
+    public ColorChartParams(Context e, LastFMData lastFMData, CustomTimeFrame timeFrameEnum, int x, int y, Set<Color> colors) {
+        super(e, lastFMData, timeFrameEnum, x, y);
         this.colors = colors;
         this.x = x;
         this.y = y;
@@ -77,7 +77,7 @@ public class ColorChartParams extends ChartParameters {
     }
 
     @Override
-    public boolean isPieFormat() {
+    public boolean isPie() {
         return false;
     }
 

@@ -17,7 +17,7 @@
         <!--            <totalSizeCap>200MB</totalSizeCap>-->
         <!--        </rollingPolicy>-->
     </appender>
-    <root level="info">
+    <root level="INFO">
         <appender-ref ref="File"/>
     </root>
 </configuration>

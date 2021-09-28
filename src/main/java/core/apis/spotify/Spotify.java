@@ -9,16 +9,16 @@ import com.wrapper.spotify.model_objects.specification.*;
 import com.wrapper.spotify.requests.authorization.client_credentials.ClientCredentialsRequest;
 import com.wrapper.spotify.requests.data.search.SearchItemRequest;
 import com.wrapper.spotify.requests.data.search.simplified.SearchAlbumsRequest;
+import com.wrapper.spotify.requests.data.search.simplified.SearchTracksRequest;
+import com.wrapper.spotify.requests.data.tracks.GetAudioFeaturesForSeveralTracksRequest;
 import core.Chuu;
+import dao.entities.ScrobbledTrack;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.hc.core5.http.ParseException;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
+import java.util.*;
 
 public class Spotify {
 
@@ -71,6 +71,48 @@ public class Spotify {
         return build.execute();
     }
 
+    private Paging<Track> searchSong(String artist, String track) throws ParseException, SpotifyWebApiException, IOException {
+        initRequest();
+        artist = artist.contains(":") ? "\"" + artist + "\"" : artist;
+        track = track.contains(":") ? "\"" + track + "\"" : track;
+
+        SearchTracksRequest build = spotifyApi.searchTracks("track:" + track + " artist:" + artist).
+                market(CountryCode.NZ)
+                .limit(1)
+                .offset(0)
+                .build();
+        return build.execute();
+    }
+
+    public List<Pair<ScrobbledTrack, Track>> searchMultipleTracks(List<ScrobbledTrack> scrobbledTracks) {
+        return scrobbledTracks.stream().map(x -> {
+            try {
+                Paging<Track> trackPaging = searchSong(x.getArtist(), x.getName());
+                if (trackPaging.getItems().length == 0)
+                    return null;
+                return Pair.of(x, trackPaging.getItems()[0]);
+            } catch (ParseException | SpotifyWebApiException | IOException e) {
+                e.printStackTrace();
+                return null;
+            }
+        }).filter(Objects::nonNull).toList();
+    }
+
+    public Optional<dao.entities.Album> findAlbum(String artist, String song) {
+        try {
+            Paging<Track> trackPaging = searchSong(artist, song);
+            if (trackPaging.getItems().length == 0)
+                return Optional.empty();
+            return Arrays.stream(trackPaging.getItems()).filter(t -> t.getAlbum() != null).findFirst().flatMap(z -> {
+                String image = Arrays.stream(z.getAlbum().getImages()).findFirst().map(Image::getUrl).orElse(null);
+                return Optional.of(new dao.entities.Album(-1, -1, z.getAlbum().getName(), image, null, null, z.getAlbum().getId()));
+            });
+        } catch (ParseException | SpotifyWebApiException | IOException e) {
+            e.printStackTrace();
+            return Optional.empty();
+        }
+    }
+
     public String getAlbumLink(String artist, String album) {
         String returned = null;
         try {
@@ -86,13 +128,41 @@ public class Spotify {
 
     }
 
+    public List<AudioFeatures> getAudioFeatures(Set<String> ids) {
+        initRequest();
+        List<AudioFeatures> audioFeatures = new ArrayList<>();
+        if (ids.isEmpty()) {
+            return audioFeatures;
+        }
+        for (int i = 0; i < 5; i++) {
+            String[] strings = ids.stream().skip(i * 100).limit(100).toArray(String[]::new);
+            if (ids.size() < i * 100) {
+                break;
+            }
+            GetAudioFeaturesForSeveralTracksRequest build = spotifyApi.getAudioFeaturesForSeveralTracks(strings).build();
+            try {
+                AudioFeatures[] execute = build.execute();
+                audioFeatures.addAll(Arrays.stream(execute).filter(Objects::nonNull).toList());
+            } catch (IOException | SpotifyWebApiException | ParseException e) {
+                Chuu.getLogger().warn(e.getMessage(), e);
+            }
+        }
+
+
+        return audioFeatures;
+
+
+    }
+
     public List<dao.entities.Track> getAlbumTrackList(String artist, String album) {
         ArrayList<dao.entities.Track> tracks = new ArrayList<>();
         String returned = "";
         try {
             Paging<AlbumSimplified> albumSimplifiedPaging = searchAlbum(artist, album);
             for (AlbumSimplified item : albumSimplifiedPaging.getItems()) {
-                returned = item.getId();
+                if (item != null) {
+                    returned = item.getId();
+                }
             }
 
         } catch (IOException | SpotifyWebApiException | ParseException e) {
@@ -106,7 +176,7 @@ public class Spotify {
                 dao.entities.Track track = new dao.entities.Track(artist, x.getName(), 0, false, x.getDurationMs());
                 track.setPosition(x.getTrackNumber() - 1);
                 return track;
-            }).collect(Collectors.toList());
+            }).toList();
         } catch (IOException | SpotifyWebApiException | ParseException e) {
             return tracks;
         }
@@ -134,21 +204,24 @@ public class Spotify {
     }
 
     public String getArtistUrlImage(String artist) {
-        Artist[] artists = searchArtist(artist);
         if (artist == null) {
             return "";
         }
-        for (Artist item : artists) {
-            Image[] images = item.getImages();
-            if (images.length != 0)
-                return images[0].getUrl();
+        Artist[] artists = searchArtist(artist);
+
+        if (artists != null) {
+            for (Artist item : artists) {
+                Image[] images = item.getImages();
+                if (images.length != 0)
+                    return images[0].getUrl();
+            }
         }
         return "";
     }
 
     public Pair<String, String> getUrlAndId(String artist) {
         Artist[] artists = searchArtist(artist);
-        if (artist == null) {
+        if (artists == null) {
             return Pair.of("", "");
         }
         for (Artist item : artists) {
@@ -178,4 +251,8 @@ public class Spotify {
         return null;
     }
 
+
+    public SpotifyApi getSpotifyApi() {
+        return spotifyApi;
+    }
 }

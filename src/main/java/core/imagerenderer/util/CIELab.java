@@ -1,9 +1,11 @@
 package core.imagerenderer.util;
 
 import java.awt.color.ColorSpace;
+import java.io.Serial;
 
 public class CIELab extends ColorSpace {
 
+    @Serial
     private static final long serialVersionUID = 5027741380892134289L;
     private static final ColorSpace CIEXYZ =
             ColorSpace.getInstance(ColorSpace.CS_CIEXYZ);
@@ -78,6 +80,7 @@ public class CIELab extends ColorSpace {
         return CIEXYZ.toRGB(xyz);
     }
 
+    @Serial
     private Object readResolve() {
         return getInstance();
     }

@@ -29,23 +29,6 @@ public class EmbedTester {
     private final List<FieldRowMatcher> fieldRowMatcher;
     private final boolean hasThumbnail;
     private final String thumbnailUrl;
-
-    public EmbedTester(String command, Pattern footerPatern, Predicate<Matcher> footerMatch, Pattern titlePattern, Predicate<Matcher> titleMatch, Pattern descriptionPattern, Predicate<Matcher> descriptionMatch, Pattern noEmbbed, Predicate<Matcher> noEmbbedMatcher, int timeout, List<FieldRowMatcher> fieldRowMatcher, boolean hasThumbnail, String thumbnailUrl) {
-        this.command = command;
-        this.footerPatern = footerPatern;
-        this.footerMatch = footerMatch;
-        this.titlePattern = titlePattern;
-        this.titleMatch = titleMatch;
-        this.descriptionPattern = descriptionPattern;
-        this.descriptionMatch = descriptionMatch;
-        this.noEmbbed = noEmbbed;
-        this.noEmbbedMatcher = noEmbbedMatcher;
-        this.timeout = timeout;
-        this.fieldRowMatcher = fieldRowMatcher;
-        this.hasThumbnail = hasThumbnail;
-        this.thumbnailUrl = thumbnailUrl;
-    }
-
     private final TriFunction<String, Pattern, Predicate<Matcher>, Boolean> internalFunction = (string, regex, matcherPredicate) -> {
         if (string != null) {
             if (regex != null) {
@@ -65,6 +48,22 @@ public class EmbedTester {
         }
         return false;
     };
+
+    public EmbedTester(String command, Pattern footerPatern, Predicate<Matcher> footerMatch, Pattern titlePattern, Predicate<Matcher> titleMatch, Pattern descriptionPattern, Predicate<Matcher> descriptionMatch, Pattern noEmbbed, Predicate<Matcher> noEmbbedMatcher, int timeout, List<FieldRowMatcher> fieldRowMatcher, boolean hasThumbnail, String thumbnailUrl) {
+        this.command = command;
+        this.footerPatern = footerPatern;
+        this.footerMatch = footerMatch;
+        this.titlePattern = titlePattern;
+        this.titleMatch = titleMatch;
+        this.descriptionPattern = descriptionPattern;
+        this.descriptionMatch = descriptionMatch;
+        this.noEmbbed = noEmbbed;
+        this.noEmbbedMatcher = noEmbbedMatcher;
+        this.timeout = timeout;
+        this.fieldRowMatcher = fieldRowMatcher;
+        this.hasThumbnail = hasThumbnail;
+        this.thumbnailUrl = thumbnailUrl;
+    }
 
     public void GeneralFunction() {
         long id = TestResources.channelWorker.sendMessage(command).complete().getIdLong();

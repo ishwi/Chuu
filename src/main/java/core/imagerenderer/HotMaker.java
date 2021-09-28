@@ -1,5 +1,7 @@
 package core.imagerenderer;
 
+import core.imagerenderer.util.fitter.StringFitter;
+import core.imagerenderer.util.fitter.StringFitterBuilder;
 import dao.entities.BillboardEntity;
 import org.beryx.awt.color.ColorFactory;
 import org.imgscalr.Scalr;
@@ -16,6 +18,8 @@ import java.util.List;
 public class HotMaker {
     private final static int X_MAX = 900;
     private final static int BOX_SIZE = 125;
+    private static final StringFitter subTitleFitter = new StringFitterBuilder(18f, X_MAX - BOX_SIZE * 2).setMinSize(18).build();
+    private static final StringFitter titleFitter = new StringFitterBuilder(22f, X_MAX).setMinSize(22).build();
 
     private final static Color fontColor = ColorFactory.valueOf("#344072");
     private final static Color secondaryColor = ColorFactory.valueOf("#8086a0");
@@ -28,18 +32,26 @@ public class HotMaker {
 
 
     private final static Font normalFont = GraphicUtils.chooseFont(metric1);
+    private static final StringFitter serverFitter = new StringFitterBuilder(14, 450).setBaseFont(normalFont.deriveFont(14f).deriveFont(Font.BOLD)).setMinSize(14).build();
     private static BufferedImage upboats;
     private static BufferedImage downvote;
 
     static {
-        try (InputStream in = BandRendered.class.getResourceAsStream("/images/downvote.png")) {
-            downvote = Scalr.resize(ImageIO.read(in), Scalr.Method.QUALITY, 15, Scalr.OP_ANTIALIAS);
+        try (InputStream down = BandRendered.class.getResourceAsStream("/images/downvote.png");
+             InputStream upvote = BandRendered.class.getResourceAsStream("/images/upvote.png")) {
+            if (down == null) {
+                downvote = null;
+            } else {
+                downvote = Scalr.resize(ImageIO.read(down), Scalr.Method.QUALITY, 15, Scalr.OP_ANTIALIAS);
+
+            }
+            if (upvote == null) {
+                upboats = null;
+            } else {
+                upboats = Scalr.resize(ImageIO.read(upvote), Scalr.Method.QUALITY, 15, Scalr.OP_ANTIALIAS);
+            }
         } catch (IOException e) {
             downvote = null;
-        }
-        try (InputStream in = BandRendered.class.getResourceAsStream("/images/upvote.png")) {
-            upboats = Scalr.resize(ImageIO.read(in), Scalr.Method.QUALITY, 15, Scalr.OP_ANTIALIAS);
-        } catch (IOException e) {
             upboats = null;
         }
     }
@@ -81,16 +93,18 @@ public class HotMaker {
             g.drawImage(logo, x, (yCounter - 50) / 2, null);
             x += logo.getWidth();
         }
-        g.drawString(title, (x + 15), yCounter - 50);
+        StringFitter.FontMetadata titleMetadata = serverFitter.getFontMetadata(g, title);
+
+        g.drawString(titleMetadata.atrribute().getIterator(), (x + 15), yCounter - 50);
         g.setFont(g.getFont().deriveFont(12f));
         g.drawString(subtitle, (x + 15), yCounter - 25);
 
-        for (int i = 0, hotsSize = hots.size(); i < hotsSize || (i < itemCount); i++) {
+        for (int i = 0, hotsSize = hots.size(); i < hotsSize && (i < itemCount); i++) {
             BillboardEntity hot = hots.get(i);
             g.setColor(secondaryColor);
             g.drawRect(0, yCounter, X_MAX - 2, BOX_SIZE);
             int innerYCounter = yCounter;
-            g.setFont(g.getFont().deriveFont(42f));
+            g.setFont(g.getFont().deriveFont(42f).deriveFont(Font.BOLD));
             Rectangle2D stringBounds = g.getFontMetrics().getStringBounds(String.valueOf(hot.getPosition()), g);
             int rankX = (int) (((X_MAX * .15) - stringBounds.getWidth()) / 2);
             int rankY = innerYCounter + (int) ((BOX_SIZE - stringBounds.getHeight() + 40) / 2);
@@ -120,24 +134,25 @@ public class HotMaker {
             }
 
             int xCounter = (int) (X_MAX * 0.15);
-            Font font = GraphicUtils.chooseFont(hot.getName());
-            g.setFont(font.deriveFont(22f));
+            StringFitter.FontMetadata fontMetadata = titleFitter
+                    .getFontMetadata(g, hot.getName());
+
             g.setColor(fontColor);
-            int trackHeight = (int) g.getFontMetrics().getStringBounds(hot.getName(), g).getHeight();
+            int trackHeight = (int) fontMetadata.bounds().getHeight();
             innerYCounter = (int) (textStart + trackHeight * 1.5);
 
-            g.drawString(hot.getName(), xCounter, innerYCounter);
+            g.drawString(fontMetadata.atrribute().getIterator(), xCounter, innerYCounter);
             innerYCounter += trackHeight;
 
             g.setColor(secondaryColor);
             if (hot.getArtist() != null) {
-                font = GraphicUtils.chooseFont(hot.getArtist());
-                g.setFont(font.deriveFont(18f));
-                g.drawString(hot.getArtist(), xCounter, innerYCounter);
+                StringFitter.FontMetadata artistMetadata = subTitleFitter
+                        .getFontMetadata(g, hot.getArtist());
 
+                g.drawString(artistMetadata.atrribute().getIterator(), xCounter, innerYCounter);
             }
 
-
+            g.setFont(g.getFont().deriveFont(Font.PLAIN, 14));
             doMetric(g, widthMetrics1, startMetrics, innerYCounter, previousWeek, String.valueOf(previousWeek));
 
             int peak = hot.getPeak();
@@ -161,11 +176,9 @@ public class HotMaker {
 
 
             if (hot.getArtist() != null) {
-
-                innerYCounter += g.getFontMetrics().getStringBounds(hot.getArtist(), g).getHeight();
+                innerYCounter += g.getFontMetrics(fontMetadata.maxFont()).getStringBounds(hot.getArtist(), g).getHeight();
             } else {
-                innerYCounter += g.getFontMetrics().getStringBounds(hot.getName(), g).getHeight();
-
+                innerYCounter += g.getFontMetrics(fontMetadata.maxFont()).getStringBounds(hot.getName(), g).getHeight();
             }
             String variation;
             if (previousWeek == 0) {
@@ -181,8 +194,8 @@ public class HotMaker {
             }
 
 
-            font = GraphicUtils.chooseFont(variation);
-            g.setFont(font.deriveFont(14f));
+            Font font2 = GraphicUtils.chooseFont(variation);
+            g.setFont(font2.deriveFont(14f));
             g.drawString(variation, xCounter, innerYCounter);
 
             yCounter += BOX_SIZE;
@@ -191,7 +204,8 @@ public class HotMaker {
 
     }
 
-    private static void doMetric(Graphics2D g, int widthMetrics4, int startMetrics4, int innerYCounter, long metrics4, String s) {
+    private static void doMetric(Graphics2D g, int widthMetrics4, int startMetrics4, int innerYCounter,
+                                 long metrics4, String s) {
         String metric4Metrics;
         int size;
         if (metrics4 == 0) {

@@ -1,0 +1,35 @@
+package core.commands.abstracts;
+
+import core.commands.Context;
+import core.parsers.Parser;
+import core.parsers.params.CommandParameters;
+import dao.ServiceView;
+
+import javax.annotation.Nonnull;
+import java.util.List;
+
+public abstract class ListCommand<T, Y extends CommandParameters> extends ConcurrentCommand<Y> {
+
+    public ListCommand(ServiceView dao, boolean isLongRunningCommand) {
+        super(dao, isLongRunningCommand);
+    }
+
+    public ListCommand(ServiceView dao) {
+        this(dao, false);
+    }
+
+    @Override
+    public abstract Parser<Y> initParser();
+
+    @Override
+    protected void onCommand(Context e, @Nonnull Y params) {
+
+
+        List<T> list = getList(params);
+        printList(list, params);
+    }
+
+    public abstract List<T> getList(Y params);
+
+    public abstract void printList(List<T> list, Y params);
+}

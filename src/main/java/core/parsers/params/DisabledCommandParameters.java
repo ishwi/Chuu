@@ -1,19 +1,25 @@
 package core.parsers.params;
 
-import core.commands.MyCommand;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import core.commands.Context;
+import core.commands.abstracts.MyCommand;
 
 public class DisabledCommandParameters extends CommandParameters {
 
     private final MyCommand<?> command;
     private final long guildId;
     private final Long channelId;
+    private final Action action;
 
-    public DisabledCommandParameters(MessageReceivedEvent e, MyCommand<?> command, long guildId, Long channelId) {
+    public DisabledCommandParameters(Context e, MyCommand<?> command, long guildId, Long channelId, Action action) {
         super(e);
         this.command = command;
         this.guildId = guildId;
         this.channelId = channelId;
+        this.action = action;
+    }
+
+    public Action getAction() {
+        return action;
     }
 
     public MyCommand<?> getCommand() {
@@ -38,5 +44,9 @@ public class DisabledCommandParameters extends CommandParameters {
 
     public Long getChannelId() {
         return channelId;
+    }
+
+    public enum Action {
+        DISABLE, ENABLE, TOGGLE
     }
 }

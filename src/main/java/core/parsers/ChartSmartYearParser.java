@@ -1,16 +1,30 @@
 package core.parsers;
 
+import core.commands.Context;
+import core.commands.ContextSlashReceived;
+import core.exceptions.LastFmException;
 import core.parsers.exceptions.InvalidChartValuesException;
+import core.parsers.explanation.FullTimeframeExplanation;
+import core.parsers.explanation.YearExplanation;
+import core.parsers.explanation.util.Explanation;
+import core.parsers.interactions.InteractionAux;
 import core.parsers.params.ChartYearParameters;
+import core.parsers.utils.CustomTimeFrame;
+import core.parsers.utils.OptionalEntity;
 import dao.ChuuService;
 import dao.entities.LastFMData;
 import dao.entities.TimeFrameEnum;
 import dao.exceptions.InstanceNotFoundException;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 
 import java.awt.*;
 import java.time.LocalDateTime;
 import java.time.Year;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Stream;
 
 public class ChartSmartYearParser extends ChartableParser<ChartYearParameters> {
     public ChartSmartYearParser(ChuuService dao) {
@@ -39,15 +53,33 @@ public class ChartSmartYearParser extends ChartableParser<ChartYearParameters> {
         return timeframe;
     }
 
+
     @Override
     void setUpOptionals() {
         super.setUpOptionals();
-        opts.add(new OptionalEntity("nolimit", "make the chart as big as possible"));
-        opts.add(new OptionalEntity("time", "make the chart to be sorted by duration (quite inaccurate)"));
+        addOptional(new OptionalEntity("nolimit", "make the chart as big as possible"), new OptionalEntity("time", "to sort by duration"));
     }
 
     @Override
-    public ChartYearParameters parseLogic(MessageReceivedEvent e, String[] words) throws InstanceNotFoundException {
+    public ChartYearParameters parseSlashLogic(ContextSlashReceived ctx) throws LastFmException, InstanceNotFoundException {
+        SlashCommandEvent e = ctx.e();
+        Point point = InteractionAux.parseSize(e, () -> sendError(getErrorMessage(8), ctx));
+        if (point == null) {
+            return null;
+        }
+        Year year = Optional.ofNullable(e.getOption(YearExplanation.NAME)).map(OptionMapping::getAsLong).map(Long::intValue).map(Year::of).orElse(Year.now());
+        if (Year.now().compareTo(year) < 0) {
+            sendError(getErrorMessage(6), ctx);
+            return null;
+        }
+        TimeFrameEnum timeFrameEnum = calculateTimeFrame(year);
+        User user = InteractionAux.parseUser(e);
+        LastFMData data = findLastfmFromID(user, ctx);
+        return new ChartYearParameters(ctx, data, CustomTimeFrame.ofTimeFrameEnum(timeFrameEnum), point.x, point.y, year);
+    }
+
+    @Override
+    public ChartYearParameters parseLogic(Context e, String[] words) throws InstanceNotFoundException {
         LastFMData discordName;
 
 
@@ -59,44 +91,33 @@ public class ChartSmartYearParser extends ChartableParser<ChartYearParameters> {
         try {
             chartSize = chartParserAux.getChartSize();
         } catch (InvalidChartValuesException ex) {
-            sendError(getErrorMessage(8), e);
+            sendError(getErrorMessage(6), e);
             return null;
         }
 
         if (chartSize != null) {
-            boolean conflictFlag = e.getMessage().getContentRaw().contains("nolimit");
-            if (conflictFlag) {
-                sendError(getErrorMessage(7), e);
-                return null;
-            }
             x = chartSize.x;
             y = chartSize.y;
         }
         Year year = chartParserAux.parseYear();
         words = chartParserAux.getMessage();
         if (Year.now().compareTo(year) < 0) {
-            sendError(getErrorMessage(6), e);
+            sendError(getErrorMessage(9), e);
             return null;
         }
         TimeFrameEnum timeFrameEnum = calculateTimeFrame(year);
         discordName = atTheEndOneUser(e, words);
-        return new ChartYearParameters(e, discordName.getName(), discordName.getDiscordId(), timeFrameEnum, x, y, year, discordName.getChartMode(), discordName);
+        return new ChartYearParameters(e, discordName, CustomTimeFrame.ofTimeFrameEnum(timeFrameEnum), x, y, year);
     }
 
     @Override
-    public String getUsageLogic(String commandName) {
-        return "**" + commandName + " *Username* *YEAR* *sizeXsize*** \n" +
-                "\tIf username is not specified defaults to authors account \n" +
-                "\tIf YEAR not specified it default to current year\n" +
-                "\tIf Size not specified it defaults to 5x5\n";
+    public List<Explanation> getUsages() {
+        return Stream.concat(Stream.of(new YearExplanation()), super.getUsages().stream()).filter(t -> !(t instanceof FullTimeframeExplanation)).toList();
     }
 
     @Override
     protected void setUpErrorMessages() {
-        errorMessages.put(5, "You Introduced too many words");
-        errorMessages.put(6, "YEAR must be the current year or lower");
-        errorMessages.put(7, "Can't use a size for the chart if you specify the --nolimit flag!");
-        errorMessages.put(8, "0 is not a valid value for a chart!");
+        errorMessages.put(9, "YEAR must be the current year or lower");
 
     }
 }

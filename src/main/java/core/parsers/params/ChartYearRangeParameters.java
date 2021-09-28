@@ -1,26 +1,27 @@
 package core.parsers.params;
 
-import dao.entities.ChartMode;
+import core.commands.Context;
+import core.parsers.utils.CustomTimeFrame;
 import dao.entities.LastFMData;
-import dao.entities.TimeFrameEnum;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.time.Year;
 import java.time.temporal.ChronoUnit;
+
+import static core.commands.utils.CommandUtil.getDecade;
 
 public class ChartYearRangeParameters extends ChartParameters {
     private final Year baseYear;
     private final int numberOfYears;
 
 
-    public ChartYearRangeParameters(MessageReceivedEvent e, Year baseYear, String lastfmID, long discordId, TimeFrameEnum timeFrameEnum, int x, int y, int numberOfYears, ChartMode chartMode, LastFMData lastFMData) {
-        super(e, lastfmID, discordId, chartMode, lastFMData, timeFrameEnum, x, y);
+    public ChartYearRangeParameters(Context e, LastFMData lastFMData, CustomTimeFrame timeFrameEnum, int x, int y, Year baseYear, int numberOfYears) {
+        super(e, lastFMData, timeFrameEnum, x, y);
         this.baseYear = baseYear;
         this.numberOfYears = numberOfYears;
     }
 
-    public ChartYearRangeParameters(MessageReceivedEvent e, Year baseYear, String lastfmID, long discordId, TimeFrameEnum timeFrameEnum, int x, int y, boolean writeTitles, boolean writePlays, boolean isList, boolean pieFormat, int numberOfYears, ChartMode chartMode, LastFMData lastFMData) {
-        super(e, lastfmID, discordId, timeFrameEnum, x, y, writeTitles, writePlays, isList, chartMode, lastFMData);
+    public ChartYearRangeParameters(Context e, LastFMData user, CustomTimeFrame timeFrameEnum, int x, int y, boolean writeTitles, boolean writePlays, boolean isList, Year baseYear, int numberOfYears) {
+        super(e, user, timeFrameEnum, x, y, writeTitles, writePlays, isList);
         this.baseYear = baseYear;
         this.numberOfYears = numberOfYears;
     }
@@ -37,9 +38,6 @@ public class ChartYearRangeParameters extends ChartParameters {
         return getBaseYear().plus(numberOfYears, ChronoUnit.YEARS).getValue();
     }
 
-    private int getDecade(int year) {
-        return year < 2000 ? (year / 10 * 10 - 1900) : (year / 10 * 10);
-    }
 
     public String getDisplayString() {
         if (numberOfYears == 10 && baseYear.isAfter(Year.now().minus(100, ChronoUnit.YEARS))) {

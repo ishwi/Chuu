@@ -31,7 +31,7 @@ public class InviteCommandTest extends CommandTest {
             throw new ChuuServiceException(e);
         }
         Pattern pattern = Pattern.compile("Using the following link you can invite me to your server:\n" +
-                "https://discordapp\\.com/oauth2/authorize\\?scope=bot&client_id=(\\d+){18}&permissions=(?:\\d+)");
+                                          "https://discordapp\\.com/oauth2/authorize\\?scope=bot&client_id=(\\d+){18}&permissions=(?:\\d+)");
 
         OneLineUtils.testCommands(COMMAND_ALIAS, pattern);
     }

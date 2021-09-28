@@ -1,6 +1,7 @@
 package dao.entities;
 
 import java.time.Year;
+import java.util.ArrayList;
 import java.util.List;
 
 public class MusicbrainzFullAlbumEntity extends FullAlbumEntityExtended {
@@ -9,7 +10,7 @@ public class MusicbrainzFullAlbumEntity extends FullAlbumEntityExtended {
 
 
     public MusicbrainzFullAlbumEntity(FullAlbumEntityExtended fullAlbumEntity, List<String> tags, Year year) {
-        super(fullAlbumEntity.getArtist(), fullAlbumEntity.getAlbum(), fullAlbumEntity.getTotalPlayNumber(), fullAlbumEntity.getAlbumUrl(), fullAlbumEntity.getUsername(), fullAlbumEntity.getListeners(), fullAlbumEntity.getTotalscrobbles());
+        super(fullAlbumEntity.getArtist(), fullAlbumEntity.getAlbum(), fullAlbumEntity.getTotalPlayNumber(), fullAlbumEntity.getAlbumUrl(), fullAlbumEntity.getUsername(), fullAlbumEntity.getListeners(), fullAlbumEntity.getTotalscrobbles(), new ArrayList<>(), "");
         this.tags = tags;
         this.year = year;
     }

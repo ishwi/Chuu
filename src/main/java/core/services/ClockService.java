@@ -5,6 +5,7 @@ import core.imagerenderer.CircleRenderer;
 import core.imagerenderer.GraphicUtils;
 import core.imagerenderer.stealing.jiff.GifSequenceWriter;
 import dao.entities.PreBillboardUserDataTimestamped;
+import dao.exceptions.ChuuServiceException;
 
 import javax.imageio.ImageIO;
 import javax.imageio.stream.ImageOutputStream;
@@ -23,11 +24,12 @@ import java.util.stream.Collectors;
 
 public class ClockService {
     public static final Function<TimeZone, Function<PreBillboardUserDataTimestamped, OffsetDateTime>> dateTimeFunctionComposer = (t) -> (x) -> x.getTimestamp().toInstant().atZone(t.toZoneId()).toOffsetDateTime();
+    final TemporalField weekOfYear = WeekFields.of(Locale.getDefault()).weekOfYear();
     private final ClockMode clockMode;
     private final List<PreBillboardUserDataTimestamped> data;
     private final TimeZone timeZone;
     private final Function<PreBillboardUserDataTimestamped, OffsetDateTime> dateTimeFunction;
-    TemporalField weekOfYear = WeekFields.of(Locale.getDefault()).weekOfYear();
+
     public ClockService(ClockMode clockMode, List<PreBillboardUserDataTimestamped> data, TimeZone timeZone) {
         this.clockMode = clockMode;
         this.data = data;
@@ -40,38 +42,35 @@ public class ClockService {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         try (ImageOutputStream output = ImageIO.createImageOutputStream(baos)) {
 
-            HashMap<Integer, List<PreBillboardUserDataTimestamped>> collect = data.stream().
-                    collect(Collectors.groupingBy(x -> {
-                        switch (clockMode) {
-                            case BY_WEEK:
-                                return byWeek(x);
-                            case BY_DAY:
-                                return byDay(x);
-                            default:
-                                throw new IllegalStateException();
-                        }
+            Map<Integer, List<PreBillboardUserDataTimestamped>> dayToData = data.stream().
+                    collect(Collectors.groupingBy(x -> switch (clockMode) {
+                        case BY_WEEK -> byWeek(x);
+                        case BY_DAY -> byDay(x);
                     }, HashMap::new, Collectors.toList()));
-            List<BufferedImage> images = collect.entrySet().parallelStream().sorted(Map.Entry.comparingByKey()).map(
+            List<BufferedImage> images = dayToData.entrySet().parallelStream().sorted(Map.Entry.comparingByKey()).map(
                     t -> {
                         Integer key = t.getKey();
                         List<PreBillboardUserDataTimestamped> value = t.getValue();
 
-                        HashMap<Integer, Long> collect1 = value.stream()
+                        Map<Integer, Long> dayToCounts = value.stream()
                                 .collect(Collectors.groupingBy(x -> dateTimeFunction.apply(x).getHour(),
                                         HashMap::new, Collectors.counting()));
-                        byte[] bytes = CircleRenderer.generateImage(clockMode, collect1, key, timeZone);
-                        ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
-                        try {
+                        byte[] bytes = CircleRenderer.generateImage(clockMode, dayToCounts, key, timeZone);
+                        if (bytes == null) {
+                            throw new ChuuServiceException(new NullPointerException(" bytes null clock service"));
+                        }
+                        try (ByteArrayInputStream bais = new ByteArrayInputStream(bytes)) {
                             BufferedImage read = ImageIO.read(bais);
                             Graphics2D g = read.createGraphics();
                             GraphicUtils.setQuality(g);
                             g.dispose();
                             return read;
+
                         } catch (IOException e) {
                             throw new RuntimeException(e);
                         }
                     }
-            ).collect(Collectors.toList());
+            ).toList();
             GifSequenceWriter.saveGif(output, images, 0, 300);
 
 

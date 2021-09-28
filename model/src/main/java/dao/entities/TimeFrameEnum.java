@@ -1,9 +1,11 @@
 package dao.entities;
 
 import dao.utils.Constants;
+import org.apache.commons.text.WordUtils;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.EnumSet;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -11,7 +13,7 @@ import java.util.stream.Stream;
 
 public enum TimeFrameEnum {
 
-    YEAR("y"), QUARTER("q"), MONTH("m"), ALL("a"), SEMESTER("s"), WEEK("w"), DAY("d");
+    DAY("d"), WEEK("w"), MONTH("m"), QUARTER("q"), SEMESTER("s"), YEAR("y"), ALL("a");
 
     private static final Map<String, TimeFrameEnum> ENUM_MAP;
 
@@ -33,106 +35,68 @@ public enum TimeFrameEnum {
     }
 
     public static TimeFrameEnum fromCompletePeriod(String period) {
-        switch (period) {
-            case "12month":
-                return YEAR;
-            case "3month":
-                return QUARTER;
-            case "1month":
-                return MONTH;
-            case "overall":
-                return ALL;
-            case "6month":
-                return SEMESTER;
-            case "day":
-                return DAY;
-            default:
-                return WEEK;
-        }
+        return switch (period) {
+            case "12month" -> YEAR;
+            case "3month" -> QUARTER;
+            case "1month" -> MONTH;
+            case "overall" -> ALL;
+            case "6month" -> SEMESTER;
+            case "day" -> DAY;
+            default -> WEEK;
+        };
     }
 
     public static TimeFrameEnum get(String name) {
         return ENUM_MAP.get(name);
     }
 
-    // getter method
-    private String getName() {
-        return this.name;
-    }
-
-    public String toApiFormat() {
-        switch (name) {
-            case "y":
-            case "yearly":
-            case "year":
-                return "12month";
-            case "q":
-            case "quarter":
-            case "quarterly":
-                return "3month";
-            case "m":
-            case "month":
-            case "monthly":
-                return "1month";
-            case "a":
-            case "alltime":
-            case "overall":
-            case "all":
-                return "overall";
-            case "s":
-            case "semester":
-            case "semesterly":
-                return "6month";
-            case "d":
-            case "day":
-            case "daily":
-                return "day";
-            default:
-                return "7day";
-        }
+    public static TimeFrameEnum getFromComplete(String name) {
+        return EnumSet.allOf(TimeFrameEnum.class).stream().filter(t -> t.toString().equalsIgnoreCase(name)).findFirst().orElseThrow(IllegalArgumentException::new);
     }
 
     public static String getDisplayString(String timefraeStr) {
         return (timefraeStr
-                .equals("overall") ? " " : " in the last " + TimeFrameEnum
+                        .equals("overall") ? " " : " in the last " + TimeFrameEnum
                 .fromCompletePeriod(timefraeStr).toString().toLowerCase());
     }
 
+    // getter method
+    public String getName() {
+        return this.name;
+    }
+
+    public String toApiFormat() {
+        return switch (name) {
+            case "y", "yearly", "year" -> "12month";
+            case "q", "quarter", "quarterly" -> "3month";
+            case "m", "month", "monthly" -> "1month";
+            case "a", "alltime", "overall", "all" -> "overall";
+            case "s", "semester", "semesterly" -> "6month";
+            case "d", "day", "daily" -> "day";
+            default -> "7day";
+        };
+    }
+
+    public String toValueString() {
+        return WordUtils.capitalizeFully(this.name());
+    }
+
+
     public String getDisplayString() {
         return (this.equals(TimeFrameEnum.ALL) ? "" : " in the last " + this.toString().toLowerCase());
-
     }
 
     public LocalDateTime toLocalDate(int count) {
 
-        LocalDateTime localDate;
-        switch (this) {
-            case YEAR:
-                localDate = LocalDateTime.now().minus(count, ChronoUnit.YEARS);
-                break;
-            case QUARTER:
-                localDate = LocalDateTime.now().minus(3L * count, ChronoUnit.MONTHS);
-                break;
-            case MONTH:
-                localDate = LocalDateTime.now().minus(count, ChronoUnit.MONTHS);
-                break;
-            case ALL:
-                localDate = Constants.LASTFM_CREATION_DATE.atStartOfDay();
-                break;
-            case SEMESTER:
-                localDate = LocalDateTime.now().minus(6L * count, ChronoUnit.MONTHS);
-                break;
-            case WEEK:
-                localDate = LocalDateTime.now().minus(7L * count, ChronoUnit.DAYS);
-                break;
-            case DAY:
-                localDate = LocalDateTime.now().minus(count, ChronoUnit.DAYS);
-
-                break;
-            default:
-                throw new IllegalStateException("Unexpected value: " + this);
-        }
-        return localDate;
+        return switch (this) {
+            case YEAR -> LocalDateTime.now().minus(count, ChronoUnit.YEARS);
+            case QUARTER -> LocalDateTime.now().minus(3L * count, ChronoUnit.MONTHS);
+            case MONTH -> LocalDateTime.now().minus(count, ChronoUnit.MONTHS);
+            case ALL -> Constants.LASTFM_CREATION_DATE.atStartOfDay();
+            case SEMESTER -> LocalDateTime.now().minus(6L * count, ChronoUnit.MONTHS);
+            case WEEK -> LocalDateTime.now().minus(7L * count, ChronoUnit.DAYS);
+            case DAY -> LocalDateTime.now().minus(count, ChronoUnit.DAYS);
+        };
 
     }
 

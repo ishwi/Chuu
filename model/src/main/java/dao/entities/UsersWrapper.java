@@ -2,22 +2,30 @@ package dao.entities;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
+import javax.annotation.Nonnull;
 import java.util.Objects;
 import java.util.TimeZone;
 
 @JsonSerialize(using = UserExportSerializer.class)
 public class UsersWrapper {
     private final Role role;
+    private final TimeZone timeZone;
     private long discordID;
     private String lastFMName;
     private int timestamp;
-    private final TimeZone timeZone;
 
     public UsersWrapper(long discordID, String lastFMName, Role role, TimeZone timeZone) {
         this.discordID = discordID;
         this.lastFMName = lastFMName;
         this.role = role;
         this.timeZone = timeZone;
+    }
+
+    public UsersWrapper(LastFMData lastFMData) {
+        this.discordID = lastFMData.getDiscordId();
+        this.lastFMName = lastFMData.getName();
+        this.role = lastFMData.getRole();
+        this.timeZone = lastFMData.getTimeZone();
     }
 
     UsersWrapper(long discordID, String lastFMName, int timestamp, Role role, TimeZone timeZone) {
@@ -48,7 +56,8 @@ public class UsersWrapper {
         this.discordID = discordID;
     }
 
-    public String getLastFMName() {
+    public @Nonnull
+    String getLastFMName() {
         return lastFMName;
     }
 

@@ -11,8 +11,8 @@ public class BooleanTest {
         Random random = new Random();
         TriFunction<Integer, Boolean, Boolean, Boolean> booleaner = (rank, onlysecond, skipFirst) ->
                 onlysecond && rank == 2 || ((!onlysecond) &&
-                        skipFirst && rank != 1 ||
-                        !onlysecond && !skipFirst);
+                                            skipFirst && rank != 1 ||
+                                            !onlysecond && !skipFirst);
         for (int i = 0; i < 2; i++) {
             for (int j = 0; j < 2; j++) {
                 for (int k = 1; k < 4; k++) {

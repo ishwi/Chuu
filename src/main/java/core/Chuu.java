@@ -1,27 +1,47 @@
 package core;
 
 import com.google.common.util.concurrent.RateLimiter;
+import com.sedmelluq.discord.lavaplayer.jdaudp.NativeAudioSendFactory;
 import core.apis.discogs.DiscogsSingleton;
+import core.apis.last.LastFMFactory;
 import core.apis.spotify.SpotifySingleton;
-import core.commands.*;
+import core.commands.CustomInterfacedEventManager;
+import core.commands.abstracts.MyCommand;
+import core.commands.config.HelpCommand;
+import core.commands.config.PrefixCommand;
+import core.commands.discovery.FeaturedCommand;
+import core.commands.moderation.AdministrativeCommand;
+import core.commands.moderation.EvalCommand;
+import core.commands.moderation.TagWithYearCommand;
+import core.interactions.InteractionBuilder;
+import core.music.ExtendedAudioPlayerManager;
+import core.music.PlayerRegistry;
+import core.music.listeners.VoiceListener;
+import core.music.scrobble.ScrobbleEventManager;
+import core.music.scrobble.StatusProcesser;
+import core.music.utils.ScrobbleProcesser;
 import core.otherlisteners.AwaitReady;
-import core.scheduledtasks.ArtistMbidUpdater;
-import core.scheduledtasks.ImageUpdaterThread;
-import core.scheduledtasks.SpotifyUpdaterThread;
-import core.scheduledtasks.UpdaterThread;
-import core.services.MessageDeletionService;
-import core.services.MessageDisablingService;
+import core.otherlisteners.ConstantListener;
+import core.services.*;
+import core.services.validators.AlbumFinder;
+import core.util.botlists.BotListPoster;
+import dao.ChuuDatasource;
 import dao.ChuuService;
+import dao.LongExecutorChuuDatasource;
+import dao.ServiceView;
+import dao.entities.Callback;
 import dao.entities.Metrics;
 import dao.exceptions.ChuuServiceException;
+import io.github.classgraph.ClassGraph;
+import io.github.classgraph.ScanResult;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberRemoveEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionAddEvent;
 import net.dv8tion.jda.api.events.message.priv.react.PrivateMessageReactionAddEvent;
-import net.dv8tion.jda.api.hooks.IEventManager;
 import net.dv8tion.jda.api.requests.GatewayIntent;
+import net.dv8tion.jda.api.requests.restaction.CommandListUpdateAction;
 import net.dv8tion.jda.api.requests.restaction.MessageAction;
 import net.dv8tion.jda.api.sharding.DefaultShardManagerBuilder;
 import net.dv8tion.jda.api.sharding.ShardManager;
@@ -31,17 +51,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.security.auth.login.LoginException;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
+import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.LongAdder;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 @SuppressWarnings("UnstableApiUsage")
@@ -51,47 +69,26 @@ public class Chuu {
     public static final String DEFAULT_LASTFM_ID = "chuubot";
     private static final LongAdder lastFMMetric = new LongAdder();
     private static final Set<String> privateLastFms = new HashSet<>();
+    public static PlayerRegistry playerRegistry;
+    public static ExtendedAudioPlayerManager playerManager;
+    public static String chuuSess;
+    public static String ipv6Block;
+    public static long channelId;
+    public static long channel2Id;
+    public static PrefixService prefixService;
+    public static CustomInterfacedEventManager customManager;
+    public static boolean doTyping = true;
+    private static String[] args;
     private static ShardManager shardManager;
     private static Logger logger;
-    private static ScheduledExecutorService scheduledExecutorService;
     private static Map<Long, RateLimiter> ratelimited;
-    private static Map<Long, Character> prefixMap;
-    private static ChuuService dao;
+    private static ServiceView db;
+    private static CoverService coverService;
     private static MessageDeletionService messageDeletionService;
     private static MessageDisablingService messageDisablingService = new MessageDisablingService();
-
-
-    public static ScheduledExecutorService getScheduledExecutorService() {
-        return scheduledExecutorService;
-    }
-
-
-    public static void addGuildPrefix(long guildId, Character prefix) {
-        if (prefix.equals(DEFAULT_PREFIX)) {
-            prefixMap.remove(guildId);
-        } else {
-            Character replace = prefixMap.replace(guildId, prefix);
-            if (replace == null) {
-                prefixMap.put(guildId, prefix);
-            }
-        }
-    }
-
-    //Returns if its disabled or enabled now
-
-
-    public static Character getCorrespondingPrefix(MessageReceivedEvent e) {
-        if (!e.isFromGuild())
-            return DEFAULT_PREFIX;
-        long id = e.getGuild().getIdLong();
-        Character character = prefixMap.get(id);
-        return character == null ? DEFAULT_PREFIX : character;
-
-    }
-
-    public static Map<Long, Character> getPrefixMap() {
-        return prefixMap;
-    }
+    private static ScrobbleEventManager scrobbleEventManager;
+    private static ScrobbleProcesser scrobbleProcesser;
+    private static ScheduledService scheduledService;
 
     public static String getLastFmId(String lastfmId) {
         if (privateLastFms.contains(lastfmId)) {
@@ -104,286 +101,193 @@ public class Chuu {
         lastFMMetric.increment();
     }
 
-    public static void main(String[] args) throws InterruptedException {
-        if (System.getProperty("file.encoding").equals("UTF-8")) {
-            setupBot(Arrays.stream(args).anyMatch(x -> x.equalsIgnoreCase("stop-asking")));
-        } else {
-            relaunchInUTF8();
-        }
-    }
-
-    private static void relaunchInUTF8() throws InterruptedException {
-        System.out.println("BotLauncher: We are not running in UTF-8 mode! This is a problem!");
-        System.out.println("BotLauncher: Relaunching in UTF-8 mode using -Dfile.encoding=UTF-8");
-
-        String[] command = new String[]{"java", "-Dfile.encoding=UTF-8", "--enable-preview", "-jar",
-                Chuu.getThisJarFile().getAbsolutePath()};
-
-        // Relaunches the bot using UTF-8 mode.
-        ProcessBuilder processBuilder = new ProcessBuilder(command);
-        processBuilder.inheritIO(); // Tells the new process to use the same command line as this one.
-        try {
-            Process process = processBuilder.start();
-            process.waitFor(); // We wait here until the actual bot stops. We do this so that we can keep using
-            // the same command line.
-            System.exit(process.exitValue());
-        } catch (IOException e) {
-            if (e.getMessage().contains("\"java\"")) {
-                System.out.println(
-                        "BotLauncher: There was an error relaunching the bot. We couldn't find Java to launch with.");
-                System.out.println(
-                        "BotLauncher: Attempted to relaunch using the command:\n   " + String.join(" ", command));
-                System.out.println(
-                        "BotLauncher: Make sure that you have Java properly set in your Operating System's PATH variable.");
-                System.out.println("BotLauncher: Stopping here.");
-            } else {
-                Chuu.getLogger().warn(e.getMessage(), e);
-            }
-        }
-    }
-
-    private static File getThisJarFile() {
-        // Gets the path of the currently running Jar file
-        String path = Chuu.class.getProtectionDomain().getCodeSource().getLocation().getPath();
-        String decodedPath = URLDecoder.decode(path, StandardCharsets.UTF_8);
-
-        // This is code especially written for running and testing this program in an
-        // IDE that doesn't compile to .jar when running.
-        if (!decodedPath.endsWith(".jar"))
-            return new File("Chuu.jar");
-        return new File(decodedPath); // We use File so that when we send the path to the ProcessBuilder, we will be
-        // using the proper System path formatting.
-    }
 
     private static Collection<GatewayIntent> getIntents() {
-        return GatewayIntent.fromEvents(GuildMemberRemoveEvent.class,
+        EnumSet<GatewayIntent> gatewayIntents = GatewayIntent.fromEvents(GuildMemberRemoveEvent.class,
                 GuildMessageReactionAddEvent.class,
                 PrivateMessageReactionAddEvent.class,
                 MessageReceivedEvent.class
         );
+        gatewayIntents.add(GatewayIntent.GUILD_VOICE_STATES);
+        gatewayIntents.add(GatewayIntent.GUILD_EMOJIS);
+        return gatewayIntents;
     }
 
-    public static void setupBot(boolean isTest) {
+    public static void setupBot(boolean doDbCleanUp, boolean installGlobalCommands, boolean startRightAway) {
         logger = LoggerFactory.getLogger(Chuu.class);
         Properties properties = readToken();
-        dao = new ChuuService();
-        prefixMap = initPrefixMap(dao);
+        String channel = properties.getProperty("MODERATION_CHANNEL_ID");
+        String channel2 = properties.getProperty("MODERATION_CHANNEL_2_ID");
+        channelId = Long.parseLong(channel);
+        channel2Id = Long.parseLong(channel2);
+        chuuSess = properties.getProperty("LASTFM_BOT_SESSION_KEY");
+        ipv6Block = properties.getProperty("IPV6_BLOCK");
+        db = new ServiceView(new ChuuService(new ChuuDatasource()), new ChuuService(new LongExecutorChuuDatasource()));
+        ChuuService service = db.normalService();
+        prefixService = new PrefixService(service);
+        ColorService.init(service);
+        coverService = new CoverService(service);
         DiscogsSingleton.init(properties.getProperty("DC_SC"), properties.getProperty("DC_KY"));
         SpotifySingleton.init(properties.getProperty("client_ID"), properties.getProperty("client_Secret"));
-
+        scrobbleEventManager = new ScrobbleEventManager(new StatusProcesser(service));
+        scrobbleProcesser = new ScrobbleProcesser(new AlbumFinder(service, LastFMFactory.getNewInstance()));
+        playerManager = new ExtendedAudioPlayerManager(scrobbleEventManager, scrobbleProcesser);
+        playerRegistry = new PlayerRegistry(playerManager);
+        scheduledService = new ScheduledService(Executors.newScheduledThreadPool(4), db.normalService());
+        scheduledService.setScheduled();
         // Needs these three references
-        HelpCommand help = new HelpCommand(dao);
-        AdministrativeCommand commandAdministrator = new AdministrativeCommand(dao);
-        PrefixCommand prefixCommand = new PrefixCommand(dao);
 
-        scheduledExecutorService = Executors.newScheduledThreadPool(4);
         // Logs every fime minutes the api calls
-        scheduledExecutorService.scheduleAtFixedRate(() -> {
+        scheduledService.addSchedule(() -> {
             long l = lastFMMetric.longValue();
-            dao.updateMetric(Metrics.LASTFM_PETITIONS, l);
             lastFMMetric.reset();
+            service.updateMetric(Metrics.LASTFM_PETITIONS, l);
             logger.info("Made {} petitions in the last 5 minutes", l);
         }, 5, 5, TimeUnit.MINUTES);
-        ratelimited = dao.getRateLimited().entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, y -> RateLimiter.create(y.getValue())));
+
+
+        ratelimited = service.getRateLimited().entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, y -> RateLimiter.create(y.getValue())));
+
 
         MessageAction.setDefaultMentions(EnumSet.noneOf(Message.MentionType.class));
+        MessageAction.setDefaultMentionRepliedUser(false);
+
+        customManager = new CustomInterfacedEventManager(0);
+        EvalCommand evalCommand = new EvalCommand(db);
 
         AtomicInteger counter = new AtomicInteger(0);
-        IEventManager customManager = new CustomInterfacedEventManager(0);
-        EvalCommand evalCommand = new EvalCommand(dao);
-        DefaultShardManagerBuilder builder = DefaultShardManagerBuilder.create(getIntents()).setChunkingFilter(ChunkingFilter.ALL)
-                //.setMemberCachePolicy(Chuu.cacheMember)
-                .disableCache(EnumSet.allOf(CacheFlag.class))
+        EnumSet<CacheFlag> cacheFlags = EnumSet.allOf(CacheFlag.class);
+        DefaultShardManagerBuilder builder = DefaultShardManagerBuilder.create(getIntents())
+                .setChunkingFilter(ChunkingFilter.ALL)
+                .enableCache(CacheFlag.EMOTE, CacheFlag.VOICE_STATE)
+                .disableCache(CacheFlag.ACTIVITY, CacheFlag.CLIENT_STATUS, CacheFlag.ONLINE_STATUS)
+                .setAudioSendFactory(new NativeAudioSendFactory())
                 .setBulkDeleteSplittingEnabled(false)
                 .setToken(properties.getProperty("DISCORD_TOKEN")).setAutoReconnect(true)
                 .setEventManagerProvider(a -> customManager)
-                .addEventListeners(help)
-                .setShardsTotal(-1)
-                .addEventListeners(help.registerCommand(commandAdministrator))
-                .addEventListeners(help.registerCommand(new NowPlayingCommand(dao)))
-                .addEventListeners(help.registerCommand(new WhoKnowsCommand(dao)))
-                // .addEventListeners(help.registerCommand(new WhoKnowsNPCommand(dao)))
-                .addEventListeners(help.registerCommand(new AlbumChartCommand(dao)))
-                .addEventListeners(help.registerCommand(new SetCommand(dao)))
-                .addEventListeners(help.registerCommand(new PlayingCommand(dao)))
-                .addEventListeners(help.registerCommand(new TasteCommand(dao)))
-                .addEventListeners(help.registerCommand(new TopCommand(dao)))
-                .addEventListeners(help.registerCommand(new UpdateCommand(dao)))
-                .addEventListeners(help.registerCommand(new NPSpotifyCommand(dao)))
-                .addEventListeners(help.registerCommand(new UniqueCommand(dao)))
-                .addEventListeners(help.registerCommand(new ArtistCommand(dao)))
-                .addEventListeners(help.registerCommand(new AlbumPlaysCommand(dao)))
-                .addEventListeners(help.registerCommand(new GuildTopCommand(dao)))
-                .addEventListeners(help.registerCommand(new ArtistUrlCommand(dao)))
-                .addEventListeners(help.registerCommand(new BandInfoCommand(dao)))
-                // .addEventListeners(help.registerCommand(new BandInfoNpCommand(dao)))
-                .addEventListeners(help.registerCommand(new LocalWhoKnowsAlbumCommand(dao)))
-                .addEventListeners(help.registerCommand(new CrownLeaderboardCommand(dao)))
-                .addEventListeners(help.registerCommand(new CrownsCommand(dao)))
-                .addEventListeners(help.registerCommand(new RecentListCommand(dao)))
-                .addEventListeners(help.registerCommand(new MusicBrainzCommand(dao)))
-                .addEventListeners(help.registerCommand(new GenreCommand(dao)))
-                .addEventListeners(help.registerCommand(new MbizThisYearCommand(dao)))
-                .addEventListeners(help.registerCommand(new ArtistPlaysCommand(dao)))
-                .addEventListeners(help.registerCommand(new TimeSpentCommand(dao)))
-                .addEventListeners(help.registerCommand(new YoutubeSearchCommand(dao)))
-                .addEventListeners(help.registerCommand(new UniqueLeaderboardCommand(dao)))
-                .addEventListeners(help.registerCommand(new ProfileInfoCommand(dao)))
-                .addEventListeners(help.registerCommand(new ArtistCountLeaderboard(dao)))
-                .addEventListeners(help.registerCommand(new TotalArtistNumberCommand(dao)))
-                .addEventListeners(help.registerCommand(new CountryCommand(dao)))
-                .addEventListeners(help.registerCommand(new AlbumTracksDistributionCommand(dao)))
-                .addEventListeners(help.registerCommand(new ObscurityLeaderboardCommand(dao)))
-                .addEventListeners(help.registerCommand(new RandomAlbumCommand(dao)))
-                .addEventListeners(help.registerCommand(new WhoKnowsSongCommand(dao)))
-                .addEventListeners(help.registerCommand(new CrownsStolenCommand(dao)))
-                .addEventListeners(help.registerCommand(new FavesFromArtistCommand(dao)))
-                .addEventListeners(help.registerCommand(new AlbumCrownsCommand(dao)))
-                .addEventListeners(help.registerCommand(new AlbumCrownsLeaderboardCommand(dao)))
-                .addEventListeners(help.registerCommand(new PrefixCommand(dao)))
-                .addEventListeners(help.registerCommand(new DailyCommand(dao)))
-                .addEventListeners(help.registerCommand(new WeeklyCommand(dao)))
-                .addEventListeners(help.registerCommand(new UserTopTrackCommand(dao)))
-                .addEventListeners(help.registerCommand(new SummaryArtistCommand(dao)))
-                .addEventListeners(help.registerCommand(new InviteCommand(dao)))
-                .addEventListeners(help.registerCommand(new SourceCommand(dao)))
-                .addEventListeners(help.registerCommand(new GlobalArtistCommand(dao)))
-                .addEventListeners(help.registerCommand(new GlobalCrownsCommand(dao)))
-                .addEventListeners(help.registerCommand(new GlobalUniquesCommand(dao)))
-                .addEventListeners(help.registerCommand(new ArtistFrequencyCommand(dao)))
-                .addEventListeners(help.registerCommand(new GlobalArtistFrequenciesCommand(dao)))
-                .addEventListeners(help.registerCommand(new ArtistFromCountryCommand(dao)))
-                .addEventListeners(help.registerCommand(new AlbumInfoCommand(dao)))
-                .addEventListeners(help.registerCommand(new TrackInfoCommand(dao)))
-                .addEventListeners(help.registerCommand(new TrackPlaysCommand(dao)))
-                .addEventListeners(help.registerCommand(new MatchingArtistCommand(dao)))
-                .addEventListeners(help.registerCommand(new GlobalTotalArtistPlaysCountCommand(dao)))
-                .addEventListeners(help.registerCommand(new TotalArtistPlayCountCommand(dao)))
-                .addEventListeners(help.registerCommand(new AliasCommand(dao)))
-                .addEventListeners(help.registerCommand(new PaceCommand(dao)))
-                .addEventListeners(help.registerCommand(new StreakCommand(dao)))
-                .addEventListeners(help.registerCommand(new AliasReviewCommand(dao)))
-                .addEventListeners(help.registerCommand(new UserExportCommand(dao)))
-                .addEventListeners(help.registerCommand(new ImportCommand(dao)))
-                .addEventListeners(help.registerCommand(new VotingCommand(dao)))
-                .addEventListeners(help.registerCommand(new AliasesCommand(dao)))
-                .addEventListeners(help.registerCommand(new SupportCommand(dao)))
-                .addEventListeners(help.registerCommand(new WastedChartCommand(dao)))
-                .addEventListeners(help.registerCommand(new WastedAlbumChartCommand(dao)))
-                .addEventListeners(help.registerCommand(new WastedTrackCommand(dao)))
-                .addEventListeners(help.registerCommand(new ReportReviewCommand(dao)))
-                .addEventListeners(help.registerCommand(new GuildArtistPlaysCommand(dao)))
-                .addEventListeners(help.registerCommand(new ScrobblesSinceCommand(dao)))
-                .addEventListeners(help.registerCommand(new UserResumeCommand(dao)))
-                .addEventListeners(help.registerCommand(new AffinityCommand(dao)))
-                .addEventListeners(help.registerCommand(new RecommendationCommand(dao)))
-                .addEventListeners(help.registerCommand(new UnsetCommand(dao)))
-                .addEventListeners(help.registerCommand(new GuildConfigCommand(dao)))
-                .addEventListeners(help.registerCommand(new ScrobblesLbCommand(dao)))
-                .addEventListeners(help.registerCommand(new ScrobblesCommand(dao)))
-                .addEventListeners(help.registerCommand(new RainbowChartCommand(dao)))
-                .addEventListeners(help.registerCommand(new ColorChartCommand(dao)))
-                .addEventListeners(help.registerCommand(new CrownableCommand(dao)))
-                .addEventListeners(help.registerCommand(new RateLimitCommand(dao)))
-                .addEventListeners(help.registerCommand(new AOTDCommand(dao)))
-                .addEventListeners(help.registerCommand(new UserConfigCommand(dao)))
-                .addEventListeners(help.registerCommand(new DisabledCommand(dao)))
-                .addEventListeners(help.registerCommand(new DisabledStatusCommand(dao)))
-                .addEventListeners(help.registerCommand(new UrlQueueReview(dao)))
-                .addEventListeners(help.registerCommand(new CoverCommand(dao)))
-                .addEventListeners(help.registerCommand(new LastFmLinkCommand(dao)))
-                .addEventListeners(help.registerCommand(new GenreInfoCommand(dao)))
-                .addEventListeners(help.registerCommand(new GenreAlbumsCommands(dao)))
-                .addEventListeners(help.registerCommand(new GayCommand(dao)))
-                .addEventListeners(help.registerCommand(new GlobalWhoKnowsCommand(dao)))
-                .addEventListeners(help.registerCommand(new RYMDumpImportCommand(dao)))
-                .addEventListeners(help.registerCommand(new AlbumRatings(dao)))
-                .addEventListeners(help.registerCommand(new ArtistRatingsCommand(dao)))
-                .addEventListeners(help.registerCommand(new TopRatingsCommand(dao)))
-                .addEventListeners(help.registerCommand(new TopServerRatingsCommand(dao)))
-                .addEventListeners(help.registerCommand(new UserRatings(dao)))
-                .addEventListeners(help.registerCommand(new PrivacySetterCommand(dao)))
-                .addEventListeners(help.registerCommand(new GlobalMatchingCommand(dao)))
-                .addEventListeners(help.registerCommand(new GlobalAffinity(dao)))
-                .addEventListeners(help.registerCommand(new GlobalRecommendationCommand(dao)))
-                .addEventListeners(help.registerCommand(new LanguageCommand(dao)))
-                .addEventListeners(help.registerCommand(new AlbumRecommendationCommand(dao)))
-                .addEventListeners(help.registerCommand(new UnratedAlbums(dao)))
-                .addEventListeners(help.registerCommand(new GlobalWhoKnowsAlbumCommand(dao)))
-                .addEventListeners(help.registerCommand(new WhoKnowsAlbumCommand(dao)))
-                .addEventListeners(help.registerCommand(new BandInfoGlobalCommand(dao)))
-                .addEventListeners(help.registerCommand(new BandInfoServerCommand(dao)))
-                .addEventListeners(help.registerCommand(new HardwareStatsCommand(dao)))
-                .addEventListeners(help.registerCommand(new RYMChartCommand(dao)))
-                .addEventListeners(help.registerCommand(new BillboardCommand(dao)))
-                .addEventListeners(help.registerCommand(new BillboardAlbumCommand(dao)))
-                .addEventListeners(help.registerCommand(new BillboardArtistCommand(dao)))
-                .addEventListeners(help.registerCommand(new GlobalBillboardCommand(dao)))
-                .addEventListeners(help.registerCommand(new GlobalAlbumBillboardCommand(dao)))
-                .addEventListeners(help.registerCommand(new GlobalArtistBillboardCommand(dao)))
-                .addEventListeners(help.registerCommand(new MyCombosCommand(dao)))
-                .addEventListeners(help.registerCommand(new TopCombosCommand(dao)))
-                .addEventListeners(help.registerCommand(new BehindArtistsCommand(dao)))
-                .addEventListeners(help.registerCommand(new TopArtistComboCommand(dao)))
-                .addEventListeners(help.registerCommand(new PaceArtistCommand(dao)))
-                .addEventListeners(help.registerCommand(new RandomLinkRatingCommand(dao)))
-                .addEventListeners(help.registerCommand(new TopRatedRandomUrls(dao)))
-                .addEventListeners(help.registerCommand(new MyTopRatedRandomUrls(dao)))
-                .addEventListeners(help.registerCommand(new GuildTopAlbumsCommand(dao)))
-                .addEventListeners(help.registerCommand(new ServerAOTY(dao)))
                 .addEventListeners(evalCommand)
-                .addEventListeners(help.registerCommand(new ServerBanCommand(dao)))
-                .addEventListeners(help.registerCommand(new DiscoveredAlbumCommand(dao)))
-                .addEventListeners(help.registerCommand(new DiscoveredArtistCommand(dao)))
-                .addEventListeners(help.registerCommand(new DiscoveredRatioCommand(dao)))
-                .addEventListeners(help.registerCommand(new DiscoveredAlbumRatioCommand(dao)))
-                .addEventListeners(help.registerCommand(new PaceAlbumCommand(dao)))
-                .addEventListeners(help.registerCommand(new NPModeSetterCommand(dao)))
-                .addEventListeners(help.registerCommand(new ClockCommand(dao)))
-                .addEventListeners(help.registerCommand(new TimezoneCommand(dao)))
-                .addEventListeners(help.registerCommand(new WhoKnowsTagCommand(dao)))
-                .addEventListeners(help.registerCommand(new WhoIsTagCommand(dao)))
-                .addEventListeners(help.registerCommand(new BanTagCommand(dao)))
-                .addEventListeners(help.registerCommand(new GenreArtistsCommand(dao)))
-                .addEventListeners(help.registerCommand(new WhoKnowsLoonasCommand(dao)))
-                .addEventListeners(help.registerCommand(new MultipleWhoKnowsCommand(dao)))
-                .addEventListeners(help.registerCommand(new MultipleWhoIsTagCommand(dao)))
-                .addEventListeners(help.registerCommand(new MultipleWhoKnowsTagCommand(dao)))
-                .addEventListeners(help.registerCommand(new BanArtistTagCommand(dao)))
-                .addEventListeners(help.registerCommand(new ServerTags(dao)))
-
-
+                .setShardsTotal(-1)
                 .addEventListeners(new AwaitReady(counter, (ShardManager shard) -> {
-                    messageDisablingService = new MessageDisablingService(shard, dao);
-                    prefixCommand.onStartup(shard);
-                    if (!isTest) {
-                        commandAdministrator.onStartup(shardManager);
-                    }
-                    evalCommand.setOwnerId(shard);
 
-                    shardManager.addEventListener(help.registerCommand(new FeaturedCommand(dao, scheduledExecutorService)));
+                    if (!startRightAway) {
+                        shutDownPreviousInstance(() -> {
+                            addAll(db, shardManager::addEventListener);
+                            customManager.isReady = true;
+                            doTyping = true;
+                            messageDisablingService = new MessageDisablingService(shard.getShardById(0), service);
+                            CommandListUpdateAction ignored = InteractionBuilder.setGlobalCommands(shard.getShardById(0));
+                        });
+                    }
+                    scheduledService.addSchedule(() -> new BotListPoster().doPost(), 5, 120, TimeUnit.MINUTES);
+
+
                     updatePresence("Chuu");
+                    if (installGlobalCommands) {
+                        InteractionBuilder.setGlobalCommands(shard.getShardById(0)).queue();
+                    }
                 }));
 
-
         try {
-            initPrivateLastfms(dao);
-            messageDeletionService = new MessageDeletionService(dao.getServersWithDeletableMessages());
-            shardManager = builder.build();
-            scheduledExecutorService.scheduleAtFixedRate(
-                    new UpdaterThread(dao, true), 0, 120,
-                    TimeUnit.SECONDS);
+            if (startRightAway) {
+                addAll(db, builder::addEventListeners);
+                customManager.isReady = true;
+                doTyping = true;
 
-            scheduledExecutorService.scheduleAtFixedRate(new ImageUpdaterThread(dao), 20, 12, TimeUnit.MINUTES);
-            scheduledExecutorService.scheduleAtFixedRate(
-                    new SpotifyUpdaterThread(dao), 5, 5, TimeUnit.MINUTES);
-            scheduledExecutorService.scheduleAtFixedRate(new ArtistMbidUpdater(dao), 10, 2000, TimeUnit.MINUTES);
+            }
+            initPrivateLastfms(db.normalService());
+            messageDeletionService = new MessageDeletionService(db.normalService().getServersWithDeletableMessages());
+            shardManager = builder.build();
+            if (startRightAway) {
+                shardManager.getShards().stream().findFirst().ifPresent(z -> {
+                    messageDisablingService = new MessageDisablingService(z, service);
+                    CommandListUpdateAction ignored = InteractionBuilder.setGlobalCommands(z);
+                });
+            }
         } catch (LoginException e) {
             Chuu.getLogger().warn(e.getMessage(), e);
             throw new ChuuServiceException(e);
         }
     }
 
+    public static void shutDownPreviousInstance(Callback callback) {
+        var a = ProcessHandle.current();
+
+        Optional<String[]> arguments = a.info().arguments();
+        if (arguments.isEmpty()) {
+            getLogger().warn("Args of current pid are empty???");
+            callback.execute();
+            return;
+        }
+        String[] a_args = Arrays.stream(arguments.get()).filter(z -> !z.endsWith(".jar")).toArray(String[]::new);
+        var c = ProcessHandle.allProcesses().filter(z -> z.pid() != a.pid()).filter(z -> {
+            boolean present = z.info().arguments().isPresent();
+            if (!present) {
+                return false;
+            }
+            String[] strings = Arrays.stream(z.info().arguments().get()).filter(t -> !t.endsWith(".jar")).toArray(String[]::new);
+            return Arrays.equals(strings, a_args);
+        }).findFirst();
+
+        c.ifPresentOrElse(processHandle -> {
+            getLogger().warn("Destroyed process with pid {} ", processHandle.pid());
+            processHandle.destroy();
+            callback.execute();
+        }, () -> {
+            getLogger().warn("Didn't destroy any process!!!");
+            callback.execute();
+        });
+
+
+    }
+
+
+    public static void addAll(ServiceView db, Consumer<net.dv8tion.jda.api.hooks.EventListener> consumer) {
+        HelpCommand help = new HelpCommand(db);
+
+        AdministrativeCommand commandAdministrator = new AdministrativeCommand(db);
+        PrefixCommand prefixCommand = new PrefixCommand(db);
+        TagWithYearCommand tagWithYearCommand = new TagWithYearCommand(db);
+        FeaturedCommand featuredCommand = new FeaturedCommand(db, scheduledService);
+        consumer.accept(help);
+
+        consumer.accept(help.registerCommand(commandAdministrator));
+        consumer.accept(help.registerCommand(prefixCommand));
+        consumer.accept(help.registerCommand(featuredCommand));
+        consumer.accept(help.registerCommand(tagWithYearCommand));
+        consumer.accept(help.registerCommand(featuredCommand));
+        MyCommand<?>[] myCommands = scanListeners(help);
+        Arrays.stream(myCommands).forEach(consumer);
+        consumer.accept(new VoiceListener());
+        consumer.accept(new ConstantListener(channelId, db.normalService()));
+        args = null;
+    }
+
+    private static MyCommand<?>[] scanListeners(HelpCommand help) {
+        try (ScanResult result = new ClassGraph().acceptPackages("core.commands").scan()) {
+            return result.getAllClasses().stream().filter(x -> x.isStandardClass() && !x.isAbstract())
+                    .filter(x -> !x.getSimpleName().equals(HelpCommand.class.getSimpleName())
+                                 && !x.getSimpleName().equals(AdministrativeCommand.class.getSimpleName())
+                                 && !x.getSimpleName().equals(PrefixCommand.class.getSimpleName())
+                                 && !x.getSimpleName().equals(TagWithYearCommand.class.getSimpleName())
+                                 && !x.getSimpleName().equals(EvalCommand.class.getSimpleName())
+                                 && !x.getSimpleName().equals(FeaturedCommand.class.getSimpleName()))
+                    .filter(x -> x.extendsSuperclass("core.commands.abstracts.MyCommand"))
+                    .map(x -> {
+                        try {
+                            return (MyCommand<?>) x.loadClass().getConstructor(ServiceView.class).newInstance(db);
+                        } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+                            throw new ChuuServiceException(e);
+                        }
+
+                    })
+                    .peek(help::registerCommand)
+                    .toArray(MyCommand<?>[]::new);
+        } catch (Exception ex) {
+            logger.error("There was an error while registering the commands!", ex);
+            logger.error(ex.getMessage(), ex);
+            throw new ChuuServiceException(ex);
+        }
+    }
 
     private static void initPrivateLastfms(ChuuService dao) {
         privateLastFms.addAll(dao.getPrivateLastfmIds());
@@ -397,14 +301,10 @@ public class Chuu {
         }
     }
 
-
     public static Logger getLogger() {
         return logger;
     }
 
-    private static Map<Long, Character> initPrefixMap(ChuuService dao) {
-        return (dao.getGuildPrefixes(Chuu.DEFAULT_PREFIX));
-    }
 
     public static Properties readToken() {
 
@@ -418,9 +318,7 @@ public class Chuu {
     }
 
     public static void updatePresence(String artist) {
-
         Chuu.shardManager.getShards().forEach(x -> x.getPresence().setActivity(Activity.playing(artist + " | !help for help")));
-
     }
 
     public static Map<Long, RateLimiter> getRatelimited() {
@@ -431,8 +329,8 @@ public class Chuu {
         return shardManager;
     }
 
-    public static ChuuService getDao() {
-        return dao;
+    public static ChuuService getDb() {
+        return db.normalService();
     }
 
     public static MessageDeletionService getMessageDeletionService() {
@@ -442,24 +340,40 @@ public class Chuu {
     public static MessageDisablingService getMessageDisablingService() {
         return messageDisablingService;
     }
-/*
-    public static MemberCachePolicy cacheMember = Chuu::caching;
 
-    public static boolean caching(Member l) {
-        Chuu.logger.warn("testing user " + l.getEffectiveName());
+    public static String getRandomSong(String name) {
 
-        Member prevOccurence = l.getGuild().getMemberCache().getElementById(l.getId());
-        if (prevOccurence != null) {
-            Chuu.logger.warn("Member already on cache " + l.getEffectiveName());
-            return true;
+        return null;
+    }
+
+    public static ScrobbleEventManager getScrobbleEventManager() {
+        return scrobbleEventManager;
+    }
+
+    public static ScrobbleProcesser getScrobbleProcesser() {
+        return scrobbleProcesser;
+    }
+
+    public static CoverService getCoverService() {
+        return coverService;
+    }
+
+    public static ScheduledService getScheduledService() {
+        return scheduledService;
+    }
+
+    public static boolean isLoaded() {
+        return shardManager.getShardsRunning() == shardManager.getShardsTotal();
+    }
+
+    public static void main(String[] args) {
+        Chuu.args = args;
+        if (System.getProperty("file.encoding").equals("UTF-8")) {
+            setupBot(Arrays.stream(args).anyMatch(x -> x.equalsIgnoreCase("stop-asking")), Arrays.stream(args).noneMatch(x -> x.equalsIgnoreCase("no-global")),
+                    Arrays.stream(args).anyMatch(x -> x.equalsIgnoreCase("start-away")));
+        } else {
+            throw new ChuuServiceException("Set up utf-8 pls");
         }
-        try {
-            dao.findLastFMData(l.getUser().getIdLong());
-            Chuu.logger.warn("Member added " + l.getEffectiveName());
-            return true;
-        } catch (InstanceNotFoundException exception) {
-            Chuu.logger.warn("Rejected " + l.getEffectiveName());
-            return false;
-        }
-    }*/
+    }
+
 }

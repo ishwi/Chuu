@@ -1,20 +1,38 @@
 package core.parsers;
 
+import core.commands.Context;
+import core.commands.ContextSlashReceived;
 import core.exceptions.LastFmException;
+import core.parsers.explanation.util.Explanation;
+import core.parsers.explanation.util.ExplanationLine;
+import core.parsers.explanation.util.ExplanationLineType;
 import core.parsers.params.EnumParameters;
 import dao.exceptions.InstanceNotFoundException;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.interactions.commands.OptionMapping;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
+import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 public class EnumParser<T extends Enum<T>> extends Parser<EnumParameters<T>> {
     protected final Class<T> clazz;
+    private final boolean allowEmpty;
+    private final boolean hasParams;
+    private final boolean continueOnNomatch;
 
     public EnumParser(Class<T> tClass) {
+        this(tClass, false, false, false);
+    }
+
+    public EnumParser(Class<T> tClass, boolean allowEmpty, boolean hasParams, boolean continueOnNomatch) {
         this.clazz = tClass;
+        this.allowEmpty = allowEmpty;
+        this.hasParams = hasParams;
+        this.continueOnNomatch = continueOnNomatch;
     }
 
     @Override
@@ -23,30 +41,78 @@ public class EnumParser<T extends Enum<T>> extends Parser<EnumParameters<T>> {
     }
 
     @Override
-    protected EnumParameters<T> parseLogic(MessageReceivedEvent e, String[] words) throws InstanceNotFoundException, LastFmException {
+    public EnumParameters<T> parseSlashLogic(ContextSlashReceived ctx) throws LastFmException, InstanceNotFoundException {
         EnumSet<T> ts = EnumSet.allOf(clazz);
-        List<String> collect = ts.stream().map(x -> x.name().replaceAll("_", "-").toLowerCase()).collect(Collectors.toList());
-        if (words.length != 1) {
-            sendError("Pls introduce only one of the following: **" + String.join("**, **", collect) + "**", e);
+        List<String> lines = ts.stream().map(x -> x.name().replaceAll("_", "-").toLowerCase()).toList();
+
+        SlashCommandEvent e = ctx.e();
+        Optional<String> option = Optional.ofNullable(e.getOption("option")).map(OptionMapping::getAsString);
+        if (option.isEmpty()) {
+            if (allowEmpty) {
+                return new EnumParameters<>(ctx, null, null);
+            }
+            sendError("Pls introduce only one of the following: **" + String.join("**, **", lines) + "**", ctx);
             return null;
+        }
+        String param = Optional.ofNullable(e.getOption("parameter")).map(OptionMapping::getAsString).orElse(null);
+        return new EnumParameters<>(ctx, option.map(z -> Enum.valueOf(clazz, z.toUpperCase().replaceAll("-", "_"))).orElse(null), param);
+    }
+
+    @Override
+    protected EnumParameters<T> parseLogic(Context e, String[] words) {
+        EnumSet<T> ts = EnumSet.allOf(clazz);
+        List<String> lines = ts.stream().map(x -> x.name().replaceAll("_", "-").toLowerCase()).toList();
+
+        if (words.length == 0) {
+            if (allowEmpty) {
+                return new EnumParameters<>(e, null, null);
+            }
+            sendError("Pls introduce only one of the following: **" + String.join("**, **", lines) + "**", e);
+            return null;
+        } else if (words.length > 1) {
+            if (!hasParams) {
+                sendError("Pls introduce only one of the following: **" + String.join("**, **", lines) + "**", e);
+                return null;
+            }
         }
 
-        Optional<String> first = collect.stream().filter(x -> words[0].equals(x)).findFirst();
+        Optional<String> first = lines.stream().filter(x -> words[0].equalsIgnoreCase(x)).findFirst();
         if (first.isEmpty()) {
-            sendError("Pls introduce one of the following: " + String.join(",", collect), e);
+            if (continueOnNomatch) {
+                return new EnumParameters<>(e, null, String.join(" ", words));
+            }
+            sendError("Pls introduce one of the following: " + String.join(",", lines), e);
             return null;
         }
-        return new EnumParameters<>(e, Enum.valueOf(clazz, first.get().toUpperCase().replaceAll("-", "_")));
+        String params;
+        if (words.length > 1) {
+            params = String.join(" ", Arrays.copyOfRange(words, 1, words.length));
+        } else {
+            params = null;
+        }
+        return new EnumParameters<>(e, Enum.valueOf(clazz, first.get().toUpperCase().replaceAll("-", "_")), params);
 
 
     }
 
     @Override
-    public String getUsageLogic(String commandName) {
-        List<String> collect = EnumSet.allOf(clazz).stream().map(x -> x.name().replaceAll("_", "-").toLowerCase()).collect(Collectors.toList());
+    public List<Explanation> getUsages() {
+        List<String> lines = EnumSet.allOf(clazz).stream().map(x -> x.name().replaceAll("_", "-").toLowerCase()).toList();
+        OptionData data = new OptionData(OptionType.STRING, "option", "One of the possible configuration values");
+        if (!allowEmpty) {
+            data.setRequired(true);
+        }
+        for (String line : lines) {
+            data.addChoice(line, line);
+        }
 
-        return "**" + commandName + " *config_value*** \n" +
-                "\tConfig value being one of: **" + String.join("**, **", collect) + "**";
+        Explanation option = () -> new ExplanationLine("option", "Option being one of: **" + String.join("**, **", lines) + "**", data);
+        if (hasParams) {
+            Explanation params = () -> new ExplanationLineType("parameter", "Parameter for option", OptionType.STRING);
+            return List.of(option, params);
+        }
+        return List.of(option);
     }
+
 }
 

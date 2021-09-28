@@ -1,13 +1,17 @@
 package dao;
 
 import dao.entities.*;
+import dao.utils.Order;
+import org.apache.commons.collections4.ListValuedMap;
 import org.apache.commons.lang3.tuple.Pair;
 
 import javax.annotation.Nullable;
 import java.sql.Connection;
 import java.time.Instant;
+import java.time.Year;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 interface SQLQueriesDao {
@@ -17,6 +21,10 @@ interface SQLQueriesDao {
 
     UniqueWrapper<ArtistPlays> getUniqueArtist(Connection connection, Long guildID, String lastFMID);
 
+
+    UniqueWrapper<AlbumPlays> getUniqueAlbum(Connection connection, Long guildID, String lastfmId);
+
+    UniqueWrapper<TrackPlays> getUniqueTracks(Connection connection, Long guildID, String lastfmId);
 
     ResultWrapper<UserArtistComparison> similar(Connection connection, List<String> lastfMNames, int limit);
 
@@ -29,15 +37,24 @@ interface SQLQueriesDao {
 
     int userPlays(Connection con, long artistId, String whom);
 
-    List<LbEntry> crownsLeaderboard(Connection con, long guildID, int threshold);
+    List<LbEntry<Integer>> crownsLeaderboard(Connection con, long guildID, int threshold);
 
-    List<LbEntry> uniqueLeaderboard(Connection connection, long guildId);
+    List<LbEntry<Integer>> uniqueLeaderboard(Connection connection, long guildId);
+
+
+    Optional<Rank<PrivacyUserCount>> getGlobalPosition(Connection connection, long discordId);
+
+    List<PrivacyUserCount> getGlobalCommands(Connection connection);
 
     int userArtistCount(Connection con, String whom, int threshold);
 
-    List<LbEntry> artistLeaderboard(Connection con, long guildID, int threshold);
+    List<LbEntry<Integer>> artistLeaderboard(Connection con, long guildID, int threshold);
 
-    List<LbEntry> obscurityLeaderboard(Connection connection, long guildId);
+    double obscurity(Connection connection, String lastfmId);
+
+    Optional<ObscurityStats> serverObscurityStats(Connection connection, long guildId);
+
+    List<LbEntry<Double>> obscurityLeaderboard(Connection connection, long guildId);
 
     PresenceInfo getRandomArtistWithUrl(Connection connection);
 
@@ -50,7 +67,7 @@ interface SQLQueriesDao {
 
     UniqueWrapper<AlbumPlays> getUserAlbumCrowns(Connection connection, String lastfmId, int crownThreshold, long guildID);
 
-    List<LbEntry> albumCrownsLeaderboard(Connection con, long guildID, int threshold);
+    List<LbEntry<Integer>> albumCrownsLeaderboard(Connection con, long guildID, int threshold);
 
     ObscuritySummary getUserObscuritPoints(Connection connection, String lastfmid);
 
@@ -68,15 +85,15 @@ interface SQLQueriesDao {
 
     ResultWrapper<ArtistPlays> getArtistsFrequencies(Connection connection, Long guildId);
 
-    ResultWrapper<ArtistPlays> getServerTags(Connection connection, Long guildId, boolean doCount);
+    List<TagPlays> getServerTags(Connection connection, Long guildId, boolean doCount);
 
     ResultWrapper<ArtistPlays> getGlobalArtistPlayCount(Connection connection);
 
     ResultWrapper<ArtistPlays> getGlobalArtistFrequencies(Connection connection);
 
-    List<ScrobbledArtist> getAllUsersArtist(Connection connection, long discordId);
+    List<ScrobbledArtist> getAllUsersArtist(Connection connection, long discordId, Integer limit);
 
-    List<LbEntry> matchingArtistCount(Connection connection, long userId, long guildId, Long threshold);
+    List<LbEntry<Integer>> matchingArtistCount(Connection connection, long userId, long guildId, Long threshold);
 
     List<VotingEntity> getAllArtistImages(Connection connection, long artist_id);
 
@@ -88,26 +105,40 @@ interface SQLQueriesDao {
     long getArtistPlays(Connection connection, Long guildID, long artistId);
 
 
+    long getAlbumPlays(Connection connection, Long guildID, long albumId);
+
+    long getSongPlays(Connection connection, Long guildID, long trackId);
+
     long getArtistFrequencies(Connection connection, Long guildID, long artistId);
 
+
+    long getAlbumFrequencies(Connection connection, Long guildID, long albumId);
+
+    long getSongFrequencies(Connection connection, Long guildID, long trackId);
 
     int getGuildCrownThreshold(Connection connection, long guildID);
 
 
     boolean getGuildConfigEmbed(Connection connection, long guildID);
 
-    List<LbEntry> getScrobblesLeaderboard(Connection connection, long guildId);
+    List<LbEntry<Integer>> getScrobblesLeaderboard(Connection connection, long guildId);
 
     List<CrownableArtist> getCrownable(Connection connection, Long discordId, Long guildId, boolean skipCrowns, boolean onlySecond, int crownDistance);
 
     Map<Long, Float> getRateLimited(Connection connection);
 
-    WrapperReturnNowPlaying getGlobalWhoKnows(Connection connection, long artistId, int limit, boolean includeBottedUsers, long ownerId);
+    WrapperReturnNowPlaying getGlobalWhoKnows(Connection connection, long artistId, int limit, boolean includeBottedUsers, long ownerId, boolean hidePrivate);
+
+    List<GlobalCrown> getGlobalRankingAlbum(Connection connection, long albumId, boolean includeBottedUsers, long ownerId);
+
+    List<GlobalCrown> getGlobalRankingSong(Connection connection, long trackId, boolean includeBottedUsers, long ownerId);
 
     WrapperReturnNowPlaying whoKnowsAlbum(Connection con, long albumId, long guildId, int limit);
 
 
-    WrapperReturnNowPlaying globalWhoKnowsAlbum(Connection con, long albumId, int limit, long ownerId, boolean includeBottedUsers);
+    WrapperReturnNowPlaying whoKnowsTrack(Connection con, long trackId, long guildId, int limit);
+
+    WrapperReturnNowPlaying globalWhoKnowsAlbum(Connection con, long albumId, int limit, long ownerId, boolean includeBottedUsers, boolean hidePrivate);
 
     UniqueWrapper<AlbumPlays> albumUniques(Connection connection, long guildId, String lastfmId);
 
@@ -137,11 +168,13 @@ interface SQLQueriesDao {
 
     Set<String> getPrivateLastfmIds(Connection connection);
 
-    List<ScrobbledAlbum> getUserAlbums(Connection connection, String lastfmId);
+    List<ScrobbledAlbum> getUserAlbums(Connection connection, String lastfmId, Integer limit);
 
 
     ResultWrapper<ScrobbledAlbum> getGuildTopAlbum(Connection connection, Long guildID, int limit, boolean doCount);
 
+
+    ResultWrapper<ScrobbledAlbum> getCollectiveAOTY(Connection connection, Year year, @Nullable Long guildID, int limit, boolean doCount);
 
     List<ScrobbledArtist> getTopTag(Connection connection, String genre, @Nullable Long guildId, int limit);
 
@@ -149,9 +182,14 @@ interface SQLQueriesDao {
 
     Set<String> getBannedTags(Connection connection);
 
-    List<AlbumInfo> getAlbumsWithTag(Connection connection, List<AlbumInfo> albums, long discordId, String tag);
+    List<ScrobbledAlbum> getUserAlbumsWithTag(Connection connection, long discordId, String tag, int limit);
 
-    List<ScrobbledArtist> getUserArtists(Connection connection, String lastfmId);
+    List<AlbumInfo> getAlbumsWithTag(Connection connection, List<Long> albums, long discordId, String tag);
+
+
+    List<ScrobbledArtist> getUserArtistsWithMBID(Connection connection, String lastfmId);
+
+    List<ScrobbledArtist> getUserArtistWithTag(Connection connection, long discordId, String genre, int limit);
 
     List<ArtistInfo> getArtistWithTag(Connection connection, List<ArtistInfo> artists, long discordId, String genre);
 
@@ -166,8 +204,93 @@ interface SQLQueriesDao {
 
     Set<Pair<String, String>> getArtistBannedTags(Connection connection);
 
-    List<String> getArtistTag(Connection connection, long artistId);
+    Set<String> getArtistTag(Connection connection, long artistId);
 
-    List<ReportEntity> getAllPendingReviews(Connection connection, Instant from, int limit);
+    WrapperReturnNowPlaying globalWhoKnowsTrack(Connection connection, long trackId, int limit, long ownerId, boolean includeBotted, boolean hidePrivate);
+
+    UniqueWrapper<TrackPlays> getUserTrackCrowns(Connection connection, String lastfmId, int crownthreshold, long guildId);
+
+    List<LbEntry<Integer>> trackCrownsLeaderboard(Connection connection, long guildId, int threshold);
+
+    ResultWrapper<UserArtistComparison> similarAlbumes(Connection connection, long artistId, List<String> lastFmNames, int limit);
+
+    ResultWrapper<UserArtistComparison> similarTracks(Connection connection, long artistId, List<String> lastFmNames, int limit);
+
+    ResultWrapper<UserArtistComparison> similarAlbumTracks(Connection connection, long albumId, List<String> name, int limit);
+
+    UniqueWrapper<ArtistPlays> getGlobalAlbumCrowns(Connection connection, String lastfmid, int threshold, boolean includeBottedUsers, long ownerId);
+
+    UniqueWrapper<ArtistPlays> getGlobalTrackCrowns(Connection connection, String lastfmid, int threshold, boolean includeBottedUsers, long ownerId);
+
+    UniqueWrapper<TrackPlays> getArtistGlobalTrackCrowns(Connection connection, String lastfmName, long artistId, int threshold, boolean bottedUsers);
+
+
+    UniqueWrapper<TrackPlays> getUserArtistTrackCrowns(Connection connection, String lastfmId, int crownthreshold, long guildId, long artistId);
+
+
+    Optional<String> findArtistUrlAbove(Connection connection, long artistId, int upvotes);
+
+    Optional<Instant> getLastScrobbled(Connection connection, String lastfmId, long artistId, String song, boolean skipToday);
+
+    Optional<Instant> getLastScrobbledArtist(Connection connection, String lastfmId, long artistId, boolean skipToday);
+
+
+    int getCurrentCombo(Connection connection, String lastfm_id, long artistId);
+
+    Optional<Instant> getFirstScrobbled(Connection connection, String lastfmId, long artistId, String song);
+
+    Optional<Instant> getFirstScrobbledArtist(Connection connection, String lastfmId, long artistId);
+
+
+    List<UserListened> getServerFirstScrobbledArtist(Connection connection, long artistId, long guildId, Order Order);
+
+
+    List<ScrobbledArtist> regexArtist(Connection connection, String regex, long userId);
+
+    List<ScrobbledAlbum> regexAlbum(Connection connection, String regex, long userId);
+
+    List<ScrobbledTrack> regexTrack(Connection connection, String regex, long userId);
+
+
+    ResultWrapper<ScrobbledAlbum> getCollectiveAOTD(Connection connection, Year year, int range, Long guildID, int limit, boolean doCount);
+
+    Map<Year, Integer> getUserYears(Connection connection, String lastfmId, boolean isDecade);
+
+
+    Map<Year, Integer> getCollectiveYears(Connection connection, @Nullable Long guildId, boolean isDecade);
+
+
+    int userAlbumCount(Connection connection, String lastfmId, int threshold);
+
+    int userTrackCount(Connection connection, String lastfmId, int threshold);
+
+    List<LbEntry<Integer>> albumLeaderboard(Connection connection, long guildId, int threshold);
+
+    List<LbEntry<Integer>> trackLeaderboard(Connection connection, long guildId, int threshold);
+
+    ListValuedMap<CoverItem, String> getBannedCovers(Connection connection);
+
+    UniqueWrapper<AlbumPlays> getGlobalAlbumUniques(Connection connection, String lastfmid);
+
+    UniqueWrapper<TrackPlays> getGlobalTrackUniques(Connection connection, String lastfmid);
+
+    List<LbEntry<Integer>> uniqueAlbumLeaderboard(Connection connection, long guildId);
+
+    List<LbEntry<Integer>> uniqueSongLeaderboard(Connection connection, long guildId);
+
+    List<ScrobbledTrack> getUserTracksWithTag(Connection connection, long discordId, String genre, int limit);
+
+    List<TrackInfo> getTracksWithTag(Connection connection, List<Long> tracks, long discordId, String tag);
+
+    List<CommandUsage> getUserCommands(Connection connection, long discordId);
+
+    List<UserCount> getServerCommandsLb(Connection connection, long guildId);
+
+    AudioFeatures userFeatures(Connection connection, String lastfmId);
+
+    List<ScrobbledArtist> getServerArtistsByMbid(Connection connection, long guildId);
+
+
+    List<LbEntry<Float>> audioLb(Connection connection, AudioStats element, long guildId, Order order);
 
 }

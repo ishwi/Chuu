@@ -1,0 +1,2 @@
+ALTER TABLE user
+    ADD COLUMN `own_tags` boolean NOT NULL DEFAULT FALSE;

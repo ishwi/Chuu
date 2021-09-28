@@ -1,17 +1,18 @@
 package dao.entities;
 
-import dao.utils.LinkUtils;
-
 import java.awt.*;
+import java.util.function.Supplier;
 
 public class ReturnNowPlaying {
+    String itemUrl;
     private String artist;
     private long discordId;
     private String discordName;
     private Color roleColor;
     private String lastFMId;
     private int playNumber;
-    public static final String WILDCARD = "|RETURNNOWPLAYINGWILDCARD|";
+    private String memoized;
+    private Supplier<String> generateString;
 
     public ReturnNowPlaying(long discordId, String lastFMId, String artist, int playNumber) {
         this.discordId = discordId;
@@ -29,6 +30,9 @@ public class ReturnNowPlaying {
     }
 
     public String getDiscordName() {
+        if (this.discordName == null) {
+            memoized = generateString.get();
+        }
         return discordName;
     }
 
@@ -48,6 +52,10 @@ public class ReturnNowPlaying {
         return artist;
     }
 
+    public void setArtist(String artist) {
+        this.artist = artist;
+    }
+
     public String getLastFMId() {
         return lastFMId;
     }
@@ -55,7 +63,6 @@ public class ReturnNowPlaying {
     public void setLastFMId(String lastFMId) {
         this.lastFMId = lastFMId;
     }
-
 
     public int getPlayNumber() {
         return playNumber;
@@ -65,14 +72,29 @@ public class ReturnNowPlaying {
         this.playNumber = playNumber;
     }
 
-    public void setArtist(String artist) {
-        this.artist = artist;
+    public void setMemoized(String memoized) {
+        this.memoized = memoized;
     }
 
-    public String toStringWildcard() {
-        return ". " +
-                "[" + LinkUtils.cleanMarkdownCharacter(discordName) + "](" + WILDCARD +
-                ") - " +
-                playNumber + " plays\n";
+    @Override
+    public String toString() {
+        if (memoized == null) {
+            memoized = generateString.get();
+        }
+        return memoized;
+//        return ". " +
+//                "**[" + LinkUtils.cleanMarkdownCharacter(discordName) + "](" +
+//                itemUrl +
+//                ")** - " +
+//                getPlayNumber() + " plays\n";
+    }
+
+
+    public Supplier<String> getGenerateString() {
+        return generateString;
+    }
+
+    public void setGenerateString(Supplier<String> generateString) {
+        this.generateString = generateString;
     }
 }

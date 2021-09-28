@@ -1,12 +1,12 @@
 package core.parsers.params;
 
+import core.commands.Context;
 import dao.entities.LastFMData;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 public class ArtistUrlParameters extends ArtistParameters {
     private final String url;
 
-    public ArtistUrlParameters(MessageReceivedEvent e, String artist, LastFMData user, String url) {
+    public ArtistUrlParameters(Context e, String artist, LastFMData user, String url) {
         super(e, artist, user);
         this.url = url;
 

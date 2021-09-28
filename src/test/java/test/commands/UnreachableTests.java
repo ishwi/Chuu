@@ -2,11 +2,11 @@ package test.commands;
 
 import core.apis.last.exceptions.AlbumException;
 import core.apis.last.exceptions.ExceptionEntity;
-import core.commands.NPSpotifyCommand;
+import core.commands.stats.NPSpotifyCommand;
 import core.parsers.NoOpParser;
-import core.parsers.OptionalEntity;
 import core.parsers.PrefixParser;
 import core.parsers.UrlParser;
+import core.parsers.utils.OptionalEntity;
 import dao.entities.NowPlayingArtist;
 import org.junit.Assert;
 import org.junit.ClassRule;
@@ -26,16 +26,16 @@ public class UnreachableTests {
                 .filter(x -> x instanceof NPSpotifyCommand).map(x -> (NPSpotifyCommand) x).findAny();
         assert any.isPresent();
         NPSpotifyCommand npSpotifyCommand = any.get();
-        NowPlayingArtist nowPlayingArtist = new NowPlayingArtist("doesnt exist asdasdaad", "", true, "doesnt existasdasdaad", "doesntasdasdaad exists", "", "pepito");
+        NowPlayingArtist nowPlayingArtist = new NowPlayingArtist("doesnt exist asdasdaad", "", true, "doesnt existasdasdaad", "doesntasdasdaad exists", "", "pepito", true);
 
         //This will crash but it increase coverage :D
-        npSpotifyCommand.doSomethingWithArtist(nowPlayingArtist, null, -1L);
+        npSpotifyCommand.doSomethingWithArtist(nowPlayingArtist, null, -1L, null, null);
 
     }
 
     @Test(expected = UnsupportedOperationException.class)
     public void noOpParserParsing() {
-        NoOpParser noOpParser = new NoOpParser();
+        NoOpParser noOpParser = NoOpParser.INSTANCE;
         noOpParser.parseLogic(null, null);
     }
 
@@ -43,7 +43,7 @@ public class UnreachableTests {
     public void OptionalEntityEquals() {
         OptionalEntity optionalEntity = new OptionalEntity("test", "testdef");
         Assert.assertEquals(optionalEntity, optionalEntity);
-        Assert.assertNotEquals(optionalEntity, optionalEntity.getDefinition());
+        Assert.assertNotEquals(optionalEntity, optionalEntity.getDescription());
         Assert.assertNotEquals(null, optionalEntity);
         Assert.assertNotEquals(this, optionalEntity);
     }

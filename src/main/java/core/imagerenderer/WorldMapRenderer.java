@@ -1,7 +1,7 @@
 package core.imagerenderer;
 
 import core.Chuu;
-import core.commands.CommandUtil;
+import core.commands.utils.CommandUtil;
 import dao.entities.Country;
 import org.apache.batik.anim.dom.SAXSVGDocumentFactory;
 import org.apache.batik.transcoder.TranscoderInput;
@@ -105,11 +105,7 @@ public class WorldMapRenderer {
         String value = styleNode.getFirstChild().getNodeValue();
         StringBuilder sb = new StringBuilder();
         String[] palette;
-        if (paletteIndex == null)
-            palette = palettes.get(new Random().nextInt(palettes.size()));
-        else {
-            palette = palettes.get(paletteIndex);
-        }
+        palette = palettes.get(Objects.requireNonNullElseGet(paletteIndex, () -> new Random().nextInt(palettes.size())));
         Optional<Integer> max = countryFrequency.values().stream().max(Integer::compareTo);
         if (max.isEmpty())
             return null;
@@ -121,7 +117,7 @@ public class WorldMapRenderer {
         countryFrequency.forEach(
                 (country, integer) -> {
                     String colorr = index(integer, range, palette);
-                    sb.append("\n .").append(country.getCountryCode().toLowerCase()).append("{fill: ")
+                    sb.append("\n .").append(country.countryCode().toLowerCase()).append("{fill: ")
                             .append(colorr)
                             .append(";}\n");
                 }
@@ -170,11 +166,12 @@ public class WorldMapRenderer {
     }
 
     private static String index(int plays, Integer[] range, String[] pallete) {
-        int i = range.length - 1;
-        while (plays > range[i] && i > 0) {
-            i--;
+        int i = 0;
+
+        while (i < range.length && plays < range[i]) {
+            i++;
         }
-        return pallete[range.length - 1 - i];
+        return pallete[pallete.length - i - 1];
 
     }
 
@@ -182,7 +179,7 @@ public class WorldMapRenderer {
         //Bottom to top
         Element elementById = doc.getElementById(textDescArray[0]);
         elementById.getFirstChild()
-                .setNodeValue("> " + range[0] + CommandUtil.singlePlural(range[0], " Artist", " Artists"));
+                .setNodeValue("> " + range[0] + CommandUtil.singlePlural(range[0], " artist", " artists"));
 
         for (int i = 1; i < textDescArray.length - 1; i++) {
             int previous = range[i - 1];
@@ -190,13 +187,13 @@ public class WorldMapRenderer {
 
             if (previous - 1 == range[i])
                 elementById.getFirstChild()
-                        .setNodeValue(range[i] + CommandUtil.singlePlural(range[i], " Artist", " Artists"));
+                        .setNodeValue(range[i] + CommandUtil.singlePlural(range[i], " artist", " artists"));
             else
                 elementById.getFirstChild().setNodeValue((range[i]) + "-" + (previous - 1) + CommandUtil
-                        .singlePlural(range[i], " Artist", " Artists"));
+                        .singlePlural(range[i], " artist", " artists"));
         }
         elementById = doc.getElementById(textDescArray[6]);
-        elementById.getFirstChild().setNodeValue("# Countries: " + totalCountries);
+        elementById.getFirstChild().setNodeValue("# countries: " + totalCountries);
 
     }
 

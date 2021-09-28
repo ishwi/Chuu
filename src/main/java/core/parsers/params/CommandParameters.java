@@ -1,7 +1,7 @@
 package core.parsers.params;
 
-import core.parsers.OptionalEntity;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import core.commands.Context;
+import core.parsers.utils.OptionalEntity;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -9,9 +9,9 @@ import java.util.Map;
 
 public class CommandParameters {
     final Map<OptionalEntity, Boolean> optionals = new HashMap<>();
-    private final MessageReceivedEvent e;
+    private final Context e;
 
-    public CommandParameters(MessageReceivedEvent e) {
+    public CommandParameters(Context e) {
         this.e = e;
     }
 
@@ -20,13 +20,13 @@ public class CommandParameters {
         optionals.forEach(x -> this.optionals.put(new OptionalEntity(x, ""), true));
     }
 
-
-    public MessageReceivedEvent getE() {
-        return e;
+    public void addOpts(String opt) {
+        this.optionals.put(new OptionalEntity(opt, ""), true);
     }
 
-    public boolean hasOptional(OptionalEntity optionalEntity) {
-        return optionals.getOrDefault(optionalEntity, false);
+
+    public Context getE() {
+        return e;
     }
 
     public boolean hasOptional(String optional) {

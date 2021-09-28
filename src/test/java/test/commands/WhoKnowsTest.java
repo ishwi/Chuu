@@ -16,24 +16,24 @@ import static org.awaitility.Awaitility.await;
 import static org.junit.Assert.assertEquals;
 
 public class WhoKnowsTest extends CommandTest {
-	@Override
-	public String giveCommandName() {
-		return "!whoknows";
-	}
+    @Override
+    public String giveCommandName() {
+        return "!whoknows";
+    }
 
-	@Test
-	@Override
-	public void nullParserReturned() {
-		NullReturnParsersTest.artistParser(COMMAND_ALIAS);
-	}
+    @Test
+    @Override
+    public void nullParserReturned() {
+        NullReturnParsersTest.artistParser(COMMAND_ALIAS);
+    }
 
-	@Test
-	public void imageTest() {
-		ImageUtils.testImage(COMMAND_ALIAS + " " + TestResources.commonArtist, 500, 800, ".png");
-	}
+    @Test
+    public void imageTest() {
+        ImageUtils.testImage(COMMAND_ALIAS + " " + TestResources.commonArtist, 500, 800, ".png");
+    }
 
-	@Test
-	public void EmbedTest() {
+    @Test
+    public void EmbedTest() {
         //"|week||(?:Album )?Crowns leaderboard||"
 
         String commonArtist = TestResources.commonArtist;
@@ -43,16 +43,16 @@ public class WhoKnowsTest extends CommandTest {
                         Pattern.compile("No one knows (.*)"));
     }
 
-	@Test
-	public void NoOneKnows() {
-		long id = TestResources.channelWorker.sendMessage(COMMAND_ALIAS + " NOT A KNOWN ARTIST BTW ").complete().getIdLong();
-		await().atMost(45, TimeUnit.SECONDS).until(() ->
-		{
-			MessageHistory complete = TestResources.channelWorker.getHistoryAfter(id, 20).complete();
-			return complete.getRetrievedHistory().size() == 1;
-		});
-		Message message = TestResources.channelWorker.getHistoryAfter(id, 20).complete().getRetrievedHistory().get(0);
-		assertEquals("No one knows NOT A KNOWN ARTIST BTW", message.getContentStripped());
-	}
+    @Test
+    public void NoOneKnows() {
+        long id = TestResources.channelWorker.sendMessage(COMMAND_ALIAS + " NOT A KNOWN ARTIST BTW ").complete().getIdLong();
+        await().atMost(45, TimeUnit.SECONDS).until(() ->
+        {
+            MessageHistory complete = TestResources.channelWorker.getHistoryAfter(id, 20).complete();
+            return complete.getRetrievedHistory().size() == 1;
+        });
+        Message message = TestResources.channelWorker.getHistoryAfter(id, 20).complete().getRetrievedHistory().get(0);
+        assertEquals("No one knows NOT A KNOWN ARTIST BTW", message.getContentStripped());
+    }
 
 }

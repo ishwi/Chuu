@@ -1,13 +1,23 @@
 package core.parsers;
 
 import core.apis.last.ConcurrentLastFM;
+import core.commands.Context;
+import core.commands.ContextSlashReceived;
 import core.exceptions.LastFmException;
+import core.parsers.explanation.PermissiveUserExplanation;
+import core.parsers.explanation.util.Explanation;
+import core.parsers.interactions.InteractionAux;
 import core.parsers.params.NowPlayingParameters;
+import core.services.NPService;
 import dao.ChuuService;
 import dao.entities.LastFMData;
 import dao.entities.NowPlayingArtist;
 import dao.exceptions.InstanceNotFoundException;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+
+import java.util.Collections;
+import java.util.List;
 
 public class NpParser extends DaoParser<NowPlayingParameters> {
     private final ConcurrentLastFM lastFM;
@@ -17,15 +27,29 @@ public class NpParser extends DaoParser<NowPlayingParameters> {
         this.lastFM = lastFM;
     }
 
-    public NowPlayingParameters parseLogic(MessageReceivedEvent e, String[] subMessage) throws InstanceNotFoundException, LastFmException {
+    @Override
+    public NowPlayingParameters parseSlashLogic(ContextSlashReceived ctx) throws LastFmException, InstanceNotFoundException {
+        SlashCommandEvent e = ctx.e();
+        User user = InteractionAux.parseUser(e);
+
+        LastFMData data = findLastfmFromID(user, ctx);
+        NPService npService = new NPService(lastFM, data);
+        NPService.NPUpdate nowPlayingBoth = npService.getNowPlayingBoth();
+        NowPlayingArtist nowPlayingArtist = nowPlayingBoth.np();
+        return new NowPlayingParameters(ctx, data, nowPlayingArtist, nowPlayingBoth.data());
+    }
+
+    public NowPlayingParameters parseLogic(Context e, String[] subMessage) throws InstanceNotFoundException, LastFmException {
         LastFMData data = atTheEndOneUser(e, subMessage);
-        NowPlayingArtist nowPlayingArtist = lastFM.getNowPlayingInfo(data.getName());
-        return new NowPlayingParameters(e, data, nowPlayingArtist);
+        NPService npService = new NPService(lastFM, data);
+        NPService.NPUpdate nowPlayingBoth = npService.getNowPlayingBoth();
+        NowPlayingArtist nowPlayingArtist = nowPlayingBoth.np();
+        return new NowPlayingParameters(e, data, nowPlayingArtist, nowPlayingBoth.data());
     }
 
     @Override
-    public String getUsageLogic(String commandName) {
-        return "**" + commandName + " *username***\n" +
-                "\t If the username is not specified it defaults to authors account\n";
+    public List<Explanation> getUsages() {
+        return Collections.singletonList(new PermissiveUserExplanation());
     }
+
 }

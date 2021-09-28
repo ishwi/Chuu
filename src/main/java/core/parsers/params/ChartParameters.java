@@ -1,56 +1,49 @@
 package core.parsers.params;
 
 import core.apis.last.ConcurrentLastFM;
-import core.apis.last.TopEntity;
-import core.apis.last.chartentities.UrlCapsule;
-import core.commands.CommandUtil;
+import core.apis.last.entities.chartentities.TopEntity;
+import core.apis.last.entities.chartentities.UrlCapsule;
+import core.commands.Context;
+import core.commands.utils.CommandUtil;
 import core.exceptions.LastFmException;
-import core.parsers.OptionalEntity;
+import core.parsers.utils.CustomTimeFrame;
+import core.parsers.utils.OptionalEntity;
 import dao.entities.ChartMode;
 import dao.entities.DiscordUserDisplay;
 import dao.entities.LastFMData;
 import dao.entities.TimeFrameEnum;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.json.JSONObject;
 
+import javax.annotation.Nonnull;
 import java.util.concurrent.BlockingQueue;
 import java.util.function.BiFunction;
 
 public class ChartParameters extends CommandParameters {
-    private final String lastfmID;
-    private final long discordId;
-    private final ChartMode chartMode;
-    private final LastFMData lastFMData;
-    private final TimeFrameEnum timeFrameEnum;
+    private final LastFMData user;
+    private final CustomTimeFrame timeFrameEnum;
     private int x;
     private int y;
 
 
-    public ChartParameters(MessageReceivedEvent e, String lastfmID, long discordId, ChartMode chartMode, LastFMData lastFMData, TimeFrameEnum timeFrameEnum, int x, int y) {
+    public ChartParameters(Context e, @Nonnull LastFMData lastFMData, CustomTimeFrame timeFrameEnum, int x, int y) {
         super(e);
-        this.lastfmID = lastfmID;
-        this.discordId = discordId;
-        this.chartMode = chartMode;
-        this.lastFMData = lastFMData;
+        this.user = lastFMData;
         this.timeFrameEnum = timeFrameEnum;
         this.x = x;
         this.y = y;
     }
 
-    public ChartParameters(MessageReceivedEvent e, String lastfmID, long discordId, TimeFrameEnum timeFrameEnum, int x, int y, boolean writeTitles, boolean writePlays, boolean isList, ChartMode chartMode, LastFMData lastFMData) {
+    public ChartParameters(Context e, @Nonnull LastFMData user, CustomTimeFrame timeFrameEnum, int x, int y, boolean writeTitles, boolean writePlays, boolean isList) {
         super(e);
-        this.lastfmID = lastfmID;
-        this.discordId = discordId;
+        this.user = user;
         this.timeFrameEnum = timeFrameEnum;
         this.x = x;
         this.y = y;
-        this.chartMode = chartMode;
-        this.lastFMData = lastFMData;
         this.optionals.put(new OptionalEntity("notitles", ""), !writeTitles);
         this.optionals.put(new OptionalEntity("plays", ""), writePlays);
         this.optionals.put(new OptionalEntity("list", ""), isList);
-        this.optionals.put(new OptionalEntity("pie", ""), isPieFormat());
+        this.optionals.put(new OptionalEntity("pie", ""), isPie());
         this.optionals.put(new OptionalEntity("aside", ""), isAside());
 
 
@@ -58,20 +51,20 @@ public class ChartParameters extends CommandParameters {
 
 
     public static ChartParameters toListParams() {
-        return new ChartParameters(null, "", -1L, null, 0, 0, true
-                , true, true, ChartMode.LIST, null);
+        return new ChartParameters(null, LastFMData.ofDefault(), CustomTimeFrame.ofTimeFrameEnum(TimeFrameEnum.ALL), 5, 5, true
+                , true, true);
     }
 
     public int makeCommand(ConcurrentLastFM lastFM, BlockingQueue<UrlCapsule> queue, TopEntity topEntity, BiFunction<JSONObject, Integer, UrlCapsule> parser) throws LastFmException {
-        return lastFM.getChart(lastfmID, timeFrameEnum.toApiFormat(), x, y, topEntity, parser, queue);
+        return lastFM.getChart(user, timeFrameEnum, x, y, topEntity, parser, queue);
     }
 
 
-    public String getLastfmID() {
-        return lastfmID;
+    public LastFMData getUser() {
+        return user;
     }
 
-    public TimeFrameEnum getTimeFrameEnum() {
+    public CustomTimeFrame getTimeFrameEnum() {
         return timeFrameEnum;
     }
 
@@ -101,34 +94,45 @@ public class ChartParameters extends CommandParameters {
     }
 
     public boolean isList() {
-        return hasOptional("list");
+        ChartMode chartMode = chartMode();
+        return ((chartMode == ChartMode.LIST && !hasOptional("pie") && !hasOptional("aside"))
+                ||
+                (chartMode != ChartMode.LIST && hasOptional("list")));
+    }
+
+    public boolean needCount() {
+        return isList() || isPie() || chartMode() == ChartMode.IMAGE_INFO;
+    }
+
+    public boolean isPie() {
+        ChartMode chartMode = chartMode();
+        return ((chartMode == ChartMode.PIE) && !hasOptional("list") && !hasOptional("aside"))
+               || ((chartMode != ChartMode.PIE) && hasOptional("pie"));
     }
 
     public boolean isAside() {
-        return hasOptional("aside");
+        ChartMode chartMode = chartMode();
+        return !isList() && !isPie() && (hasOptional("aside") || chartMode == ChartMode.IMAGE_ASIDE || chartMode == ChartMode.IMAGE_ASIDE_INFO);
     }
 
     public long getDiscordId() {
-        return discordId;
+        return getUser().getDiscordId();
     }
 
 
     public EmbedBuilder initEmbed(String titleInit, EmbedBuilder embedBuilder, String footerText, String lastfmid) {
-        DiscordUserDisplay discordUserDisplay = CommandUtil.getUserInfoNotStripped(getE(), discordId);
-        return embedBuilder.setAuthor(discordUserDisplay.getUsername() + titleInit + this.getTimeFrameEnum().getDisplayString(), CommandUtil.getLastFmUser(lastfmid), discordUserDisplay.getUrlImage())
-                .setFooter(CommandUtil.markdownLessString(discordUserDisplay.getUsername()) + footerText + this.getTimeFrameEnum().getDisplayString()).setColor(CommandUtil.randomColor());
+        DiscordUserDisplay uInfo = CommandUtil.getUserInfoUnescaped(getE(), getDiscordId());
+        return embedBuilder.setAuthor(uInfo.username() + titleInit + this.getTimeFrameEnum().getDisplayString(), CommandUtil.getLastFmUser(lastfmid), uInfo.urlImage())
+                .setFooter(CommandUtil.stripEscapedMarkdown(uInfo.username()) + footerText + this.getTimeFrameEnum().getDisplayString());
     }
 
 
-    public boolean isPieFormat() {
-        return hasOptional("pie");
+    public boolean isBubble() {
+        return hasOptional("bubble");
     }
 
     public ChartMode chartMode() {
-        return chartMode;
+        return getUser().getChartMode();
     }
 
-    public LastFMData getLastFMData() {
-        return lastFMData;
-    }
 }

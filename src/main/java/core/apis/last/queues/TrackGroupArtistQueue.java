@@ -1,8 +1,8 @@
 package core.apis.last.queues;
 
 import core.apis.discogs.DiscogsApi;
-import core.apis.last.chartentities.TrackDurationArtistChart;
-import core.apis.last.chartentities.UrlCapsule;
+import core.apis.last.entities.chartentities.TrackDurationArtistChart;
+import core.apis.last.entities.chartentities.UrlCapsule;
 import core.apis.spotify.Spotify;
 import dao.ChuuService;
 
@@ -24,13 +24,9 @@ public class TrackGroupArtistQueue extends GroupingQueue {
     public BiFunction<UrlCapsule, UrlCapsule, UrlCapsule> reductorFunction() {
         return (urlCapsule, urlCapsule2) -> {
             urlCapsule.setPlays(urlCapsule.getPlays() + urlCapsule2.getPlays());
-            if (urlCapsule instanceof TrackDurationArtistChart) {
-                TrackDurationArtistChart capsule = (TrackDurationArtistChart) urlCapsule;
-                if (urlCapsule2 instanceof TrackDurationArtistChart) {
-                    TrackDurationArtistChart capsule2 = (TrackDurationArtistChart) urlCapsule2;
-                    capsule.setSeconds(capsule.getSeconds() + capsule2.getSeconds());
-                    return capsule;
-                }
+            if (urlCapsule instanceof TrackDurationArtistChart capsule && urlCapsule2 instanceof TrackDurationArtistChart capsule2) {
+                capsule.setSeconds(capsule.getSeconds() + capsule2.getSeconds());
+                return capsule;
             }
             return urlCapsule;
         };

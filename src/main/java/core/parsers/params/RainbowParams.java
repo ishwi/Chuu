@@ -1,16 +1,15 @@
 package core.parsers.params;
 
-import dao.entities.ChartMode;
+import core.commands.Context;
+import core.parsers.utils.CustomTimeFrame;
 import dao.entities.LastFMData;
-import dao.entities.TimeFrameEnum;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 public class RainbowParams extends ChartParameters {
     private int x;
     private int y;
 
-    public RainbowParams(MessageReceivedEvent e, String lastfmID, long discordId, TimeFrameEnum timeFrameEnum, int x, int y, ChartMode chartMode, LastFMData lastFMData) {
-        super(e, lastfmID, discordId, chartMode, lastFMData, timeFrameEnum, x, y);
+    public RainbowParams(Context e, LastFMData lastFMData, CustomTimeFrame timeFrameEnum, int x, int y) {
+        super(e, lastFMData, timeFrameEnum, x, y);
         this.x = x;
         this.y = y;
     }
@@ -64,7 +63,7 @@ public class RainbowParams extends ChartParameters {
     }
 
     @Override
-    public boolean isPieFormat() {
+    public boolean isPie() {
         return false;
     }
 

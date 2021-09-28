@@ -2,7 +2,7 @@ package dao.entities;
 
 import dao.utils.LinkUtils;
 
-public class UniqueLbEntry extends LbEntry {
+public class UniqueLbEntry extends LbEntryInt {
 
     public UniqueLbEntry(String user, long discordId, int entryCount) {
         super(user, discordId, entryCount);
@@ -11,10 +11,10 @@ public class UniqueLbEntry extends LbEntry {
     @Override
     public String toStringWildcard() {
         return ". [" +
-                LinkUtils.cleanMarkdownCharacter(getDiscordName()) +
-                "](" + WILDCARD +
-                ") - " + getEntryCount() +
-                " unique artists\n";
+               LinkUtils.cleanMarkdownCharacter(getDiscordName()) +
+               "](" + WILDCARD +
+               ") - " + getEntryCount() +
+               " unique artists\n";
     }
 
 }

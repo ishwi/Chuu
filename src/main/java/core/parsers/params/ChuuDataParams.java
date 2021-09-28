@@ -1,12 +1,12 @@
 package core.parsers.params;
 
+import core.commands.Context;
 import dao.entities.LastFMData;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 public class ChuuDataParams extends CommandParameters {
     private final LastFMData lastFMData;
 
-    public ChuuDataParams(MessageReceivedEvent e, LastFMData lastFMData) {
+    public ChuuDataParams(Context e, LastFMData lastFMData) {
         super(e);
         this.lastFMData = lastFMData;
     }

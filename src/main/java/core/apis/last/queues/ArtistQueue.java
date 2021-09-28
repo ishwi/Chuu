@@ -2,15 +2,16 @@ package core.apis.last.queues;
 
 import core.Chuu;
 import core.apis.discogs.DiscogsApi;
-import core.apis.last.chartentities.UrlCapsule;
+import core.apis.last.entities.chartentities.UrlCapsule;
 import core.apis.spotify.Spotify;
-import core.commands.CommandUtil;
+import core.commands.utils.CommandUtil;
 import dao.ChuuService;
 import dao.entities.ScrobbledArtist;
 import dao.entities.UpdaterStatus;
 import dao.exceptions.InstanceNotFoundException;
-import org.jetbrains.annotations.NotNull;
 
+import javax.annotation.Nonnull;
+import java.io.Serial;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
@@ -20,6 +21,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import static core.apis.last.queues.TrackGroupAlbumQueue.defaultTrackImage;
 
 public class ArtistQueue extends LinkedBlockingQueue<UrlCapsule> {
+    @Serial
     private static final long serialVersionUID = 1L;
     protected final transient LinkedBlockingQueue<CompletableFuture<UrlCapsule>> wrapper;
     private final transient ChuuService dao;
@@ -46,7 +48,7 @@ public class ArtistQueue extends LinkedBlockingQueue<UrlCapsule> {
     }
 
     @Override
-    public boolean offer(@NotNull UrlCapsule item) {
+    public boolean offer(@Nonnull UrlCapsule item) {
         CompletableFuture<UrlCapsule> future = CompletableFuture.supplyAsync(() -> {
             if (needsImages) {
                 if ((item.getUrl() != null && item.getUrl().isBlank()) || (item.getUrl() != null && item.getUrl().equalsIgnoreCase(defaultTrackImage))) {
@@ -60,7 +62,7 @@ public class ArtistQueue extends LinkedBlockingQueue<UrlCapsule> {
 
     }
 
-    public void getUrl(@NotNull UrlCapsule item) {
+    public void getUrl(@Nonnull UrlCapsule item) {
         try {
             UpdaterStatus updaterStatusByName = dao.getUpdaterStatusByName(item.getArtistName());
             String url = updaterStatusByName.getArtistUrl();
@@ -76,7 +78,7 @@ public class ArtistQueue extends LinkedBlockingQueue<UrlCapsule> {
     }
 
 
-    @NotNull
+    @Nonnull
     @Override
     public UrlCapsule take() throws InterruptedException {
         try {

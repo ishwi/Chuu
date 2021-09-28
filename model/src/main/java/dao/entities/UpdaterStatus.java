@@ -4,12 +4,14 @@ public class UpdaterStatus {
     private final boolean correctionStatus;
     private String artistUrl;
     private long artistId;
+    private String artistName;
 
     //Url -> null
-    public UpdaterStatus(String url, boolean correctionStatus, long artistId) {
+    public UpdaterStatus(String url, boolean correctionStatus, long artistId, String artistName) {
         this.artistUrl = url;
         this.correctionStatus = correctionStatus;
         this.artistId = artistId;
+        this.artistName = artistName;
     }
 
     public long getArtistId() {
@@ -33,4 +35,11 @@ public class UpdaterStatus {
         return correctionStatus;
     }
 
+    public String getArtistName() {
+        return artistName;
+    }
+
+    public void setArtistName(String artistName) {
+        this.artistName = artistName;
+    }
 }

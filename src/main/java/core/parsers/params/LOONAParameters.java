@@ -1,8 +1,8 @@
 package core.parsers.params;
 
+import core.commands.Context;
 import dao.entities.LOONA;
 import dao.entities.LastFMData;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.annotation.Nullable;
 
@@ -16,7 +16,7 @@ public class LOONAParameters extends ChuuDataParams {
     private final Mode mode;
     private final Subject subject;
 
-    public LOONAParameters(MessageReceivedEvent e, LastFMData lastFMData, SubCommand subCommand, Display display, @Nullable LOONA targetedLOONA, LOONA.@Nullable Type targetedType, Subject subject, Mode mode) {
+    public LOONAParameters(Context e, LastFMData lastFMData, SubCommand subCommand, Display display, @Nullable LOONA targetedLOONA, LOONA.@org.jetbrains.annotations.Nullable Type targetedType, Subject subject, Mode mode) {
         super(e, lastFMData);
         this.subCommand = subCommand;
         this.display = display;
@@ -56,7 +56,7 @@ public class LOONAParameters extends ChuuDataParams {
     }
 
     public enum Mode {
-        GROUPED, UNGROUPED
+        GROUPED, ALL, UNGROUPED
     }
 
     public enum Display {

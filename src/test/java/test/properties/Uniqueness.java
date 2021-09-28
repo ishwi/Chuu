@@ -16,8 +16,8 @@ import java.util.List;
 
 @RunWith(JUnitQuickcheck.class)
 public class Uniqueness {
-	@ClassRule
-	public static  final TestRule res = TestResources.INSTANCE;
+    @ClassRule
+    public static final TestRule res = TestResources.INSTANCE;
 
     @Property
     public void onlyOneUser(@From(UniqueGen.class) ArtistPlays artistPlays) {

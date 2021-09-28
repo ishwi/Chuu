@@ -6,6 +6,7 @@ import core.exceptions.LastFmException;
 import dao.entities.AlbumInfo;
 import dao.entities.FullAlbumEntity;
 import dao.entities.Genre;
+import dao.entities.LastFMData;
 import org.junit.Test;
 
 import java.time.Year;
@@ -63,11 +64,10 @@ public class MbTest {
         map.entrySet().stream().sorted(((o1, o2) -> -o1.getValue().compareTo(o2.getValue()))).forEachOrdered(entry -> {
             Genre genre = entry.getKey();
             int plays = entry.getValue();
-            sb.append("Genre: ").append(genre.getGenreName()).append(" \n")
-                    .append("Frequency: ").append(plays).append("\n").append("Representative ")
-                    .append(genre.getRepresentativeArtist()).append("\n");
+            sb.append("Genre: ").append(genre.getName()).append(" \n")
+                    .append("Frequency: ").append(plays).append("\n").append("\n");
         });
-        System.out.println(sb.toString());
+        System.out.println(sb);
 //		List<String> c = a.listOfYearReleases(mbizList, Year.of(2017));
 
     }
@@ -79,7 +79,7 @@ public class MbTest {
         ConcurrentLastFM lastFM = LastFMFactory.getNewInstance();
 
         FullAlbumEntity albumTrackListLowerCase = lastFM
-                .getTracksAlbum("ishwaracoello", "BROCKHAMPTON", "SATURATION III");
+                .getTracksAlbum(LastFMData.ofUser("ishwaracoello"), "BROCKHAMPTON", "SATURATION III");
 
         //	List<String> c = a.listOfYearReleases(mbizList, Year.of(2017));
 

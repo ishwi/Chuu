@@ -44,7 +44,7 @@ public class ConcurrentLastFMTest {
         ConcurrentLastFM lastFM = LastFMFactory.getNewInstance();
 
         try {
-            SecondsTimeFrameCount secondsTimeFrameCount = lastFM.getMinutesWastedOnMusic("a8zm219xm1-09cu-", "7day");
+            SecondsTimeFrameCount secondsTimeFrameCount = lastFM.getMinutesWastedOnMusic(LastFMData.ofUser("a8zm219xm1-09cu-"), TimeFrameEnum.WEEK);
             int seconds = secondsTimeFrameCount.getSeconds();
             int count = secondsTimeFrameCount.getCount();
 
@@ -59,7 +59,7 @@ public class ConcurrentLastFMTest {
         ConcurrentLastFM lastFM = LastFMFactory.getNewInstance();
 
         try {
-            SecondsTimeFrameCount secondsTimeFrameCount = lastFM.getMinutesWastedOnMusic("lukyfan", "7day");
+            SecondsTimeFrameCount secondsTimeFrameCount = lastFM.getMinutesWastedOnMusic(LastFMData.ofUser("lukyfan"), TimeFrameEnum.WEEK);
             int seconds = secondsTimeFrameCount.getSeconds();
             int count = secondsTimeFrameCount.getCount();
 
@@ -74,7 +74,7 @@ public class ConcurrentLastFMTest {
         ConcurrentLastFM lastFM = LastFMFactory.getNewInstance();
 
         try {
-            List<Track> secondsTimeFrameCount = lastFM.getTopArtistTracks("lukyfan", "Northlane", "7day", "Northlane");
+            List<Track> secondsTimeFrameCount = lastFM.getTopArtistTracks(LastFMData.ofUser("lukyfan"), "Northlane", TimeFrameEnum.WEEK, "Northlane");
 
         } catch (LastFmException ignored) {
         }
@@ -83,29 +83,30 @@ public class ConcurrentLastFMTest {
     @Test(expected = LastFMNoPlaysException.class)
     public void getIncrementalNonPLaysUser() throws LastFmException {
         ConcurrentLastFM lastFM = LastFMFactory.getNewInstance();
-        lastFM.getWhole(nonPlaysOnUser, 0);
+        lastFM.getWeeklyBillboard(LastFMData.ofUser(nonPlaysOnUser), 0, Integer.MAX_VALUE);
     }
 
     @Test(expected = LastFmEntityNotFoundException.class)
     public void getIncrementalNonExistingUser() throws LastFmException {
         ConcurrentLastFM lastFM = LastFMFactory.getNewInstance();
-        lastFM.getWhole("iausdhiaushdnbiuasnbdiuasnbdiua", 0);
+        lastFM.getWeeklyBillboard(LastFMData.ofUser("iausdhiaushdnbiuasnbdiuasnbdiua"), 0, Integer.MAX_VALUE);
+
     }
 
     @Test(expected = LastFMNoPlaysException.class)
     public void empty() throws LastFmException {
         ConcurrentLastFM lastFM = LastFMFactory.getNewInstance();
-        TimestampWrapper<List<ScrobbledArtist>> ishwaracoello = lastFM
-                .getWhole("ishwaracoello", (int) (Instant.now().getEpochSecond() + 4000));
+        var ishwaracoello = lastFM
+                .getWeeklyBillboard(LastFMData.ofUser("ishwaracoello"), (int) (Instant.now().getEpochSecond() + 4000), Integer.MAX_VALUE);
     }
 
     //Will fail if I stop listening to music for 11 days
     @Test
     public void nonempty() throws LastFmException {
         ConcurrentLastFM lastFM = LastFMFactory.getNewInstance();
-        TimestampWrapper<List<ScrobbledArtist>> ishwaracoello = lastFM
-                .getWhole("ishwaracoello", (int) (Instant.now().getEpochSecond() - 1000000));
-        Assert.assertFalse(ishwaracoello.getWrapped().isEmpty());
+        var ishwaracoello = lastFM
+                .getWeeklyBillboard(LastFMData.ofUser("ishwaracoello"), (int) (Instant.now().getEpochSecond() - 1000000), Integer.MAX_VALUE);
+        Assert.assertFalse(ishwaracoello.isEmpty());
     }
 
     @Test
@@ -119,26 +120,26 @@ public class ConcurrentLastFMTest {
     @Test(expected = LastFMNoPlaysException.class)
     public void noPlaysExceptions5() throws LastFmException {
         ConcurrentLastFM lastFM = LastFMFactory.getNewInstance();
-        lastFM.getListTopTrack(nonPlaysOnUser, TimeFrameEnum.WEEK.toApiFormat());
+        lastFM.getListTopTrack(LastFMData.ofUser(nonPlaysOnUser), TimeFrameEnum.WEEK);
     }
 
     @Test(expected = LastFMNoPlaysException.class)
     public void noPlaysExceptions4() throws LastFmException {
         ConcurrentLastFM lastFM = LastFMFactory.getNewInstance();
-        lastFM.getNowPlayingInfo(nonPlaysOnUser);
+        lastFM.getNowPlayingInfo(LastFMData.ofUser(nonPlaysOnUser));
     }
 
     @Test(expected = LastFMNoPlaysException.class)
     public void noPlaysExceptions3() throws LastFmException {
         ConcurrentLastFM lastFM = LastFMFactory.getNewInstance();
-        lastFM.getTracksAndTimestamps(nonPlaysOnUser, (int) Instant.now().getEpochSecond(), (int) Instant.now()
+        lastFM.getTracksAndTimestamps(LastFMData.ofUser(nonPlaysOnUser), (int) Instant.now().getEpochSecond(), (int) Instant.now()
                 .getEpochSecond() + 3);
     }
 
     @Test(expected = LastFMNoPlaysException.class)
     public void noPlaysExceptions2() throws LastFmException {
         ConcurrentLastFM lastFM = LastFMFactory.getNewInstance();
-        lastFM.getMinutesWastedOnMusicDaily(nonPlaysOnUser, null, (int) Instant.now().getEpochSecond());
+        lastFM.getMinutesWastedOnMusicDaily(LastFMData.ofUser(nonPlaysOnUser), null, (int) Instant.now().getEpochSecond());
     }
 
     @Test(expected = LastFMNoPlaysException.class)

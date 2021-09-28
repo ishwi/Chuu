@@ -1,12 +1,26 @@
 package core.parsers;
 
+import core.commands.Context;
+import core.commands.ContextMessageReceived;
+import core.commands.ContextSlashReceived;
+import core.exceptions.LastFmException;
+import core.parsers.explanation.ArtistExplanation;
+import core.parsers.explanation.UrlExplanation;
+import core.parsers.explanation.util.Explanation;
+import core.parsers.interactions.InteractionAux;
 import core.parsers.params.ArtistUrlParameters;
+import core.parsers.utils.OptionalEntity;
+import core.parsers.utils.Optionals;
 import dao.ChuuService;
+import dao.entities.LastFMData;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 
+import java.util.List;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 public class ArtistUrlParser extends DaoParser<ArtistUrlParameters> {
 
@@ -25,12 +39,34 @@ public class ArtistUrlParser extends DaoParser<ArtistUrlParameters> {
     }
 
     @Override
-    void setUpOptionals() {
-        opts.add(new OptionalEntity("noredirect", "not change the artist name for a correction automatically"));
+    public ArtistUrlParameters parseSlashLogic(ContextSlashReceived ctx) throws LastFmException, InstanceNotFoundException {
+        SlashCommandEvent e = ctx.e();
+        User caller = InteractionAux.parseUser(e);
+        LastFMData data = findLastfmFromID(caller, ctx);
+        String artist = e.getOption(ArtistExplanation.NAME).getAsString();
+        String url = InteractionAux.parseUrl(e);
+        assert url != null;
+        if (!UrlParser.isValidURL(url)) {
+            if (tumblr.matcher(url).matches()) {
+                sendError(getErrorMessage(3), ctx);
+                return null;
+            }
+        } else {
+            sendError(getErrorMessage(1), ctx);
+            return null;
+        }
+        return new ArtistUrlParameters(ctx, artist, data, url);
+
     }
 
     @Override
-    public ArtistUrlParameters parseLogic(MessageReceivedEvent e, String[] subMessage) throws InstanceNotFoundException {
+    void setUpOptionals() {
+
+        addOptional(Optionals.NOREDIRECT.opt);
+    }
+
+    @Override
+    public ArtistUrlParameters parseLogic(Context e, String[] subMessage) throws InstanceNotFoundException {
 
         boolean noUrl = true;
 
@@ -56,13 +92,13 @@ public class ArtistUrlParser extends DaoParser<ArtistUrlParameters> {
             sendError(getErrorMessage(0), e);
             return null;
         }
-        if (url == null) {
-            if (e.getMessage().getAttachments().isEmpty()) {
+        if (url == null && e instanceof ContextMessageReceived mes) {
+            if (mes.e().getMessage().getAttachments().isEmpty()) {
                 sendError(getErrorMessage(1), e);
                 return null;
 
             } else {
-                Message.Attachment attachment = e.getMessage().getAttachments().get(0);
+                Message.Attachment attachment = mes.e().getMessage().getAttachments().get(0);
                 url = attachment.getUrl();
             }
         }
@@ -75,9 +111,8 @@ public class ArtistUrlParser extends DaoParser<ArtistUrlParameters> {
     }
 
     @Override
-    public String getUsageLogic(String commandName) {
-        return "**" + commandName + " *artist url***\n";
-
+    public List<Explanation> getUsages() {
+        return Stream.of(new ArtistExplanation(), new UrlExplanation()).map(InteractionAux::required).toList();
     }
 
 

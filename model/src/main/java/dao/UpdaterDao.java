@@ -7,11 +7,7 @@ import dao.exceptions.InstanceNotFoundException;
 import javax.annotation.Nullable;
 import java.sql.Connection;
 import java.time.Instant;
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Map;
-import java.util.OptionalLong;
-import java.util.Set;
+import java.util.*;
 
 interface UpdaterDao {
 
@@ -49,11 +45,13 @@ interface UpdaterDao {
 
     boolean insertRandomUrl(Connection con, String url, long discordId, Long guildId);
 
-    RandomUrlEntity getRandomUrl(Connection con);
+    RandomUrlEntity getRandomUrl(Connection con, @Nullable RandomTarget randomTarget);
 
-    RandomUrlEntity getRandomUrlFromServer(Connection con, long discordId);
+    RandomUrlEntity getRandomUrlFromServer(Connection con, long discordId, @Nullable RandomTarget randomTarget);
 
     RandomUrlEntity findRandomUrlById(Connection con, String url);
+
+    RandomUrlDetails randomUrlDetails(Connection con, String urlQ);
 
     void insertAlbumCrown(Connection connection, long artistId, String album, long discordID, long guildId, int plays);
 
@@ -66,7 +64,7 @@ interface UpdaterDao {
     void truncateRandomPool(Connection connection);
 
 
-    void fillIds(Connection connection, List<ScrobbledArtist> list);
+    void fillIds(Connection connection, List<? extends ScrobbledArtist> list);
 
     void insertArtistSad(Connection connection, ScrobbledArtist nonExistingId);
 
@@ -87,11 +85,11 @@ interface UpdaterDao {
 
     AliasEntity getNextInAliasQueue(Connection connection);
 
-    ReportEntity getReportEntity(Connection connection, LocalDateTime localDateTime, Set<Long> skippedIds);
+    ReportEntity getReportEntity(Connection connection, long maxIdAllowed, Set<Long> skippedIds);
 
     void deleteAliasById(Connection connection, long aliasId) throws InstanceNotFoundException;
 
-    void updateUrlStatus(Connection connection, long artistId,String spotifyId);
+    void updateUrlStatus(Connection connection, long artistId, String spotifyId);
 
     OptionalLong checkArtistUrlExists(Connection connection, long artistId, String urlParsed);
 
@@ -118,11 +116,9 @@ interface UpdaterDao {
     void updateGuildCrownThreshold(Connection connection, long guildId, int newThreshold);
 
 
-    ImageQueue getUrlQueue(Connection connection, LocalDateTime localDateTime, Set<Long> skippedIds);
+    ImageQueue getUrlQueue(Connection connection, long maxIdAllowed, Set<Long> skippedIds);
 
-    List<ImageQueue> getUrlQueue(Connection connection, Instant until, int limit);
-
-    void upsertQueueUrl(Connection connection, String url, long artistId, long discordId);
+    void upsertQueueUrl(Connection connection, String url, long artistId, long discordId, Long guildId);
 
     OptionalLong checkQueuedUrlExists(Connection connection, long artistId, String urlParsed);
 
@@ -144,7 +140,7 @@ interface UpdaterDao {
 
     void updateAlbumImage(Connection connection, long albumId, String albumUrl);
 
-    List<ScrobbledAlbum> fillAlbumsByMBID(Connection connection, List<AlbumInfo> collect);
+    List<ScrobbledAlbum> fillAlbumsByMBID(Connection connection, List<AlbumInfo> albums);
 
     void insertAlbumTags(Connection connection, Map<Genre, List<ScrobbledAlbum>> genres, Map<String, String> correctedTags);
 
@@ -160,12 +156,51 @@ interface UpdaterDao {
 
     void removeTagWholeAlbum(Connection connection, String tag);
 
+    void removeTagWholeTrack(Connection connection, String tag);
+
     void addArtistBannedTag(Connection connection, String tag, long artistId);
 
     void removeTagArtist(Connection connection, String tag, long artistId);
 
     void removeTagAlbum(Connection connection, String tag, long artistId);
 
-    void logCommand(Connection connection, long discordId, Long guildId, String commandName, long nanos, Instant utc);
+    void removeTagTrack(Connection connection, String tag, long artistId);
+
+    void logCommand(Connection connection, long discordId, Long guildId, String commandName, long nanos, Instant utc, boolean success, boolean isNormalCommand);
+
+    void updateTrackImage(Connection connection, long trackId, String imageUrl);
+
+    void updateSpotifyInfo(Connection connection, long trackId, String spotifyId, int duration, String url, int popularity);
+
+    void insertAudioFeatures(Connection connection, List<AudioFeatures> audioFeatures);
+
+
+    void insertUserInfo(Connection connection, UserInfo userInfo);
+
+    Optional<UserInfo> getUserInfo(Connection connection, String lastfmId);
+
+    void storeToken(Connection connection, String authToken, String lastfm);
+
+    void storeSession(Connection connection, String session, String lastfm);
+
+    void clearSess(Connection connection, String lastfm);
+
+    long storeRejected(Connection connection, ImageQueue reportEntity);
+
+    void banUserImage(Connection connection, long uploader);
+
+    void addStrike(Connection connection, long uploader, long rejectedId);
+
+    long userStrikes(Connection connection, long uploader);
+
+    void deleteRandomUrl(Connection connection, String url);
+
+    void insertTrackTags(Connection connection, Map<Genre, List<ScrobbledTrack>> genres, Map<String, String> correctedTags);
+
+
+    RandomUrlEntity getRandomUrlFromUser(Connection connection, long userId, RandomTarget randomTarget);
+
+    List<ImageQueue> getUrlQueue(Connection connection);
+
 
 }

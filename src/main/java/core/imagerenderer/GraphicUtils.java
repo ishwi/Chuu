@@ -1,47 +1,68 @@
 package core.imagerenderer;
 
 import core.Chuu;
-import core.apis.youtube.Search;
+import core.commands.Context;
 import core.imagerenderer.stealing.blur.GaussianFilter;
 import core.imagerenderer.util.CIELab;
 import core.imagerenderer.util.D;
+import core.imagerenderer.util.fitter.StringFitter;
+import core.imagerenderer.util.fitter.StringFitterBuilder;
 import dao.entities.ReturnNowPlaying;
 import dao.entities.WrapperReturnNowPlaying;
-import dao.exceptions.ChuuServiceException;
+import net.dv8tion.jda.api.entities.Message;
 import org.imgscalr.Scalr;
 
 import javax.annotation.Nullable;
 import javax.imageio.ImageIO;
 import java.awt.*;
+import java.awt.font.TextAttribute;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.text.AttributedString;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import java.util.Random;
 
 public class GraphicUtils {
 
+    public static final BufferedImage noArtistImage;
+    public static final Font NORMAL_FONT = new Font("Noto Sans", Font.PLAIN, 14);
     static final Random ran = new Random();
     static final File CacheDirectory;
-    static final BufferedImage noArtistImage;
-    private static final Font NORMAL_FONT = new Font("Noto Sans", Font.PLAIN, 14);
+    static final Font EMOJI_FONT_BACKUP = new Font("Segoe UI Emoji", Font.PLAIN, 14);
+    static final Font NAMARE_FONT = new Font("Nirmala UI semilight", Font.PLAIN, 14);
+    static final Font HEBREW_FONT = new Font("Heebo Light", Font.PLAIN, 14);
+    static final Font ARABIC_FONT = new Font("Noto Sans Arabic Light", Font.PLAIN, 14);
+    static final Font JAPANESE_FIRST = new Font("Noto Sans CJK JP Light", Font.PLAIN, 14);
+    static final Font THAI_FONT = new Font("Noto Sans Thai Light", Font.PLAIN, 14);
     private static final Font JAPANESE_FONT = new Font("Yu Gothic", Font.PLAIN, 14);
     //private static final Font UNICODE_FONT = new Font("Sun-ExtA", Font.PLAIN, 14);
     private static final Font KOREAN_FONT = new Font("Malgun Gothic", Font.PLAIN, 14);
     private static final Font EMOJI_FONT = new Font("Symbola", Font.PLAIN, 14);
+    public static final Font[] palletes = new Font[]{JAPANESE_FIRST, JAPANESE_FONT, KOREAN_FONT, EMOJI_FONT, EMOJI_FONT_BACKUP, HEBREW_FONT, NAMARE_FONT, ARABIC_FONT, THAI_FONT};
+    private static final File walpepes;
 
     static {
-        try (InputStream in = Search.class.getResourceAsStream("/" + "all.properties")) {
+
+
+        try (InputStream in = GraphicUtils.class.getResourceAsStream("/all.properties");
+             InputStream in2 = WhoKnowsMaker.class.getResourceAsStream("/images/noArtistImage.png")) {
+            if (in == null || in2 == null) {
+                throw new IllegalStateException("/images/noArtistImage.png should exists under resources!!");
+            }
             Properties properties = new Properties();
             properties.load(in);
             String cache_folder = properties.getProperty("CACHE_FOLDER");
+            String path = properties.getProperty("WALLPAPER_FOLDER");
+            walpepes = new File(path);
             CacheDirectory = new File(cache_folder);
             assert CacheDirectory.isDirectory();
-            noArtistImage = ImageIO.read(WhoKnowsMaker.class.getResourceAsStream("/images/noArtistImage.png"));
+            noArtistImage = ImageIO.read(in2);
         } catch (IOException e) {
             throw new IllegalStateException("/images/noArtistImage.png should exists under resources!!");
         }
@@ -65,6 +86,10 @@ public class GraphicUtils {
         return slightlybrighter(color, 0.85);
     }
 
+    private static int clamp(int input) {
+        return Math.max(0, Math.min(input, 255));
+    }
+
     public static Color slightlybrighter(Color color, double factor) {
         int r = color.getRed();
         int g = color.getGreen();
@@ -78,6 +103,7 @@ public class GraphicUtils {
          */
         int i = (int) (1.0 / (1.0 - factor));
         if (r == 0 && g == 0 && b == 0) {
+            i = clamp(i);
             return new Color(i, i, i, alpha);
         }
         if (r > 0 && r < i) r = i;
@@ -116,26 +142,94 @@ public class GraphicUtils {
     }
 
     public static Font chooseFont(String string) {
-        Font font = NORMAL_FONT;
-        if (font.canDisplayUpTo(string) != -1) {
-            font = JAPANESE_FONT;
-            if (font.canDisplayUpTo(string) != -1) {
-                font = KOREAN_FONT;
-                if (font.canDisplayUpTo(string) != -1) {
-                    font = EMOJI_FONT;
-                    if (font.canDisplayUpTo(string) != -1) {
-                        /*font = UNICODE_FONT;
-                        if (font.canDisplayUpTo(string) != -1) {*/
-                        font = NORMAL_FONT;
-                        //    }
-                    }
+        return getFont(string, NORMAL_FONT);
+    }
+
+    public static Font getFont(String test, Font startFont, Font... fonts) {
+        Font font = startFont;
+        int i = font.canDisplayUpTo(test);
+        int maxI = i;
+        if (i != -1) {
+            for (Font value : fonts) {
+                int i1 = value.canDisplayUpTo(test);
+                if (i1 == -1) {
+                    font = value;
+                    break;
+                }
+                if (i1 > 0 && i1 > maxI) {
+                    maxI = i1;
+                    font = value;
                 }
             }
         }
         return font;
     }
 
-    public static void inserArtistImage(String urlImage, Graphics2D g) {
+    public static Font getFont(String test, Font startFont) {
+        return getFont(test, startFont, JAPANESE_FONT, KOREAN_FONT, EMOJI_FONT, EMOJI_FONT_BACKUP, HEBREW_FONT, NAMARE_FONT, ARABIC_FONT, THAI_FONT);
+    }
+
+
+    public static StringFitter.FontMetadata getFont(Graphics2D g, String test, Font startFont, float size, int maxWidth, int minFontSize, int fontStyle, Font... fonts) {
+        AttributedString result = new AttributedString(test);
+        int length = test.length();
+        int i = startFont.canDisplayUpTo(test);
+
+        // Can display at least a character
+        int maxSize = 0;
+        Font maxFont = startFont;
+
+
+        List<StringFitter.StringAtrributes> temp = new ArrayList<>();
+        if (i != 0) {
+            result.addAttribute(TextAttribute.FONT, startFont.deriveFont(fontStyle, size), 0, length);
+            maxSize = i;
+        }
+        // Couldnt display the whole string
+        if (i != -1) {
+            for (Font value : fonts) {
+                String continued = test.substring(i);
+                int j = value.canDisplayUpTo(continued);
+                // We didnt have a main font.
+                if ((j != 0) && i == 0) {
+                    maxSize = j;
+                    temp.add(new StringFitter.StringAtrributes(value, 0, length));
+                    if (j == -1) {
+                        i = j;
+                        maxFont = value;
+                        break;
+                    }
+                } else if (j == -1) {
+                    temp.add(new StringFitter.StringAtrributes(value, i, length));
+                    maxFont = value;
+                    break;
+                } else if (j != 0) {
+                    if (j > maxSize) {
+                        maxSize = j;
+                        maxFont = value;
+                    }
+                    temp.add(new StringFitter.StringAtrributes(value, i, i + j));
+                    i += j;
+                }
+            }
+        }
+        float sizeFont = size;
+        while (g.getFontMetrics(maxFont.deriveFont(sizeFont)).stringWidth(test) > maxWidth && sizeFont > minFontSize) {
+            sizeFont -= 2;
+        }
+        g.getFontMetrics(maxFont).getStringBounds(test, g);
+        for (StringFitter.StringAtrributes t : temp) {
+            result.addAttribute(TextAttribute.FONT, t.font().deriveFont(fontStyle, sizeFont), t.begginging(), t.end());
+        }
+        Rectangle2D bounds = g.getFontMetrics(maxFont).getStringBounds(test, g);
+        if (i == 0) {
+            result.addAttribute(TextAttribute.FONT, startFont.deriveFont(fontStyle, sizeFont), 0, length);
+        }
+        return new StringFitter.FontMetadata(result, bounds, maxFont.deriveFont(fontStyle, sizeFont));
+    }
+
+
+    public static void drawImageInCorner(String urlImage, Graphics2D g) {
         BufferedImage read = GraphicUtils.getImage(urlImage);
         if (read != null) {
             BufferedImage image = Scalr.resize(read, 100, 100);
@@ -144,7 +238,7 @@ public class GraphicUtils {
 
     }
 
-    static Graphics2D initArtistBackground(BufferedImage canvas, BufferedImage artistImage) {
+    public static Graphics2D initArtistBackground(BufferedImage canvas, BufferedImage artistImage) {
 
         Graphics2D g = canvas.createGraphics();
         GraphicUtils.setQuality(g);
@@ -153,25 +247,8 @@ public class GraphicUtils {
         }
         g.drawImage(artistImage, 0, 0, canvas.getWidth(), canvas.getHeight(), 0, 0, artistImage.getWidth(), artistImage
                 .getHeight(), null);
-        new GaussianFilter(90).filter(canvas, canvas);
+        new GaussianFilter(75).filter(canvas, canvas);
         return g;
-    }
-
-    public static void setQuality(Graphics2D g) {
-        g.setRenderingHint(
-                RenderingHints.KEY_TEXT_ANTIALIASING,
-                RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-        g.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
-                RenderingHints.VALUE_INTERPOLATION_BILINEAR);
-
-        g.setRenderingHint(RenderingHints.KEY_RENDERING,
-                RenderingHints.VALUE_RENDER_QUALITY);
-
-        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-                RenderingHints.VALUE_ANTIALIAS_ON);
-        g.setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY);
-        g.setRenderingHint(RenderingHints.KEY_COLOR_RENDERING, RenderingHints.VALUE_COLOR_RENDER_QUALITY);
-        g.setRenderingHint(RenderingHints.KEY_DITHERING, RenderingHints.VALUE_DITHER_ENABLE);
     }
 
     static Color getFontColorBackground(BufferedImage canvas) {
@@ -217,6 +294,12 @@ public class GraphicUtils {
     public static void doChart(Graphics2D g, int x, int yCounter, int width, int rowHeight,
                                int maxRows, WrapperReturnNowPlaying wrapperReturnNowPlaying, Color colorB1, Color colorB, BufferedImage
                                        lastFmLogo, boolean doNumber, Font font) {
+        doChart(g, x, yCounter, width, rowHeight, maxRows, wrapperReturnNowPlaying, colorB1, colorB, lastFmLogo, doNumber, font, 0);
+    }
+
+    public static void doChart(Graphics2D g, int x, int yCounter, int width, int rowHeight,
+                               int maxRows, WrapperReturnNowPlaying wrapperReturnNowPlaying, Color colorB1, Color colorB, BufferedImage
+                                       lastFmLogo, boolean doNumber, Font font, int phase) {
 
         Font ogFont = g.getFont();
         Color ogColor = g.getColor();
@@ -231,6 +314,9 @@ public class GraphicUtils {
         FontMetrics metrics;
         g.setFont(font);
         float initialSize = g.getFont().getSize();
+        StringFitter userMetadata = new StringFitterBuilder(initialSize, (int) (width * 0.55))
+                .setBaseFont(g.getFont())
+                .setMinSize(14).build();
         metrics = g.getFontMetrics(g.getFont());
         List<ReturnNowPlaying> nowPlayingArtistList = wrapperReturnNowPlaying.getReturnNowPlayings();
         yCounter += metrics.getAscent() + metrics.getDescent();
@@ -241,35 +327,30 @@ public class GraphicUtils {
 
             g.setColor(GraphicUtils.getBetter(colorB1));
 
-            float size = initialSize;
             String name = nowPlayingArtistList.get(i).getDiscordName();
             Font tempFont = g.getFont();
 
             int startName = x;
             if (doNumber) {
-                String strNumber = "#" + (i + 1) + " ";
+                String strNumber = "#" + (phase + i + 1) + " ";
                 g.drawString(strNumber, x, yCounter + (margin - metrics.getAscent() / 2));
                 startName += g.getFontMetrics().stringWidth(strNumber);
             }
-            if (g.getFont().canDisplayUpTo(name) != -1 && WhoKnowsMaker.EMOJI_FONT.canDisplayUpTo(name) == -1)
-                g.setFont(WhoKnowsMaker.EMOJI_FONT.deriveFont(size));
 
-            while (g.getFontMetrics(g.getFont()).stringWidth(name) > (width * 0.55) && size > 14f)
-                g.setFont(g.getFont().deriveFont(size -= 2));
 
-            g.drawString(name, startName, yCounter + (margin - metrics.getAscent() / 2));
+            StringFitter.FontMetadata fontMetadata = userMetadata.getFontMetadata(g, name);
 
-            size = initialSize;
-            g.setFont(tempFont.deriveFont(size));
+            g.drawString(fontMetadata.atrribute().getIterator(), startName, yCounter + (margin - metrics.getAscent() / 2));
+
+            g.setFont(tempFont.deriveFont(initialSize));
             String plays = String.valueOf(nowPlayingArtistList.get(i).getPlayNumber());
             int stringWidth = metrics.stringWidth(plays);
             int playPos = x + width - (rowHeight + stringWidth);
             int playEnd = playPos + stringWidth;
             g.drawString(plays, x + width - (rowHeight + metrics.stringWidth(plays)), yCounter + (margin - metrics
-                    .getAscent() / 2));
+                                                                                                                   .getAscent() / 2));
             g.drawImage(lastFmLogo, playEnd + 9, (int) (yCounter - metrics.getAscent() * 0.85), null);
             yCounter += rowHeight;
-
 
         }
         g.setFont(ogFont);
@@ -292,7 +373,6 @@ public class GraphicUtils {
 
     }
 
-
     static void drawStringNicely(Graphics2D g, String string, int x, int y, BufferedImage bufferedImage) {
 
         Color temp = g.getColor();
@@ -301,13 +381,34 @@ public class GraphicUtils {
             Color col1 = new Color(bufferedImage.getRGB(
                     Math.min(bufferedImage.getWidth() - 1, Math.max(0, x))
                     , y));
-            Color col2 = new Color(bufferedImage.getRGB(Math.min(bufferedImage.getWidth() - 5, x + length / 2), y));
-            Color col3 = new Color(bufferedImage.getRGB(Math.min(bufferedImage.getWidth() - 5, x + length), y));
+            Color col2 = new Color(bufferedImage.getRGB(Math.max(0, Math.min(bufferedImage.getWidth() - 5, x + length / 2)), y));
+            Color col3 = new Color(bufferedImage.getRGB(Math.max(0, Math.min(bufferedImage.getWidth() - 5, x + length)), y));
             g.setColor(getBetter(col1, col2, col3));
         } catch (ArrayIndexOutOfBoundsException debugger) {
             Chuu.getLogger().warn(x + " " + y + " " + " " + length + " " + bufferedImage.getWidth() + " " + bufferedImage.getHeight());
+            Chuu.getLogger().warn(debugger.getMessage(), debugger);
         }
         g.drawString(string, x, y);
+        g.setColor(temp);
+
+    }
+
+    static void drawStringNicely(Graphics2D g, StringFitter.FontMetadata fontMetadata, int x, int y, BufferedImage bufferedImage) {
+
+        Color temp = g.getColor();
+        int length = (int) fontMetadata.bounds().getWidth();
+        try {
+            Color col1 = new Color(bufferedImage.getRGB(
+                    Math.min(bufferedImage.getWidth() - 1, Math.max(0, x))
+                    , y));
+            Color col2 = new Color(bufferedImage.getRGB(Math.max(0, Math.min(bufferedImage.getWidth() - 5, x + length / 2)), y));
+            Color col3 = new Color(bufferedImage.getRGB(Math.max(0, Math.min(bufferedImage.getWidth() - 5, x + length)), y));
+            g.setColor(getBetter(col1, col2, col3));
+        } catch (ArrayIndexOutOfBoundsException debugger) {
+            Chuu.getLogger().warn(x + " " + y + " " + " " + length + " " + bufferedImage.getWidth() + " " + bufferedImage.getHeight());
+            Chuu.getLogger().warn(debugger.getMessage(), debugger);
+        }
+        g.drawString(fontMetadata.atrribute().getIterator(), x, y);
         g.setColor(temp);
 
     }
@@ -321,32 +422,37 @@ public class GraphicUtils {
         g.setColor(temp);
     }
 
+    static void drawStringChartly(Graphics2D g, StringFitter.FontMetadata string, int x, int y) {
+        Color temp = g.getColor();
+        g.setColor(Color.BLACK);
+        g.drawString(string.atrribute().getIterator(), x, y);
+        g.setColor(Color.WHITE);
+        g.drawString(string.atrribute().getIterator(), x + 1, y);
+        g.setColor(temp);
+    }
 
     public static void initRandomImageBlurredBackground(final Graphics2D g, final int SIZE_X, final int SIZE_Y) {
         BufferedImage bim;
 
         Properties properties = new Properties();
-
-        try (InputStream in = TasteRenderer.class.getResourceAsStream("/" + "all.properties")) {
-            properties.load(in);
-            String path = properties.getProperty("WALLPAPER_FOLDER");
-            File dir = new File(path);
-            File[] files = dir.listFiles();
-
-            assert files != null;
-            File file;
-            do {
-                file = files[GraphicUtils.ran.nextInt(files.length)];
-            } while (file.isDirectory());
+        File[] files = walpepes.listFiles();
+        if (files == null) {
+            return;
+        }
+        File file;
+        do {
+            file = files[GraphicUtils.ran.nextInt(files.length)];
+        } while (file.isDirectory());
+        try {
             BufferedImage temp = ImageIO.read(file);
             if (temp != null) {
                 bim = cropImage(temp, SIZE_X, SIZE_Y);
                 temp.flush();
-                g.drawImage(bim, new GaussianFilter(90), 0, 0);
+                g.drawImage(bim, new GaussianFilter(75), 0, 0);
                 bim.flush();
             }
         } catch (IOException e) {
-            throw new ChuuServiceException(e);
+            Chuu.getLogger().info("Error reading file {} ", file.getName());
         }
 
     }
@@ -413,6 +519,46 @@ public class GraphicUtils {
         } catch (IOException | ArrayIndexOutOfBoundsException ex) {
             return null;
         }
+    }
+
+    public static void setQuality(Graphics2D g) {
+        g.setRenderingHint(
+                RenderingHints.KEY_TEXT_ANTIALIASING,
+                RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+        g.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
+                RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+
+        g.setRenderingHint(RenderingHints.KEY_RENDERING,
+                RenderingHints.VALUE_RENDER_QUALITY);
+
+        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+                RenderingHints.VALUE_ANTIALIAS_ON);
+        g.setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY);
+        g.setRenderingHint(RenderingHints.KEY_COLOR_RENDERING, RenderingHints.VALUE_COLOR_RENDER_QUALITY);
+        g.setRenderingHint(RenderingHints.KEY_DITHERING, RenderingHints.VALUE_DITHER_ENABLE);
+    }
+
+    public static ChartQuality getQuality(int chartSize, Context e) {
+        ChartQuality chartQuality = ChartQuality.PNG_BIG;
+        if ((e.isFromGuild() && e.getGuild().getMaxFileSize() == Message.MAX_FILE_SIZE) || !e.isFromGuild()) {
+            if (chartSize > 45 && chartSize < 200)
+                chartQuality = ChartQuality.JPEG_BIG;
+            else if (chartSize >= 200)
+                chartQuality = ChartQuality.JPEG_SMALL;
+        } else if (e.getGuild().getMaxFileSize() == (50 << 20)) {
+            if (chartSize > (45 * (50 / 8.)) && chartSize < 10000) {
+                chartQuality = ChartQuality.JPEG_BIG;
+            } else if (chartSize >= 10000) {
+                chartQuality = ChartQuality.JPEG_SMALL;
+            }
+        } else {
+            if (chartSize > (45 * (100 / 8.)) && chartSize < 20000) {
+                chartQuality = ChartQuality.JPEG_BIG;
+            } else if (chartSize >= 20000) {
+                chartQuality = ChartQuality.JPEG_SMALL;
+            }
+        }
+        return chartQuality;
     }
 
 }

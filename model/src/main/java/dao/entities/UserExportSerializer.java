@@ -22,5 +22,6 @@ public class UserExportSerializer extends StdSerializer<UsersWrapper> {
         gen.writeObjectField("discordUserID", String.valueOf(value.getDiscordID()));
         gen.writeObjectField("lastFMUsername", value.getLastFMName());
         gen.writeEndObject();
+
     }
 }

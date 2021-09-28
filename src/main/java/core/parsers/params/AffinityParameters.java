@@ -1,22 +1,23 @@
 package core.parsers.params;
 
-import core.commands.AffinityCommand;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import core.commands.Context;
+import core.commands.stats.AffinityCommand;
+import dao.entities.LastFMData;
 
 public class AffinityParameters extends CommandParameters {
     private final boolean doServer;
-    private final String firstLastfmId;
-    private final String secondLastfmId;
+    private final LastFMData firstUser;
+    private final LastFMData secondUser;
     private final Long firstDiscordID;
     private final Long secondDiscordID;
-    private final Integer threshold;
+    private final long threshold;
 
 
-    public AffinityParameters(MessageReceivedEvent e, boolean doServer, String firstLastfmId, String secondLastfmId, Long firstDiscordID, Long secondDiscordID, Integer threshold) {
+    public AffinityParameters(Context e, boolean doServer, LastFMData firstUser, LastFMData secondLastfmId, Long firstDiscordID, Long secondDiscordID, Long threshold) {
         super(e);
         this.doServer = doServer;
-        this.firstLastfmId = firstLastfmId;
-        this.secondLastfmId = secondLastfmId;
+        this.firstUser = firstUser;
+        this.secondUser = secondLastfmId;
 
         this.firstDiscordID = firstDiscordID;
         this.secondDiscordID = secondDiscordID;
@@ -27,12 +28,12 @@ public class AffinityParameters extends CommandParameters {
         return doServer;
     }
 
-    public String getFirstLastfmId() {
-        return firstLastfmId;
+    public LastFMData getFirstUser() {
+        return firstUser;
     }
 
-    public String getSecondLastfmId() {
-        return secondLastfmId;
+    public LastFMData getSecondUser() {
+        return secondUser;
     }
 
     public Long getFirstDiscordID() {
@@ -43,7 +44,7 @@ public class AffinityParameters extends CommandParameters {
         return secondDiscordID;
     }
 
-    public Integer getThreshold() {
+    public long getThreshold() {
         return threshold;
     }
 }

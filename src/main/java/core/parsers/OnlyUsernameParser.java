@@ -1,12 +1,20 @@
 package core.parsers;
 
+import core.commands.Context;
+import core.commands.ContextSlashReceived;
+import core.parsers.explanation.PermissiveUserExplanation;
+import core.parsers.explanation.util.Explanation;
+import core.parsers.interactions.InteractionAux;
 import core.parsers.params.ChuuDataParams;
+import core.parsers.utils.OptionalEntity;
 import dao.ChuuService;
 import dao.entities.LastFMData;
 import dao.exceptions.InstanceNotFoundException;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 
-import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * returns: []; in 0 -> lastfmid, 1 -> discordId, 2... -> opts
@@ -16,20 +24,27 @@ public class OnlyUsernameParser extends DaoParser<ChuuDataParams> {
         super(dao);
     }
 
-    public OnlyUsernameParser(ChuuService dao, OptionalEntity... strings) {
+    public OnlyUsernameParser(ChuuService dao, OptionalEntity... opts) {
         super(dao);
-        opts.addAll(Arrays.asList(strings));
+        addOptional(opts);
     }
 
     @Override
-    public ChuuDataParams parseLogic(MessageReceivedEvent e, String[] subMessage) throws InstanceNotFoundException {
+    public ChuuDataParams parseSlashLogic(ContextSlashReceived ctx) throws InstanceNotFoundException {
+        SlashCommandEvent e = ctx.e();
+        User user = InteractionAux.parseUser(e);
+        var data = findLastfmFromID(user, ctx);
+        return new ChuuDataParams(ctx, data);
+    }
+
+    @Override
+    public ChuuDataParams parseLogic(Context e, String[] subMessage) throws InstanceNotFoundException {
         LastFMData data = atTheEndOneUser(e, subMessage);
         return new ChuuDataParams(e, data);
     }
 
     @Override
-    public String getUsageLogic(String commandName) {
-        return "**" + commandName + " *username***\n" +
-                "\t If the username is not specified it defaults to author's account\n";
+    public List<Explanation> getUsages() {
+        return Collections.singletonList(new PermissiveUserExplanation());
     }
 }

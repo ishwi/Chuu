@@ -1,34 +1,25 @@
 package core.exceptions;
 
+import core.parsers.utils.CustomTimeFrame;
 import dao.entities.TimeFrameEnum;
-
-import java.util.Arrays;
-import java.util.Optional;
 
 public class LastFMNoPlaysException extends LastFmException {
     private final String username;
-    private final String timeFrameEnum;
+    private final CustomTimeFrame timeFrameEnum;
 
     public LastFMNoPlaysException(String message) {
 
         super("");
         username = message;
-        timeFrameEnum = TimeFrameEnum.ALL.toString();
+        timeFrameEnum = CustomTimeFrame.ofTimeFrameEnum(TimeFrameEnum.ALL);
 
     }
 
-    public LastFMNoPlaysException(String username, String apiTimeFrame) {
+    public LastFMNoPlaysException(String username, CustomTimeFrame customTimeFrame) {
         super("");
 
         this.username = username;
-        if (apiTimeFrame.equals("day")) {
-            timeFrameEnum = "day";
-        } else {
-            Optional<TimeFrameEnum> first = Arrays.stream(TimeFrameEnum.values())
-                    .filter(x -> x.toApiFormat().equals(apiTimeFrame)).findFirst();
-            assert first.isPresent();
-            this.timeFrameEnum = first.get().toString();
-        }
+        timeFrameEnum = customTimeFrame;
     }
 
     public String getUsername() {
@@ -36,7 +27,7 @@ public class LastFMNoPlaysException extends LastFmException {
     }
 
     public String getTimeFrameEnum() {
-        return timeFrameEnum;
+        return timeFrameEnum.getDisplayString();
     }
 
 }

@@ -1,8 +1,18 @@
 package core.parsers;
 
+import core.commands.Context;
+import core.commands.ContextSlashReceived;
+import core.exceptions.LastFmException;
+import core.parsers.explanation.util.Explanation;
+import core.parsers.explanation.util.ExplanationLine;
 import core.parsers.params.TimezoneParams;
+import core.parsers.utils.OptionalEntity;
+import dao.ChuuService;
+import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
+import org.apache.commons.lang3.StringUtils;
 
 import java.text.Normalizer;
 import java.time.DateTimeException;
@@ -15,56 +25,58 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-public class TimezoneParser extends Parser<TimezoneParams> {
+public class TimezoneParser extends DaoParser<TimezoneParams> {
     private static final Map<String, String> mapZone = ZoneId.getAvailableZoneIds().stream()
             .collect(Collectors
                     .toMap(x -> TimeZone.getTimeZone(x).toZoneId()
                                     .normalized().getRules().getStandardOffset(Instant.now()).getId()
                             , x -> x, (x, y) -> x));
 
-    Predicate<String> errored = Pattern.compile("[+-]*00?:?0?0?[ ]*(gmt)?").asMatchPredicate();
-    Pattern weekPattern = Pattern.compile("([+-])*(\\d{0,2})(:(\\d){0,2})?[ ]*(gmt)?", Pattern.CASE_INSENSITIVE);
+    private static final TimeZone gmt = TimeZone.getTimeZone("GMT");
+
+    final Predicate<String> errored = Pattern.compile("[+-]*00?:?0?0?[ ]*(gmt)?").asMatchPredicate();
+    final Pattern weekPattern = Pattern.compile("(?:UTC)?([+-])?(\\d{0,2})(:(\\d){2})?[ ]*(gmt)?", Pattern.CASE_INSENSITIVE);
 
     Predicate<String> gmtBased = Pattern.compile("[+-]*[ ]*(\\d{1,2}):\\d{1,2}").asMatchPredicate();
 
-    public TimezoneParser(OptionalEntity... opts) {
-        super(opts);
+    public TimezoneParser(ChuuService chuuService, OptionalEntity... opts) {
+        super(chuuService, opts);
     }
 
     @Override
     void setUpOptionals() {
-        this.opts.add(new OptionalEntity("nam", "lol"));
     }
 
     @Override
     protected void setUpErrorMessages() {
-        this.errorMessages.put(10, "Couldn't parse any timezone from the given message :(\n " +
-                "The timezone can be written either as a abbreviate of the timezone(CET, PT...),the offset of the timezone " +
-                " (+01:00, -12:00...) or trying to write a representative of the timezone using the following format (Europe/Brussels,America/Los Angeles...)" +
-                "\n Refer to https://en.wikipedia.org/wiki/List_of_tz_database_time_zones for the full name of the timezones that are accepted.");
+        this.errorMessages.put(10, """
+                Couldn't parse any timezone from the given message :(
+                 The timezone can be written either as a abbreviate of the timezone(CET, PT...),the offset of the timezone  (+01:00, -12:00...) or trying to write a representative of the timezone using the following format (Europe/Brussels,America/Los Angeles...)
+                 Refer to https://en.wikipedia.org/wiki/List_of_tz_database_time_zones for the full name of the timezones that are accepted.""");
 
     }
 
     @Override
-    protected TimezoneParams parseLogic(MessageReceivedEvent e, String[] words) {
+    public TimezoneParams parseSlashLogic(ContextSlashReceived ctx) throws LastFmException, InstanceNotFoundException {
+        return parseLogic(ctx, new String[]{ctx.e().getOption("timezone").getAsString()});
+    }
+
+    @Override
+    protected TimezoneParams parseLogic(Context e, String[] words) throws InstanceNotFoundException {
         ParserAux parserAux = new ParserAux(words);
-        User oneUser = parserAux.getOneUser(e);
-        if (Arrays.equals(words, parserAux.getMessage())) {
-            String join = String.join(" ", parserAux.getMessage());
-            if (join.isBlank()) {
-                return new TimezoneParams(e, oneUser, null, true);
-            } else {
-                oneUser = e.getAuthor();
-            }
-        } else {
-            words = parserAux.getMessage();
-            oneUser = e.getAuthor();
-        }
+        User oneUser = parserAux.getOneUser(e, dao);
+        words = parserAux.getMessage();
         String join = String.join(" ", words);
+        if (join.isBlank()) {
+            return new TimezoneParams(e, oneUser, null, true);
+        }
+
         String id;
-        TimeZone timeZone = TimeZone.getTimeZone(join.toUpperCase());
-        id = timeZone.toZoneId().getId();
-        if (timeZone.equals(TimeZone.getTimeZone("GMT")) && !errored.test(join)) {
+        if (join.length() <= 3) {
+            join = join.toUpperCase(Locale.ROOT);
+        }
+        TimeZone timeZone = TimeZone.getTimeZone(join);
+        if (timeZone.equals(gmt) && !errored.test(join)) {
             Set<String> zids = ZoneId.getAvailableZoneIds();
             String tzCityName = Normalizer.normalize(join, Normalizer.Form.NFKD)
                     .replaceAll("[^\\p{ASCII}-_ ]", "")
@@ -80,12 +92,12 @@ public class TimezoneParser extends Parser<TimezoneParams> {
                 }
             }
             String finalTzCityName = tzCityName;
-            Optional<ZoneId> collect = zids.stream()
+            Optional<ZoneId> zone = zids.stream()
                     .filter(zid -> zid.toLowerCase().endsWith("/" + finalTzCityName.toLowerCase()))
                     .map(ZoneId::of)
                     .findFirst();
-            if (collect.isPresent()) {
-                id = collect.get().getId();
+            if (zone.isPresent()) {
+                id = zone.get().getId();
             } else {
 
                 try {
@@ -101,7 +113,7 @@ public class TimezoneParser extends Parser<TimezoneParams> {
                         if (matcher.group(3) == null) {
                             appender += ":00";
                         } else {
-                            appender += matcher.group(1);
+                            appender += matcher.group(3);
                         }
                         join = appender;
                     }
@@ -120,16 +132,21 @@ public class TimezoneParser extends Parser<TimezoneParams> {
                     return null;
                 }
             }
+            timeZone = TimeZone.getTimeZone(id);
         }
 
-        return new TimezoneParams(e, oneUser, TimeZone.getTimeZone(id));
+        return new TimezoneParams(e, oneUser, timeZone);
     }
 
     @Override
-    public String getUsageLogic(String commandName) {
-        return "**" + commandName + " *timezone***\n" +
-                "\t The timezone can be written either as a abbreviate of the timezone (CET, PT...), the offset of the timezone" +
-                " (+01:00, -12:00...) or trying to write a representative of the timezone using the following format (Europe/Brussels,America/Los Angeles...) \n\n";
+    public List<Explanation> getUsages() {
+        String desc = "The timezone can be written either as a abbreviate of the timezone (CET, PT...), the offset of the timezone" +
+                      " (+01:00, -12:00...) or trying to write a representative of the timezone using the following format (Europe/Brussels,America/Los Angeles...)";
+        OptionData optionData = new OptionData(OptionType.STRING, "timezone", StringUtils.abbreviate(desc, 100), true);
+        ExplanationLine tz = new ExplanationLine("timezone", desc, optionData);
+        Explanation timezone = () -> tz;
 
+        return List.of(timezone);
     }
+
 }

@@ -1,9 +1,9 @@
 package core.services;
 
-import core.commands.MyCommand;
+import core.commands.Context;
+import core.commands.abstracts.MyCommand;
 import dao.ChuuService;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import net.dv8tion.jda.api.sharding.ShardManager;
+import net.dv8tion.jda.api.JDA;
 import org.apache.commons.collections4.MultiValuedMap;
 import org.apache.commons.collections4.multimap.HashSetValuedHashMap;
 import org.apache.commons.lang3.tuple.Pair;
@@ -22,8 +22,8 @@ public class MessageDisablingService {
     public MessageDisablingService() {
     }
 
-    public MessageDisablingService(ShardManager jda, ChuuService dao) {
-        Map<String, MyCommand<?>> commandsByName = jda.getShards().get(0).getRegisteredListeners().stream().filter(x -> x instanceof MyCommand<?>).map(x -> (MyCommand<?>) x).collect(Collectors.toMap(MyCommand::getName, x -> x));
+    public MessageDisablingService(JDA jda, ChuuService dao) {
+        Map<String, MyCommand<?>> commandsByName = jda.getRegisteredListeners().stream().filter(x -> x instanceof MyCommand<?>).map(x -> (MyCommand<?>) x).collect(Collectors.toMap(MyCommand::getName, x -> x));
         MultiValuedMap<Long, String> serverDisables = dao.initServerCommandStatuses();
         serverDisables.entries().forEach(x -> {
             MyCommand<?> commandDisabled = commandsByName.get(x.getValue());
@@ -87,14 +87,14 @@ public class MessageDisablingService {
         }
     }
 
-    public boolean isMessageAllowed(MyCommand<?> command, MessageReceivedEvent e) {
+    public boolean isMessageAllowed(MyCommand<?> command, Context e) {
         if (!e.isFromGuild()) {
             return true;
         }
         long guildId = e.getGuild().getIdLong();
         long channelId = e.getChannel().getIdLong();
         return (!(disabledServersMap.get(guildId).contains(command) || disabledChannelsMap.get(Pair.of(guildId, channelId)).contains(command)))
-                || enabledChannelsMap.get(Pair.of(guildId, channelId)).contains(command);
+               || enabledChannelsMap.get(Pair.of(guildId, channelId)).contains(command);
     }
 
     //Returns if its disabled or enabled now
@@ -103,9 +103,9 @@ public class MessageDisablingService {
             disabledServersMap.removeMapping(guildId, myCommand);
             service.deleteServerCommandStatus(guildId, myCommand.getName());
 
-            Set<Long> collect = disabledChannelsMap.entries().stream().filter(x -> x.getKey().getLeft().equals(guildId)).map(x -> x.getKey().getRight()).collect(Collectors.toSet());
-            disabledChannelsMap.entries().removeIf(x -> x.getKey().getLeft().equals(guildId));
-            collect.forEach(y -> service.deleteChannelCommandStatus(guildId, y, myCommand.getName()));
+            Set<Long> ids = disabledChannelsMap.entries().stream().filter(x -> x.getKey().getLeft().equals(guildId)).map(x -> x.getKey().getRight()).collect(Collectors.toSet());
+            disabledChannelsMap.entries().removeIf(x -> x.getKey().getLeft().equals(guildId) && x.getValue().equals(myCommand));
+            ids.forEach(y -> service.deleteChannelCommandStatus(guildId, y, myCommand.getName()));
             service.deleteServerCommandStatus(guildId, myCommand.getName());
 
         } else {
@@ -114,7 +114,7 @@ public class MessageDisablingService {
         }
     }
 
-    public boolean doResponse(MessageReceivedEvent e) {
+    public boolean doResponse(Context e) {
         if (!e.isFromGuild()) {
             return true;
         }

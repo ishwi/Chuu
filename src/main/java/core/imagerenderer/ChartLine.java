@@ -27,10 +27,9 @@ public class ChartLine {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof ChartLine)) return false;
-        ChartLine chartLine = (ChartLine) o;
+        if (!(o instanceof ChartLine chartLine)) return false;
         return Objects.equals(getLine(), chartLine.getLine()) &&
-                getType() == chartLine.getType();
+               getType() == chartLine.getType();
     }
 
     @Override

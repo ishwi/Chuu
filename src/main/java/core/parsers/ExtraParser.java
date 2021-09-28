@@ -1,12 +1,16 @@
 package core.parsers;
 
+import core.commands.Context;
+import core.commands.ContextSlashReceived;
 import core.exceptions.LastFmException;
+import core.parsers.explanation.util.Explanation;
 import core.parsers.params.CommandParameters;
 import core.parsers.params.ExtraParameters;
 import dao.exceptions.InstanceNotFoundException;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.function.BiFunction;
@@ -14,6 +18,7 @@ import java.util.function.BiPredicate;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 
 /**
@@ -33,25 +38,22 @@ public class ExtraParser<Z extends ExtraParameters<Y, J>, Y extends CommandParam
     private final Function<List<J>, J> chooserPredicate;
 
     private final Function<String, J> fromString;
-    private final String fieldName;
-    private final String fieldDescription;
+    private final List<Explanation> explanations;
     private final boolean panicOnMultiple;
     private final boolean catchFirst;
     private final BiPredicate<Y, J> innerPredicate;
+    private final Function<SlashCommandEvent, J> fromSlash;
     private final BiFunction<Y, J, Z> finalReducer;
-    private final Function<J, String> toString;
+    boolean reverseOrder = false;
 
     public ExtraParser(T innerParser,
                        J defaultItem,
                        Predicate<String> matchingItems,
                        Predicate<J> safetyPredicate,
                        Function<String, J> fromString,
-                       Function<J, String> toString,
                        Map<Integer, String> errorMessages,
-                       String fieldName,
-                       String fieldDescription,
-                       BiFunction<Y, J, Z> finalReducer) {
-        this(innerParser, defaultItem, matchingItems, safetyPredicate, fromString, toString, errorMessages, fieldName, fieldDescription, null, finalReducer);
+                       BiFunction<Y, J, Z> finalReducer, List<Explanation> explanations, Function<SlashCommandEvent, J> fromSlash) {
+        this(innerParser, defaultItem, matchingItems, safetyPredicate, fromString, errorMessages, null, finalReducer, explanations, fromSlash);
     }
 
 
@@ -60,12 +62,9 @@ public class ExtraParser<Z extends ExtraParameters<Y, J>, Y extends CommandParam
                        Predicate<String> matchingItems,
                        Predicate<J> safetyPredicate,
                        Function<String, J> fromString,
-                       Function<J, String> toString,
                        Map<Integer, String> errorMessages,
-                       String fieldName,
-                       String fieldDescription,
-                       BiPredicate<Y, J> innerPredicate, BiFunction<Y, J, Z> finalReducer) {
-        this(innerParser, defaultItem, matchingItems, safetyPredicate, fromString, toString, errorMessages, fieldName, fieldDescription, innerPredicate, null, true, false, finalReducer);
+                       BiPredicate<Y, J> innerPredicate, BiFunction<Y, J, Z> finalReducer, List<Explanation> explanations, Function<SlashCommandEvent, J> fromSlash) {
+        this(innerParser, defaultItem, matchingItems, safetyPredicate, fromString, errorMessages, explanations, innerPredicate, null, true, false, fromSlash, finalReducer);
     }
 
 
@@ -74,30 +73,30 @@ public class ExtraParser<Z extends ExtraParameters<Y, J>, Y extends CommandParam
                        Predicate<String> matchingItems,
                        Predicate<J> safetyPredicate,
                        Function<String, J> fromString,
-                       Function<J, String> toString,
                        Map<Integer, String> errorMessages,
-                       String fieldName,
-                       String fieldDescription,
-                       BiPredicate<Y, J> innerPredicate,
+                       List<Explanation> explanations, BiPredicate<Y, J> innerPredicate,
                        Function<List<J>, J> chooserPredicate,
-                       boolean panicOnMultiple, boolean catchFirst, BiFunction<Y, J, Z> finalReducer) {
+                       boolean panicOnMultiple, boolean catchFirst, Function<SlashCommandEvent, J> fromSlash, BiFunction<Y, J, Z> finalReducer) {
         super();
         this.innerParser = innerParser;
         def = defaultItem;
         this.predicate = matchingItems;
         this.checkPredicate = safetyPredicate;
         this.fromString = fromString;
-        this.toString = toString;
-        this.fieldName = fieldName;
-        this.fieldDescription = fieldDescription;
+        this.explanations = explanations;
         this.innerPredicate = innerPredicate;
         this.catchFirst = catchFirst;
+        this.fromSlash = fromSlash;
         this.finalReducer = finalReducer;
-        this.opts.addAll(innerParser.opts);
+        innerParser.getOptionals().forEach(this::addOptional);
         this.errorMessages.putAll(innerParser.errorMessages);
         this.errorMessages.putAll(errorMessages);
         this.chooserPredicate = chooserPredicate;
         this.panicOnMultiple = panicOnMultiple;
+    }
+
+    public void setReverseOrder(boolean reverseOrder) {
+        this.reverseOrder = reverseOrder;
     }
 
     @Override
@@ -106,10 +105,34 @@ public class ExtraParser<Z extends ExtraParameters<Y, J>, Y extends CommandParam
     }
 
     @Override
-    protected Z parseLogic(MessageReceivedEvent e, String[] words) throws InstanceNotFoundException, LastFmException {
-        Map<Boolean, List<String>> collect = Arrays.stream(words).collect(Collectors.partitioningBy((predicate)));
-        List<J> first = collect.get(true).stream().map(fromString).collect(Collectors.toList());
-        List<String> returning = collect.get(false);
+    public Z parseSlashLogic(ContextSlashReceived ctx) throws LastFmException, InstanceNotFoundException {
+
+        J item = fromSlash.apply(ctx.e());
+        if (item == null) {
+            item = def;
+        } else if (checkPredicate.test(item)) {
+            this.sendError(this.getErrorMessage(LIMIT_ERROR), ctx);
+            return null;
+        }
+        Y y = innerParser.parse(ctx);
+        if (y == null) {
+            return null;
+        }
+        if (this.innerPredicate != null && item != null) {
+            if (innerPredicate.test(y, item)) {
+                this.sendError(this.getErrorMessage(INNER_ERROR), ctx);
+                return null;
+            }
+        }
+        return finalReducer.apply(y, item);
+
+    }
+
+    @Override
+    protected Z parseLogic(Context e, String[] words) throws InstanceNotFoundException, LastFmException {
+        Map<Boolean, List<String>> predicateToLines = Arrays.stream(words).collect(Collectors.partitioningBy((predicate)));
+        List<J> first = predicateToLines.get(true).stream().map(fromString).toList();
+        List<String> returning = predicateToLines.get(false);
         J item;
         if (first.isEmpty()) {
             item = def;
@@ -122,7 +145,7 @@ public class ExtraParser<Z extends ExtraParameters<Y, J>, Y extends CommandParam
                 item = first.get(0);
             } else {
                 item = chooserPredicate.apply(first);
-                collect.get(true).stream().filter(x -> !fromString.apply(x).equals(item)).forEach(returning::add);
+                predicateToLines.get(true).stream().filter(x -> !fromString.apply(x).equals(item)).forEach(returning::add);
             }
         } else {
             item = first.get(0);
@@ -143,14 +166,15 @@ public class ExtraParser<Z extends ExtraParameters<Y, J>, Y extends CommandParam
         return finalReducer.apply(y, item);
     }
 
-
     @Override
-    public String getUsageLogic(String commandName) {
-        String usageLogic = innerParser.getUsageLogic(commandName);
-        int i = usageLogic.indexOf('\n');
-        String substring1 = usageLogic.substring(0, i - 2);
-        String substring2 = usageLogic.substring(i);
+    public List<Explanation> getUsages() {
+        if (this.reverseOrder) {
+            return Stream.of(this.explanations, innerParser.getUsages()).flatMap(Collection::stream).toList();
+        }
+        return Stream.of(innerParser.getUsages(), this.explanations).flatMap(Collection::stream).toList();
 
-        return substring1 + " *" + fieldName + "***" + substring2 + "\t" + fieldDescription + "\n";
     }
+
+
 }
+

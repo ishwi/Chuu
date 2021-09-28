@@ -1,15 +1,22 @@
 package core.parsers;
 
-import core.commands.CommandUtil;
+import core.commands.Context;
+import core.commands.ContextMessageReceived;
+import core.commands.ContextSlashReceived;
+import core.commands.utils.CommandUtil;
 import core.exceptions.LastFmException;
+import core.parsers.explanation.util.Explanation;
+import core.parsers.explanation.util.UsageLogic;
 import core.parsers.params.CommandParameters;
+import core.parsers.utils.OptionalEntity;
 import dao.exceptions.InstanceNotFoundException;
-import javacutils.Pair;
-import net.dv8tion.jda.api.MessageBuilder;
-import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.interactions.commands.OptionMapping;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -17,7 +24,8 @@ import java.util.stream.Stream;
 
 public abstract class Parser<T extends CommandParameters> {
     final Map<Integer, String> errorMessages = new HashMap<>(10);
-    final Set<OptionalEntity> opts = new HashSet<>();
+    final Map<String, OptionalEntity> optAliases = new HashMap<>();
+    private final Set<OptionalEntity> opts = new LinkedHashSet<>();
 
 
     Parser() {
@@ -27,9 +35,26 @@ public abstract class Parser<T extends CommandParameters> {
 
     Parser(OptionalEntity... opts) {
         this();
-        this.opts.addAll(Arrays.asList(opts));
+        addOptional(opts);
     }
 
+    public static <Y> Pair<String[], Y> filterMessage(String[] ogMessage, Predicate<String> filter, Function<String, Y> mapper, Y yDefault) {
+        Stream<String> secondStream = Arrays.stream(ogMessage).filter(filter);
+        Y apply = yDefault;
+        Optional<String> opt2 = secondStream.findAny();
+        if (opt2.isPresent()) {
+            apply = mapper.apply(opt2.get());
+            AtomicBoolean atomicBoolean = new AtomicBoolean(false);
+            ogMessage = Arrays.stream(ogMessage).filter(s -> !s.equals(opt2.get()) || !atomicBoolean.compareAndSet(false, true)).toArray(String[]::new);
+        }
+        return Pair.of(ogMessage, apply);
+
+    }
+
+    private void addOptional(OptionalEntity opt) {
+        opts.add(opt);
+        opt.aliases().forEach(z -> optAliases.put(z, opt));
+    }
 
     void setUpOptionals() {
         //Do nothing
@@ -37,42 +62,20 @@ public abstract class Parser<T extends CommandParameters> {
 
     protected abstract void setUpErrorMessages();
 
-    public <Y> Pair<String[], Y>
-
-    filterMessage(String[] ogMessage, Predicate<String> filter, Function<String, Y> mappingFuntion, Y defualt) {
-        Stream<String> secondStream = Arrays.stream(ogMessage).filter(filter);
-        Y apply = defualt;
-        Optional<String> opt2 = secondStream.findAny();
-        if (opt2.isPresent()) {
-            apply = mappingFuntion.apply(opt2.get());
-            ogMessage = Arrays.stream(ogMessage).filter(s -> !s.equals(opt2.get())).toArray(String[]::new);
-        }
-        return Pair.of(ogMessage, apply);
-
-    }
-
-    public T parse(MessageReceivedEvent e) throws LastFmException, InstanceNotFoundException {
-        String[] subMessage = getSubMessage(e.getMessage());
+    public final T parseMessage(Context e) throws LastFmException, InstanceNotFoundException {
+        String[] subMessage = getSubMessage(e);
         List<String> subMessageBuilding = new ArrayList<>();
         List<String> optionals = new ArrayList<>();
-
         for (String s : subMessage) {
             //eghh asdhi
-            if (OptionalEntity.isWordAValidOptional(opts, s)) {
-                optionals.add(OptionalEntity.getOptPartFromValid(s));
+            if (OptionalEntity.isWordAValidOptional(opts, optAliases, s)) {
+                optionals.add(OptionalEntity.getOptPartFromValid(s, opts, optAliases));
             } else {
                 subMessageBuilding.add(s);
             }
         }
 
-        Set<OptionalEntity> defaults = opts.stream().filter(OptionalEntity::isEnabledByDefault).collect(Collectors.toSet());
-        for (
-                OptionalEntity aDefault : defaults) {
-            if (!optionals.contains(aDefault.getBlockedBy())) {
-                optionals.add(aDefault.getValue());
-            }
-        }
-
+        processOpts(optionals);
         T preParams = parseLogic(e, subMessageBuilding.toArray(new String[0]));
         if (preParams != null) {
             preParams.initParams(optionals);
@@ -80,12 +83,75 @@ public abstract class Parser<T extends CommandParameters> {
         return preParams;
     }
 
-    protected abstract T parseLogic(MessageReceivedEvent e, String[] words) throws InstanceNotFoundException, LastFmException;
+    public T parse(Context e) throws LastFmException, InstanceNotFoundException {
+        if (e instanceof ContextMessageReceived mes) {
+            return parseMessage(mes);
+        } else if (e instanceof ContextSlashReceived sce) {
+            return parseSlash(sce);
+        }
+        return null;
+    }
 
-    public String[] getSubMessage(Message message) {
-        return getSubMessage(message.getContentRaw());
+    public final T parseSlash(ContextSlashReceived ctx) throws LastFmException, InstanceNotFoundException {
+        SlashCommandEvent e = ctx.e();
+        List<OptionMapping> strings = e.getOptionsByType(OptionType.STRING);
+        List<String> optionals = new ArrayList<>();
+        for (OptionMapping s : strings) {
+            if (s.getAsString().equals("yes") && opts.contains(new OptionalEntity(s.getName(), null))) {
+                optionals.add(s.getName());
+            }
+        }
+
+        processOpts(optionals);
+        T preParams = parseSlashLogic(ctx);
+        if (preParams != null) {
+            preParams.initParams(optionals);
+        }
+        return preParams;
+    }
+
+    private void processOpts(List<String> optionals) {
+        Set<OptionalEntity> defaults = opts.stream().filter(OptionalEntity::isEnabledByDefault).collect(Collectors.toSet());
+        for (
+                OptionalEntity aDefault : defaults) {
+            boolean block = false;
+            for (String blocked : aDefault.blockedBy()) {
+                if (optionals.contains(blocked)) {
+                    block = true;
+                    break;
+                }
+            }
+            if (!block) {
+                optionals.add(aDefault.value());
+            }
+        }
+    }
+
+    public T parseSlashLogic(ContextSlashReceived ctx) throws LastFmException, InstanceNotFoundException {
+        throw new UnsupportedOperationException();
+    }
+
+    protected abstract T parseLogic(Context e, String[] words) throws InstanceNotFoundException, LastFmException;
+
+    public String[] getSubMessage(Context context) {
+        if (context instanceof ContextMessageReceived mes) {
+            return getSubMessage(mes.e().getMessage().getContentRaw());
+        } else {
+
+            throw new IllegalStateException();
+        }
 
     }
+
+    public String getAlias(Context context) {
+        if (context instanceof ContextMessageReceived mes) {
+            return mes.e().getMessage().getContentRaw().substring(1).toLowerCase();
+        } else {
+            throw new IllegalStateException();
+        }
+
+    }
+
 
     private String[] getSubMessage(String string) {
         String[] parts = string.substring(1).split("\\s+");
@@ -93,10 +159,10 @@ public abstract class Parser<T extends CommandParameters> {
 
     }
 
-    public boolean hasOptional(String optional, MessageReceivedEvent e) {
-        String[] subMessage = getSubMessage(e.getMessage());
+    public boolean hasOptional(String optional, Context e) {
+        String[] subMessage = getSubMessage(e);
         List<String> arrayList = Arrays.asList(subMessage);
-        return arrayList.stream().anyMatch(x -> OptionalEntity.isWordAValidOptional(opts, x) && opts.contains(new OptionalEntity(optional, null)));
+        return arrayList.stream().anyMatch(x -> OptionalEntity.isWordAValidOptional(opts, optAliases, x) && (opts.contains(new OptionalEntity(optional, null)) || optAliases.containsKey(optional)));
     }
 
     public String getErrorMessage(int code) {
@@ -104,47 +170,43 @@ public abstract class Parser<T extends CommandParameters> {
     }
 
 
-    private void sendMessage(Message message, MessageReceivedEvent e) {
-        e.getChannel().sendMessage(message).queue();
-    }
-
-    public void sendError(String message, MessageReceivedEvent e) {
-        String errorBase = "Error on " + CommandUtil.cleanMarkdownCharacter(e.getAuthor().getName()) + "'s request:\n";
-        sendMessage(new MessageBuilder().append(errorBase).append(message).build(), e);
-    }
-
-    public void sendFocusedError(String message, MessageReceivedEvent e, long discordID) {
-        String username = CommandUtil.getUserInfoNotStripped(e, discordID).getUsername();
-        String errorBase = "Error on " + CommandUtil.cleanMarkdownCharacter(username) + "'s request:\n";
-        sendMessage(new MessageBuilder().append(errorBase).append(message).build(), e);
+    public void sendError(String message, Context e) {
+        String errorBase = "Error on " + CommandUtil.escapeMarkdown(e.getAuthor().getName()) + "'s request:\n";
+        e.sendMessage(errorBase + message).queue();
     }
 
 
     public String getUsage(String commandName) {
-        StringBuilder s = new StringBuilder();
-        for (OptionalEntity opt : opts) {
-            if (!opt.isEnabledByDefault()) {
-                s.append(opt.getDefinition());
-            }
+        return new UsageLogic(commandName, getUsages(), opts).getUsage();
+    }
+
+    public abstract List<Explanation> getUsages();
+
+    public List<OptionalEntity> getOptionals() {
+        return new ArrayList<>(opts);
+    }
+
+
+    public Parser<T> replaceOptional(String previousOptional, OptionalEntity optionalEntity) {
+        removeOptional(previousOptional);
+        addOptional(optionalEntity);
+        return this;
+    }
+
+    public Parser<T> addOptional(OptionalEntity... optionalEntity) {
+        for (OptionalEntity entity : optionalEntity) {
+            addOptional(entity);
         }
-        return getUsageLogic(commandName) + s;
-
-    }
-
-    public void replaceOptional(String previousOptional, OptionalEntity optionalEntity) {
-        opts.remove(new OptionalEntity(previousOptional, null));
-        opts.add(optionalEntity);
-    }
-
-    public void addOptional(OptionalEntity... optionalEntity) {
-        this.opts.addAll(Arrays.asList(optionalEntity));
+        return this;
     }
 
     public void removeOptional(String previousOptional) {
-        opts.remove(new OptionalEntity(previousOptional, null));
+        Optional<OptionalEntity> opts = this.opts.stream().filter(w -> w.equals(new OptionalEntity(previousOptional, null))).findAny();
+        opts.ifPresent(w -> {
+            this.opts.remove(w);
+            w.aliases().forEach(this.optAliases::remove);
+        });
     }
-
-    public abstract String getUsageLogic(String commandName);
 
 
 }

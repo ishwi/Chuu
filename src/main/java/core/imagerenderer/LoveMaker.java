@@ -1,5 +1,7 @@
 package core.imagerenderer;
 
+import core.imagerenderer.util.fitter.StringFitter;
+import core.imagerenderer.util.fitter.StringFitterBuilder;
 import dao.entities.Affinity;
 import dao.entities.DiscordUserDisplay;
 import dao.entities.UserArtistComparison;
@@ -10,6 +12,8 @@ import java.awt.*;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.util.List;
+
+import static core.imagerenderer.GraphicUtils.chooseFont;
 
 public class LoveMaker {
 
@@ -60,6 +64,7 @@ public class LoveMaker {
         } else {
             g.setColor(Color.GREEN);
         }
+
         g.setColor(GraphicUtils.makeMoreTransparent(g.getColor(), 0.7f));
         g.fillRect(X_MARGIN + IMAGE_MARGIN + IMAGE_SIZE, Y_MARGIN + (IMAGE_SIZE / 2), (int) (Math.min(affinity.getAffinity(), 1f) * (BAR_SIZE)), (IMAGE_SIZE / 2));
         g.setColor(Color.BLACK);
@@ -76,24 +81,23 @@ public class LoveMaker {
         GraphicUtils.drawStringNicely(g, format, (X_SIZE / 2 - ((int) titleBound.getWidth() / 2)), Y_MARGIN + (IMAGE_SIZE / 2) - 25, canvas);
 
 
-        Font firstUserFont = chooseFont(firstUser.getUsername());
-        g.setFont(firstUserFont.deriveFont(SUBTITLE_IMAGE_SIZE));
-        Rectangle2D f = GraphicUtils.fitAndGetBounds(firstUser.getUsername(), g, IMAGE_SIZE, 18f);
+        StringFitter userBuilder = new StringFitterBuilder(SUBTITLE_IMAGE_SIZE, IMAGE_SIZE)
+                .setStyle(Font.BOLD)
+                .setMinSize(18).build();
+        StringFitter.FontMetadata u1 = userBuilder
+                .getFontMetadata(g, firstUser.username());
+        StringFitter.FontMetadata u2 = userBuilder
+                .getFontMetadata(g, secondUser.username());
 
-        Font secondUserFont = chooseFont(secondUser.getUsername());
-        g.setFont(secondUserFont.deriveFont(SUBTITLE_IMAGE_SIZE));
-        Rectangle2D n = GraphicUtils.fitAndGetBounds(secondUser.getUsername(), g, IMAGE_SIZE, 18f);
 
-        int baseline = (int) Math.max(f.getHeight(), n.getHeight());
-        g.setFont(firstUserFont);
-        GraphicUtils.drawStringNicely(g, firstUser.getUsername(), X_MARGIN + (IMAGE_SIZE - (int) f.getWidth()) / 2, Y_MARGIN + IMAGE_SIZE + baseline, canvas);
-        g.setFont(secondUserFont);
-        GraphicUtils.drawStringNicely(g, secondUser.getUsername(), X_SIZE - X_MARGIN - (IMAGE_SIZE + (int) n.getWidth()) / 2, Y_MARGIN + IMAGE_SIZE + baseline, canvas);
+        int baseline = (int) Math.max(u1.bounds().getHeight(), u2.bounds().getHeight());
+        GraphicUtils.drawStringNicely(g, u1, X_MARGIN + (IMAGE_SIZE - (int) u1.bounds().getWidth()) / 2, Y_MARGIN + IMAGE_SIZE + baseline, canvas);
+        GraphicUtils.drawStringNicely(g, u2, X_SIZE - X_MARGIN - (IMAGE_SIZE + (int) u2.bounds().getWidth()) / 2, Y_MARGIN + IMAGE_SIZE + baseline, canvas);
 
 
         int i = drawRecommendation(affinity.getReceivingRec(), firstUser, canvas, g, 0);
         int i2 = drawRecommendation(affinity.getOgRec(), secondUser, canvas, g, (int) (i * 1.5));
-
+        g.setFont(NORMAL_FONT.deriveFont(DESC_SIZE));
         int lastLineBaseline = (int) (Y_MARGIN + IMAGE_SIZE + Y_MARGIN * 2 + i * 1.5 + i2 * 1.5);
 
         if (affinity.getMatchingList().isEmpty()) {
@@ -104,7 +108,7 @@ public class LoveMaker {
         } else {
             Pair<Font[], Integer> lastLine = getLastLine(affinity.getMatchingList(), g);
             Integer right = lastLine.getRight();
-            int startingPoint = (X_SIZE - right) / 2;
+            int startingPoint = Math.max(0, (X_SIZE - right) / 2);
             GraphicUtils.drawStringNicely(g, "You both love: ", startingPoint, lastLineBaseline, canvas);
             int i1 = g.getFontMetrics().stringWidth("You both love: ");
             drawMultiString(lastLine.getKey(), startingPoint + i1, lastLineBaseline, affinity.getMatchingList(), g, canvas);
@@ -146,7 +150,7 @@ public class LoveMaker {
         for (int i = 0, comparisonListSize = comparisonList.size(); i < comparisonListSize; i++) {
             UserArtistComparison x = comparisonList.get(i);
             Font font = chooseFont(x.getArtistID());
-            font = font.deriveFont(FONT_SIZE);
+            font = font.deriveFont(Font.BOLD, FONT_SIZE);
             wholeSize += g.getFontMetrics(font).stringWidth(x.getArtistID() + ", ");
             fonts[i] = font;
         }
@@ -157,46 +161,30 @@ public class LoveMaker {
 
     public static int drawRecommendation(String artist, DiscordUserDisplay secondUser, BufferedImage canvas, Graphics2D g, int yAccum) {
         if (artist != null) {
-            String headerLine = String.format("Recommendation from %s: ", secondUser.getUsername());
-            Font font = chooseFont(headerLine);
-            g.setFont(font.deriveFont(DESC_SIZE));
-            Rectangle2D secondPartBounds = g.getFontMetrics().getStringBounds(headerLine + artist, g);
+            String headerLine = String.format("Recommendation from %s: ", secondUser.username());
+            StringFitter recFitter = new StringFitterBuilder(DESC_SIZE, (int) (X_SIZE * 0.8))
+                    .setStyle(Font.BOLD)
+                    .setMinSize(18).build();
 
-            Rectangle2D realFirstPartBounds = g.getFontMetrics().getStringBounds(headerLine + " ", g);
+            StringFitter.FontMetadata fontMetadata = recFitter.getFontMetadata(g, headerLine + artist);
+            Rectangle2D secondPartBounds = fontMetadata.bounds();
 
             int secondPartStart = (int) ((X_SIZE - secondPartBounds.getWidth()) / 2);
             int secondPartBaseline = Y_MARGIN + IMAGE_SIZE + Y_MARGIN * 2;
-            GraphicUtils.drawStringNicely(g, headerLine, secondPartStart, secondPartBaseline + yAccum, canvas);
-
-            Font secondFont = chooseFont(artist);
-            secondFont.deriveFont((float) g.getFont().getSize());
-            g.setFont(secondFont);
-
-            GraphicUtils.drawStringNicely(g, artist, (int) (secondPartStart + realFirstPartBounds.getWidth()), secondPartBaseline + yAccum, canvas);
+            GraphicUtils.drawStringNicely(g, fontMetadata, secondPartStart, secondPartBaseline + yAccum, canvas);
             return (int) secondPartBounds.getHeight();
         } else {
-            String title = secondUser.getUsername() + " couldn't give a reccomendation :( ";
+            String title = secondUser.username() + " couldn't give a reccomendation :( ";
             g.setFont(NORMAL_FONT.deriveFont(DESC_SIZE));
-            Rectangle2D secondPartBounds = g.getFontMetrics().getStringBounds(title, g);
+            StringFitter recFitter = new StringFitterBuilder(DESC_SIZE, (int) (X_SIZE * 0.8))
+                    .setMinSize(18).build();
+            StringFitter.FontMetadata fontMetadata = recFitter.getFontMetadata(g, title);
+            Rectangle2D secondPartBounds = fontMetadata.bounds().getBounds();
             int secondPartStart = (int) ((X_SIZE - secondPartBounds.getWidth()) / 2);
             int secondPartBaseline = Y_MARGIN + IMAGE_SIZE + Y_MARGIN * 2;
-            GraphicUtils.drawStringNicely(g, title, secondPartStart, secondPartBaseline + yAccum, canvas);
+            GraphicUtils.drawStringNicely(g, fontMetadata, secondPartStart, secondPartBaseline + yAccum, canvas);
             return (int) secondPartBounds.getHeight();
         }
-    }
-
-    private static Font chooseFont(String string) {
-        Font font = NORMAL_FONT;
-        if (font.canDisplayUpTo(string) != -1) {
-            font = JAPANESE_FONT;
-            if (font.canDisplayUpTo(string) != -1) {
-                font = KOREAN_FONT;
-                if (font.canDisplayUpTo(string) != -1) {
-                    font = EMOJI_FONT;
-                }
-            }
-        }
-        return font;
     }
 
 }

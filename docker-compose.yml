@@ -1,0 +1,44 @@
+volumes:
+  lastfm:
+  mb:
+  cache:
+services:
+  musicbrainz:
+    build:
+      context: ./mb
+      args:
+        - POSTGRES_VERSION=${POSTGRES_VERSION:-12}
+
+    image: musicbrainz-docker_db:${POSTGRES_VERSION:-12}
+    environment:
+      - POSTGRES_PASSWORD=password
+    ports:
+      - "5432:5432"
+    volumes:
+      - mb:/var/lib/postgresql/data
+    restart: unless-stopped
+
+
+  lastfm:
+    image: "mariadb:latest"
+    hostname: lastfm
+    environment:
+      - MYSQL_ROOT_PASSWORD=lastfm
+      - MYSQL_DATABASE=lastfm
+      - MYSQL_USER=lastfm
+      - MYSQL_PASSWORD=lastfm
+    volumes:
+      - lastfm:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    expose:
+      - 3306
+
+  chuu:
+    build: .
+    depends_on:
+      - lastfm
+      - musicbrainz
+    command: sh -c 'bin/wait-for lastfm:3306 --  gradle shadowJar --no-daemon  && java --enable-preview -jar /app/chuu.jar  stop-asking
+    volumes:
+      - cache:/data/

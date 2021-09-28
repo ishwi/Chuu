@@ -1,14 +1,26 @@
 package core.parsers;
 
+import core.commands.Context;
+import core.commands.ContextSlashReceived;
+import core.exceptions.LastFmException;
+import core.parsers.exceptions.InvalidChartValuesException;
+import core.parsers.explanation.TimeframeExplanation;
+import core.parsers.explanation.YearExplanation;
+import core.parsers.explanation.util.Explanation;
+import core.parsers.interactions.InteractionAux;
 import core.parsers.params.ChartYearParameters;
+import core.parsers.utils.CustomTimeFrame;
 import dao.ChuuService;
 import dao.entities.LastFMData;
 import dao.entities.TimeFrameEnum;
 import dao.exceptions.InstanceNotFoundException;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 
+import java.awt.*;
 import java.time.Year;
 import java.util.List;
+import java.util.stream.Stream;
 
 public class ChartYearParser extends ChartableParser<ChartYearParameters> {
     private final int searchSpace;
@@ -29,32 +41,51 @@ public class ChartYearParser extends ChartableParser<ChartYearParameters> {
     }
 
     @Override
-    public ChartYearParameters parseLogic(MessageReceivedEvent e, String[] subMessage) throws InstanceNotFoundException {
-        TimeFrameEnum timeFrame = defaultTFE;
-        LastFMData discordName;
+    public ChartYearParameters parseSlashLogic(ContextSlashReceived ctx) throws LastFmException, InstanceNotFoundException {
+        SlashCommandEvent e = ctx.e();
+        User user = InteractionAux.parseUser(e);
+        Year year = InteractionAux.parseYear(e, () -> sendError(getErrorMessage(6), ctx));
+        Point point = InteractionAux.parseSize(e, () -> sendError(getErrorMessage(6), ctx));
 
-        ChartParserAux chartParserAux = new ChartParserAux(subMessage);
-        Year year = chartParserAux.parseYear();
-        timeFrame = chartParserAux.parseTimeframe(timeFrame);
-        subMessage = chartParserAux.getMessage();
-        discordName = atTheEndOneUser(e, subMessage);
-        if (Year.now().compareTo(year) < 0) {
-            sendError(getErrorMessage(6), e);
+        if (year == null || point == null) {
             return null;
         }
-        int x = (int) Math.sqrt(searchSpace);
-        @SuppressWarnings("SuspiciousNameCombination") ChartYearParameters chartYearParameters = new ChartYearParameters(e, discordName.getName(), discordName.getDiscordId(), timeFrame, x, x, year, discordName.getChartMode(), discordName);
-        chartYearParameters.initParams(List.of("nolimit"));
-        return chartYearParameters;
+        return new ChartYearParameters(ctx, findLastfmFromID(user, ctx), CustomTimeFrame.ofTimeFrameEnum(TimeFrameEnum.ALL), point.x, point.y, year);
 
     }
 
     @Override
-    public String getUsageLogic(String commandName) {
-        return "**" + commandName + " *[d,w,m,q,s,y,a]* *Username* *YEAR*** \n" +
-                "\tIf time is not specified defaults to " + defaultTFE.toString() + "\n" +
-                "\tIf username is not specified defaults to authors account \n" +
-                "\tIf YEAR not specified it default to current year\n";
+    public ChartYearParameters parseLogic(Context e, String[] subMessage) throws InstanceNotFoundException {
+        ParserAux parserAux = new ParserAux(subMessage);
+        User oneUser = parserAux.getOneUser(e, dao);
+        subMessage = parserAux.getMessage();
+        LastFMData data = findLastfmFromID(oneUser, e);
+
+        ChartParserAux chartParserAux = new ChartParserAux(subMessage);
+        Year year = chartParserAux.parseYear();
+        int x = 5;
+        int y = 5;
+        try {
+            Point chartSize = chartParserAux.getChartSize();
+            if (chartSize != null) {
+                x = chartSize.x;
+                y = chartSize.y;
+            }
+        } catch (InvalidChartValuesException ex) {
+            this.sendError(getErrorMessage(6), e);
+            return null;
+        }
+        if (Year.now().compareTo(year) < 0) {
+            sendError(getErrorMessage(6), e);
+            return null;
+        }
+        return new ChartYearParameters(e, data, CustomTimeFrame.ofTimeFrameEnum(TimeFrameEnum.ALL), x, y, year);
+
+    }
+
+    @Override
+    public List<Explanation> getUsages() {
+        return Stream.concat(Stream.of(new YearExplanation()), super.getUsages().stream().filter(t -> !(t instanceof TimeframeExplanation))).toList();
     }
 
     @Override

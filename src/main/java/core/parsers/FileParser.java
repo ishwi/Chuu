@@ -1,9 +1,14 @@
 package core.parsers;
 
+import core.commands.Context;
+import core.commands.ContextMessageReceived;
+import core.parsers.explanation.util.Explanation;
+import core.parsers.explanation.util.ExplanationLineType;
 import core.parsers.params.UrlParameters;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
 
+import java.util.Collections;
 import java.util.List;
 
 public class FileParser extends Parser<UrlParameters> {
@@ -20,13 +25,11 @@ public class FileParser extends Parser<UrlParameters> {
         this.errorMessages.put(3, "File introduced is not a valid file");
         this.errorMessages.put(4, "Link introduced is not a valid link");
 
-
     }
 
     @Override
-    protected UrlParameters parseLogic(MessageReceivedEvent e, String[] words) {
-        List<Message.Attachment> attachments = e.getMessage().getAttachments();
-
+    protected UrlParameters parseLogic(Context e, String[] words) {
+        List<Message.Attachment> attachments = e instanceof ContextMessageReceived mes ? mes.e().getMessage().getAttachments() : Collections.emptyList();
         String url;
         if (attachments.isEmpty()) {
             if (words.length < 1) {
@@ -65,8 +68,8 @@ public class FileParser extends Parser<UrlParameters> {
     }
 
     @Override
-    public String getUsageLogic(String commandName) {
-        return "**" + commandName + " *file*\n\t File must be a " + fileExtension + " file\n\n";
-
+    public List<Explanation> getUsages() {
+        return List.of(() -> new ExplanationLineType("File", "File must be a " + fileExtension + "file", OptionType.STRING));
     }
+
 }

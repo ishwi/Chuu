@@ -1,8 +1,8 @@
 package core.otherlisteners;
 
-import core.commands.CommandUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 
 import javax.annotation.Nonnull;
@@ -40,8 +40,13 @@ public class Reactionary<T> extends ReactionListener {
         this(list, messageToReact, pageSize, who, numberedEntries, false);
     }
 
+
     public Reactionary(List<T> list, Message messageToReact, int pageSize, EmbedBuilder who, boolean numberedEntries, boolean pagingIndicator) {
-        super(who, messageToReact, 25);
+        this(list, messageToReact, pageSize, who, numberedEntries, pagingIndicator, 40);
+    }
+
+    public Reactionary(List<T> list, Message messageToReact, int pageSize, EmbedBuilder who, boolean numberedEntries, boolean pagingIndicator, long seconds) {
+        super(who, messageToReact, seconds);
         this.list = list;
         this.pageSize = pageSize;
         this.numberedEntries = numberedEntries;
@@ -59,6 +64,19 @@ public class Reactionary<T> extends ReactionListener {
     }
 
     @Override
+    public boolean isValid(MessageReactionAddEvent event) {
+        if (message == null) {
+            return false;
+        }
+        return event.getMessageIdLong() == message.getIdLong() && ((event.getUser() == null || !event.getUser().isBot()) && event.getReaction().getReactionEmote().isEmoji());
+    }
+
+    @Override
+    public boolean isValid(ButtonClickEvent event) {
+        return false;
+    }
+
+    @Override
     public void dispose() {
         clearReacts();
         StringBuilder a = new StringBuilder();
@@ -72,8 +90,8 @@ public class Reactionary<T> extends ReactionListener {
             a.append(list.get(i).toString());
         }
         who.setDescription(a);
-        who.setColor(CommandUtil.randomColor());
-        message.editMessage(who.build()).queue();
+//        who.setColor(CommandUtil.pastelColor());
+        message.editMessageEmbeds(who.build()).queue();
     }
 
     @Override
@@ -112,12 +130,12 @@ public class Reactionary<T> extends ReactionListener {
         }
         counter = start;
         who.setDescription(a);
-        who.setColor(CommandUtil.randomColor());
-        message.editMessage(who.build()).queue();
+//        who.setColor(ColorService.computeColor(e));
+        message.editMessageEmbeds(who.build()).queue();
         clearOneReact(event);
 
         if (currentPage == 1 && asCodepoints.equals(LEFT_ARROW)) {
-            message.removeReaction(LEFT_ARROW).complete();
+            message.removeReaction(LEFT_ARROW).queue();
             missingArrow = true;
         } else if (currentPage == 2 && asCodepoints.equals(RIGHT_ARROW) && missingArrow) {
             clearReacts((Void t) -> message.addReaction(LEFT_ARROW).queue(x -> {
@@ -128,7 +146,7 @@ public class Reactionary<T> extends ReactionListener {
             missingArrow = false;
         }
         if (currentPage == totalPageNumber && asCodepoints.equals(RIGHT_ARROW)) {
-            message.removeReaction(RIGHT_ARROW).complete();
+            message.removeReaction(RIGHT_ARROW).queue();
             missingArrow = true;
         } else if (currentPage == totalPageNumber - 1 && asCodepoints.equals(LEFT_ARROW) && missingArrow) {
             message.addReaction(RIGHT_ARROW).queue();
@@ -136,6 +154,11 @@ public class Reactionary<T> extends ReactionListener {
         }
 
         refresh(event.getJDA());
+    }
+
+    @Override
+    public void onButtonClickedEvent(@Nonnull ButtonClickEvent event) {
+
     }
 
 }

@@ -1,13 +1,23 @@
 package core.parsers;
 
+import core.commands.Context;
+import core.commands.ContextSlashReceived;
+import core.exceptions.LastFmException;
+import core.parsers.explanation.util.Explanation;
+import core.parsers.explanation.util.ExplanationLine;
 import core.parsers.params.TwoArtistParams;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import dao.exceptions.InstanceNotFoundException;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class TwoArtistsParser extends Parser<TwoArtistParams> {
-    private static final Pattern twoArtists = Pattern.compile("(.+) (?:to:)(.+)");
+    private static final Pattern twoArtists = Pattern.compile("(.+) to:(.+)");
 
     @Override
     protected void setUpErrorMessages() {
@@ -15,7 +25,15 @@ public class TwoArtistsParser extends Parser<TwoArtistParams> {
     }
 
     @Override
-    protected TwoArtistParams parseLogic(MessageReceivedEvent e, String[] words) {
+    public TwoArtistParams parseSlashLogic(ContextSlashReceived ctx) throws LastFmException, InstanceNotFoundException {
+        SlashCommandEvent e = ctx.e();
+        String alias = e.getOption("alias").getAsString();
+        String existingArtist = e.getOption("existing-artist").getAsString();
+        return new TwoArtistParams(ctx, alias, existingArtist);
+    }
+
+    @Override
+    protected TwoArtistParams parseLogic(Context e, String[] words) {
         String first;
         String second;
 
@@ -37,8 +55,10 @@ public class TwoArtistsParser extends Parser<TwoArtistParams> {
     }
 
     @Override
-    public String getUsageLogic(String commandName) {
-        return "**" + commandName + " *firstArtist* *to:* *secondArtist*** \n" +
-                "\t It's also valid when the two artists are both one word long to write: " + commandName + " firstArtist secondArtist";
+    public List<Explanation> getUsages() {
+        OptionData al = new OptionData(OptionType.STRING, "alias", "New alias to add", true);
+        OptionData existingArtist = new OptionData(OptionType.STRING, "existing-artist", "Existing artist this new alias will point to", true);
+        return Collections.singletonList(() -> new ExplanationLine("new-alias to: artist", "It's also valid when the two artists are both one word long to write them without the to:", List.of(al, existingArtist)));
     }
+
 }

@@ -1,11 +1,15 @@
 package core.parsers;
 
-import core.exceptions.LastFmException;
+import core.commands.Context;
+import core.parsers.explanation.util.Explanation;
+import core.parsers.explanation.util.ExplanationLineType;
+import core.parsers.interactions.InteractionAux;
 import core.parsers.params.RateLimitParams;
+import core.parsers.utils.OptionalEntity;
 import dao.ChuuService;
-import dao.exceptions.InstanceNotFoundException;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
 
+import java.util.List;
 import java.util.regex.Pattern;
 
 public class RateLimitParser extends DaoParser<RateLimitParams> {
@@ -13,11 +17,12 @@ public class RateLimitParser extends DaoParser<RateLimitParams> {
 
     public RateLimitParser(ChuuService dao, OptionalEntity... opts) {
         super(dao, opts);
-        this.opts.add(new OptionalEntity("delete", "remove the rate limit from the specific user"));
+        addOptional(opts);
+        addOptional(new OptionalEntity("delete", "remove the rate limit from the specific user"));
     }
 
     @Override
-    protected RateLimitParams parseLogic(MessageReceivedEvent e, String[] words) throws InstanceNotFoundException, LastFmException {
+    protected RateLimitParams parseLogic(Context e, String[] words) {
         if (words.length != 1 && words.length != 2) {
             sendError("A raw discordId is expected, optionally with a new rate limit to apply to that user", e);
             return null;
@@ -60,8 +65,10 @@ public class RateLimitParser extends DaoParser<RateLimitParams> {
     }
 
     @Override
-    public String getUsageLogic(String commandName) {
-        return "**" + commandName + " *discord_id* *rate*** \n" +
-                "\tdiscord_id is the 20 long identifier of an user and rate must be a float bigger than 0.01\n";
+    public List<Explanation> getUsages() {
+        return List.of(InteractionAux.required(() -> new ExplanationLineType("Discord id", "discord_id is the 20 long identifier of an user", OptionType.USER)),
+                () -> new ExplanationLineType("Rate", "The rate is the number of request the user can do per second. Must be bigger than 0.01", OptionType.STRING)
+        );
     }
+
 }

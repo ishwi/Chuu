@@ -1,39 +1,95 @@
 plugins {
     id 'java'
     id 'java-library'
+    id 'se.patrikerdes.use-latest-versions'
+    id 'com.github.ben-manes.versions'
+    id 'org.liquibase.gradle' version '2.0.4'
+
 }
 
 
 apply plugin: 'java'
 apply plugin: 'java-library'
 
+
 apply plugin: 'idea'
 
 compileJava {
-    options.compilerArgs += ["-Xlint:deprecation"]
+    options.compilerArgs += ["-Xlint:deprecation", "--enable-preview"]
+
+}
+test {
+    jvmArgs '--enable-preview'
 }
 
 compileJava.options.encoding = 'UTF-8'
-sourceCompatibility = 11
-targetCompatibility = 11
+sourceCompatibility = 17
+targetCompatibility = 17
 group 'ish'
 version '1.0'
+update.dependsOn processResources
+//classes.dependsOn update
+
 
 repositories {
     mavenCentral()
-    jcenter()
 }
 
 dependencies {
-    testCompile group: 'junit', name: 'junit', version: '4.12'
-    compile group: 'org.postgresql', name: 'postgresql', version: '42.2.17'
-    compileOnly 'com.google.code.findbugs:jsr305:3.0.2'
-    compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.11'
-    compile group: 'org.apache.commons', name: 'commons-text', version: '1.9'
-    compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.12.0-rc1'
-    compileOnly 'org.jetbrains:annotations:20.1.0'
-    implementation 'com.neovisionaries:nv-i18n:1.27'
-    compile group: 'com.zaxxer', name: 'HikariCP', version: '3.4.5'
-    compile group: 'org.apache.commons', name: 'commons-collections4', version: '4.4'
-    compile group: 'mysql', name: 'mysql-connector-java', version: '8.0.21'
+    testImplementation group: 'junit', name: 'junit', version: '4.13.2'
+    implementation group: 'org.postgresql', name: 'postgresql', version: '42.2.23'
+    implementation 'com.google.code.findbugs:jsr305:3.0.2'
+    api group: 'org.apache.commons', name: 'commons-lang3', version: '3.12.0'
+    api group: 'org.apache.commons', name: 'commons-text', version: '1.9'
+    api group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.13.0-rc2'
+    api 'org.jetbrains:annotations:22.0.0'
+    api 'com.neovisionaries:nv-i18n:1.29'
+    api 'org.beryx:awt-color-factory:1.0.2'
+    implementation group: 'com.zaxxer', name: 'HikariCP', version: '5.0.0'
+    api group: 'org.apache.commons', name: 'commons-collections4', version: '4.4'
+    implementation group: 'mysql', name: 'mysql-connector-java', version: '8.0.25'
+
+    testImplementation "org.mockito:mockito-core:3.12.4"
+    testImplementation("org.junit.jupiter:junit-jupiter:5.8.0")
+
+    liquibaseRuntime 'org.liquibase:liquibase-core:4.4.3'
+    liquibaseRuntime 'org.liquibase:liquibase-groovy-dsl:3.0.2'
+    liquibaseRuntime group: 'mysql', name: 'mysql-connector-java', version: '8.0.25'
+    liquibaseRuntime group: 'javax.xml.bind', name: 'jaxb-api', version: '2.4.0-b180830.0359'
+// https://mvnrepository.com/artifact/org.yaml/snakeyaml
+    liquibaseRuntime group: 'org.yaml', name: 'snakeyaml', version: '1.29'
+    liquibaseRuntime files('build/classes/java/main')
+    liquibaseRuntime files('build/resources/db')
+}
+liquibase {
+
+    activities {
+
+        main {
+
+            classpath "$projectDir"
+            Properties properties = new Properties()
+            properties.load(project.rootProject.file('model/src/main/resources/datasource.properties').newDataInputStream())
+            changeLogFile "src/main/resources/db/changelog.yaml"
+            url properties['jdbcUrl']
+            username properties['username']
+            password properties['password']
+
+        }
+
+    }
+}
+compileJava {
+    options.compilerArgs += ["-Xlint:deprecation", "--enable-preview"]
+
+}
+compileTestJava {
+    options.compilerArgs += ["-Xlint:deprecation", "--enable-preview"]
+
+}
+
+test {
+    useJUnitPlatform()
+    jvmArgs '--enable-preview'
+
 }

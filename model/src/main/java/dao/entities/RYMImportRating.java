@@ -3,9 +3,6 @@ package dao.entities;
 import java.time.Year;
 
 public class RYMImportRating {
-    private long id = -1;
-    private long artist_id = -1;
-    private String realAlbumName = null;
     private final long RYMid;
     private final String firstName;
     private final String lastName;
@@ -18,6 +15,9 @@ public class RYMImportRating {
     private final Year purchaseDate;
     private final String mediaType;
     private final String review;
+    private long id = -1;
+    private long artist_id = -1;
+    private String realAlbumName = null;
 
     public RYMImportRating(long RYMid, String firstName, String lastName, String firstNameLocalized, String lastNameLocalized, String title, Year year, Byte rating, boolean ownership, Year purchaseDate, String mediaType, String review) {
         this.RYMid = RYMid;

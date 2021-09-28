@@ -1,12 +1,19 @@
 package core.parsers;
 
+import core.commands.Context;
+import core.commands.ContextSlashReceived;
+import core.exceptions.LastFmException;
+import core.parsers.explanation.TwoUsersExplanation;
+import core.parsers.explanation.util.Explanation;
 import core.parsers.params.TwoUsersParamaters;
+import core.parsers.utils.OptionalEntity;
 import dao.ChuuService;
 import dao.entities.LastFMData;
 import dao.exceptions.InstanceNotFoundException;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 
-import java.util.Arrays;
+import java.util.List;
 
 public class TwoUsersParser extends DaoParser<TwoUsersParamaters> {
     public TwoUsersParser(ChuuService dao) {
@@ -15,15 +22,24 @@ public class TwoUsersParser extends DaoParser<TwoUsersParamaters> {
 
     public TwoUsersParser(ChuuService dao, OptionalEntity... opts) {
         super(dao);
-        this.opts.addAll(Arrays.asList(opts));
+        addOptional(opts);
     }
 
-    public TwoUsersParamaters parseLogic(MessageReceivedEvent e, String[] words) throws InstanceNotFoundException {
-        String[] message = getSubMessage(e.getMessage());
-        if (!e.isFromGuild()) {
+    @Override
+    public TwoUsersParamaters parseSlashLogic(ContextSlashReceived e) throws LastFmException, InstanceNotFoundException {
+
+        SlashCommandEvent event = e.e();
+        User oneUser = event.getOption(TwoUsersExplanation.NAME).getAsUser();
+        if (!e.isFromGuild() && oneUser.getIdLong() != e.getAuthor().getIdLong()) {
             sendError("Can't get two different users on DM's", e);
             return null;
         }
+        return new TwoUsersParamaters(e, findLastfmFromID(e.getAuthor(), e), findLastfmFromID(oneUser, e));
+    }
+
+    public TwoUsersParamaters parseLogic(Context e, String[] words) throws InstanceNotFoundException {
+        String[] message = getSubMessage(e);
+
         if (message.length == 0) {
             sendError(getErrorMessage(5), e);
             return null;
@@ -35,16 +51,18 @@ public class TwoUsersParser extends DaoParser<TwoUsersParamaters> {
             sendError("Couldn't get two users", e);
             return null;
         }
+        if (!e.isFromGuild() && (datas[0].getDiscordId() != datas[1].getDiscordId())) {
+            sendError("Can't get two different users on DM's", e);
+            return null;
+        }
         return new TwoUsersParamaters(e, datas[0], datas[1]);
     }
 
-
     @Override
-    public String getUsageLogic(String commandName) {
-        return "**" + commandName + " *userName* *userName***\n" +
-                "\tIf the second user is missing it gets replaced by the owner of the message\n";
-
+    public List<Explanation> getUsages() {
+        return List.of(new TwoUsersExplanation());
     }
+
 
     @Override
     public void setUpErrorMessages() {

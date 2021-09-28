@@ -1,21 +1,25 @@
 package core.parsers;
 
 import com.neovisionaries.i18n.CountryCode;
+import core.commands.Context;
+import core.commands.ContextSlashReceived;
+import core.exceptions.LastFmException;
+import core.parsers.explanation.CountryExplanation;
+import core.parsers.explanation.TimeframeExplanation;
+import core.parsers.explanation.util.Explanation;
+import core.parsers.interactions.InteractionAux;
 import core.parsers.params.CountryParameters;
+import core.parsers.utils.CountryParse;
+import core.parsers.utils.CustomTimeFrame;
 import dao.ChuuService;
 import dao.entities.LastFMData;
 import dao.entities.TimeFrameEnum;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 
-import java.util.Arrays;
 import java.util.List;
-import java.util.Locale;
-import java.util.Optional;
-import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
-import java.util.stream.Collectors;
 
 public class CountryParser extends DaoParser<CountryParameters> {
 
@@ -30,11 +34,22 @@ public class CountryParser extends DaoParser<CountryParameters> {
 
     }
 
+    @Override
+    public CountryParameters parseSlashLogic(ContextSlashReceived ctx) throws LastFmException, InstanceNotFoundException {
+        SlashCommandEvent e = ctx.e();
+        TimeFrameEnum timeFrameEnum = InteractionAux.parseTimeFrame(e, TimeFrameEnum.ALL);
+        User user = InteractionAux.parseUser(e);
+        LastFMData data = findLastfmFromID(user, ctx);
+        OptionMapping country = e.getOption("country");
+        CountryCode countryCode = CountryParse.fromString(this, ctx, country.getAsString());
+        if (countryCode == null) return null;
+        return new CountryParameters(ctx, data, countryCode, new CustomTimeFrame(timeFrameEnum));
+    }
 
     @Override
-    protected CountryParameters parseLogic(MessageReceivedEvent e, String[] words) throws InstanceNotFoundException {
+    protected CountryParameters parseLogic(Context e, String[] words) throws InstanceNotFoundException {
         ParserAux parserAux = new ParserAux(words);
-        User sample = parserAux.getOneUser(e);
+        User sample = parserAux.getOneUser(e, dao);
         words = parserAux.getMessage();
         LastFMData lastFMData = findLastfmFromID(sample, e);
         ChartParserAux chartParserAux = new ChartParserAux(words);
@@ -47,56 +62,8 @@ public class CountryParser extends DaoParser<CountryParameters> {
         } else {
             countryCode = String.join(" ", words);
         }
-        CountryCode country;
-        if (countryCode.length() == 2) {
-            if (countryCode.equalsIgnoreCase("uk")) {
-                countryCode = "gb";
-            }
-            country = CountryCode.getByAlpha2Code(countryCode.toUpperCase());
-        } else if (countryCode.length() == 3) {
-            if (countryCode.equalsIgnoreCase("eng")) {
-                countryCode = "gb";
-            }
-            country = CountryCode.getByAlpha3Code(countryCode.toUpperCase());
-        } else {
-            if (countryCode.equalsIgnoreCase("england")) {
-                countryCode = "gb";
-                country = CountryCode.getByAlpha2Code(countryCode.toUpperCase());
-
-            } else if (countryCode.equalsIgnoreCase("northen macedonia")) {
-                countryCode = "mk";
-                country = CountryCode.getByAlpha2Code(countryCode.toUpperCase());
-            } else if (countryCode.equalsIgnoreCase("eSwatini ")) {
-                countryCode = "sz";
-                country = CountryCode.getByAlpha2Code(countryCode.toUpperCase());
-            } else {
-                String finalCountryCode = countryCode;
-                Optional<Locale> opt = Arrays.stream(Locale.getISOCountries()).map(x -> new Locale("en", x)).
-                        filter(y -> y.getDisplayCountry().equalsIgnoreCase(finalCountryCode))
-                        .findFirst();
-                if (opt.isPresent()) {
-                    country = CountryCode.getByAlpha3Code(opt.get().getISO3Country());
-                } else {
-                    try {
-                        List<CountryCode> byName = CountryCode.findByName(Pattern.compile(".*" + countryCode + ".*")).stream()
-                                .filter(x -> !x.getName().equalsIgnoreCase("Undefined")).collect(Collectors.toList());
-
-                        if (byName.isEmpty()) {
-                            country = null;
-                        } else {
-                            country = byName.get(0);
-                        }
-                    } catch (PatternSyntaxException ex) {
-                        sendError("The provided regex is not a valid one according to Java :(", e);
-                        return null;
-                    }
-                }
-            }
-        }
-        if (country == null) {
-            sendError(getErrorMessage(6), e);
-            return null;
-        }
+        CountryCode country = CountryParse.fromString(this, e, countryCode);
+        if (country == null) return null;
         // :pensive:
 //        if (country == CountryCode.IL) {
 //            // No political statement at all, just bugfixing
@@ -104,16 +71,14 @@ public class CountryParser extends DaoParser<CountryParameters> {
 //        }
         return new
 
-                CountryParameters(e, lastFMData, country, timeFrameEnum);
+                CountryParameters(e, lastFMData, country, new CustomTimeFrame(timeFrameEnum));
 
     }
+
 
     @Override
-    public String getUsageLogic(String commandName) {
-        return "**" + commandName + " *country* *[d,w,m,q,s,y,a]* *username*** \n" +
-                "\tIf the username it's not provided it defaults to authors account, only ping and tag format (user#number)" +
-                "\n\tIf the timeframe it's not specified it defaults to All-Time" +
-                "\n\tCountry must come in the full name format or in the ISO 3166-1 alpha-2/alpha-3" +
-                " format\n ";
+    public List<Explanation> getUsages() {
+        return List.of(InteractionAux.required(new CountryExplanation()), new TimeframeExplanation(TimeFrameEnum.ALL));
     }
+
 }

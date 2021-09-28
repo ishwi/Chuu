@@ -1,75 +1,105 @@
 package core.otherlisteners;
 
-import dao.entities.Callback;
+import core.commands.Context;
+import core.commands.utils.CommandUtil;
+import core.otherlisteners.util.ConfirmatorItem;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 
 import javax.annotation.Nonnull;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.UnaryOperator;
+import java.util.stream.Collectors;
 
+/**
+ * Uses reaction code instead of codepoints!!
+ */
 public class Confirmator extends ReactionListener {
-
-    private static final String ACCEPT = "U+2714";
-    private static final String REJECT = "U+274c";
     private final long author;
-    private final Callback onAccept;
-    private final Callback onReject;
-    private final UnaryOperator<EmbedBuilder> buildAccept;
-    private final UnaryOperator<EmbedBuilder> buildReject;
-    private final AtomicBoolean didConfirm = new AtomicBoolean(false);
+    private final core.commands.Context context;
+    private final UnaryOperator<EmbedBuilder> timeoutCallback;
+    private final Map<String, ConfirmatorItem> idMap;
+    private final boolean runLastEmbed;
+    private final AtomicReference<String> didConfirm = new AtomicReference<>(null);
     private final AtomicBoolean wasThisCalled = new AtomicBoolean(false);
 
+    public Confirmator(EmbedBuilder who, Context context, Message message, long author, List<ConfirmatorItem> items) {
+        this(who, context, message, author, items, (z) -> z.clear().setTitle("Confirmation timed out").setColor(CommandUtil.pastelColor()), true, 30);
+    }
 
-    public Confirmator(EmbedBuilder who, Message message, long author, Callback onAccept, Callback onReject, UnaryOperator<EmbedBuilder> buildAccept, UnaryOperator<EmbedBuilder> buildReject) {
-        super(who, message);
+    public Confirmator(EmbedBuilder who, Context context, Message message, long author, List<ConfirmatorItem> items, UnaryOperator<EmbedBuilder> timeoutCallback, boolean runLastEmbed, long seconds) {
+        super(who, message, seconds);
+        this.context = context;
         this.author = author;
-        this.onAccept = onAccept;
-        this.onReject = onReject;
-        this.buildAccept = buildAccept;
-        this.buildReject = buildReject;
+        this.timeoutCallback = timeoutCallback;
+        this.idMap = items.stream().collect(Collectors.toMap(ConfirmatorItem::reaction, z -> z, (a, b) -> a, LinkedHashMap::new));
+        this.runLastEmbed = runLastEmbed;
         init();
     }
 
     @Override
     public void init() {
-        message.addReaction(ACCEPT).queue();
-        message.addReaction(REJECT).queue();
+    }
+
+    @Override
+    public boolean isValid(MessageReactionAddEvent event) {
+        return false;
+    }
+
+    @Override
+    public boolean isValid(ButtonClickEvent event) {
+        if (event.getUser() == null) {
+            return false;
+        }
+        if (event.getMessageIdLong() != message.getIdLong()) {
+            return false;
+        }
+        if (event.getUser().isBot()) {
+            return false;
+        }
+        return event.getUser().getIdLong() == author;
     }
 
     @Override
     public void dispose() {
         if (!this.wasThisCalled.get()) {
-            this.message.editMessage(who.clear().setTitle("Time Out").build()).queue();
+            this.context.editMessage(message, timeoutCallback.apply(who).build(), Collections.emptyList()).queue();
         } else {
-            if (this.didConfirm.get()) {
-                this.message.editMessage(buildAccept.apply(who).build()).queue();
+            if (runLastEmbed && this.didConfirm.get() != null) {
+                ConfirmatorItem item = this.idMap.get(this.didConfirm.get());
+                this.context.editMessage(message, item.builder().apply(who).build(), Collections.emptyList()).queue();
             } else {
-                this.message.editMessage(buildReject.apply(who).build()).queue();
+                this.context.editMessage(message, null, Collections.emptyList()).queue();
             }
         }
-        clearReacts();
     }
 
     @Override
     public void onMessageReactionAdd(@Nonnull MessageReactionAddEvent event) {
-        if (event.getMessageIdLong() != message.getIdLong() || (event.getUser() != null && event.getUser().isBot() || event.getUserIdLong() != author) || !event.getReaction().getReactionEmote().isEmoji())
-            return;
-        switch (event.getReaction().getReactionEmote().getAsCodepoints()) {
-            case ACCEPT:
-                wasThisCalled.set(true);
-                onAccept.executeCallback();
-                this.didConfirm.set(true);
-                unregister();
-                break;
-            case REJECT:
-                wasThisCalled.set(true);
-                onReject.executeCallback();
-                this.didConfirm.set(false);
-                unregister();
-                break;
-            default:
+    }
+
+
+    @Override
+    public void onButtonClickedEvent(@Nonnull ButtonClickEvent event) {
+        event.deferEdit().queue();
+        ConfirmatorItem item = this.idMap.get(event.getComponentId());
+        if (item != null) {
+            wasThisCalled.set(true);
+            this.didConfirm.set(item.reaction());
+            CompletableFuture.runAsync(() -> item.callback().accept(this.message));
+            unregister();
         }
+    }
+
+    public enum Mode {
+        REACTION, BUTTON
     }
 }

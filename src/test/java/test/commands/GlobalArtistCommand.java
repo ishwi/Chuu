@@ -6,7 +6,6 @@ import core.apis.last.ConcurrentLastFM;
 import core.apis.last.LastFMFactory;
 import core.apis.spotify.Spotify;
 import core.apis.spotify.SpotifySingleton;
-import core.commands.CommandUtil;
 import org.junit.Before;
 import org.junit.Test;
 import test.commands.parsers.NullReturnParsersTest;
@@ -19,10 +18,7 @@ import java.util.function.Function;
 import java.util.regex.Pattern;
 
 public class GlobalArtistCommand extends CommandTest {
-    private String artistUrl;
-    private String commonArtist;
-    private ArrayList<FieldRowMatcher> basicList;
-    private BiFunction<String, List<FieldRowMatcher>, EmbedTester> artistgenerator = (artist, frm) ->
+    private final BiFunction<String, List<FieldRowMatcher>, EmbedTester> artistgenerator = (artist, frm) ->
     {
         EmbedTesterBuilder embedTesterBuilder = new EmbedTesterBuilder(COMMAND_ALIAS + " " + artist);
         Pattern titlePattern = Pattern.compile("Who knows (.*) globally\\?");
@@ -31,7 +27,10 @@ public class GlobalArtistCommand extends CommandTest {
                 .fieldRowMatch(frm)
                 .build();
     };
-    private Function<List<FieldRowMatcher>, EmbedTester> generator = fieldRowMatchers -> this.artistgenerator.apply(commonArtist, fieldRowMatchers);
+    private String artistUrl;
+    private String commonArtist;
+    private final Function<List<FieldRowMatcher>, EmbedTester> generator = fieldRowMatchers -> this.artistgenerator.apply(commonArtist, fieldRowMatchers);
+    private ArrayList<FieldRowMatcher> basicList;
 
     @Override
     public String giveCommandName() {
@@ -39,13 +38,12 @@ public class GlobalArtistCommand extends CommandTest {
     }
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         ConcurrentLastFM newInstance = LastFMFactory.getNewInstance();
         DiscogsApi discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
         Spotify spotify = SpotifySingleton.getInstance();
         this.commonArtist = TestResources.commonArtist;
-        artistUrl = CommandUtil
-                .getArtistImageUrl(TestResources.dao, TestResources.commonArtist, newInstance, discogsApi, spotify);
+        artistUrl = null;
         this.basicList = new ArrayList<>();
         basicList.add(FieldRowMatcher.numberField("Total Listeners:"));
         basicList.add(FieldRowMatcher.numberField("Total Plays:"));

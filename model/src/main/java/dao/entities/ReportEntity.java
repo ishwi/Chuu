@@ -13,9 +13,10 @@ public class ReportEntity {
     private final int currentScore;
     private final int reportCount;
     private final int userTotalReports;
+    private final long reportId;
 
 
-    public ReportEntity(String url, long whoGotReported, long artistReported, long imageReported, LocalDateTime firstReport, String artistName, LocalDateTime imageSubmittedDate, int currentScore, int reportCount, int userTotalReports) {
+    public ReportEntity(String url, long whoGotReported, long artistReported, long imageReported, LocalDateTime firstReport, String artistName, LocalDateTime imageSubmittedDate, int currentScore, int reportCount, int userTotalReports, long reportId) {
         this.url = url;
         this.whoGotReported = whoGotReported;
         this.artistReported = artistReported;
@@ -26,6 +27,7 @@ public class ReportEntity {
         this.currentScore = currentScore;
         this.reportCount = reportCount;
         this.userTotalReports = userTotalReports;
+        this.reportId = reportId;
     }
 
 
@@ -68,5 +70,9 @@ public class ReportEntity {
 
     public String getArtistName() {
         return artistName;
+    }
+
+    public long getReportId() {
+        return reportId;
     }
 }

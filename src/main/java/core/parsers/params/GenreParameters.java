@@ -1,9 +1,9 @@
 package core.parsers.params;
 
+import core.commands.Context;
 import dao.entities.LastFMData;
 import dao.entities.NowPlayingArtist;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.jetbrains.annotations.Nullable;
 
 public class GenreParameters extends ChuuDataParams {
@@ -12,7 +12,7 @@ public class GenreParameters extends ChuuDataParams {
     private final NowPlayingArtist np;
     private final User user;
 
-    public GenreParameters(MessageReceivedEvent e, String genre, boolean autoDetected, @Nullable NowPlayingArtist np, @Nullable LastFMData lastFMData, User user) {
+    public GenreParameters(Context e, String genre, boolean autoDetected, @Nullable NowPlayingArtist np, @Nullable LastFMData lastFMData, User user) {
         super(e, lastFMData);
         this.genre = genre;
         this.autoDetected = autoDetected;

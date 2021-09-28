@@ -1,17 +1,20 @@
 package core.parsers;
 
+import core.commands.Context;
 import core.parsers.params.CommandParameters;
+import core.parsers.utils.OptionalEntity;
 import dao.ChuuService;
 import dao.entities.*;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import java.util.Optional;
 import java.util.TimeZone;
+import java.util.function.Function;
 
 public abstract class DaoParser<T extends CommandParameters> extends Parser<T> {
-    private static final QuadFunction<MessageReceivedEvent, ChartMode, WhoKnowsMode, RemainingImagesMode, LastFMData> DEFAULT_DATA = (e, c, w, r) ->
-            new LastFMData(null, 537353774205894676L, e.isFromGuild() ? e.getGuild().getIdLong() : 693124899220226178L, false, false, w, c, r, ChartableParser.DEFAULT_X, ChartableParser.DEFAULT_Y, PrivacyMode.NORMAL, true, false, TimeZone.getDefault());
+    private static final QuadFunction<Context, ChartMode, WhoKnowsMode, RemainingImagesMode, LastFMData> DEFAULT_DATA = (e, c, w, r) ->
+            new LastFMData(null, e.getAuthor().getIdLong(), e.isFromGuild() ? e.getGuild().getIdLong() : 693124899220226178L, false, false, w, c, r, ChartableParser.DEFAULT_X, ChartableParser.DEFAULT_Y, PrivacyMode.NORMAL, true, false, true, TimeZone.getDefault(), null, null, true, EmbedColor.defaultColor(), false, 0, ChartOptions.defaultMode());
     final ChuuService dao;
     private boolean expensiveSearch = false;
     private boolean allowUnaothorizedUsers = false;
@@ -23,13 +26,13 @@ public abstract class DaoParser<T extends CommandParameters> extends Parser<T> {
     }
 
 
-    LastFMData atTheEndOneUser(MessageReceivedEvent event, String[] message) throws InstanceNotFoundException {
+    LastFMData atTheEndOneUser(Context event, String[] message) throws InstanceNotFoundException {
         ParserAux aux = new ParserAux(message);
-        User oneUserPermissive = aux.getOneUserPermissive(event);
+        User oneUserPermissive = aux.getOneUserPermissive(event, dao);
         return findLastfmFromID(oneUserPermissive, event);
     }
 
-    protected LastFMData findLastfmFromID(User user, MessageReceivedEvent event) throws InstanceNotFoundException {
+    protected LastFMData findLastfmFromID(User user, Context event) throws InstanceNotFoundException {
         try {
             if (event.isFromGuild() && expensiveSearch) {
                 return this.dao.computeLastFmData(user.getIdLong(), event.getGuild().getIdLong());
@@ -44,9 +47,9 @@ public abstract class DaoParser<T extends CommandParameters> extends Parser<T> {
 
                 if (event.isFromGuild()) {
                     GuildProperties guildProperties = this.dao.getGuildProperties(event.getGuild().getIdLong());
-                    whoKnowsMode = guildProperties.getWhoKnowsMode() != null ? guildProperties.getWhoKnowsMode() : whoKnowsMode;
-                    chartMode = guildProperties.getChartMode() != null ? guildProperties.getChartMode() : chartMode;
-                    remainingImagesMode = guildProperties.getRemainingImagesMode() != null ? guildProperties.getRemainingImagesMode() : remainingImagesMode;
+                    whoKnowsMode = guildProperties.whoKnowsMode() != null ? guildProperties.whoKnowsMode() : whoKnowsMode;
+                    chartMode = guildProperties.chartMode() != null ? guildProperties.chartMode() : chartMode;
+                    remainingImagesMode = guildProperties.remainingImagesMode() != null ? guildProperties.remainingImagesMode() : remainingImagesMode;
                 }
                 return DEFAULT_DATA.apply(event, chartMode, whoKnowsMode, remainingImagesMode);
             }
@@ -54,6 +57,15 @@ public abstract class DaoParser<T extends CommandParameters> extends Parser<T> {
         }
     }
 
+    Function<User, Optional<LastFMData>> wrapperFind(Context ctx) {
+        return (x) -> {
+            try {
+                return Optional.of(findLastfmFromID(x, ctx));
+            } catch (InstanceNotFoundException instanceNotFoundException) {
+                return Optional.empty();
+            }
+        };
+    }
 
     @Override
     protected void setUpErrorMessages() {

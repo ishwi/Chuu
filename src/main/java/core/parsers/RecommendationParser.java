@@ -1,16 +1,35 @@
 package core.parsers;
 
+import core.commands.Context;
+import core.commands.ContextSlashReceived;
+import core.exceptions.LastFmException;
+import core.parsers.explanation.PermissiveUserExplanation;
+import core.parsers.explanation.util.Explanation;
+import core.parsers.explanation.util.ExplanationLine;
+import core.parsers.interactions.InteractionAux;
 import core.parsers.params.RecommendationsParams;
+import core.parsers.utils.OptionalEntity;
 import dao.ChuuService;
 import dao.entities.LastFMData;
 import dao.exceptions.InstanceNotFoundException;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.interactions.commands.OptionMapping;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
 public class RecommendationParser extends DaoParser<RecommendationsParams> {
+    private static final OptionData recs;
+
+    static {
+        recs = new OptionData(OptionType.NUMBER, "number-of-recs", "Indicates the number of recommendations allowed. Defaults to 1");
+    }
+
     private final int defaultCount;
 
     public RecommendationParser(ChuuService dao) {
@@ -28,7 +47,31 @@ public class RecommendationParser extends DaoParser<RecommendationsParams> {
 
     @Override
     void setUpOptionals() {
-        this.opts.add(new OptionalEntity("repeated", "gives you a repeated recommendation"));
+        addOptional(new OptionalEntity("repeated", "gives you a repeated recommendation"));
+    }
+
+
+    @Override
+    public RecommendationsParams parseSlashLogic(ContextSlashReceived ctx) throws LastFmException, InstanceNotFoundException {
+        SlashCommandEvent e = ctx.e();
+        OptionMapping recCount = e.getOption(recs.getName());
+
+        int threshold = defaultCount;
+        if (recCount != null)
+            threshold = Math.toIntExact(recCount.getAsLong());
+        if (threshold >= 25 || threshold <= 0) {
+            sendError("Recommendation count must be between 1 and 25", ctx);
+            return null;
+        }
+        User user = InteractionAux.parseUser(e);
+        boolean doServer = user == e.getUser();
+        if (!doServer) {
+            LastFMData first = findLastfmFromID(e.getUser(), ctx);
+            LastFMData second = findLastfmFromID(user, ctx);
+            return new RecommendationsParams(ctx, first, second, false, threshold);
+        } else {
+            return new RecommendationsParams(ctx, null, null, true, threshold);
+        }
     }
 
     @Override
@@ -37,7 +80,7 @@ public class RecommendationParser extends DaoParser<RecommendationsParams> {
     }
 
     @Override
-    public RecommendationsParams parseLogic(MessageReceivedEvent e, String[] words) throws InstanceNotFoundException {
+    public RecommendationsParams parseLogic(Context e, String[] words) throws InstanceNotFoundException {
 
         Stream<String> secondStream = Arrays.stream(words).filter(s -> s.matches("\\d+"));
         Optional<String> opt2 = secondStream.findAny();
@@ -57,8 +100,8 @@ public class RecommendationParser extends DaoParser<RecommendationsParams> {
         boolean noUserFlag = false;
         if (datas == null) {
             noUserFlag = true;
-        } else if (datas[0].getDiscordId().equals(datas[1].getDiscordId())) {
-            e.getChannel().sendMessage("Dont't use the same person twice\n").queue();
+        } else if (datas[0].getDiscordId() == datas[1].getDiscordId()) {
+            e.sendMessage("Don't use the same person twice\n").queue();
             return null;
         }
         if (noUserFlag) {
@@ -69,13 +112,22 @@ public class RecommendationParser extends DaoParser<RecommendationsParams> {
 
     }
 
-
     @Override
-    public String getUsageLogic(String commandName) {
-        return "**" + commandName + " *user* **\n" +
-                "\t If user is not specified if will give you a recommendation from a random user " +
-                "(biasing more users with more affinity with you), otherwise a rec from that user\n" +
-                "\t Alternatively you could also mention two different users\n";
+    public List<Explanation> getUsages() {
 
+        return List.of(
+                new PermissiveUserExplanation() {
+                    @Override
+                    public ExplanationLine explanation() {
+                        return new ExplanationLine(super.explanation().header(),
+                                """
+                                        If an user is not specified it will give you a recommendation from a random user (biasing more users with more affinity with you), otherwise a rec from that user
+                                        Alternatively you could also mention two different users.""", super.explanation().options());
+                    }
+                }
+                ,
+                () -> new ExplanationLine(recs.getName(), recs.getDescription(), recs));
     }
+
+
 }

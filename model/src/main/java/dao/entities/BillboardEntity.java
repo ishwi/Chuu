@@ -9,7 +9,7 @@ public class BillboardEntity {
     private final int previousWeek;
     private final int position;
     private long artistId;
-    private final String url;
+    private String url;
 
     public BillboardEntity(String artist, String name, Long listeners, int peak, int streak, int previousWeek, int position, String url) {
         this.artist = artist;
@@ -73,5 +73,9 @@ public class BillboardEntity {
 
     public String getUrl() {
         return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
     }
 }

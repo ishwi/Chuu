@@ -1,12 +1,12 @@
 package core.parsers.params;
 
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import core.commands.Context;
 
 public class ExtraParameters<T extends CommandParameters, J> extends CommandParameters {
     private final T innerParams;
     private final J extraParam;
 
-    public ExtraParameters(MessageReceivedEvent e, T innerParams, J extraParam) {
+    public ExtraParameters(Context e, T innerParams, J extraParam) {
         super(e);
         this.innerParams = innerParams;
         this.extraParam = extraParam;

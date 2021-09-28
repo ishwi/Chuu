@@ -3,6 +3,7 @@ package test.state;
 import core.parsers.RandomAlbumParser;
 import core.parsers.params.UrlParameters;
 import dao.entities.RandomUrlEntity;
+import dao.exceptions.InstanceNotFoundException;
 import org.graphwalker.core.condition.EdgeCoverage;
 import org.graphwalker.core.generator.RandomPath;
 import org.graphwalker.core.machine.Context;
@@ -54,16 +55,16 @@ public class RandomStateTest extends ExecutionContext implements RandomState {
             "httxcas://asdopen.spotify.com/album/01U2G02pbK0IcIOMW0j3Dn?si=r7Y1qtqUQM6in0xrKNs42w",
             "https://open.spotify.com/albumsada/4CGanXs6KlVuXXdNrf82qE?si=o18KmqSpSD-zYF8TLeUeDA",
             "https://open.spotify.com/albumasdzcx/53VKICyqCf91sVkTdFrzKXasdzxc?si=-Ii5weRuTDa1LTmk8HKqnQ"};
-    private Queue<String> formatQueue = new ArrayDeque<>();
-    private Queue<String> repeatedQueue = new ArrayDeque<>();
-    private Guard messageValidGuard = new Guard("requiresIsMessageValid();");
-    private Guard messageInValidGuard = new Guard("!requiresIsMessageValid();");
-    private Guard urlUniqueGuard = new Guard("requiresIsUrlUnique();");
-    private Guard notUrlUniqueGuard = new Guard("!requiresIsUrlUnique();");
+    private final Queue<String> formatQueue = new ArrayDeque<>();
+    private final Queue<String> repeatedQueue = new ArrayDeque<>();
+    private final Guard messageValidGuard = new Guard("requiresIsMessageValid();");
+    private final Guard messageInValidGuard = new Guard("!requiresIsMessageValid();");
+    private final Guard urlUniqueGuard = new Guard("requiresIsUrlUnique();");
+    private final Guard notUrlUniqueGuard = new Guard("!requiresIsUrlUnique();");
+    private final Random random = new Random();
     private boolean isMessageValid = true;
     private boolean isUrlUnique = false;
     private int additions = 0;
-    private Random random = new Random();
 
     public boolean requiresIsMessageValid() {
         return isMessageValid;
@@ -152,7 +153,7 @@ public class RandomStateTest extends ExecutionContext implements RandomState {
         Assert.assertEquals(1, formatQueue.size());
         String peek = formatQueue.peek();
 
-        RandomAlbumParser randomAlbumParser = new RandomAlbumParser();
+        RandomAlbumParser randomAlbumParser = new RandomAlbumParser(null);
         try {
             UrlParameters received = randomAlbumParser.parseLogic(null, new String[]{peek});
             formatQueue.poll();
@@ -160,7 +161,7 @@ public class RandomStateTest extends ExecutionContext implements RandomState {
             isMessageValid = true;
         }
         //A error message was tried to be sent so it means an error occured because we are sending null as MessageReceivedEvent
-        catch (NullPointerException ex) {
+        catch (NullPointerException | InstanceNotFoundException ex) {
             isMessageValid = false;
         }
     }
@@ -201,8 +202,7 @@ public class RandomStateTest extends ExecutionContext implements RandomState {
     @Override
     public void e_addUrlFromUnique() {
         String url = repeatedQueue.poll();
-        RandomUrlEntity e = new RandomUrlEntity(url, TestResources.developerId, TestResources.channelWorker.getGuild()
-                .getIdLong());
+        RandomUrlEntity e = new RandomUrlEntity(url, TestResources.developerId);
         Assert.assertTrue(TestResources.dao.addToRandomPool(e));
         additions++;
     }
@@ -210,7 +210,7 @@ public class RandomStateTest extends ExecutionContext implements RandomState {
     @Override
     public void e_addUrlFromValid() {
         String url = formatQueue.poll();
-        RandomUrlEntity e = new RandomUrlEntity(url, 1L, 1L);
+        RandomUrlEntity e = new RandomUrlEntity(url, 1L);
         Assert.assertTrue(TestResources.dao.addToRandomPool(e));
         additions++;
     }

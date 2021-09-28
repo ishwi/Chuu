@@ -11,7 +11,6 @@ import java.util.Set;
 public interface SQLRYMDao {
     void setServerTempTable(Connection connection, List<RYMImportRating> ratings);
 
-    Map<Long, Long> findArtists(Connection connection);
 
     Map<Long, Long> findArtistsByLocalizedJoinedNames(Connection connection);
 
@@ -44,6 +43,8 @@ public interface SQLRYMDao {
     List<ScoredAlbumRatings> getSelfRatingsScore(Connection connection, Short ratingNumber, long discordId);
 
     RymStats getUserRymStatms(Connection connection, long discordId);
+
+    Map<Integer, Integer> getUserCurve(Connection connection, long discordId);
 
 
     RymStats getServerStats(Connection connection, long guildId);

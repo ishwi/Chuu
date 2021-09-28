@@ -42,4 +42,8 @@ public class AlbumUserPlays {
     public void setPlays(int plays) {
         this.plays = plays;
     }
+
+    public String getPie() {
+        return album + " (" + plays + ")";
+    }
 }

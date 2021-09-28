@@ -2,79 +2,98 @@ package core.parsers;
 
 import core.apis.ExecutorsSingleton;
 import core.apis.last.ConcurrentLastFM;
-import core.apis.last.TopEntity;
+import core.commands.Context;
+import core.commands.ContextSlashReceived;
 import core.exceptions.LastFmException;
+import core.parsers.explanation.GenreExplanation;
+import core.parsers.explanation.StrictUserExplanation;
+import core.parsers.explanation.util.Explanation;
+import core.parsers.interactions.InteractionAux;
 import core.parsers.params.GenreParameters;
-import core.services.TagAlbumService;
-import core.services.TagArtistService;
+import core.parsers.utils.OptionalEntity;
+import core.services.NPService;
+import core.services.tags.TagStorer;
 import dao.ChuuService;
-import dao.entities.AlbumInfo;
-import dao.entities.ArtistInfo;
 import dao.entities.LastFMData;
 import dao.entities.NowPlayingArtist;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import org.apache.commons.text.WordUtils;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 
 public class GenreParser extends DaoParser<GenreParameters> {
     private final ConcurrentLastFM lastFM;
     private final ExecutorService executor;
 
-    public GenreParser(ChuuService service, ConcurrentLastFM lastFM) {
-        super(service);
+    public GenreParser(ChuuService service, ConcurrentLastFM lastFM, OptionalEntity... opts) {
+        super(service, opts);
         this.lastFM = lastFM;
         executor = ExecutorsSingleton.getInstance();
     }
 
     @Override
-    protected GenreParameters parseLogic(MessageReceivedEvent e, String[] words) throws InstanceNotFoundException, LastFmException {
-        User sample = e.getAuthor();
-        String genre;
+    public GenreParameters parseSlashLogic(ContextSlashReceived ctx) throws LastFmException, InstanceNotFoundException {
+        SlashCommandEvent e = ctx.e();
+        User user = InteractionAux.parseUser(e);
+        LastFMData data = findLastfmFromID(user, ctx);
         NowPlayingArtist nowPlayingInfo = null;
-        LastFMData lastFMData;
-        boolean autoDetected = false;
-        if (words.length == 0) {
-            lastFMData = findLastfmFromID(sample, e);
-            nowPlayingInfo = lastFM.getNowPlayingInfo(lastFMData.getName());
-            List<String> tags = lastFM.getTrackTags(1, TopEntity.TRACK, nowPlayingInfo.getArtistName(), nowPlayingInfo.getSongName());
-            if (tags.isEmpty()) {
-                tags = lastFM.getTrackTags(1, TopEntity.ALBUM, nowPlayingInfo.getArtistName(), nowPlayingInfo.getAlbumName());
-            } else {
-                executor.submit(new TagArtistService(dao, lastFM, tags, new ArtistInfo(nowPlayingInfo.getUrl(), nowPlayingInfo.getArtistName(), nowPlayingInfo.getArtistMbid())));
-            }
-            if (tags.isEmpty()) {
-                tags = lastFM.getTrackTags(1, TopEntity.ARTIST, nowPlayingInfo.getArtistName(), null);
-            } else {
-                if (nowPlayingInfo.getAlbumName() != null && !nowPlayingInfo.getAlbumName().isBlank())
-                    executor.submit(new TagAlbumService(dao, lastFM, tags, new AlbumInfo(nowPlayingInfo.getAlbumMbid(), nowPlayingInfo.getAlbumName(), nowPlayingInfo.getArtistName())));
-            }
+        String genre = Optional.ofNullable(e.getOption("genre")).map(OptionMapping::getAsString).orElse(null);
+
+        boolean autoDetected = genre == null;
+        if (autoDetected) {
+            nowPlayingInfo = new NPService(lastFM, data).getNowPlaying();
+            List<String> tags = new TagStorer(dao, lastFM, executor, nowPlayingInfo).findTags();
             if (tags.isEmpty()) {
                 sendError("Was not able to find any tags on your now playing song/album/artist: "
-                                + String.format("%s - %s | %s", nowPlayingInfo.getArtistName(), nowPlayingInfo.getSongName(), nowPlayingInfo.getAlbumName())
+                          + String.format("%s - %s | %s", nowPlayingInfo.artistName(), nowPlayingInfo.songName(), nowPlayingInfo.albumName())
+                        , ctx);
+                return null;
+            }
+            genre = tags.get(0);
+        }
+        return new GenreParameters(ctx, WordUtils.capitalizeFully(genre), autoDetected, nowPlayingInfo, data, user);
+    }
+
+    @Override
+    protected GenreParameters parseLogic(Context e, String[] words) throws InstanceNotFoundException, LastFmException {
+        String genre;
+        LastFMData lastFMData;
+        ParserAux parserAux = new ParserAux(words);
+        User user = parserAux.getOneUser(e, dao);
+        words = parserAux.getMessage();
+        NowPlayingArtist nowPlayingInfo = null;
+        boolean autoDetected = false;
+        if (words.length == 0) {
+            lastFMData = findLastfmFromID(user, e);
+            nowPlayingInfo = new NPService(lastFM, lastFMData).getNowPlaying();
+            List<String> tags = new TagStorer(dao, lastFM, executor, nowPlayingInfo).findTags();
+            if (tags.isEmpty()) {
+                sendError("Was not able to find any tags on your now playing song/album/artist: "
+                          + String.format("%s - %s | %s", nowPlayingInfo.artistName(), nowPlayingInfo.songName(), nowPlayingInfo.albumName())
                         , e);
                 return null;
-            } else {
-                executor.submit(new TagArtistService(dao, lastFM, tags, new ArtistInfo(nowPlayingInfo.getUrl(), nowPlayingInfo.getArtistName(), nowPlayingInfo.getArtistMbid())));
             }
             autoDetected = true;
             genre = tags.get(0);
         } else {
+            User oneUser = parserAux.getOneUser(e, dao);
+            words = parserAux.getMessage();
             genre = String.join(" ", words);
-            lastFMData = null;
+            lastFMData = findLastfmFromID(user, e);
         }
-        return new GenreParameters(e, WordUtils.capitalizeFully(genre), autoDetected, nowPlayingInfo, lastFMData, sample);
+        return new GenreParameters(e, WordUtils.capitalizeFully(genre), autoDetected, nowPlayingInfo, lastFMData, user);
 
     }
-
 
     @Override
-    public String getUsageLogic(String commandName) {
-        return "**" + commandName + " *genre* *username*** \n" +
-                "\tIf username is not specified defaults to authors account \n" +
-                "\tA genre can be specified or otherwise it defaults to the genre of your current track\\album\\artist according to last.fm\n";
+    public List<Explanation> getUsages() {
+        return List.of(new GenreExplanation(), new StrictUserExplanation());
     }
+
+
 }

@@ -1,12 +1,13 @@
 package core.parsers.params;
 
-import dao.entities.ChartMode;
+import core.commands.Context;
+import core.parsers.utils.CustomTimeFrame;
 import dao.entities.LastFMData;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import dao.entities.TimeFrameEnum;
 
 public class ChartSizeParameters extends ChartParameters {
 
-    public ChartSizeParameters(MessageReceivedEvent e, int x, int y, ChartMode chartMode, LastFMData lastFMData) {
-        super(e, "", -1, chartMode, lastFMData, null, x, y);
+    public ChartSizeParameters(Context e, int x, int y, LastFMData lastFMData) {
+        super(e, lastFMData, CustomTimeFrame.ofTimeFrameEnum(TimeFrameEnum.ALL), x, y);
     }
 }

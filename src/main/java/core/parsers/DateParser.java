@@ -1,11 +1,22 @@
 package core.parsers;
 
+import core.commands.Context;
+import core.commands.ContextSlashReceived;
+import core.exceptions.LastFmException;
+import core.parsers.exceptions.InvalidDateException;
+import core.parsers.explanation.FullTimeframeExplanation;
+import core.parsers.explanation.StrictUserExplanation;
+import core.parsers.explanation.util.Explanation;
+import core.parsers.interactions.InteractionAux;
 import core.parsers.params.DateParameters;
+import core.parsers.utils.CustomTimeFrame;
 import dao.ChuuService;
 import dao.entities.NaturalTimeFrameEnum;
+import dao.entities.TimeFrameEnum;
 import dao.entities.TriFunction;
+import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import org.apache.commons.collections4.set.ListOrderedSet;
 
 import java.time.*;
@@ -18,7 +29,6 @@ import java.time.temporal.TemporalAccessor;
 import java.util.*;
 import java.util.function.BiFunction;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 public class DateParser extends DaoParser<DateParameters> {
     private static final BiFunction<String, DateTimeFormatter[], Optional<OffsetDateTime>> eval = (s, formatArray) ->
@@ -89,7 +99,7 @@ public class DateParser extends DaoParser<DateParameters> {
         for (int i = 0, formatsLength = formats.length; i < formatsLength - 1; i++) {
             String[] dominant = formats[i];
             for (String s : dominant) {
-                List<String[]> firstPairs = Arrays.stream(formats).filter(x -> !Arrays.equals(x, dominant) && !Arrays.equals(x, formats[2])).collect(Collectors.toList());
+                List<String[]> firstPairs = Arrays.stream(formats).filter(x -> !Arrays.equals(x, dominant) && !Arrays.equals(x, formats[2])).toList();
                 assert firstPairs.size() == 1;
                 for (String[] secondItem : firstPairs) {
                     for (String string : secondItem) {
@@ -102,7 +112,7 @@ public class DateParser extends DaoParser<DateParameters> {
         for (int i = 0, formatsLength = formats.length; i < formatsLength - 1; i++) {
             String[] dominant = formats[i];
             for (String s : dominant) {
-                List<String[]> firstPairs = Arrays.stream(formats).filter(x -> Arrays.equals(x, formats[2])).collect(Collectors.toList());
+                List<String[]> firstPairs = Arrays.stream(formats).filter(x -> Arrays.equals(x, formats[2])).toList();
                 assert firstPairs.size() == 1;
                 for (String[] secondItem : firstPairs) {
                     for (String string : secondItem) {
@@ -115,14 +125,14 @@ public class DateParser extends DaoParser<DateParameters> {
 
         for (String[] dominant : formats) {
             for (String s : dominant) {
-                List<String[]> firstPairs = Arrays.stream(formats).filter(x -> !Arrays.equals(x, dominant)).collect(Collectors.toList());
+                List<String[]> firstPairs = Arrays.stream(formats).filter(x -> !Arrays.equals(x, dominant)).toList();
                 assert firstPairs.size() == 2;
                 for (int j = 0; j < firstPairs.size(); j++) {
                     String[] secondItem = firstPairs.get(j);
                     for (String string : secondItem) {
                         List<String> apply = function.apply(flattenFormats, s, string);
                         for (int k = 0; k < apply.size(); k++) {
-                            List<String[]> remainingPair = firstPairs.stream().filter(x -> !Arrays.equals(x, secondItem)).collect(Collectors.toList());
+                            List<String[]> remainingPair = firstPairs.stream().filter(x -> !Arrays.equals(x, secondItem)).toList();
                             assert remainingPair.size() == 1;
                             String[] thirdPairs = remainingPair.get(0);
                             for (String thirdPair : apply) {
@@ -148,12 +158,25 @@ public class DateParser extends DaoParser<DateParameters> {
     }
 
     @Override
-    protected DateParameters parseLogic(MessageReceivedEvent e, String[] words) {
+    public DateParameters parseSlashLogic(ContextSlashReceived ctx) throws LastFmException, InstanceNotFoundException {
+        SlashCommandEvent e = ctx.e();
+        User user = InteractionAux.parseUser(e);
+        try {
+            CustomTimeFrame customTimeFrame = InteractionAux.parseCustomTimeFrame(e, TimeFrameEnum.ALL);
+            return new DateParameters(ctx, user, customTimeFrame.getFrom(), customTimeFrame.isAllTime());
+        } catch (InvalidDateException ex) {
+            sendError(getErrorMessage(5), ctx);
+            return null;
+        }
+    }
+
+    @Override
+    protected DateParameters parseLogic(Context e, String[] words) throws InstanceNotFoundException {
 
         ParserAux parserAux = new ParserAux(words);
-        User sample = parserAux.getOneUser(e);
+        User sample = parserAux.getOneUser(e, dao);
         words = parserAux.getMessage();
-
+        boolean isAllTime = false;
         ChartParserAux chartParserAux = new ChartParserAux(words);
         NaturalTimeFrameEnum naturalTimeFrameEnum = chartParserAux.parseNaturalTimeFrame();
         words = chartParserAux.getMessage();
@@ -171,7 +194,8 @@ public class DateParser extends DaoParser<DateParameters> {
             localDate = naturalTimeFrameEnum.toLocalDate(count).atOffset(OffsetDateTime.now().getOffset());
         } else {
             if (words.length == 0) {
-                localDate = LocalDate.now().with(MonthDay.of(1, 1)).atStartOfDay().atOffset(OffsetDateTime.now().getOffset());
+                localDate = LocalDate.now().withYear(1990).with(MonthDay.of(1, 1)).atStartOfDay().atOffset(OffsetDateTime.now().getOffset());
+                isAllTime = true;
             } else {
                 String remaining = String.join(" ", words);
                 remaining = remaining.replaceAll("[ ][ -/]+", " ");
@@ -188,19 +212,14 @@ public class DateParser extends DaoParser<DateParameters> {
                 sendError(getErrorMessage(6), e);
                 return null;
             }
-            return new DateParameters(e, sample, localDate);
+            return new DateParameters(e, sample, localDate, isAllTime);
         }
 
     }
 
     @Override
-    public String getUsageLogic(String commandName) {
-        return "**" + commandName + " *username* *time*** \n" +
-                "\t time can be one of the following: \n" +
-                "\t\t One of Year,Quarter,Month,All,Semester,Week,Day,Hour,Minute,Second with plural forms and abbreviations included followed or preceded by a number (number of periods)\n " +
-                "\t\t A Date on a whole lot of different formats,if what you want doesnt match what the bot reads you can always default to `Year/Month/Day`\n" +
-                "\tIf an username it's not provided it defaults to authors account, only ping and tag format (user#number)\n ";
-
+    public List<Explanation> getUsages() {
+        return List.of(new FullTimeframeExplanation(TimeFrameEnum.ALL), new StrictUserExplanation());
     }
 
     @Override

@@ -4,7 +4,7 @@ import core.apis.discogs.DiscogsApi;
 import core.apis.last.ConcurrentLastFM;
 import core.apis.spotify.Spotify;
 import dao.ChuuService;
-import dao.SimpleDataSource;
+import dao.MbizDatasource;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -18,7 +18,7 @@ public class UpdaterThreadLogicTest {
     private ChuuService dao;
     private DiscogsApi discogsApi;
     private ConcurrentLastFM lastFM;
-    private SimpleDataSource dataSource;
+    private MbizDatasource dataSource;
 
     @After
     public void tearDown() throws Exception {

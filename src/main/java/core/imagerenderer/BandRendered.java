@@ -1,6 +1,8 @@
 package core.imagerenderer;
 
 
+import core.imagerenderer.util.fitter.StringFitter;
+import core.imagerenderer.util.fitter.StringFitterBuilder;
 import dao.entities.AlbumUserPlays;
 import dao.entities.ArtistAlbums;
 import dao.entities.ReturnNowPlaying;
@@ -15,6 +17,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 public class BandRendered {
 
@@ -24,23 +27,31 @@ public class BandRendered {
     private static final Font NORMAL_FONT = new Font("Noto Sans Display SemiBold", Font.PLAIN, 32);
     private static final Font JAPANESE_FONT = new Font("Noto Serif CJK JP", Font.PLAIN, 32);
     private static final Font DESC_FONT = new Font("Noto Sans CJK JP Light", Font.PLAIN, 32);
+    private static final StringFitter fitter = new StringFitterBuilder(32, 300)
+            .setBaseFont(NORMAL_FONT)
+            .setMinSize(8).build();
+    private static final StringFitter artist = new StringFitterBuilder(32, 300)
+            .setBaseFont(NORMAL_FONT)
+            .setMinSize(8).build();
+    private static final int albumsStartPosition = X_MARGIN + 400 + 195 + 40;
+    private static final int albumsStartPositionSmall = X_MARGIN + 355 + 195 + 52;
 
 
     private BandRendered() {
 
     }
 
-    public static BufferedImage makeBandImage(WrapperReturnNowPlaying wrapperReturnNowPlaying, ArtistAlbums ai, int plays, BufferedImage logo, String user) {
+    public static BufferedImage makeBandImage(WrapperReturnNowPlaying wrapperReturnNowPlaying, ArtistAlbums ai, int plays, BufferedImage logo, String user, long threshold) {
         BufferedImage canvas = new BufferedImage(X_MAX, Y_MAX, BufferedImage.TYPE_INT_RGB);
         BufferedImage lastFmLogo;
         BufferedImage artistReplacement;
 
         String artist = wrapperReturnNowPlaying.getArtist();
-        boolean needsJapanese = false;
 
         //Loads logo if it were to exist
         try (InputStream in = BandRendered.class.getResourceAsStream("/images/logo2.png")) {
-            lastFmLogo = ImageIO.read(in);
+            InputStream input = Objects.requireNonNull(in);
+            lastFmLogo = ImageIO.read(input);
             lastFmLogo = Scalr.resize(lastFmLogo, 30);
         } catch (IOException e) {
             lastFmLogo = null;
@@ -58,28 +69,21 @@ public class BandRendered {
 
         g.setColor(fontColor);
 
-        if (NORMAL_FONT.canDisplayUpTo(artist) != -1) {
-            needsJapanese = true;
-        }
 
         List<AlbumUserPlays> albumUserPlaysList = ai.getAlbumList();
-        int count = 0;
-        List<BufferedImage> albumsImages = new ArrayList<>(4);
-        for (AlbumUserPlays albumUserPlays : albumUserPlaysList) {
-            if (count++ == 4)
-                break;
-
-            if (NORMAL_FONT.canDisplayUpTo(albumUserPlays.getAlbum()) != -1) {
-                needsJapanese = true;
-            }
+        List<BufferedImage> albumsImages = new ArrayList<>();
+        for (int i = 0, albumUserPlaysListSize = albumUserPlaysList.size(); i < albumUserPlaysListSize && i < 9; i++) {
+            AlbumUserPlays albumUserPlays = albumUserPlaysList.get(i);
             BufferedImage image = GraphicUtils.getImage(albumUserPlays.getAlbumUrl());
-            albumsImages.add(image);
+            if (image == null) {
+                image = GraphicUtils.noArtistImage;
+            }
+            if (albumUserPlays.getPlays() > threshold) {
+                albumsImages.add(image);
+            }
         }
 
-        if (needsJapanese)
-            g.setFont(JAPANESE_FONT);
-        else
-            g.setFont(NORMAL_FONT);
+        g.setFont(NORMAL_FONT);
 
         FontMetrics metrics = g.getFontMetrics();
         String people = "Top 5 people";
@@ -90,61 +94,39 @@ public class BandRendered {
                 .doChart(g, X_MARGIN + 40, 700 - 20, 400, 50, 5, wrapperReturnNowPlaying, colorB1, colorB, lastFmLogo, DESC_FONT
                         .deriveFont(36f));
 
-        count = 0;
+        int count = 0;
         int imagesDrawn = 0;
 
-        int albumsStartPosition = X_MARGIN + 400 + 195 + 40;
+        int imageSize = albumsImages.size() > 4 ? 210 : 300;
+        int size = albumsImages.size();
         for (BufferedImage albumsImage : albumsImages) {
-            count++;
-            if (albumsImage == null) {
-                continue;
-            }
             int posX;
-            int baseline;
-            switch (albumsImages.size()) {
-                case 3:
-                    int[] pos = {20, 370, 175};
-                    posX = albumsStartPosition + pos[count - 1];
-                    baseline = 105 + 400 * (imagesDrawn / 2);
-                    break;
-                case 2:
-                    posX = albumsStartPosition + 175;
-                    baseline = 105 + 400 * (imagesDrawn);
-                    break;
-                case 1:
-                    posX = albumsStartPosition + 175;
-                    baseline = 105 + 200;
-                    break;
-                default:
-                    posX = albumsStartPosition + 350 * (imagesDrawn % 2);
-                    baseline = 105 + 400 * (imagesDrawn / 2);
-                    break;
-            }
-            g.drawImage(albumsImage, posX, baseline, 300, 300, null);
-            baseline += 300;
+
+            Point point = drawImage(count++, size);
+            g.drawImage(albumsImage, point.x, point.y, imageSize, imageSize, null);
+            int baseline = point.y + imageSize;
             AlbumUserPlays albumUserPlays = albumUserPlaysList.get(count - 1);
             String album = albumUserPlays.getAlbum();
-
             String play = Integer.toString(albumUserPlays.getPlays());
 
             Font ogFont = g.getFont();
             float sizeFont = ogFont.getSize();
-            while ((width = g.getFontMetrics(g.getFont()).stringWidth(album)) > 300 && sizeFont > 8f) {
-                g.setFont(g.getFont().deriveFont(sizeFont -= 2));
-            }
-            GraphicUtils
-                    .drawStringNicely(g, album, posX + (300 / 2) - width / 2, baseline + metrics.getAscent(), canvas);
 
+            StringFitter.FontMetadata albumFont = fitter
+                    .getFontMetadata(g, album, imageSize);
+            width = (int) albumFont.bounds().getWidth();
+            GraphicUtils
+                    .drawStringNicely(g, albumFont, point.x + (imageSize / 2) - width / 2, baseline + metrics.getAscent(), canvas);
             g.setFont(ogFont);
 
             baseline += metrics.getAscent() + metrics.getDescent();
             width = metrics.stringWidth(play);
-            int start = posX + (300 / 2) - width / 2;
+            int start = point.x + (imageSize / 2) - width / 2;
             int finish = start + width;
             width += 25;
 
             GraphicUtils
-                    .drawStringNicely(g, play, posX + (300 / 2) - width / 2, baseline + metrics.getAscent(), canvas);
+                    .drawStringNicely(g, play, point.x + (imageSize / 2) - width / 2, baseline + metrics.getAscent(), canvas);
             g.drawImage(lastFmLogo, finish, baseline + metrics.getAscent() - metrics.getDescent() - metrics
                     .getLeading() - 8, null);
             imagesDrawn++;
@@ -155,9 +137,11 @@ public class BandRendered {
             g.drawImage(Scalr
                     .resize(artistImageFill, yBaseLine, Scalr.OP_ANTIALIAS), X_MARGIN + 40 + (400 - 380) / 2, 25, null);
         }
-        width = metrics.stringWidth(artist);
         yBaseLine += metrics.getAscent() + metrics.getDescent() + metrics.getLeading() + 20;
-        GraphicUtils.drawStringNicely(g, artist, X_MARGIN + 40 + (380 / 2) - width / 2, yBaseLine, canvas);
+        StringFitter.FontMetadata fontMetadata = new StringFitterBuilder(g.getFont().getSize(), 380)
+                .setBaseFont(g.getFont())
+                .build().getFontMetadata(g, artist);
+        GraphicUtils.drawStringNicely(g, fontMetadata, (int) (X_MARGIN + 40 + (380 / 2) - fontMetadata.bounds().getWidth() / 2), yBaseLine, canvas);
 
 
         ReturnNowPlaying myRow = new ReturnNowPlaying(1, user, artist, plays);
@@ -170,5 +154,42 @@ public class BandRendered {
                 .deriveFont(36f));
 
         return canvas;
+    }
+
+    public static Point drawImage(int index, int total) {
+        int totalWidthSmall = X_MAX - albumsStartPositionSmall;
+        int fitOne = (totalWidthSmall - 300) / 2;
+        int fitTwo = (totalWidthSmall - 550) / 2;
+        return switch (total) {
+            case 1 -> new Point(albumsStartPosition + 175, 105 + 200);
+            case 2 -> new Point(albumsStartPosition + 175, 105 + 400 * index);
+            case 3 -> {
+                int[] pos = {20, 370, 175};
+                yield new Point(albumsStartPosition + pos[index], 105 + 400 * (index / 2));
+            }
+            case 4 -> new Point(albumsStartPosition + 350 * (index % 2), 105 + 400 * (index / 2));
+            case 5 -> {
+                if (index < 3) {
+                    yield new Point(albumsStartPositionSmall + 275 * (index % 3), 205);
+                } else {
+                    yield new Point(albumsStartPositionSmall + (fitTwo + 250 * (index - 3)), 205 + 300);
+                }
+            }
+            case 6 -> new Point(albumsStartPositionSmall + 275 * (index % 3), 205 + 300 * ((index) / 3));
+            case 7 -> {
+                if (index == 6) {
+                    yield new Point(albumsStartPositionSmall + fitOne, 55 + 300 * 2);
+                }
+                yield new Point(albumsStartPositionSmall + 275 * (index % 3), 55 + 300 * ((index) / 3));
+            }
+            case 8 -> {
+                if (index >= 6) {
+                    yield new Point(albumsStartPositionSmall + (fitTwo + 250 * (index - 6)), 55 + 300 * 2);
+                }
+                yield new Point(albumsStartPositionSmall + 275 * (index % 3), 55 + 300 * ((index) / 3));
+            }
+            case 9 -> new Point(albumsStartPositionSmall + 275 * (index % 3), 55 + 300 * ((index) / 3));
+            default -> throw new IllegalStateException();
+        };
     }
 }

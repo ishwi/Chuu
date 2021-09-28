@@ -1,21 +1,27 @@
 package core.parsers;
 
 import core.apis.last.ConcurrentLastFM;
+import core.commands.Context;
+import core.commands.ContextSlashReceived;
 import core.exceptions.LastFmException;
 import core.parsers.exceptions.InvalidChartValuesException;
+import core.parsers.explanation.GenreExplanation;
+import core.parsers.explanation.util.Explanation;
+import core.parsers.interactions.InteractionAux;
 import core.parsers.params.ChartableGenreParameters;
 import core.parsers.params.GenreParameters;
+import core.parsers.utils.CustomTimeFrame;
 import dao.ChuuService;
 import dao.entities.LastFMData;
 import dao.entities.TimeFrameEnum;
 import dao.exceptions.ChuuServiceException;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 
 import java.awt.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.List;
+import java.util.stream.Stream;
 
 public class GenreChartParser extends ChartableParser<ChartableGenreParameters> {
     private final GenreParser innerParser;
@@ -25,9 +31,24 @@ public class GenreChartParser extends ChartableParser<ChartableGenreParameters> 
         innerParser = new GenreParser(dao, lastFM);
     }
 
+    @Override
+    public ChartableGenreParameters parseSlashLogic(ContextSlashReceived ctx) throws LastFmException, InstanceNotFoundException {
+        SlashCommandEvent e = ctx.e();
+        GenreParameters genreParameters = innerParser.parseSlashLogic(ctx);
+        if (genreParameters == null) {
+            return null;
+        }
+        LastFMData data = genreParameters.getLastFMData();
+        TimeFrameEnum timeFrameEnum = InteractionAux.parseTimeFrame(e, defaultTFE);
+        Point point = InteractionAux.parseSize(e, () -> this.sendError(getErrorMessage(6), ctx));
+        if (point == null) {
+            return null;
+        }
+        return new ChartableGenreParameters(ctx, data, new CustomTimeFrame(timeFrameEnum), point.x, point.y, data.getChartMode(), genreParameters);
+    }
 
     @Override
-    public ChartableGenreParameters parseLogic(MessageReceivedEvent e, String[] subMessage) throws InstanceNotFoundException {
+    public ChartableGenreParameters parseLogic(Context e, String[] subMessage) throws InstanceNotFoundException {
         int x = 5;
         int y = 5;
 
@@ -47,30 +68,23 @@ public class GenreChartParser extends ChartableParser<ChartableGenreParameters> 
         TimeFrameEnum timeFrameEnum = chartParserAux.parseTimeframe(this.defaultTFE);
         subMessage = chartParserAux.getMessage();
         ParserAux parserAux = new ParserAux(subMessage);
-        User oneUser = parserAux.getOneUser(e);
+        User oneUser = parserAux.getOneUser(e, dao);
         String[] message = parserAux.getMessage();
         LastFMData data = findLastfmFromID(oneUser, e);
         try {
             GenreParameters genreParameters = innerParser.parseLogic(e, message);
-            return new ChartableGenreParameters(e, data.getName(), data.getDiscordId(), data.getChartMode(), timeFrameEnum, x, y, genreParameters, data);
+            if (genreParameters == null) {
+                return null;
+            }
+            return new ChartableGenreParameters(e, data, new CustomTimeFrame(timeFrameEnum), x, y, data.getChartMode(), genreParameters);
         } catch (LastFmException lastFmException) {
-            throw new ChuuServiceException();
+            throw new ChuuServiceException(lastFmException);
         }
 
     }
 
     @Override
-    public String getUsageLogic(String commandName) {
-        Pattern compile = Pattern.compile("\\*\\*" + commandName + "(.*)\\*\\* ");
-        String usageLogic = super.getUsageLogic(commandName);
-        String[] split = usageLogic.split("\n");
-        for (int i = 0; i < split.length; i++) {
-            String input = split[i];
-            Matcher matcher = compile.matcher(input);
-            if (matcher.matches()) {
-                split[i] = "**" + commandName + matcher.group(1) + " *genre***\n\tA genre can be specified or otherwise it defaults to the genre of your current track\\album\\artist according to last.fm";
-            }
-        }
-        return String.join("\n", split) + "\n";
+    public List<Explanation> getUsages() {
+        return Stream.concat(Stream.of(new GenreExplanation()), super.getUsages().stream()).toList();
     }
 }

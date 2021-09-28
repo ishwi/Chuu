@@ -1,5 +1,6 @@
 package core.scheduledtasks;
 
+import core.Chuu;
 import core.apis.spotify.Spotify;
 import core.apis.spotify.SpotifySingleton;
 import dao.ChuuService;
@@ -26,10 +27,10 @@ public class SpotifyUpdaterThread implements Runnable {
     @Override
     public void run() {
         Set<ScrobbledArtist> artistData = dao.getSpotifyNulledUrls();
-        System.out.println("Found at lest Spotify " + artistData.size() + "null artist ");
+        Chuu.getLogger().info("Seraching for {} urls via spotiyf", artistData.size());
+        int counter = 0;
         for (ScrobbledArtist artistDatum : artistData) {
             String url;
-            System.out.println("Working with artist " + artistDatum.getArtist());
 
             Pair<String, String> urlAndId = spotifyApi.getUrlAndId(artistDatum.getArtist());
             url = urlAndId.getLeft();
@@ -39,11 +40,12 @@ public class SpotifyUpdaterThread implements Runnable {
                     artistDatum.setUpdateBit(false);
                     dao.updateImageStatus(artistDatum.getArtistId(), "", false);
                 } else {
-                    System.out.println("INSERTED : " + artistDatum.getArtist());
                     dao.upsertSpotify(url, artistDatum.getArtistId(), urlAndId.getRight());
+                    counter++;
                 }
             }
 
         }
+        Chuu.getLogger().info("Found {} urls in spotify out of {}", counter, artistData.size());
     }
 }

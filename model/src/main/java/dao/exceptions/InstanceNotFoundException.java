@@ -17,12 +17,14 @@ public class InstanceNotFoundException extends Exception {
     }
 
     /**
+     * @param b
      * @return Template that contains two "variables": ${user_to_replace} and ${prefix}
      */
     public static String getInstanceNotFoundTemplate() {
-        return "**user_to_be_used_yep_yep** has not set their last.fm account\n" +
-               "To link to the bot you must have a last.fm account and then do:\n " +
-               "prefix_to_be_used_yep_yep" + "set ``your_last_fm_account``";
+        return """
+                **user_to_be_used_yep_yep** has not set their last.fm account
+                To link to the bot you must have a last.fm account and then do:
+                 prefix_to_be_used_yep_yepset `your_last_fm_account`""";
     }
 
     public String getLastFMName() {

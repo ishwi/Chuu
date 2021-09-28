@@ -11,14 +11,14 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public class RandomTest {
-    ChuuService dao = new ChuuService();
+    ChuuService dao = new ChuuService(null);
 
     @Test
     public void name() {
-        ChuuService dao = new ChuuService();
+        ChuuService dao = new ChuuService(null);
         Map<RandomUrlEntity, Integer> test = new HashMap<>();
         for (int i = 0; i < 10000; i++) {
-            RandomUrlEntity randomUrl = dao.getRandomUrl();
+            RandomUrlEntity randomUrl = dao.getRandomUrl(null);
             test.merge(randomUrl, 1, Integer::sum);
             if (randomUrl == null) {
                 System.out.println(randomUrl);
@@ -28,11 +28,11 @@ public class RandomTest {
         }
         long count = test.entrySet().stream().filter(x -> x.getKey() == null).count();
         System.out.println(count);
-        test.entrySet().stream().filter(x -> x.getKey() != null).sorted(Comparator.comparingInt(randomUrlEntityIntegerEntry -> -randomUrlEntityIntegerEntry.getValue())).forEach((key) -> System.out.println(key.getKey().getDiscordId() + " - " + key.getKey().getUrl() + " - " + key.getValue()));
+        test.entrySet().stream().filter(x -> x.getKey() != null).sorted(Comparator.comparingInt(randomUrlEntityIntegerEntry -> -randomUrlEntityIntegerEntry.getValue())).forEach((key) -> System.out.println(key.getKey().discordId() + " - " + key.getKey().url() + " - " + key.getValue()));
         for (int i = 0; i < 10; i++) {
             System.out.println();
         }
-        List<Map.Entry<Long, Long>> collect = test.entrySet().stream().filter(x -> x.getKey() != null).collect(Collectors.groupingBy(x -> x.getKey().getDiscordId(), Collectors.counting())).entrySet().stream().sorted(Comparator.comparingLong(y -> -y.getValue()))
+        List<Map.Entry<Long, Long>> collect = test.entrySet().stream().filter(x -> x.getKey() != null).collect(Collectors.groupingBy(x -> x.getKey().discordId(), Collectors.counting())).entrySet().stream().sorted(Comparator.comparingLong(y -> -y.getValue()))
                 .collect(Collectors.toList());
         collect.forEach(((key) -> {
             System.out.println(key.getKey() + " -  " + key.getValue());

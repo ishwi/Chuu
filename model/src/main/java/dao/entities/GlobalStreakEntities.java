@@ -1,8 +1,9 @@
 package dao.entities;
 
 import dao.utils.LinkUtils;
-import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
+import javax.annotation.Nonnull;
 import java.time.Instant;
 import java.util.function.Consumer;
 
@@ -17,14 +18,14 @@ public class GlobalStreakEntities extends StreakEntity {
 
 
     public GlobalStreakEntities(String currentArtist, int aCounter, String currentAlbum, int albCounter, String currentSong, int tCounter, Instant streakStart, PrivacyMode privacyMode, long discordId, String lastfmId) {
-        super(currentArtist, aCounter, currentAlbum, albCounter, currentSong, tCounter, streakStart);
+        super(currentArtist, aCounter, currentAlbum, albCounter, currentSong, tCounter, streakStart, null);
         this.privacyMode = privacyMode;
         this.discordId = discordId;
         this.lastfmId = lastfmId;
     }
 
-    @NotNull
-    public static String getComboString(String aString, StringBuilder description, int i, String currentArtist, int albCounter, String currentAlbum, int i2, String currentSong) {
+    @Nonnull
+    public static String getComboString(String aString, StringBuilder description, int i, String currentArtist, int albCounter, String currentAlbum, int i2, String currentSong, @Nullable DateHolder start) {
         if (i > 1) {
             description.append("**Artist**: ")
                     .append(i).append(i >= 6000 ? "+" : "").append(" consecutive plays - ")
@@ -44,22 +45,22 @@ public class GlobalStreakEntities extends StreakEntity {
                     .append(" consecutive plays - ").append("**[")
                     .append(LinkUtils.cleanMarkdownCharacter(currentSong)).append("](").append(LinkUtils.getLastFMArtistTrack(currentArtist, currentSong)).append(")**").append("\n");
         }
+        if (start != null) {
+            description.append("**Started**: ").append("**[").append(start.date).append("](")
+                    .append(start.link).append(")**")
+                    .append("\n");
+        }
         return description.toString() + "\n";
     }
 
     @Override
     public String toString() {
-        String discordName = LinkUtils.markdownLessString(getName());
+        String discordName = LinkUtils.stripEscapedMarkdown(getName());
         GlobalStreakEntities combo = this;
         String aString = LinkUtils.cleanMarkdownCharacter(combo.getCurrentArtist());
-        StringBuilder description = new StringBuilder("" + discordName + "\n");
-        return getComboString(aString, description, combo.getaCounter(), combo.getCurrentArtist(), combo.getAlbCounter(), combo.getCurrentAlbum(), combo.gettCounter(), combo.getCurrentSong());
+        StringBuilder description = new StringBuilder(" " + discordName + "\n");
+        return getComboString(aString, description, combo.artistCount(), combo.getCurrentArtist(), combo.albumCount(), combo.getCurrentAlbum(), combo.trackCount(), combo.getCurrentSong(), null);
     }
-
-    public void setDisplayer(Consumer<GlobalStreakEntities> displayer) {
-        this.displayer = displayer;
-    }
-
 
     public String getName() {
         if (calculatedDisplayName == null) {
@@ -84,11 +85,18 @@ public class GlobalStreakEntities extends StreakEntity {
         return displayer;
     }
 
+    public void setDisplayer(Consumer<GlobalStreakEntities> displayer) {
+        this.displayer = displayer;
+    }
+
     public String getCalculatedDisplayName() {
         return calculatedDisplayName;
     }
 
     public void setCalculatedDisplayName(String calculatedDisplayName) {
         this.calculatedDisplayName = calculatedDisplayName;
+    }
+
+    public static record DateHolder(Instant start, String date, String link) {
     }
 }

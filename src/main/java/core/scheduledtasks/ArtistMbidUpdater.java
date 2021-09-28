@@ -3,11 +3,14 @@ package core.scheduledtasks;
 import core.Chuu;
 import core.apis.last.ConcurrentLastFM;
 import core.apis.last.LastFMFactory;
+import core.parsers.utils.CustomTimeFrame;
 import dao.ChuuService;
+import dao.entities.LastFMData;
 import dao.entities.ScrobbledArtist;
 import dao.entities.TimeFrameEnum;
 import dao.entities.UsersWrapper;
 
+import java.util.Collections;
 import java.util.List;
 
 public class ArtistMbidUpdater implements Runnable {
@@ -19,17 +22,28 @@ public class ArtistMbidUpdater implements Runnable {
         lastFM = LastFMFactory.getNewInstance();
     }
 
+    public ArtistMbidUpdater(ChuuService dao, ConcurrentLastFM api) {
+        this.dao = dao;
+        lastFM = api;
+    }
+
     @Override
     public void run() {
         UsersWrapper randomUser = dao.getRandomUser();
-        String lastFMName = randomUser.getLastFMName();
-        System.out.println("SEARCHING FOR MBIDS");
+        Chuu.getLogger().info("Searching for MBIDS :)");
+        updateAndGet(LastFMData.ofUserWrapper(randomUser));
+    }
+
+    public List<ScrobbledArtist> updateAndGet(LastFMData user) {
 
         try {
-            List<ScrobbledArtist> artistData = lastFM.getAllArtists(lastFMName, TimeFrameEnum.ALL.toApiFormat());
+            List<ScrobbledArtist> artistData = lastFM.getAllArtists(user, new CustomTimeFrame(TimeFrameEnum.ALL)).stream().
+                    filter(t -> t.getArtistMbid() != null && !t.getArtistMbid().isBlank()).toList();
             dao.updateMbids(artistData);
+            return artistData;
         } catch (Exception exception) {
             Chuu.getLogger().warn(exception.getMessage(), exception);
         }
+        return Collections.emptyList();
     }
 }

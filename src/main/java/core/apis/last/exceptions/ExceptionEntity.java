@@ -2,7 +2,7 @@ package core.apis.last.exceptions;
 
 public class ExceptionEntity {
     private static final String FIELD = "user";
-    private String userName;
+    private final String userName;
 
     public ExceptionEntity(String userName) {
         this.userName = userName;

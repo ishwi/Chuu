@@ -1,10 +1,22 @@
 package core.parsers;
 
+import core.commands.Context;
+import core.commands.ContextMessageReceived;
+import core.commands.ContextSlashReceived;
+import core.commands.utils.CommandUtil;
+import core.exceptions.LastFmException;
+import core.parsers.explanation.UrlExplanation;
+import core.parsers.explanation.util.Explanation;
 import core.parsers.params.UrlParameters;
+import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 
 import java.net.URL;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 
 public class UrlParser extends Parser<UrlParameters> {
     private final boolean permCheck;
@@ -28,24 +40,41 @@ public class UrlParser extends Parser<UrlParameters> {
     }
 
     @Override
+    public UrlParameters parseSlashLogic(ContextSlashReceived ctx) throws LastFmException, InstanceNotFoundException {
+        SlashCommandEvent e = ctx.e();
+
+        if (permCheck && (CommandUtil.notEnoughPerms(ctx))) {
+            sendError(CommandUtil.notEnoughPermsTemplate() + "submit links", ctx);
+            return null;
+        }
+
+        String url = Optional.ofNullable(e.getOption(UrlExplanation.NAME)).map(OptionMapping::getAsString).orElse("");
+        if (!isValidURL(url)) {
+            sendError(getErrorMessage(1), ctx);
+            return null;
+        }
+        return new UrlParameters(ctx, url);
+    }
+
+    @Override
     public void setUpErrorMessages() {
         errorMessages.put(1, "Invalid url ");
         errorMessages.put(2, "Insufficient Permissions, only a mod can");
 
     }
 
-    public UrlParameters parseLogic(MessageReceivedEvent e, String[] subMessage) {
+    public UrlParameters parseLogic(Context e, String[] subMessage) {
         if (permCheck && (e.getMember() == null || !e.getMember().hasPermission(Permission.MESSAGE_MANAGE))) {
             sendError(getErrorMessage(2), e);
             return null;
         }
         String url;
 
-        if (subMessage == null || subMessage.length == 0) {
-            if (e.getMessage().getAttachments().isEmpty()) {
+        if ((subMessage.length == 0) && e instanceof ContextMessageReceived mes) {
+            if (mes.e().getMessage().getAttachments().isEmpty()) {
                 return new UrlParameters(e, "");
             } else {
-                url = e.getMessage().getAttachments().get(0).getUrl();
+                url = mes.e().getMessage().getAttachments().get(0).getUrl();
             }
         } else if (subMessage.length == 1) {
             url = subMessage[0];
@@ -64,8 +93,8 @@ public class UrlParser extends Parser<UrlParameters> {
     }
 
     @Override
-    public String getUsageLogic(String commandName) {
-        return "**" + commandName + " *url***\n" +
-                "\t User needs to have administration permissions\n";
+    public List<Explanation> getUsages() {
+        return Collections.singletonList(new UrlExplanation());
     }
+
 }
