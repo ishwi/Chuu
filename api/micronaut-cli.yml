@@ -1,0 +1,9 @@
+applicationType: default
+defaultPackage: ish
+testFramework: junit
+sourceLanguage: java
+buildTool: gradle_kotlin
+features: [ annotation-api, app-name, gradle, http-client, junit, java, java-application, logback, netty-server, readme,openapi , security-annotations, security-jwt, security-oauth2, rxjava3, rxjava3-http-client, shade, yaml ]
+
+
+

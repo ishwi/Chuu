@@ -66,8 +66,8 @@ public class RateLimitParser extends DaoParser<RateLimitParams> {
 
     @Override
     public List<Explanation> getUsages() {
-        return List.of(InteractionAux.required(() -> new ExplanationLineType("Discord id", "discord_id is the 20 long identifier of an user", OptionType.USER)),
-                () -> new ExplanationLineType("Rate", "The rate is the number of request the user can do per second. Must be bigger than 0.01", OptionType.STRING)
+        return List.of(InteractionAux.required(() -> new ExplanationLineType("discord-id", "discord_id is the 20 long identifier of an user", OptionType.USER)),
+                () -> new ExplanationLineType("rate", "The rate is the number of request the user can do per second. Must be bigger than 0.01", OptionType.STRING)
         );
     }
 

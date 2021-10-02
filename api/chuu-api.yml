@@ -1,0 +1,495 @@
+openapi: 3.0.1
+info:
+  title: Chuu API
+  description: Api for the discord bot Chuubot
+  contact:
+    name: Ish
+    url: https://gigantic-server.com
+    email: ishwi6@gmail.com
+  license:
+    name: Apache 2.0
+    url: https://foo.bar
+  version: "0.0"
+security:
+- BearerAuth: []
+paths:
+  /commands:
+    get:
+      operationId: getCommands
+      parameters: []
+      responses:
+        "200":
+          description: getCommands 200 response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CommandInfo'
+  /commands/default:
+    get:
+      operationId: refreshWithDefault
+      parameters: []
+      responses:
+        "200":
+          description: refreshWithDefault 200 response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CommandInfo'
+  /commands/from-file:
+    put:
+      operationId: refreshWithPath
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: string
+        required: true
+      responses:
+        "200":
+          description: refreshWithPath 200 response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CommandInfo'
+  /commands/from-json:
+    put:
+      operationId: upsertCommands
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/CommandInfo'
+        required: true
+      responses:
+        "200":
+          description: upsertCommands 200 response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CommandInfo'
+  /discord:
+    get:
+      operationId: index
+      parameters:
+      - name: code
+        in: query
+        required: true
+        schema:
+          type: string
+      - name: state
+        in: query
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: index 200 response
+  /discord/login:
+    get:
+      operationId: login
+      parameters:
+      - name: uuid
+        in: query
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: login 200 response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccessRefreshToken'
+  /image-queue:
+    get:
+      operationId: fetchNewImages
+      parameters:
+      - name: limit
+        in: query
+        required: true
+        schema:
+          minimum: 1
+          type: integer
+          format: int32
+          default: 10
+      - name: until
+        in: query
+        required: false
+        schema:
+          type: string
+          format: date-time
+          nullable: true
+      responses:
+        "200":
+          description: fetchNewImages 200 response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ImageQueue'
+  /image-queue/accept:
+    post:
+      operationId: acceptImage
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AcceptedImageDTO'
+        required: true
+      responses:
+        "200":
+          description: acceptImage 200 response
+  /image-queue/batch:
+    post:
+      operationId: batchReview
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/ImageQueueResponse'
+        required: true
+      responses:
+        "200":
+          description: batchReview 200 response
+  /image-queue/reject/{queuedId}:
+    post:
+      operationId: rejectImage
+      parameters:
+      - name: queuedId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+        required: true
+      responses:
+        "200":
+          description: rejectImage 200 response
+  /login:
+    get:
+      summary: ""
+      description: ""
+      operationId: login_1
+      parameters:
+      - name: code
+        in: query
+        required: true
+        schema:
+          type: string
+      - name: state
+        in: query
+        required: false
+        schema:
+          type: string
+          nullable: true
+      responses:
+        "200":
+          description: An AccessRefreshToken encapsulated in the HttpResponse or a
+            failure indicated by the HTTP status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Single_MutableHttpResponse_Object__'
+  /principal:
+    get:
+      operationId: login_2
+      parameters: []
+      responses:
+        "200":
+          description: login_2 200 response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DiscordDetails'
+components:
+  schemas:
+    AcceptedImageDTO:
+      allOf:
+      - $ref: '#/components/schemas/Record'
+      - required:
+        - artistId
+        - queuedId
+        - uploader
+        - url
+        type: object
+        properties:
+          queuedId:
+            type: integer
+            format: int64
+          uploader:
+            type: integer
+            format: int64
+          url:
+            type: string
+          artistId:
+            type: integer
+            format: int64
+    AccessRefreshToken:
+      type: object
+      properties:
+        access_token:
+          type: string
+        refresh_token:
+          type: string
+        token_type:
+          type: string
+        expires_in:
+          type: integer
+          format: int32
+    Authentication:
+      required:
+      - attributes
+      - roles
+      type: object
+      properties:
+        attributes:
+          type: object
+          additionalProperties: true
+        roles:
+          type: array
+          items:
+            type: string
+    CommandInfo:
+      allOf:
+      - $ref: '#/components/schemas/Record'
+      - required:
+        - aliases
+        - category
+        - name
+        - parameters
+        type: object
+        properties:
+          name:
+            type: string
+          category:
+            type: string
+          aliases:
+            type: array
+            items:
+              type: string
+          parameters:
+            type: array
+            items:
+              $ref: '#/components/schemas/CommandInfo.Parameters'
+    CommandInfo.CustomChoice:
+      allOf:
+      - $ref: '#/components/schemas/Record'
+      - required:
+        - asDouble
+        - asLong
+        - asString
+        - name
+        type: object
+        properties:
+          name:
+            type: string
+          asDouble:
+            type: string
+          asLong:
+            type: integer
+            format: int64
+          asString:
+            type: string
+    CommandInfo.CustomOption:
+      allOf:
+      - $ref: '#/components/schemas/Record'
+      - required:
+        - choices
+        - description
+        - name
+        - required
+        - type
+        type: object
+        properties:
+          type:
+            $ref: '#/components/schemas/OptionType'
+          name:
+            type: string
+          description:
+            type: string
+          required:
+            type: boolean
+          choices:
+            type: array
+            items:
+              $ref: '#/components/schemas/CommandInfo.CustomChoice'
+    CommandInfo.Parameters:
+      allOf:
+      - $ref: '#/components/schemas/Record'
+      - required:
+        - header
+        - options
+        - usage
+        type: object
+        properties:
+          header:
+            type: string
+          usage:
+            type: string
+          options:
+            type: array
+            items:
+              $ref: '#/components/schemas/CommandInfo.CustomOption'
+    DiscordDetails:
+      allOf:
+      - $ref: '#/components/schemas/Record'
+      - required:
+        - attributes
+        - avatarUrl
+        - discordId
+        - discordName
+        - lastfmid
+        - role
+        - roles
+        type: object
+        properties:
+          authenticated:
+            type: boolean
+          authentication:
+            $ref: '#/components/schemas/Authentication'
+          message:
+            type: string
+          roles:
+            type: array
+            items:
+              type: string
+          attributes:
+            type: object
+            additionalProperties: true
+          name:
+            type: string
+          discordId:
+            type: integer
+            format: int64
+          role:
+            $ref: '#/components/schemas/Role'
+          lastfmid:
+            type: string
+          discordName:
+            type: string
+          avatarUrl:
+            type: string
+    ImageQueue:
+      allOf:
+      - $ref: '#/components/schemas/Record'
+      - required:
+        - artistId
+        - artistName
+        - count
+        - guildId
+        - localDateTime
+        - queuedId
+        - strikes
+        - uploader
+        - url
+        - userRejectedCount
+        type: object
+        properties:
+          queuedId:
+            type: integer
+            format: int64
+          url:
+            type: string
+          artistId:
+            type: integer
+            format: int64
+          uploader:
+            type: integer
+            format: int64
+          artistName:
+            type: string
+          localDateTime:
+            type: string
+            format: date-time
+          userRejectedCount:
+            type: integer
+            format: int32
+          count:
+            type: integer
+            format: int32
+          strikes:
+            type: integer
+            format: int32
+          guildId:
+            type: integer
+            format: int64
+    ImageQueueResponse:
+      allOf:
+      - $ref: '#/components/schemas/Record'
+      - required:
+        - artistId
+        - ownerId
+        - queuedId
+        - responseType
+        - url
+        type: object
+        properties:
+          url:
+            type: string
+          artistId:
+            type: integer
+            format: int64
+          ownerId:
+            type: integer
+            format: int64
+          queuedId:
+            type: integer
+            format: int64
+          responseType:
+            $ref: '#/components/schemas/ImageQueueResponse.ResponseType'
+    ImageQueueResponse.ResponseType:
+      type: string
+      enum:
+      - ACCEPTED
+      - REJECTED
+    OptionType:
+      type: string
+      enum:
+      - UNKNOWN
+      - SUB_COMMAND
+      - SUB_COMMAND_GROUP
+      - STRING
+      - INTEGER
+      - BOOLEAN
+      - USER
+      - CHANNEL
+      - ROLE
+      - MENTIONABLE
+      - NUMBER
+    Record:
+      type: object
+    Role:
+      type: string
+      enum:
+      - USER
+      - IMAGE_BLOCKED
+      - ADMIN
+    Single_MutableHttpResponse_Object__:
+      type: object
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: jwt

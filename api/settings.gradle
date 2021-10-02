@@ -1,0 +1,3 @@
+rootProject.name="api"
+include ":model"
+project(':model').projectDir = new File('../model')

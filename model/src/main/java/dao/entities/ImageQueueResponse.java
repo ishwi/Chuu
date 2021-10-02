@@ -1,78 +1,15 @@
 package dao.entities;
 
-import javax.annotation.Nullable;
+import dao.ImageQueue;
 
-public class ImageQueueResponse {
-    private @Nullable
-    String url;
+public record ImageQueueResponse(String url, long artistId, long ownerId, long queuedId, ResponseType responseType) {
 
-    private @Nullable
-    Long artistId;
-    private @Nullable
-    Long onwerId;
-    private long queuedId;
-    private ResponseType responseType;
-
-    public ImageQueueResponse() {
-    }
-
-    public ImageQueueResponse(long queuedId, ResponseType responseType) {
-        this.queuedId = queuedId;
-        this.responseType = responseType;
-    }
-
-    public ImageQueueResponse(long queuedId, ResponseType responseType, @Nullable String url, @Nullable Long artistId, @Nullable Long onwerId) {
-        this.url = url;
-        this.artistId = artistId;
-        this.onwerId = onwerId;
-        this.queuedId = queuedId;
-        this.responseType = responseType;
-    }
-
-    public long getQueuedId() {
-        return queuedId;
-    }
-
-    public void setQueuedId(long queuedId) {
-        this.queuedId = queuedId;
-    }
-
-    public ResponseType getResponseType() {
-        return responseType;
-    }
-
-    public void setResponseType(ResponseType responseType) {
-        this.responseType = responseType;
-    }
-
-    @Nullable
-    public String getUrl() {
-        return url;
-    }
-
-    public void setUrl(@Nullable String url) {
-        this.url = url;
-    }
-
-    @Nullable
-    public Long getArtistId() {
-        return artistId;
-    }
-
-    public void setArtistId(@Nullable Long artistId) {
-        this.artistId = artistId;
-    }
-
-    @Nullable
-    public Long getOnwerId() {
-        return onwerId;
-    }
-
-    public void setOnwerId(@Nullable Long onwerId) {
-        this.onwerId = onwerId;
+    public ImageQueue toImage() {
+        return new ImageQueue(queuedId, url, artistId, ownerId, null, null, 0, 0, 0, null);
     }
 
     public enum ResponseType {
         ACCEPTED, REJECTED
     }
+
 }

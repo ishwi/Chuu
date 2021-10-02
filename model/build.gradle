@@ -1,8 +1,6 @@
 plugins {
     id 'java'
     id 'java-library'
-    id 'se.patrikerdes.use-latest-versions'
-    id 'com.github.ben-manes.versions'
     id 'org.liquibase.gradle' version '2.0.4'
 
 }
@@ -49,7 +47,7 @@ dependencies {
     api group: 'org.apache.commons', name: 'commons-collections4', version: '4.4'
     implementation group: 'mysql', name: 'mysql-connector-java', version: '8.0.25'
 
-    testImplementation "org.mockito:mockito-core:3.12.4"
+    testImplementation "org.mockito:mockito-inline:3.12.4"
     testImplementation("org.junit.jupiter:junit-jupiter:5.8.0")
 
     liquibaseRuntime 'org.liquibase:liquibase-core:4.4.3'
@@ -61,24 +59,24 @@ dependencies {
     liquibaseRuntime files('build/classes/java/main')
     liquibaseRuntime files('build/resources/db')
 }
-liquibase {
-
-    activities {
-
-        main {
-
-            classpath "$projectDir"
-            Properties properties = new Properties()
-            properties.load(project.rootProject.file('model/src/main/resources/datasource.properties').newDataInputStream())
-            changeLogFile "src/main/resources/db/changelog.yaml"
-            url properties['jdbcUrl']
-            username properties['username']
-            password properties['password']
-
-        }
-
-    }
-}
+//liquibase {
+//
+//    activities {
+//
+//        main {
+//
+//            classpath "$projectDir"
+//            Properties properties = new Properties()
+//            properties.load(project.rootProject.file('/model/src/main/resources/datasource.properties').newDataInputStream())
+//            changeLogFile "src/main/resources/db/changelog.yaml"
+//            url properties['jdbcUrl']
+//            username properties['username']
+//            password properties['password']
+//
+//        }
+//
+//    }
+//}
 compileJava {
     options.compilerArgs += ["-Xlint:deprecation", "--enable-preview"]
 

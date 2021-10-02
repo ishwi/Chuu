@@ -1,0 +1,31 @@
+<!doctype html>
+<!-- Important: must specify, else rendering will be effected -->
+<html>
+    <head>
+        <title>chuu-api-0.0</title>
+        <!-- Important: The Custom element uses utf8 characters -->
+        <meta charset='utf-8' />
+        <meta name='viewport' content='width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes' />
+        <script src='https://unpkg.com/rapidoc/dist/rapidoc-min.js'></script>
+        
+    </head>
+    <body>
+        <rapi-doc id='rapidoc' layout="row" sort-tags="true" sort-endpoints-by="method" show-header="false" theme="dark"></rapi-doc>
+        <script>
+            const extract = function(v) {
+                    return decodeURIComponent(v.replace(/(?:(?:^|.*;\s*)contextPath\s*\=\s*([^;]*).*$)|^.*$/, "$1"));
+                },
+                cookie = extract(document.cookie),
+                contextPath = cookie === '' ? extract(window.location.search.substring(1)) : cookie,
+                rapidoc = document.getElementById('rapidoc');
+            if (contextPath !== '') {
+                rapidoc.addEventListener('spec-loaded', e => {
+                    e.detail.tags.forEach(tag => tag.paths.forEach(path => path.path = contextPath + path.path));
+                    rapidoc.requestUpdate();
+                });
+            }
+            rapidoc.setAttribute('spec-url', contextPath + '/swagger/chuu-api.yml');
+            
+        </script>
+    </body>
+</html>

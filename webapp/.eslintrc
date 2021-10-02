@@ -1,0 +1,56 @@
+{
+  "root": true,
+  "parser": "@typescript-eslint/parser",
+  "extends": [
+    "airbnb",
+    "eslint:recommended",
+    "plugin:react/recommended",
+     "plugin:import/errors",
+     "plugin:import/warnings",
+     "plugin:import/typescript",
+    "plugin:@typescript-eslint/recommended",
+
+    "plugin:jsx-a11y/recommended",
+    "plugin:react-hooks/recommended"
+  ],
+  "env": {
+    "browser": true,
+    "es6": true,
+    "node": true
+  },
+  "parserOptions": {
+    "ecmaVersion": 2021,
+    "sourceType": "module",
+    "ecmaFeatures": {
+      "jsx": true
+    }
+  },
+
+  "settings": {
+    "react": {
+      "version": "detect"
+    }
+  },
+  "plugins": [    "@typescript-eslint",
+  "import"],
+  "rules": {
+  "@typescript-eslint/explicit-module-boundary-types": "off",
+  "max-len": [1,{"code": 200}],
+  "dot-notation": "off",
+  "no-unused-vars": ["warn",{"varsIgnorePattern": "^_"}],
+  "no-underscore-dangle": "off",
+     "react/react-in-jsx-scope": "off",
+    "react/jsx-filename-extension": [2, { "extensions": [".js", ".jsx", ".ts", ".tsx"] }],
+
+  "import/extensions": [
+        "error",
+        "ignorePackages",
+        {
+          "js": "never",
+          "jsx": "never",
+          "ts": "never",
+          "tsx": "never"
+        }
+     ]
+  }
+}

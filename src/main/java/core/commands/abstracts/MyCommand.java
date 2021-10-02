@@ -1,5 +1,6 @@
 package core.commands.abstracts;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import core.Chuu;
 import core.apis.last.ConcurrentLastFM;
 import core.apis.last.LastFMFactory;
@@ -10,6 +11,7 @@ import core.commands.ContextSlashReceived;
 import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
+import core.commands.utils.serializers.MyCommandSerializer;
 import core.exceptions.*;
 import core.imagerenderer.ChartQuality;
 import core.parsers.Parser;
@@ -39,6 +41,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 
+@JsonSerialize(using = MyCommandSerializer.class)
 public abstract class MyCommand<T extends CommandParameters> implements EventListener {
     public final ConcurrentLastFM lastFM;
     protected final ChuuService db;
