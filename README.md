@@ -1,3 +1,20 @@
+# IMPORTANT
+
+THE MAIN INSTANCE OF CHUU HAS BEEN COMPROMISED AND IT CAN BE POTENTIALLY DANGEROUS TO YOUR SERVER. IT IS RECOMMENDED YOU
+KICK THE BOT FROM YOUR SERVER FROM THE TIME BEING.
+
+I have created a new server that will act as a hub until this issue is resolved. The invite link
+is [https://discord.gg/3tYsPMWvQG](https://discord.gg/3tYsPMWvQG). The current decision is to wait till an initial
+response from discord. If when they respond, things dont look good, I will host a new version of the bot. But will post
+updates here and on the new support server. Additionally you might be able to track this on the ongoing
+issue: [ISSUE REGARDING ONGOING DISCORD HACK](https://github.com/ishwi/Chuu/issues/64).
+
+You might contact me directly through mail: ishwi6@gmail.com or in my alt account in Discord: ishwi#8074
+
+Deeply sorry for the trouble caused.
+
+Ishwara.
+
 # Chuu
 
 Chuu is a Discord bot that integrates [Last.fm]([https://www.last.fm/](https://www.last.fm/)) with Discord. Highly
@@ -15,10 +32,14 @@ of available commands like:
 
 ## Invite Link
 
-You can invite the bot to your discord server
-using [this link:](https://discordapp.com/oauth2/authorize?scope=bot&client_id=537353774205894676&permissions=387136)
+DO NOT USE ANY OF THE EXISTING LINKS AS THEY ARE FROM THE COMPROMISED VERSION OF THE BOT.
+[//]: # (You can invite the bot to your discord server)
 
-There is also a support server if you want to ask any questions directly. [Join here:](https://discord.gg/HQGqYD7)
+[//]: # (using [this link:]&#40;https://discordapp.com/oauth2/authorize?scope=bot&client_id=537353774205894676&permissions=387136&#41;)
+
+[//]: # ()
+
+[//]: # (There is also a support server if you want to ask any questions directly. [Join here:]&#40;https://discord.gg/HQGqYD7&#41;)
 
 ## Set-Up
 
@@ -29,29 +50,29 @@ You can also build the bot and install it on your own. In order to do that you n
 - Postgresql 12+<br><br>
 - [A Discogs developer account](https://www.discogs.com/developers)
 
-  - DC_KY
-  - DC_SC
+    - DC_KY
+    - DC_SC
 
 - [A Spotify developer account](https://developer.spotify.com/)
-  - client_ID
-  - client_Secret
+    - client_ID
+    - client_Secret
 
 - [A last.fm developer account](https://secure.last.fm/login?next=/api/account/create)
-  - LASTFM_APIKEY
-  - LASTFM_APISECRET (If you want to enable scrobbling)
-  - LASTFM_BOT_SESSION_KEY (If you want to log what the bot scrobbles to a last.fm account)
+    - LASTFM_APIKEY
+    - LASTFM_APISECRET (If you want to enable scrobbling)
+    - LASTFM_BOT_SESSION_KEY (If you want to log what the bot scrobbles to a last.fm account)
 
 - [A Discord developer account](https://discordapp.com/login?redirect_to=%2Fdevelopers%2Fapplications%2F)
-  - DISCORD_TOKEN
+    - DISCORD_TOKEN
 
 - OS
-  - WALLPAPER_FOLDER (Directory with images to source backgrounds)
-  - CACHE_FOLDER (Where to cache images)
-  - IPV6_BLOCK  (A ipv6 block used to avoid getting ip banned by YT)
+    - WALLPAPER_FOLDER (Directory with images to source backgrounds)
+    - CACHE_FOLDER (Where to cache images)
+    - IPV6_BLOCK  (A ipv6 block used to avoid getting ip banned by YT)
 
 - OTHER
-  - MODERATION_CHANNEL_ID (A discord channel where the bot will dump some info)
-  - MODERATION_CHANNEL_2_ID (Another discord channel where the bot will dump some info)
+    - MODERATION_CHANNEL_ID (A discord channel where the bot will dump some info)
+    - MODERATION_CHANNEL_2_ID (Another discord channel where the bot will dump some info)
 
 Then you should set all those properties in the
 file [all.properties](https://github.com/ishwi/chuu/blob/master/src/main/resources/all.properties)
