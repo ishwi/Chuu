@@ -11,6 +11,7 @@ public class MusicBrainzServiceSingleton {
     public static synchronized MusicBrainzService getInstance() {
         if (instance == null) {
             instance = new MusicBrainzServiceImpl();
+//            instance = new EmptyMusicBrainzServiceImpl();
 
         }
         return instance;

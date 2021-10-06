@@ -21,7 +21,7 @@ CREATE TABLE image_blocked
     UNIQUE (discord_id)
 );
 INSERT INTO
-    persistent_image_blocked(discord_id)
+    image_blocked(discord_id)
 SELECT
     discord_id
 FROM
