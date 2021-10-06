@@ -84,7 +84,7 @@ Finally adjust the [datasource.properties](https://github.com/ishwi/chuu/blob/ma
 with the corresponding properties.
 
 For Postgres first check [the Musicbrainz section](#musicbrainz-database). Once that is done you should run the [following SQL script](https://github.com/ishwi/chuu/blob/master/model/src/main/resources/db/PostgresBaseline.sql) and
-adjust the [datasource.properties](https://github.com/ishwi/chuu/blob/master/model/src/main/resources/datasource.properties) with the corresponding properties.
+adjust the [mbiz.properties](https://github.com/ishwi/chuu/blob/master/src/main/resources/mbiz.properties) with the corresponding properties.
 
 If you are interested in posting info of the bot to a given botlist, fill the
 file [botlists.properties](https://github.com/ishwi/chuu/blob/master/src/main/resources/botlists.properties). The keys
