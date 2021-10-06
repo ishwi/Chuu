@@ -83,7 +83,7 @@ the [following SQL script](https://github.com/ishwi/chuu/blob/master/model/src/m
 Finally adjust the [datasource.properties](https://github.com/ishwi/chuu/blob/master/model/src/main/resources/datasource.properties)
 with the corresponding properties.
 
-For Postgres first check [the Musicbrainz section](#a-namembida-musicbrainz-database). Once that is done you should run the [following SQL script](https://github.com/ishwi/chuu/blob/master/model/src/main/resources/db/PostgresBaseline.sql) and
+For Postgres first check [the Musicbrainz section](#musicbrainz-database). Once that is done you should run the [following SQL script](https://github.com/ishwi/chuu/blob/master/model/src/main/resources/db/PostgresBaseline.sql) and
 adjust the [datasource.properties](https://github.com/ishwi/chuu/blob/master/model/src/main/resources/datasource.properties) with the corresponding properties.
 
 If you are interested in posting info of the bot to a given botlist, fill the
@@ -91,7 +91,7 @@ file [botlists.properties](https://github.com/ishwi/chuu/blob/master/src/main/re
 are specified
 in [BotLists.java](https://github.com/ishwi/chuu/blob/master/src/main/java/core/util/botlists/BotLists.java)
 
-### <a name="mbid"></a> Musicbrainz Database
+### Musicbrainz Database
 
 For Postgresql I would recommend you to use [mbdata](https://github.com/lalinsky/mbdata) to set up the musicbrainz
 database.  Then adjust the [mbiz.properties](https://github.com/ishwi/chuu/blob/master/src/main/resources/mbiz.properties) with the
