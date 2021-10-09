@@ -1,44 +1,60 @@
 volumes:
   lastfm:
   mb:
-  cache:
+
 services:
   musicbrainz:
     build:
-      context: ./mb
+      context: ./mbiz
       args:
-        - POSTGRES_VERSION=${POSTGRES_VERSION:-12}
-
-    image: musicbrainz-docker_db:${POSTGRES_VERSION:-12}
-    environment:
-      - POSTGRES_PASSWORD=password
-    ports:
-      - "5432:5432"
+        - POSTGRES_VERSION=${POSTGRES_VERSION:-14}
+        - MBID_TOKEN=${MBID_TOKEN}
+        - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    env_file:
+      - .env
+    command: postgres -c "shared_buffers=2048MB" -c "shared_preload_libraries=pg_amqp.so"
+    shm_size: "2GB"
     volumes:
       - mb:/var/lib/postgresql/data
-    restart: unless-stopped
+      - type: bind
+        source: ./mbiz/create-db.sh
+        target: /docker-entrypoint-initdb.d/create-db.sh
+      - type: bind
+        source: ./model/src/main/resources/db/PostgresBaseline.sql
+        target: /docker-entrypoint-initdb.d/PostgresBaseline.sql
+    expose:
+      - 5432
+    ports:
+      - "5432:5432"
 
 
   lastfm:
     image: "mariadb:latest"
     hostname: lastfm
-    environment:
-      - MYSQL_ROOT_PASSWORD=lastfm
-      - MYSQL_DATABASE=lastfm
-      - MYSQL_USER=lastfm
-      - MYSQL_PASSWORD=lastfm
+    env_file:
+      - .env
     volumes:
+      - type: bind
+        source: ./model/src/main/resources/db/MariaBaseline.sql
+        target: /docker-entrypoint-initdb.d/0.sql
+      - ./model/src/main/resources/db/migrations/:/docker-entrypoint-initdb.d
       - lastfm:/var/lib/mysql
     ports:
       - "3306:3306"
     expose:
       - 3306
+    healthcheck:
+      test: mysqladmin -p${MARIADB_ROOT_PASSWORD} ping -h localhost
+      interval: 2s
+      start_period: 5s
+      timeout: 10s
+      retries: 100
+
+
 
   chuu:
     build: .
     depends_on:
-      - lastfm
-      - musicbrainz
-    command: sh -c 'bin/wait-for lastfm:3306 --  gradle shadowJar --no-daemon  && java --enable-preview -jar /app/chuu.jar  stop-asking
-    volumes:
-      - cache:/data/
+      lastfm:
+        condition: service_healthy
+    command: sh -c 'java --enable-preview -jar /app/chuu.jar  stop-asking'

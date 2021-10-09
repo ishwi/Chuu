@@ -12,3 +12,4 @@ bin/
 /coverage/
 /src/test/generated_tests/**
 /src/test/generated_tests/
+*.env

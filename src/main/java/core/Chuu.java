@@ -113,7 +113,7 @@ public class Chuu {
         return gatewayIntents;
     }
 
-    public static void setupBot(boolean doDbCleanUp, boolean installGlobalCommands, boolean startRightAway) {
+    public static void setupBot(boolean doDbCleanUp, boolean installGlobalCommands, boolean startRightAway, boolean notMain) {
         logger = LoggerFactory.getLogger(Chuu.class);
         Properties properties = readToken();
         String channel = properties.getProperty("MODERATION_CHANNEL_ID");
@@ -134,9 +134,10 @@ public class Chuu {
         playerManager = new ExtendedAudioPlayerManager(scrobbleEventManager, scrobbleProcesser);
         playerRegistry = new PlayerRegistry(playerManager);
         scheduledService = new ScheduledService(Executors.newScheduledThreadPool(4), db.normalService());
-        scheduledService.setScheduled();
-        // Needs these three references
-
+        if (!notMain) {
+            // Only on main instance
+            scheduledService.setScheduled();
+        }
         // Logs every fime minutes the api calls
         scheduledService.addSchedule(() -> {
             long l = lastFMMetric.longValue();
@@ -266,11 +267,11 @@ public class Chuu {
         try (ScanResult result = new ClassGraph().acceptPackages("core.commands").scan()) {
             return result.getAllClasses().stream().filter(x -> x.isStandardClass() && !x.isAbstract())
                     .filter(x -> !x.getSimpleName().equals(HelpCommand.class.getSimpleName())
-                                 && !x.getSimpleName().equals(AdministrativeCommand.class.getSimpleName())
-                                 && !x.getSimpleName().equals(PrefixCommand.class.getSimpleName())
-                                 && !x.getSimpleName().equals(TagWithYearCommand.class.getSimpleName())
-                                 && !x.getSimpleName().equals(EvalCommand.class.getSimpleName())
-                                 && !x.getSimpleName().equals(FeaturedCommand.class.getSimpleName()))
+                            && !x.getSimpleName().equals(AdministrativeCommand.class.getSimpleName())
+                            && !x.getSimpleName().equals(PrefixCommand.class.getSimpleName())
+                            && !x.getSimpleName().equals(TagWithYearCommand.class.getSimpleName())
+                            && !x.getSimpleName().equals(EvalCommand.class.getSimpleName())
+                            && !x.getSimpleName().equals(FeaturedCommand.class.getSimpleName()))
                     .filter(x -> x.extendsSuperclass("core.commands.abstracts.MyCommand"))
                     .map(x -> {
                         try {
@@ -370,7 +371,7 @@ public class Chuu {
         Chuu.args = args;
         if (System.getProperty("file.encoding").equals("UTF-8")) {
             setupBot(Arrays.stream(args).anyMatch(x -> x.equalsIgnoreCase("stop-asking")), Arrays.stream(args).noneMatch(x -> x.equalsIgnoreCase("no-global")),
-                    Arrays.stream(args).anyMatch(x -> x.equalsIgnoreCase("start-away")));
+                    Arrays.stream(args).anyMatch(x -> x.equalsIgnoreCase("start-away")), Arrays.stream(args).anyMatch(x -> x.equalsIgnoreCase("not-main")));
         } else {
             throw new ChuuServiceException("Set up utf-8 pls");
         }

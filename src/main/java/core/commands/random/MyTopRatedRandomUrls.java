@@ -1,4 +1,4 @@
-package core.commands.stats;
+package core.commands.random;
 
 import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
@@ -34,10 +34,10 @@ public class MyTopRatedRandomUrls extends ConcurrentCommand<ChuuDataParams> {
                 count = String.valueOf(x.getNumberOfRatings());
             }
             return ". ***[" + x.getUrl()
-                   +
-                   "](" + x.getUrl() +
-                   ")***\n\t" + String.format("Average: **%s** | # of Ratings: **%s**", average, count) +
-                   "\n";
+                    +
+                    "](" + x.getUrl() +
+                    ")***\n\t" + String.format("Average: **%s** | # of Ratings: **%s**", average, count) +
+                    "\n";
         }).toList();
         StringBuilder a = new StringBuilder();
         for (
@@ -57,12 +57,17 @@ public class MyTopRatedRandomUrls extends ConcurrentCommand<ChuuDataParams> {
 
     @Override
     protected CommandCategory initCategory() {
-        return CommandCategory.DISCOVERY;
+        return CommandCategory.RANDOM;
     }
 
     @Override
     public Parser<ChuuDataParams> initParser() {
         return new OnlyUsernameParser(db);
+    }
+
+    @Override
+    public String slashName() {
+        return "mine";
     }
 
     @Override

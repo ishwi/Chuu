@@ -1,4 +1,4 @@
-package core.commands.discovery;
+package core.commands.random;
 
 import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;

@@ -1,3 +1,5 @@
+--liquibase formatted sql
+--changeset ish:botted
 CREATE TABLE botted
 (
     id        bigint PRIMARY KEY AUTO_INCREMENT NOT NULL,
@@ -63,7 +65,7 @@ CREATE TABLE role_colour_server
 ALTER TABLE user
     ADD COLUMN chart_options bigint NOT NULL DEFAULT 0;
 ALTER TABLE randomlinks
-    DROP CONSTRAINT randomlinks_fk_guild,
+    DROP CONSTRAINT IF EXISTS randomlinks_fk_guild,
     DROP COLUMN guild_id;
 ALTER TABLE command_logs
     ADD COLUMN success boolean;
@@ -74,3 +76,12 @@ ALTER TABLE guild
     ADD COLUMN announcement_id bigint NULL;
 ALTER TABLE guild
     ADD COLUMN announcement_enabled boolean NOT NULL DEFAULT TRUE;
+--rollback alter table guild drop column announcement_id;
+--rollback alter table guild drop column announcement_enabled;
+--rollback alter table command_logs drop column is_slash;
+--rollback alter table command_logs drop column success;
+--rollback alter table randomlinks drop column guild_id;
+--rollback alter table user drop column chart_options;
+--rollback  drop table role_colour_server;
+--rollback  drop table image_blocked;
+--rollback  drop table botted;

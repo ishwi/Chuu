@@ -1,9 +1,6 @@
 databaseChangeLog:
-  - includeAll:
-      path: file:/C:\Users\ish\IdeaProjects\discordBot\model\src\main\resources\db\migrations
-      relativeToChangelogFile: false
   - changeSet:
-      id: 1611699062049-1
+      id: 202101252311-1
       author: ish (generated)
       changes:
         - createTable:
@@ -46,7 +43,7 @@ databaseChangeLog:
                   type: VARCHAR(36)
             tableName: album
   - changeSet:
-      id: 1611699062049-2
+      id: 202101252311-2
       author: ish (generated)
       changes:
         - createTable:
@@ -78,7 +75,7 @@ databaseChangeLog:
                   type: BIGINT
             tableName: album_crowns
   - changeSet:
-      id: 1611699062049-3
+      id: 202101252311-3
       author: ish (generated)
       changes:
         - createTable:
@@ -115,7 +112,7 @@ databaseChangeLog:
                   type: TEXT
             tableName: album_rating
   - changeSet:
-      id: 1611699062049-4
+      id: 202101252311-4
       author: ish (generated)
       changes:
         - createTable:
@@ -143,7 +140,7 @@ databaseChangeLog:
                   type: VARCHAR(100)
             tableName: album_tags
   - changeSet:
-      id: 1611699062049-5
+      id: 202101252311-5
       author: ish (generated)
       changes:
         - createTable:
@@ -171,7 +168,7 @@ databaseChangeLog:
                   type: INT
             tableName: album_tracklist
   - changeSet:
-      id: 1611699062049-6
+      id: 202101252311-6
       author: ish (generated)
       changes:
         - createTable:
@@ -210,7 +207,7 @@ databaseChangeLog:
                   type: INT
             tableName: alt_url
   - changeSet:
-      id: 1611699062049-7
+      id: 202101252311-7
       author: ish (generated)
       changes:
         - createTable:
@@ -246,7 +243,7 @@ databaseChangeLog:
                   type: VARCHAR(40)
             tableName: artist
   - changeSet:
-      id: 1611699062049-8
+      id: 202101252311-8
       author: ish (generated)
       changes:
         - createTable:
@@ -269,7 +266,7 @@ databaseChangeLog:
                   type: VARCHAR(100)
             tableName: artist_tags
   - changeSet:
-      id: 1611699062049-9
+      id: 202101252311-9
       author: ish (generated)
       changes:
         - createTable:
@@ -332,7 +329,7 @@ databaseChangeLog:
                   type: INT
             tableName: audio_features
   - changeSet:
-      id: 1611699062049-10
+      id: 202101252311-10
       author: ish (generated)
       changes:
         - createTable:
@@ -374,7 +371,7 @@ databaseChangeLog:
                   type: INT
             tableName: backup
   - changeSet:
-      id: 1611699062049-11
+      id: 202101252311-11
       author: ish (generated)
       changes:
         - createTable:
@@ -400,7 +397,7 @@ databaseChangeLog:
                   type: BIGINT
             tableName: banned_artist_tags
   - changeSet:
-      id: 1611699062049-12
+      id: 202101252311-12
       author: ish (generated)
       changes:
         - createTable:
@@ -419,7 +416,7 @@ databaseChangeLog:
                   type: VARCHAR(100)
             tableName: banned_tags
   - changeSet:
-      id: 1611699062049-13
+      id: 202101252311-13
       author: ish (generated)
       changes:
         - createTable:
@@ -446,7 +443,7 @@ databaseChangeLog:
                   type: BIT
             tableName: command_guild_channel_disabled
   - changeSet:
-      id: 1611699062049-14
+      id: 202101252311-14
       author: ish (generated)
       changes:
         - createTable:
@@ -463,7 +460,7 @@ databaseChangeLog:
                   type: VARCHAR(40)
             tableName: command_guild_disabled
   - changeSet:
-      id: 1611699062049-15
+      id: 202101252311-15
       author: ish (generated)
       changes:
         - createTable:
@@ -501,7 +498,7 @@ databaseChangeLog:
                   type: datetime
             tableName: command_logs
   - changeSet:
-      id: 1611699062049-16
+      id: 202101252311-16
       author: ish (generated)
       changes:
         - createTable:
@@ -524,7 +521,7 @@ databaseChangeLog:
                   type: VARCHAR(100)
             tableName: corrected_tags
   - changeSet:
-      id: 1611699062049-17
+      id: 202101252311-17
       author: ish (generated)
       changes:
         - createTable:
@@ -547,7 +544,7 @@ databaseChangeLog:
                   type: BIGINT
             tableName: corrections
   - changeSet:
-      id: 1611699062049-18
+      id: 202101252311-18
       author: ish (generated)
       changes:
         - createTable:
@@ -580,16 +577,16 @@ databaseChangeLog:
                   name: additional_embed
                   type: BIT
               - column:
-                  defaultValue: 'null'
+                  defaultValue: 'IMAGE'
                   name: whoknows_mode
                   type: ENUM('IMAGE', 'LIST', 'PIE')
               - column:
-                  defaultValue: 'null'
+                  defaultValue: 'IMAGE'
                   name: chart_mode
                   type: ENUM('IMAGE', 'IMAGE_INFO', 'IMAGE_ASIDE', 'IMAGE_ASIDE_INFO', 'LIST',
                     'PIE')
               - column:
-                  defaultValue: 'null'
+                  defaultValue: 'IMAGE'
                   name: remaining_mode
                   type: ENUM('IMAGE', 'IMAGE_INFO', 'LIST', 'PIE')
               - column:
@@ -628,7 +625,7 @@ databaseChangeLog:
                   type: ENUM('OVERRIDE', 'ADD', 'ADD_END', 'EMPTY')
             tableName: guild
   - changeSet:
-      id: 1611699062049-19
+      id: 202101252311-19
       author: ish (generated)
       changes:
         - createTable:
@@ -651,7 +648,7 @@ databaseChangeLog:
                   type: BIGINT
             tableName: log_reported
   - changeSet:
-      id: 1611699062049-20
+      id: 202101252311-20
       author: ish (generated)
       changes:
         - createTable:
@@ -673,7 +670,7 @@ databaseChangeLog:
                   type: BIGINT
             tableName: log_tags
   - changeSet:
-      id: 1611699062049-21
+      id: 202101252311-21
       author: ish (generated)
       changes:
         - createTable:
@@ -697,7 +694,7 @@ databaseChangeLog:
                   type: VARCHAR(400)
             tableName: metadata
   - changeSet:
-      id: 1611699062049-22
+      id: 202101252311-22
       author: ish (generated)
       changes:
         - createTable:
@@ -717,7 +714,7 @@ databaseChangeLog:
                   type: BIGINT
             tableName: metrics
   - changeSet:
-      id: 1611699062049-23
+      id: 202101252311-23
       author: ish (generated)
       changes:
         - createTable:
@@ -755,7 +752,7 @@ databaseChangeLog:
                   type: INT
             tableName: past_recommendations
   - changeSet:
-      id: 1611699062049-24
+      id: 202101252311-24
       author: ish (generated)
       changes:
         - createTable:
@@ -789,7 +786,7 @@ databaseChangeLog:
                   type: datetime
             tableName: queued_alias
   - changeSet:
-      id: 1611699062049-25
+      id: 202101252311-25
       author: ish (generated)
       changes:
         - createTable:
@@ -822,7 +819,7 @@ databaseChangeLog:
                   type: datetime
             tableName: queued_url
   - changeSet:
-      id: 1611699062049-26
+      id: 202101252311-26
       author: ish (generated)
       changes:
         - createTable:
@@ -849,7 +846,7 @@ databaseChangeLog:
                   type: INT
             tableName: random_links_ratings
   - changeSet:
-      id: 1611699062049-27
+      id: 202101252311-27
       author: ish (generated)
       changes:
         - createTable:
@@ -871,7 +868,7 @@ databaseChangeLog:
                   type: VARCHAR(200)
             tableName: randomlinks
   - changeSet:
-      id: 1611699062049-28
+      id: 202101252311-28
       author: ish (generated)
       changes:
         - createTable:
@@ -888,7 +885,7 @@ databaseChangeLog:
                   type: FLOAT
             tableName: rate_limited
   - changeSet:
-      id: 1611699062049-29
+      id: 202101252311-29
       author: ish (generated)
       changes:
         - createTable:
@@ -917,7 +914,7 @@ databaseChangeLog:
                   type: datetime
             tableName: reported
   - changeSet:
-      id: 1611699062049-30
+      id: 202101252311-30
       author: ish (generated)
       changes:
         - createTable:
@@ -944,7 +941,7 @@ databaseChangeLog:
                   type: INT
             tableName: scrobbled_album
   - changeSet:
-      id: 1611699062049-31
+      id: 202101252311-31
       author: ish (generated)
       changes:
         - createTable:
@@ -966,7 +963,7 @@ databaseChangeLog:
                   type: INT
             tableName: scrobbled_artist
   - changeSet:
-      id: 1611699062049-32
+      id: 202101252311-32
       author: ish (generated)
       changes:
         - createTable:
@@ -997,7 +994,7 @@ databaseChangeLog:
                   type: BIT
             tableName: scrobbled_track
   - changeSet:
-      id: 1611699062049-33
+      id: 202101252311-33
       author: ish (generated)
       changes:
         - createTable:
@@ -1014,7 +1011,7 @@ databaseChangeLog:
                   type: BIGINT
             tableName: server_blocked
   - changeSet:
-      id: 1611699062049-34
+      id: 202101252311-34
       author: ish (generated)
       changes:
         - createTable:
@@ -1042,7 +1039,7 @@ databaseChangeLog:
                   type: INT
             tableName: server_reactions
   - changeSet:
-      id: 1611699062049-35
+      id: 202101252311-35
       author: ish (generated)
       changes:
         - createTable:
@@ -1084,7 +1081,7 @@ databaseChangeLog:
                   type: INT
             tableName: temp_combos
   - changeSet:
-      id: 1611699062049-36
+      id: 202101252311-36
       author: ish (generated)
       changes:
         - createTable:
@@ -1113,7 +1110,7 @@ databaseChangeLog:
                   type: BIT
             tableName: temp_corrections
   - changeSet:
-      id: 1611699062049-37
+      id: 202101252311-37
       author: ish (generated)
       changes:
         - createTable:
@@ -1126,7 +1123,7 @@ databaseChangeLog:
                   type: BIGINT
             tableName: temp_idss
   - changeSet:
-      id: 1611699062049-38
+      id: 202101252311-38
       author: ish (generated)
       changes:
         - createTable:
@@ -1138,7 +1135,7 @@ databaseChangeLog:
                   type: BIGINT
             tableName: temp_test
   - changeSet:
-      id: 1611699062049-39
+      id: 202101252311-39
       author: ish (generated)
       changes:
         - createTable:
@@ -1186,7 +1183,7 @@ databaseChangeLog:
                   type: timestamp
             tableName: top_combos
   - changeSet:
-      id: 1611699062049-40
+      id: 202101252311-40
       author: ish (generated)
       changes:
         - createTable:
@@ -1233,7 +1230,7 @@ databaseChangeLog:
                   type: INT
             tableName: track
   - changeSet:
-      id: 1611699062049-41
+      id: 202101252311-41
       author: ish (generated)
       changes:
         - createTable:
@@ -1354,7 +1351,7 @@ databaseChangeLog:
                   type: BIT
             tableName: user
   - changeSet:
-      id: 1611699062049-42
+      id: 202101252311-42
       author: ish (generated)
       changes:
         - createTable:
@@ -1390,7 +1387,7 @@ databaseChangeLog:
                   type: VARCHAR(400)
             tableName: user_billboard_data
   - changeSet:
-      id: 1611699062049-43
+      id: 202101252311-43
       author: ish (generated)
       changes:
         - createTable:
@@ -1428,7 +1425,7 @@ databaseChangeLog:
                   type: timestamp
             tableName: user_billboard_data_scrobbles
   - changeSet:
-      id: 1611699062049-44
+      id: 202101252311-44
       author: ish (generated)
       changes:
         - createTable:
@@ -1445,7 +1442,7 @@ databaseChangeLog:
                   type: BIGINT
             tableName: user_guild
   - changeSet:
-      id: 1611699062049-45
+      id: 202101252311-45
       author: ish (generated)
       changes:
         - createTable:
@@ -1473,7 +1470,7 @@ databaseChangeLog:
                   type: timestamp
             tableName: user_info
   - changeSet:
-      id: 1611699062049-46
+      id: 202101252311-46
       author: ish (generated)
       changes:
         - createTable:
@@ -1501,7 +1498,7 @@ databaseChangeLog:
                   type: INT
             tableName: user_reactions
   - changeSet:
-      id: 1611699062049-47
+      id: 202101252311-47
       author: ish (generated)
       changes:
         - createTable:
@@ -1529,7 +1526,7 @@ databaseChangeLog:
                   type: datetime
             tableName: vote
   - changeSet:
-      id: 1611699062049-48
+      id: 202101252311-48
       author: ish (generated)
       changes:
         - createTable:
@@ -1546,7 +1543,7 @@ databaseChangeLog:
                   type: date
             tableName: week
   - changeSet:
-      id: 1611699062049-49
+      id: 202101252311-49
       author: ish (generated)
       changes:
         - createTable:
@@ -1578,7 +1575,7 @@ databaseChangeLog:
                   type: INT
             tableName: weekly_billboard_album_global_listeners
   - changeSet:
-      id: 1611699062049-50
+      id: 202101252311-50
       author: ish (generated)
       changes:
         - createTable:
@@ -1610,7 +1607,7 @@ databaseChangeLog:
                   type: INT
             tableName: weekly_billboard_album_global_scrobbles
   - changeSet:
-      id: 1611699062049-51
+      id: 202101252311-51
       author: ish (generated)
       changes:
         - createTable:
@@ -1646,7 +1643,7 @@ databaseChangeLog:
                   type: INT
             tableName: weekly_billboard_album_listeners
   - changeSet:
-      id: 1611699062049-52
+      id: 202101252311-52
       author: ish (generated)
       changes:
         - createTable:
@@ -1682,7 +1679,7 @@ databaseChangeLog:
                   type: INT
             tableName: weekly_billboard_album_scrobbles
   - changeSet:
-      id: 1611699062049-53
+      id: 202101252311-53
       author: ish (generated)
       changes:
         - createTable:
@@ -1711,7 +1708,7 @@ databaseChangeLog:
                   type: INT
             tableName: weekly_billboard_artist_global_listeners
   - changeSet:
-      id: 1611699062049-54
+      id: 202101252311-54
       author: ish (generated)
       changes:
         - createTable:
@@ -1740,7 +1737,7 @@ databaseChangeLog:
                   type: INT
             tableName: weekly_billboard_artist_global_scrobbles
   - changeSet:
-      id: 1611699062049-55
+      id: 202101252311-55
       author: ish (generated)
       changes:
         - createTable:
@@ -1773,7 +1770,7 @@ databaseChangeLog:
                   type: INT
             tableName: weekly_billboard_artist_listeners
   - changeSet:
-      id: 1611699062049-56
+      id: 202101252311-56
       author: ish (generated)
       changes:
         - createTable:
@@ -1806,7 +1803,7 @@ databaseChangeLog:
                   type: INT
             tableName: weekly_billboard_artist_scrobbles
   - changeSet:
-      id: 1611699062049-57
+      id: 202101252311-57
       author: ish (generated)
       changes:
         - createTable:
@@ -1838,7 +1835,7 @@ databaseChangeLog:
                   type: INT
             tableName: weekly_billboard_global_listeners
   - changeSet:
-      id: 1611699062049-58
+      id: 202101252311-58
       author: ish (generated)
       changes:
         - createTable:
@@ -1870,7 +1867,7 @@ databaseChangeLog:
                   type: INT
             tableName: weekly_billboard_global_scrobbles
   - changeSet:
-      id: 1611699062049-59
+      id: 202101252311-59
       author: ish (generated)
       changes:
         - createTable:
@@ -1906,7 +1903,7 @@ databaseChangeLog:
                   type: INT
             tableName: weekly_billboard_listeners
   - changeSet:
-      id: 1611699062049-60
+      id: 202101252311-60
       author: ish (generated)
       changes:
         - createTable:
@@ -1942,7 +1939,7 @@ databaseChangeLog:
                   type: INT
             tableName: weekly_billboard_scrobbles
   - changeSet:
-      id: 1611699062049-61
+      id: 202101252311-61
       author: ish (generated)
       changes:
         - addUniqueConstraint:
@@ -1950,7 +1947,7 @@ databaseChangeLog:
             constraintName: album_id
             tableName: album_tracklist
   - changeSet:
-      id: 1611699062049-62
+      id: 202101252311-62
       author: ish (generated)
       changes:
         - addUniqueConstraint:
@@ -1958,7 +1955,7 @@ databaseChangeLog:
             constraintName: alt_id
             tableName: reported
   - changeSet:
-      id: 1611699062049-63
+      id: 202101252311-63
       author: ish (generated)
       changes:
         - addUniqueConstraint:
@@ -1966,7 +1963,7 @@ databaseChangeLog:
             constraintName: artist_id
             tableName: album
   - changeSet:
-      id: 1611699062049-64
+      id: 202101252311-64
       author: ish (generated)
       changes:
         - addUniqueConstraint:
@@ -1974,7 +1971,7 @@ databaseChangeLog:
             constraintName: artist_id
             tableName: album_tags
   - changeSet:
-      id: 1611699062049-65
+      id: 202101252311-65
       author: ish (generated)
       changes:
         - addUniqueConstraint:
@@ -1982,7 +1979,7 @@ databaseChangeLog:
             constraintName: artist_id
             tableName: artist_tags
   - changeSet:
-      id: 1611699062049-66
+      id: 202101252311-66
       author: ish (generated)
       changes:
         - addUniqueConstraint:
@@ -1990,7 +1987,7 @@ databaseChangeLog:
             constraintName: artist_id
             tableName: past_recommendations
   - changeSet:
-      id: 1611699062049-67
+      id: 202101252311-67
       author: ish (generated)
       changes:
         - addUniqueConstraint:
@@ -1998,7 +1995,7 @@ databaseChangeLog:
             constraintName: artist_id
             tableName: queued_url
   - changeSet:
-      id: 1611699062049-68
+      id: 202101252311-68
       author: ish (generated)
       changes:
         - addUniqueConstraint:
@@ -2006,7 +2003,7 @@ databaseChangeLog:
             constraintName: artist_id_unique
             tableName: album_crowns
   - changeSet:
-      id: 1611699062049-69
+      id: 202101252311-69
       author: ish (generated)
       changes:
         - addUniqueConstraint:
@@ -2014,7 +2011,7 @@ databaseChangeLog:
             constraintName: combo_uniqueness
             tableName: top_combos
   - changeSet:
-      id: 1611699062049-70
+      id: 202101252311-70
       author: ish (generated)
       changes:
         - addUniqueConstraint:
@@ -2022,7 +2019,7 @@ databaseChangeLog:
             constraintName: invalid
             tableName: corrected_tags
   - changeSet:
-      id: 1611699062049-71
+      id: 202101252311-71
       author: ish (generated)
       changes:
         - addUniqueConstraint:
@@ -2030,7 +2027,7 @@ databaseChangeLog:
             constraintName: review_unique
             tableName: album_rating
   - changeSet:
-      id: 1611699062049-72
+      id: 202101252311-72
       author: ish (generated)
       changes:
         - addUniqueConstraint:
@@ -2038,7 +2035,7 @@ databaseChangeLog:
             constraintName: track_and_artist
             tableName: track
   - changeSet:
-      id: 1611699062049-73
+      id: 202101252311-73
       author: ish (generated)
       changes:
         - addUniqueConstraint:
@@ -2046,7 +2043,7 @@ databaseChangeLog:
             constraintName: uc_url
             tableName: alt_url
   - changeSet:
-      id: 1611699062049-74
+      id: 202101252311-74
       author: ish (generated)
       changes:
         - addUniqueConstraint:
@@ -2054,7 +2051,7 @@ databaseChangeLog:
             constraintName: url
             tableName: random_links_ratings
   - changeSet:
-      id: 1611699062049-75
+      id: 202101252311-75
       author: ish (generated)
       changes:
         - createIndex:
@@ -2064,7 +2061,7 @@ databaseChangeLog:
             indexName: alb_mbid_idx
             tableName: album
   - changeSet:
-      id: 1611699062049-76
+      id: 202101252311-76
       author: ish (generated)
       changes:
         - createIndex:
@@ -2076,7 +2073,7 @@ databaseChangeLog:
             indexName: album_crown_fk_guildid
             tableName: album_crowns
   - changeSet:
-      id: 1611699062049-77
+      id: 202101252311-77
       author: ish (generated)
       changes:
         - createIndex:
@@ -2086,7 +2083,7 @@ databaseChangeLog:
             indexName: album_name_alb
             tableName: album
   - changeSet:
-      id: 1611699062049-78
+      id: 202101252311-78
       author: ish (generated)
       changes:
         - createIndex:
@@ -2097,7 +2094,7 @@ databaseChangeLog:
             indexName: album_rating_fk_album
             tableName: album_rating
   - changeSet:
-      id: 1611699062049-79
+      id: 202101252311-79
       author: ish (generated)
       changes:
         - createIndex:
@@ -2108,7 +2105,7 @@ databaseChangeLog:
             indexName: album_rating_url_fk_discordid
             tableName: album_rating
   - changeSet:
-      id: 1611699062049-80
+      id: 202101252311-80
       author: ish (generated)
       changes:
         - createIndex:
@@ -2118,7 +2115,7 @@ databaseChangeLog:
             indexName: album_tags_fk_album_id
             tableName: album_tags
   - changeSet:
-      id: 1611699062049-81
+      id: 202101252311-81
       author: ish (generated)
       changes:
         - createIndex:
@@ -2128,7 +2125,7 @@ databaseChangeLog:
             indexName: album_tracklist_fk_track
             tableName: album_tracklist
   - changeSet:
-      id: 1611699062049-82
+      id: 202101252311-82
       author: ish (generated)
       changes:
         - createIndex:
@@ -2138,7 +2135,7 @@ databaseChangeLog:
             indexName: artist_id
             tableName: scrobbled_artist
   - changeSet:
-      id: 1611699062049-83
+      id: 202101252311-83
       author: ish (generated)
       changes:
         - createIndex:
@@ -2148,7 +2145,7 @@ databaseChangeLog:
             indexName: artist_id
             tableName: scrobbled_track
   - changeSet:
-      id: 1611699062049-84
+      id: 202101252311-84
       author: ish (generated)
       changes:
         - createIndex:
@@ -2158,7 +2155,7 @@ databaseChangeLog:
             indexName: artist_tags_artist_id
             tableName: artist_tags
   - changeSet:
-      id: 1611699062049-85
+      id: 202101252311-85
       author: ish (generated)
       changes:
         - createIndex:
@@ -2168,7 +2165,7 @@ databaseChangeLog:
             indexName: corrections_fk_artist
             tableName: corrections
   - changeSet:
-      id: 1611699062049-86
+      id: 202101252311-86
       author: ish (generated)
       changes:
         - createIndex:
@@ -2181,7 +2178,7 @@ databaseChangeLog:
             indexName: id
             tableName: temp_corrections
   - changeSet:
-      id: 1611699062049-87
+      id: 202101252311-87
       author: ish (generated)
       changes:
         - createIndex:
@@ -2191,7 +2188,7 @@ databaseChangeLog:
             indexName: log_mod_fk_user
             tableName: log_reported
   - changeSet:
-      id: 1611699062049-88
+      id: 202101252311-88
       author: ish (generated)
       changes:
         - createIndex:
@@ -2201,7 +2198,7 @@ databaseChangeLog:
             indexName: log_reported_fk_user
             tableName: log_reported
   - changeSet:
-      id: 1611699062049-89
+      id: 202101252311-89
       author: ish (generated)
       changes:
         - createIndex:
@@ -2214,7 +2211,7 @@ databaseChangeLog:
             indexName: lookup_user_billboard_scrobble
             tableName: user_billboard_data_scrobbles
   - changeSet:
-      id: 1611699062049-90
+      id: 202101252311-90
       author: ish (generated)
       changes:
         - createIndex:
@@ -2224,7 +2221,7 @@ databaseChangeLog:
             indexName: mbid
             tableName: track
   - changeSet:
-      id: 1611699062049-91
+      id: 202101252311-91
       author: ish (generated)
       changes:
         - createIndex:
@@ -2234,7 +2231,7 @@ databaseChangeLog:
             indexName: past_recommendations_fk_giv
             tableName: past_recommendations
   - changeSet:
-      id: 1611699062049-92
+      id: 202101252311-92
       author: ish (generated)
       changes:
         - createIndex:
@@ -2244,7 +2241,7 @@ databaseChangeLog:
             indexName: past_recommendations_fk_rec
             tableName: past_recommendations
   - changeSet:
-      id: 1611699062049-93
+      id: 202101252311-93
       author: ish (generated)
       changes:
         - createIndex:
@@ -2255,7 +2252,7 @@ databaseChangeLog:
             indexName: queued_url_fk_discordid
             tableName: queued_url
   - changeSet:
-      id: 1611699062049-94
+      id: 202101252311-94
       author: ish (generated)
       changes:
         - createIndex:
@@ -2265,7 +2262,7 @@ databaseChangeLog:
             indexName: queuedalias_fk_artsit
             tableName: queued_alias
   - changeSet:
-      id: 1611699062049-95
+      id: 202101252311-95
       author: ish (generated)
       changes:
         - createIndex:
@@ -2275,7 +2272,7 @@ databaseChangeLog:
             indexName: queuedalias_fk_discordid
             tableName: queued_alias
   - changeSet:
-      id: 1611699062049-96
+      id: 202101252311-96
       author: ish (generated)
       changes:
         - createIndex:
@@ -2285,7 +2282,7 @@ databaseChangeLog:
             indexName: random_links_ratings_discord
             tableName: random_links_ratings
   - changeSet:
-      id: 1611699062049-97
+      id: 202101252311-97
       author: ish (generated)
       changes:
         - createIndex:
@@ -2295,7 +2292,7 @@ databaseChangeLog:
             indexName: randomlinks_fk_guild
             tableName: randomlinks
   - changeSet:
-      id: 1611699062049-98
+      id: 202101252311-98
       author: ish (generated)
       changes:
         - createIndex:
@@ -2306,7 +2303,7 @@ databaseChangeLog:
             indexName: randomlinks_fk_user
             tableName: randomlinks
   - changeSet:
-      id: 1611699062049-99
+      id: 202101252311-99
       author: ish (generated)
       changes:
         - createIndex:
@@ -2317,7 +2314,7 @@ databaseChangeLog:
             indexName: release_year
             tableName: album
   - changeSet:
-      id: 1611699062049-100
+      id: 202101252311-100
       author: ish (generated)
       changes:
         - createIndex:
@@ -2327,7 +2324,7 @@ databaseChangeLog:
             indexName: reported_fk_user
             tableName: reported
   - changeSet:
-      id: 1611699062049-101
+      id: 202101252311-101
       author: ish (generated)
       changes:
         - createIndex:
@@ -2337,7 +2334,7 @@ databaseChangeLog:
             indexName: scrobbled_album_fk_artist
             tableName: scrobbled_album
   - changeSet:
-      id: 1611699062049-102
+      id: 202101252311-102
       author: ish (generated)
       changes:
         - createIndex:
@@ -2347,7 +2344,7 @@ databaseChangeLog:
             indexName: scrobbled_album_fk_user
             tableName: scrobbled_album
   - changeSet:
-      id: 1611699062049-103
+      id: 202101252311-103
       author: ish (generated)
       changes:
         - createIndex:
@@ -2357,7 +2354,7 @@ databaseChangeLog:
             indexName: scrobbled_artist_fk_user
             tableName: scrobbled_artist
   - changeSet:
-      id: 1611699062049-104
+      id: 202101252311-104
       author: ish (generated)
       changes:
         - createIndex:
@@ -2367,7 +2364,7 @@ databaseChangeLog:
             indexName: scrobbled_artist_plays
             tableName: scrobbled_artist
   - changeSet:
-      id: 1611699062049-105
+      id: 202101252311-105
       author: ish (generated)
       changes:
         - createIndex:
@@ -2377,7 +2374,7 @@ databaseChangeLog:
             indexName: scrobbled_track_fk_user
             tableName: scrobbled_track
   - changeSet:
-      id: 1611699062049-106
+      id: 202101252311-106
       author: ish (generated)
       changes:
         - createIndex:
@@ -2387,7 +2384,7 @@ databaseChangeLog:
             indexName: spotify_id_track
             tableName: track
   - changeSet:
-      id: 1611699062049-107
+      id: 202101252311-107
       author: ish (generated)
       changes:
         - createIndex:
@@ -2397,7 +2394,7 @@ databaseChangeLog:
             indexName: tag
             tableName: artist_tags
   - changeSet:
-      id: 1611699062049-108
+      id: 202101252311-108
       author: ish (generated)
       changes:
         - createIndex:
@@ -2408,7 +2405,7 @@ databaseChangeLog:
             indexName: track_fk_album
             tableName: track
   - changeSet:
-      id: 1611699062049-109
+      id: 202101252311-109
       author: ish (generated)
       changes:
         - createIndex:
@@ -2418,7 +2415,7 @@ databaseChangeLog:
             indexName: track_id
             tableName: scrobbled_track
   - changeSet:
-      id: 1611699062049-110
+      id: 202101252311-110
       author: ish (generated)
       changes:
         - createIndex:
@@ -2433,7 +2430,7 @@ databaseChangeLog:
             indexName: track_name
             tableName: user_billboard_data
   - changeSet:
-      id: 1611699062049-111
+      id: 202101252311-111
       author: ish (generated)
       changes:
         - createIndex:
@@ -2443,7 +2440,7 @@ databaseChangeLog:
             indexName: url
             tableName: temp_corrections
   - changeSet:
-      id: 1611699062049-112
+      id: 202101252311-112
       author: ish (generated)
       changes:
         - createIndex:
@@ -2454,7 +2451,7 @@ databaseChangeLog:
             indexName: user_billboard_data_artist_id
             tableName: user_billboard_data
   - changeSet:
-      id: 1611699062049-113
+      id: 202101252311-113
       author: ish (generated)
       changes:
         - createIndex:
@@ -2464,7 +2461,7 @@ databaseChangeLog:
             indexName: user_billboard_data_guild_id
             tableName: user_billboard_data
   - changeSet:
-      id: 1611699062049-114
+      id: 202101252311-114
       author: ish (generated)
       changes:
         - createIndex:
@@ -2475,7 +2472,7 @@ databaseChangeLog:
             indexName: user_billboard_data_scrobbles_artist_id
             tableName: user_billboard_data_scrobbles
   - changeSet:
-      id: 1611699062049-115
+      id: 202101252311-115
       author: ish (generated)
       changes:
         - createIndex:
@@ -2486,7 +2483,7 @@ databaseChangeLog:
             indexName: user_billboard_data_scrobbles_week_id
             tableName: user_billboard_data_scrobbles
   - changeSet:
-      id: 1611699062049-116
+      id: 202101252311-116
       author: ish (generated)
       changes:
         - createIndex:
@@ -2496,7 +2493,7 @@ databaseChangeLog:
             indexName: user_reactions_user
             tableName: user_reactions
   - changeSet:
-      id: 1611699062049-117
+      id: 202101252311-117
       author: ish (generated)
       changes:
         - createIndex:
@@ -2506,7 +2503,7 @@ databaseChangeLog:
             indexName: vote_fk_user
             tableName: vote
   - changeSet:
-      id: 1611699062049-118
+      id: 202101252311-118
       author: ish (generated)
       changes:
         - createIndex:
@@ -2519,7 +2516,7 @@ databaseChangeLog:
             indexName: week_id
             tableName: user_billboard_data
   - changeSet:
-      id: 1611699062049-119
+      id: 202101252311-119
       author: ish (generated)
       changes:
         - createIndex:
@@ -2530,7 +2527,7 @@ databaseChangeLog:
             indexName: week_id
             tableName: weekly_billboard_album_global_listeners
   - changeSet:
-      id: 1611699062049-120
+      id: 202101252311-120
       author: ish (generated)
       changes:
         - createIndex:
@@ -2541,7 +2538,7 @@ databaseChangeLog:
             indexName: week_id
             tableName: weekly_billboard_album_global_scrobbles
   - changeSet:
-      id: 1611699062049-121
+      id: 202101252311-121
       author: ish (generated)
       changes:
         - createIndex:
@@ -2555,7 +2552,7 @@ databaseChangeLog:
             indexName: week_id
             tableName: weekly_billboard_album_listeners
   - changeSet:
-      id: 1611699062049-122
+      id: 202101252311-122
       author: ish (generated)
       changes:
         - createIndex:
@@ -2569,7 +2566,7 @@ databaseChangeLog:
             indexName: week_id
             tableName: weekly_billboard_album_scrobbles
   - changeSet:
-      id: 1611699062049-123
+      id: 202101252311-123
       author: ish (generated)
       changes:
         - createIndex:
@@ -2580,7 +2577,7 @@ databaseChangeLog:
             indexName: week_id
             tableName: weekly_billboard_artist_global_scrobbles
   - changeSet:
-      id: 1611699062049-124
+      id: 202101252311-124
       author: ish (generated)
       changes:
         - createIndex:
@@ -2594,7 +2591,7 @@ databaseChangeLog:
             indexName: week_id
             tableName: weekly_billboard_artist_scrobbles
   - changeSet:
-      id: 1611699062049-125
+      id: 202101252311-125
       author: ish (generated)
       changes:
         - createIndex:
@@ -2605,7 +2602,7 @@ databaseChangeLog:
             indexName: week_id
             tableName: weekly_billboard_global_listeners
   - changeSet:
-      id: 1611699062049-126
+      id: 202101252311-126
       author: ish (generated)
       changes:
         - createIndex:
@@ -2616,7 +2613,7 @@ databaseChangeLog:
             indexName: week_id
             tableName: weekly_billboard_global_scrobbles
   - changeSet:
-      id: 1611699062049-127
+      id: 202101252311-127
       author: ish (generated)
       changes:
         - createIndex:
@@ -2630,7 +2627,7 @@ databaseChangeLog:
             indexName: week_id
             tableName: weekly_billboard_listeners
   - changeSet:
-      id: 1611699062049-128
+      id: 202101252311-128
       author: ish (generated)
       changes:
         - createIndex:
@@ -2644,7 +2641,7 @@ databaseChangeLog:
             indexName: week_id
             tableName: weekly_billboard_scrobbles
   - changeSet:
-      id: 1611699062049-129
+      id: 202101252311-129
       author: ish (generated)
       changes:
         - createIndex:
@@ -2655,7 +2652,7 @@ databaseChangeLog:
             indexName: weekly_billboard_album_artist_id
             tableName: weekly_billboard_album_listeners
   - changeSet:
-      id: 1611699062049-130
+      id: 202101252311-130
       author: ish (generated)
       changes:
         - createIndex:
@@ -2666,7 +2663,7 @@ databaseChangeLog:
             indexName: weekly_billboard_album_global_artist_id
             tableName: weekly_billboard_album_global_listeners
   - changeSet:
-      id: 1611699062049-131
+      id: 202101252311-131
       author: ish (generated)
       changes:
         - createIndex:
@@ -2677,7 +2674,7 @@ databaseChangeLog:
             indexName: weekly_billboard_album_global_scrobbles_artist_id
             tableName: weekly_billboard_album_global_scrobbles
   - changeSet:
-      id: 1611699062049-132
+      id: 202101252311-132
       author: ish (generated)
       changes:
         - createIndex:
@@ -2688,7 +2685,7 @@ databaseChangeLog:
             indexName: weekly_billboard_album_guild_id
             tableName: weekly_billboard_album_listeners
   - changeSet:
-      id: 1611699062049-133
+      id: 202101252311-133
       author: ish (generated)
       changes:
         - createIndex:
@@ -2699,7 +2696,7 @@ databaseChangeLog:
             indexName: weekly_billboard_album_scrobbles_artist_id
             tableName: weekly_billboard_album_scrobbles
   - changeSet:
-      id: 1611699062049-134
+      id: 202101252311-134
       author: ish (generated)
       changes:
         - createIndex:
@@ -2710,7 +2707,7 @@ databaseChangeLog:
             indexName: weekly_billboard_album_scrobbles_guild_id
             tableName: weekly_billboard_album_scrobbles
   - changeSet:
-      id: 1611699062049-135
+      id: 202101252311-135
       author: ish (generated)
       changes:
         - createIndex:
@@ -2721,7 +2718,7 @@ databaseChangeLog:
             indexName: weekly_billboard_artist_global_listeners_artist_id
             tableName: weekly_billboard_artist_global_listeners
   - changeSet:
-      id: 1611699062049-136
+      id: 202101252311-136
       author: ish (generated)
       changes:
         - createIndex:
@@ -2732,7 +2729,7 @@ databaseChangeLog:
             indexName: weekly_billboard_artist_global_listeners_week_id
             tableName: weekly_billboard_artist_global_listeners
   - changeSet:
-      id: 1611699062049-137
+      id: 202101252311-137
       author: ish (generated)
       changes:
         - createIndex:
@@ -2743,7 +2740,7 @@ databaseChangeLog:
             indexName: weekly_billboard_artist_global_scrobbles_artist_id
             tableName: weekly_billboard_artist_global_scrobbles
   - changeSet:
-      id: 1611699062049-138
+      id: 202101252311-138
       author: ish (generated)
       changes:
         - createIndex:
@@ -2754,7 +2751,7 @@ databaseChangeLog:
             indexName: weekly_billboard_artist_guild_id
             tableName: weekly_billboard_artist_listeners
   - changeSet:
-      id: 1611699062049-139
+      id: 202101252311-139
       author: ish (generated)
       changes:
         - createIndex:
@@ -2765,7 +2762,7 @@ databaseChangeLog:
             indexName: weekly_billboard_artist_id
             tableName: weekly_billboard_listeners
   - changeSet:
-      id: 1611699062049-140
+      id: 202101252311-140
       author: ish (generated)
       changes:
         - createIndex:
@@ -2776,7 +2773,7 @@ databaseChangeLog:
             indexName: weekly_billboard_artist_scrobbles_artist_id
             tableName: weekly_billboard_artist_scrobbles
   - changeSet:
-      id: 1611699062049-141
+      id: 202101252311-141
       author: ish (generated)
       changes:
         - createIndex:
@@ -2787,7 +2784,7 @@ databaseChangeLog:
             indexName: weekly_billboard_artist_scrobbles_guild_id
             tableName: weekly_billboard_artist_scrobbles
   - changeSet:
-      id: 1611699062049-142
+      id: 202101252311-142
       author: ish (generated)
       changes:
         - createIndex:
@@ -2798,7 +2795,7 @@ databaseChangeLog:
             indexName: weekly_billboard_artist_week_id
             tableName: weekly_billboard_artist_listeners
   - changeSet:
-      id: 1611699062049-143
+      id: 202101252311-143
       author: ish (generated)
       changes:
         - createIndex:
@@ -2809,7 +2806,7 @@ databaseChangeLog:
             indexName: weekly_billboard_artists_artist_id
             tableName: weekly_billboard_artist_listeners
   - changeSet:
-      id: 1611699062049-144
+      id: 202101252311-144
       author: ish (generated)
       changes:
         - createIndex:
@@ -2820,7 +2817,7 @@ databaseChangeLog:
             indexName: weekly_billboard_global_artist_id
             tableName: weekly_billboard_global_listeners
   - changeSet:
-      id: 1611699062049-145
+      id: 202101252311-145
       author: ish (generated)
       changes:
         - createIndex:
@@ -2831,7 +2828,7 @@ databaseChangeLog:
             indexName: weekly_billboard_global_scrobbles_artist_id
             tableName: weekly_billboard_global_scrobbles
   - changeSet:
-      id: 1611699062049-146
+      id: 202101252311-146
       author: ish (generated)
       changes:
         - createIndex:
@@ -2842,7 +2839,7 @@ databaseChangeLog:
             indexName: weekly_billboard_guild_id
             tableName: weekly_billboard_listeners
   - changeSet:
-      id: 1611699062049-147
+      id: 202101252311-147
       author: ish (generated)
       changes:
         - createIndex:
@@ -2853,7 +2850,7 @@ databaseChangeLog:
             indexName: weekly_billboard_scrobbles_artist_id
             tableName: weekly_billboard_scrobbles
   - changeSet:
-      id: 1611699062049-148
+      id: 202101252311-148
       author: ish (generated)
       changes:
         - createIndex:
@@ -2864,7 +2861,7 @@ databaseChangeLog:
             indexName: weekly_billboard_scrobbles_guild_id
             tableName: weekly_billboard_scrobbles
   - changeSet:
-      id: 1611699062049-149
+      id: 202101252311-149
       author: ish (generated)
       changes:
         - addForeignKeyConstraint:
@@ -2879,7 +2876,7 @@ databaseChangeLog:
             referencedTableName: user_guild
             validate: true
   - changeSet:
-      id: 1611699062049-150
+      id: 202101252311-150
       author: ish (generated)
       changes:
         - addForeignKeyConstraint:
@@ -2894,7 +2891,7 @@ databaseChangeLog:
             referencedTableName: artist
             validate: true
   - changeSet:
-      id: 1611699062049-151
+      id: 202101252311-151
       author: ish (generated)
       changes:
         - addForeignKeyConstraint:
@@ -2909,7 +2906,7 @@ databaseChangeLog:
             referencedTableName: artist
             validate: true
   - changeSet:
-      id: 1611699062049-152
+      id: 202101252311-152
       author: ish (generated)
       changes:
         - addForeignKeyConstraint:
@@ -2924,7 +2921,7 @@ databaseChangeLog:
             referencedTableName: album
             validate: true
   - changeSet:
-      id: 1611699062049-153
+      id: 202101252311-153
       author: ish (generated)
       changes:
         - addForeignKeyConstraint:
@@ -2939,7 +2936,7 @@ databaseChangeLog:
             referencedTableName: album
             validate: true
   - changeSet:
-      id: 1611699062049-154
+      id: 202101252311-154
       author: ish (generated)
       changes:
         - addForeignKeyConstraint:
@@ -2954,7 +2951,7 @@ databaseChangeLog:
             referencedTableName: user
             validate: true
   - changeSet:
-      id: 1611699062049-155
+      id: 202101252311-155
       author: ish (generated)
       changes:
         - addForeignKeyConstraint:
@@ -2969,7 +2966,7 @@ databaseChangeLog:
             referencedTableName: album
             validate: true
   - changeSet:
-      id: 1611699062049-156
+      id: 202101252311-156
       author: ish (generated)
       changes:
         - addForeignKeyConstraint:
@@ -2984,7 +2981,7 @@ databaseChangeLog:
             referencedTableName: artist
             validate: true
   - changeSet:
-      id: 1611699062049-157
+      id: 202101252311-157
       author: ish (generated)
       changes:
         - addForeignKeyConstraint:
@@ -2999,7 +2996,7 @@ databaseChangeLog:
             referencedTableName: album
             validate: true
   - changeSet:
-      id: 1611699062049-158
+      id: 202101252311-158
       author: ish (generated)
       changes:
         - addForeignKeyConstraint:
@@ -3014,7 +3011,7 @@ databaseChangeLog:
             referencedTableName: track
             validate: true
   - changeSet:
-      id: 1611699062049-159
+      id: 202101252311-159
       author: ish (generated)
       changes:
         - addForeignKeyConstraint:
@@ -3029,7 +3026,7 @@ databaseChangeLog:
             referencedTableName: artist
             validate: true
   - changeSet:
-      id: 1611699062049-160
+      id: 202101252311-160
       author: ish (generated)
       changes:
         - addForeignKeyConstraint:
@@ -3044,7 +3041,7 @@ databaseChangeLog:
             referencedTableName: artist
             validate: true
   - changeSet:
-      id: 1611699062049-161
+      id: 202101252311-161
       author: ish (generated)
       changes:
         - addForeignKeyConstraint:
@@ -3059,7 +3056,7 @@ databaseChangeLog:
             referencedTableName: guild
             validate: true
   - changeSet:
-      id: 1611699062049-162
+      id: 202101252311-162
       author: ish (generated)
       changes:
         - addForeignKeyConstraint:
@@ -3074,7 +3071,7 @@ databaseChangeLog:
             referencedTableName: guild
             validate: true
   - changeSet:
-      id: 1611699062049-163
+      id: 202101252311-163
       author: ish (generated)
       changes:
         - addForeignKeyConstraint:
@@ -3089,7 +3086,7 @@ databaseChangeLog:
             referencedTableName: artist
             validate: true
   - changeSet:
-      id: 1611699062049-164
+      id: 202101252311-164
       author: ish (generated)
       changes:
         - addForeignKeyConstraint:
@@ -3104,7 +3101,7 @@ databaseChangeLog:
             referencedTableName: user
             validate: true
   - changeSet:
-      id: 1611699062049-165
+      id: 202101252311-165
       author: ish (generated)
       changes:
         - addForeignKeyConstraint:
@@ -3119,7 +3116,7 @@ databaseChangeLog:
             referencedTableName: artist
             validate: true
   - changeSet:
-      id: 1611699062049-166
+      id: 202101252311-166
       author: ish (generated)
       changes:
         - addForeignKeyConstraint:
@@ -3134,7 +3131,7 @@ databaseChangeLog:
             referencedTableName: user
             validate: true
   - changeSet:
-      id: 1611699062049-167
+      id: 202101252311-167
       author: ish (generated)
       changes:
         - addForeignKeyConstraint:
@@ -3149,7 +3146,7 @@ databaseChangeLog:
             referencedTableName: user
             validate: true
   - changeSet:
-      id: 1611699062049-168
+      id: 202101252311-168
       author: ish (generated)
       changes:
         - addForeignKeyConstraint:
@@ -3164,7 +3161,7 @@ databaseChangeLog:
             referencedTableName: artist
             validate: true
   - changeSet:
-      id: 1611699062049-169
+      id: 202101252311-169
       author: ish (generated)
       changes:
         - addForeignKeyConstraint:
@@ -3179,7 +3176,7 @@ databaseChangeLog:
             referencedTableName: user
             validate: true
   - changeSet:
-      id: 1611699062049-170
+      id: 202101252311-170
       author: ish (generated)
       changes:
         - addForeignKeyConstraint:
@@ -3194,7 +3191,7 @@ databaseChangeLog:
             referencedTableName: artist
             validate: true
   - changeSet:
-      id: 1611699062049-171
+      id: 202101252311-171
       author: ish (generated)
       changes:
         - addForeignKeyConstraint:
@@ -3209,7 +3206,7 @@ databaseChangeLog:
             referencedTableName: user
             validate: true
   - changeSet:
-      id: 1611699062049-172
+      id: 202101252311-172
       author: ish (generated)
       changes:
         - addForeignKeyConstraint:
@@ -3224,7 +3221,7 @@ databaseChangeLog:
             referencedTableName: user
             validate: true
   - changeSet:
-      id: 1611699062049-173
+      id: 202101252311-173
       author: ish (generated)
       changes:
         - addForeignKeyConstraint:
@@ -3239,7 +3236,7 @@ databaseChangeLog:
             referencedTableName: randomlinks
             validate: true
   - changeSet:
-      id: 1611699062049-174
+      id: 202101252311-174
       author: ish (generated)
       changes:
         - addForeignKeyConstraint:
@@ -3254,7 +3251,7 @@ databaseChangeLog:
             referencedTableName: guild
             validate: true
   - changeSet:
-      id: 1611699062049-175
+      id: 202101252311-175
       author: ish (generated)
       changes:
         - addForeignKeyConstraint:
@@ -3269,7 +3266,7 @@ databaseChangeLog:
             referencedTableName: user
             validate: true
   - changeSet:
-      id: 1611699062049-176
+      id: 202101252311-176
       author: ish (generated)
       changes:
         - addForeignKeyConstraint:
@@ -3284,7 +3281,7 @@ databaseChangeLog:
             referencedTableName: alt_url
             validate: true
   - changeSet:
-      id: 1611699062049-177
+      id: 202101252311-177
       author: ish (generated)
       changes:
         - addForeignKeyConstraint:
@@ -3299,7 +3296,7 @@ databaseChangeLog:
             referencedTableName: user
             validate: true
   - changeSet:
-      id: 1611699062049-178
+      id: 202101252311-178
       author: ish (generated)
       changes:
         - addForeignKeyConstraint:
@@ -3314,7 +3311,7 @@ databaseChangeLog:
             referencedTableName: album
             validate: true
   - changeSet:
-      id: 1611699062049-179
+      id: 202101252311-179
       author: ish (generated)
       changes:
         - addForeignKeyConstraint:
@@ -3329,7 +3326,7 @@ databaseChangeLog:
             referencedTableName: artist
             validate: true
   - changeSet:
-      id: 1611699062049-180
+      id: 202101252311-180
       author: ish (generated)
       changes:
         - addForeignKeyConstraint:
@@ -3344,7 +3341,7 @@ databaseChangeLog:
             referencedTableName: user
             validate: true
   - changeSet:
-      id: 1611699062049-181
+      id: 202101252311-181
       author: ish (generated)
       changes:
         - addForeignKeyConstraint:
@@ -3359,7 +3356,7 @@ databaseChangeLog:
             referencedTableName: artist
             validate: true
   - changeSet:
-      id: 1611699062049-182
+      id: 202101252311-182
       author: ish (generated)
       changes:
         - addForeignKeyConstraint:
@@ -3374,7 +3371,7 @@ databaseChangeLog:
             referencedTableName: user
             validate: true
   - changeSet:
-      id: 1611699062049-183
+      id: 202101252311-183
       author: ish (generated)
       changes:
         - addForeignKeyConstraint:
@@ -3389,7 +3386,7 @@ databaseChangeLog:
             referencedTableName: track
             validate: true
   - changeSet:
-      id: 1611699062049-184
+      id: 202101252311-184
       author: ish (generated)
       changes:
         - addForeignKeyConstraint:
@@ -3404,7 +3401,7 @@ databaseChangeLog:
             referencedTableName: user
             validate: true
   - changeSet:
-      id: 1611699062049-185
+      id: 202101252311-185
       author: ish (generated)
       changes:
         - addForeignKeyConstraint:
@@ -3419,7 +3416,7 @@ databaseChangeLog:
             referencedTableName: user
             validate: true
   - changeSet:
-      id: 1611699062049-186
+      id: 202101252311-186
       author: ish (generated)
       changes:
         - addForeignKeyConstraint:
@@ -3434,7 +3431,7 @@ databaseChangeLog:
             referencedTableName: album
             validate: true
   - changeSet:
-      id: 1611699062049-187
+      id: 202101252311-187
       author: ish (generated)
       changes:
         - addForeignKeyConstraint:
@@ -3449,7 +3446,7 @@ databaseChangeLog:
             referencedTableName: artist
             validate: true
   - changeSet:
-      id: 1611699062049-188
+      id: 202101252311-188
       author: ish (generated)
       changes:
         - addForeignKeyConstraint:
@@ -3464,7 +3461,7 @@ databaseChangeLog:
             referencedTableName: user
             validate: true
   - changeSet:
-      id: 1611699062049-189
+      id: 202101252311-189
       author: ish (generated)
       changes:
         - addForeignKeyConstraint:
@@ -3479,7 +3476,7 @@ databaseChangeLog:
             referencedTableName: user
             validate: true
   - changeSet:
-      id: 1611699062049-190
+      id: 202101252311-190
       author: ish (generated)
       changes:
         - addForeignKeyConstraint:
@@ -3494,7 +3491,7 @@ databaseChangeLog:
             referencedTableName: week
             validate: true
   - changeSet:
-      id: 1611699062049-191
+      id: 202101252311-191
       author: ish (generated)
       changes:
         - addForeignKeyConstraint:
@@ -3509,7 +3506,7 @@ databaseChangeLog:
             referencedTableName: week
             validate: true
   - changeSet:
-      id: 1611699062049-192
+      id: 202101252311-192
       author: ish (generated)
       changes:
         - addForeignKeyConstraint:
@@ -3524,7 +3521,7 @@ databaseChangeLog:
             referencedTableName: user
             validate: true
   - changeSet:
-      id: 1611699062049-193
+      id: 202101252311-193
       author: ish (generated)
       changes:
         - addForeignKeyConstraint:
@@ -3539,7 +3536,7 @@ databaseChangeLog:
             referencedTableName: user
             validate: true
   - changeSet:
-      id: 1611699062049-194
+      id: 202101252311-194
       author: ish (generated)
       changes:
         - addForeignKeyConstraint:
@@ -3554,7 +3551,7 @@ databaseChangeLog:
             referencedTableName: user
             validate: true
   - changeSet:
-      id: 1611699062049-195
+      id: 202101252311-195
       author: ish (generated)
       changes:
         - addForeignKeyConstraint:
@@ -3569,7 +3566,7 @@ databaseChangeLog:
             referencedTableName: alt_url
             validate: true
   - changeSet:
-      id: 1611699062049-196
+      id: 202101252311-196
       author: ish (generated)
       changes:
         - addForeignKeyConstraint:
@@ -3584,7 +3581,7 @@ databaseChangeLog:
             referencedTableName: user
             validate: true
   - changeSet:
-      id: 1611699062049-197
+      id: 202101252311-197
       author: ish (generated)
       changes:
         - addForeignKeyConstraint:
@@ -3599,7 +3596,7 @@ databaseChangeLog:
             referencedTableName: artist
             validate: true
   - changeSet:
-      id: 1611699062049-198
+      id: 202101252311-198
       author: ish (generated)
       changes:
         - addForeignKeyConstraint:
@@ -3614,7 +3611,7 @@ databaseChangeLog:
             referencedTableName: artist
             validate: true
   - changeSet:
-      id: 1611699062049-199
+      id: 202101252311-199
       author: ish (generated)
       changes:
         - addForeignKeyConstraint:
@@ -3629,7 +3626,7 @@ databaseChangeLog:
             referencedTableName: artist
             validate: true
   - changeSet:
-      id: 1611699062049-200
+      id: 202101252311-200
       author: ish (generated)
       changes:
         - addForeignKeyConstraint:
@@ -3644,7 +3641,7 @@ databaseChangeLog:
             referencedTableName: week
             validate: true
   - changeSet:
-      id: 1611699062049-201
+      id: 202101252311-201
       author: ish (generated)
       changes:
         - addForeignKeyConstraint:
@@ -3659,7 +3656,7 @@ databaseChangeLog:
             referencedTableName: week
             validate: true
   - changeSet:
-      id: 1611699062049-202
+      id: 202101252311-202
       author: ish (generated)
       changes:
         - addForeignKeyConstraint:
@@ -3674,7 +3671,7 @@ databaseChangeLog:
             referencedTableName: guild
             validate: true
   - changeSet:
-      id: 1611699062049-203
+      id: 202101252311-203
       author: ish (generated)
       changes:
         - addForeignKeyConstraint:
@@ -3689,7 +3686,7 @@ databaseChangeLog:
             referencedTableName: artist
             validate: true
   - changeSet:
-      id: 1611699062049-204
+      id: 202101252311-204
       author: ish (generated)
       changes:
         - addForeignKeyConstraint:
@@ -3704,7 +3701,7 @@ databaseChangeLog:
             referencedTableName: guild
             validate: true
   - changeSet:
-      id: 1611699062049-205
+      id: 202101252311-205
       author: ish (generated)
       changes:
         - addForeignKeyConstraint:
@@ -3719,7 +3716,7 @@ databaseChangeLog:
             referencedTableName: week
             validate: true
   - changeSet:
-      id: 1611699062049-206
+      id: 202101252311-206
       author: ish (generated)
       changes:
         - addForeignKeyConstraint:
@@ -3734,7 +3731,7 @@ databaseChangeLog:
             referencedTableName: week
             validate: true
   - changeSet:
-      id: 1611699062049-207
+      id: 202101252311-207
       author: ish (generated)
       changes:
         - addForeignKeyConstraint:
@@ -3749,7 +3746,7 @@ databaseChangeLog:
             referencedTableName: artist
             validate: true
   - changeSet:
-      id: 1611699062049-208
+      id: 202101252311-208
       author: ish (generated)
       changes:
         - addForeignKeyConstraint:
@@ -3764,7 +3761,7 @@ databaseChangeLog:
             referencedTableName: week
             validate: true
   - changeSet:
-      id: 1611699062049-209
+      id: 202101252311-209
       author: ish (generated)
       changes:
         - addForeignKeyConstraint:
@@ -3779,7 +3776,7 @@ databaseChangeLog:
             referencedTableName: artist
             validate: true
   - changeSet:
-      id: 1611699062049-210
+      id: 202101252311-210
       author: ish (generated)
       changes:
         - addForeignKeyConstraint:
@@ -3794,7 +3791,7 @@ databaseChangeLog:
             referencedTableName: week
             validate: true
   - changeSet:
-      id: 1611699062049-211
+      id: 202101252311-211
       author: ish (generated)
       changes:
         - addForeignKeyConstraint:
@@ -3809,7 +3806,7 @@ databaseChangeLog:
             referencedTableName: guild
             validate: true
   - changeSet:
-      id: 1611699062049-212
+      id: 202101252311-212
       author: ish (generated)
       changes:
         - addForeignKeyConstraint:
@@ -3824,7 +3821,7 @@ databaseChangeLog:
             referencedTableName: artist
             validate: true
   - changeSet:
-      id: 1611699062049-213
+      id: 202101252311-213
       author: ish (generated)
       changes:
         - addForeignKeyConstraint:
@@ -3839,7 +3836,7 @@ databaseChangeLog:
             referencedTableName: artist
             validate: true
   - changeSet:
-      id: 1611699062049-214
+      id: 202101252311-214
       author: ish (generated)
       changes:
         - addForeignKeyConstraint:
@@ -3854,7 +3851,7 @@ databaseChangeLog:
             referencedTableName: guild
             validate: true
   - changeSet:
-      id: 1611699062049-215
+      id: 202101252311-215
       author: ish (generated)
       changes:
         - addForeignKeyConstraint:
@@ -3869,7 +3866,7 @@ databaseChangeLog:
             referencedTableName: week
             validate: true
   - changeSet:
-      id: 1611699062049-216
+      id: 202101252311-216
       author: ish (generated)
       changes:
         - addForeignKeyConstraint:
@@ -3884,7 +3881,7 @@ databaseChangeLog:
             referencedTableName: week
             validate: true
   - changeSet:
-      id: 1611699062049-217
+      id: 202101252311-217
       author: ish (generated)
       changes:
         - addForeignKeyConstraint:
@@ -3899,7 +3896,7 @@ databaseChangeLog:
             referencedTableName: artist
             validate: true
   - changeSet:
-      id: 1611699062049-218
+      id: 202101252311-218
       author: ish (generated)
       changes:
         - addForeignKeyConstraint:
@@ -3914,7 +3911,7 @@ databaseChangeLog:
             referencedTableName: artist
             validate: true
   - changeSet:
-      id: 1611699062049-219
+      id: 202101252311-219
       author: ish (generated)
       changes:
         - addForeignKeyConstraint:
@@ -3929,7 +3926,7 @@ databaseChangeLog:
             referencedTableName: artist
             validate: true
   - changeSet:
-      id: 1611699062049-220
+      id: 202101252311-220
       author: ish (generated)
       changes:
         - addForeignKeyConstraint:
@@ -3944,7 +3941,7 @@ databaseChangeLog:
             referencedTableName: week
             validate: true
   - changeSet:
-      id: 1611699062049-221
+      id: 202101252311-221
       author: ish (generated)
       changes:
         - addForeignKeyConstraint:
@@ -3959,7 +3956,7 @@ databaseChangeLog:
             referencedTableName: week
             validate: true
   - changeSet:
-      id: 1611699062049-222
+      id: 202101252311-222
       author: ish (generated)
       changes:
         - addForeignKeyConstraint:
@@ -3974,7 +3971,7 @@ databaseChangeLog:
             referencedTableName: guild
             validate: true
   - changeSet:
-      id: 1611699062049-223
+      id: 202101252311-223
       author: ish (generated)
       changes:
         - addForeignKeyConstraint:
@@ -3989,7 +3986,7 @@ databaseChangeLog:
             referencedTableName: artist
             validate: true
   - changeSet:
-      id: 1611699062049-224
+      id: 202101252311-224
       author: ish (generated)
       changes:
         - addForeignKeyConstraint:
@@ -4004,7 +4001,7 @@ databaseChangeLog:
             referencedTableName: guild
             validate: true
   - changeSet:
-      id: 1611699062049-225
+      id: 202101252311-225
       author: ish (generated)
       changes:
         - addForeignKeyConstraint:
@@ -4019,7 +4016,7 @@ databaseChangeLog:
             referencedTableName: week
             validate: true
   - changeSet:
-      id: 1611699062049-226
+      id: 202101252311-226
       author: ish (generated)
       changes:
         - addForeignKeyConstraint:
@@ -4033,4 +4030,6 @@ databaseChangeLog:
             referencedColumnNames: id
             referencedTableName: week
             validate: true
-
+  - includeAll:
+      path: migrations
+      relativeToChangelogFile: true

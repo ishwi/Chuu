@@ -1,7 +1,8 @@
-package core.commands.stats;
+package core.commands.random;
 
 import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
+import core.commands.random.MyTopRatedRandomUrls;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.parsers.NoOpParser;
@@ -23,13 +24,18 @@ public class TopRatedRandomUrls extends ConcurrentCommand<CommandParameters> {
 
     @Override
     protected CommandCategory initCategory() {
-        return CommandCategory.DISCOVERY;
+        return CommandCategory.RANDOM;
     }
 
     @Override
     public Parser<CommandParameters> initParser() {
         return new NoOpParser(new OptionalEntity("myself", "show your top rated urls"),
                 Optionals.SERVER.opt.withDescription("show ratings from users only in this server"));
+    }
+
+    @Override
+    public String slashName() {
+        return "top";
     }
 
     @Override

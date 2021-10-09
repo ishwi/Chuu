@@ -1,4 +1,4 @@
-package core.commands.discovery;
+package core.commands.random;
 
 import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
@@ -34,12 +34,17 @@ public class RandomLinkDetailsCommand extends ConcurrentCommand<RandomUrlParamet
 
     @Override
     protected CommandCategory initCategory() {
-        return CommandCategory.DISCOVERY;
+        return CommandCategory.RANDOM;
     }
 
     @Override
     public Parser<RandomUrlParameters> initParser() {
         return new RandomAlbumParser(db);
+    }
+
+    @Override
+    public String slashName() {
+        return "details";
     }
 
     @Override
@@ -100,9 +105,9 @@ public class RandomLinkDetailsCommand extends ConcurrentCommand<RandomUrlParamet
         Function<RandomRating, String> mapper = (r) -> {
             var publicString = PrivacyUtils.getPublicString(r.privacyMode(), r.discordId(), r.lastfmId(), atomicInteger, e, ids);
             return ". **[" + publicString.discordName() +
-                   "](" + publicString.lastfmName() +
-                   ")** - " + starFormatter.apply(r.rating()) +
-                   "\n";
+                    "](" + publicString.lastfmName() +
+                    ")** - " + starFormatter.apply(r.rating()) +
+                    "\n";
         };
 
         List<Memoized<RandomRating, String>> z = randomUrl.ratings().stream().map(x -> new Memoized<>(x, mapper)).toList();

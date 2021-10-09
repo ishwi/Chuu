@@ -1,4 +1,4 @@
-package core.commands.discovery;
+package core.commands.random;
 
 import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
@@ -30,7 +30,7 @@ public class RandomLinkRatingCommand extends ConcurrentCommand<NumberParameters<
 
     @Override
     protected CommandCategory initCategory() {
-        return CommandCategory.DISCOVERY;
+        return CommandCategory.RANDOM;
     }
 
     @Override
@@ -47,6 +47,12 @@ public class RandomLinkRatingCommand extends ConcurrentCommand<NumberParameters<
     @Override
     public String getDescription() {
         return "Rate a url of the random pool";
+    }
+
+
+    @Override
+    public String slashName() {
+        return "rate";
     }
 
     @Override

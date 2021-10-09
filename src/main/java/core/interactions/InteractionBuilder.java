@@ -3,17 +3,18 @@ package core.interactions;
 import core.Chuu;
 import core.commands.abstracts.MyCommand;
 import core.commands.artists.TimeOnArtistCommand;
-import core.commands.charts.WastedAlbumChartCommand;
-import core.commands.charts.WastedChartCommand;
-import core.commands.charts.WastedTrackCommand;
+import core.commands.charts.*;
 import core.commands.config.GuildConfigCommand;
 import core.commands.config.UserConfigCommand;
 import core.commands.moderation.EvalCommand;
 import core.commands.moderation.MbidUpdatedCommand;
 import core.commands.moderation.RefreshSlashCommand;
+import core.commands.random.RandomAlbumCommand;
+import core.commands.random.TopRatedRandomUrls;
 import core.commands.stats.*;
 import core.commands.utils.CommandCategory;
 import core.parsers.Generable;
+import core.parsers.explanation.UrlExplanation;
 import core.parsers.explanation.util.Explanation;
 import core.parsers.utils.OptionalEntity;
 import net.dv8tion.jda.api.JDA;
@@ -25,6 +26,7 @@ import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 import net.dv8tion.jda.api.requests.restaction.CommandListUpdateAction;
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
@@ -62,6 +64,7 @@ public class InteractionBuilder {
             CommandCategory.MODERATION,
             CommandCategory.STARTING,
             CommandCategory.MUSIC,
+            CommandCategory.RANDOM,
             CommandCategory.DISCOVERY
     );
     private static final Set<Class<? extends MyCommand<?>>> ignored = Set.of(EvalCommand.class, MbidUpdatedCommand.class, RefreshSlashCommand.class,
@@ -78,6 +81,10 @@ public class InteractionBuilder {
                     WastedAlbumChartCommand.class,
                     WeeklyCommand.class,
                     DailyCommand.class);
+    private static final Set<Class<? extends MyCommand<?>>> colorGrouped =
+            Set.of(GayCommand.class,
+                    RainbowChartCommand.class,
+                    ColorChartCommand.class);
 
     @CheckReturnValue
     public static CommandListUpdateAction setGlobalCommands(JDA jda) {
@@ -117,13 +124,47 @@ public class InteractionBuilder {
                     return c;
                 });
         myCommands = myCommands.stream().filter(t -> !timeGrouped.contains(t.getClass())).toList();
+
+        CommandData colorCommands = myCommands.stream().filter(t -> colorGrouped.contains(t.getClass())).reduce(
+                new CommandData("colour", "Charts that use colour of images"),
+                (commandData, myCommand) -> {
+                    SubcommandData subcommandData = processSubComand(myCommand);
+                    commandMap.put(commandData.getName() + '/' + subcommandData.getName(), myCommand);
+                    commandData.addSubcommands(subcommandData);
+                    return commandData;
+                },
+                (c, d) -> {
+                    c.addSubcommands(d.getSubcommands());
+                    return c;
+                });
+        myCommands = myCommands.stream().filter(t -> !colorGrouped.contains(t.getClass())).toList();
+
         Map<CommandData, MyCommand<?>> toBeprocessed = new HashMap<>();
         var categoryToCommand = myCommands.stream().collect(Collectors.groupingBy(MyCommand::getCategory));
         List<CommandData> categoryCommands = categoryToCommand.entrySet().stream().filter(t -> categorized.contains(t.getKey())).map((k) -> k.getValue().stream().reduce(
                 new CommandData(k.getKey().getPrefix(), k.getKey().getDescription()),
                 (commandData, myCommand) -> {
                     SubcommandData subcommandData;
-                    if (myCommand.getParser() instanceof Generable<?> w) {
+                    if (myCommand instanceof RandomAlbumCommand ra) {
+
+                        Map<Boolean, List<Explanation>> collect = ra.getParser().getUsages().stream().collect(Collectors.partitioningBy(z -> Objects.equals(z.explanation().header(), UrlExplanation.NAME)));
+                        List<Explanation> explanationsSubmit = collect.get(true);
+                        List<Explanation> explanationsGet = collect.get(false);
+
+                        SubcommandData submit = generateSubData(myCommand);
+                        insertUsage(submit, explanationsSubmit);
+                        submit.setName("submit");
+
+                        SubcommandData get = generateSubData(myCommand);
+                        get.setName("obtain");
+                        insertUsage(get, explanationsGet);
+                        processOpts(myCommand, get::addOptions);
+
+                        commandMap.put(commandData.getName() + "/obtain", ra);
+                        commandMap.put(commandData.getName() + "/submit", ra);
+                        commandData.addSubcommands(get, submit);
+                        return commandData;
+                    } else if (myCommand.getParser() instanceof Generable<?> w) {
                         CommandData gen = w.generateCommandData(myCommand);
                         if (!gen.getSubcommands().isEmpty()) {
                             toBeprocessed.put(gen, myCommand);
@@ -169,6 +210,7 @@ public class InteractionBuilder {
                 .map(InteractionBuilder::processCommand).findFirst()
                 .map(t -> t.setName("fm")).ifPresent(tmp::add);
 
+
         jda.getRegisteredListeners().stream()
                 .filter(t -> t instanceof MyCommand<?>)
                 .map(t -> (MyCommand<?>) t).filter(t -> t instanceof UserConfigCommand || t instanceof GuildConfigCommand)
@@ -182,6 +224,7 @@ public class InteractionBuilder {
 
         tmp.addAll(categoryCommands);
         tmp.add(timeCommands);
+        tmp.add(colorCommands);
         tmp.addAll(generables);
 
         tmp.stream().collect(Collectors.toMap(t -> t, InteractionBuilder::countCommand)).forEach((t, k) -> {
@@ -214,9 +257,9 @@ public class InteractionBuilder {
 
     private static int countCommand(CommandData commandData) {
         return commandData.getName().length() +
-               commandData.getDescription().length() +
-               countOptions(commandData.getOptions()) +
-               commandData.getSubcommands().stream().mapToInt(InteractionBuilder::countSubcommand).sum();
+                commandData.getDescription().length() +
+                countOptions(commandData.getOptions()) +
+                commandData.getSubcommands().stream().mapToInt(InteractionBuilder::countSubcommand).sum();
 
     }
 
@@ -234,14 +277,23 @@ public class InteractionBuilder {
 
     @Nonnull
     private static SubcommandData processSubComand(MyCommand<?> myCommand) {
-        SubcommandData commandData = new SubcommandData(myCommand.slashName(), StringUtils.abbreviate(myCommand.getDescription(), 100));
+        SubcommandData commandData = generateSubData(myCommand);
         List<Explanation> usages = myCommand.getParser().getUsages();
+        insertUsage(commandData, usages);
+        processOpts(myCommand, commandData::addOptions);
+        return commandData;
+    }
+
+    @NotNull
+    private static SubcommandData generateSubData(MyCommand<?> myCommand) {
+        return new SubcommandData(myCommand.slashName(), StringUtils.abbreviate(myCommand.getDescription(), 100));
+    }
+
+    private static void insertUsage(SubcommandData commandData, List<Explanation> usages) {
         commandData.addOptions(usages.stream().flatMap(t -> t.explanation().options()
                 .stream()
                 .map(z -> z.setDescription(z.getDescription().replace("If the size is not specified it defaults to 5x5", "Size of the chart")))
         ).toList());
-        processOpts(myCommand, commandData::addOptions);
-        return commandData;
     }
 
     @Nonnull

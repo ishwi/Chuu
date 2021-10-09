@@ -348,7 +348,7 @@ public class GraphicUtils {
             int playPos = x + width - (rowHeight + stringWidth);
             int playEnd = playPos + stringWidth;
             g.drawString(plays, x + width - (rowHeight + metrics.stringWidth(plays)), yCounter + (margin - metrics
-                                                                                                                   .getAscent() / 2));
+                    .getAscent() / 2));
             g.drawImage(lastFmLogo, playEnd + 9, (int) (yCounter - metrics.getAscent() * 0.85), null);
             yCounter += rowHeight;
 
@@ -413,15 +413,6 @@ public class GraphicUtils {
 
     }
 
-    static void drawStringChartly(Graphics2D g, String string, int x, int y) {
-        Color temp = g.getColor();
-        g.setColor(Color.BLACK);
-        g.drawString(string, x, y);
-        g.setColor(Color.WHITE);
-        g.drawString(string, x + 1, y);
-        g.setColor(temp);
-    }
-
     static void drawStringChartly(Graphics2D g, StringFitter.FontMetadata string, int x, int y) {
         Color temp = g.getColor();
         g.setColor(Color.BLACK);
@@ -474,22 +465,6 @@ public class GraphicUtils {
 
     }
 
-    /**
-     * @param stringed    String to fit
-     * @param g           Graphics2D instance
-     * @param maxWidth    Max Width allowed
-     * @param minFontSize Min font Size allowd
-     * @return the width of the string on the current font
-     */
-    public static Rectangle2D fitAndGetBounds(String stringed, Graphics2D g, int maxWidth, float minFontSize) {
-        Font ogFont = g.getFont();
-        float sizeFont = ogFont.getSize();
-        while (g.getFontMetrics(g.getFont()).stringWidth(stringed) > maxWidth && sizeFont > minFontSize) {
-            g.setFont(g.getFont().deriveFont(sizeFont -= 2));
-        }
-        return g.getFontMetrics().getStringBounds(stringed, g);
-    }
-
     public static BufferedImage getImage(String url) {
         if (url == null || url.isBlank()) {
             return null;
@@ -501,6 +476,7 @@ public class GraphicUtils {
             try {
                 return ImageIO.read(file);
             } catch (IOException e) {
+                Chuu.getLogger().warn("Error reading image {}", file, e);
                 return downloadImage(url, file);
             }
         } else {
@@ -517,6 +493,7 @@ public class GraphicUtils {
             }
             return read;
         } catch (IOException | ArrayIndexOutOfBoundsException ex) {
+            Chuu.getLogger().warn("Error downloading image {}", url, ex);
             return null;
         }
     }

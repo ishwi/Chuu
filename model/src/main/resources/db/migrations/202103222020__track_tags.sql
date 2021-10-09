@@ -1,3 +1,5 @@
+--liquibase formatted sql
+--changeset ish:artist-tags
 DELETE
 FROM
     artist_tags
@@ -21,6 +23,5 @@ CREATE TABLE IF NOT EXISTS `track_tags`
     CONSTRAINT `track_tags_fk_artist_id` FOREIGN KEY (`artist_id`) REFERENCES `artist` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
-/*!40101 SET character_set_client = @saved_cs_client */;
-/*!40101 SET @saved_cs_client = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+--rollback drop table track_tags;
+--rollback drop index track_name;

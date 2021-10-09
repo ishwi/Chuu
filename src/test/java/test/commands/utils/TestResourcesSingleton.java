@@ -19,10 +19,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.time.OffsetDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Properties;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -93,7 +90,7 @@ public class TestResourcesSingleton extends ExternalResource {
 
 
             ogJDA = JDABuilder.createDefault(properties.getProperty("DISCORD_TOKEN")).setEventManager(new CustomInterfacedEventManager(0)).build();
-            Chuu.setupBot(true, false, true);
+            Chuu.setupBot(true, false, true, false);
             ogJDA = Chuu.getShardManager().getShards().get(0);
 
             Guild testing_server = testerJDA.getGuildById(properties.getProperty("TESTING_SERVER"));

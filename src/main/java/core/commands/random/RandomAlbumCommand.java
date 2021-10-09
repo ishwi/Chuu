@@ -1,4 +1,4 @@
-package core.commands.discovery;
+package core.commands.random;
 
 import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
@@ -28,7 +28,9 @@ public class RandomAlbumCommand extends ConcurrentCommand<RandomUrlParameters> {
         super(dao);
     }
 
-    private @Nullable RandomTarget getRandomTarget(RandomUrlParameters parameters) {
+
+    private @Nullable
+    RandomTarget getRandomTarget(RandomUrlParameters parameters) {
         if (parameters.hasOptional("spotify")) {
             return RandomTarget.SPOTIFY;
         }
@@ -54,8 +56,13 @@ public class RandomAlbumCommand extends ConcurrentCommand<RandomUrlParameters> {
     }
 
     @Override
+    public String slashName() {
+        return "obtain";
+    }
+
+    @Override
     protected CommandCategory initCategory() {
-        return CommandCategory.DISCOVERY;
+        return CommandCategory.RANDOM;
     }
 
     @Override

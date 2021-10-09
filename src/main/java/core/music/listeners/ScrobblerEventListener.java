@@ -25,6 +25,7 @@ public class ScrobblerEventListener implements AudioEventListener {
         this.musicManager = musicManager;
         this.scrobbleManager = Chuu.getScrobbleEventManager();
 
+
     }
 
     @Override

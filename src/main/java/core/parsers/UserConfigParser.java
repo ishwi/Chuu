@@ -42,6 +42,7 @@ public class UserConfigParser extends DaoParser<UserConfigParameters> implements
         SlashCommandEvent e = ctx.e();
         String subcommandName = e.getSubcommandName();
         String[] words;
+        assert subcommandName != null;
         if (subcommandName.equals("list")) {
             words = new String[]{};
         } else if (subcommandName.equals("size")) {
@@ -177,7 +178,7 @@ public class UserConfigParser extends DaoParser<UserConfigParameters> implements
                 case TIMEZONE -> {
                 }
             }
-                commandData.addSubcommands(data);
+            commandData.addSubcommands(data);
         }
         return commandData;
     }

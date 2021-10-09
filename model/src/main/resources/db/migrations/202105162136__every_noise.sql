@@ -1,3 +1,5 @@
+--liquibase formatted sql
+--changeset ish:noise
 CREATE TABLE every_noise_genre
 (
     id       bigint PRIMARY KEY AUTO_INCREMENT       NOT NULL,
@@ -26,15 +28,18 @@ CREATE TABLE every_noise_release_genre
     release_id BIGINT REFERENCES every_noise_release (id),
     PRIMARY KEY (genre_id, release_id)
 );
-ALTER TABLE every_noise_genre
-    ADD FULLTEXT idx_ft (genre);
+
 
 ALTER TABLE every_noise_genre
     ADD COLUMN meta varchar(40) AS (soundex(genre)) PERSISTENT;
+--rollback drop table every_noise_genre;
+--rollback drop table every_noise_release;
+--rollback drop table every_noise_release_genre;
+--changeset ish:noise2 endDelimiter://
+--ignoreLines:1
+DELIMITER //
 
-
-DELIMITER $$
-
+DROP FUNCTION IF EXISTS soundex_match //
 CREATE FUNCTION `soundex_match`(
     needle varchar(128), haystack text, splitchar varchar(1))
     RETURNS tinyint(4)
@@ -77,10 +82,9 @@ BEGIN
         END WHILE;
 
     RETURN 0;
-END$$
-DELIMITER ;
+END//
 
-DELIMITER $$
+DROP FUNCTION IF EXISTS soundex_match_all //
 CREATE FUNCTION `soundex_match_all`(needle varchar(128), haystack text, splitchar varchar(1)) RETURNS tinyint(4)
 
 BEGIN
@@ -116,12 +120,10 @@ BEGIN
         END REPEAT;
 
     RETURN 0;
-END $$
-DELIMITER ;
+END //
 
 
-DELIMITER $$
-DROP FUNCTION IF EXISTS levenshtein $$
+DROP FUNCTION IF EXISTS levenshtein //
 CREATE FUNCTION levenshtein(s1 VARCHAR(255) CHARACTER SET utf8, s2 VARCHAR(255) CHARACTER SET utf8)
     RETURNS INT
     DETERMINISTIC
@@ -183,6 +185,8 @@ BEGIN
         END WHILE;
 
     RETURN (c);
-END $$
+END //
+--rollback drop fuinction soundex_match;
+--rollback drop fuinction soundex_match_all;
 
-DELIMITER ;
+
