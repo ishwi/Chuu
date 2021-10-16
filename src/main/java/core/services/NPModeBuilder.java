@@ -279,11 +279,11 @@ public class NPModeBuilder {
                                 if (npModes.contains(NPMode.SPOTIFY_LINK)) {
                                     String uri = spotifyApi.searchItems(recent.songName(), recent.artistName(), recent.albumName());
                                     if (!uri.isBlank())
-                                        song = "<:spochuu:776799107737976863>\t %s [%s](%s)".formatted(EmbedBuilder.ZERO_WIDTH_SPACE, song, uri);
+                                        song = "<:spochuu:896516103197569044>\t %s [%s](%s)".formatted(EmbedBuilder.ZERO_WIDTH_SPACE, song, uri);
                                 }
                                 if (npModes.contains(NPMode.RYM_LINK)) {
                                     String url = rymSearch.searchUrl(recent.artistName(), recent.albumName());
-                                    album = "\t<:rym:820111349690531850> %s [%s](%s)".formatted(EmbedBuilder.ZERO_WIDTH_SPACE, album, url);
+                                    album = "\t<:rymchuu:896517028129677383> %s [%s](%s)".formatted(EmbedBuilder.ZERO_WIDTH_SPACE, album, url);
                                 }
 
                                 String t = "**" + artist +
@@ -296,7 +296,7 @@ public class NPModeBuilder {
                         if (npModes.contains(NPMode.SPOTIFY_LINK)) {
                             String uri = spotifyApi.searchItems(np.songName(), np.artistName(), np.albumName());
                             if (!uri.isBlank())
-                                embedBuilder.setTitle("\t<:spochuu:776799107737976863> " + embedBuilder.build().getTitle(), uri);
+                                embedBuilder.setTitle("\t<:spochuu:896516103197569044> " + embedBuilder.build().getTitle(), uri);
                         }
                         if (npModes.contains(NPMode.RYM_LINK) && !StringUtils.isEmpty(np.albumName())) {
                             String url = rymSearch.searchUrl(np.artistName(), np.albumName());
@@ -304,7 +304,7 @@ public class NPModeBuilder {
                             String a = "**" + CommandUtil.escapeMarkdown(np.artistName()) +
                                        "** | " + CommandUtil.escapeMarkdown(np.albumName());
 
-                            String b = "**%s** | \t<:rym:820111349690531850> %s [%s](%s)".formatted(CommandUtil.escapeMarkdown(np.artistName()), EmbedBuilder.ZERO_WIDTH_SPACE, CommandUtil.escapeMarkdown(np.albumName()), url);
+                            String b = "**%s** | \t<:rymchuu:896517028129677383> %s [%s](%s)".formatted(CommandUtil.escapeMarkdown(np.artistName()), EmbedBuilder.ZERO_WIDTH_SPACE, CommandUtil.escapeMarkdown(np.albumName()), url);
                             embedBuilder.setDescription(StringUtils.replaceOnceIgnoreCase(embedBuilder.build().getDescription(), a, b));
                         }
 

@@ -35,7 +35,7 @@ public class RefreshSlashCommand extends ConcurrentCommand<CommandParameters> {
     public Parser<CommandParameters> initParser() {
         return new NoOpParser(
                 Optionals.SERVER.opt.withDescription("refresh only this server"),
-                Optionals.SERVER.opt.withDescription("global refresh"),
+                Optionals.GLOBAL.opt.withDescription("global refresh"),
                 new OptionalEntity("delete", "clean this server"),
                 new OptionalEntity("globaldelete", "clean the bot"),
                 new OptionalEntity("missing", "missing")

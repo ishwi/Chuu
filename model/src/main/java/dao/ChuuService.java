@@ -3936,7 +3936,7 @@ public class ChuuService implements EveryNoiseService {
                         return true;
                     }
                 } catch (InstanceNotFoundException exception) {
-                    exception.printStackTrace();
+                    throw new ChuuServiceException(exception);
                 }
             }
             return false;
@@ -3948,6 +3948,14 @@ public class ChuuService implements EveryNoiseService {
     public void flagAsBotted(String lastfmId) {
         try (Connection connection = dataSource.getConnection()) {
             userGuildDao.flagBotted(lastfmId, connection);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    public void unflagAsBotted(String lastfmId) {
+        try (Connection connection = dataSource.getConnection()) {
+            userGuildDao.unflagAsBotted(lastfmId, connection);
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }

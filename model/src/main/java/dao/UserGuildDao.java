@@ -183,4 +183,7 @@ interface UserGuildDao {
     OptionalDouble obtainObscurity(Connection connection, String lastfmId);
 
     void removeQueuedPictures(Connection connection, long uploader);
+
+    void unflagAsBotted(String lastfmId, Connection connection);
+
 }

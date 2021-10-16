@@ -6,6 +6,7 @@ import core.commands.utils.CommandCategory;
 import core.parsers.Parser;
 import core.parsers.UserModerationParser;
 import core.parsers.params.ChuuDataParams;
+import core.parsers.utils.OptionalEntity;
 import dao.ServiceView;
 import dao.entities.LastFMData;
 import dao.entities.Role;
@@ -26,7 +27,7 @@ public class FlagBottedCommand extends ConcurrentCommand<ChuuDataParams> {
 
     @Override
     public Parser<ChuuDataParams> initParser() {
-        return new UserModerationParser(db);
+        return new UserModerationParser(db).addOptional(new OptionalEntity("unflag", "unflag a flagged account"));
     }
 
     @Override
@@ -52,7 +53,12 @@ public class FlagBottedCommand extends ConcurrentCommand<ChuuDataParams> {
             return;
         }
         LastFMData botter = params.getLastFMData();
-        db.flagAsBotted(botter.getName());
-        sendMessageQueue(e, "Flagged %s as a botter".formatted(botter.getName()));
+        if (params.hasOptional("unflag")) {
+            db.unflagAsBotted(botter.getName());
+            sendMessageQueue(e, "Unflagged %s as a botter".formatted(botter.getName()));
+        } else {
+            db.flagAsBotted(botter.getName());
+            sendMessageQueue(e, "Flagged %s as a botter".formatted(botter.getName()));
+        }
     }
 }

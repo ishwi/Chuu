@@ -148,9 +148,9 @@ public class UrlQueueReview extends ConcurrentCommand<CommandParameters> {
         });
 
         actionMap.put(STRIKE, (a, r) -> {
+            strikesMap.merge(a.uploader(), 1, Integer::sum);
             CompletableFuture.runAsync(() -> {
                 boolean banned = db.strikeQueue(a.queuedId(), a);
-                strikesMap.merge(a.uploader(), 1, Integer::sum);
                 if (banned) {
                     TextChannel textChannelById = Chuu.getShardManager().getTextChannelById(Chuu.channel2Id);
                     db.removeQueuedPictures(a.uploader());

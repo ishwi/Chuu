@@ -107,22 +107,24 @@ public class CustomInterfacedEventManager implements IEventManager {
 
     @Override
     public void unregister(@Nonnull Object listener) {
-        if ((listener instanceof MyCommand<?> myCommand)) {
-            List<String> aliases = myCommand.getAliases();
-            for (String alias : aliases) {
-                commandListeners.remove(alias);
+        switch (listener) {
+            case MyCommand<?> myCommand -> {
+                List<String> aliases = myCommand.getAliases();
+                for (String alias : aliases) {
+                    commandListeners.remove(alias);
+                }
             }
-        } else if (listener instanceof ReactionListener reactionListener) {
-            ScheduledFuture<?> scheduledFuture = this.reactionaries.remove(reactionListener);
-            if (scheduledFuture != null) {
-                scheduledFuture.cancel(true);
-                reactionListener.dispose();
+            case ReactionListener reactionListener -> {
+                ScheduledFuture<?> scheduledFuture = this.reactionaries.remove(reactionListener);
+                if (scheduledFuture != null) {
+                    scheduledFuture.cancel(true);
+                    reactionListener.dispose();
+                }
             }
-        } else if (listener instanceof AwaitReady) {
-            otherListeners.remove(listener);
-        } else if (listener instanceof ConstantListener cl) {
-            constantListeners.remove(cl.channelId(), cl);
-
+            case AwaitReady a -> otherListeners.remove(listener);
+            case ConstantListener cl -> constantListeners.remove(cl.channelId(), cl);
+            default -> {
+            }
         }
     }
 
@@ -206,12 +208,10 @@ public class CustomInterfacedEventManager implements IEventManager {
             }
         } else
             try {
-                if (!isReady) {
 
-                    if (event instanceof ReadyEvent) {
-                        for (EventListener listener : otherListeners) {
-                            listener.onEvent(event);
-                        }
+                if (event instanceof ReadyEvent) {
+                    for (EventListener listener : otherListeners) {
+                        listener.onEvent(event);
                     }
 
                 } else if (event instanceof GuildMemberRemoveEvent || event instanceof GuildMemberJoinEvent || event instanceof GuildJoinEvent) {

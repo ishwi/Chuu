@@ -96,19 +96,19 @@ public class EvalCommand extends ConcurrentCommand<CommandParameters> {
 
         EvalContext evalContext = new EvalContext(e.getJDA(), e, e.getAuthor(), e.isFromGuild() ? e.getGuild() : null, null, db, lastFM);
         String source = JAVA_EVAL_IMPORTS + "\n" + imports + "\n" +
-                        "public class Eval {\n" +
-                        "   public static Object run(EvalContext ctx) throws Throwable {\n" +
-                        "       try {\n" +
-                        "           return null;\n" +
-                        "       } finally {\n" +
-                        "           " + (code + ";").replaceAll(";{2,}", ";") + "\n" +
-                        "       }\n" +
-                        "   }\n" +
-                        "}";
+                "public class Eval {\n" +
+                "   public static Object run(EvalContext ctx) throws Throwable {\n" +
+                "       try {\n" +
+                "           return null;\n" +
+                "       } finally {\n" +
+                "           " + (code + ";").replaceAll(";{2,}", ";") + "\n" +
+                "       }\n" +
+                "   }\n" +
+                "}";
         try {
             JavaEvaluator javaEvaluator = new JavaEvaluator();
             CompilationResult r = javaEvaluator.compile()
-                    .addCompilerOptions("-Xlint:unchecked", "--target=16", "--enable-preview", "--source=16")
+                    .addCompilerOptions("-Xlint:unchecked", "--target=17", "--enable-preview", "--source=17")
                     .source("Eval", source
                     )
                     .execute();

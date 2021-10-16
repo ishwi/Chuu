@@ -102,19 +102,28 @@ public class TagWithYearCommand extends ConcurrentCommand<CommandParameters> {
         }
         String artist = content[0].trim().replaceAll("\\\\-", "-");
         String album = content[1].trim().replaceAll("\\\\-", "-");
+
+        AlbumInfo ai = new AlbumInfo(album, artist);
+        List<AlbumInfo> found = db.albumsOfYear(List.of(ai), parse);
+
+        if (!found.isEmpty()) {
+            parser.sendError(String.format("**%s** - **%s** was already tagged as a **%s** album!", artist, album, year), e);
+            return;
+        }
+
         String userString = getUserString(e, idLong);
         EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e)
                 .setTitle("Year confirmation")
                 .setDescription(String.format("%s, want to tag the album **%s** of **%s** with the year **%s**?", userString, album, artist, year));
         List<ConfirmatorItem> items = List.of(new ConfirmatorItem(Reactions.ACCEPT, who -> {
             if (lastFMData.getRole() == Role.ADMIN) {
-                return who.clear().setTitle(String.format("%s - %s was tagged as a %s album", artist, album, year)).setColor(CommandUtil.pastelColor());
+                return who.clear().setTitle(String.format("**%s** - **%s** was tagged as a **%s** album", artist, album, year)).setColor(CommandUtil.pastelColor());
             } else {
                 return who.clear().setTitle("Your submission was passed to the mod team").setColor(CommandUtil.pastelColor());
             }
         }, (z) -> {
             if (lastFMData.getRole() == Role.ADMIN) {
-                db.insertAlbumOfYear(new AlbumInfo(album, artist), parse);
+                db.insertAlbumOfYear(ai, parse);
             } else {
                 TextChannel textChannelById = Chuu.getShardManager().getTextChannelById(Chuu.channelId);
                 if (textChannelById != null)
