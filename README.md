@@ -1,20 +1,3 @@
-# IMPORTANT
-
-THE MAIN INSTANCE OF CHUU HAS BEEN COMPROMISED AND IT CAN BE POTENTIALLY DANGEROUS TO YOUR SERVER. IT IS RECOMMENDED YOU
-KICK THE BOT FROM YOUR SERVER FROM THE TIME BEING.
-
-I have created a new server that will act as a hub until this issue is resolved. The invite link
-is [https://discord.gg/3tYsPMWvQG](https://discord.gg/3tYsPMWvQG). The current decision is to wait till an initial
-response from discord. If when they respond, things dont look good, I will host a new version of the bot. But will post
-updates here and on the new support server. Additionally you might be able to track this on the ongoing
-issue: [ISSUE REGARDING ONGOING DISCORD HACK](https://github.com/ishwi/Chuu/issues/64).
-
-You might contact me directly through mail: ishwi6@gmail.com or in my alt account in Discord: ishwi#8074
-
-Deeply sorry for the trouble caused.
-
-Ishwara.
-
 # Chuu
 
 Chuu is a Discord bot that integrates [Last.fm]([https://www.last.fm/](https://www.last.fm/)) with Discord. Highly
@@ -32,14 +15,9 @@ of available commands like:
 
 ## Invite Link
 
-DO NOT USE ANY OF THE EXISTING LINKS AS THEY ARE FROM THE COMPROMISED VERSION OF THE BOT.
-[//]: # (You can invite the bot to your discord server)
+You can invite the bot to your discord server using [this link:](https://discord.com/oauth2/authorize?client_id=537353774205894676&scope=bot%20applications.commands&permissions=387136)
 
-[//]: # (using [this link:]&#40;https://discordapp.com/oauth2/authorize?scope=bot&client_id=537353774205894676&permissions=387136&#41;)
-
-[//]: # ()
-
-[//]: # (There is also a support server if you want to ask any questions directly. [Join here:]&#40;https://discord.gg/HQGqYD7&#41;)
+There is also a support server if you want to ask any questions directly. [Join here:](https://discord.gg/3tYsPMWvQG)
 
 ## Set-Up
 
