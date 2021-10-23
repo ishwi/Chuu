@@ -6,7 +6,7 @@ import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.commands.utils.PrivacyUtils;
-import core.otherlisteners.Reactionary;
+import core.otherlisteners.util.PaginatorBuilder;
 import core.parsers.Parser;
 import core.parsers.RandomAlbumParser;
 import core.parsers.params.RandomUrlParameters;
@@ -102,6 +102,7 @@ public class RandomLinkDetailsCommand extends ConcurrentCommand<RandomUrlParamet
         }
         Function<Byte, String> starFormatter = getStartsFromScore();
 
+
         Function<RandomRating, String> mapper = (r) -> {
             var publicString = PrivacyUtils.getPublicString(r.privacyMode(), r.discordId(), r.lastfmId(), atomicInteger, e, ids);
             return ". **[" + publicString.discordName() +
@@ -110,22 +111,15 @@ public class RandomLinkDetailsCommand extends ConcurrentCommand<RandomUrlParamet
                     "\n";
         };
 
-        List<Memoized<RandomRating, String>> z = randomUrl.ratings().stream().map(x -> new Memoized<>(x, mapper)).toList();
 
-
-        StringBuilder a = new StringBuilder();
-        for (int i = 0; i < 5 && i < z.size(); i++) {
-            a.append(i + 1).append(z.get(i).toString());
-        }
         NumberFormat formatter = new DecimalFormat("#0.##");
         EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e)
                 .setTitle(randomUrl.url() + " details", randomUrl.url())
-                .setDescription(a)
                 .setFooter("Has been rated by %d %s | average: %s%nSubmited by %s".formatted(randomUrl.count(), CommandUtil.singlePlural(randomUrl.count(), "person", "people"), formatter.format(randomUrl.avg()),
                         own == null ? "" : PrivacyUtils.getPublicString(own.getPrivacyMode(), own.getDiscordId(), own.getName(), new AtomicInteger(0), e, ids).discordName()
                 ));
-        e.sendMessage(embedBuilder.build()).queue(message1 ->
-                new Reactionary<>(z, message1, 5, embedBuilder));
+
+        new PaginatorBuilder<>(e, embedBuilder, randomUrl.ratings()).memoized(mapper).pageSize(5).build().queue();
 
     }
 

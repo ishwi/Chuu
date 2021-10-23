@@ -6,13 +6,14 @@ import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
 import core.exceptions.LastFmException;
-import core.otherlisteners.Reactionary;
+import core.otherlisteners.util.PaginatorBuilder;
 import core.parsers.Parser;
 import core.parsers.UserStringParser;
 import core.parsers.params.UserStringParameters;
 import dao.ServiceView;
 import dao.everynoise.NoiseGenre;
 import dao.exceptions.InstanceNotFoundException;
+import net.dv8tion.jda.api.EmbedBuilder;
 
 import javax.annotation.Nonnull;
 import java.util.List;
@@ -63,11 +64,6 @@ public class EveryNoiseCommand extends ConcurrentCommand<UserStringParameters> {
             }
         }
         List<String> strings = genres.stream().map(z -> "**[%s](%s)**\n".formatted(z.name(), SpotifyUtils.getPlaylistLink(z.uri()))).toList();
-        StringBuilder a = new StringBuilder();
-        for (int i = 0; i < 20 && i < strings.size(); i++) {
-            a.append(strings.get(i));
-        }
-        ChuuEmbedBuilder eb = new ChuuEmbedBuilder(e);
         String title = "Everynoise genres";
         String footer = "";
         if (isSearchResult) {
@@ -76,12 +72,12 @@ public class EveryNoiseCommand extends ConcurrentCommand<UserStringParameters> {
         } else if (strings.size() > 20) {
             footer = "Have %d genres".formatted(strings.size());
         }
-        eb.setDescription(a)
+        EmbedBuilder eb = new ChuuEmbedBuilder(e)
                 .setAuthor(title, "https://everynoise.com/", "https://pbs.twimg.com/profile_images/3736544396/e0d7d0c8f2781c40b5f870df441e670c_400x400.png")
                 .setFooter("You can click the genre for a playlist!\n" + footer, null);
 
-        e.sendMessage(eb.build()).queue(message ->
-                new Reactionary<>(strings, message, eb, false));
+        new PaginatorBuilder<>(e, eb, strings).numberedEntries(false).pageSize(20).build().queue();
+
 
     }
 }

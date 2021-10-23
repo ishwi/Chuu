@@ -5,7 +5,7 @@ import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
-import core.otherlisteners.Reactionary;
+import core.otherlisteners.util.PaginatorBuilder;
 import core.parsers.OnlyUsernameParser;
 import core.parsers.Parser;
 import core.parsers.params.ChuuDataParams;
@@ -17,10 +17,9 @@ import dao.entities.StreakEntity;
 import net.dv8tion.jda.api.EmbedBuilder;
 
 import javax.annotation.Nonnull;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
+import java.util.function.Function;
 
 
 public class MyCombosCommand extends ConcurrentCommand<ChuuDataParams> {
@@ -62,37 +61,28 @@ public class MyCombosCommand extends ConcurrentCommand<ChuuDataParams> {
         String userName = userInformation.username();
         String userUrl = userInformation.urlImage();
         List<StreakEntity> userStreaks = db.getUserStreaks(discordID);
-        AtomicInteger atomicInteger = new AtomicInteger(1);
-        List<String> streaks = userStreaks
-                .stream().map(combo -> {
-                            String aString = CommandUtil.escapeMarkdown(combo.getCurrentArtist());
-                            int andIncrement = atomicInteger.getAndIncrement();
-                            StringBuilder description = new StringBuilder(CommandUtil.getDayNumberSuffix(andIncrement) + "\n");
-                            GlobalStreakEntities.DateHolder holder = params.hasOptional("start") ? CommandUtil.toDateHolder(combo.getStreakStart(), params.getLastFMData().getName()) : null;
 
-                            return GlobalStreakEntities.getComboString(aString, description, combo.artistCount(), combo.getCurrentArtist(), combo.albumCount(), combo.getCurrentAlbum(), combo.trackCount(), combo.getCurrentSong(), holder);
-                        }
-                ).collect(Collectors.toCollection(ArrayList::new));
-        if (streaks.isEmpty()) {
+        if (userStreaks.isEmpty()) {
             sendMessageQueue(e, userName + " doesn't have any stored streak in the bot.");
             return;
-        }
-
-
-        StringBuilder a = new StringBuilder();
-        AtomicInteger maxSize = new AtomicInteger(0);
-        for (int i = 0; i < 5 && i < streaks.size(); i++) {
-            String str = streaks.get(i);
-            a.append(i + 1).append(str);
-            maxSize.incrementAndGet();
         }
 
         EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e)
                 .setAuthor(String.format("%s's streaks", CommandUtil.unescapedUser(userName, discordID, e)), CommandUtil.getLastFmUser(params.getLastFMData().getName()), userUrl)
                 .setThumbnail(CommandUtil.noImageUrl(userUrl))
-                .setDescription(a)
-                .setFooter(String.format("%s has a total of %d %s!", CommandUtil.unescapedUser(userName, discordID, e), streaks.size(), CommandUtil.singlePlural(streaks.size(), "streak", "streaks")));
-        e.sendMessage(embedBuilder.build()).queue(message1 ->
-                new Reactionary<>(streaks, message1, maxSize.get(), embedBuilder));
+                .setFooter(String.format("%s has a total of %d %s!", CommandUtil.unescapedUser(userName, discordID, e), userStreaks.size(), CommandUtil.singlePlural(userStreaks.size(), "streak", "streaks")));
+
+        AtomicInteger atomicInteger = new AtomicInteger(1);
+        Function<StreakEntity, String> mapper = combo -> {
+            String aString = CommandUtil.escapeMarkdown(combo.getCurrentArtist());
+            int andIncrement = atomicInteger.getAndIncrement();
+            StringBuilder description = new StringBuilder(CommandUtil.getDayNumberSuffix(andIncrement) + "\n");
+            GlobalStreakEntities.DateHolder holder = params.hasOptional("start") ? CommandUtil.toDateHolder(combo.getStreakStart(), params.getLastFMData().getName()) : null;
+
+            return GlobalStreakEntities.getComboString(aString, description, combo.artistCount(), combo.getCurrentArtist(), combo.albumCount(), combo.getCurrentAlbum(), combo.trackCount(), combo.getCurrentSong(), holder);
+        };
+
+        new PaginatorBuilder<>(e, embedBuilder, userStreaks).mapper(mapper).pageSize(5).build().queue();
+
     }
 }

@@ -72,7 +72,7 @@ public record GlobalDoer(ChuuService db, List<GlobalCrown> globals) {
         }
 
         String globalStats = String.format("**%d** listeners%n", totalPeople) +
-                             String.format("**%d** plays%n", totalPlays);
+                String.format("**%d** plays%n", totalPlays);
         embedBuilder
                 .addField(String.format("%s's stats", CommandUtil.escapeMarkdown(e.getJDA().getSelfUser().getName())), globalStats, true)
                 .setImage(url)

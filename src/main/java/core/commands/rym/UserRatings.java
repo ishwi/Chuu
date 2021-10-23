@@ -5,7 +5,7 @@ import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
-import core.otherlisteners.Reactionary;
+import core.otherlisteners.util.PaginatorBuilder;
 import core.parsers.Parser;
 import core.parsers.RYMRatingParser;
 import core.parsers.params.RYMRatingParams;
@@ -76,10 +76,10 @@ public class UserRatings extends ConcurrentCommand<RYMRatingParams> {
         List<String> stringList = new ArrayList<>();
         for (ScoredAlbumRatings x : myRatings) {
             String s = "# ***[" + CommandUtil.escapeMarkdown(x.getArtist()) + " - " + CommandUtil.escapeMarkdown(x.getName())
-                       +
-                       "](" + LinkUtils.getLastFmArtistAlbumUrl(x.getArtist(), x.getName()) +
-                       ")***\n\t" + String.format("Average: **%s** | # of Ratings: **%d**", formatter.format(x.getAverage() / 2f), x.getNumberOfRatings()) +
-                       "\n";
+                    +
+                    "](" + LinkUtils.getLastFmArtistAlbumUrl(x.getArtist(), x.getName()) +
+                    ")***\n\t" + String.format("Average: **%s** | # of Ratings: **%d**", formatter.format(x.getAverage() / 2f), x.getNumberOfRatings()) +
+                    "\n";
             stringList.add(s);
         }
 
@@ -103,10 +103,10 @@ public class UserRatings extends ConcurrentCommand<RYMRatingParams> {
                 indexer = 1;
             }
             s += indexer++ + ". ***[" + CommandUtil.escapeMarkdown(x.getArtist()) + " - " + CommandUtil.escapeMarkdown(x.getName())
-                 +
-                 "](" + LinkUtils.getLastFmArtistAlbumUrl(x.getArtist(), x.getName()) +
-                 ")***\n\t" + String.format("Average: **%s** | # of Ratings: **%d**", formatter.format(x.getAverage() / 2f), x.getNumberOfRatings()) +
-                 "\n";
+                    +
+                    "](" + LinkUtils.getLastFmArtistAlbumUrl(x.getArtist(), x.getName()) +
+                    ")***\n\t" + String.format("Average: **%s** | # of Ratings: **%d**", formatter.format(x.getAverage() / 2f), x.getNumberOfRatings()) +
+                    "\n";
             stringList.add(s);
         }
 
@@ -115,16 +115,12 @@ public class UserRatings extends ConcurrentCommand<RYMRatingParams> {
     }
 
     private void build(RYMRatingParams params, Context e, NumberFormat formatter, EmbedBuilder embedBuilder, List<String> stringList, DiscordUserDisplay userInfoConsideringGuildOrNot) {
-        StringBuilder a = new StringBuilder();
-        for (int i = 0; i < 8 && i < stringList.size(); i++) {
-            a.append(stringList.get(i));
-        }
         RymStats stats = db.getUserRymStatms(params.getLastFMData().getDiscordId());
         embedBuilder
                 .setThumbnail(userInfoConsideringGuildOrNot.urlImage())
-                .setFooter(userInfoConsideringGuildOrNot.username() + " has rated " + stats.getNumberOfRatings() + " albums with an average of " + formatter.format(stats.getAverage() / 2f))
-                .setDescription(a);
-        e.sendMessage(embedBuilder.build()).queue(message1 ->
-                new Reactionary<>(stringList, message1, 8, embedBuilder, false));
+                .setFooter(userInfoConsideringGuildOrNot.username() + " has rated " + stats.getNumberOfRatings() + " albums with an average of " + formatter.format(stats.getAverage() / 2f));
+
+        new PaginatorBuilder<>(e, embedBuilder, stringList).pageSize(8).numberedEntries(false).build().queue();
+
     }
 }

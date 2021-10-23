@@ -29,7 +29,7 @@ public class ChartLine {
         if (this == o) return true;
         if (!(o instanceof ChartLine chartLine)) return false;
         return Objects.equals(getLine(), chartLine.getLine()) &&
-               getType() == chartLine.getType();
+                getType() == chartLine.getType();
     }
 
     @Override

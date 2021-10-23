@@ -6,7 +6,7 @@ import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.commands.utils.PrivacyUtils;
-import core.otherlisteners.Reactionary;
+import core.otherlisteners.util.PaginatorBuilder;
 import core.parsers.Parser;
 import core.parsers.UserStringParser;
 import core.parsers.params.UserStringParameters;
@@ -75,18 +75,13 @@ public class AlbumSearchCommand extends ListCommand<ScrobbledAlbum, UserStringPa
                         LinkUtils.cleanMarkdownCharacter(t.getAlbum()),
                         LinkUtils.cleanMarkdownCharacter(t.getArtist()), PrivacyUtils.getLastFmAlbumUserUrl(t.getArtist(), t.getAlbum(), params.getLastFMData().getName()),
                         t.getCount(), CommandUtil.singlePlural(t.getCount(), "play", "plays"))).toList();
-        StringBuilder a = new StringBuilder();
 
-        for (int i = 0; i < 10 && i < strs.size(); i++) {
-            a.append(i + 1).append(strs.get(i));
-        }
 
         String title = uInfo.username() + "'s albums that match " + abbreviate;
         EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e).setAuthor(title, PrivacyUtils.getLastFmUser(params.getLastFMData().getName()), uInfo.urlImage())
-                .setFooter(list.size() + " matching albums!")
-                .setDescription(a);
-        e.sendMessage(embedBuilder.build()).queue(mes ->
-                new Reactionary<>(strs, mes, embedBuilder));
+                .setFooter(list.size() + " matching albums!");
+
+        new PaginatorBuilder<>(e, embedBuilder, strs).build().queue();
     }
 
 

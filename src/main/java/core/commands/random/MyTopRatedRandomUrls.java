@@ -5,7 +5,7 @@ import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
-import core.otherlisteners.Reactionary;
+import core.otherlisteners.util.PaginatorBuilder;
 import core.parsers.OnlyUsernameParser;
 import core.parsers.Parser;
 import core.parsers.params.ChuuDataParams;
@@ -16,6 +16,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
 
 import javax.annotation.Nonnull;
 import java.util.List;
+import java.util.function.Function;
 
 public class MyTopRatedRandomUrls extends ConcurrentCommand<ChuuDataParams> {
     public MyTopRatedRandomUrls(ServiceView dao) {
@@ -23,7 +24,9 @@ public class MyTopRatedRandomUrls extends ConcurrentCommand<ChuuDataParams> {
     }
 
     static void RandomUrlDisplay(Context e, List<ScoredAlbumRatings> ratings, String title, String url) {
-        List<String> list = ratings.stream().map(x -> {
+
+
+        Function<ScoredAlbumRatings, String> mapper = x -> {
             String average;
             String count;
             if (x.getNumberOfRatings() == 0) {
@@ -38,21 +41,14 @@ public class MyTopRatedRandomUrls extends ConcurrentCommand<ChuuDataParams> {
                     "](" + x.getUrl() +
                     ")***\n\t" + String.format("Average: **%s** | # of Ratings: **%s**", average, count) +
                     "\n";
-        }).toList();
-        StringBuilder a = new StringBuilder();
-        for (
-                int i = 0;
-                i < 10 && i < list.size(); i++) {
-            a.append(i + 1).append(list.get(i));
-        }
+        };
 
         EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e)
-                .setDescription(a).setTitle(title)
+                .setTitle(title)
                 .setThumbnail(url);
 
-        e.sendMessage(embedBuilder.build()).
-                queue(message ->
-                        new Reactionary<>(list, message, embedBuilder));
+        new PaginatorBuilder<>(e, embedBuilder, ratings).memoized(mapper).build().queue();
+
     }
 
     @Override

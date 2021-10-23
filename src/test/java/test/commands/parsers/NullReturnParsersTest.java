@@ -179,7 +179,7 @@ public class NullReturnParsersTest {
         });
         Message message = channelWorker.getHistoryAfter(id, 20).complete().getRetrievedHistory().get(0);
         assertEqualsErrorMessage("You need to add the escape character \"\\\\\" in the \"-\" that appear on the album or artist.\n" +
-                                 " \tFor example: Artist - Alb\\\\-um", message);
+                " \tFor example: Artist - Alb\\\\-um", message);
 
 
     }

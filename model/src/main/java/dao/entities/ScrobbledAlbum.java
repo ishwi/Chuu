@@ -67,10 +67,10 @@ public class ScrobbledAlbum extends ScrobbledArtist {
     @Override
     public String toString() {
         return "ScrobbledAlbum{" +
-               "albumId=" + albumId +
-               ", album='" + album + '\'' +
-               ", albumMbid='" + albumMbid + '\'' +
-               '}';
+                "albumId=" + albumId +
+                ", album='" + album + '\'' +
+                ", albumMbid='" + albumMbid + '\'' +
+                '}';
     }
 
     @Override

@@ -9,7 +9,7 @@ import core.imagerenderer.GraphicUtils;
 import core.imagerenderer.TrackDistributor;
 import core.imagerenderer.util.pie.IPieableList;
 import core.imagerenderer.util.pie.PieableListTrack;
-import core.otherlisteners.Reactionary;
+import core.otherlisteners.util.PaginatorBuilder;
 import core.parsers.ArtistAlbumParser;
 import core.parsers.DaoParser;
 import core.parsers.Parser;
@@ -34,6 +34,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class AlbumTracksServerDistributionCommand extends AlbumPlaysCommand {
@@ -48,6 +49,16 @@ public class AlbumTracksServerDistributionCommand extends AlbumPlaysCommand {
 
     }
 
+    static void doPaging(Context e, String artist, FullAlbumEntity fullAlbumEntity, EmbedBuilder embedBuilder) {
+
+        Function<Track, String> mapper = t -> ". " + "[" +
+                CommandUtil.escapeMarkdown(t.getName()) +
+                "](" + LinkUtils.getLastFMArtistTrack(artist, t.getName()) +
+                ")" + " - " + t.getPlays() + CommandUtil.singlePlural(t.getPlays(), " play", " plays") + "\n";
+
+        new PaginatorBuilder<>(e, embedBuilder, fullAlbumEntity.getTrackList())
+                .mapper(mapper).pageSize(20).build().queue();
+    }
 
     @Override
     protected CommandCategory initCategory() {
@@ -120,22 +131,13 @@ public class AlbumTracksServerDistributionCommand extends AlbumPlaysCommand {
                     sendImage(bufferedImage, params.getE());
                 }
                 case LIST -> {
-                    StringBuilder a = new StringBuilder();
-                    List<String> lines = fullAlbumEntity.getTrackList().stream().map(t -> ". " + "[" +
-                                                                                          CommandUtil.escapeMarkdown(t.getName()) +
-                                                                                          "](" + LinkUtils.getLastFMArtistTrack(artist, t.getName()) +
-                                                                                          ")" + " - " + t.getPlays() + CommandUtil.singlePlural(t.getPlays(), " play", " plays") + "\n").toList();
-                    for (int i = 0; i < fullAlbumEntity.getTrackList().size() && i <= 20; i++) {
-                        String s = lines.get(i);
-                        a.append(i + 1).append(s);
-                    }
+
                     EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e)
-                            .setDescription(a)
                             .setTitle(String.format("%s tracklist", album), LinkUtils.getLastFmArtistAlbumUrl(artist, album))
                             .setFooter(String.format("%s has %d total plays on the album!!%n", e.getGuild().getName(), fullAlbumEntity.getTrackList().stream().mapToInt(Track::getPlays).sum()), null)
                             .setThumbnail(fullAlbumEntity.getAlbumUrl());
-                    e.sendMessage(embedBuilder.build()).queue(message ->
-                            new Reactionary<>(lines, message, 20, embedBuilder));
+
+                    doPaging(e, artist, fullAlbumEntity, embedBuilder);
                 }
             }
         }

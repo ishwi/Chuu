@@ -34,7 +34,7 @@ public class BandInfoCommandTest extends CommandTest {
         Pattern pattern = Pattern.compile("Error on (.*?)'s request:\nYou still haven't listened to (.*)");
         Predicate<Matcher> predicate = matcher1 ->
                 matcher1.group(1).equals(TestResources.testerJdaUsername) &&
-                matcher1.group(2).equalsIgnoreCase("my bloody valentine");
+                        matcher1.group(2).equalsIgnoreCase("my bloody valentine");
 
         OneLineUtils.testCommands(COMMAND_ALIAS + " my bloody valentine", pattern, predicate);
 

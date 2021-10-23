@@ -14,13 +14,12 @@ public class AlbumInfoIgnoreMbid extends AlbumInfo {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof AlbumInfo)) return false;
+        if (!(o instanceof AlbumInfo albumInfo)) return false;
         if (!super.equals(o)) return false;
-        AlbumInfo albumInfo = (AlbumInfo) o;
 
         return ((getName().equals(albumInfo.getName())
-                 || getName().equals("S/T")
-                 || albumInfo.getName().equals("S/T")) && getArtist().equals(albumInfo.getArtist())) && (getMbid().equals(albumInfo.getMbid()));
+                || getName().equals("S/T")
+                || albumInfo.getName().equals("S/T")) && getArtist().equals(albumInfo.getArtist())) && (getMbid().equals(albumInfo.getMbid()));
     }
 
     @Override

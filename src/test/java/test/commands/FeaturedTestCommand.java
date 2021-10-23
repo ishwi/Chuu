@@ -39,8 +39,8 @@ public class FeaturedTestCommand extends CommandTest {
         fieldRowMatchers.add(new FieldRowMatcher("User:", Pattern.compile("(.*)"),
                 matcher ->
                         matcher.group(1).equalsIgnoreCase("Chuu") || TestResources.channelWorker.getGuild().getMembers()
-                                                                             .stream()
-                                                                             .filter(x -> x.getUser().getName().equals(matcher.group(1))).count() == 1));
+                                .stream()
+                                .filter(x -> x.getUser().getName().equals(matcher.group(1))).count() == 1));
 
         fieldRowMatchers.add(FieldRowMatcher.numberFieldFromRange("Total Artist Plays:", 1));
 

@@ -65,7 +65,7 @@ public class EvanLyrics {
     public Optional<Lyrics> getLyrics(String artist, String song) {
         String q = BASE_ENDPOINT + "lyrics/" + URLEncoder
                 .encode(artist.replaceAll(" ", "-"), StandardCharsets.UTF_8) + "/" + URLEncoder
-                           .encode(song.replaceAll(" ", "-"), StandardCharsets.UTF_8);
+                .encode(song.replaceAll(" ", "-"), StandardCharsets.UTF_8);
         return doLyrics(q);
     }
 

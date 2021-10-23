@@ -8,7 +8,7 @@ import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.exceptions.LastFmException;
 import core.imagerenderer.util.bubble.StringFrequency;
-import core.otherlisteners.Reactionary;
+import core.otherlisteners.util.PaginatorBuilder;
 import core.parsers.OnlyUsernameParser;
 import core.parsers.Parser;
 import core.parsers.params.ChuuDataParams;
@@ -119,23 +119,24 @@ public class TagStreakCommand extends ConcurrentCommand<ChuuDataParams> {
         });
 
 
-        List<String> tags = tagCombo.stream().map(t -> new StringFrequency(t.getName(), tagCombo.getCount(t))).filter(t -> t.freq() > 1)
-                .sorted(Comparator.comparingInt(StringFrequency::freq).reversed())
-                .map(z -> "**[%s](%s)**: ".formatted(z.key(), LinkUtils.getLastFmTagUrl(z.key())) +
-                          z.freq() + (z.freq() >= 2000 ? "+" : "") + " consecutive plays\n").toList();
-        if (tags.isEmpty()) {
+        if (tagCombo.isEmpty()) {
             sendMessageQueue(e, "Couldn't find any tag combo on your history :(");
             return;
         }
+
+        List<String> tags = tagCombo.stream().map(t -> new StringFrequency(t.getName(), tagCombo.getCount(t))).filter(t -> t.freq() > 1)
+                .sorted(Comparator.comparingInt(StringFrequency::freq).reversed())
+                .map(z -> "**[%s](%s)**: ".formatted(z.key(), LinkUtils.getLastFmTagUrl(z.key())) +
+                        z.freq() + (z.freq() >= 2000 ? "+" : "") + " consecutive plays\n").toList();
+
 
         DiscordUserDisplay userInformation = CommandUtil.getUserInfoEscaped(e, discordID);
         String userName = userInformation.username();
         String userUrl = userInformation.urlImage();
 
         EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e)
-                .setAuthor(String.format("%s's current tag streak", CommandUtil.unescapedUser(userName, discordID, e)), CommandUtil.getLastFmUser(lastfmId), userUrl)
-                .setDescription(tags.stream().limit(5).collect(Collectors.joining()));
-        e.sendMessage(embedBuilder.build()).
-                queue(m -> new Reactionary<>(tags, m, 5, embedBuilder, false));
+                .setAuthor(String.format("%s's current tag streak", CommandUtil.unescapedUser(userName, discordID, e)), CommandUtil.getLastFmUser(lastfmId), userUrl);
+        new PaginatorBuilder<>(e, embedBuilder, tags).pageSize(5).unnumered().build().queue();
+
     }
 }

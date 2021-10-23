@@ -93,8 +93,8 @@ public class TrackDaoImpl extends BaseDAO implements TrackDao {
         FullAlbumEntity fullAlbumEntity = null;
 
         String mySql = "SELECT d.name,b.album_name,c.duration,c.track_name,coalesce(c.url,b.url,d.url),coalesce(e.playnumber,0),coalesce(e.loved,FALSE),a.position " +
-                       "FROM album_tracklist a JOIN album b ON a.album_id =b.id JOIN track c ON a.track_id = c.id JOIN artist d ON c.artist_id = d.id" +
-                       " LEFT JOIN (SELECT * FROM scrobbled_track WHERE lastfm_id = ? ) e ON a.track_id = e.track_id  WHERE a.album_id = ?   ORDER BY a.position ASC";
+                "FROM album_tracklist a JOIN album b ON a.album_id =b.id JOIN track c ON a.track_id = c.id JOIN artist d ON c.artist_id = d.id" +
+                " LEFT JOIN (SELECT * FROM scrobbled_track WHERE lastfm_id = ? ) e ON a.track_id = e.track_id  WHERE a.album_id = ?   ORDER BY a.position ASC";
         try
                 (PreparedStatement preparedStatement = connection.prepareStatement(mySql)) {
             preparedStatement.setString(1, lastfmId);
@@ -132,7 +132,7 @@ public class TrackDaoImpl extends BaseDAO implements TrackDao {
         List<ScrobbledTrack> scrobbledTracks = new ArrayList<>();
 
         String mySql = "SELECT b.id,d.id,c.id,c.name,d.album_name,b.duration,b.track_name,coalesce(b.url,d.url,c.url),a.playnumber,a.loved,b.popularity " +
-                       "FROM scrobbled_track a JOIN track b ON a.track_id = b.id  JOIN artist c ON b.artist_id = c.id LEFT JOIN album d ON b.album_id = d.id WHERE a.lastfm_id = ?  AND b.id = ? ";
+                "FROM scrobbled_track a JOIN track b ON a.track_id = b.id  JOIN artist c ON b.artist_id = c.id LEFT JOIN album d ON b.album_id = d.id WHERE a.lastfm_id = ?  AND b.id = ? ";
 
         try
                 (PreparedStatement preparedStatement = connection.prepareStatement(mySql)) {
@@ -226,7 +226,7 @@ public class TrackDaoImpl extends BaseDAO implements TrackDao {
         List<ScrobbledTrack> scrobbledTracks = new ArrayList<>();
 
         String mySql = "SELECT b.id,d.id,c.id,c.name,d.album_name,b.duration,b.track_name,coalesce(b.url,d.url,c.url),a.playnumber,a.loved,b.spotify_id " +
-                       "FROM scrobbled_track a JOIN track b ON a.track_id = b.id JOIN artist c ON b.artist_id = c.id LEFT JOIN album d ON b.album_id = d.id WHERE a.lastfm_id = ? AND b.spotify_id IS NOT NULL ORDER BY playnumber DESC LIMIT ? ";
+                "FROM scrobbled_track a JOIN track b ON a.track_id = b.id JOIN artist c ON b.artist_id = c.id LEFT JOIN album d ON b.album_id = d.id WHERE a.lastfm_id = ? AND b.spotify_id IS NOT NULL ORDER BY playnumber DESC LIMIT ? ";
         try
                 (PreparedStatement preparedStatement = connection.prepareStatement(mySql)) {
             preparedStatement.setString(1, lastfmId);
@@ -546,11 +546,23 @@ public class TrackDaoImpl extends BaseDAO implements TrackDao {
     }
 
     @Override
+    public void deleteTracklist(Connection connection, long albumId) {
+        String query = "delete from album_tracklist where album_id = ?";
+
+        try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+            preparedStatement.setLong(1, albumId);
+            preparedStatement.executeUpdate();
+        } catch (SQLException sql) {
+            throw new ChuuServiceException(sql);
+        }
+    }
+
+    @Override
     public List<ScrobbledTrack> getUserTopTracksNoSpotifyId(Connection connection, String lastfmid, int limit) {
         List<ScrobbledTrack> scrobbledTracks = new ArrayList<>();
 
         String mySql = "SELECT b.id,d.id,c.id,c.name,d.album_name,b.duration,b.track_name,coalesce(b.url,d.url,c.url),a.playnumber,a.loved " +
-                       "FROM scrobbled_track a JOIN track b ON a.track_id = b.id JOIN artist c ON b.artist_id = c.id LEFT JOIN album d ON b.album_id = d.id WHERE a.lastfm_id = ? AND b.spotify_id IS NULL ORDER BY playnumber DESC LIMIT ? ";
+                "FROM scrobbled_track a JOIN track b ON a.track_id = b.id JOIN artist c ON b.artist_id = c.id LEFT JOIN album d ON b.album_id = d.id WHERE a.lastfm_id = ? AND b.spotify_id IS NULL ORDER BY playnumber DESC LIMIT ? ";
         try (PreparedStatement preparedStatement = connection.prepareStatement(mySql)) {
             preparedStatement.setString(1, lastfmid);
             preparedStatement.setInt(2, limit);
@@ -641,10 +653,10 @@ public class TrackDaoImpl extends BaseDAO implements TrackDao {
 
         mySql.append(",(?,?,?,?,?,?)".repeat(Math.max(0, nonExistingId.size() - 1)));
         mySql.append(" on duplicate key update " +
-                     " mbid = if(mbid is null and values(mbid) is not null,values(mbid),mbid), " +
-                     " duration = if(duration is null and values(duration) is not null,values(duration),duration), " +
-                     " url = if(url is null and values(url) is not null,values(url),url), " +
-                     " album_id = if(album_id is null and values(album_id) is not null,values(album_id),album_id)  returning id ");
+                " mbid = if(mbid is null and values(mbid) is not null,values(mbid),mbid), " +
+                " duration = if(duration is null and values(duration) is not null,values(duration),duration), " +
+                " url = if(url is null and values(url) is not null,values(url),url), " +
+                " album_id = if(album_id is null and values(album_id) is not null,values(album_id),album_id)  returning id ");
 
         try {
             PreparedStatement preparedStatement = connection.prepareStatement(mySql.toString());
@@ -683,10 +695,10 @@ public class TrackDaoImpl extends BaseDAO implements TrackDao {
     @Override
     public void insertTrack(Connection connection, ScrobbledTrack x) {
         String sql = "INSERT INTO track (artist_id,track_name,url,mbid,duration,album_id) VALUES (?,?,?,?,?,?) ON DUPLICATE KEY UPDATE" +
-                     " mbid = if(mbid IS NULL AND values(mbid) IS NOT NULL,values(mbid),mbid), " +
-                     " duration = if(duration IS NULL AND values(duration) IS NOT NULL,values(duration),duration), " +
-                     " url = if(url IS NULL AND values(url) IS NOT NULL,values(url),url), " +
-                     " album_id = if(album_id IS NULL AND values(album_id) IS NOT NULL,values(album_id),album_id)  RETURNING id ";
+                " mbid = if(mbid IS NULL AND values(mbid) IS NOT NULL,values(mbid),mbid), " +
+                " duration = if(duration IS NULL AND values(duration) IS NOT NULL,values(duration),duration), " +
+                " url = if(url IS NULL AND values(url) IS NOT NULL,values(url),url), " +
+                " album_id = if(album_id IS NULL AND values(album_id) IS NOT NULL,values(album_id),album_id)  RETURNING id ";
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
             preparedStatement.setLong(+1, x.getArtistId());
@@ -863,9 +875,9 @@ public class TrackDaoImpl extends BaseDAO implements TrackDao {
     public Map<ScrobbledArtist, Long> getUserTopArtistByDuration(Connection connection, String lastfmId, int limit) {
         Map<ScrobbledArtist, Long> returnList = new LinkedHashMap<>();
         String mySql = "SELECT sum(playnumber) AS plays,sum(coalesce(duration,200)) AS ord,d.name,d.url,d.id FROM scrobbled_track a JOIN track b ON a.track_id = b.id JOIN user c ON a.lastfm_id = c.lastfm_id" +
-                       " JOIN artist d ON b.artist_id = d.id  WHERE a.lastfm_id = ?  " +
-                       " GROUP BY a.artist_id  " +
-                       "ORDER BY ord DESC  LIMIT ? ";
+                " JOIN artist d ON b.artist_id = d.id  WHERE a.lastfm_id = ?  " +
+                " GROUP BY a.artist_id  " +
+                "ORDER BY ord DESC  LIMIT ? ";
         try {
             PreparedStatement preparedStatement = connection.prepareStatement(mySql);
             int i = 1;

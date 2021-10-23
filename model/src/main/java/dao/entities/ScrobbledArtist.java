@@ -111,11 +111,11 @@ public class ScrobbledArtist {
     public String toString() {
 
         return ". " +
-               "[" +
-               LinkUtils.cleanMarkdownCharacter(artist) +
-               "](" + LinkUtils.getLastFmArtistUrl(artist) +
-               ")" +
-               " - " + count + " plays" +
-               "\n";
+                "[" +
+                LinkUtils.cleanMarkdownCharacter(artist) +
+                "](" + LinkUtils.getLastFmArtistUrl(artist) +
+                ")" +
+                " - " + count + " plays" +
+                "\n";
     }
 }

@@ -147,8 +147,8 @@ public class AOTYCommand extends ChartableCommand<ChartYearParameters> {
         queue.removeIf(urlCapsule -> {
             for (AlbumInfo albumInfo : albumsMbizMatchingYear) {
                 if ((albumInfo.getMbid() != null && !albumInfo.getMbid().isEmpty() && albumInfo.getMbid().equals(urlCapsule.getMbid())) || urlCapsule
-                                                                                                                                                   .getAlbumName().equalsIgnoreCase(albumInfo.getName()) && urlCapsule.getArtistName()
-                                                                                                                                                   .equalsIgnoreCase(albumInfo.getArtist())) {
+                        .getAlbumName().equalsIgnoreCase(albumInfo.getName()) && urlCapsule.getArtistName()
+                        .equalsIgnoreCase(albumInfo.getArtist())) {
                     urlCapsule.setPos(counter2.getAndIncrement());
                     return false;
                 }

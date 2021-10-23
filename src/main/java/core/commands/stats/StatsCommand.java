@@ -10,7 +10,7 @@ import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.commands.utils.PrivacyUtils;
 import core.exceptions.LastFmException;
-import core.otherlisteners.Reactionary;
+import core.otherlisteners.util.PaginatorBuilder;
 import core.parsers.Parser;
 import core.parsers.StatsParser;
 import core.parsers.params.StatsParams;
@@ -83,16 +83,18 @@ public class StatsCommand extends ConcurrentCommand<StatsParams> {
                     .setAuthor(title, PrivacyUtils.getLastFmUser(Chuu.DEFAULT_LASTFM_ID), e.getJDA().getSelfUser().getAvatarUrl())
                     .setFooter("Do " + e.getPrefix() + getAliases().get(0) + " help |statistic| for information about a certain stat!");
 
-            var lines = enumSet.stream().sorted(Comparator.comparingInt(Enum::ordinal)).map(x -> {
+            String lines = enumSet.stream().sorted(Comparator.comparingInt(Enum::ordinal)).map(x -> {
                 String aliases = String.join("; ", x.getAliases());
                 if (!aliases.isBlank()) {
                     aliases = " (" + aliases + ")";
                 }
                 return "**%s** ➜ %s%s".formatted(x.toString(), x.getHelpMessage(), aliases);
             }).collect(Collectors.joining("\n"));
-            List<String> split = TextSplitter.split(lines, 2000);
 
-            e.sendMessage(embedBuilder.setDescription(split.get(0)).build()).queue(z -> new Reactionary<>(split, z, 1, embedBuilder, false));
+            List<String> split = TextSplitter.split(lines, 3000);
+
+            new PaginatorBuilder<>(e, embedBuilder, split).pageSize(1).unnumered().build().queue();
+
             return;
         }
 

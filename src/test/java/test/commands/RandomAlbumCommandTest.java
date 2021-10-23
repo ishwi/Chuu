@@ -25,8 +25,8 @@ public class RandomAlbumCommandTest extends CommandTest {
     public void normalUSage() {
         Pattern emptyResponse = Pattern.compile("The pool of urls was empty, add one first!");
         Pattern oneResponse = Pattern.compile("(.*?), here's your random recommendation\n" +
-                                              "Posted by: (.*?)\n" +
-                                              "Link: (.*)");
+                "Posted by: (.*?)\n" +
+                "Link: (.*)");
         Pattern addedUrl = Pattern.compile("Successfully added (.*)'s link to the pool");
         Pattern alreadyOnPool = Pattern.compile("The provided url: (.*) was already on the pool");
         String url = "https://www.youtube.com/watch?v=iH0kfH04U68";
@@ -41,9 +41,9 @@ public class RandomAlbumCommandTest extends CommandTest {
 
         //Getting that url from the pool
         OneLineUtils.testCommands(COMMAND_ALIAS, oneResponse, matcher -> matcher.group(1)
-                                                                                 .equals("@" + TestResources.testerJdaUsername) &&
-                                                                         matcher.group(2).equals(TestResources.testerJDA.getSelfUser().getName()) &&
-                                                                         matcher.group(3).equals(url));
+                .equals("@" + TestResources.testerJdaUsername) &&
+                matcher.group(2).equals(TestResources.testerJDA.getSelfUser().getName()) &&
+                matcher.group(3).equals(url));
 
         //Cant re-add the same url
         OneLineUtils

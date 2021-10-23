@@ -7,12 +7,11 @@ import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.commands.utils.PrivacyUtils;
 import core.exceptions.LastFmException;
-import core.otherlisteners.Reactionary;
+import core.otherlisteners.util.PaginatorBuilder;
 import core.parsers.NoOpParser;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
 import dao.ServiceView;
-import dao.entities.Memoized;
 import dao.entities.UserCount;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -69,21 +68,14 @@ public class ServerCommandsIssuedCommand extends ConcurrentCommand<CommandParame
         }
 
         Function<UserCount, String> toMemoize = (userListened) -> ". [" + CommandUtil.getUserInfoEscaped(e, userListened.discordId()).username() + "]" +
-                                                                  "(" + PrivacyUtils.getLastFmUser(userListened.lastfmId()) + ")" +
-                                                                  ": " + userListened.count() + " " + CommandUtil.singlePlural(userListened.count(), "command", "commands") + "\n";
+                "(" + PrivacyUtils.getLastFmUser(userListened.lastfmId()) + ")" +
+                ": " + userListened.count() + " " + CommandUtil.singlePlural(userListened.count(), "command", "commands") + "\n";
 
-        List<Memoized<UserCount, String>> strings = userCommands.stream().map(t -> new Memoized<>(t, toMemoize)).toList();
-
-        StringBuilder a = new StringBuilder();
-        for (int i = 0; i < 10 && i < strings.size(); i++) {
-            a.append(i + 1).append(strings.get(i));
-        }
 
         EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e)
-                .setDescription(a)
                 .setAuthor(e.getGuild().getName() + "'s spammers", null, e.getGuild().getIconUrl());
-        e.sendMessage(embedBuilder.build()).queue(message1 ->
-                new Reactionary<>(strings, message1, embedBuilder));
+
+        new PaginatorBuilder<>(e, embedBuilder, userCommands).memoized(toMemoize).build().queue();
     }
 
 }

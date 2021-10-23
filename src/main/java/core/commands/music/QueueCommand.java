@@ -25,7 +25,7 @@ import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandUtil;
 import core.music.MusicManager;
 import core.music.utils.TrackScrobble;
-import core.otherlisteners.Reactionary;
+import core.otherlisteners.util.PaginatorBuilder;
 import core.parsers.NoOpParser;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
@@ -38,7 +38,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
 
 public class QueueCommand extends MusicCommand<CommandParameters> {
     public QueueCommand(ServiceView dao) {
@@ -104,22 +103,24 @@ public class QueueCommand extends MusicCommand<CommandParameters> {
 
         if (manager.getRadio() != null) {
             String b = "Currently streaming music from radio station " + manager.getRadio().getSource().getName() +
-                       ", requested by <@" + manager.getRadio().requester() +
-                       ">. When the queue is empty, random tracks from the station will be added.";
+                    ", requested by <@" + manager.getRadio().requester() +
+                    ">. When the queue is empty, random tracks from the station will be added.";
             eb.addField("Radio", b, false);
         }
 
-        if (queue.isEmpty()) {
-            eb.setDescription("Nothing in the queue-");
+        if (str.isEmpty()) {
+            // Thinking emoji
+            str.add("Nothing in the queue-");
         } else {
-            eb.setDescription(str.stream().limit(10).collect(Collectors.joining()))
-                    .addField("Entries", String.valueOf(queue.size()), true)
+            eb.addField("Entries", String.valueOf(queue.size()), true)
                     .addField("Total Duration", CommandUtil.getTimestamp(duration), true);
         }
 
 
         eb.addField("Repeating", manager.getRepeatOption().getEmoji(), true);
-        e.sendMessage(eb.build()).queue(m -> new Reactionary<>(str, m, 10, eb, false, true));
+
+        new PaginatorBuilder<>(e, eb, str).unnumered().withIndicator().build().queue();
+
     }
 
 

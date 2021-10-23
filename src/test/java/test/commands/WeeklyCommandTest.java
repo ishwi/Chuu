@@ -46,11 +46,11 @@ public class WeeklyCommandTest extends CommandTest {
             String plural = (matcher.group(8));
             return
                     dayInNumber > 0 && dayInNumber <= 31
-                    && monthInNumber > 0 && monthInNumber <= 12
-                    && totalMinutes != 0
-                    && totalMinutes == totalHours * 60 + partialMinutes
-                    && songs > 0
-                    && (songs == 1 && plural.isEmpty() || (songs != 1 && plural.equals("s")));
+                            && monthInNumber > 0 && monthInNumber <= 12
+                            && totalMinutes != 0
+                            && totalMinutes == totalHours * 60 + partialMinutes
+                            && songs > 0
+                            && (songs == 1 && plural.isEmpty() || (songs != 1 && plural.equals("s")));
         };
         EmbedUtils.testEmbed(COMMAND_ALIAS, pattern, descriptionMatcher, "${header}'s week", false, false, null, null);
     }

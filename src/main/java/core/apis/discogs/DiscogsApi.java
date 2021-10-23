@@ -54,7 +54,7 @@ public class DiscogsApi {
             JSONObject resultObj = results.getJSONObject(i);
 
             if (new LevenshteinDetailedDistance()
-                        .apply(query, resultObj.getString("title")).getDistance() < query.length() / 3) {
+                    .apply(query, resultObj.getString("title")).getDistance() < query.length() / 3) {
                 id = resultObj.getInt("id");
                 break;
             }
@@ -78,7 +78,7 @@ public class DiscogsApi {
 
             if (resultObj.has("year") && new LevenshteinDetailedDistance().apply(
                             expected.toLowerCase(), resultObj.getString("title").toLowerCase().replaceAll("\\s\\(\\d+\\)", ""))
-                                                 .getDistance() < expected.length() / 2) {
+                    .getDistance() < expected.length() / 2) {
                 return Year.of(resultObj.getInt("year"));
             }
         }

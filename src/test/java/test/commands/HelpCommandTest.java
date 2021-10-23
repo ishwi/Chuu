@@ -125,9 +125,9 @@ public class HelpCommandTest extends CommandTest {
                 id = message.getIdLong();
                 String collect = "!" + String.join(", !", command.getAliases());
                 String expected = "Name: " + command.getName() + "\n"
-                                  + "Description: " + command.getDescription() + "\n"
-                                  + "Alliases: " + collect + "\n"
-                                  + "Usage: !" + command.getUsageInstructions().replaceAll("\\*", "").trim();
+                        + "Description: " + command.getDescription() + "\n"
+                        + "Alliases: " + collect + "\n"
+                        + "Usage: !" + command.getUsageInstructions().replaceAll("\\*", "").trim();
                 Assert.assertEquals(expected, message.getContentStripped().replaceAll("\\*", "").trim());
 
             }
@@ -171,9 +171,9 @@ public class HelpCommandTest extends CommandTest {
         String collect = "!" + String.join(", !", command.getAliases());
 
         String expected = "Name: " + command.getName() + "\n"
-                          + "Description: " + command.getDescription() + "\n"
-                          + "Alliases: " + collect + "\n"
-                          + "Usage: !" + command.getUsageInstructions().replaceAll("\\*", "").trim();
+                + "Description: " + command.getDescription() + "\n"
+                + "Alliases: " + collect + "\n"
+                + "Usage: !" + command.getUsageInstructions().replaceAll("\\*", "").trim();
         Assert.assertEquals(expected, message.getContentStripped().replaceAll("\\*", "").trim());
     }
 

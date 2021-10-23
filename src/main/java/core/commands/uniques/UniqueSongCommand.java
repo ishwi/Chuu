@@ -6,7 +6,7 @@ import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.commands.utils.NotOnServerGuard;
-import core.otherlisteners.Reactionary;
+import core.otherlisteners.util.PaginatorBuilder;
 import core.parsers.OnlyUsernameParser;
 import core.parsers.Parser;
 import core.parsers.params.ChuuDataParams;
@@ -66,7 +66,7 @@ public class UniqueSongCommand extends ConcurrentCommand<ChuuDataParams> {
 
         if (new NotOnServerGuard(db).notOnServer(e.getGuild().getIdLong(), discordId)) {
             sendMessageQueue(e, ("You are not registered in this server.\n" +
-                                 "You need to do %sset or %slogin to get tracked in this server.").formatted(e.getPrefix(), e.getPrefix()));
+                    "You need to do %sset or %slogin to get tracked in this server.").formatted(e.getPrefix(), e.getPrefix()));
             return;
         }
 
@@ -76,20 +76,14 @@ public class UniqueSongCommand extends ConcurrentCommand<ChuuDataParams> {
             return;
         }
 
-        StringBuilder a = new StringBuilder();
-        for (int i = 0; i < 10 && i < rows; i++) {
-            TrackPlays g = resultWrapper.getUniqueData().get(i);
-            a.append(i + 1).append(g.toString());
-        }
-
         DiscordUserDisplay userInfo = CommandUtil.getUserInfoEscaped(e, discordId);
 
-        EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e).setDescription(a)
+        EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e)
                 .setAuthor(String.format("%s's%s unique songs", userInfo.username(), isGlobal() ? " global" : ""), CommandUtil.getLastFmUser(lastFmName), userInfo.urlImage())
                 .setFooter(String.format("%s has %d%s unique songs!%n", CommandUtil.unescapedUser(userInfo.username(), discordId, e), rows, isGlobal() ? " global" : ""), null);
 
-        e.sendMessage(embedBuilder.build()).queue(m ->
-                new Reactionary<>(resultWrapper.getUniqueData(), m, embedBuilder));
+        new PaginatorBuilder<>(e, embedBuilder, resultWrapper.getUniqueData()).build().queue();
+
 
     }
 

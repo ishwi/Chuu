@@ -11,10 +11,10 @@ public class CrownsLbEntry extends LbEntryInt {
     @Override
     public String toStringWildcard() {
         return ". [" +
-               LinkUtils.cleanMarkdownCharacter(getDiscordName()) +
-               "](" + WILDCARD +
-               ") - " + getEntryCount() +
-               " crowns\n";
+                LinkUtils.cleanMarkdownCharacter(getDiscordName()) +
+                "](" + WILDCARD +
+                ") - " + getEntryCount() +
+                " crowns\n";
     }
 
 }

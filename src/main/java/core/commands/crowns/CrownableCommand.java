@@ -5,7 +5,7 @@ import core.commands.abstracts.ListCommand;
 import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
-import core.otherlisteners.Reactionary;
+import core.otherlisteners.util.PaginatorBuilder;
 import core.parsers.NumberParser;
 import core.parsers.OnlyUsernameParser;
 import core.parsers.Parser;
@@ -84,9 +84,7 @@ public class CrownableCommand extends ListCommand<CrownableArtist, NumberParamet
                         x.playNumber(),
                         x.rank() != 1 ? "(need " + (x.maxPlaynumber() - x.playNumber() + 1) + " more plays for first)" : "")
         ).toList();
-        for (int i = 0; i < 10 && i < lines.size(); i++) {
-            a.append(i + 1).append(lines.get(i));
-        }
+
         String s;
         if (isServer) {
             s = CommandUtil.escapeMarkdown(e.getGuild().getName());
@@ -106,13 +104,13 @@ public class CrownableCommand extends ListCommand<CrownableArtist, NumberParamet
         } else {
             footer = String.format("Displaying rank of %s's artist%s in %s", uInfo.username(), conditionalFiltering, s);
         }
-        embedBuilder.setDescription(a)
+        embedBuilder
                 .setFooter("")
                 .setAuthor(String.format("%s's artist resume in %s", (uInfo.username()), s), CommandUtil.getLastFmUser(params.getLastFMData().getName()), uInfo.urlImage())
                 .setThumbnail(thumbnail)
                 .setFooter(footer);
-        e.sendMessage(embedBuilder.build()).queue(message ->
-                new Reactionary<>(lines, message, embedBuilder));
+
+        new PaginatorBuilder<>(e, embedBuilder, lines).build().queue();
     }
 
     @Override

@@ -1,11 +1,15 @@
 package core.commands.albums;
 
 import core.commands.Context;
-import core.commands.utils.*;
+import core.commands.utils.ChuuEmbedBuilder;
+import core.commands.utils.CommandCategory;
+import core.commands.utils.CommandUtil;
+import core.commands.utils.PieDoer;
 import core.exceptions.LastFmException;
 import core.imagerenderer.TrackDistributor;
 import core.imagerenderer.util.pie.IPieableList;
 import core.imagerenderer.util.pie.PieableListTrack;
+import core.otherlisteners.util.PaginatorBuilder;
 import core.parsers.ArtistAlbumParser;
 import core.parsers.Parser;
 import core.parsers.params.ArtistAlbumParameters;
@@ -104,13 +108,12 @@ public class AlbumTracksDistributionCommand extends AlbumPlaysCommand {
                             .setTitle(String.format("%s tracklist", album), LinkUtils.getLastFmArtistAlbumUrl(artist, album))
                             .setFooter(String.format("%s has %d total plays on the album!%n", CommandUtil.unescapedUser(getUserString(e, params.getLastFMData().getDiscordId()), params.getLastFMData().getDiscordId(), e), fullAlbumEntity.getTotalPlayNumber()), null)
                             .setThumbnail(fullAlbumEntity.getAlbumUrl());
-                    new ListSenderBuilder<>(e, fullAlbumEntity.getTrackList())
-                            .setMapper(t -> ". " + "[" +
-                                            CommandUtil.escapeMarkdown(t.getName()) +
-                                            "](" + LinkUtils.getLastFMArtistTrack(artist, t.getName()) +
-                                            ")" + " - " + t.getPlays() + CommandUtil.singlePlural(t.getPlays(), " play", " plays") + "\n")
-                            .setEmbedBuilder(embedBuilder).build()
-                            .doSend();
+
+                    new PaginatorBuilder<>(e, embedBuilder, fullAlbumEntity.getTrackList()).mapper(t -> ". " + "[" +
+                                    CommandUtil.escapeMarkdown(t.getName()) +
+                                    "](" + LinkUtils.getLastFMArtistTrack(artist, t.getName()) +
+                                    ")" + " - " + t.getPlays() + CommandUtil.singlePlural(t.getPlays(), " play", " plays") + "\n")
+                            .build().queue();
 
                 }
             }

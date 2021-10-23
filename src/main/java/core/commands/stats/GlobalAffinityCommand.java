@@ -6,7 +6,7 @@ import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.commands.utils.PrivacyUtils;
-import core.otherlisteners.Reactionary;
+import core.otherlisteners.util.PaginatorBuilder;
 import core.parsers.NumberParser;
 import core.parsers.OnlyUsernameParser;
 import core.parsers.Parser;
@@ -15,6 +15,7 @@ import core.parsers.params.NumberParameters;
 import dao.ServiceView;
 import dao.entities.Affinity;
 import dao.entities.DiscordUserDisplay;
+import dao.entities.GlobalAffinity;
 import dao.entities.LastFMData;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -24,6 +25,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 import static core.parsers.ExtraParser.LIMIT_ERROR;
 
@@ -45,7 +47,7 @@ public class GlobalAffinityCommand extends ConcurrentCommand<NumberParameters<Ch
         Map<Integer, String> map = new HashMap<>(2);
         map.put(LIMIT_ERROR, "The number introduced must be positive and not very big");
         String s = "You can also introduce a number to vary the number of plays needed to award a match, " +
-                   "defaults to 30";
+                "defaults to 30";
         return new NumberParser<>(new OnlyUsernameParser(db),
                 30L,
                 Integer.MAX_VALUE,
@@ -75,30 +77,24 @@ public class GlobalAffinityCommand extends ConcurrentCommand<NumberParameters<Ch
         int threshold = Math.toIntExact(params.getExtraParam());
         List<dao.entities.GlobalAffinity> globalAff = db.getGlobalAffinity(ogData.getName(), threshold).stream().sorted(Comparator.comparing(Affinity::getAffinity).reversed()).toList();
 
-        StringBuilder stringBuilder = new StringBuilder();
-        List<String> lines = globalAff.stream().map(x -> {
-                    String name = PrivacyUtils.getPublicStr(x.getPrivacyMode(), x.getDiscordId(), x.getReceivingLastFmId(), e);
-                    return String.format(". [%s](%s) - %.2f%%%s matching%n", name,
-                            CommandUtil.getLastFmUser(x.getReceivingLastFmId()),
-                            (x.getAffinity() > 1 ? 1 : x.getAffinity()) * 100, x.getAffinity() > 1 ? "+" : "");
-                }
-        ).toList();
-        for (
-                int i = 0, size = globalAff.size();
-                i < 10 && i < size; i++) {
-            String text = lines.get(i);
-            stringBuilder.append(i + 1).append(text);
-        }
 
         DiscordUserDisplay uinfo = CommandUtil.getUserInfoEscaped(e, ogData.getDiscordId());
-        String name = e.getJDA().getSelfUser().getName();
+        String selfUserName = e.getJDA().getSelfUser().getName();
         EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e)
-                .setDescription(stringBuilder)
-                .setTitle(uinfo.username() + "'s soulmates in " + CommandUtil.escapeMarkdown(name))
+                .setTitle(uinfo.username() + "'s soulmates in " + CommandUtil.escapeMarkdown(selfUserName))
                 .setFooter(String.format("%s's global affinity using a threshold of %d plays!%n", CommandUtil.stripEscapedMarkdown(uinfo.username()), threshold), null)
                 .setThumbnail(e.getJDA().getSelfUser().getAvatarUrl());
-        e.sendMessage(embedBuilder.build())
-                .queue(message1 -> new Reactionary<>(lines, message1, embedBuilder));
+
+
+        Function<GlobalAffinity, String> mapper = x -> {
+            String name = PrivacyUtils.getPublicStr(x.getPrivacyMode(), x.getDiscordId(), x.getReceivingLastFmId(), e);
+            return String.format(". [%s](%s) - %.2f%%%s matching%n", name,
+                    CommandUtil.getLastFmUser(x.getReceivingLastFmId()),
+                    (x.getAffinity() > 1 ? 1 : x.getAffinity()) * 100, x.getAffinity() > 1 ? "+" : "");
+        };
+        new PaginatorBuilder<>(e, embedBuilder, globalAff)
+                .memoized(mapper)
+                .build().queue();
     }
 
 }

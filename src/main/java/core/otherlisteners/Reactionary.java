@@ -1,26 +1,31 @@
 package core.otherlisteners;
 
+import core.commands.utils.ButtonUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
+import net.dv8tion.jda.api.interactions.components.ActionRow;
 
 import javax.annotation.Nonnull;
+import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
+import java.util.function.Function;
 
 import static java.lang.Math.min;
 import static java.lang.StrictMath.max;
 
 public class Reactionary<T> extends ReactionListener {
-    private static final String RIGHT_ARROW = "U+27a1";
-    private static final String LEFT_ARROW = "U+2b05";
     private final int pageSize;
     private final List<T> list;
     private final boolean numberedEntries;
     private final boolean pagingIndicator;
+    private final Function<Integer, String> extraText;
+    private final Function<T, String> mapper;
     private int counter = 0;
     private boolean missingArrow = true;
-
 
     public Reactionary(List<T> list, Message message, EmbedBuilder who) {
 
@@ -42,25 +47,26 @@ public class Reactionary<T> extends ReactionListener {
 
 
     public Reactionary(List<T> list, Message messageToReact, int pageSize, EmbedBuilder who, boolean numberedEntries, boolean pagingIndicator) {
-        this(list, messageToReact, pageSize, who, numberedEntries, pagingIndicator, 40);
+        this(list, messageToReact, pageSize, who, numberedEntries, pagingIndicator, 40, Objects::toString, null);
     }
 
-    public Reactionary(List<T> list, Message messageToReact, int pageSize, EmbedBuilder who, boolean numberedEntries, boolean pagingIndicator, long seconds) {
+    public Reactionary(List<T> list, Message messageToReact, int pageSize, EmbedBuilder who, boolean numberedEntries, boolean pagingIndicator, long seconds, Function<T, String> mapper, Function<Integer, String> extraText) {
         super(who, messageToReact, seconds);
         this.list = list;
         this.pageSize = pageSize;
         this.numberedEntries = numberedEntries;
         this.pagingIndicator = pagingIndicator;
+        this.mapper = mapper;
+        this.extraText = extraText;
         init();
     }
 
 
     @Override
     public void init() {
-        if (list.size() <= pageSize)
-            return;
-        //message.addReaction(LEFT_ARROW).queue();
-        message.addReaction(RIGHT_ARROW).queue();
+        if (list.size() <= pageSize) {
+            unregister();
+        }
     }
 
     @Override
@@ -73,41 +79,44 @@ public class Reactionary<T> extends ReactionListener {
 
     @Override
     public boolean isValid(ButtonClickEvent event) {
-        return false;
+        return message != null && event.getMessageIdLong() == message.getIdLong();
     }
 
     @Override
     public void dispose() {
-        clearReacts();
-        StringBuilder a = new StringBuilder();
-        if (counter < pageSize)
-            return;
-
-        for (int i = 0; i < pageSize && i < list.size(); i++) {
-            if (this.numberedEntries) {
-                a.append(i + 1);
+        if (counter >= pageSize) {
+            StringBuilder a = new StringBuilder();
+            for (int i = 0; i < pageSize && i < list.size(); i++) {
+                if (this.numberedEntries) {
+                    a.append(i + 1);
+                }
+                a.append(mapper.apply(list.get(i)));
             }
-            a.append(list.get(i).toString());
+            who.setDescription(a);
         }
-        who.setDescription(a);
-//        who.setColor(CommandUtil.pastelColor());
-        message.editMessageEmbeds(who.build()).queue();
+        message.editMessageEmbeds(who.build()).setActionRows(Collections.emptyList()).queue();
     }
 
     @Override
     public void onMessageReactionAdd(@Nonnull MessageReactionAddEvent event) {
+
+    }
+
+    @Override
+    public void onButtonClickedEvent(@Nonnull ButtonClickEvent event) {
+        event.deferEdit().queue();
         if (message == null) {
             return;
         }
-        if (event.getMessageIdLong() != message.getIdLong() || (event.getUser() != null && event.getUser().isBot() || !event.getReaction().getReactionEmote().isEmoji()))
+        if (event.getMessageIdLong() != message.getIdLong() || event.getUser().isBot())
             return;
         int start;
-        String asCodepoints = event.getReaction().getReactionEmote().getAsCodepoints();
-        switch (asCodepoints) {
-            case LEFT_ARROW:
+        String id = event.getComponentId();
+        switch (id) {
+            case Reactions.LEFT_ARROW:
                 start = max(0, counter - pageSize);
                 break;
-            case RIGHT_ARROW:
+            case Reactions.RIGHT_ARROW:
                 start = min(list.size() - (list.size() % pageSize), counter + pageSize);
                 break;
             default:
@@ -121,44 +130,36 @@ public class Reactionary<T> extends ReactionListener {
             if (numberedEntries) {
                 a.append(i + 1);
             }
-            a.append(list.get(i).toString());
+            a.append(mapper.apply(list.get(i)));
 
         }
 
         if (pagingIndicator) {
             a.append("\n ").append(currentPage).append("/").append(totalPageNumber);
         }
+        if (extraText != null) {
+            a.append("\n").append(extraText.apply(currentPage));
+        }
         counter = start;
         who.setDescription(a);
-//        who.setColor(ColorService.computeColor(e));
-        message.editMessageEmbeds(who.build()).queue();
-        clearOneReact(event);
 
-        if (currentPage == 1 && asCodepoints.equals(LEFT_ARROW)) {
-            message.removeReaction(LEFT_ARROW).queue();
-            missingArrow = true;
-        } else if (currentPage == 2 && asCodepoints.equals(RIGHT_ARROW) && missingArrow) {
-            clearReacts((Void t) -> message.addReaction(LEFT_ARROW).queue(x -> {
-                if (totalPageNumber != 2) {
-                    message.addReaction(RIGHT_ARROW).queue();
-                }
-            }));
-            missingArrow = false;
-        }
-        if (currentPage == totalPageNumber && asCodepoints.equals(RIGHT_ARROW)) {
-            message.removeReaction(RIGHT_ARROW).queue();
-            missingArrow = true;
-        } else if (currentPage == totalPageNumber - 1 && asCodepoints.equals(LEFT_ARROW) && missingArrow) {
-            message.addReaction(RIGHT_ARROW).queue();
-            missingArrow = false;
+        ActionRow actionRow = ActionRow.of(ButtonUtils.getLeftButton(), ButtonUtils.getRightButton());
+        if (currentPage == 1 && id.equals(Reactions.LEFT_ARROW)) {
+            actionRow = ActionRow.of(ButtonUtils.getRightButton());
+        } else if (currentPage == 2 && id.equals(Reactions.RIGHT_ARROW) && missingArrow) {
+            if (totalPageNumber == 2) {
+                actionRow = ActionRow.of(ButtonUtils.getLeftButton());
+            }
+        } else if (currentPage == totalPageNumber && id.equals(Reactions.RIGHT_ARROW)) {
+            actionRow = ActionRow.of(ButtonUtils.getLeftButton());
+        } else if (currentPage == totalPageNumber - 1 && id.equals(Reactions.LEFT_ARROW) && missingArrow) {
+            actionRow = ActionRow.of(ButtonUtils.getLeftButton(), ButtonUtils.getRightButton());
         }
 
+        missingArrow = actionRow.getButtons().size() != 2;
         refresh(event.getJDA());
+        message.editMessage(new MessageBuilder().setEmbeds(who.build()).setActionRows(actionRow).build()).queue();
     }
-
-    @Override
-    public void onButtonClickedEvent(@Nonnull ButtonClickEvent event) {
-
-    }
-
 }
+
+

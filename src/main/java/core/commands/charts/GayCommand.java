@@ -163,8 +163,8 @@ public class GayCommand extends OnlyChartCommand<GayParams> {
         int minValue = min.getAsInt();
         if (minValue < params.getX()) {
             if ((params.getGayType().equals(GayType.BI) && (gayColours.get(Color.decode("#D60270")) < params.getX() || gayColours.get(Color.decode("#0038A8")) < params.getX()))
-                ||
-                (params.getGayType().equals(GayType.TRANS) && (gayColours.get(Color.decode("#55CDFC")) < params.getX() || gayColours.get(Color.decode("#F7A8B8")) < params.getX())))
+                    ||
+                    (params.getGayType().equals(GayType.TRANS) && (gayColours.get(Color.decode("#55CDFC")) < params.getX() || gayColours.get(Color.decode("#F7A8B8")) < params.getX())))
                 params.setX(params.getX() - (int) Math.ceil((params.getX() - minValue) / 2f));
             else {
                 params.setX(minValue);

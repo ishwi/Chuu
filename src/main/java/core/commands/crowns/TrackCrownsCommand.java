@@ -5,7 +5,7 @@ import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
-import core.otherlisteners.Reactionary;
+import core.otherlisteners.util.PaginatorBuilder;
 import core.parsers.OnlyUsernameParser;
 import core.parsers.Parser;
 import core.parsers.params.ChuuDataParams;
@@ -83,19 +83,12 @@ TrackCrownsCommand extends ConcurrentCommand<NumberParameters<ChuuDataParams>> {
             return;
         }
 
-        StringBuilder a = new StringBuilder();
-        for (int i = 0; i < 10 && i < rows; i++) {
-            TrackPlays g = resultWrapper.get(i);
-            a.append(i + 1).append(g.toString());
-        }
         EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e)
-                .setDescription(a)
                 .setTitle(String.format("%s's track crowns", name), CommandUtil.getLastFmUser(uniqueDataUniqueWrapper.getLastFmId()))
                 .setFooter(String.format("%s has %d track crowns!!%n", CommandUtil.unescapedUser(name, innerParams.getLastFMData().getDiscordId(), e), resultWrapper.size()), null)
                 .setThumbnail(url);
 
-        e.sendMessage(embedBuilder.build()).queue(message1 ->
-                new Reactionary<>(resultWrapper, message1, embedBuilder));
+        new PaginatorBuilder<>(e, embedBuilder, resultWrapper).build().queue();
     }
 
 }

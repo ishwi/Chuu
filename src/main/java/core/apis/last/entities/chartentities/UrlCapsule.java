@@ -98,7 +98,7 @@ public abstract class UrlCapsule {
         if (!(o instanceof UrlCapsule that)) return false;
         return
                 Objects.equals(getArtistName(), that.getArtistName()) &&
-                Objects.equals(getAlbumName(), that.getAlbumName());
+                        Objects.equals(getAlbumName(), that.getAlbumName());
     }
 
     @Override

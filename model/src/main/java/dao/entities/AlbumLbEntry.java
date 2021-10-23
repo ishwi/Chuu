@@ -10,10 +10,10 @@ public class AlbumLbEntry extends LbEntryInt {
     @Override
     public String toStringWildcard() {
         return ". [" +
-               LinkUtils.cleanMarkdownCharacter(getDiscordName()) +
-               "](" + WILDCARD +
-               ") - " + getEntryCount() +
-               (getEntryCount() == 1 ? " album" : " albums\n");
+                LinkUtils.cleanMarkdownCharacter(getDiscordName()) +
+                "](" + WILDCARD +
+                ") - " + getEntryCount() +
+                (getEntryCount() == 1 ? " album" : " albums\n");
     }
 
 }

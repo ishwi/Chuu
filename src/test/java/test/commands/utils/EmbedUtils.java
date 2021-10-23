@@ -13,26 +13,26 @@ import java.util.regex.Pattern;
 public class EmbedUtils {
     public static final Pattern descriptionArtistRegex = Pattern.compile(
             "(\\d+)" + //Indexed list *captured
-            "\\. \\[(?:[^\\[\\]]+)]\\((?:[^)]+)\\)" + //Markdown link
-            "(?=(?: -|:))(?: -|:) " + //anything until a ":" or a " -"
-            "(\\d+) " + //count of the description *captured
-            "(play(?:s)?|(?:album )?crown(?:s)?|obscurity points|artist(?:s)?|unique artist(?:s)?)");
+                    "\\. \\[(?:[^\\[\\]]+)]\\((?:[^)]+)\\)" + //Markdown link
+                    "(?=(?: -|:))(?: -|:) " + //anything until a ":" or a " -"
+                    "(\\d+) " + //count of the description *captured
+                    "(play(?:s)?|(?:album )?crown(?:s)?|obscurity points|artist(?:s)?|unique artist(?:s)?)");
     //ending
     public static final Pattern descriptionArtistRegexNoMarkDownLink = Pattern.compile(
             "(\\d+)" + //Indexed list *captured
-            "\\. (?:.*) [\\-:] " + // aristName
-            "(\\d+) " + //count of the description *captured
-            "(play(?:s)?|(?:album )?crown(?:s)?|obscurity points|artist(?:s)?|unique artist(?:s)?)");
+                    "\\. (?:.*) [\\-:] " + // aristName
+                    "(\\d+) " + //count of the description *captured
+                    "(play(?:s)?|(?:album )?crown(?:s)?|obscurity points|artist(?:s)?|unique artist(?:s)?)");
     public static final Pattern stolenRegex = Pattern.compile(
             "(\\d+)" + //Indexed list *captured
-            "\\. \\[(?:[^\\[\\]]+)]\\((?:[^)]+)\\)" + //Markdown link
-            "(?= : )(?: : )" + //anything until a ":"
-            "(\\d+)" + //your plays
-            "(?: -> )(?:\\d+)"); //Separator and other user plays
+                    "\\. \\[(?:[^\\[\\]]+)]\\((?:[^)]+)\\)" + //Markdown link
+                    "(?= : )(?: : )" + //anything until a ":"
+                    "(\\d+)" + //your plays
+                    "(?: -> )(?:\\d+)"); //Separator and other user plays
     public static final Pattern descriptionArtistAlbumRegex = Pattern.compile(
             "(\\d+)\\. " + //digit
-            "\\[(?:[^\\[\\]]+)]\\((?:[^)]+)\\)" + //markdown url
-            "(?= - ) - (\\d+) play(?:s)?"); /// remaining
+                    "\\[(?:[^\\[\\]]+)]\\((?:[^)]+)\\)" + //markdown url
+                    "(?= - ) - (\\d+) play(?:s)?"); /// remaining
     private static String serverThumbnail;
     private static String testerJDAThumbnail;
     private static String ogJDAThumbnail;

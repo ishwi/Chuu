@@ -31,8 +31,8 @@ public record FullTimeframeExplanation(TimeFrameEnum timeFrame) implements Expla
     @Override
     public Interactible explanation() {
         return new ExplanationLine("timeframe", "" +
-                                                "If a timeframe it's not specified defaults to " + timeFrame.toValueString() + "\n" +
-                                                "The full alias of the timeframes can be used. Also you can specify a custom date like in the `since` command.", List.of(optionData, from, to));
+                "If a timeframe it's not specified defaults to " + timeFrame.toValueString() + "\n" +
+                "The full alias of the timeframes can be used. Also you can specify a custom date like in the `since` command.", List.of(optionData, from, to));
     }
 
 }

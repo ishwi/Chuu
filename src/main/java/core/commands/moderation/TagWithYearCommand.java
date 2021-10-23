@@ -3,6 +3,7 @@ package core.commands.moderation;
 import core.Chuu;
 import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
+import core.commands.utils.ButtonUtils;
 import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
@@ -141,8 +142,7 @@ public class TagWithYearCommand extends ConcurrentCommand<CommandParameters> {
                 (z) -> {
                 }));
 
-        ActionRow row = ActionRow.of(Button.of(ButtonStyle.PRIMARY, ACCEPT, "Submit"),
-                Button.of(ButtonStyle.DANGER, REJECT, "Cancel"));
+        ActionRow row = ActionRow.of(ButtonUtils.primary("Submit"), ButtonUtils.danger("Cancel"));
 
         e.sendMessage(embedBuilder.build(), row)
                 .queue(mes -> new Confirmator(embedBuilder, e, mes, idLong, items));

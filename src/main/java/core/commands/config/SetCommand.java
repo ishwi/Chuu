@@ -85,7 +85,7 @@ public class SetCommand extends ConcurrentCommand<WordParameter> {
         }
 
         String repeatedMessage = "That username is already registered. If you own the account pls use: **" + e.getPrefix() + "login**\n" +
-                                 "Any doubt you might have please contact the bot developers on the support server";
+                "Any doubt you might have please contact the bot developers on the support server";
         boolean repeated;
         try {
             LastFMData byLastfmName = db.findByLastfmName(lastFmName);

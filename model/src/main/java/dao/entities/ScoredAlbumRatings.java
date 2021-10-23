@@ -55,9 +55,9 @@ public class ScoredAlbumRatings {
     @Override
     public String toString() {
         return ". ***[" + LinkUtils.cleanMarkdownCharacter(getArtist()) + " - " + LinkUtils.cleanMarkdownCharacter(getName())
-               +
-               "](" + LinkUtils.getLastFmArtistAlbumUrl(getArtist(), getName()) +
-               ")***\n\t" + String.format("Average: **%s** | # of Ratings: **%d**", formatter.format(getAverage() / 2f), getNumberOfRatings()) +
-               "\n";
+                +
+                "](" + LinkUtils.getLastFmArtistAlbumUrl(getArtist(), getName()) +
+                ")***\n\t" + String.format("Average: **%s** | # of Ratings: **%d**", formatter.format(getAverage() / 2f), getNumberOfRatings()) +
+                "\n";
     }
 }

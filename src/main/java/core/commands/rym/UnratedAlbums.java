@@ -5,7 +5,7 @@ import core.commands.abstracts.ListCommand;
 import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
-import core.otherlisteners.Reactionary;
+import core.otherlisteners.util.PaginatorBuilder;
 import core.parsers.OnlyUsernameParser;
 import core.parsers.Parser;
 import core.parsers.params.ChuuDataParams;
@@ -61,20 +61,12 @@ public class UnratedAlbums extends ListCommand<AlbumPlays, ChuuDataParams> {
             sendMessageQueue(e, "Couldn't find any unrated album in " + dp.username() + " albums");
             return;
         }
-
-        StringBuilder a = new StringBuilder();
-        for (int i = 0; i < 10 && i < list.size(); i++) {
-            a.append(i + 1).append(list.get(i));
-        }
-
         char prefix = CommandUtil.getMessagePrefix(e);
 
         EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e)
-                .setDescription(a)
                 .setTitle(dp.username() + "'s Unrated Albums")
                 .setFooter("You can link your rym account using " + prefix + "rymimport\n You have " + list.size() + " unrated albums", null)
                 .setThumbnail(dp.urlImage());
-        e.sendMessage(embedBuilder.build()).queue(message1 ->
-                new Reactionary<>(list, message1, embedBuilder));
+        new PaginatorBuilder<>(e, embedBuilder, list).build().queue();
     }
 }

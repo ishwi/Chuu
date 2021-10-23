@@ -9,7 +9,7 @@ import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.exceptions.LastFmException;
-import core.otherlisteners.Reactionary;
+import core.otherlisteners.util.PaginatorBuilder;
 import core.parsers.Parser;
 import core.parsers.TimerFrameParser;
 import core.parsers.params.ChartParameters;
@@ -20,6 +20,7 @@ import dao.entities.AlbumInfo;
 import dao.entities.DiscordUserDisplay;
 import dao.entities.LastFMData;
 import dao.entities.TimeFrameEnum;
+import net.dv8tion.jda.api.EmbedBuilder;
 
 import javax.annotation.Nonnull;
 import java.time.Year;
@@ -84,19 +85,12 @@ public class DecadeDistributionCommand extends ConcurrentCommand<TimeFrameParame
                 ". **%ds**: %d %s%n".formatted(CommandUtil.getDecade(t.getKey().getValue()), t.getValue(), CommandUtil.singlePlural(t.getValue(), "album", "albums"))
         ).toList();
 
-        StringBuilder a = new StringBuilder();
-        for (int i = 0; i < lines.size() && i < 10; i++) {
-            String s = lines.get(i);
-            a.append(i + 1).append(s);
-        }
 
-        var embedBuilder = new ChuuEmbedBuilder(e)
-                .setDescription(a)
+        EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e)
                 .setAuthor(String.format("%s's years%s", uInfo.username(), params.getTime().getDisplayString()), CommandUtil.getLastFmUser(params.getLastFMData().getName()), uInfo.urlImage())
                 .setFooter("%s has albums from %d different %s".formatted(CommandUtil.stripEscapedMarkdown(uInfo.username()), counts.size(), CommandUtil.singlePlural(counts.size(), "decade", "decades")), null);
 
-        e.sendMessage(embedBuilder.build()).queue(m ->
-                new Reactionary<>(lines, m, 10, embedBuilder));
+        new PaginatorBuilder<>(e, embedBuilder, lines).build().queue();
     }
 
 

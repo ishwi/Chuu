@@ -6,7 +6,7 @@ import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
-import core.otherlisteners.Reactionary;
+import core.otherlisteners.util.PaginatorBuilder;
 import core.parsers.NoOpParser;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
@@ -54,20 +54,14 @@ public class AltCoverListCommand extends ConcurrentCommand<CommandParameters> {
     protected void onCommand(Context e, @Nonnull CommandParameters params) {
         CoverService coverService = Chuu.getCoverService();
         Map<CoverItem, Integer> counts = coverService.getCounts();
-        List<String> str = counts.entrySet().stream().map((t -> "**%s - %s**: %d %s%n".formatted(t.getKey().artist(), t.getKey().album(), t.getValue(), CommandUtil.singlePlural(t.getValue(), "cover", "covers"))))
-                .sorted(String.CASE_INSENSITIVE_ORDER).toList();
-        StringBuilder a = new StringBuilder();
-        for (int i = 0; i < 10 && i < str.size(); i++) {
-            a.append("# ").append(str.get(i));
-        }
 
+        List<String> str = counts.entrySet().stream().map((t -> "# **%s - %s**: %d %s%n".formatted(t.getKey().artist(), t.getKey().album(), t.getValue(), CommandUtil.singlePlural(t.getValue(), "cover", "covers"))))
+                .sorted(String.CASE_INSENSITIVE_ORDER).toList();
 
         EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e)
-                .setDescription(a)
                 .setTitle("Alt covers");
 
-        e.sendMessage(embedBuilder.build()).queue(message1 ->
-                new Reactionary<>(str, message1, embedBuilder));
+        new PaginatorBuilder<>(e, embedBuilder, str).numberedEntries(false).build().queue();
 
 
     }

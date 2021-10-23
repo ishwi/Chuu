@@ -32,7 +32,7 @@ public class LastFmEntityNotFoundException extends LastFmException {
     @Override
     public String toString() {
         return "LastFmEntityNotFoundException{" +
-               "exceptionCause=" + exceptionCause +
-               '}';
+                "exceptionCause=" + exceptionCause +
+                '}';
     }
 }

@@ -135,9 +135,9 @@ public class CustomTimeFrame {
             }
         }
         String fromFormat = DateTimeFormatter.ofPattern("MMMM ").format(from) + DateTimeFormatter.ofPattern("d").format(from) + fromDayNumberSuffix
-                            + DateTimeFormatter.ofPattern(" yyyy" + fromHourFormat).format(from);
+                + DateTimeFormatter.ofPattern(" yyyy" + fromHourFormat).format(from);
         String toFormat = DateTimeFormatter.ofPattern("MMMM ").format(to) + DateTimeFormatter.ofPattern("d").format(to) + toDayNumberSuffix
-                          + DateTimeFormatter.ofPattern(" yyyy" + toHourFormat).format(to);
+                + DateTimeFormatter.ofPattern(" yyyy" + toHourFormat).format(to);
 
         return " from " + fromFormat + " to " + toFormat;
 

@@ -9,7 +9,7 @@ import core.commands.utils.CommandUtil;
 import core.commands.utils.PrivacyUtils;
 import core.exceptions.LastFmException;
 import core.imagerenderer.WorldMapRenderer;
-import core.otherlisteners.Reactionary;
+import core.otherlisteners.util.PaginatorBuilder;
 import core.parsers.NumberParser;
 import core.parsers.Parser;
 import core.parsers.TimerFrameParser;
@@ -22,6 +22,7 @@ import dao.ServiceView;
 import dao.entities.*;
 import dao.musicbrainz.MusicBrainzService;
 import dao.musicbrainz.MusicBrainzServiceSingleton;
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
 
 import javax.annotation.Nonnull;
@@ -51,7 +52,7 @@ public class CountryCommand extends ConcurrentCommand<NumberParameters<TimeFrame
         Map<Integer, String> map = new HashMap<>(2);
         map.put(LIMIT_ERROR, "The number introduced must be between 1 and 5");
         String s = "A number which represent the palette to use.\n" +
-                   "If it is not indicated it defaults to a random palette";
+                "If it is not indicated it defaults to a random palette";
         NumberParser<TimeFrameParameters, TimerFrameParser> parser = new NumberParser<>(new TimerFrameParser(db, TimeFrameEnum.ALL),
                 null,
                 5,
@@ -136,21 +137,13 @@ public class CountryCommand extends ConcurrentCommand<NumberParameters<TimeFrame
                         return ". **%s**: %d %s%n".formatted(byCode == null ? t.getKey().countryCode() : byCode.getName(), t.getValue(), CommandUtil.singlePlural(t.getValue(), "artist", "artists"));
                     }
             ).toList();
-
-            StringBuilder a = new StringBuilder();
-            for (int i = 0; i < lines.size() && i < 10; i++) {
-                String s = lines.get(i);
-                a.append(i + 1).append(s);
-            }
             DiscordUserDisplay uInfo = CommandUtil.getUserInfoUnescaped(params.getE(), discordId);
 
-            var embedBuilder = new ChuuEmbedBuilder(e)
-                    .setDescription(a)
+            EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e)
                     .setAuthor(String.format("%s's countries", uInfo.username()), PrivacyUtils.getLastFmUser(user.getName()), uInfo.urlImage())
                     .setFooter("%s has artist from %d different %s".formatted(uInfo.username(), lines.size(), CommandUtil.singlePlural(lines.size(), "country", "countries")), null);
 
-            e.sendMessage(embedBuilder.build()).queue(m ->
-                    new Reactionary<>(lines, m, 10, embedBuilder));
+            new PaginatorBuilder<>(e, embedBuilder, lines).build().queue();
         } else {
             Integer indexPalette;
             if (palette != null)

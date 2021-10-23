@@ -7,7 +7,7 @@ import core.exceptions.LastFmException;
 import core.imagerenderer.util.pie.DefaultList;
 import core.imagerenderer.util.pie.IPieableList;
 import core.imagerenderer.util.pie.OptionalPie;
-import core.otherlisteners.Reactionary;
+import core.otherlisteners.util.PaginatorBuilder;
 import core.parsers.ArtistParser;
 import core.parsers.Parser;
 import core.parsers.params.ArtistParameters;
@@ -27,6 +27,7 @@ import java.awt.image.BufferedImage;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 public class GlobalFavesFromArtistCommand extends ConcurrentCommand<ArtistParameters> {
 
@@ -39,48 +40,41 @@ public class GlobalFavesFromArtistCommand extends ConcurrentCommand<ArtistParame
         this.pie = DefaultList.fillPie(AlbumUserPlays::getAlbum, AlbumUserPlays::getPlays);
     }
 
-    public static <T extends ChuuDataParams> void sendArtistFaves(Context e, ScrobbledArtist who, String validArtist, String lastFmName, List<AlbumUserPlays> songs, String userString,
+    public static <T extends ChuuDataParams> void sendArtistFaves(Context e, ScrobbledArtist who, String validArtist, String lastFmName, List<AlbumUserPlays> faves, String userString,
                                                                   String inWhere,
                                                                   String url,
                                                                   T params,
                                                                   IPieableList<AlbumUserPlays, T> pie,
                                                                   Consumer<BufferedImage> pieConsumer) {
 
-        if (songs.isEmpty()) {
+        if (faves.isEmpty()) {
             e.sendMessage("Couldn't find any tracks of " + CommandUtil.escapeMarkdown(who.getArtist()) + " " + inWhere).queue();
             return;
         }
 
-        String footer = "%s users have listened to %d different %s songs!".formatted(userString, songs.size(), who.getArtist());
+        String footer = "%s users have listened to %d different %s songs!".formatted(userString, faves.size(), who.getArtist());
         String title = String.format("%s's top %s tracks", userString, who.getArtist());
         RemainingImagesMode effectiveMode = CommandUtil.getEffectiveMode(params.getLastFMData().getRemainingImagesMode(), params);
         switch (effectiveMode) {
             case IMAGE, LIST -> {
-                StringBuilder a = new StringBuilder();
-                List<String> s = songs.stream().map(g -> ". **[" + CommandUtil.escapeMarkdown(g.getAlbum()) + "](" + LinkUtils.getLastFMArtistTrack(validArtist, g.getAlbum()) + ")** - " + g.getPlays() + " plays" +
-                                                         "\n").toList();
-                for (int i = 0; i < s.size() && i < 10; i++) {
-                    String sb = s.get(i);
-                    a.append(i + 1).append(sb);
-                }
 
                 EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e)
-                        .setDescription(a)
                         .setAuthor(title, PrivacyUtils.getLastFmArtistUserUrl(who.getArtist(), lastFmName), url)
                         .setThumbnail(CommandUtil.noImageUrl(who.getUrl()));
 
-
-                if (!StringUtils.isBlank(songs.get(0).getAlbumUrl())) {
-                    embedBuilder.setFooter(footer, songs.get(0).getAlbumUrl());
+                if (!StringUtils.isBlank(faves.get(0).getAlbumUrl())) {
+                    embedBuilder.setFooter(footer, faves.get(0).getAlbumUrl());
                 } else {
                     embedBuilder.setFooter(footer);
                 }
 
-                e.sendMessage(embedBuilder.build()).queue(mes ->
-                        new Reactionary<>(s, mes, embedBuilder));
+                Function<AlbumUserPlays, String> mapper = g -> ". **[" + CommandUtil.escapeMarkdown(g.getAlbum()) + "](" + LinkUtils.getLastFMArtistTrack(validArtist, g.getAlbum()) + ")** - " + g.getPlays() + " plays" +
+                        "\n";
+
+                new PaginatorBuilder<>(e, embedBuilder, faves).mapper(mapper).build().queue();
             }
             case PIE -> {
-                PieChart pieChart = pie.doPie(params, songs);
+                PieChart pieChart = pie.doPie(params, faves);
                 pieChart.setTitle(title);
                 BufferedImage image = new PieDoer(footer, who.getUrl(), pieChart).fill();
                 pieConsumer.accept(image);

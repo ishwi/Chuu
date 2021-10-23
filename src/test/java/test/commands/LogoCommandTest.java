@@ -62,7 +62,7 @@ public class LogoCommandTest extends CommandTest {
         });
         Message message = TestResources.channelWorker.getHistoryAfter(id, 20).complete().getRetrievedHistory().get(0);
         Assert.assertEquals(message.getContentStripped(), "Error on TesterBot's request:\n" +
-                                                          "Invalid url");
+                "Invalid url");
     }
 
     @Test

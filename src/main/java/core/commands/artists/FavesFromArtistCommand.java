@@ -7,6 +7,7 @@ import core.exceptions.LastFmException;
 import core.imagerenderer.util.pie.DefaultList;
 import core.imagerenderer.util.pie.IPieableList;
 import core.imagerenderer.util.pie.OptionalPie;
+import core.otherlisteners.util.PaginatorBuilder;
 import core.parsers.ArtistTimeFrameParser;
 import core.parsers.Parser;
 import core.parsers.params.ArtistTimeFrameParameters;
@@ -105,9 +106,9 @@ public class FavesFromArtistCommand extends ConcurrentCommand<ArtistTimeFramePar
                         embedBuilder.setFooter(footer);
                     }
                 }
-                new ListSender<>(e, ai, g -> ". **[" + CommandUtil.escapeMarkdown(g.getName()) + "](" + LinkUtils.getLastFMArtistTrack(who.getArtist(), g.getName()) + ")** - " + g.getPlays() + " plays" +
-                                             "\n", embedBuilder)
-                        .doSend();
+                new PaginatorBuilder<>(e, embedBuilder, ai)
+                        .mapper(g -> ". **[" + CommandUtil.escapeMarkdown(g.getName()) + "](" + LinkUtils.getLastFMArtistTrack(who.getArtist(), g.getName()) + ")** - " + g.getPlays() + " plays" + "\n")
+                        .build().queue();
             }
             case PIE -> {
                 PieChart pieChart = this.pie.doPie(params, ai);

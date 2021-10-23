@@ -8,7 +8,7 @@ import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.exceptions.LastFmException;
 import core.imagerenderer.WorldMapRenderer;
-import core.otherlisteners.Reactionary;
+import core.otherlisteners.util.PaginatorBuilder;
 import core.parsers.NoOpParser;
 import core.parsers.NumberParser;
 import core.parsers.Parser;
@@ -23,6 +23,7 @@ import dao.entities.RemainingImagesMode;
 import dao.exceptions.InstanceNotFoundException;
 import dao.musicbrainz.MusicBrainzService;
 import dao.musicbrainz.MusicBrainzServiceSingleton;
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import org.apache.commons.io.FileUtils;
 
@@ -57,7 +58,7 @@ public class ServerCountryCommand extends ConcurrentCommand<NumberParameters<Com
         Map<Integer, String> map = new HashMap<>(2);
         map.put(LIMIT_ERROR, "The number introduced must be between 1 and 5");
         String s = "A number which represent the palette to use.\n" +
-                   "If it is not indicated it defaults to a random palette";
+                "If it is not indicated it defaults to a random palette";
         NumberParser<CommandParameters, NoOpParser> parser = new NumberParser<>(new NoOpParser(),
                 null,
                 5,
@@ -125,19 +126,11 @@ public class ServerCountryCommand extends ConcurrentCommand<NumberParameters<Com
                     }
             ).toList();
 
-            StringBuilder a = new StringBuilder();
-            for (int i = 0; i < lines.size() && i < 10; i++) {
-                String s = lines.get(i);
-                a.append(i + 1).append(s);
-            }
-
-            var embedBuilder = new ChuuEmbedBuilder(e)
-                    .setDescription(a)
+            EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e)
                     .setAuthor(String.format("%s's countries", name), e.getGuild().getIconUrl())
                     .setFooter("%s has artist from %d different %s".formatted(name, lines.size(), CommandUtil.singlePlural(lines.size(), "country", "countries")), null);
 
-            e.sendMessage(embedBuilder.build()).queue(m ->
-                    new Reactionary<>(lines, m, 10, embedBuilder));
+            new PaginatorBuilder<>(e, embedBuilder, lines).build().queue();
         } else {
             Integer indexPalette;
             if (palette != null)

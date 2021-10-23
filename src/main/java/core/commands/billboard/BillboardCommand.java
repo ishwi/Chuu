@@ -10,7 +10,7 @@ import core.imagerenderer.ChartQuality;
 import core.imagerenderer.CollageMaker;
 import core.imagerenderer.GraphicUtils;
 import core.imagerenderer.HotMaker;
-import core.otherlisteners.Reactionary;
+import core.otherlisteners.util.PaginatorBuilder;
 import core.parsers.NoOpParser;
 import core.parsers.NumberParser;
 import core.parsers.Parser;
@@ -61,7 +61,7 @@ public class BillboardCommand extends ConcurrentCommand<NumberParameters<Command
         Map<Integer, String> map = new HashMap<>(2);
         map.put(LIMIT_ERROR, "The number introduced must be between 1 and 100");
         String s = "You can also introduce a number to vary the number of tracks shown in the image" +
-                   "defaults to 5";
+                "defaults to 5";
         NumberParser<CommandParameters, NoOpParser> extraParser = new NumberParser<>(NoOpParser.INSTANCE,
                 5L,
                 100L,
@@ -200,15 +200,11 @@ public class BillboardCommand extends ConcurrentCommand<NumberParameters<Command
                             x.getListeners()
 
                     )).toList();
-            StringBuilder a = new StringBuilder();
-            for (int i = 0; i < 10 && i < artistAliases.size(); i++) {
-                a.append(i + 1).append(artistAliases.get(i));
-            }
 
-            embedBuilder.setAuthor("Top 100 " + getTitle() + "from " + name + " in " + subtitle, null, url)
-                    .setDescription(a);
-            e.sendMessage(embedBuilder.build()).queue(message1 ->
-                    new Reactionary<>(artistAliases, message1, embedBuilder));
+            embedBuilder.setAuthor("Top 100 " + getTitle() + "from " + name + " in " + subtitle, null, url);
+
+            new PaginatorBuilder<>(e, embedBuilder, artistAliases).build().queue();
+
         } else if (params.hasOptional("image")) {
             AtomicInteger ranker = new AtomicInteger(0);
             int size = entities.size();

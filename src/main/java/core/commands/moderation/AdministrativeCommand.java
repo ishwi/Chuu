@@ -42,11 +42,11 @@ public class AdministrativeCommand extends ConcurrentCommand<UrlParameters> {
 
     private static final ExecutorService executor = (new ThreadPoolExecutor(1, 1,
             0L, TimeUnit.MILLISECONDS,
-            new LinkedBlockingQueue<>(250), (r, executor1) -> Chuu.getLogger().warn("Disarded thread on executor1")));
+            new LinkedBlockingQueue<>(250), (r, executor1) -> Chuu.getLogger().warn("Discarded thread on executor1")));
     private static final ExecutorService executor2 =
-            (new ThreadPoolExecutor(1, 1,
+            new ThreadPoolExecutor(1, 1,
                     0L, TimeUnit.MILLISECONDS,
-                    new LinkedBlockingQueue<>(250), (r, executor1) -> Chuu.getLogger().warn("Disarded thread on executor2")));
+                    new LinkedBlockingQueue<>(250), (r, executor1) -> Chuu.getLogger().warn("Discarded thread on executor2"));
 
 
     public AdministrativeCommand(ServiceView dao) {
@@ -65,14 +65,11 @@ public class AdministrativeCommand extends ConcurrentCommand<UrlParameters> {
 
     @Override
     public void onEvent(@org.jetbrains.annotations.NotNull GenericEvent event) {
-        if (event instanceof GuildJoinEvent e) {
-            onGuildJoin(e);
-        } else if (event instanceof GuildMemberJoinEvent e2) {
-            onGuildMemberJoin(e2);
-        } else if (event instanceof GuildMemberRemoveEvent e3) {
-            onGuildMemberRemove(e3);
-        } else {
-            super.onEvent(event);
+        switch (event) {
+            case GuildJoinEvent e -> onGuildJoin(e);
+            case GuildMemberJoinEvent e2 -> onGuildMemberJoin(e2);
+            case GuildMemberRemoveEvent e3 -> onGuildMemberRemove(e3);
+            default -> super.onEvent(event);
         }
     }
 

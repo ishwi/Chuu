@@ -7,7 +7,7 @@ import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.commands.utils.PrivacyUtils;
 import core.exceptions.LastFmException;
-import core.otherlisteners.Reactionary;
+import core.otherlisteners.util.PaginatorBuilder;
 import core.parsers.ArtistParser;
 import core.parsers.NumberParser;
 import core.parsers.Parser;
@@ -105,6 +105,13 @@ public class TopArtistComboCommand extends ConcurrentCommand<NumberParameters<Ar
         } else {
             topStreaks = db.getArtistTopStreaks(params.getExtraParam(), guildId, sA.getArtistId(), limit);
         }
+
+        if (topStreaks.isEmpty()) {
+            sendMessageQueue(e, title + " doesn't have any stored streaks.");
+            return;
+        }
+
+
         Set<Long> showableUsers;
         if (params.getE().isFromGuild()) {
             showableUsers = db.getAll(params.getE().getGuild().getIdLong()).stream().map(UsersWrapper::getDiscordID).collect(Collectors.toSet());
@@ -139,26 +146,14 @@ public class TopArtistComboCommand extends ConcurrentCommand<NumberParameters<Ar
             return GlobalStreakEntities.getComboString(aString, description, x.artistCount(), x.getCurrentArtist(), x.albumCount(), x.getCurrentAlbum(), x.trackCount(), x.getCurrentSong(), holder);
         };
 
-        if (topStreaks.isEmpty()) {
-            sendMessageQueue(e, title + " doesn't have any stored streaks.");
-            return;
-        }
 
-        List<Memoized<StreakEntity, String>> z = topStreaks.stream().map(t -> new Memoized<>(t, mapper)).toList();
-
-
-        StringBuilder a = new StringBuilder();
-        for (int i = 0; i < 5 && i < z.size(); i++) {
-            a.append(i + 1).append(z.get(i).toString());
-        }
+        List<Memoized<StreakEntity, String>> memoized = topStreaks.stream().map(t -> new Memoized<>(t, mapper)).toList();
 
         EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e)
-                .
-                setAuthor(String.format("%s's top streaks in %s ", sA.getArtist(), CommandUtil.escapeMarkdown(title)))
+                .setAuthor(String.format("%s's top streaks in %s ", sA.getArtist(), CommandUtil.escapeMarkdown(title)))
                 .setThumbnail(sA.getUrl())
-                .setDescription(a)
                 .setFooter(String.format("%s has a total of %d %s %s!", CommandUtil.escapeMarkdown(title), topStreaks.size(), sA.getArtist(), CommandUtil.singlePlural(topStreaks.size(), "streak", "streaks")));
-        e.sendMessage(embedBuilder.build()).queue(message1 ->
-                new Reactionary<>(z, message1, 5, embedBuilder));
+
+        new PaginatorBuilder<>(e, embedBuilder, memoized).pageSize(5).build().queue();
     }
 }

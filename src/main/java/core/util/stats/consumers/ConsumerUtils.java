@@ -109,20 +109,20 @@ public class ConsumerUtils {
 
         var ratingString =
                 rating > 40
-                ? "what the fuck"
-                : rating > 35
-                  ? "really high!"
-                  : rating > 30
-                    ? "very high"
-                    : rating > 20
-                      ? "high"
-                      : rating > 10
+                        ? "what the fuck"
+                        : rating > 35
+                        ? "really high!"
+                        : rating > 30
+                        ? "very high"
+                        : rating > 20
+                        ? "high"
+                        : rating > 10
                         ? "medium"
                         : rating > 5
-                          ? "low"
-                          : rating > 1
-                            ? "very low"
-                            : ".... really?";
+                        ? "low"
+                        : rating > 1
+                        ? "very low"
+                        : ".... really?";
 
         return "**Breadth rating**: %s (%s)".formatted(format.format(rating), ratingString);
     }

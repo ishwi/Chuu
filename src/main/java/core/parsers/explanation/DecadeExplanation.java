@@ -48,7 +48,7 @@ public class DecadeExplanation implements Explanation {
 
         return new ExplanationLine("Decade Range",
                 "Decade Range can be either two years separated by a - (E.g.  2009 - 2013) or a two digit representative of a decade " +
-                "(E.g. 20, 20s, 20's, 80s...)\n\t Default to the current decade if left empty", datas);
+                        "(E.g. 20, 20s, 20's, 80s...)\n\t Default to the current decade if left empty", datas);
     }
 
 }

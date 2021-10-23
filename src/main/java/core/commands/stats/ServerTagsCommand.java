@@ -2,9 +2,10 @@ package core.commands.stats;
 
 import core.commands.Context;
 import core.commands.abstracts.PieableListCommand;
+import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
 import core.imagerenderer.util.pie.PieableListResultWrapper;
-import core.otherlisteners.Reactionary;
+import core.otherlisteners.util.PaginatorBuilder;
 import core.parsers.NoOpParser;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
@@ -76,11 +77,11 @@ public class ServerTagsCommand extends PieableListCommand<List<TagPlays>, Comman
                         String.format(". [%s](%s) - %d %s\n", LinkUtils.cleanMarkdownCharacter(x.getTag()),
                                 LinkUtils.getLastFmArtistUrl(x.getTag()), x.getCount(), buzzz))
                 .toList();
-        EmbedBuilder embedBuilder = initList(lines, e)
+        EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e)
                 .setTitle("Server Tags")
                 .setThumbnail(e.getGuild().getIconUrl());
-        e.sendMessage(embedBuilder.build()).queue(message1 ->
-                new Reactionary<>(lines, message1, embedBuilder));
+
+        new PaginatorBuilder<>(e, embedBuilder, lines).build().queue();
     }
 
     @Override

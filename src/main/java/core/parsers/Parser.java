@@ -60,7 +60,9 @@ public abstract class Parser<T extends CommandParameters> {
         //Do nothing
     }
 
-    protected abstract void setUpErrorMessages();
+    protected void setUpErrorMessages() {
+    }
+
 
     public final T parseMessage(Context e) throws LastFmException, InstanceNotFoundException {
         String[] subMessage = getSubMessage(e);

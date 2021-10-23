@@ -5,7 +5,7 @@ import core.commands.abstracts.ListCommand;
 import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
-import core.otherlisteners.Reactionary;
+import core.otherlisteners.util.PaginatorBuilder;
 import core.parsers.NoOpParser;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
@@ -13,6 +13,7 @@ import dao.ServiceView;
 import dao.entities.RymStats;
 import dao.entities.ScoredAlbumRatings;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.SelfUser;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
@@ -56,27 +57,24 @@ public class TopRatingsCommand extends ListCommand<ScoredAlbumRatings, CommandPa
     }
 
     @Override
-    public void printList(List<ScoredAlbumRatings> list, CommandParameters params) {
+    public void printList(List<ScoredAlbumRatings> ratings, CommandParameters params) {
         Context e = params.getE();
         NumberFormat formatter = new DecimalFormat("#0.##");
 
-        EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e).setThumbnail(e.getJDA().getSelfUser().getAvatarUrl());
-        StringBuilder a = new StringBuilder();
+        SelfUser botAccount = e.getJDA().getSelfUser();
+        EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e).setThumbnail(botAccount.getAvatarUrl());
 
-        if (list.isEmpty()) {
+        if (ratings.isEmpty()) {
             sendMessageQueue(e, "There are no ratings in the bot at alls");
             return;
         }
 
-        for (int i = 0; i < 10 && i < list.size(); i++) {
-            a.append(i + 1).append(list.get(i).toString());
-        }
-        RymStats rymServerStats = db.getRYMBotStats();
-        embedBuilder.setDescription(a).setTitle(CommandUtil.escapeMarkdown(e.getJDA().getSelfUser().getName()) + "'s Top Ranked Albums")
-                .setThumbnail(e.getJDA().getSelfUser().getAvatarUrl())
-                .setFooter(String.format(e.getJDA().getSelfUser().getName() + " users have rated a total of %s albums with an average of %s!", rymServerStats.getNumberOfRatings(), formatter.format(rymServerStats.getAverage() / 2f)), null);
 
-        e.sendMessage(embedBuilder.build()).queue(message ->
-                new Reactionary<>(list, message, embedBuilder));
+        RymStats rymServerStats = db.getRYMBotStats();
+        embedBuilder.setTitle(CommandUtil.escapeMarkdown(botAccount.getName()) + "'s Top Ranked Albums")
+                .setThumbnail(botAccount.getAvatarUrl())
+                .setFooter(String.format(botAccount.getName() + " users have rated a total of %s albums with an average of %s!", rymServerStats.getNumberOfRatings(), formatter.format(rymServerStats.getAverage() / 2f)), null);
+
+        new PaginatorBuilder<>(e, embedBuilder, ratings).build().queue();
     }
 }

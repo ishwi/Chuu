@@ -2,7 +2,6 @@ package core.commands.random;
 
 import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
-import core.commands.random.MyTopRatedRandomUrls;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.parsers.NoOpParser;

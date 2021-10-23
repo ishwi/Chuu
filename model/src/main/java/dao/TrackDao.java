@@ -72,4 +72,5 @@ public interface TrackDao {
 
     Pair<Long, Track> findTrackByName(Connection connection, String track, long artistId) throws InstanceNotFoundException;
 
+    void deleteTracklist(Connection connection, long albumId);
 }

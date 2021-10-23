@@ -31,10 +31,10 @@ public class AotyCommandTest extends CommandTest {
     public void failingCases() {
         OneLineUtils.testCommands(COMMAND_ALIAS + " 1x1 --nolimit", Pattern
                 .compile("Error on (?:.*)'s request:\n" +
-                         "Cant use a size for the chart if you specify the --nolimit flag!"));
+                        "Cant use a size for the chart if you specify the --nolimit flag!"));
 
         Pattern errorPattern = Pattern.compile("Error on (?:.*)'s request:\n" +
-                                               "0 is not a valid value for a chart!");
+                "0 is not a valid value for a chart!");
 
         OneLineUtils.testCommands(COMMAND_ALIAS + " 1x0", errorPattern);
 

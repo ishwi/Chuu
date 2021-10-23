@@ -81,9 +81,9 @@ public class WhoKnowsAlbumCommand extends WhoKnowsBaseCommand<ArtistAlbumParamet
         Map<UsersWrapper, Integer> userMapPlays = fillPlayCounter(userList, sA.getArtist(), ap.getAlbum(), urlContainter, e);
 
         String correctedAlbum = urlContainter.getAlbum() == null || urlContainter.getAlbum().isEmpty() ? ap.getAlbum()
-                                                                                                       : urlContainter.getAlbum();
+                : urlContainter.getAlbum();
         String correctedArtist = urlContainter.getArtist() == null || urlContainter.getArtist().isEmpty() ? sA.getArtist()
-                                                                                                          : urlContainter.getArtist();
+                : urlContainter.getArtist();
 
         // Manipulate data in order to pass it to the image Maker
         List<Map.Entry<UsersWrapper, Integer>> userCounts = new ArrayList<>(userMapPlays.entrySet());

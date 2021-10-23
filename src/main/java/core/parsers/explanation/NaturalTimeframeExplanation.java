@@ -25,7 +25,7 @@ public record NaturalTimeframeExplanation(NaturalTimeFrameEnum timeFrame) implem
     public Interactible explanation() {
         return new ExplanationLine("natural-timeframe",
                 "One of Year,Quarter,Month,All,Semester,Week,Day,Hour,Minute,Second with plural forms and abbreviations included\n" +
-                "If the time expression is not specified it defaults to " + timeFrame.toValueString() + "\n", optionData);
+                        "If the time expression is not specified it defaults to " + timeFrame.toValueString() + "\n", optionData);
     }
 
 }

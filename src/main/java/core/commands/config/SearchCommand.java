@@ -8,7 +8,7 @@ import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.exceptions.LastFmException;
-import core.otherlisteners.Reactionary;
+import core.otherlisteners.util.PaginatorBuilder;
 import core.parsers.Parser;
 import core.parsers.QueryParser;
 import core.parsers.params.WordParameter;
@@ -83,24 +83,21 @@ public class SearchCommand extends ConcurrentCommand<WordParameter> {
             title = "Commands found by: " + word;
 
         }
-        List<String> found = strings.stream().map(z -> "**%s**: %s(%s)%n".formatted(z.getName(), z.getDescription(), z.getAliases().stream().limit(3).collect(Collectors.joining(";")))).toList();
 
-        if (found.isEmpty()) {
+        if (strings.isEmpty()) {
             sendMessageQueue(e, "Didn't find any command searching by: **" + word + "**");
             return;
         }
 
-        StringBuilder a = new StringBuilder();
-        for (int i = 0; i < 10 && i < found.size(); i++) {
-            a.append(found.get(i));
-        }
 
         DiscordUserDisplay uInfo = CommandUtil.getUserInfoUnescaped(e, e.getAuthor().getIdLong());
         EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e)
-                .setDescription(a)
                 .setAuthor(title, SourceCommand.REPO_URL, uInfo.urlImage())
                 .setFooter(footer);
-        e.sendMessage(embedBuilder.build()).queue(message1 ->
-                new Reactionary<>(found, message1, embedBuilder, false));
+        new PaginatorBuilder<>(e, embedBuilder, strings)
+                .mapper(z -> "**%s**: %s(%s)%n".formatted(z.getName(), z.getDescription(), z.getAliases().stream().limit(3).collect(Collectors.joining(";"))))
+                .numberedEntries(false).build().queue();
+
+
     }
 }

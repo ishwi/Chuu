@@ -1,5 +1,6 @@
 package core.commands.streaks;
 
+import core.Chuu;
 import core.apis.last.queues.TrackGroupAlbumQueue;
 import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
@@ -12,7 +13,6 @@ import core.parsers.OnlyUsernameParser;
 import core.parsers.Parser;
 import core.parsers.params.ChuuDataParams;
 import core.parsers.utils.Optionals;
-import core.services.CoverService;
 import core.services.validators.ArtistValidator;
 import dao.ServiceView;
 import dao.entities.DiscordUserDisplay;
@@ -114,7 +114,7 @@ public class StreakCommand extends ConcurrentCommand<ChuuDataParams> {
             if (combo.getUrl() == null || combo.getUrl().isBlank() || combo.getUrl().equals(TrackGroupAlbumQueue.defaultTrackImage)) {
                 String s = null;
                 if (albumId != null) {
-                    s = new CoverService(db).getCover(albumId, null, e);
+                    s = Chuu.getCoverService().getCover(albumId, null, e);
                 }
                 if (s != null && !s.isBlank()) {
                     embedBuilder.setThumbnail(s);

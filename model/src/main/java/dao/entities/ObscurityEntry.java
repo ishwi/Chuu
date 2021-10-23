@@ -15,10 +15,10 @@ public class ObscurityEntry extends LbEntry<Double> {
     @Override
     public String toStringWildcard() {
         return ". [" +
-               LinkUtils.cleanMarkdownCharacter(getDiscordName()) +
-               "](" + WILDCARD +
-               "): " + average.format(100 - getEntryCount()) +
-               "% obscure  \n";
+                LinkUtils.cleanMarkdownCharacter(getDiscordName()) +
+                "](" + WILDCARD +
+                "): " + average.format(100 - getEntryCount()) +
+                "% obscure  \n";
     }
 
 }

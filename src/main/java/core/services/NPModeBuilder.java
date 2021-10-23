@@ -287,7 +287,7 @@ public class NPModeBuilder {
                                 }
 
                                 String t = "**" + artist +
-                                           "** | " + album + "\n";
+                                        "** | " + album + "\n";
                                 embedBuilder.getDescriptionBuilder().append("\n**Previous:** ***").append(song).append("***\n").append(t);
 
                             } catch (LastFmException ignored) {
@@ -302,7 +302,7 @@ public class NPModeBuilder {
                             String url = rymSearch.searchUrl(np.artistName(), np.albumName());
 
                             String a = "**" + CommandUtil.escapeMarkdown(np.artistName()) +
-                                       "** | " + CommandUtil.escapeMarkdown(np.albumName());
+                                    "** | " + CommandUtil.escapeMarkdown(np.albumName());
 
                             String b = "**%s** | \t<:rymchuu:896517028129677383> %s [%s](%s)".formatted(CommandUtil.escapeMarkdown(np.artistName()), EmbedBuilder.ZERO_WIDTH_SPACE, CommandUtil.escapeMarkdown(np.albumName()), url);
                             embedBuilder.setDescription(StringUtils.replaceOnceIgnoreCase(embedBuilder.build().getDescription(), a, b));
@@ -778,12 +778,12 @@ public class NPModeBuilder {
                     if (
 
                             Sets.difference(checker, EnumSet.of(NPMode.HIGHEST_BOT_STREAK, NPMode.HIGHEST_SERVER_STREAK, NPMode.HIGHEST_STREAK)).isEmpty()
-                            || Sets.difference(checker, EnumSet.of(NPMode.CROWN, NPMode.GLOBAL_CROWN)).isEmpty()
-                            || Sets.difference(checker, EnumSet.of(NPMode.BOT_LISTENERS, NPMode.BOT_SCROBBLES)).isEmpty()
-                            || Sets.difference(checker, EnumSet.of(NPMode.SERVER_LISTENERS, NPMode.SERVER_SCROBBLES)).isEmpty()
-                            || Sets.difference(checker, EnumSet.of(NPMode.LFM_LISTENERS, NPMode.LFM_SCROBBLES)).isEmpty()
-                            || Sets.difference(checker, EnumSet.of(NPMode.CROWN, NPMode.ALBUM_CROWN, NPMode.GLOBAL_CROWN, NPMode.GLOBAL_ALBUM_CROWN)).isEmpty()
-                            || Sets.difference(checker, EnumSet.of(NPMode.SONG_DURATION, NPMode.SONG_PLAYS)).isEmpty()
+                                    || Sets.difference(checker, EnumSet.of(NPMode.CROWN, NPMode.GLOBAL_CROWN)).isEmpty()
+                                    || Sets.difference(checker, EnumSet.of(NPMode.BOT_LISTENERS, NPMode.BOT_SCROBBLES)).isEmpty()
+                                    || Sets.difference(checker, EnumSet.of(NPMode.SERVER_LISTENERS, NPMode.SERVER_SCROBBLES)).isEmpty()
+                                    || Sets.difference(checker, EnumSet.of(NPMode.LFM_LISTENERS, NPMode.LFM_SCROBBLES)).isEmpty()
+                                    || Sets.difference(checker, EnumSet.of(NPMode.CROWN, NPMode.ALBUM_CROWN, NPMode.GLOBAL_CROWN, NPMode.GLOBAL_ALBUM_CROWN)).isEmpty()
+                                    || Sets.difference(checker, EnumSet.of(NPMode.SONG_DURATION, NPMode.SONG_PLAYS)).isEmpty()
 
 
                     ) {

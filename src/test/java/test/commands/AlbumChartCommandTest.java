@@ -39,7 +39,7 @@ public class AlbumChartCommandTest extends CommandTest {
 
         ImageUtils.testImage(COMMAND_ALIAS + " a 1x1", 300, 300, ".png");
         Pattern errorPattern = Pattern.compile("Error on (?:.*)'s request:\n" +
-                                               "0 is not a valid value for a chart!");
+                "0 is not a valid value for a chart!");
 
         OneLineUtils.testCommands(COMMAND_ALIAS + " a 0x0", errorPattern);
         OneLineUtils.testCommands(COMMAND_ALIAS + " a 0x1", errorPattern);

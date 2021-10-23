@@ -2,10 +2,7 @@ package core.commands.config;
 
 import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
-import core.commands.utils.ChuuEmbedBuilder;
-import core.commands.utils.CommandCategory;
-import core.commands.utils.CommandUtil;
-import core.commands.utils.PrivacyUtils;
+import core.commands.utils.*;
 import core.otherlisteners.Confirmator;
 import core.otherlisteners.Reactions;
 import core.otherlisteners.util.ConfirmatorItem;
@@ -18,8 +15,6 @@ import dao.entities.LastFMData;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
-import net.dv8tion.jda.api.interactions.components.Button;
-import net.dv8tion.jda.api.interactions.components.ButtonStyle;
 
 import javax.annotation.Nonnull;
 import java.awt.*;
@@ -77,8 +72,9 @@ public class UnsetCommand extends ConcurrentCommand<CommandParameters> {
                 new ConfirmatorItem(Reactions.ACCEPT, who -> who.clear().setTitle(String.format("%s was removed completely from the bot", userString)).setColor(Color.RED), (z) -> db.removeUserCompletely(idLong)),
                 new ConfirmatorItem(Reactions.REJECT, who -> who.clear().setTitle(String.format("Didn't do anything with user %s", userString)).setColor(Color.GREEN), (z) -> {
                 }));
-        ActionRow of = ActionRow.of(Button.of(ButtonStyle.DANGER, Reactions.ACCEPT, "Delete account"),
-                Button.of(ButtonStyle.PRIMARY, Reactions.REJECT, "Don't do anything"));
+        ActionRow of = ActionRow.of(
+                ButtonUtils.danger("Delete account"),
+                ButtonUtils.primary("Don't do anything"));
 
         e.sendMessage(embedBuilder.build(), of)
                 .queue(message -> new Confirmator(embedBuilder, e, message, idLong, list));

@@ -6,7 +6,7 @@ import core.commands.utils.CommandUtil;
 import core.imagerenderer.ChartQuality;
 import core.imagerenderer.CollageGenerator;
 import core.imagerenderer.WhoKnowsMaker;
-import core.otherlisteners.Reactionary;
+import core.otherlisteners.util.PaginatorBuilder;
 import core.parsers.LOOONAParser;
 import core.parsers.Parser;
 import core.parsers.params.LOONAParameters;
@@ -348,31 +348,22 @@ public class WhoKnowsLoonasCommand extends WhoKnowsBaseCommand<LOONAParameters> 
     }
 
     void doList(LOONAParameters ap, WrapperReturnNowPlaying wrapperReturnNowPlaying) {
-        EmbedBuilder embedBuilder = new ChuuEmbedBuilder(ap.getE());
-        StringBuilder builder = new StringBuilder();
 
         Context e = ap.getE();
 
-
-        int counter = 1;
-        for (ReturnNowPlaying returnNowPlaying : wrapperReturnNowPlaying.getReturnNowPlayings()) {
-            builder.append(counter++)
-                    .append(countString(returnNowPlaying));
-            if (counter == 11)
-                break;
-        }
         String usable;
         if (e.isFromGuild()) {
             usable = CommandUtil.escapeMarkdown(e.getGuild().getName());
         } else {
             usable = e.getJDA().getSelfUser().getName();
         }
-        embedBuilder.setTitle(getTitle(ap, usable)).
-                setThumbnail(CommandUtil.noImageUrl(wrapperReturnNowPlaying.getUrl())).setDescription(builder);
-        e.sendMessage(embedBuilder.build())
-                .queue(message1 ->
-                        new Reactionary<>(wrapperReturnNowPlaying
-                                .getReturnNowPlayings(), message1, embedBuilder));
+
+        EmbedBuilder embedBuilder = new ChuuEmbedBuilder(ap.getE())
+                .setTitle(getTitle(ap, usable)).
+                setThumbnail(CommandUtil.noImageUrl(wrapperReturnNowPlaying.getUrl()));
+
+        new PaginatorBuilder<>(e, embedBuilder, wrapperReturnNowPlaying.getReturnNowPlayings()).build().queue();
+
     }
 
 
@@ -415,10 +406,10 @@ public class WhoKnowsLoonasCommand extends WhoKnowsBaseCommand<LOONAParameters> 
 
     public String countString(ReturnNowPlaying returnNowPlaying) {
         return ". " +
-               "[" + CommandUtil.escapeMarkdown(returnNowPlaying.getArtist()) + "](" +
-               LinkUtils
-                       .getLastFmArtistUrl(returnNowPlaying.getArtist()) +
-               ") - " +
-               returnNowPlaying.getPlayNumber() + " listeners\n";
+                "[" + CommandUtil.escapeMarkdown(returnNowPlaying.getArtist()) + "](" +
+                LinkUtils
+                        .getLastFmArtistUrl(returnNowPlaying.getArtist()) +
+                ") - " +
+                returnNowPlaying.getPlayNumber() + " listeners\n";
     }
 }

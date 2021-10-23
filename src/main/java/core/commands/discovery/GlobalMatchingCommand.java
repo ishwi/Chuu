@@ -6,7 +6,7 @@ import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.commands.utils.PrivacyUtils;
-import core.otherlisteners.Reactionary;
+import core.otherlisteners.util.PaginatorBuilder;
 import core.parsers.NumberParser;
 import core.parsers.OnlyUsernameParser;
 import core.parsers.Parser;
@@ -15,7 +15,6 @@ import core.parsers.params.NumberParameters;
 import dao.ServiceView;
 import dao.entities.ArtistLbGlobalEntry;
 import dao.entities.DiscordUserDisplay;
-import dao.entities.Memoized;
 import dao.entities.UsersWrapper;
 import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -48,7 +47,7 @@ public class GlobalMatchingCommand extends ConcurrentCommand<NumberParameters<Ch
         Map<Integer, String> map = new HashMap<>(2);
         map.put(LIMIT_ERROR, "The number introduced must be positive and not very big");
         String s = "You can also introduce a number to vary the number of plays needed to award a match, " +
-                   "defaults to 1";
+                "defaults to 1";
         return new NumberParser<>(new OnlyUsernameParser(db),
                 null,
                 Integer.MAX_VALUE,
@@ -79,11 +78,8 @@ public class GlobalMatchingCommand extends ConcurrentCommand<NumberParameters<Ch
         List<ArtistLbGlobalEntry> list = db.globalMatchings(innerParams.getLastFMData().getName(), e.isFromGuild() ? e.getGuild().getIdLong() : null, threshold);
 
         long discordId = innerParams.getLastFMData().getDiscordId();
-        DiscordUserDisplay userInformation = CommandUtil.getUserInfoEscaped(e, discordId);
-        String url = userInformation.urlImage();
-        String usableName = userInformation.username();
 
-        EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e).setThumbnail(url);
+
         Set<Long> found;
         if (e.isFromGuild()) {
             found = db.getAll(e.getGuild().getIdLong()).stream().map(UsersWrapper::getDiscordID).collect(Collectors.toSet());
@@ -91,32 +87,33 @@ public class GlobalMatchingCommand extends ConcurrentCommand<NumberParameters<Ch
             found = Set.of(e.getAuthor().getIdLong());
         }
 
-        StringBuilder a = new StringBuilder();
-        AtomicInteger c = new AtomicInteger(0);
-        Function<ArtistLbGlobalEntry, String> mapper = (ArtistLbGlobalEntry s) -> {
-            PrivacyUtils.PrivateString privacy =
-                    PrivacyUtils.getPublicString(s.getPrivacyMode(), s.getDiscordId(), s.getLastFmId(), c, e, found);
-            return ". **[" +
-                   LinkUtils.cleanMarkdownCharacter(privacy.discordName()) +
-                   "](" + privacy.lastfmName() +
-                   ")** - " + s.getEntryCount() +
-                   " artists\n";
-        };
 
-        List<Memoized<ArtistLbGlobalEntry, String>> strings = list.stream().map(x -> new Memoized<>(x, mapper)).toList();
         if (list.isEmpty()) {
             sendMessageQueue(e, "No one has any matching artist with you :(");
             return;
         }
-        for (int i = 0; i < 10 && i < list.size(); i++) {
-            a.append(i + 1).append((strings.get(i).toString()));
-        }
-        embedBuilder.setDescription(a).setTitle("Global Matching artists with " + usableName)
+
+        DiscordUserDisplay userInformation = CommandUtil.getUserInfoEscaped(e, discordId);
+        String url = userInformation.urlImage();
+        String usableName = userInformation.username();
+
+        EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e).setThumbnail(url)
+                .setTitle("Global Matching artists with " + usableName)
                 .setFooter(String.format("%s has %d total artist!%n", CommandUtil.unescapedUser(usableName, discordId, e), db
                         .getUserArtistCount(innerParams.getLastFMData().
                                 getName(), 0)), null);
-        e.sendMessage(embedBuilder.build()).queue(mes ->
-                new Reactionary<>(strings, mes, embedBuilder));
+
+        AtomicInteger counter = new AtomicInteger(0);
+        Function<ArtistLbGlobalEntry, String> mapper = (ArtistLbGlobalEntry s) -> {
+            PrivacyUtils.PrivateString privacy =
+                    PrivacyUtils.getPublicString(s.getPrivacyMode(), s.getDiscordId(), s.getLastFmId(), counter, e, found);
+            return ". **[" +
+                    LinkUtils.cleanMarkdownCharacter(privacy.discordName()) +
+                    "](" + privacy.lastfmName() +
+                    ")** - " + s.getEntryCount() +
+                    " artists\n";
+        };
+        new PaginatorBuilder<>(e, embedBuilder, list).memoized(mapper).build().queue();
     }
 }
 

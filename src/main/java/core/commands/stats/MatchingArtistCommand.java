@@ -6,7 +6,7 @@ import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.commands.utils.PrivacyUtils;
-import core.otherlisteners.Reactionary;
+import core.otherlisteners.util.PaginatorBuilder;
 import core.parsers.NumberParser;
 import core.parsers.OnlyUsernameParser;
 import core.parsers.Parser;
@@ -42,7 +42,7 @@ public class MatchingArtistCommand extends ConcurrentCommand<NumberParameters<Ch
         Map<Integer, String> map = new HashMap<>(2);
         map.put(LIMIT_ERROR, "The number introduced must be positive and not very big");
         String s = "You can also introduce a number to vary the number of plays needed to award a match, " +
-                   "defaults to 1";
+                "defaults to 1";
         return new NumberParser<>(new OnlyUsernameParser(db),
                 null,
                 Integer.MAX_VALUE,
@@ -72,27 +72,26 @@ public class MatchingArtistCommand extends ConcurrentCommand<NumberParameters<Ch
         long discordId = innerParams.getLastFMData().getDiscordId();
         int threshold = params.getExtraParam() == null ? 1 : Math.toIntExact(params.getExtraParam());
         List<LbEntry<Integer>> list = db.matchingArtistsCount(innerParams.getLastFMData().getName(), e.getGuild().getIdLong(), threshold);
-        list.forEach(cl -> cl.setDiscordName(getUserString(e, cl.getDiscordId(), cl.getLastFmId())));
-        DiscordUserDisplay userInformation = CommandUtil.getUserInfoEscaped(e, discordId);
-        String url = userInformation.urlImage();
-        String usableName = userInformation.username();
 
-        EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e).setThumbnail(url);
-        StringBuilder a = new StringBuilder();
 
         if (list.isEmpty()) {
             sendMessageQueue(e, "No one has any matching artist with you :(");
             return;
         }
 
+        list.forEach(cl -> cl.setDiscordName(getUserString(e, cl.getDiscordId(), cl.getLastFmId())));
+
         List<String> strings = list.stream().map(PrivacyUtils::toString).toList();
-        for (int i = 0; i < 10 && i < strings.size(); i++) {
-            a.append(i + 1).append(strings.get(i));
-        }
+
+        DiscordUserDisplay userInformation = CommandUtil.getUserInfoEscaped(e, discordId);
+        String url = userInformation.urlImage();
+        String usableName = userInformation.username();
+
         int count = db.getUserArtistCount(innerParams.getLastFMData().getName(), 0);
-        embedBuilder.setDescription(a).setTitle("Matching artists with " + usableName)
+        EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e)
+                .setThumbnail(url)
+                .setTitle("Matching artists with " + usableName)
                 .setFooter(String.format("%s has %d total %s!%n", CommandUtil.unescapedUser(usableName, discordId, e), count, CommandUtil.singlePlural(count, "artist", "artists")), null);
-        e.sendMessage(embedBuilder.build()).queue(mes ->
-                new Reactionary<>(strings, mes, embedBuilder));
+        new PaginatorBuilder<>(e, embedBuilder, strings).build().queue();
     }
 }

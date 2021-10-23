@@ -47,13 +47,13 @@ public class ColorChartCommand extends OnlyChartCommand<ColorChartParams> {
             params.getColors().stream().noneMatch(color -> {
                 double threshold = params.isStrict() ? STRICT_THRESHOLD : DISTANCE_THRESHOLD;
                 return preComputedChartEntity.getImage() != null &&
-                       (GraphicUtils.getDistance(color, preComputedChartEntity.getAverageColor()) < threshold ||
-                        preComputedChartEntity.getDominantColor().stream().anyMatch(palette -> GraphicUtils.getDistance(color, palette) < threshold))
-                       &&
-                       GraphicUtils.getDistance(preComputedChartEntity.getAverageColor(), preComputedChartEntity.getDominantColor().stream()
-                               .map(palette -> Pair.of(color, GraphicUtils.getDistance(color, palette)))
-                               .min(Comparator.comparingDouble(Pair::getRight)).map(Pair::getLeft).orElse(GraphicUtils.getBetter(preComputedChartEntity.getAverageColor())))
-                       < (params.isStrict() ? STRICT_ERROR : ERROR_MATCHING);
+                        (GraphicUtils.getDistance(color, preComputedChartEntity.getAverageColor()) < threshold ||
+                                preComputedChartEntity.getDominantColor().stream().anyMatch(palette -> GraphicUtils.getDistance(color, palette) < threshold))
+                        &&
+                        GraphicUtils.getDistance(preComputedChartEntity.getAverageColor(), preComputedChartEntity.getDominantColor().stream()
+                                .map(palette -> Pair.of(color, GraphicUtils.getDistance(color, palette)))
+                                .min(Comparator.comparingDouble(Pair::getRight)).map(Pair::getLeft).orElse(GraphicUtils.getBetter(preComputedChartEntity.getAverageColor())))
+                                < (params.isStrict() ? STRICT_ERROR : ERROR_MATCHING);
             });
 
     public ColorChartCommand(ServiceView dao) {
@@ -183,13 +183,13 @@ public class ColorChartCommand extends OnlyChartCommand<ColorChartParams> {
     @Override
     public EmbedBuilder configEmbed(EmbedBuilder embedBuilder, ColorChartParams params, int count) {
         String stringBuilder = "top " +
-                               (params.isStrict() ? " strict " : "") +
-                               getColorsParams(params) +
-                               (params.isArtist() ? " artist " : " albums ") +
-                               "sorted by " +
-                               (params.isSorted() ? "plays" : params.isColor() ? "color" : "brightness") +
-                               (params.isInverse() ? " inversed" : "") +
-                               " ordered by " + (params.isColumn() ? "column" : params.isLinear() ? "rows" : "diagonal");
+                (params.isStrict() ? " strict " : "") +
+                getColorsParams(params) +
+                (params.isArtist() ? " artist " : " albums ") +
+                "sorted by " +
+                (params.isSorted() ? "plays" : params.isColor() ? "color" : "brightness") +
+                (params.isInverse() ? " inversed" : "") +
+                " ordered by " + (params.isColumn() ? "column" : params.isLinear() ? "rows" : "diagonal");
         return params.initEmbed("'s " + stringBuilder, embedBuilder, " has listened to " + count + (params.isArtist() ? " artists" : " albums"), params.getUser().getName());
 
 

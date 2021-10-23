@@ -5,7 +5,7 @@ import core.commands.abstracts.ListCommand;
 import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
-import core.otherlisteners.Reactionary;
+import core.otherlisteners.util.PaginatorBuilder;
 import core.parsers.NoOpParser;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
@@ -55,28 +55,24 @@ public class TopServerRatingsCommand extends ListCommand<ScoredAlbumRatings, Com
     }
 
     @Override
-    public void printList(List<ScoredAlbumRatings> list, CommandParameters params) {
+    public void printList(List<ScoredAlbumRatings> serverRatings, CommandParameters params) {
         Context e = params.getE();
         NumberFormat formatter = new DecimalFormat("#0.##");
 
         EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e).setThumbnail(e.getGuild().getIconUrl());
-        StringBuilder a = new StringBuilder();
 
-        if (list.isEmpty()) {
+        if (serverRatings.isEmpty()) {
             sendMessageQueue(e, "There are no ratings in the bot at alls");
             return;
         }
 
-        for (int i = 0; i < 10 && i < list.size(); i++) {
-            a.append(i + 1).append(list.get(i).toString());
-        }
+
         String name = e.getGuild().getName();
         RymStats rymServerStats = db.getRYMServerStats(e.getGuild().getIdLong());
-        embedBuilder.setDescription(a).setTitle(CommandUtil.escapeMarkdown(name) + "'s Top Ranked Albums")
+        embedBuilder.setTitle(CommandUtil.escapeMarkdown(name) + "'s Top Ranked Albums")
                 .setThumbnail(e.getGuild().getIconUrl())
                 .setFooter(String.format("This server has rated a total of %s albums with an average of %s!", rymServerStats.getNumberOfRatings(), formatter.format(rymServerStats.getAverage() / 2f)), null);
 
-        e.sendMessage(embedBuilder.build()).queue(message ->
-                new Reactionary<>(list, message, embedBuilder));
+        new PaginatorBuilder<>(e, embedBuilder, serverRatings).build().queue();
     }
 }

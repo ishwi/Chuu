@@ -51,8 +51,8 @@ public class WhoIsTagCommand extends ConcurrentCommand<GenreParameters> {
 
         String genre = params.getGenre();
         List<ScrobbledArtist> topInTag = e.isFromGuild() && !params.hasOptional("global")
-                                         ? db.getTopInTag(genre, e.getGuild().getIdLong(), 400)
-                                         : db.getTopInTag(genre, null, 400);
+                ? db.getTopInTag(genre, e.getGuild().getIdLong(), 400)
+                : db.getTopInTag(genre, null, 400);
 
         MultipleWhoIsTagCommand.sendTopTags(e, params, genre, topInTag);
     }

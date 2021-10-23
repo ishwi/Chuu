@@ -6,7 +6,7 @@ import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.exceptions.LastFmException;
-import core.otherlisteners.Reactionary;
+import core.otherlisteners.util.PaginatorBuilder;
 import core.parsers.ArtistParser;
 import core.parsers.Parser;
 import core.parsers.params.ArtistParameters;
@@ -78,17 +78,10 @@ public class TagsCommand extends ConcurrentCommand<ArtistParameters> {
             return;
         }
 
-        StringBuilder a = new StringBuilder();
-        for (int i = 0; i < 10 && i < artistTags.size(); i++) {
-            a.append(i + 1).append(artistTags.get(i));
-        }
-
-
         EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e)
-                .setDescription(a)
                 .setAuthor(correctedArtist + "'s tags", LinkUtils.getLastFmArtistUrl(sA.getArtist()), sA.getUrl());
-        e.sendMessage(embedBuilder.build()).queue(message1 ->
-                new Reactionary<>(artistTags, message1, embedBuilder));
+
+        new PaginatorBuilder<>(e, embedBuilder, artistTags).build().queue();
     }
 
 }

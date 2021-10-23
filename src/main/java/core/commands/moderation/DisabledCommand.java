@@ -7,7 +7,7 @@ import core.commands.abstracts.ConcurrentCommand;
 import core.commands.abstracts.MyCommand;
 import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
-import core.otherlisteners.Reactionary;
+import core.otherlisteners.util.PaginatorBuilder;
 import core.parsers.DisabledCommandParser;
 import core.parsers.Parser;
 import core.parsers.params.DisabledCommandParameters;
@@ -110,17 +110,13 @@ public class DisabledCommand extends ConcurrentCommand<DisabledCommandParameters
                     if (commands.isBlank()) return "";
                     else
                         return commands + (x.getValue().size() > 1 ? " are now " : " is now ")
-                               + (x.getKey() ? "enabled." : "disabled.") + "\n";
+                                + (x.getKey() ? "enabled." : "disabled.") + "\n";
                 }).collect(Collectors.joining(""));
         List<String> pages = TextSplitter.split(allowedStr, 2000, ", ");
 
-        String desc = pages.get(0);
-        if (pages.size() != 1) {
-            desc += "\n1" + "/" + pages.size();
-        }
-        EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e)
-                .setDescription(desc);
-        e.sendMessage(embedBuilder.build()).queue(message1 ->
-                new Reactionary<>(pages, message1, 1, embedBuilder, false, true));
+
+        EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e);
+        new PaginatorBuilder<>(e, embedBuilder, pages).pageSize(1).unnumered().withIndicator().build().queue();
+
     }
 }

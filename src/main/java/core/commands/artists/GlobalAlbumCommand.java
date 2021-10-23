@@ -1,5 +1,6 @@
 package core.commands.artists;
 
+import core.Chuu;
 import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
@@ -11,7 +12,6 @@ import core.parsers.ArtistAlbumParser;
 import core.parsers.Parser;
 import core.parsers.params.ArtistAlbumParameters;
 import core.parsers.utils.Optionals;
-import core.services.CoverService;
 import core.services.validators.AlbumValidator;
 import core.services.validators.ArtistValidator;
 import dao.ServiceView;
@@ -77,10 +77,10 @@ public class GlobalAlbumCommand extends ConcurrentCommand<ArtistAlbumParameters>
             return;
         }
 
-        String str = CommandUtil.escapeMarkdown("%s by %s".formatted(sAlb.getAlbum(), sA.getArtist()));
+        String str = CommandUtil.escapeMarkdown("%s | %s".formatted(sAlb.getAlbum(), sA.getArtist()));
 
         String linkLFM = PrivacyUtils.getLastFmAlbumUserUrl(sA.getArtist(), sAlb.getAlbum(), params.getLastFMData().getName());
-        String cover = new CoverService(db).getCover(sAlb.getAlbumId(), sAlb.getUrl(), e);
+        String cover = Chuu.getCoverService().getCover(sAlb.getAlbumId(), sAlb.getUrl(), e);
 
         EmbedBuilder eb = new GlobalDoer(db, globalArtistRanking).generate(userId, e, str, cover,
                 () -> db.getServerAlbumPlays(e.getGuild().getIdLong(), sAlb.getAlbumId()),

@@ -53,8 +53,8 @@ public class OneLineUtils {
             ByteArrayOutputStream b = new ByteArrayOutputStream();
             ImageIO.write(file, "png", b);
             byte[] img = b.toByteArray();
-            messageAction = messageBuilder.setContent(command).
-                    sendTo(channelWorker).addFile(img, "cat.png");
+//            messageAction = messageBuilder.setContent(command).
+//                    sendTo(channelWorker).addFile(img, "cat.png");
         } catch (IOException e) {
             Assert.fail();
             return;

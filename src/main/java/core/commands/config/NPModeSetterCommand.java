@@ -6,7 +6,7 @@ import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
-import core.otherlisteners.Reactionary;
+import core.otherlisteners.util.PaginatorBuilder;
 import core.parsers.EnumListParser;
 import core.parsers.Parser;
 import core.parsers.params.EnumListParameters;
@@ -76,10 +76,11 @@ public class NPModeSetterCommand extends ConcurrentCommand<EnumListParameters<NP
             }
             String lines = modes.stream().map(x -> "**%s** ➜ %s".formatted(NPMode.getListedName(List.of(x)), x.getHelpMessage())).collect(Collectors.joining("\n"));
             List<String> split = TextSplitter.split(lines, 2000);
-            EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e).setTitle("NP Configuration help")
+
+            EmbedBuilder eb = new ChuuEmbedBuilder(e).setTitle("NP Configuration help")
                     .setDescription(split.get(0));
-            e.sendMessage(new ChuuEmbedBuilder(e).setTitle("NP Configuration help")
-                    .setDescription(split.get(0)).build()).queue(w -> new Reactionary<>(split, w, 1, embedBuilder, false));
+
+            new PaginatorBuilder<>(e, eb, split).pageSize(1).numberedEntries(false).build().queue();
             return;
         }
         if (params.isListing()) {
@@ -87,8 +88,8 @@ public class NPModeSetterCommand extends ConcurrentCommand<EnumListParameters<NP
             String strMode = NPMode.getListedName(modes);
             sendMessageQueue(e,
                     "Do `" + CommandUtil.getMessagePrefix(e) + "npc help` for a list of all options.\n" +
-                    "%surrent modes: ".formatted(params.getUser().getIdLong() != e.getAuthor().getIdLong() ? getUserString(e, params.getUser().getIdLong()) + "'s c" : "C") +
-                    strMode);
+                            "%surrent modes: ".formatted(params.getUser().getIdLong() != e.getAuthor().getIdLong() ? getUserString(e, params.getUser().getIdLong()) + "'s c" : "C") +
+                            strMode);
         } else {
             if (params.isAdding() || params.isRemoving()) {
                 EnumSet<NPMode> npModes = db.getNPModes(e.getAuthor().getIdLong());

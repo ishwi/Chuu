@@ -8,7 +8,7 @@ import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
-import core.otherlisteners.Reactionary;
+import core.otherlisteners.util.PaginatorBuilder;
 import core.parsers.NoOpParser;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
@@ -66,7 +66,7 @@ public class PlayingCommand extends ConcurrentCommand<CommandParameters> {
 
     @Override
     public List<String> getAliases() {
-        return Collections.singletonList("playing");
+        return Arrays.asList("playing", "servernp");
     }
 
     @Override
@@ -95,7 +95,7 @@ public class PlayingCommand extends ConcurrentCommand<CommandParameters> {
         EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e).setThumbnail(e.getGuild().getIconUrl())
                 .setTitle(
                         (showFresh ? "What is being played now in " : "What was being played in ")
-                        + CommandUtil.escapeMarkdown(e.getGuild().getName()));
+                                + CommandUtil.escapeMarkdown(e.getGuild().getName()));
 
         List<String> result = users.parallelStream().map(u ->
         {
@@ -116,12 +116,12 @@ public class PlayingCommand extends ConcurrentCommand<CommandParameters> {
                     String username = getUserString(e, usersWrapper.getDiscordId(), usersWrapper.getName());
                     String started = !showFresh && value.current() ? "#" : "+";
                     return started + " [" +
-                           username + "](" +
-                           CommandUtil.getLastFmUser(usersWrapper.getName()) +
-                           "): " +
-                           CommandUtil.escapeMarkdown(value.songName() +
-                                                      " - " + value.artistName() +
-                                                      " | " + value.albumName() + "\n");
+                            username + "](" +
+                            CommandUtil.getLastFmUser(usersWrapper.getName()) +
+                            "): " +
+                            CommandUtil.escapeMarkdown(value.songName() +
+                                    " - " + value.artistName() +
+                                    " | " + value.albumName() + "\n");
                 }
         ).collect(Collectors.toCollection(ArrayList::new));
         Collections.shuffle(result, CommandUtil.rand);
@@ -130,22 +130,17 @@ public class PlayingCommand extends ConcurrentCommand<CommandParameters> {
             return;
         }
         StringBuilder a = new StringBuilder();
-        int count = 0;
+        int pageSize = 0;
         for (String string : result) {
-            count++;
-            if ((a.length() > 1500) || (count == 30)) {
+            pageSize++;
+            if ((a.length() > 3000) || (pageSize == 45)) {
                 break;
             }
             a.append(string);
         }
-        int pageSize = count;
-        int pages = (int) Math.ceil(result.size() / (float) count);
-        if (pages != 1) {
-            a.append("\n1").append("/").append(pages);
-        }
-        embedBuilder.setDescription(a);
-        e.sendMessage(embedBuilder.build()).queue(message1 ->
-                new Reactionary<>(result, message1, pageSize, embedBuilder, false, true));
+
+        new PaginatorBuilder<>(e, embedBuilder, result).pageSize(pageSize).unnumered().withIndicator().build().queue();
+
 
     }
 

@@ -3,8 +3,8 @@ package core.commands.abstracts;
 import core.commands.Context;
 import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandUtil;
-import core.commands.utils.ListSender;
 import core.commands.utils.PrivacyUtils;
+import core.otherlisteners.util.PaginatorBuilder;
 import core.parsers.params.CommandParameters;
 import dao.ServiceView;
 import dao.entities.LbEntry;
@@ -38,9 +38,9 @@ public abstract class LeaderboardCommand<T extends CommandParameters, Y extends 
         EmbedBuilder eb = new ChuuEmbedBuilder(e)
                 .setAuthor(e.getGuild().getName() + "'s " + getEntryName(params) + " leaderboard", null, e.getGuild().getIconUrl());
         setFooter(eb, list, params);
+        new PaginatorBuilder<>(e, eb, list)
+                .mapper(PrivacyUtils::toString).build().queue();
 
-        new ListSender<>(e, list, PrivacyUtils::toString, eb)
-                .doSend();
     }
 
     protected void setFooter(EmbedBuilder embedBuilder, List<LbEntry<Y>> list, T params) {

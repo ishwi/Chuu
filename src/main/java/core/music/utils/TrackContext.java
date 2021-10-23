@@ -113,7 +113,7 @@ public class TrackContext implements Serializable {
         if (obj == null || obj.getClass() != this.getClass()) return false;
         var that = (TrackContext) obj;
         return this.requester == that.requester &&
-               this.channelRequester == that.channelRequester;
+                this.channelRequester == that.channelRequester;
     }
 
     @Override
@@ -124,8 +124,8 @@ public class TrackContext implements Serializable {
     @Override
     public String toString() {
         return "TrackContext[" +
-               "requester=" + requester + ", " +
-               "channelRequester=" + channelRequester + ']';
+                "requester=" + requester + ", " +
+                "channelRequester=" + channelRequester + ']';
     }
 
 }

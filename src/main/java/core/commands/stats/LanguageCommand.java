@@ -12,7 +12,7 @@ import core.exceptions.LastFmException;
 import core.imagerenderer.GraphicUtils;
 import core.imagerenderer.util.pie.IPieableLanguage;
 import core.imagerenderer.util.pie.IPieableMap;
-import core.otherlisteners.Reactionary;
+import core.otherlisteners.util.PaginatorBuilder;
 import core.parsers.Parser;
 import core.parsers.TimerFrameParser;
 import core.parsers.params.ChartParameters;
@@ -102,7 +102,6 @@ public class LanguageCommand extends ConcurrentCommand<TimeFrameParameters> {
             sendMessageQueue(e, "Couldn't find any language in " + userName + " albums" + usableTime);
             return;
         }
-        StringBuilder a = new StringBuilder();
         if (params.hasOptional("pie")) {
             doPie(languageCountByMbid, params);
             return;
@@ -112,18 +111,14 @@ public class LanguageCommand extends ConcurrentCommand<TimeFrameParameters> {
                         String.format(". **%s** - %s %s\n", CommandUtil.escapeMarkdown(t.getKey().getName()), t.getValue().toString(), CommandUtil.singlePlural(Math.toIntExact(t.getValue()), "album", "albums")))
                 .toList();
 
-        for (int i = 0; i < 15 && i < stringedList.size(); i++) {
-            a.append(i + 1).append(stringedList.get(i));
-        }
-
         String title = userName + "'s most common languages" + params.getTime().getDisplayString();
         long count = languageCountByMbid.keySet().size();
+
         EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e).setThumbnail(userUrl)
                 .setFooter(String.format("%s has %d%s%s", CommandUtil.unescapedUser(userName, discordId, e), count, count == 1 ? " language" : " languages", usableTime), null)
-                .setTitle(title)
-                .setDescription(a);
-        e.sendMessage(embedBuilder.build()).queue(mes ->
-                new Reactionary<>(stringedList, mes, 15, embedBuilder));
+                .setTitle(title);
+
+        new PaginatorBuilder<>(e, embedBuilder, stringedList).pageSize(15).build().queue();
     }
 
     void doPie(Map<Language, Long> map, TimeFrameParameters parameters) {

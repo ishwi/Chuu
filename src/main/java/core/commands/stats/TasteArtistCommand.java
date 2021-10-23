@@ -35,7 +35,8 @@ public class TasteArtistCommand extends BaseTasteCommand<ArtistParameters> {
     }
 
     @Override
-    public @Nullable String hasCustomUrl(ArtistParameters params) {
+    public @Nullable
+    String hasCustomUrl(ArtistParameters params) {
         return params.getScrobbledArtist().getUrl() != null && !params.getScrobbledArtist().getUrl().isBlank() ? params.getScrobbledArtist().getUrl() : null;
     }
 

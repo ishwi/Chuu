@@ -2,10 +2,11 @@ package core.commands.artists;
 
 import core.commands.Context;
 import core.commands.abstracts.ResultWrappedCommand;
+import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.imagerenderer.util.pie.PieableListResultWrapper;
-import core.otherlisteners.Reactionary;
+import core.otherlisteners.util.PaginatorBuilder;
 import core.parsers.NoOpParser;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
@@ -18,6 +19,7 @@ import org.knowm.xchart.PieChart;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Function;
 
 public class GlobalTotalArtistPlaysCountCommand extends ResultWrappedCommand<ArtistPlays, CommandParameters> {
     public GlobalTotalArtistPlaysCountCommand(ServiceView dao) {
@@ -58,16 +60,17 @@ public class GlobalTotalArtistPlaysCountCommand extends ResultWrappedCommand<Art
             return;
         }
 
-        List<ArtistPlays> resultList = list.getResultList();
+        List<ArtistPlays> totalPlays = list.getResultList();
 
-        List<String> strList = resultList.stream().map(x -> String.format(". [%s](%s) - %d plays%n",
-                CommandUtil.escapeMarkdown(x.getArtistName()), LinkUtils.getLastFmArtistUrl(x.getArtistName()), x.getCount())).toList();
-        EmbedBuilder embedBuilder = initList(strList, e)
+        EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e)
                 .setTitle("Most Played Artists")
                 .setFooter(String.format("%s has stored %d plays!%n", e.getJDA().getSelfUser().getName(), list.getRows()), null)
                 .setThumbnail(e.getJDA().getSelfUser().getAvatarUrl());
-        e.sendMessage(embedBuilder.build()).queue(message1 ->
-                new Reactionary<>(strList, message1, embedBuilder));
+
+        Function<ArtistPlays, String> mapper = x -> String.format(". [%s](%s) - %d plays%n",
+                CommandUtil.escapeMarkdown(x.getArtistName()), LinkUtils.getLastFmArtistUrl(x.getArtistName()), x.getCount());
+
+        new PaginatorBuilder<>(e, embedBuilder, totalPlays).mapper(mapper).build().queue();
     }
 
     @Override

@@ -9,7 +9,7 @@ import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.exceptions.LastFmException;
-import core.otherlisteners.Reactionary;
+import core.otherlisteners.util.PaginatorBuilder;
 import core.parsers.Parser;
 import core.parsers.RecommendationParser;
 import core.parsers.params.RecommendationsParams;
@@ -149,17 +149,10 @@ public class AlbumRecommendationCommand extends ConcurrentCommand<Recommendation
                 }).limit(params.getRecCount())
                 .toList();
 
-        StringBuilder a = new StringBuilder();
-        for (int i = 0; i < 10 && i < stringedList.size(); i++) {
-            a.append(i + 1).append(stringedList.get(i));
-        }
-
 
         EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e);
         embedBuilder.setTitle(String.format("%s album recommendations for %s", giver, receiver))
-                .setThumbnail(giverUI.urlImage())
-                .setDescription(a);
-        e.sendMessage(embedBuilder.build()).queue(mes ->
-                new Reactionary<>(stringedList, mes, 10, embedBuilder));
+                .setThumbnail(giverUI.urlImage());
+        new PaginatorBuilder<>(e, embedBuilder, stringedList).pageSize(10).build().queue();
     }
 }

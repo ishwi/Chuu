@@ -77,7 +77,7 @@ public class Track {
         if (o == null || getClass() != o.getClass()) return false;
         Track track = (Track) o;
         return Objects.equals(artist, track.artist) &&
-               name.equals(track.name);
+                name.equals(track.name);
     }
 
     @Override
@@ -89,12 +89,12 @@ public class Track {
     public String toString() {
 
         return ". " +
-               "[" +
-               LinkUtils.cleanMarkdownCharacter(artist) + " - " + LinkUtils.cleanMarkdownCharacter(name) +
-               "](" + LinkUtils.getLastFMArtistTrack(artist, name) +
-               ")" +
-               " - " + plays + " plays" +
-               "\n";
+                "[" +
+                LinkUtils.cleanMarkdownCharacter(artist) + " - " + LinkUtils.cleanMarkdownCharacter(name) +
+                "](" + LinkUtils.getLastFMArtistTrack(artist, name) +
+                ")" +
+                " - " + plays + " plays" +
+                "\n";
     }
 
     public String getPie() {

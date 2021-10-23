@@ -6,7 +6,7 @@ import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.exceptions.LastFmException;
-import core.otherlisteners.Reactionary;
+import core.otherlisteners.util.PaginatorBuilder;
 import core.parsers.ArtistAlbumParser;
 import core.parsers.Parser;
 import core.parsers.params.ArtistAlbumParameters;
@@ -98,19 +98,15 @@ public class AlbumRatings extends ConcurrentCommand<ArtistAlbumParameters> {
         FullAlbumEntityExtended albumSummary = lastFM.getAlbumSummary(params.getLastFMData(), sA.getArtist(), album);
         String lastFmArtistAlbumUrl = LinkUtils.getLastFmArtistAlbumUrl(artist, album);
         List<String> stringList = userRatings.stream().filter(Rating::isSameGuild).map(x -> ". **[" +
-                                                                                            getUserString(e, x.getDiscordId()) +
-                                                                                            "](" + lastFmArtistAlbumUrl +
-                                                                                            ")** - " + starFormatter.apply(x.getRating()) +
-                                                                                            "\n").toList();
+                getUserString(e, x.getDiscordId()) +
+                "](" + lastFmArtistAlbumUrl +
+                ")** - " + starFormatter.apply(x.getRating()) +
+                "\n").toList();
         if (stringList.isEmpty()) {
             sendMessageQueue(e, String.format("**%s** by **%s** was not rated by anyone.", album, artist));
             return;
         }
 
-        StringBuilder a = new StringBuilder();
-        for (int i = 0; i < 10 && i < stringList.size(); i++) {
-            a.append(i + 1).append(stringList.get(i));
-        }
 
         String chuu = albumSummary.getAlbumUrl();
         List<Rating> servcerList = userRatings.stream().filter(Rating::isSameGuild).toList();
@@ -125,11 +121,9 @@ public class AlbumRatings extends ConcurrentCommand<ArtistAlbumParameters> {
                         releaseYear != null ? " (" + releaseYear + ")" : ""
                         , userRatings.size(),
                         CommandUtil.singlePlural(userRatings.size(), "person", "people")))
-                .setThumbnail(chuu)
-                .setDescription(a + "\n" + name + "\n" + global);
+                .setThumbnail(chuu);
 
-        e.sendMessage(embedBuilder.build()).queue(message1 ->
-                new Reactionary<>(stringList, message1, embedBuilder));
+        new PaginatorBuilder<>(e, embedBuilder, stringList).extraText(integer -> name + "\n" + global).build().queue();
 
 
     }

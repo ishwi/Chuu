@@ -44,8 +44,8 @@ public class PlayerRegistry {
             // if last played >= IDLE_TIMEOUT minutes ago, and not 24/7 (all day) music, destroy/queue leave.
             Guild guild = it.getGuild();
             return guild == null || !guild.getAudioManager().isConnected() && it.isIdle() &&
-                                    !it.isLeaveQueued() && System.currentTimeMillis() - it.getLastPlayedAt() > playTimeout &&
-                                    !isAllDayMusic(it.getGuildId());
+                    !it.isLeaveQueued() && System.currentTimeMillis() - it.getLastPlayedAt() > playTimeout &&
+                    !isAllDayMusic(it.getGuildId());
         }).forEach(it -> {
             if (it.getGuild() == null) {
                 destroy(it.getGuildId());

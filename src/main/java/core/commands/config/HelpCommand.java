@@ -207,11 +207,11 @@ public class HelpCommand extends ConcurrentCommand<WordParameter> {
                 String remainingUsageInstructions = null;
                 List<String> pagees = TextSplitter.split(realUsageInstructions, 1600);
                 e.sendMessage("**Name:** " + name + "\n" +
-                              "**Description:** " + description + "\n" +
-                              "**Aliases:** " + prefix +
-                              String.join(", " + prefix, c.getAliases()) + "\n" +
-                              "**Usage:** " +
-                              prefix + pagees.get(0)).queue(x -> {
+                        "**Description:** " + description + "\n" +
+                        "**Aliases:** " + prefix +
+                        String.join(", " + prefix, c.getAliases()) + "\n" +
+                        "**Usage:** " +
+                        prefix + pagees.get(0)).queue(x -> {
                     for (int i = 1; i < pagees.size(); i++) {
                         e.sendMessage(EmbedBuilder.ZERO_WIDTH_SPACE + pagees.get(i)).queue();
                     }
@@ -220,7 +220,7 @@ public class HelpCommand extends ConcurrentCommand<WordParameter> {
             }
         }
         e.sendMessage("The provided command '**" + command +
-                      "**' does not exist. Use " + prefix + "help to list all commands.").queue();
+                "**' does not exist. Use " + prefix + "help to list all commands.").queue();
     }
 
 

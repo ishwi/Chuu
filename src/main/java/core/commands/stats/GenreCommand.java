@@ -9,7 +9,7 @@ import core.exceptions.LastFmException;
 import core.imagerenderer.GraphicUtils;
 import core.imagerenderer.util.bubble.StringFrequency;
 import core.imagerenderer.util.pie.IPieableMap;
-import core.otherlisteners.Reactionary;
+import core.otherlisteners.util.PaginatorBuilder;
 import core.parsers.NumberParser;
 import core.parsers.Parser;
 import core.parsers.TimerFrameParser;
@@ -78,7 +78,7 @@ public class GenreCommand extends ConcurrentCommand<NumberParameters<TimeFramePa
         Map<Integer, String> map = new HashMap<>(2);
         map.put(LIMIT_ERROR, "The number introduced must be between 1 and a big number");
         String s = "You can also introduce a number to vary the number of genres shown in the pie," +
-                   "defaults to 10";
+                "defaults to 10";
 
         TimerFrameParser timerFrameParser = new TimerFrameParser(db, TimeFrameEnum.ALL);
         timerFrameParser.addOptional(new OptionalEntity("albums", "use albums"));
@@ -196,17 +196,11 @@ public class GenreCommand extends ConcurrentCommand<NumberParameters<TimeFramePa
                 return;
             }
 
-            StringBuilder a = new StringBuilder();
-            for (int i = 0; i < 10 && i < lines.size(); i++) {
-                a.append(i + 1).append(lines.get(i));
-            }
             EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e)
-                    .setDescription(a)
                     .setTitle(usableString + "'s genres")
                     .setFooter(usableString + " has " + lines.size() + " found genres" + timeframe.getDisplayString(), null)
                     .setThumbnail(urlImage);
-            e.sendMessage(embedBuilder.build()).queue(message1 ->
-                    new Reactionary<>(lines, message1, embedBuilder));
+            new PaginatorBuilder<>(e, embedBuilder, lines).build().queue();
 
 
         } else {

@@ -62,7 +62,8 @@ public class ColorService {
         return color == null ? CommandUtil.pastelColor() : color;
     }
 
-    private static @Nullable Color getUserMode(Context e) {
+    private static @Nullable
+    Color getUserMode(Context e) {
         var colorType = userColorTypes.get(e.getAuthor().getIdLong());
         if (colorType == null) {
             return null;

@@ -94,7 +94,7 @@ public class MessageDisablingService {
         long guildId = e.getGuild().getIdLong();
         long channelId = e.getChannel().getIdLong();
         return (!(disabledServersMap.get(guildId).contains(command) || disabledChannelsMap.get(Pair.of(guildId, channelId)).contains(command)))
-               || enabledChannelsMap.get(Pair.of(guildId, channelId)).contains(command);
+                || enabledChannelsMap.get(Pair.of(guildId, channelId)).contains(command);
     }
 
     //Returns if its disabled or enabled now

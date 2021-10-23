@@ -48,15 +48,12 @@ public class CustomInterfacedEventManager implements IEventManager {
     }
 
     private void handleReaction(@Nonnull GenericEvent event) {
-        long channelId;
-        if (event instanceof MessageReactionAddEvent e3) {
-            e3.getMessageId();
-            channelId = e3.getChannel().getIdLong();
-        } else {
-            ButtonClickEvent e4 = (ButtonClickEvent) event;
-            e4.getMessageIdLong();
-            channelId = e4.getChannel().getIdLong();
-        }
+        assert event instanceof MessageReactionAddEvent || event instanceof ButtonClickEvent;
+        long channelId = switch (event) {
+            case MessageReactionAddEvent e3 -> e3.getChannel().getIdLong();
+            case ButtonClickEvent e3 -> e3.getChannel().getIdLong();
+            default -> throw new IllegalStateException("Unexpected value: " + event);
+        };
         ConstantListener c = constantListeners.get(channelId);
         if (c != null) {
             c.onEvent(event);
@@ -121,7 +118,7 @@ public class CustomInterfacedEventManager implements IEventManager {
                     reactionListener.dispose();
                 }
             }
-            case AwaitReady a -> otherListeners.remove(listener);
+            case AwaitReady a -> otherListeners.remove(a);
             case ConstantListener cl -> constantListeners.remove(cl.channelId(), cl);
             default -> {
             }
@@ -137,100 +134,96 @@ public class CustomInterfacedEventManager implements IEventManager {
      */
     @Override
     public void handle(@Nonnull GenericEvent event) {
-        if (event instanceof MessageReceivedEvent mes) {
-            if (mes.getAuthor().isBot()) {
+        try {
+            switch (event) {
+                case MessageReceivedEvent mes -> handleMessageReceived(mes);
+                case SlashCommandEvent sce -> handleSlashCommand(sce);
+                case ReadyEvent re -> {
+                    for (EventListener listener : otherListeners)
+                        listener.onEvent(re);
+                }
+                case MessageReactionAddEvent react -> reactionExecutor.submit(() -> this.handleReaction(react));
+                case ButtonClickEvent button -> reactionExecutor.submit(() -> this.handleReaction(button));
+
+                // TODO cant group then on one
+                case GuildVoiceJoinEvent gvje -> this.voiceListener.onEvent(gvje);
+                case GuildVoiceLeaveEvent gvle -> this.voiceListener.onEvent(gvle);
+                case GuildVoiceMoveEvent gvme -> this.voiceListener.onEvent(gvme);
+
+                case GuildMemberRemoveEvent gmre -> this.administrativeCommand.onEvent(gmre);
+                case GuildMemberJoinEvent gmje -> this.administrativeCommand.onEvent(gmje);
+                case GuildJoinEvent gje -> this.administrativeCommand.onEvent(gje);
+                default -> {
+                }
+
+            }
+        } catch (Throwable throwable) {
+            JDAImpl.LOG.error("One of the EventListeners had an uncaught exception", throwable);
+        }
+    }
+
+    private void handleSlashCommand(SlashCommandEvent sce) {
+        if (!isReady) {
+            return;
+        }
+        MyCommand<? extends CommandParameters> myCommand;
+        if (sce.getSubcommandName() == null) {
+            myCommand = commandListeners.get(sce.getName().toLowerCase(Locale.ROOT));
+        } else {
+            myCommand = slashVariants.get(sce.getCommandPath());
+            if (myCommand == null) {
+                myCommand = commandListeners.get(sce.getSubcommandName());
+            }
+        }
+        ContextSlashReceived ctx = new ContextSlashReceived(sce);
+        if (!Chuu.getMessageDisablingService().isMessageAllowed(myCommand, ctx)) {
+            if (Chuu.getMessageDisablingService().doResponse(ctx))
+                sce.reply("This command is disabled in this channel.").queue();
+            else {
+                sce.reply("This command is disabled in this channel.").setEphemeral(true).queue();
+            }
+            return;
+        }
+        myCommand.onSlashCommandReceived(sce);
+    }
+
+    private void handleMessageReceived(MessageReceivedEvent mes) {
+        if (mes.getAuthor().isBot()) {
+            return;
+        }
+        ContextMessageReceived ctx = new ContextMessageReceived(mes);
+        Character correspondingPrefix = Chuu.prefixService.getCorrespondingPrefix(ctx);
+        String contentRaw = mes.getMessage().getContentRaw();
+        if ((contentRaw.length() <= 1)) {
+            return;
+        }
+        if (mes.isFromGuild() && contentRaw.charAt(0) != correspondingPrefix) {
+            if (mes.getMessage().getMentionedUsers().contains(mes
+                    .getJDA().getSelfUser()) && mes.getMessage().getType() != MessageType.INLINE_REPLY) {
+                if (mes.getMessage().getContentRaw().contains("prefix")) {
+                    mes.getChannel().sendMessage("My prefix is: `" + correspondingPrefix + "`").queue();
+                }
+            }
+            return;
+        }
+        Map<Long, RateLimiter> ratelimited = Chuu.getRatelimited();
+        RateLimiter rateLimiter = ratelimited.get(mes.getAuthor().getIdLong());
+        if (rateLimiter != null) {
+            if (!rateLimiter.tryAcquire()) {
+                mes.getChannel().sendMessage("You have been rate limited, try again later.").queue();
                 return;
             }
-            ContextMessageReceived ctx = new ContextMessageReceived(mes);
-            Character correspondingPrefix = Chuu.prefixService.getCorrespondingPrefix(ctx);
-            String contentRaw = mes.getMessage().getContentRaw();
-            if ((contentRaw.length() <= 1)) {
+        }
+        String substring = contentRaw.substring(1).split("\\s+")[0];
+        MyCommand<?> myCommand = commandListeners.get(substring.toLowerCase());
+        if (myCommand != null) {
+            if (!Chuu.getMessageDisablingService().isMessageAllowed(myCommand, ctx)) {
+                if (Chuu.getMessageDisablingService().doResponse(ctx))
+                    mes.getChannel().sendMessage("This command is disabled in this channel.").queue();
                 return;
             }
-            if (mes.isFromGuild() && contentRaw.charAt(0) != correspondingPrefix) {
-                if (mes.getMessage().getMentionedUsers().contains(mes
-                        .getJDA().getSelfUser()) && mes.getMessage().getType() != MessageType.INLINE_REPLY) {
-                    if (mes.getMessage().getContentRaw().contains("prefix")) {
-                        mes.getChannel().sendMessage("My prefix is: `" + correspondingPrefix + "`").queue();
-                    }
-                }
-                return;
-            }
-            Map<Long, RateLimiter> ratelimited = Chuu.getRatelimited();
-            RateLimiter rateLimiter = ratelimited.get(mes.getAuthor().getIdLong());
-            if (rateLimiter != null) {
-                if (!rateLimiter.tryAcquire()) {
-                    mes.getChannel().sendMessage("You have been rate limited, try again later.").queue();
-                    return;
-                }
-            }
-            String substring = contentRaw.substring(1).split("\\s+")[0];
-            MyCommand<?> myCommand = commandListeners.get(substring.toLowerCase());
-            if (myCommand != null) {
-                if (!Chuu.getMessageDisablingService().isMessageAllowed(myCommand, ctx)) {
-                    if (Chuu.getMessageDisablingService().doResponse(ctx))
-                        mes.getChannel().sendMessage("This command is disabled in this channel.").queue();
-                    return;
-                }
-                try {
-                    myCommand.onMessageReceived(mes);
-                } catch (Throwable throwable) {
-                    JDAImpl.LOG.error("One of the EventListeners had an uncaught exception", throwable);
-                }
-            }
-
-        } else if (event instanceof SlashCommandEvent sce) {
-            if (!isReady) {
-                return;
-            }
-            MyCommand<? extends CommandParameters> myCommand;
-            if (sce.getSubcommandName() == null) {
-                myCommand = commandListeners.get(sce.getName().toLowerCase(Locale.ROOT));
-            } else {
-                myCommand = slashVariants.get(sce.getCommandPath());
-                if (myCommand == null) {
-                    myCommand = commandListeners.get(sce.getSubcommandName());
-                }
-            }
-            try {
-                ContextSlashReceived ctx = new ContextSlashReceived(sce);
-                if (!Chuu.getMessageDisablingService().isMessageAllowed(myCommand, ctx)) {
-                    if (Chuu.getMessageDisablingService().doResponse(ctx))
-                        sce.reply("This command is disabled in this channel.").queue();
-                    else {
-                        sce.reply("This command is disabled in this channel.").setEphemeral(true).queue();
-                    }
-                    return;
-                }
-                myCommand.onSlashCommandReceived(sce);
-            } catch (Throwable throwable) {
-                JDAImpl.LOG.error("One of the EventListeners had an uncaught exception", throwable);
-            }
-        } else
-            try {
-
-                if (event instanceof ReadyEvent) {
-                    for (EventListener listener : otherListeners) {
-                        listener.onEvent(event);
-                    }
-
-                } else if (event instanceof GuildMemberRemoveEvent || event instanceof GuildMemberJoinEvent || event instanceof GuildJoinEvent) {
-
-                    administrativeCommand.onEvent(event);
-
-                } else if ((event instanceof MessageReactionAddEvent e3) || (event instanceof ButtonClickEvent e4)) {
-
-                    reactionExecutor.submit(() -> this.handleReaction(event));
-
-                } else if (event instanceof GuildVoiceJoinEvent || event instanceof GuildVoiceLeaveEvent || event instanceof GuildVoiceMoveEvent) {
-
-                    this.voiceListener.onEvent(event);
-
-                }
-
-            } catch (Throwable throwable) {
-                JDAImpl.LOG.error("One of the EventListeners had an uncaught exception", throwable);
-            }
+            myCommand.onMessageReceived(mes);
+        }
     }
 
     @Nonnull

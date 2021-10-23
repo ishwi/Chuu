@@ -205,8 +205,8 @@ public class VotingCommand extends ConcurrentCommand<ArtistParameters> {
                                                                                                                      List<VotingEntity> allArtistImages, LastFMData lastFMData, AtomicInteger counter, AtomicInteger size) {
         Map<String, Reaction<VotingEntity, T, Y>> actionMap = new LinkedHashMap<>();
         List<Long> guildList = e.isFromGuild()
-                               ? db.getAll(e.getGuild().getIdLong()).stream().filter(u -> !u.getRole().equals(Role.IMAGE_BLOCKED)).map(UsersWrapper::getDiscordID).toList()
-                               : List.of(e.getAuthor().getIdLong());
+                ? db.getAll(e.getGuild().getIdLong()).stream().filter(u -> !u.getRole().equals(Role.IMAGE_BLOCKED)).map(UsersWrapper::getDiscordID).toList()
+                : List.of(e.getAuthor().getIdLong());
 
         actionMap.put(UP_VOTE, (a, r) -> {
             if (guildList.contains(owner.apply(r).getIdLong())) {

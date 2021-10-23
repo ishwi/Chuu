@@ -74,10 +74,10 @@ public abstract class GlobalBaseWhoKnowCommand<T extends CommandParameters> exte
                             x.setDiscordName(privacy.discordName());
                             x.setLastFMId(privacy.lastfmName());
                             return ". " +
-                                   "**[" + privacy.discordName() + "](" +
-                                   PrivacyUtils.getUrlTitle(x) +
-                                   ")** - " +
-                                   x.getPlayNumber() + " plays\n";
+                                    "**[" + privacy.discordName() + "](" +
+                                    PrivacyUtils.getUrlTitle(x) +
+                                    ")** - " +
+                                    x.getPlayNumber() + " plays\n";
                         })
                 );
         switch (effectiveMode) {
@@ -90,7 +90,7 @@ public abstract class GlobalBaseWhoKnowCommand<T extends CommandParameters> exte
     public PrivacyUtils.PrivateString mapPrivacy(ReturnNowPlaying x, PrivacyUtils.PrivateString privateString, T ap, PrivacyMode privacyMode, Set<Long> ids) {
         LastFMData lastFMData = obtainLastFmData(ap);
         if (lastFMData.getRole() == Role.ADMIN && (privacyMode == PrivacyMode.NORMAL || privacyMode == PrivacyMode.STRICT) &&
-            (!ap.getE().isFromGuild() || ap.getE().getChannel().getIdLong() == Chuu.channel2Id)) {
+                (!ap.getE().isFromGuild() || ap.getE().getChannel().getIdLong() == Chuu.channel2Id)) {
             return new PrivacyUtils.PrivateString("Private: " + x.getLastFMId(), x.getLastFMId());
         }
         return privateString;

@@ -1,5 +1,6 @@
 package core.commands.artists;
 
+import core.Chuu;
 import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
@@ -11,7 +12,6 @@ import core.parsers.ArtistSongParser;
 import core.parsers.Parser;
 import core.parsers.params.ArtistAlbumParameters;
 import core.parsers.utils.Optionals;
-import core.services.CoverService;
 import core.services.validators.ArtistValidator;
 import core.services.validators.TrackValidator;
 import dao.ServiceView;
@@ -83,7 +83,7 @@ public class GlobalTrackCommand extends ConcurrentCommand<ArtistAlbumParameters>
 
 
         String linkLFM = PrivacyUtils.getLastFmArtistTrackUserUrl(sA.getArtist(), sT.getName(), params.getLastFMData().getName());
-        String cover = new CoverService(db).getCover(sT.getAlbumId(), sT.getImageUrl(), e);
+        String cover = Chuu.getCoverService().getCover(sT.getAlbumId(), sT.getImageUrl(), e);
 
         EmbedBuilder eb = new GlobalDoer(db, globalArtistRanking).generate(userId, e, str, cover,
                 () -> db.getServerTrackPlays(e.getGuild().getIdLong(), sT.getTrackId()),

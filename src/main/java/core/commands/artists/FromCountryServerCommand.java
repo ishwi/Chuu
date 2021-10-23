@@ -12,12 +12,12 @@ import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
-import core.commands.utils.ListSender;
 import core.commands.utils.PrivacyUtils;
 import core.exceptions.LastFmException;
 import core.imagerenderer.ChartQuality;
 import core.imagerenderer.CollageMaker;
 import core.imagerenderer.GraphicUtils;
+import core.otherlisteners.util.PaginatorBuilder;
 import core.parsers.OnlyCountryParser;
 import core.parsers.Parser;
 import core.parsers.params.OnlyCountryParameters;
@@ -168,10 +168,10 @@ public class FromCountryServerCommand extends ConcurrentCommand<OnlyCountryParam
         String title = guild + "'s top artists from " + countryRep + (":");
         EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e)
                 .setFooter(guild + " has " + list.size() +
-                           (list.size() == 1 ? " artist " : " artists ") + "from " + country.getName(), null)
+                        (list.size() == 1 ? " artist " : " artists ") + "from " + country.getName(), null)
                 .setTitle(title, PrivacyUtils.getLastFmUser(Chuu.DEFAULT_LASTFM_ID));
 
-        new ListSender<>(e, list, Object::toString, embedBuilder)
-                .doSend();
+        new PaginatorBuilder<>(e, embedBuilder, list).build().queue();
+
     }
 }

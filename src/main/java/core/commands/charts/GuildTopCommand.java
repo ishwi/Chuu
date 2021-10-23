@@ -7,7 +7,7 @@ import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.commands.utils.PieDoer;
-import core.otherlisteners.Reactionary;
+import core.otherlisteners.util.PaginatorBuilder;
 import core.parsers.ChartableParser;
 import core.parsers.OnlyChartSizeParser;
 import core.parsers.params.ChartSizeParameters;
@@ -85,17 +85,12 @@ public class GuildTopCommand extends ChartableCommand<ChartSizeParameters> {
     @Override
     public void doList(List<UrlCapsule> urlCapsules, ChartSizeParameters params, int count) {
 
-        StringBuilder a = new StringBuilder();
-        for (int i = 0; i < 10 && i < urlCapsules.size(); i++) {
-            a.append(i + 1).append(urlCapsules.get(i).toEmbedDisplay());
-        }
         Guild guild = params.getE().getGuild();
-        EmbedBuilder embedBuilder = configEmbed(new ChuuEmbedBuilder(params.getE())
-                .setDescription(a)
 
+        EmbedBuilder embedBuilder = configEmbed(new ChuuEmbedBuilder(params.getE())
                 .setThumbnail(guild.getIconUrl()), params, count);
-        params.getE().sendMessage(embedBuilder.build()).queue(message1 ->
-                new Reactionary<>(urlCapsules, message1, embedBuilder));
+
+        new PaginatorBuilder<>(params.getE(), embedBuilder, urlCapsules).build().queue();
     }
 
     @Override

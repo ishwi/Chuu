@@ -44,7 +44,7 @@ public class GlobalRecommendationCommand extends ConcurrentCommand<NumberParamet
         Map<Integer, String> map = new HashMap<>(2);
         map.put(LIMIT_ERROR, "The number introduced must be positive and smaller than 25");
         String s = "You can also introduce a number to vary the number of recommendations that you will receive, " +
-                   "defaults to 1";
+                "defaults to 1";
         var parser = new NumberParser<>(new OnlyUsernameParser(db),
                 1L,
                 Integer.MAX_VALUE,

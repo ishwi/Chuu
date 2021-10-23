@@ -2,10 +2,11 @@ package core.commands.artists;
 
 import core.commands.Context;
 import core.commands.abstracts.ResultWrappedCommand;
+import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.imagerenderer.util.pie.PieableListResultWrapper;
-import core.otherlisteners.Reactionary;
+import core.otherlisteners.util.PaginatorBuilder;
 import core.parsers.NoOpParser;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
@@ -57,23 +58,25 @@ public class ArtistFrequencyCommand extends ResultWrappedCommand<ArtistPlays, Co
 
     @Override
     public void printList(ResultWrapper<ArtistPlays> wrapper, CommandParameters params) {
-        List<ArtistPlays> list = wrapper.getResultList();
+        List<String> lines = wrapper.getResultList()
+                .stream().map(x -> ". [" +
+                        CommandUtil.escapeMarkdown(x.getArtistName()) +
+                        "](" + LinkUtils.getLastFmArtistUrl(x.getArtistName()) +
+                        ") - " + x.getCount() +
+                        " listeners \n").toList();
+
         Context e = params.getE();
-        if (list.isEmpty()) {
+        if (lines.isEmpty()) {
             sendMessageQueue(e, "No one has played any artist yet!");
         }
 
-        List<String> lines = list.stream().map(x -> ". [" +
-                                                    CommandUtil.escapeMarkdown(x.getArtistName()) +
-                                                    "](" + LinkUtils.getLastFmArtistUrl(x.getArtistName()) +
-                                                    ") - " + x.getCount() +
-                                                    " listeners \n").toList();
-        EmbedBuilder embedBuilder = initList(lines, e)
+
+        EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e)
                 .setTitle("Artist's frequencies")
                 .setFooter(String.format("%s has %d different artists!%n", e.getGuild().getName(), wrapper.getRows()), null)
                 .setThumbnail(e.getGuild().getIconUrl());
-        e.sendMessage(embedBuilder.build()).queue(message1 ->
-                new Reactionary<>(lines, message1, embedBuilder));
+
+        new PaginatorBuilder<>(e, embedBuilder, lines).build().queue();
     }
 
     @Override

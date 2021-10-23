@@ -193,6 +193,15 @@ public class ChuuService implements EveryNoiseService {
 
     }
 
+    public boolean isFlagged(String lastfmId) {
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setReadOnly(true);
+            return userGuildDao.isFlagged(connection, lastfmId);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
     public void insertNewUser(LastFMData data) {
         try (Connection connection = dataSource.getConnection()) {
 
@@ -3953,6 +3962,7 @@ public class ChuuService implements EveryNoiseService {
         }
     }
 
+
     public void unflagAsBotted(String lastfmId) {
         try (Connection connection = dataSource.getConnection()) {
             userGuildDao.unflagAsBotted(lastfmId, connection);
@@ -4257,6 +4267,15 @@ public class ChuuService implements EveryNoiseService {
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }
+    }
+
+    public void deleteTracklist(long albumId) {
+        try (Connection connection = dataSource.getConnection()) {
+            trackDao.deleteTracklist(connection, albumId);
+        } catch (SQLException e) {
+            throw new ChuuServiceException();
+        }
+
     }
 }
 

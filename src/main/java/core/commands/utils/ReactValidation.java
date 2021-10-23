@@ -41,7 +41,7 @@ public class ReactValidation {
         }
         if (!rejected.isEmpty()) {
             e.sendMessage("Couldn't use some emotes because of permissions or unknown emotes.\n" +
-                          "The following emotes were ignored: " + rejected.stream().map(Emote::getAsMention).collect(Collectors.joining(" "))).queue();
+                    "The following emotes were ignored: " + rejected.stream().map(Emote::getAsMention).collect(Collectors.joining(" "))).queue();
 
         }
         return params.getEmotis().stream().filter(emotable -> {

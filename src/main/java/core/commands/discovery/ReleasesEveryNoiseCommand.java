@@ -8,7 +8,8 @@ import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.commands.utils.GenreDisambiguator;
 import core.exceptions.LastFmException;
-import core.otherlisteners.Reactionary;
+import core.otherlisteners.util.Paginator;
+import core.otherlisteners.util.PaginatorBuilder;
 import core.parsers.Parser;
 import core.parsers.UserStringParser;
 import core.parsers.params.UserStringParameters;
@@ -28,6 +29,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.function.BiFunction;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class ReleasesEveryNoiseCommand extends ConcurrentCommand<UserStringParameters> {
@@ -80,7 +83,14 @@ public class ReleasesEveryNoiseCommand extends ConcurrentCommand<UserStringParam
         String tab = EmbedBuilder.ZERO_WIDTH_SPACE + "\t\t";
 
 
-        List<String> strings = counts.entrySet().stream().map(z -> {
+        var strings = counts.entrySet().stream().toList();
+
+        EmbedBuilder eb = new ChuuEmbedBuilder(e)
+                .setAuthor("Genres with releases", "https://everynoise.com/", "https://pbs.twimg.com/profile_images/3736544396/e0d7d0c8f2781c40b5f870df441e670c_400x400.png")
+                .setFooter("There are  " + strings.size() + " unique genres with releases");
+
+
+        Function<Map.Entry<NoiseGenreReleases, Integer>, String> mapper = z -> {
             NoiseGenreReleases key = z.getKey();
             Integer count = z.getValue();
             String releases = z.getKey().releases().stream().limit(2).map(l -> "%s[%s - %s](%s)".formatted(tab, l.artist(), l.release(), SpotifyUtils.getAlbumLink(l.uri()))).collect(Collectors.joining("\n"));
@@ -94,19 +104,10 @@ public class ReleasesEveryNoiseCommand extends ConcurrentCommand<UserStringParam
                     RELEASES_URL.formatted(URLEncoder.encode(key.name(), StandardCharsets.UTF_8)),
                     count,
                     CommandUtil.singlePlural(count, "release", "releases"), releases);
-        }).toList();
-        StringBuilder a = new StringBuilder();
-        for (int i = 0; i < 5 && i < strings.size(); i++) {
-            a.append(strings.get(i));
-        }
-        ChuuEmbedBuilder eb = new ChuuEmbedBuilder(e);
-        String title = "Genres with releases";
-        eb.setDescription(a)
-                .setAuthor(title, "https://everynoise.com/", "https://pbs.twimg.com/profile_images/3736544396/e0d7d0c8f2781c40b5f870df441e670c_400x400.png")
-                .setFooter("There are  " + strings.size() + " unique genres with releases");
+        };
 
-        e.sendMessage(eb.build()).queue(finalMessage ->
-                new Reactionary<>(strings, finalMessage, 5, eb, false));
+        new PaginatorBuilder<>(e, eb, strings).mapper(mapper).pageSize(5).numberedEntries(false).build().queue();
+
     }
 
     private void handleSearch(Context e, String input) {
@@ -137,14 +138,19 @@ public class ReleasesEveryNoiseCommand extends ConcurrentCommand<UserStringParam
         }
         eb.setDescription(a)
                 .setAuthor(title, "https://everynoise.com/", "https://pbs.twimg.com/profile_images/3736544396/e0d7d0c8f2781c40b5f870df441e670c_400x400.png");
-        RestAction<Message> messageRestAction;
+        BiFunction<Context, EmbedBuilder, RestAction<Message>> sender, senderWithButtons;
         if (message == null) {
-            messageRestAction = e.sendMessage(eb.build());
+            sender = (context, embedBuilder) -> context.sendMessage(embedBuilder.build());
+            senderWithButtons = (context, embedBuilder) -> context.sendMessage(embedBuilder.build(), Paginator.defaultActions());
         } else {
-            messageRestAction = e.editMessage(message, eb.build(), Collections.emptyList());
+            sender = (context, embedBuilder) -> context.editMessage(message, embedBuilder.build(), Collections.emptyList());
+            senderWithButtons = (context, embedBuilder) -> context.editMessage(message, embedBuilder.build(), List.of(Paginator.defaultActions()));
         }
-        messageRestAction.queue(finalMessage ->
-                new Reactionary<>(strings, finalMessage, eb, false));
+
+        new PaginatorBuilder<>(e, eb, strings).numberedEntries(false)
+                .creator(sender)
+                .creatorWithButtons(senderWithButtons)
+                .build().queue();
 
     }
 }

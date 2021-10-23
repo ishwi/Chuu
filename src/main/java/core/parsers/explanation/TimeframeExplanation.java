@@ -22,7 +22,7 @@ public record TimeframeExplanation(TimeFrameEnum timeFrame) implements Explanati
     @Override
     public Interactible explanation() {
         return new ExplanationLine("timeframe", "" +
-                                                "If a timeframe it's not specified defaults to " + timeFrame.toValueString() + "\n", optionData);
+                "If a timeframe it's not specified defaults to " + timeFrame.toValueString() + "\n", optionData);
     }
 
 }

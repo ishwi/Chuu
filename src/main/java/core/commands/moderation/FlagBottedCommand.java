@@ -27,7 +27,9 @@ public class FlagBottedCommand extends ConcurrentCommand<ChuuDataParams> {
 
     @Override
     public Parser<ChuuDataParams> initParser() {
-        return new UserModerationParser(db).addOptional(new OptionalEntity("unflag", "unflag a flagged account"));
+        return new UserModerationParser(db)
+                .addOptional(new OptionalEntity("unflag", "unflag a flagged account"))
+                .addOptional(new OptionalEntity("check", "check a flagged account"));
     }
 
     @Override
@@ -48,14 +50,18 @@ public class FlagBottedCommand extends ConcurrentCommand<ChuuDataParams> {
     @Override
     protected void onCommand(Context e, @Nonnull ChuuDataParams params) throws InstanceNotFoundException {
         LastFMData lastFMData = db.findLastFMData(e.getAuthor().getIdLong());
+        LastFMData botter = params.getLastFMData();
         if (lastFMData.getRole() != Role.ADMIN) {
-            sendMessageQueue(e, "Only bot admins can flag people as bots!");
+            boolean isFlagged = db.isFlagged(botter.getName());
+            sendMessageQueue(e, "**%s** botted status: **%s**".formatted(botter.getName(), isFlagged));
             return;
         }
-        LastFMData botter = params.getLastFMData();
         if (params.hasOptional("unflag")) {
             db.unflagAsBotted(botter.getName());
             sendMessageQueue(e, "Unflagged %s as a botter".formatted(botter.getName()));
+        } else if (params.hasOptional("check")) {
+            boolean isFlagged = db.isFlagged(botter.getName());
+            sendMessageQueue(e, "**%s** botted status: **%s**".formatted(botter.getName(), isFlagged));
         } else {
             db.flagAsBotted(botter.getName());
             sendMessageQueue(e, "Flagged %s as a botter".formatted(botter.getName()));

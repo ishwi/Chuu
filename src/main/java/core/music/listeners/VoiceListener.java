@@ -35,13 +35,12 @@ public class VoiceListener implements EventListener {
         if (!(event instanceof GenericGuildVoiceEvent) || !core.Chuu.isLoaded()) {
             return;
         }
-
-        if (event instanceof GuildVoiceJoinEvent e) {
-            onGuildVoiceJoin(e);
-        } else if (event instanceof GuildVoiceLeaveEvent e) {
-            onGuildVoiceLeave(e);
-        } else if (event instanceof GuildVoiceMoveEvent e) {
-            onGuildVoiceMove(e);
+        switch (event) {
+            case GuildVoiceJoinEvent e -> onGuildVoiceJoin(e);
+            case GuildVoiceLeaveEvent e -> onGuildVoiceLeave(e);
+            case GuildVoiceMoveEvent e -> onGuildVoiceMove(e);
+            default -> {
+            }
         }
     }
 

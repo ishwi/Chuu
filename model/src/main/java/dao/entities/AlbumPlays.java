@@ -13,9 +13,9 @@ public class AlbumPlays extends ArtistPlays {
     @Override
     public String toString() {
         return ". [" +
-               LinkUtils.cleanMarkdownCharacter(getArtistName() + " - " + album) +
-               "](" + LinkUtils.getLastFmArtistAlbumUrl(getArtistName(), album) +
-               ") - " + getCount() +
-               " plays\n";
+                LinkUtils.cleanMarkdownCharacter(getArtistName() + " - " + album) +
+                "](" + LinkUtils.getLastFmArtistAlbumUrl(getArtistName(), album) +
+                ") - " + getCount() +
+                " plays\n";
     }
 }

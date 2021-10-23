@@ -43,8 +43,8 @@ public enum UserConfigType {
     static final Pattern chartOptions = Pattern.compile("((--|—|~~)? ?(no([\\-_ ])?titles|plays|Clear)[ |&,]*)+", Pattern.CASE_INSENSITIVE);
     static final Pattern privacyMode = Pattern.compile("(Normal|Tag|Last-name|Discord-Name)", Pattern.CASE_INSENSITIVE);
     static final Pattern npMode = Pattern.compile("((" +
-                                                  EnumSet.allOf(NPMode.class).stream().filter(x -> !x.equals(NPMode.UNKNOWN)).map(NPMode::toString).collect(Collectors.joining("|")) +
-                                                  "|clear|list|add|remove|help|)[ |&,]*)+", Pattern.CASE_INSENSITIVE);
+            EnumSet.allOf(NPMode.class).stream().filter(x -> !x.equals(NPMode.UNKNOWN)).map(NPMode::toString).collect(Collectors.joining("|")) +
+            "|clear|list|add|remove|help|)[ |&,]*)+", Pattern.CASE_INSENSITIVE);
     static final Predicate<String> stringPredicate = (x) ->
     {
         try {
@@ -213,22 +213,22 @@ public enum UserConfigType {
                 String line = EnumSet.allOf(ChartMode.class).stream().map(x -> "\n\t\t\t**" + WordUtils.capitalizeFully(x.toString()) + "**: " + x.getDescription()).collect(Collectors.joining(""));
                 line += "\n\t\t\t**Clear**: Sets the default mode";
                 yield "Set the mode for all charts. " +
-                      "Keep in mind that if a server has a set value that will be prioritized.\n" +
-                      "\t\tThe possible values for the chart mode are the following:" + line;
+                        "Keep in mind that if a server has a set value that will be prioritized.\n" +
+                        "\t\tThe possible values for the chart mode are the following:" + line;
             }
             case WHOKNOWS_MODE -> {
                 String line = EnumSet.allOf(WhoKnowsMode.class).stream().map(x -> "\n\t\t\t**" + WordUtils.capitalizeFully(x.toString()) + "**: " + x.getDescription()).collect(Collectors.joining(""));
                 line += "\n\t\t\t**Clear**: Sets the default mode";
                 yield "Set the mode for all charts. " +
-                      "Keep in mind that if a server has a set value that will be prioritized.\n" +
-                      "\t\tThe possible values for the who knows mode are the following:" + line;
+                        "Keep in mind that if a server has a set value that will be prioritized.\n" +
+                        "\t\tThe possible values for the who knows mode are the following:" + line;
             }
             case REMAINING_MODE -> {
                 String line = EnumSet.allOf(RemainingImagesMode.class).stream().map(x -> "\n\t\t\t**" + WordUtils.capitalizeFully(x.toString()) + "**: " + x.getDescription()).collect(Collectors.joining(""));
                 line += "\n\t\t\t**Clear**:| Sets the default mode";
                 yield "Set the mode for the rest of the commands. " +
-                      "Keep in mind that if a server has a set value that will be prioritized.\n" +
-                      "\t\tThe possible values for the rest of the commands are the following:" + line;
+                        "Keep in mind that if a server has a set value that will be prioritized.\n" +
+                        "\t\tThe possible values for the rest of the commands are the following:" + line;
             }
             case CHART_SIZE -> "Change the default chart size for chart command when you dont specify directly the size";
             case PRIVACY_MODE -> "Sets how will you appear in the global leaderboard, changing this means users from other servers might be able to contact you directly";
@@ -240,7 +240,7 @@ public enum UserConfigType {
             case COLOR -> {
                 String line = EnumSet.allOf(EmbedColor.EmbedColorType.class).stream().map(x -> "\n\t\t\t**" + WordUtils.capitalizeFully(x.toString()) + "**: " + x.getDescription()).collect(Collectors.joining(""));
                 yield "Set the color for your embeds.\n" +
-                      "\t\tThe possible values for the embed colour are the following:" + line;
+                        "\t\tThe possible values for the embed colour are the following:" + line;
             }
             case OWN_TAGS -> "Setting this to true will mean that for the np command your own tags will be prioritized. (Need also to authorize the bot with `login`)";
             case ARTIST_THRESHOLD -> "Changes the minimun number of plays required for an album to show on the artist command";

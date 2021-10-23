@@ -8,7 +8,7 @@ import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.commands.utils.PrivacyUtils;
 import core.exceptions.LastFmException;
-import core.otherlisteners.Reactionary;
+import core.otherlisteners.util.PaginatorBuilder;
 import core.parsers.OnlyUsernameParser;
 import core.parsers.Parser;
 import core.parsers.params.ChuuDataParams;
@@ -81,20 +81,16 @@ public class TopCommandsCommand extends ConcurrentCommand<ChuuDataParams> {
         }
 
         List<String> strings = userCommands.stream().map(t -> mapString(t, e.getJDA())).filter(Objects::nonNull).toList();
-        StringBuilder a = new StringBuilder();
-        for (int i = 0; i < 10 && i < strings.size(); i++) {
-            a.append(i + 1).append(strings.get(i));
-        }
 
 
         EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e)
-                .setDescription(a)
                 .setAuthor(uInfo.username() + "'s commands", PrivacyUtils.getLastFmUser(params.getLastFMData().getName()), uInfo.urlImage());
-        e.sendMessage(embedBuilder.build()).queue(message1 ->
-                new Reactionary<>(strings, message1, embedBuilder));
+
+        new PaginatorBuilder<>(e, embedBuilder, strings).build().queue();
     }
 
-    private @Nullable String mapString(CommandUsage command, JDA jda) {
+    private @Nullable
+    String mapString(CommandUsage command, JDA jda) {
         Map<String, String> map = getMap(jda);
         String alias = map.get(command.command());
         if (alias == null) {

@@ -169,8 +169,8 @@ public enum Stats {
                             Set<String> aliases = z.aliases;
                             Set<String> mappedAliases = z.aliases.stream().map(a -> a.replaceAll("[_\\s-]", "")).collect(Collectors.toSet());
                             return strip.equalsIgnoreCase(singular) || strip.equalsIgnoreCase(plural) ||
-                                   aliases.contains(singular) || aliases.contains(plural)
-                                   || mappedAliases.contains(singular) || mappedAliases.contains(plural);
+                                    aliases.contains(singular) || aliases.contains(plural)
+                                    || mappedAliases.contains(singular) || mappedAliases.contains(plural);
                         }
                 )
                 .findFirst();

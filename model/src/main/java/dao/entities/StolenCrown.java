@@ -28,9 +28,9 @@ public class StolenCrown {
     @Override
     public String toString() {
         return ". [" +
-               LinkUtils.cleanMarkdownCharacter(artist) +
-               "](" + LinkUtils.getLastFmArtistUrl(artist) +
-               ") : " + ogPlays +
-               " ➜ " + queriedPlays + "\n";
+                LinkUtils.cleanMarkdownCharacter(artist) +
+                "](" + LinkUtils.getLastFmArtistUrl(artist) +
+                ") : " + ogPlays +
+                " ➜ " + queriedPlays + "\n";
     }
 }

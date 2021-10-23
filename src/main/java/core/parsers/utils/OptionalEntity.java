@@ -6,6 +6,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public record OptionalEntity(String value, String definition, boolean isEnabledByDefault, Set<String> blockedBy,
                              Set<String> aliases) {
@@ -72,7 +74,7 @@ public record OptionalEntity(String value, String definition, boolean isEnabledB
     }
 
     public OptionalEntity withAlias(String alias) {
-        return new OptionalEntity(alias, definition, isEnabledByDefault, blockedBy, aliases);
+        return new OptionalEntity(value, definition, isEnabledByDefault, blockedBy, Stream.concat(aliases.stream(), Stream.of(alias)).collect(Collectors.toSet()));
     }
 
     @Override

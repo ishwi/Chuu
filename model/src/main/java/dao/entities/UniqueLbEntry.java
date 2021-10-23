@@ -11,10 +11,10 @@ public class UniqueLbEntry extends LbEntryInt {
     @Override
     public String toStringWildcard() {
         return ". [" +
-               LinkUtils.cleanMarkdownCharacter(getDiscordName()) +
-               "](" + WILDCARD +
-               ") - " + getEntryCount() +
-               " unique artists\n";
+                LinkUtils.cleanMarkdownCharacter(getDiscordName()) +
+                "](" + WILDCARD +
+                ") - " + getEntryCount() +
+                " unique artists\n";
     }
 
 }

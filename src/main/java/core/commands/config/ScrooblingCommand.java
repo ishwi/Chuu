@@ -54,7 +54,7 @@ public class ScrooblingCommand extends ConcurrentCommand<ChuuDataParams> {
 
         if (lastFMData.getSession() == null) {
             sendMessageQueue(e, "You have not authorized " + params.getE().getJDA().getSelfUser().getName() + " to scrobble!\n" +
-                                "do `" + messagePrefix + "login` to enable it.");
+                    "do `" + messagePrefix + "login` to enable it.");
             return;
         }
         if (params.hasOptional("enable")) {

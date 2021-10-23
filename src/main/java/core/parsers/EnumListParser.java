@@ -98,6 +98,7 @@ public class EnumListParser<T extends Enum<T>> extends DaoParser<EnumListParamet
         SlashCommandEvent e = ctx.e();
         String subcommandName = e.getSubcommandName();
         User user = InteractionAux.parseUser(e);
+        assert subcommandName != null;
         return switch (subcommandName) {
             case "add" -> parseSlash(ctx, e, user, true, false, false);
             case "remove" -> parseSlash(ctx, e, user, false, true, false);
@@ -197,9 +198,9 @@ public class EnumListParser<T extends Enum<T>> extends DaoParser<EnumListParamet
         List<String> lines = set.stream().map(x -> WordUtils.capitalizeFully(x.name().replaceAll("_", "-"), '-')).toList();
         String join = String.join("** | **", lines);
         String usage = "\t Writing **__help__** will give you a brief description of all the " + name + " that you include in the command or alternatively all the options with **__help__**\n" +
-                       "Writing **__list__** will give you all your current set " + name + "\n" +
-                       "Writing **__add__** will add the inputted " + name + " instead of replacing\n" +
-                       "Writing **__remove__** will remove the inputted " + name + " instead of replacing\n";
+                "Writing **__list__** will give you all your current set " + name + "\n" +
+                "Writing **__add__** will add the inputted " + name + " instead of replacing\n" +
+                "Writing **__remove__** will remove the inputted " + name + " instead of replacing\n";
         OptionData optionData = new OptionData(OptionType.STRING, "auxiliar", "auxiliar options");
         optionData.addChoice("help", "help");
         optionData.addChoice("help-all", "help-all");

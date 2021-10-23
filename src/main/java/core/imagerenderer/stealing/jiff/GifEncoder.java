@@ -389,8 +389,8 @@ public class GifEncoder {
         int h = image.getHeight();
         int type = image.getType();
         if ((w != width)
-            || (h != height)
-            || (type != BufferedImage.TYPE_3BYTE_BGR)) {
+                || (h != height)
+                || (type != BufferedImage.TYPE_3BYTE_BGR)) {
             // create new image with right size/format
             BufferedImage temp =
                     new BufferedImage(width, height, BufferedImage.TYPE_3BYTE_BGR);
@@ -450,10 +450,10 @@ public class GifEncoder {
         } else {
             // specify normal LCT
             out.write(0x80 | // 1 local color table  1=yes
-                      // 2 interlace - 0=no
-                      // 3 sorted - 0=no
-                      // 4-5 reserved
-                      palSize); // 6-8 size of color table
+                    // 2 interlace - 0=no
+                    // 3 sorted - 0=no
+                    // 4-5 reserved
+                    palSize); // 6-8 size of color table
         }
     }
 
@@ -466,9 +466,9 @@ public class GifEncoder {
         writeShort(height);
         // packed fields
         out.write((0x80 | // 1   : global color table flag = 1 (gct used)
-                   0x70 | // 2-4 : color resolution = 7
-                   // 5   : gct sort flag = 0
-                   palSize)); // 6-8 : gct size
+                0x70 | // 2-4 : color resolution = 7
+                // 5   : gct sort flag = 0
+                palSize)); // 6-8 : gct size
 
         out.write(0); // background color index
         out.write(0); // pixel aspect ratio - assume 1:1

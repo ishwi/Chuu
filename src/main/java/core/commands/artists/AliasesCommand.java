@@ -6,7 +6,7 @@ import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.exceptions.LastFmException;
-import core.otherlisteners.Reactionary;
+import core.otherlisteners.util.PaginatorBuilder;
 import core.parsers.ArtistParser;
 import core.parsers.Parser;
 import core.parsers.params.ArtistParameters;
@@ -18,6 +18,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
 
 import javax.annotation.Nonnull;
 import java.util.List;
+import java.util.function.Function;
 
 public class AliasesCommand extends ConcurrentCommand<ArtistParameters> {
 
@@ -61,26 +62,21 @@ public class AliasesCommand extends ConcurrentCommand<ArtistParameters> {
                 .validate(artist, false, !params.isNoredirect());
 
         String correctedArtist = CommandUtil.escapeMarkdown(scrobbledArtist.getArtist());
-        List<String> artistAliases = db.getArtistAliases(scrobbledArtist.getArtistId())
-                .stream().map(x -> ". **" + CommandUtil.escapeMarkdown(x) + "**\n").toList();
+        List<String> artistAliases = db.getArtistAliases(scrobbledArtist.getArtistId());
+
         if (artistAliases.isEmpty()) {
             sendMessageQueue(e, correctedArtist + " doesn't have any correction:");
             return;
         }
 
-        StringBuilder a = new StringBuilder();
-        for (int i = 0; i < 10 && i < artistAliases.size(); i++) {
-            a.append(i + 1).append(artistAliases.get(i));
-        }
-
         EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e)
-                .setDescription(a)
                 .setAuthor(correctedArtist + "'s aliases", LinkUtils.getLastFmArtistUrl(correctedArtist), scrobbledArtist.getUrl())
                 .setFooter("You can submit an alias using " + prefix + "alias", null);
 
+        Function<String, String> mapper = x -> ". **" + CommandUtil.escapeMarkdown(x) + "**\n";
 
-        e.sendMessage(embedBuilder.build()).queue(message1 ->
-                new Reactionary<>(artistAliases, message1, embedBuilder));
+
+        new PaginatorBuilder<>(e, embedBuilder, artistAliases).mapper(mapper).build().queue();
     }
 
 }

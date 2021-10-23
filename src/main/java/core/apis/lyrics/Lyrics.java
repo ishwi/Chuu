@@ -4,9 +4,12 @@ import javax.annotation.Nullable;
 
 public class Lyrics {
     private final String lyrics;
-    private final @Nullable String songName;
-    private final @Nullable String artistName;
-    private final @Nullable String imageUrl;
+    private final @Nullable
+    String songName;
+    private final @Nullable
+    String artistName;
+    private final @Nullable
+    String imageUrl;
 
     public Lyrics(String lyrics, String songName, String artistName) {
         this(lyrics, songName, artistName, null);
@@ -23,15 +26,18 @@ public class Lyrics {
         return lyrics;
     }
 
-    public @Nullable String getSongName() {
+    public @Nullable
+    String getSongName() {
         return songName;
     }
 
-    public @Nullable String getArtistName() {
+    public @Nullable
+    String getArtistName() {
         return artistName;
     }
 
-    public @Nullable String getImageUrl() {
+    public @Nullable
+    String getImageUrl() {
         return imageUrl;
     }
 }

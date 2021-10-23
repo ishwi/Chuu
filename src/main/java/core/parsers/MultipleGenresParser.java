@@ -44,7 +44,7 @@ public class MultipleGenresParser extends MultiStringParser<MultipleGenresParame
         List<String> tags = new TagStorer(dao, lastFM, executor, nowPlayingInfo).findTags();
         if (tags.isEmpty()) {
             sendError("Was not able to find any tags on your now playing song/album/artist: "
-                      + String.format("%s - %s | %s", nowPlayingInfo.artistName(), nowPlayingInfo.songName(), nowPlayingInfo.albumName())
+                            + String.format("%s - %s | %s", nowPlayingInfo.artistName(), nowPlayingInfo.songName(), nowPlayingInfo.albumName())
                     , e);
             return null;
         }

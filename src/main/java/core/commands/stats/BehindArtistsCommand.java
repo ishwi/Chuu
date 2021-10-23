@@ -5,7 +5,7 @@ import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
-import core.otherlisteners.Reactionary;
+import core.otherlisteners.util.PaginatorBuilder;
 import core.parsers.NumberParser;
 import core.parsers.Parser;
 import core.parsers.TwoUsersParser;
@@ -13,7 +13,6 @@ import core.parsers.params.NumberParameters;
 import core.parsers.params.TwoUsersParamaters;
 import dao.ServiceView;
 import dao.entities.DiscordUserDisplay;
-import dao.entities.StolenCrown;
 import dao.entities.StolenCrownWrapper;
 import net.dv8tion.jda.api.EmbedBuilder;
 
@@ -96,23 +95,13 @@ public class BehindArtistsCommand extends ConcurrentCommand<NumberParameters<Two
             sendMessageQueue(e, userName2 + " doesn't have any artist with more plays than " + userName);
             return;
         }
-        EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e).setThumbnail(e.getGuild().getIconUrl());
-        StringBuilder a = new StringBuilder();
-
-        List<StolenCrown> list = resultWrapper.getList();
-        for (int i = 0; i < 10 && i < rows; i++) {
-            StolenCrown g = list.get(i);
-            a.append(i + 1).append(g.toString());
-
-        }
-
-        // Footer doesnt allow markdown characters
-        embedBuilder.setDescription(a).setTitle(userName + "'s artist behind " + userName2, CommandUtil
-                        .getLastFmUser(ogLastFmId))
+        EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e).setThumbnail(e.getGuild().getIconUrl())
+                .setTitle(userName + "'s artist behind " + userName2, CommandUtil.getLastFmUser(ogLastFmId))
                 .setThumbnail(userUrl2)
                 .setFooter(CommandUtil.unescapedUser(userName, resultWrapper.getQuriedId(), e) + " is behind in " + rows + " artists!\n", null);
-        e.sendMessage(embedBuilder.build()).queue(m ->
-                new Reactionary<>(resultWrapper.getList(), m, embedBuilder));
+
+        new PaginatorBuilder<>(e, embedBuilder, resultWrapper.getList()).build().queue();
+
 
     }
 }

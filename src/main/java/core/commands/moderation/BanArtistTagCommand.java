@@ -65,7 +65,7 @@ public class BanArtistTagCommand extends ConcurrentCommand<CommandParameters> {
         Matcher matcher = regex.matcher(joined);
         if (!matcher.matches()) {
             parser.sendError("Pattern must follow the following format:\n" +
-                             "**tag:** your tag **artist:** your artist", e);
+                    "**tag:** your tag **artist:** your artist", e);
             return;
         }
         String tag = matcher.group(1).trim().replaceAll(" +", " ");

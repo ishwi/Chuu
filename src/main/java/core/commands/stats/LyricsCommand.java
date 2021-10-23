@@ -10,7 +10,7 @@ import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.exceptions.LastFmEntityNotFoundException;
 import core.exceptions.LastFmException;
-import core.otherlisteners.Reactionary;
+import core.otherlisteners.util.PaginatorBuilder;
 import core.parsers.ArtistSongParser;
 import core.parsers.Parser;
 import core.parsers.params.ArtistAlbumParameters;
@@ -78,23 +78,19 @@ public class LyricsCommand extends ConcurrentCommand<ArtistAlbumParameters> {
             return;
         }
         Lyrics lyrics = or.get();
-        List<String> pages = TextSplitter.split(lyrics.getLyrics(), 1000);
+        List<String> pages = TextSplitter.split(lyrics.getLyrics(), 3000);
         if (pages.isEmpty()) {
             sendMessageQueue(e, String.format("Couldn't find any lyrics for %s - %s", correctedArtist, song));
             return;
         }
 
-        String desc = pages.get(0);
-        if (pages.size() != 1) {
-            desc += "\n1" + "/" + pages.size();
-        }
+
         String urlImage = CommandUtil.getUserInfoUnescaped(e, params.getLastFMData().getDiscordId()).urlImage();
         EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e)
-                .setDescription(desc)
                 .setAuthor(String.format("%s - %s", correctedArtist, song), LinkUtils.getLastFMArtistTrack(correctedArtist, song), urlImage)
                 .setFooter(String.format("Lyrics found for %s - %s", correctedArtist, song))
                 .setThumbnail(lyrics.getImageUrl() == null ? url : lyrics.getImageUrl());
-        e.sendMessage(embedBuilder.build()).queue(message1 ->
-                new Reactionary<>(pages, message1, 1, embedBuilder, false, true, 120));
+        new PaginatorBuilder<>(e, embedBuilder, pages).pageSize(1).unnumered().withIndicator().seconds(120).build().queue();
+
     }
 }

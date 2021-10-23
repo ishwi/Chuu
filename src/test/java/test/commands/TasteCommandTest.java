@@ -38,7 +38,7 @@ public class TasteCommandTest extends CommandTest {
         //Two users as mentions
         ImageUtils.testImage(COMMAND_ALIAS + " " + TestResources.ogJDA.getSelfUser()
                 .getAsMention() + " " + TestResources.testerJDA.getSelfUser()
-                                     .getAsMention(), 500, 600, ".png");
+                .getAsMention(), 500, 600, ".png");
 
         TestResources.deleteCommonArtists();
     }

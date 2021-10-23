@@ -10,7 +10,6 @@ import core.commands.moderation.EvalCommand;
 import core.commands.moderation.MbidUpdatedCommand;
 import core.commands.moderation.RefreshSlashCommand;
 import core.commands.random.RandomAlbumCommand;
-import core.commands.random.TopRatedRandomUrls;
 import core.commands.stats.*;
 import core.commands.utils.CommandCategory;
 import core.parsers.Generable;

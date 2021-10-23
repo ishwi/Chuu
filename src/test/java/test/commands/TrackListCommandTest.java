@@ -37,7 +37,7 @@ public class TrackListCommandTest extends CommandTest {
         Pattern pattern = Pattern.compile("Couldn't find a tracklist for ([^-]+) - (.*)");
         Predicate<Matcher> predicate = matcher1 ->
                 matcher1.group(1).equalsIgnoreCase("れをる") &&
-                matcher1.group(2).equalsIgnoreCase("No title−");
+                        matcher1.group(2).equalsIgnoreCase("No title−");
         OneLineUtils
                 .testCommands(COMMAND_ALIAS + " れをる - No title−", pattern, predicate);
     }

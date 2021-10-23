@@ -17,13 +17,13 @@ public class DailyCommandTest extends CommandTest {
                         //Case where user hasnt played anything
                         Long.parseLong(matcher.group(2)) == 0 && matcher.group(3)
                                 .equals("s, really, 0! mins in the last 24 hours"))
-                ||
-                (//Case when user has played something
-                        Long.parseLong(matcher.group(2)) != 0 && Long
-                                                                         .parseLong(matcher.group(2)) == Long.parseLong(matcher.group(4)) * 60 + Long
-                                .parseLong(matcher.group(5)) && Long.parseLong(matcher.group(6)) >= 0) && (Long
-                                                                                                                   .parseLong(matcher.group(6)) == 1 && matcher.group(7).isEmpty() || (Long
-                                                                                                                                                                                               .parseLong(matcher.group(6)) != 1 && matcher.group(7).equals("s")));
+                        ||
+                        (//Case when user has played something
+                                Long.parseLong(matcher.group(2)) != 0 && Long
+                                        .parseLong(matcher.group(2)) == Long.parseLong(matcher.group(4)) * 60 + Long
+                                        .parseLong(matcher.group(5)) && Long.parseLong(matcher.group(6)) >= 0) && (Long
+                                .parseLong(matcher.group(6)) == 1 && matcher.group(7).isEmpty() || (Long
+                                .parseLong(matcher.group(6)) != 1 && matcher.group(7).equals("s")));
     }
 
     @Override

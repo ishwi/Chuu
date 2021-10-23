@@ -17,10 +17,10 @@ public class AudioLbEntry extends LbEntry<Float> {
     @Override
     public String toStringWildcard() {
         return ". [" +
-               LinkUtils.cleanMarkdownCharacter(getDiscordName()) +
-               "](" + LbEntry.WILDCARD +
-               ") -  **" + stat.toValue(getEntryCount()) +
-               "**\n";
+                LinkUtils.cleanMarkdownCharacter(getDiscordName()) +
+                "](" + LbEntry.WILDCARD +
+                ") -  **" + stat.toValue(getEntryCount()) +
+                "**\n";
     }
 }
 

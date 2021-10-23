@@ -24,10 +24,10 @@ public class ChartParserAux {
     public static final Pattern chartSizePattern = Pattern.compile("\\d+[xX]\\d+");
     private static final Pattern pattern = Pattern.compile("([yqsmwad]|(?:day|daily)|(?:year(?:ly)?|month(?:ly)?|quarter(?:ly)?|semester(?:ly)?|week(?:ly)?|alltime|all))", Pattern.CASE_INSENSITIVE);
     private static final Pattern naturalPattern = Pattern.compile("([yqsmwadh']|(?:year(?:ly)?s?(?:lies)?|month(?:ly)?s?(?:lies)?|quarter(?:ly)?s?(?:lies)?|semester(?:ly)?s?(?:lies)?|week(?:ly)?s?(?:lies)?|alltime|all|dai(?:ly)?(?:lies)?|days?|" +
-                                                                  "hour(?:ly)?s?|min(?:ute)?s?|sec(?:ond)?s?|''))", Pattern.CASE_INSENSITIVE);
+            "hour(?:ly)?s?|min(?:ute)?s?|sec(?:ond)?s?|''))", Pattern.CASE_INSENSITIVE);
 
     private static final Pattern naturalPatternWithCount = Pattern.compile("((?<![\\w\\d])[yqsmwadh'](?![\\w\\d]+)|(?:year(?:ly)?s?(?:lies)?|month(?:ly)?s?(?:lies)?|quarter(?:ly)?s?(?:lies)?|semester(?:ly)?s?(?:lies)?|week(?:ly)?s?(?:lies)?|alltime|all|dai(?:ly)?(?:lies)?|days?|" +
-                                                                           "hour(?:ly)?s?|min(?:ute)?s?|sec(?:ond)?s?|''))", Pattern.CASE_INSENSITIVE);
+            "hour(?:ly)?s?|min(?:ute)?s?|sec(?:ond)?s?|''))", Pattern.CASE_INSENSITIVE);
     private static final Pattern nonPermissivePattern = Pattern.compile("[yqsmwd]", Pattern.CASE_INSENSITIVE);
     private final boolean permissive;
     private String[] message;
@@ -158,8 +158,8 @@ public class ChartParserAux {
 
         Optional<String> parsed = Arrays.stream(message).filter(s ->
                 !permissive
-                ? nonPermissivePattern.matcher(s).matches()
-                : pattern.matcher(s).matches()).findAny();
+                        ? nonPermissivePattern.matcher(s).matches()
+                        : pattern.matcher(s).matches()).findAny();
         if (parsed.isPresent()) {
             String permissiveString = !permissive ? parsed.get() : String.valueOf(parsed.get().charAt(0));
             permissiveString = permissiveString.toLowerCase(Locale.ROOT);

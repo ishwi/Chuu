@@ -16,7 +16,7 @@ import core.imagerenderer.CollageMaker;
 import core.imagerenderer.GraphicUtils;
 import core.imagerenderer.util.pie.IPieableList;
 import core.imagerenderer.util.pie.PieableListChart;
-import core.otherlisteners.Reactionary;
+import core.otherlisteners.util.PaginatorBuilder;
 import core.parsers.ChartableParser;
 import core.parsers.DaoParser;
 import core.parsers.params.ChartParameters;
@@ -161,17 +161,12 @@ public abstract class ChartableCommand<T extends ChartParameters> extends Concur
 
     public void doList(List<UrlCapsule> urlCapsules, T params, int count) {
 
-        StringBuilder a = new StringBuilder();
-        for (int i = 0; i < 10 && i < urlCapsules.size(); i++) {
-            a.append(i + 1).append(urlCapsules.get(i).toEmbedDisplay());
-        }
         DiscordUserDisplay userInfoConsideringGuildOrNot = CommandUtil.getUserInfoEscaped(params.getE(), params.getDiscordId());
 
         EmbedBuilder embedBuilder = configEmbed(new ChuuEmbedBuilder(params.getE())
-                .setDescription(a)
                 .setThumbnail(userInfoConsideringGuildOrNot.urlImage()), params, count);
-        params.getE().sendMessage(embedBuilder.build()).queue(message1 ->
-                new Reactionary<>(urlCapsules, message1, embedBuilder));
+
+        new PaginatorBuilder<>(params.getE(), embedBuilder, urlCapsules).build().queue();
     }
 
     public void doPie(PieChart pieChart, T chartParameters, int count) {

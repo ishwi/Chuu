@@ -46,7 +46,7 @@ public class EveryNoiseDAOImpl implements EveryNoiseDAO {
     @Override
     public List<Release> releasesOfGenre(Connection connection, NoiseGenre noiseGenre) {
         String sql = "SELECT artist,`release`,uri FROM every_noise_release a JOIN every_noise_release_genre b ON a.id = b.release_id JOIN every_noise_genre c ON c.id = b.genre_id " +
-                     " WHERE (`week`  =  ? OR week = ?)  AND c.genre = ?";
+                " WHERE (`week`  =  ? OR week = ?)  AND c.genre = ?";
         List<Release> genres = new ArrayList<>();
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
             LocalDate now = LocalDate.now();
@@ -154,7 +154,7 @@ public class EveryNoiseDAOImpl implements EveryNoiseDAO {
     @Override
     public List<Release> allValidRelease(Connection connection) {
         String sql = "SELECT artist,`release`,uri FROM every_noise_release a " +
-                     " WHERE `week`  =  ? OR week = ?";
+                " WHERE `week`  =  ? OR week = ?";
         List<Release> genres = new ArrayList<>();
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
             LocalDate now = LocalDate.now();
@@ -213,8 +213,8 @@ public class EveryNoiseDAOImpl implements EveryNoiseDAO {
     @Override
     public Optional<NoiseGenre> findExactMatch(Connection connection, String genre) {
         String sql = "SELECT genre,playlist " +
-                     "FROM  every_noise_genre g " +
-                     " WHERE genre = ?  ";
+                "FROM  every_noise_genre g " +
+                " WHERE genre = ?  ";
         Map<NoiseGenre, Integer> genres = new LinkedHashMap<>();
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
             preparedStatement.setString(1, genre);

@@ -6,7 +6,7 @@ import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.commands.utils.PrivacyUtils;
-import core.otherlisteners.Reactionary;
+import core.otherlisteners.util.PaginatorBuilder;
 import core.parsers.OnlyUsernameParser;
 import core.parsers.Parser;
 import core.parsers.params.ChuuDataParams;
@@ -91,18 +91,13 @@ public class PopularityCommand extends ConcurrentCommand<ChuuDataParams> {
                         LinkUtils.cleanMarkdownCharacter(t.getArtist()), PrivacyUtils.getLastFmArtistTrackUserUrl(t.getArtist(), t.getName(), params.getLastFMData().getName()),
                         popularity.apply(t),
                         t.getCount(), CommandUtil.singlePlural(t.getCount(), "play", "plays"))).toList();
-        StringBuilder a = new StringBuilder();
 
-        for (int i = 0; i < 10 && i < strs.size(); i++) {
-            a.append(i + 1).append(strs.get(i));
-        }
 
         String title = uInfo.username() + "'s tracks";
         EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e).setAuthor(title, PrivacyUtils.getLastFmUser(params.getLastFMData().getName()), uInfo.urlImage())
-                .setFooter("Showing top %s songs".formatted(topTracks.size()))
-                .setDescription(a);
-        e.sendMessage(embedBuilder.build()).queue(mes ->
-                new Reactionary<>(strs, mes, embedBuilder));
+                .setFooter("Showing top %s songs".formatted(topTracks.size()));
+
+        new PaginatorBuilder<>(e, embedBuilder, strs).build().queue();
 
 
     }

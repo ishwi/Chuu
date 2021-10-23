@@ -57,6 +57,7 @@ public class WhoKnowsCommand extends WhoKnowsBaseCommand<ArtistParameters> {
             sendMessageQueue(e, "No one knows " + CommandUtil.escapeMarkdown(sA.getArtist()));
             return null;
         }
+
         wrapperReturnNowPlaying.getReturnNowPlayings()
                 .forEach(x -> x.setDiscordName(CommandUtil.getUserInfoUnescaped(e, x.getDiscordId()).username()));
         wrapperReturnNowPlaying.setUrl(sA.getUrl());

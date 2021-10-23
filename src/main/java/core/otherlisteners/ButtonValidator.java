@@ -195,11 +195,8 @@ public class ButtonValidator<T> extends ReactionListener {
         if (event.getMessageIdLong() != message.getIdLong()) {
             return false;
         }
-        if (event.getUser() == null) {
-            return false;
-        }
         return event.getMessageIdLong() == message.getIdLong() && (this.allowOtherUsers || event.getUser().getIdLong() == whom) &&
-               event.getUser().getIdLong() != event.getJDA().getSelfUser().getIdLong();
+                event.getUser().getIdLong() != event.getJDA().getSelfUser().getIdLong();
     }
 
     @Override
@@ -223,12 +220,11 @@ public class ButtonValidator<T> extends ReactionListener {
         if (messageAction != null) {
             if (apply.newResult().newElement()) {
                 messageAction.queue(this::accept);
-            } else if (event.getUser() != null) {
+            } else {
+                event.getUser();
                 if (renderInSameElement) {
                     messageAction.queue();
                 }
-            } else {
-                messageAction.queue();
             }
         }
         refresh(event.getJDA());

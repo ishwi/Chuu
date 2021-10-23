@@ -79,7 +79,7 @@ public class NpVoiceCommand extends MusicCommand<CommandParameters> {
                     .setTitle("Now Playing", playingTrack.getInfo().uri);
             if (manager.getRadio() != null) {
                 String b = "Currently streaming music from radio station **" + manager.getRadio().getSource().getName() +
-                           "**. When the queue is empty, random tracks from the station will be added.";
+                        "**. When the queue is empty, random tracks from the station will be added.";
                 embedBuilder.addField("Radio", b, false);
                 RadioTrackContext radio = manager.getRadio();
                 MessageEmbed.Field field = Station.getField(playingTrack.getUserData(RadioTrackContext.class), e);

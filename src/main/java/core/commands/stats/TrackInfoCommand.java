@@ -64,10 +64,10 @@ public class TrackInfoCommand extends AlbumPlaysCommand {
         EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e);
         List<String> tags = new TagCleaner(db).cleanTags(trackInfo.getTags());
         String tagsField = tags.isEmpty()
-                           ? ""
-                           : tags.stream()
-                                   .map(tag -> String.format("[%s](%s)", CommandUtil.escapeMarkdown(tag), LinkUtils.getLastFmTagUrl(tag)))
-                                   .collect(Collectors.joining(" - "));
+                ? ""
+                : tags.stream()
+                .map(tag -> String.format("[%s](%s)", CommandUtil.escapeMarkdown(tag), LinkUtils.getLastFmTagUrl(tag)))
+                .collect(Collectors.joining(" - "));
 
         embedBuilder.setTitle(trackInfo.getName(), LinkUtils.getLastFMArtistTrack(trackInfo.getArtist(), trackInfo.getName()))
                 .addField("Artist:", String.format("[%s](%s)", CommandUtil.escapeMarkdown(trackInfo.getArtist()),

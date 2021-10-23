@@ -2,8 +2,12 @@ package core.commands.loved;
 
 import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
-import core.commands.utils.*;
+import core.commands.utils.ChuuEmbedBuilder;
+import core.commands.utils.CommandCategory;
+import core.commands.utils.CommandUtil;
+import core.commands.utils.PrivacyUtils;
 import core.exceptions.LastFmException;
+import core.otherlisteners.util.PaginatorBuilder;
 import core.parsers.ArtistParser;
 import core.parsers.Parser;
 import core.parsers.params.ArtistParameters;
@@ -76,11 +80,9 @@ public class ArtistLovedCommand extends ConcurrentCommand<ArtistParameters> {
                 .setAuthor("%s's %s loved songs".formatted(uInfo.username(), sA.getArtist()), PrivacyUtils.getLastFmUser(userName) + "/loved", uInfo.urlImage())
                 .setFooter("%d total %s %s loved".formatted(size, sA.getArtist(), CommandUtil.singlePlural(size, "song", "songs")));
 
-        new ListSender<>(e,
-                artists,
-                t -> "**[%s](%s)** - %s\n".formatted(t.getName(), PrivacyUtils.getLastFmArtistTrackUserUrl(t.getArtist(), t.getName(), userName), CommandUtil.getDateTimestampt(Instant.ofEpochSecond(t.getUtc()))),
-                embedBuilder)
-                .doSend(false);
+        new PaginatorBuilder<>(e, embedBuilder, artists)
+                .mapper(t -> "**[%s](%s)** - %s\n".formatted(t.getName(), PrivacyUtils.getLastFmArtistTrackUserUrl(t.getArtist(), t.getName(), userName), CommandUtil.getDateTimestampt(Instant.ofEpochSecond(t.getUtc()))))
+                .unnumered().build().queue();
 
         CompletableFuture.runAsync(() -> db.updateLovedSongs(params.getLastFMData().getName(), wrapper.getResult().stream().map(w -> new ScrobbledTrack(w.getArtist(), w.getName(), 0, true, 0, null, null, null)).toList()));
 

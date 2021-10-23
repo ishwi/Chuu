@@ -58,10 +58,10 @@ public class AlbumInfoCommand extends AlbumPlaysCommand {
         List<String> tags = new TagCleaner(db).cleanTags(albumSummary.getTagList());
 
         String tagsField = tags.isEmpty()
-                           ? ""
-                           : tags.stream()
-                                   .map(tag -> "[" + CommandUtil.escapeMarkdown(tag) + "](" + LinkUtils.getLastFmTagUrl(tag) + ")")
-                                   .collect(Collectors.joining(" - "));
+                ? ""
+                : tags.stream()
+                .map(tag -> "[" + CommandUtil.escapeMarkdown(tag) + "](" + LinkUtils.getLastFmTagUrl(tag) + ")")
+                .collect(Collectors.joining(" - "));
         StringBuilder trackList = new StringBuilder();
 
         MusicbrainzFullAlbumEntity albumInfo = mb.getAlbumInfo(albumSummary);

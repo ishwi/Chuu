@@ -50,12 +50,12 @@ public class ReturnsOneLineCommands {
             int differentTracks = Integer.parseInt(matcher.group(5));
 
             return totalMinutes > 0 &&
-                   totalHours >= 0 &&
-                   partialMinutes >= 0 &&
-                   differentTracks > 0 &&
-                   totalMinutes == totalHours * 60 + partialMinutes &&
-                   matcher.group(1).equals(TestResources.testerJdaUsername) &&
-                   TimeFrameEnum.WEEK.toString().equalsIgnoreCase(matcher.group(6));
+                    totalHours >= 0 &&
+                    partialMinutes >= 0 &&
+                    differentTracks > 0 &&
+                    totalMinutes == totalHours * 60 + partialMinutes &&
+                    matcher.group(1).equals(TestResources.testerJdaUsername) &&
+                    TimeFrameEnum.WEEK.toString().equalsIgnoreCase(matcher.group(6));
         };
         OneLineUtils.testCommands("!minutes", pattern, function);
     }
@@ -89,7 +89,7 @@ public class ReturnsOneLineCommands {
         Pattern spotify = Pattern
                 .compile(
                         "(^(https://open.spotify.com/(album|artist|track|playlist)/|spotify:(album|artist|track|playlist):)([a-zA-Z0-9]{22})(?:\\?.*)?$|" +
-                        "(Was not able to find (.*) on spotify))");
+                                "(Was not able to find (.*) on spotify))");
         OneLineUtils.testCommands("!nps", spotify);
     }
 
@@ -113,8 +113,8 @@ public class ReturnsOneLineCommands {
         Function<String, Predicate<Matcher>> parentFunction = string -> matcher1 -> {
             int plays = Integer.parseInt(matcher1.group(3));
             return matcher1.group(1).equals(TestResources.testerJdaUsername) &&
-                   matcher1.group(2).equalsIgnoreCase(string) &&
-                   plays >= 0 && matcher1.group(4).equals(plays == 1 ? "time" : "times");
+                    matcher1.group(2).equalsIgnoreCase(string) &&
+                    plays >= 0 && matcher1.group(4).equals(plays == 1 ? "time" : "times");
 
         };
         OneLineUtils.testCommands("!album ", pattern, null);

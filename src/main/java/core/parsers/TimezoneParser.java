@@ -141,7 +141,7 @@ public class TimezoneParser extends DaoParser<TimezoneParams> {
     @Override
     public List<Explanation> getUsages() {
         String desc = "The timezone can be written either as a abbreviate of the timezone (CET, PT...), the offset of the timezone" +
-                      " (+01:00, -12:00...) or trying to write a representative of the timezone using the following format (Europe/Brussels,America/Los Angeles...)";
+                " (+01:00, -12:00...) or trying to write a representative of the timezone using the following format (Europe/Brussels,America/Los Angeles...)";
         OptionData optionData = new OptionData(OptionType.STRING, "timezone", StringUtils.abbreviate(desc, 100), true);
         ExplanationLine tz = new ExplanationLine("timezone", desc, optionData);
         Explanation timezone = () -> tz;

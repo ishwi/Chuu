@@ -15,7 +15,7 @@ import core.imagerenderer.GraphicUtils;
 import core.imagerenderer.WhoKnowsMaker;
 import core.imagerenderer.util.pie.IPieableList;
 import core.imagerenderer.util.pie.PieableListKnows;
-import core.otherlisteners.Reactionary;
+import core.otherlisteners.util.PaginatorBuilder;
 import core.parsers.DaoParser;
 import core.parsers.params.CommandParameters;
 import core.parsers.utils.Optionals;
@@ -100,10 +100,10 @@ public abstract class WhoKnowsBaseCommand<T extends CommandParameters> extends C
                             String userString = getUserString(ap.getE(), x.getDiscordId());
                             x.setDiscordName(userString);
                             return ". " +
-                                   "**[" + LinkUtils.cleanMarkdownCharacter(userString) + "](" +
-                                   PrivacyUtils.getUrlTitle(x) +
-                                   ")** - " +
-                                   x.getPlayNumber() + " plays\n";
+                                    "**[" + LinkUtils.cleanMarkdownCharacter(userString) + "](" +
+                                    PrivacyUtils.getUrlTitle(x) +
+                                    ")** - " +
+                                    x.getPlayNumber() + " plays\n";
                         })
                 );
         switch (effectiveMode) {
@@ -139,30 +139,21 @@ public abstract class WhoKnowsBaseCommand<T extends CommandParameters> extends C
     }
 
     void doList(T ap, WrapperReturnNowPlaying wrapperReturnNowPlaying) {
-        EmbedBuilder embedBuilder = new ChuuEmbedBuilder(ap.getE());
-        StringBuilder builder = new StringBuilder();
 
         Context e = ap.getE();
 
-        int counter = 1;
-        for (ReturnNowPlaying returnNowPlaying : wrapperReturnNowPlaying.getReturnNowPlayings()) {
-            builder.append(counter++)
-                    .append(returnNowPlaying.toString());
-            if (counter == 11)
-                break;
-        }
         String usable;
         if (e.isFromGuild()) {
             usable = CommandUtil.escapeMarkdown(e.getGuild().getName());
         } else {
             usable = e.getJDA().getSelfUser().getName();
         }
-        embedBuilder.setTitle(getTitle(ap, usable)).
-                setThumbnail(CommandUtil.noImageUrl(wrapperReturnNowPlaying.getUrl())).setDescription(builder);
-        e.sendMessage(embedBuilder.build())
-                .queue(message1 ->
-                        new Reactionary<>(wrapperReturnNowPlaying
-                                .getReturnNowPlayings(), message1, embedBuilder));
+
+        EmbedBuilder embedBuilder = new ChuuEmbedBuilder(ap.getE()).setTitle(getTitle(ap, usable)).
+                setThumbnail(CommandUtil.noImageUrl(wrapperReturnNowPlaying.getUrl()));
+
+        new PaginatorBuilder<>(e, embedBuilder, wrapperReturnNowPlaying.getReturnNowPlayings()).build().queue();
+
     }
 
     void doPie(T ap, WrapperReturnNowPlaying returnNowPlaying) {

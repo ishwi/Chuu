@@ -54,11 +54,11 @@ public class AliasEntity {
         if (o == null || getClass() != o.getClass()) return false;
         AliasEntity that = (AliasEntity) o;
         return id == that.id &&
-               artistId == that.artistId &&
-               discorId == that.discorId &&
-               Objects.equals(alias, that.alias) &&
-               Objects.equals(dateTime, that.dateTime) &&
-               Objects.equals(artistName, that.artistName);
+                artistId == that.artistId &&
+                discorId == that.discorId &&
+                Objects.equals(alias, that.alias) &&
+                Objects.equals(dateTime, that.dateTime) &&
+                Objects.equals(artistName, that.artistName);
     }
 
     @Override

@@ -73,15 +73,15 @@ public class SummaryArtistCommand extends ConcurrentCommand<ArtistParameters> {
         EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e);
         List<String> tags = new TagCleaner(db).cleanTags(summary.tags());
         String tagsField = tags.isEmpty()
-                           ? ""
-                           : tags.stream()
-                                   .map(tag -> "[" + CommandUtil.escapeMarkdown(tag) + "](" + LinkUtils.getLastFmTagUrl(tag) + ")")
-                                   .collect(Collectors.joining(" - "));
+                ? ""
+                : tags.stream()
+                .map(tag -> "[" + CommandUtil.escapeMarkdown(tag) + "](" + LinkUtils.getLastFmTagUrl(tag) + ")")
+                .collect(Collectors.joining(" - "));
 
         String similarField =
                 summary.similars().isEmpty()
-                ? ""
-                : summary.similars().stream()
+                        ? ""
+                        : summary.similars().stream()
                         .map(art -> "[" + CommandUtil.escapeMarkdown(art) + "](" + LinkUtils.getLastFmArtistUrl(art) + ")")
                         .collect(Collectors.joining(" - "));
 
@@ -97,9 +97,9 @@ public class SummaryArtistCommand extends ConcurrentCommand<ArtistParameters> {
                     addField(String.format("%s's stats", CommandUtil.escapeMarkdown(e.getGuild().getName())), serverStats.toString(), true);
         }
         String lastFMStats = String.format("**%d** listeners%n", summary.listeners()) +
-                             String.format("**%d** plays%n", summary.playcount());
+                String.format("**%d** plays%n", summary.playcount());
         String globalStats = String.format("**%d** listeners%n", globalArtistFrequencies) +
-                             String.format("**%d** plays%n", globalArtistPlays);
+                String.format("**%d** plays%n", globalArtistPlays);
         embedBuilder
                 .addField(String.format("%s's stats", CommandUtil.escapeMarkdown(e.getJDA().getSelfUser().getName())), globalStats, true)
                 .addField("Last.FM stats", lastFMStats, true)

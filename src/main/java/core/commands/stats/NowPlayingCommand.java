@@ -114,8 +114,8 @@ public class NowPlayingCommand extends NpCommand {
 
         //
         String url = npModes.contains(NPMode.ARTIST_PIC) && sA.getUrl() != null && !sA.getUrl().isBlank()
-                     ? sA.getUrl()
-                     : null;
+                ? sA.getUrl()
+                : null;
         if (url != null && footer.isBlank()) {
             footer += EmbedBuilder.ZERO_WIDTH_SPACE;
         }

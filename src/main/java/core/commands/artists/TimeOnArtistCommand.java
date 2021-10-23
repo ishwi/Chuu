@@ -7,6 +7,7 @@ import core.exceptions.LastFmException;
 import core.imagerenderer.util.pie.DefaultList;
 import core.imagerenderer.util.pie.IPieableList;
 import core.imagerenderer.util.pie.OptionalPie;
+import core.otherlisteners.util.PaginatorBuilder;
 import core.parsers.ArtistTimeFrameParser;
 import core.parsers.Parser;
 import core.parsers.params.ArtistTimeFrameParameters;
@@ -113,10 +114,9 @@ public class TimeOnArtistCommand extends ConcurrentCommand<ArtistTimeFrameParame
                 } else {
                     embedBuilder.setFooter(footer);
                 }
-                new ListSender<>(e, ai, g -> ". **[%s](%s)** - %s (%d plays)\n".formatted(CommandUtil.escapeMarkdown(g.getName()), LinkUtils.getLastFMArtistTrack(sA.getArtist(), g.getName()),
-                        CommandUtil.secondFormatter(g.getDuration() * g.getPlays()),
-                        g.getPlays()), embedBuilder)
-                        .doSend();
+                new PaginatorBuilder<>(e, embedBuilder, ai)
+                        .mapper(g -> ". **[%s](%s)** - %s (%d plays)\n".formatted(CommandUtil.escapeMarkdown(g.getName()), LinkUtils.getLastFMArtistTrack(sA.getArtist(), g.getName()), CommandUtil.secondFormatter(g.getDuration() * g.getPlays()), g.getPlays()))
+                        .build().queue();
             }
             case PIE -> {
                 String footer = fullStr.replaceAll("\\*\\*", "");

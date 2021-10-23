@@ -5,14 +5,13 @@ import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
-import core.otherlisteners.Reactionary;
+import core.otherlisteners.util.PaginatorBuilder;
 import core.parsers.OnlyUsernameParser;
 import core.parsers.Parser;
 import core.parsers.params.ChuuDataParams;
 import core.parsers.params.NumberParameters;
 import dao.ServiceView;
 import dao.entities.AlbumPlays;
-import dao.entities.ArtistPlays;
 import dao.entities.DiscordUserDisplay;
 import dao.entities.UniqueWrapper;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -84,19 +83,12 @@ public class AlbumCrownsCommand extends ConcurrentCommand<NumberParameters<ChuuD
             return;
         }
 
-        StringBuilder a = new StringBuilder();
-        for (int i = 0; i < 10 && i < rows; i++) {
-            ArtistPlays g = resultWrapper.get(i);
-            a.append(i + 1).append(g.toString());
-        }
         EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e)
-                .setDescription(a)
                 .setTitle(String.format("%s's album crowns", name), CommandUtil.getLastFmUser(uniqueDataUniqueWrapper.getLastFmId()))
                 .setFooter(String.format("%s has %d album crowns!!%n", CommandUtil.unescapedUser(name, innerParams.getLastFMData().getDiscordId(), e), resultWrapper.size()), null)
                 .setThumbnail(url);
 
-        e.sendMessage(embedBuilder.build()).queue(message1 ->
-                new Reactionary<>(resultWrapper, message1, embedBuilder));
+        new PaginatorBuilder<>(e, embedBuilder, resultWrapper).build().queue();
     }
 
 }

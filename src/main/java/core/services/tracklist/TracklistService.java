@@ -10,10 +10,7 @@ import core.commands.Context;
 import core.exceptions.LastFmEntityNotFoundException;
 import core.exceptions.LastFmException;
 import dao.ChuuService;
-import dao.entities.FullAlbumEntity;
-import dao.entities.LastFMData;
-import dao.entities.ScrobbledAlbum;
-import dao.entities.Track;
+import dao.entities.*;
 import dao.musicbrainz.MusicBrainzService;
 import dao.musicbrainz.MusicBrainzServiceSingleton;
 
@@ -35,6 +32,36 @@ public abstract class TracklistService {
         this.mb = MusicBrainzServiceSingleton.getInstance();
     }
 
+
+    public FullAlbumEntityExtended getLastFmTracklist(LastFMData lastFMData, String artist, String album) throws LastFmException {
+        return lastFM.getAlbumSummary(lastFMData, artist, album);
+    }
+
+    public List<Track> getSpotifyTracklist(String artist, String album) {
+        return spotifyApi.getAlbumTrackList(artist, album);
+    }
+
+    public List<Track> getMusicBrainzTracklist(String mbid, String artist, String album) {
+        List<Track> toInsert = new ArrayList<>();
+        if (mbid != null && !mbid.isBlank()) {
+            toInsert = mb.getAlbumTrackListMbid(mbid);
+        }
+        if (toInsert.isEmpty()) {
+            toInsert = mb.getAlbumTrackList(artist, album);
+
+
+            if (toInsert.isEmpty()) {
+                //Force it to lowerCase
+                toInsert = mb.getAlbumTrackListLowerCase(artist, album);
+
+            }
+
+        }
+
+        return toInsert;
+    }
+
+
     public Optional<FullAlbumEntity> getTrackList(ScrobbledAlbum scrobbledAlbum, LastFMData lastfmId, @Nullable String artistUrl, Context event) throws LastFmException {
         Optional<FullAlbumEntity> opt = obtainTrackList(scrobbledAlbum.getAlbumId());
         FullAlbumEntity fullAlbumEntity;
@@ -44,11 +71,10 @@ public abstract class TracklistService {
         long artistId = scrobbledAlbum.getArtistId();
 
         if (opt.isEmpty()) {
-            Set<Track> trackList;
+            Set<Track> trackList = new HashSet<>();
             try {
-                fullAlbumEntity = lastFM.getAlbumSummary(lastfmId, artist, album);
-                trackList = new HashSet<>();
-                handleList(trackList, fullAlbumEntity.getTrackList(), lastfmId, albumId, artistId);
+                fullAlbumEntity = getLastFmTracklist(lastfmId, artist, album);
+                handleList(trackList, fullAlbumEntity.getTrackList(), albumId, artistId);
                 fullAlbumEntity.setTrackList(new ArrayList<>(trackList));
             } catch (LastFmEntityNotFoundException ex)
             //If it doesnt exists on last.fm we do a little workaround
@@ -59,31 +85,16 @@ public abstract class TracklistService {
             trackList = new HashSet<>(fullAlbumEntity.getTrackList());
 
             if (trackList.isEmpty()) {
-                List<Track> spoList = spotifyApi.getAlbumTrackList(artist, album);
-                handleList(trackList, spoList, lastfmId, albumId, artistId);
+                List<Track> spotifyTracklist = getSpotifyTracklist(artist, album);
+                handleList(trackList, spotifyTracklist, albumId, artistId);
             }
             if (trackList.isEmpty()) {
-                if (fullAlbumEntity.getMbid() != null && !fullAlbumEntity.getMbid().isBlank()) {
-                    List<Track> albumTrackListMbid = mb.getAlbumTrackListMbid(fullAlbumEntity.getMbid());
-                    handleList(trackList, albumTrackListMbid, lastfmId, albumId, artistId);
-                }
+                List<Track> musicBrainzTracklist = getMusicBrainzTracklist(fullAlbumEntity.getAlbum(), artist, album);
+                handleList(trackList, musicBrainzTracklist, albumId, artistId);
                 if (trackList.isEmpty()) {
-                    List<Track> albumTrackList = mb.getAlbumTrackList(fullAlbumEntity.getArtist(), fullAlbumEntity.getAlbum());
-                    handleList(trackList, albumTrackList, lastfmId, albumId, artistId);
-
-
-                    if (trackList.isEmpty()) {
-                        //Force it to lowerCase
-                        List<Track> albumTrackListLowerCase = mb.getAlbumTrackListLowerCase(fullAlbumEntity.getArtist(), fullAlbumEntity.getAlbum());
-                        handleList(trackList, albumTrackListLowerCase, lastfmId, albumId, artistId);
-                        if (trackList.isEmpty()) {
-                            //If is still empty well fuck it
-                            return Optional.empty();
-                        }
-                    }
-
+                    //If is still empty well fuck it
+                    return Optional.empty();
                 }
-
             }
             fullAlbumEntity.setTrackList(trackList.stream().sorted(Comparator.comparingInt(Track::getPosition)).collect(toCollection(ArrayList::new)));
             List<Track> handler = new ArrayList<>(trackList);
@@ -110,7 +121,7 @@ public abstract class TracklistService {
 
     protected abstract Optional<FullAlbumEntity> obtainTrackList(long albumId);
 
-    void handleList(Set<Track> trackList, List<Track> listToHandle, LastFMData lastfmName, long albumId, long artistId) {
+    void handleList(Set<Track> trackList, List<Track> listToHandle, long albumId, long artistId) {
 
         if (!listToHandle.isEmpty()) {
             service.storeTrackList(albumId, artistId, new HashSet<>(listToHandle));

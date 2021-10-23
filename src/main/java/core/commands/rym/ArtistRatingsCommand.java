@@ -6,7 +6,7 @@ import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
 import core.exceptions.LastFmException;
-import core.otherlisteners.Reactionary;
+import core.otherlisteners.util.PaginatorBuilder;
 import core.parsers.ArtistParser;
 import core.parsers.Parser;
 import core.parsers.params.ArtistParameters;
@@ -24,7 +24,7 @@ import java.text.NumberFormat;
 import java.util.Comparator;
 import java.util.List;
 import java.util.OptionalDouble;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Function;
 
 public class ArtistRatingsCommand extends ConcurrentCommand<ArtistParameters> {
 
@@ -75,8 +75,15 @@ public class ArtistRatingsCommand extends ConcurrentCommand<ArtistParameters> {
             sendMessageQueue(e, artist + " was not rated by anyone.");
             return;
         }
-        AtomicInteger counter = new AtomicInteger(0);
-        List<String> mappedString = rating.stream().map(ratings -> {
+
+
+        long timesRated = rating.stream().mapToLong(z -> z.userRatings().stream().filter(Rating::isSameGuild).count()).sum();
+        embedBuilder.setTitle(String.format("%s albums rated in %s", artist, e.getGuild().getName()), LinkUtils.getLastFmArtistUrl(artist))
+                .setFooter(String.format("%s has been rated %d times in this server", artist, timesRated))
+                .setThumbnail(sA.getUrl());
+
+
+        Function<AlbumRatings, String> mapper = ratings -> {
             long userScore = ratings.userRatings().stream().filter(x -> x.getDiscordId() == params.getLastFMData().getDiscordId()).mapToLong(Rating::getRating).sum();
             List<Rating> serverList = ratings.userRatings().stream().filter(Rating::isSameGuild).toList();
             List<Rating> globalList = ratings.userRatings();
@@ -86,26 +93,14 @@ public class ArtistRatingsCommand extends ConcurrentCommand<ArtistParameters> {
             String gAverage = globalAverage.isPresent() ? average.format(globalAverage.getAsDouble()) : "~~No Ratings~~";
             String userString = userScore != 0 ? formatter.format((float) userScore / 2f) : "~~Unrated~~";
             String format = String.format("Your rating: **%s** \nServer Average: **%s** | # in server **%d**\n Global Average **%s** | # in total **%d**", userString, sAverage, serverList.size(), gAverage, globalList.size());
-            counter.addAndGet(serverList.size());
             String s = ratings.releaseYear() != null ? " \\(" + ratings.releaseYear() + "\\)" : "";
             return ". **[" + ratings.albumName() + s +
-                   "](" + LinkUtils.getLastFmArtistAlbumUrl(artist, ratings.albumName()) +
-                   ")** - " + format +
-                   "\n\n";
-        }).toList();
-        StringBuilder a = new StringBuilder();
-        for (int i = 0; i < 5 && i < mappedString.size(); i++) {
-            a.append(i + 1).append(mappedString.get(i));
-        }
+                    "](" + LinkUtils.getLastFmArtistAlbumUrl(artist, ratings.albumName()) +
+                    ")** - " + format +
+                    "\n\n";
+        };
 
+        new PaginatorBuilder<>(e, embedBuilder, rating).memoized(mapper).pageSize(5).build().queue();
 
-        embedBuilder.setTitle(String.format("%s albums rated in %s", artist, e.getGuild().getName()), LinkUtils.getLastFmArtistUrl(artist))
-                .setFooter(String.format("%s has been rated %d times in this server", artist, counter.get()))
-                .setDescription(a)
-                .setThumbnail(sA.getUrl());
-
-        e.sendMessage(embedBuilder.build()).
-                queue(message1 ->
-                        new Reactionary<>(mappedString, message1, 5, embedBuilder));
     }
 }

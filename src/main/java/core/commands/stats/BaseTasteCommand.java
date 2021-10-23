@@ -8,7 +8,7 @@ import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.exceptions.LastFmException;
 import core.imagerenderer.TasteRenderer;
-import core.otherlisteners.Reactionary;
+import core.otherlisteners.util.PaginatorBuilder;
 import core.parsers.params.CommandParameters;
 import core.services.UserInfoService;
 import dao.ServiceView;
@@ -100,24 +100,18 @@ public abstract class BaseTasteCommand<T extends CommandParameters> extends Conc
     }
 
     private void doList(Context e, long ogDiscordID, long secondDiscordId, ResultWrapper<UserArtistComparison> resultWrapper, T params) {
-        StringBuilder stringBuilder = new StringBuilder();
         List<String> strings = resultWrapper.getResultList().stream().map(x -> String.format(". [%s](%s) - %d vs %d plays%n",
                 x.getArtistID(),
                 LinkUtils.getLastFmArtistUrl(x.getArtistID()),
                 x.getCountA(), x.getCountB())).toList();
-        for (int i = 0, size = strings.size(); i < 10 && i < size; i++) {
-            String text = strings.get(i);
-            stringBuilder.append(i + 1).append(text);
-        }
+
         DiscordUserDisplay uinfo = CommandUtil.getUserInfoEscaped(e, ogDiscordID);
         DiscordUserDisplay uinfo1 = CommandUtil.getUserInfoEscaped(e, secondDiscordId);
         EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e)
-                .setDescription(stringBuilder)
                 .setTitle(String.format("%s vs %s", uinfo.username(), uinfo1.username()))
                 .setFooter(String.format("Both user have %d common %s", resultWrapper.getRows(), getEntity(params)), null)
                 .setThumbnail(uinfo1.urlImage());
-        e.sendMessage(embedBuilder.build()).queue(message1 ->
-                new Reactionary<>(strings, message1, embedBuilder));
+        new PaginatorBuilder<>(e, embedBuilder, strings).build().queue();
     }
 
     @Override

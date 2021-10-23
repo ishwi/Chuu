@@ -6,7 +6,7 @@ import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.commands.utils.PrivacyUtils;
-import core.otherlisteners.Reactionary;
+import core.otherlisteners.util.PaginatorBuilder;
 import core.parsers.NoOpParser;
 import core.parsers.NumberParser;
 import core.parsers.Parser;
@@ -15,7 +15,6 @@ import core.parsers.params.NumberParameters;
 import core.parsers.utils.Optionals;
 import dao.ServiceView;
 import dao.entities.GlobalStreakEntities;
-import dao.entities.Memoized;
 import dao.entities.UsersWrapper;
 import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -92,6 +91,10 @@ public class TopCombosCommand extends ConcurrentCommand<NumberParameters<Command
             validUrl = selfUser.getAvatarUrl();
         }
         List<GlobalStreakEntities> topStreaks = db.getTopStreaks(params.getExtraParam(), guildId);
+        if (topStreaks.isEmpty()) {
+            sendMessageQueue(e, title + " doesn't have any stored streaks.");
+            return;
+        }
 
         Set<Long> showableUsers;
         if (params.getE().isFromGuild()) {
@@ -100,9 +103,15 @@ public class TopCombosCommand extends ConcurrentCommand<NumberParameters<Command
         } else {
             showableUsers = Set.of(author);
         }
+
+
+        EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e)
+                .setAuthor(String.format("%s's Top streaks", CommandUtil.escapeMarkdown(title)))
+                .setThumbnail(CommandUtil.noImageUrl(validUrl))
+                .setFooter(String.format("%s has a total of %d %s!", CommandUtil.escapeMarkdown(title), topStreaks.size(), CommandUtil.singlePlural(topStreaks.size(), "streak", "streaks")));
+
         AtomicInteger atomicInteger = new AtomicInteger(1);
         AtomicInteger positionCounter = new AtomicInteger(1);
-
 
         Function<GlobalStreakEntities, String> mapper = (x) -> {
             PrivacyUtils.PrivateString publicString = PrivacyUtils.getPublicString(x.getPrivacyMode(), x.getDiscordId(), x.getLastfmId(), atomicInteger, e, showableUsers);
@@ -117,27 +126,7 @@ public class TopCombosCommand extends ConcurrentCommand<NumberParameters<Command
             return GlobalStreakEntities.getComboString(aString, description, x.artistCount(), x.getCurrentArtist(), x.albumCount(), x.getCurrentAlbum(), x.trackCount(), x.getCurrentSong(), holder);
         };
 
-        List<Memoized<GlobalStreakEntities, String>> z = topStreaks.stream().map(t -> new Memoized<>(t, mapper)).toList();
-
-
-        if (z.isEmpty()) {
-            sendMessageQueue(e, title + " doesn't have any stored streaks.");
-            return;
-        }
-
-        StringBuilder a = new StringBuilder();
-        for (int i = 0; i < 5 && i < z.size(); i++) {
-            a.append(i + 1).append(z.get(i).toString());
-        }
-
-        EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e)
-                .
-                setAuthor(String.format("%s's Top streaks", CommandUtil.escapeMarkdown(title)))
-                .setThumbnail(CommandUtil.noImageUrl(validUrl))
-                .setDescription(a)
-                .setFooter(String.format("%s has a total of %d %s!", CommandUtil.escapeMarkdown(title), topStreaks.size(), CommandUtil.singlePlural(topStreaks.size(), "streak", "streaks")));
-        e.sendMessage(embedBuilder.build()).queue(message1 ->
-                new Reactionary<>(z, message1, 5, embedBuilder));
+        new PaginatorBuilder<>(e, embedBuilder, topStreaks).memoized(mapper).pageSize(5).build().queue();
     }
 }
 

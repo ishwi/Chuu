@@ -6,7 +6,7 @@ import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.imagerenderer.util.pie.PieableListResultWrapper;
-import core.otherlisteners.Reactionary;
+import core.otherlisteners.util.PaginatorBuilder;
 import core.parsers.NoOpParser;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
@@ -19,6 +19,7 @@ import org.knowm.xchart.PieChart;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Function;
 
 public class GlobalArtistFrequenciesCommand extends ResultWrappedCommand<ArtistPlays, CommandParameters> {
     public GlobalArtistFrequenciesCommand(ServiceView dao) {
@@ -59,24 +60,19 @@ public class GlobalArtistFrequenciesCommand extends ResultWrappedCommand<ArtistP
             sendMessageQueue(e, "No one has ever played any artist yet!");
         }
 
-        StringBuilder a = new StringBuilder();
-        List<ArtistPlays> resultList = list.getResultList();
+        List<ArtistPlays> artistFrequencies = list.getResultList();
 
-        List<String> lines = resultList.stream().map(x -> String.format(". [%s](%s) - %d total listeners%n", CommandUtil.escapeMarkdown(x.getArtistName()),
-                LinkUtils.getLastFmArtistUrl(x.getArtistName()),
-                x.getCount())).toList();
-        for (int i = 0, size = lines.size(); i < 10 && i < size; i++) {
-            String text = lines.get(i);
-            a.append(i + 1).append(text);
-        }
 
         EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e)
-                .setDescription(a)
                 .setTitle("Most Popular artists")
                 .setFooter(String.format("%s has %d different artists!%n", e.getJDA().getSelfUser().getName(), list.getRows()), null)
                 .setThumbnail(e.getJDA().getSelfUser().getAvatarUrl());
-        e.sendMessage(embedBuilder.build()).queue(message1 ->
-                new Reactionary<>(lines, message1, embedBuilder));
+
+        Function<ArtistPlays, String> mapper = x -> String.format(". [%s](%s) - %d total listeners%n", CommandUtil.escapeMarkdown(x.getArtistName()),
+                LinkUtils.getLastFmArtistUrl(x.getArtistName()),
+                x.getCount());
+
+        new PaginatorBuilder<>(e, embedBuilder, artistFrequencies).mapper(mapper).build().queue();
     }
 
     @Override

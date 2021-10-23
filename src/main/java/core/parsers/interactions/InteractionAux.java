@@ -48,7 +48,8 @@ public class InteractionAux {
         return Optional.ofNullable(e.getOption(StrictUserExplanation.NAME)).map(OptionMapping::getAsUser).orElse(e.getUser());
     }
 
-    public static @Nullable String parseUrl(SlashCommandEvent e) {
+    public static @Nullable
+    String parseUrl(SlashCommandEvent e) {
         return Optional.ofNullable(e.getOption(UrlExplanation.NAME)).map(OptionMapping::getAsString).orElse(null);
     }
 
@@ -58,7 +59,8 @@ public class InteractionAux {
         return rows + "x" + columns;
     }
 
-    public static @Nullable Point parseSize(SlashCommandEvent e, Callback errorMessage) {
+    public static @Nullable
+    Point parseSize(SlashCommandEvent e, Callback errorMessage) {
         int x = 5;
         int y = 5;
         try {
@@ -70,7 +72,8 @@ public class InteractionAux {
     }
 
 
-    public static @Nullable ArtistAlbum parseAlbum(SlashCommandEvent e, Callback errorMessage) {
+    public static @Nullable
+    ArtistAlbum parseAlbum(SlashCommandEvent e, Callback errorMessage) {
         return parseCommonArtistAlbum(errorMessage, e, AlbumExplanation.NAME);
     }
 
@@ -96,7 +99,8 @@ public class InteractionAux {
         return new ArtistAlbum(artist1, album1);
     }
 
-    public static @Nullable ArtistAlbum parseSong(SlashCommandEvent e, Callback errorMessage) {
+    public static @Nullable
+    ArtistAlbum parseSong(SlashCommandEvent e, Callback errorMessage) {
         return parseCommonArtistAlbum(errorMessage, e, TrackExplanation.NAME);
 
     }
@@ -159,7 +163,8 @@ public class InteractionAux {
         }
     }
 
-    public static @Nullable Year parseYear(SlashCommandEvent e, Callback errorCallback) {
+    public static @Nullable
+    Year parseYear(SlashCommandEvent e, Callback errorCallback) {
         Year year = Optional.ofNullable(e.getOption(YearExplanation.NAME)).map(OptionMapping::getAsLong).map(Long::intValue).map(Year::of).orElse(Year.now());
         if (Year.now().compareTo(year) < 0) {
             errorCallback.execute();

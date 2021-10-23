@@ -5,7 +5,7 @@ import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
-import core.otherlisteners.Reactionary;
+import core.otherlisteners.util.PaginatorBuilder;
 import core.parsers.OnlyUsernameParser;
 import core.parsers.Parser;
 import core.parsers.params.ChuuDataParams;
@@ -87,21 +87,12 @@ public class CrownsCommand extends ConcurrentCommand<NumberParameters<ChuuDataPa
             return;
         }
 
-        StringBuilder a = new StringBuilder();
-        for (int i = 0; i < 10 && i < rows; i++) {
-            ArtistPlays g = resultWrapper.get(i);
-            a.append(i + 1).append(g.toString());
-        }
-
-
         long discordId = params.getInnerParams().getLastFMData().getDiscordId();
         EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e)
-                .setDescription(a)
                 .setTitle(String.format("%s's %scrowns", userName, getTitle()), CommandUtil.getLastFmUser(uniqueDataUniqueWrapper.getLastFmId())).setFooter(String.format("%s has %d %scrowns!!%n", CommandUtil.unescapedUser(userName, discordId, e), resultWrapper.size(), getTitle()), null)
                 .setThumbnail(userUrl);
-        e.sendMessage(embedBuilder.build()).queue(message1 ->
 
-                new Reactionary<>(resultWrapper, message1, embedBuilder));
+        new PaginatorBuilder<>(e, embedBuilder, resultWrapper).build().queue();
     }
 
     @Override

@@ -8,7 +8,7 @@ import core.commands.utils.CommandUtil;
 import core.commands.utils.PrivacyUtils;
 import core.exceptions.LastFmException;
 import core.imagerenderer.LoveMaker;
-import core.otherlisteners.Reactionary;
+import core.otherlisteners.util.PaginatorBuilder;
 import core.parsers.AffinityParser;
 import core.parsers.Parser;
 import core.parsers.params.AffinityParameters;
@@ -96,22 +96,16 @@ public class AffinityCommand extends ConcurrentCommand<AffinityParameters> {
             return;
         }
 
-        StringBuilder stringBuilder = new StringBuilder();
         List<String> lines = serverAff.stream().map(x -> String.format(". [%s](%s) - %.2f%%%s matching%n", getUserString(e, x.getDiscordId()),
                 CommandUtil.getLastFmUser(x.getReceivingLastFmId()),
                 (x.getAffinity() > 1 ? 1 : x.getAffinity()) * 100, x.getAffinity() > 1 ? "+" : "")).toList();
-        for (int i = 0, size = lines.size(); i < 10 && i < size; i++) {
-            String text = lines.get(i);
-            stringBuilder.append(i + 1).append(text);
-        }
+
         DiscordUserDisplay uInfo = CommandUtil.getUserInfoUnescaped(e, e.getAuthor().getIdLong());
         EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e)
-                .setDescription(stringBuilder)
                 .setAuthor(uInfo.username() + "'s soulmates in " + e.getGuild().getName(), PrivacyUtils.getLastFmUser(ogData.getName()), uInfo.urlImage())
                 .setFooter(String.format("%s's affinity using a threshold of %d plays!%n", uInfo.username(), ap.getThreshold()), null)
                 .setThumbnail(e.getGuild().getIconUrl());
-        e.sendMessage(embedBuilder.build()).queue(message1 ->
-                new Reactionary<>(lines, message1, embedBuilder));
+        new PaginatorBuilder<>(e, embedBuilder, lines).build().queue();
     }
 
 }

@@ -10,10 +10,7 @@ import core.parsers.Parser;
 import core.parsers.RecommendationParser;
 import core.parsers.params.RecommendationsParams;
 import dao.ServiceView;
-import dao.entities.Affinity;
-import dao.entities.DiscordUserDisplay;
-import dao.entities.LastFMData;
-import dao.entities.ScrobbledArtist;
+import dao.entities.*;
 import dao.exceptions.InstanceNotFoundException;
 import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -64,32 +61,37 @@ public class RecommendationCommand extends ConcurrentCommand<RecommendationsPara
             List<Affinity> serverAffinity = db.getServerAffinity(lastFMData.getName(), e.getGuild().getIdLong(), AffinityCommand.DEFAULT_THRESHOLD);
             if (serverAffinity.isEmpty()) {
                 serverAffinity = db.getServerAffinity(lastFMData.getName(), e.getGuild().getIdLong(), 1);
-                if (serverAffinity.isEmpty()) {
+            }
+            if (serverAffinity.isEmpty()) {
+                List<UsersWrapper> server = db.getAll(e.getGuild().getIdLong()).stream().filter(z -> z.getDiscordID() != e.getAuthor().getIdLong()).toList();
+                if (server.isEmpty()) {
+                    sendMessageQueue(e, "Cannot get you any recommendation because there is no one else on this server!");
+                    return;
+                }
+                firstDiscordID = e.getAuthor().getIdLong();
+                secondDiscordID = server.get(CommandUtil.rand.nextInt(server.size())).getDiscordID();
+            } else {
+                TreeMap<Float, Affinity> integerAffinityTreeMap = new TreeMap<>();
+                float counter = 1;
+                for (Affinity affinity : serverAffinity) {
+                    integerAffinityTreeMap.put(counter, affinity);
+                    counter += affinity.getAffinity() + 0.001f;
+                }
+                int numberOfTries = 2;
+                Map.Entry<Float, Affinity> floatAffinityEntry = null;
+                while (numberOfTries-- != 0 && floatAffinityEntry == null) {
+                    double v = CommandUtil.rand.nextDouble();
+                    floatAffinityEntry = integerAffinityTreeMap.floorEntry((float) (v * counter));
+                }
+
+                if (floatAffinityEntry == null) {
                     sendMessageQueue(e, "Couldn't get you any recommendation :(");
                     return;
                 }
+                Affinity affinity = floatAffinityEntry.getValue();
+                firstDiscordID = e.getAuthor().getIdLong();
+                secondDiscordID = affinity.getDiscordId();
             }
-            TreeMap<Float, Affinity> integerAffinityTreeMap = new TreeMap<>();
-            float counter = 1;
-            for (Affinity affinity : serverAffinity) {
-                integerAffinityTreeMap.put(counter, affinity);
-                counter += affinity.getAffinity() + 0.001f;
-            }
-            int numberOfTries = 2;
-            Map.Entry<Float, Affinity> floatAffinityEntry = null;
-            while (numberOfTries-- != 0 && floatAffinityEntry == null) {
-                double v = CommandUtil.rand.nextDouble();
-                floatAffinityEntry = integerAffinityTreeMap.floorEntry((float) (v * counter));
-            }
-
-            if (floatAffinityEntry == null) {
-                sendMessageQueue(e, "Couldn't get you any recommendation :(");
-                return;
-            }
-            Affinity affinity = floatAffinityEntry.getValue();
-
-            firstDiscordID = e.getAuthor().getIdLong();
-            secondDiscordID = affinity.getDiscordId();
         } else {
             firstDiscordID = params.getFirstUser().getDiscordId();
             secondDiscordID = params.getSecondUser().getDiscordId();

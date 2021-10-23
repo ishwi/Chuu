@@ -76,8 +76,8 @@ public class WhoKnowsTagCommand extends WhoKnowsBaseCommand<GenreParameters> {
         Context e = params.getE();
         WrapperReturnNowPlaying wrapperReturnNowPlaying =
                 whoKnowsMode.equals(WhoKnowsMode.IMAGE) ?
-                this.db.whoKnowsGenre(params.getGenre(), e.getGuild().getIdLong()) :
-                this.db.whoKnowsGenre(params.getGenre(), e.getGuild().getIdLong(), Integer.MAX_VALUE);
+                        this.db.whoKnowsGenre(params.getGenre(), e.getGuild().getIdLong()) :
+                        this.db.whoKnowsGenre(params.getGenre(), e.getGuild().getIdLong(), Integer.MAX_VALUE);
         if (wrapperReturnNowPlaying.getRows() == 0) {
             sendMessageQueue(e, "No one knows " + CommandUtil.escapeMarkdown(params.getGenre()));
             return null;

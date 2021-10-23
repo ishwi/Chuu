@@ -6,7 +6,7 @@ import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.exceptions.LastFmException;
-import core.otherlisteners.Reactionary;
+import core.otherlisteners.util.PaginatorBuilder;
 import core.parsers.ArtistParser;
 import core.parsers.Parser;
 import core.parsers.params.ArtistParameters;
@@ -93,7 +93,6 @@ public class GlobalTrackArtistCrownsCommand extends ConcurrentCommand<NumberPara
         UniqueWrapper<TrackPlays> uniqueDataUniqueWrapper = getList(params);
         DiscordUserDisplay userInformation = CommandUtil.getUserInfoEscaped(e, innerParams.getLastFMData().getDiscordId());
         String userName = userInformation.username();
-        String userUrl = userInformation.urlImage();
         List<TrackPlays> resultWrapper = uniqueDataUniqueWrapper.getUniqueData();
 
         int rows = resultWrapper.size();
@@ -102,26 +101,20 @@ public class GlobalTrackArtistCrownsCommand extends ConcurrentCommand<NumberPara
             return;
         }
 
-        StringBuilder a = new StringBuilder();
         List<String> strings = resultWrapper.stream().map(x -> ". **[" +
-                                                               LinkUtils.cleanMarkdownCharacter(x.getTrack()) +
-                                                               "](" + LinkUtils.getLastFMArtistTrack(scrobbledArtist.getArtist(), x.getTrack()) +
-                                                               ")** - " + x.getCount() +
-                                                               " plays\n").toList();
-        for (int i = 0; i < 10 && i < rows; i++) {
-            a.append(i + 1).append(strings.get(i));
-        }
+                LinkUtils.cleanMarkdownCharacter(x.getTrack()) +
+                "](" + LinkUtils.getLastFMArtistTrack(scrobbledArtist.getArtist(), x.getTrack()) +
+                ")** - " + x.getCount() +
+                " plays\n").toList();
 
 
         long discordId = params.getInnerParams().getLastFMData().getDiscordId();
         EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e)
-                .setDescription(a)
                 .setAuthor(String.format("%s's %scrowns", userName, getTitle(scrobbledArtist)), CommandUtil.getLastFmUser(uniqueDataUniqueWrapper.getLastFmId()), userInformation.urlImage())
                 .setThumbnail(scrobbledArtist.getUrl())
                 .setFooter(String.format("%s has %d %scrowns!!%n", CommandUtil.unescapedUser(userName, discordId, e), resultWrapper.size(), getTitle(scrobbledArtist)), null);
-        e.sendMessage(embedBuilder.build()).queue(message1 ->
 
-                new Reactionary<>(strings, message1, embedBuilder));
+        new PaginatorBuilder<>(e, embedBuilder, strings).build().queue();
     }
 
     @Override

@@ -190,7 +190,8 @@ public class ExtendedAudioPlayerManager extends DefaultAudioPlayerManager {
     }
 
     // This is used at the top of the file. Don't ask :^)
-    public @Nullable AudioTrack decodeMaybeNullAudioTrack(String encoded) {
+    public @Nullable
+    AudioTrack decodeMaybeNullAudioTrack(String encoded) {
         try {
             return decodeTrack(encoded);
         } catch (IOException e) {

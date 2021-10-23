@@ -5,8 +5,8 @@ import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
-import core.commands.utils.ListSender;
 import core.exceptions.LastFmException;
+import core.otherlisteners.util.PaginatorBuilder;
 import core.parsers.NumberParser;
 import core.parsers.OnlyUsernameParser;
 import core.parsers.Parser;
@@ -81,13 +81,14 @@ public class RecentListCommand extends ConcurrentCommand<NumberParameters<ChuuDa
 
         AtomicInteger ranker = new AtomicInteger(0);
         List<Rank<NowPlayingArtist>> elements = list.stream().map(w -> new Rank<>(w, ranker.incrementAndGet())).toList();
-        new ListSender<>(e, elements, rank -> {
-            NowPlayingArtist np = rank.entity();
-            return "**Track #%d:**%n%s%n".formatted(rank.rank(),
-                    String.format("**%s** - %s | %s%n", CommandUtil.escapeMarkdown(np.songName()), CommandUtil.escapeMarkdown(np.artistName()), CommandUtil.escapeMarkdown(np
-                            .albumName())));
-        }, embedBuilder)
-                .doSend(false);
+        new PaginatorBuilder<>(e, embedBuilder, elements)
+                .mapper(rank -> {
+                    NowPlayingArtist np = rank.entity();
+                    return "**Track #%d:**%n%s%n".formatted(rank.rank(),
+                            String.format("**%s** - %s | %s%n", CommandUtil.escapeMarkdown(np.songName()), CommandUtil.escapeMarkdown(np.artistName()), CommandUtil.escapeMarkdown(np
+                                    .albumName())));
+                })
+                .unnumered().build().queue();
 
 
     }

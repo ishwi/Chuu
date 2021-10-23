@@ -9,7 +9,6 @@ import core.imagerenderer.GraphicUtils;
 import core.imagerenderer.TrackDistributor;
 import core.imagerenderer.util.pie.IPieableList;
 import core.imagerenderer.util.pie.PieableListTrack;
-import core.otherlisteners.Reactionary;
 import core.parsers.ArtistAlbumParser;
 import core.parsers.DaoParser;
 import core.parsers.Parser;
@@ -119,22 +118,12 @@ public class AlbumTracksGlobalDistributionCommand extends AlbumPlaysCommand {
                     sendImage(bufferedImage, params.getE());
                 }
                 case LIST -> {
-                    StringBuilder a = new StringBuilder();
-                    List<String> lines = fullAlbumEntity.getTrackList().stream().map(t -> ". " + "[" +
-                                                                                          CommandUtil.escapeMarkdown(t.getName()) +
-                                                                                          "](" + LinkUtils.getLastFMArtistTrack(artist, t.getName()) +
-                                                                                          ")" + " - " + t.getPlays() + CommandUtil.singlePlural(t.getPlays(), " play", " plays") + "\n").toList();
-                    for (int i = 0; i < fullAlbumEntity.getTrackList().size() && i <= 20; i++) {
-                        String s = lines.get(i);
-                        a.append(i + 1).append(s);
-                    }
                     EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e)
-                            .setDescription(a)
                             .setTitle(String.format("%s tracklist", album), LinkUtils.getLastFmArtistAlbumUrl(artist, album))
                             .setFooter(String.format("%s has %d total plays on the album!!%n", e.getJDA().getSelfUser().getName(), fullAlbumEntity.getTrackList().stream().mapToInt(Track::getPlays).sum()), null)
                             .setThumbnail(fullAlbumEntity.getAlbumUrl());
-                    e.sendMessage(embedBuilder.build()).queue(message ->
-                            new Reactionary<>(lines, message, 20, embedBuilder));
+
+                    AlbumTracksServerDistributionCommand.doPaging(e, artist, fullAlbumEntity, embedBuilder);
                 }
             }
         }

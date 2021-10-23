@@ -5,7 +5,7 @@ import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
-import core.otherlisteners.Reactionary;
+import core.otherlisteners.util.PaginatorBuilder;
 import core.parsers.MultipleGenresParser;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
@@ -29,26 +29,21 @@ public class MultipleWhoIsTagCommand extends ConcurrentCommand<MultipleGenresPar
 
     public static void sendTopTags(Context e, CommandParameters params, String genre, List<ScrobbledArtist> topInTag) {
         String usableServer = !e.isFromGuild() || params.hasOptional("global") ? e.getJDA().getSelfUser().getName() : e.getGuild().getName();
-        String url = !e.isFromGuild() || params.hasOptional("global") ? e.getJDA().getSelfUser().getAvatarUrl() : e.getGuild().getIconUrl();
 
         if (topInTag.isEmpty()) {
             e.sendMessage(usableServer + " doesnt have any artist tagged as " + genre).queue();
             return;
         }
-        StringBuilder a = new StringBuilder();
 
-        for (int i = 0; i < 10 && i < topInTag.size(); i++) {
-            a.append(i + 1).append(topInTag.get(i).toString());
-        }
-
-        String title = usableServer + "'s top tagged artist with " + genre + (":");
+        String url = !e.isFromGuild() || params.hasOptional("global") ? e.getJDA().getSelfUser().getAvatarUrl() : e.getGuild().getIconUrl();
         String text = CommandUtil.rand.nextInt(324) % 5 == 2 ? "Use artistgenre or albumgenre for your artist or albums of the given genre" : null;
-        EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e).setThumbnail(url)
+
+        EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e)
+                .setThumbnail(url)
                 .setFooter(text, null)
-                .setTitle(title)
-                .setDescription(a);
-        e.sendMessage(embedBuilder.build()).queue(mes ->
-                new Reactionary<>(topInTag, mes, embedBuilder));
+                .setTitle(usableServer + "'s top tagged artist with " + genre + (":"));
+
+        new PaginatorBuilder<>(e, embedBuilder, topInTag).build().queue();
     }
 
     @Override
@@ -87,8 +82,8 @@ public class MultipleWhoIsTagCommand extends ConcurrentCommand<MultipleGenresPar
         String genre = genres.stream().map(WordUtils::capitalizeFully).collect(Collectors.joining(params.getMode() == SearchMode.EXCLUSIVE ? ", " : "| "));
 
         topInTag = e.isFromGuild()
-                   ? db.getTopInTag(genres, e.getGuild().getIdLong(), 400, params.getMode())
-                   : db.getTopInTag(genres, null, 400, params.getMode());
+                ? db.getTopInTag(genres, e.getGuild().getIdLong(), 400, params.getMode())
+                : db.getTopInTag(genres, null, 400, params.getMode());
         sendTopTags(e, params, genre, topInTag);
     }
 }

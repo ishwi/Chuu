@@ -56,9 +56,6 @@ public class Confirmator extends ReactionListener {
 
     @Override
     public boolean isValid(ButtonClickEvent event) {
-        if (event.getUser() == null) {
-            return false;
-        }
         if (event.getMessageIdLong() != message.getIdLong()) {
             return false;
         }

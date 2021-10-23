@@ -180,8 +180,8 @@ public class MMCQ {
 
         // determine the cut planes
         return maxw == rw ? doCut('r', vbox, partialsum, lookaheadsum, total)
-                          : maxw == gw ? doCut('g', vbox, partialsum, lookaheadsum, total)
-                                       : doCut('b', vbox, partialsum, lookaheadsum, total);
+                : maxw == gw ? doCut('g', vbox, partialsum, lookaheadsum, total)
+                : doCut('b', vbox, partialsum, lookaheadsum, total);
     }
 
     private static VBox[] doCut(
@@ -358,7 +358,7 @@ public class MMCQ {
         @Override
         public String toString() {
             return "r1: " + r1 + " / r2: " + r2 + " / g1: " + g1 + " / g2: " + g2 + " / b1: " + b1
-                   + " / b2: " + b2;
+                    + " / b2: " + b2;
         }
 
         public int volume(boolean force) {
@@ -483,8 +483,8 @@ public class MMCQ {
                 d2 = Math
                         .sqrt(
                                 Math.pow(color[0] - vbColor[0], 2)
-                                + Math.pow(color[1] - vbColor[1], 2)
-                                + Math.pow(color[2] - vbColor[2], 2));
+                                        + Math.pow(color[1] - vbColor[1], 2)
+                                        + Math.pow(color[2] - vbColor[2], 2));
                 if (d2 < d1) {
                     d1 = d2;
                     pColor = vbColor;
