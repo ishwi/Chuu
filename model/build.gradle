@@ -47,14 +47,14 @@ dependencies {
     api 'org.beryx:awt-color-factory:1.0.2'
     implementation group: 'com.zaxxer', name: 'HikariCP', version: '5.0.0'
     api group: 'org.apache.commons', name: 'commons-collections4', version: '4.4'
-    implementation group: 'mysql', name: 'mysql-connector-java', version: '8.0.27'
+    implementation group: 'mysql', name: 'mysql-connector-java', version: '8.0.25'
 
     testImplementation "org.mockito:mockito-core:4.0.0"
     testImplementation("org.junit.jupiter:junit-jupiter:5.8.1")
 
     liquibaseRuntime 'org.liquibase:liquibase-core:4.5.0'
     liquibaseRuntime 'org.liquibase:liquibase-groovy-dsl:3.0.2'
-    liquibaseRuntime group: 'mysql', name: 'mysql-connector-java', version: '8.0.27'
+    liquibaseRuntime group: 'mysql', name: 'mysql-connector-java', version: '8.0.25'
     liquibaseRuntime group: 'javax.xml.bind', name: 'jaxb-api', version: '2.4.0-b180830.0359'
 // https://mvnrepository.com/artifact/org.yaml/snakeyaml
     liquibaseRuntime group: 'org.yaml', name: 'snakeyaml', version: '1.29'
