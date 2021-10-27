@@ -83,7 +83,7 @@ public class CountryCommand extends ConcurrentCommand<NumberParameters<TimeFrame
     }
 
     @Override
-    protected void onCommand(Context e, @Nonnull NumberParameters<TimeFrameParameters> params) throws LastFmException {
+    public void onCommand(Context e, @Nonnull NumberParameters<TimeFrameParameters> params) throws LastFmException {
 
 
         Long palette = params.getExtraParam();

@@ -58,7 +58,7 @@ public class PlayNextCommand extends core.commands.abstracts.MusicCommand<WordPa
     }
 
     @Override
-    protected void onCommand(Context e, @Nonnull WordParameter params) {
+    public void onCommand(Context e, @Nonnull WordParameter params) {
 
         var manager = Chuu.playerRegistry.get(e.getGuild());
 

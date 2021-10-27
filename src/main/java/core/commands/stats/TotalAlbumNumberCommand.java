@@ -53,7 +53,7 @@ public class TotalAlbumNumberCommand extends ConcurrentCommand<NumberParameters<
     }
 
     @Override
-    protected void onCommand(Context e, @Nonnull NumberParameters<ChuuDataParams> params) {
+    public void onCommand(Context e, @Nonnull NumberParameters<ChuuDataParams> params) {
 
         ChuuDataParams innerParams = params.getInnerParams();
         String lastFmName = innerParams.getLastFMData().getName();

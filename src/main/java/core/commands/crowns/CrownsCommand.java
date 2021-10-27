@@ -71,7 +71,7 @@ public class CrownsCommand extends ConcurrentCommand<NumberParameters<ChuuDataPa
     }
 
     @Override
-    protected void onCommand(Context e, @Nonnull NumberParameters<ChuuDataParams> params) {
+    public void onCommand(Context e, @Nonnull NumberParameters<ChuuDataParams> params) {
 
 
         ChuuDataParams innerParams = params.getInnerParams();

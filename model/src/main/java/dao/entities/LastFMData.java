@@ -93,8 +93,11 @@ public class LastFMData {
     }
 
     public static LastFMData ofUser(@Nonnull String user) {
-        return new LastFMData(user, -1L, Role.USER, false, false, WhoKnowsMode.IMAGE, dao.entities.ChartMode.IMAGE, RemainingImagesMode.IMAGE, 5, 5, PrivacyMode.NORMAL, false, false, true, TimeZone.getDefault(), null, null, true, EmbedColor.defaultColor(), false, 0, ChartOptions.defaultMode());
+        return ofUser(user, -1);
+    }
 
+    public static LastFMData ofUser(@Nonnull String user, long id) {
+        return new LastFMData(user, id, Role.USER, false, false, WhoKnowsMode.IMAGE, dao.entities.ChartMode.IMAGE, RemainingImagesMode.IMAGE, 5, 5, PrivacyMode.NORMAL, false, false, true, TimeZone.getDefault(), null, null, true, EmbedColor.defaultColor(), false, 0, ChartOptions.defaultMode());
     }
 
     public EmbedColor getEmbedColor() {

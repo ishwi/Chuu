@@ -105,7 +105,7 @@ public class BillboardCommand extends ConcurrentCommand<NumberParameters<Command
     }
 
     @Override
-    protected void onCommand(Context e, @Nonnull NumberParameters<CommandParameters> params) {
+    public void onCommand(Context e, @Nonnull NumberParameters<CommandParameters> params) {
 
 
         long guildId = e.getGuild().getIdLong();

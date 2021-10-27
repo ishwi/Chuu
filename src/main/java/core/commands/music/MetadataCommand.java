@@ -49,7 +49,7 @@ public class MetadataCommand extends MusicCommand<CommandParameters> {
     }
 
     @Override
-    protected void onCommand(Context e, @Nonnull CommandParameters params) {
+    public void onCommand(Context e, @Nonnull CommandParameters params) {
         String[] message = parser.getSubMessage(e);
         MusicManager manager = getManager(e);
         AudioTrack track = manager.getCurrentTrack();

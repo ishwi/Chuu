@@ -58,7 +58,7 @@ public class RefreshSlashCommand extends ConcurrentCommand<CommandParameters> {
     }
 
     @Override
-    protected void onCommand(Context e, @Nonnull CommandParameters params) {
+    public void onCommand(Context e, @Nonnull CommandParameters params) {
         e.getJDA().retrieveApplicationInfo().queue(t -> {
             if (t.getOwner().getIdLong() == e.getAuthor().getIdLong()) {
                 if (params.hasOptional("delete")) {

@@ -45,7 +45,7 @@ public class TimezoneCommand extends ConcurrentCommand<TimezoneParams> {
     }
 
     @Override
-    protected void onCommand(Context e, @Nonnull TimezoneParams params) {
+    public void onCommand(Context e, @Nonnull TimezoneParams params) {
 
 
         TimeZone timeZone = params.getTimeZone();

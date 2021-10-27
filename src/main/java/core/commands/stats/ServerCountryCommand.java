@@ -89,7 +89,7 @@ public class ServerCountryCommand extends ConcurrentCommand<NumberParameters<Com
     }
 
     @Override
-    protected void onCommand(Context e, @Nonnull NumberParameters<CommandParameters> params) throws LastFmException {
+    public void onCommand(Context e, @Nonnull NumberParameters<CommandParameters> params) throws LastFmException {
 
 
         Long palette = params.getExtraParam();

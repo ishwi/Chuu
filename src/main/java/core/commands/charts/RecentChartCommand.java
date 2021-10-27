@@ -69,7 +69,7 @@ public class RecentChartCommand extends ChartableCommand<ChartSizeParameters> {
         String handleCount = "'s " + count + " recent tracks";
 
         return params.initEmbed("'s recent tracks", embedBuilder, handleCount, params.getUser().getName())
-                .setFooter("Showing last " + count + CommandUtil.singlePlural(count, "song", "songs"));
+                .setFooter("Showing last %d %s".formatted(count, CommandUtil.singlePlural(count, "song", "songs")));
     }
 
     @Override

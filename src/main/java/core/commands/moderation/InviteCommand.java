@@ -47,7 +47,7 @@ public class InviteCommand extends ConcurrentCommand<CommandParameters> {
     }
 
     @Override
-    protected void onCommand(Context e, @Nonnull CommandParameters params) {
+    public void onCommand(Context e, @Nonnull CommandParameters params) {
         EnumSet<Permission> permissions = Permission.getPermissions(PERMISSIONS);
         // TODO when there is proper support for creating url with JDA
         String inviteUrl = e.getJDA().getInviteUrl(permissions).replaceAll("&scope=bot", "&scope=bot%20applications.commands");

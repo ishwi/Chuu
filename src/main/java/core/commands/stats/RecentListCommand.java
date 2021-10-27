@@ -61,7 +61,7 @@ public class RecentListCommand extends ConcurrentCommand<NumberParameters<ChuuDa
     }
 
     @Override
-    protected void onCommand(Context e, @Nonnull NumberParameters<ChuuDataParams> params) throws LastFmException {
+    public void onCommand(Context e, @Nonnull NumberParameters<ChuuDataParams> params) throws LastFmException {
 
 
         long limit = params.getExtraParam();

@@ -53,7 +53,7 @@ public class DiscoveredRatioCommand extends ConcurrentCommand<TimeFrameParameter
     }
 
     @Override
-    protected void onCommand(Context e, @Nonnull TimeFrameParameters params) throws LastFmException {
+    public void onCommand(Context e, @Nonnull TimeFrameParameters params) throws LastFmException {
 
 
         if (params.getTime() == TimeFrameEnum.ALL) {

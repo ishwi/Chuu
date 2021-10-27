@@ -73,7 +73,7 @@ public class TopCombosCommand extends ConcurrentCommand<NumberParameters<Command
     }
 
     @Override
-    protected void onCommand(Context e, @Nonnull NumberParameters<CommandParameters> params) {
+    public void onCommand(Context e, @Nonnull NumberParameters<CommandParameters> params) {
 
         Long author = e.getAuthor().getIdLong();
 

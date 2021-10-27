@@ -58,7 +58,7 @@ public class JumpCommand extends MusicCommand<MinutesParameters> {
     }
 
     @Override
-    protected void onCommand(Context e, @Nonnull MinutesParameters params) {
+    public void onCommand(Context e, @Nonnull MinutesParameters params) {
         MusicManager manager = getManager(e);
         AudioTrack track = manager.getPlayer().getPlayingTrack();
         if (!track.isSeekable()) {

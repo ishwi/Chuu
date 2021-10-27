@@ -1756,6 +1756,20 @@ public class UserGuildDaoImpl implements UserGuildDao {
         }
     }
 
+    @Override
+    public long createHiddenServer(Connection connection, Set<Long> userIds) {
+        long randomId = -new Random().nextLong();
+        String values = userIds.stream().map(z -> "(%d,%d)".formatted(z, randomId)).collect(Collectors.joining(","));
+        String sql = "insert into user_guild(discord_id,guild_id) values " + values;
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            preparedStatement.executeUpdate();
+
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+        return randomId;
+    }
+
     private List<LastFMData> getServerData(Connection con, long guildId, String queryString) {
         List<LastFMData> lastFMData = new ArrayList<>();
         try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {

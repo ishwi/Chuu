@@ -56,7 +56,7 @@ public class BanCoverCommand extends ConcurrentCommand<ArtistAlbumUrlParameters>
     }
 
     @Override
-    protected void onCommand(Context e, @Nonnull ArtistAlbumUrlParameters params) throws LastFmException {
+    public void onCommand(Context e, @Nonnull ArtistAlbumUrlParameters params) throws LastFmException {
         LastFMData lastFMData = params.getLastFMData();
         if (lastFMData.getRole() != Role.ADMIN) {
             sendMessageQueue(e, "Not enough chuu perms to do this");

@@ -66,7 +66,7 @@ public class DecadeDistributionCommand extends ConcurrentCommand<TimeFrameParame
 
 
     @Override
-    protected void onCommand(Context e, @Nonnull TimeFrameParameters params) throws LastFmException {
+    public void onCommand(Context e, @Nonnull TimeFrameParameters params) throws LastFmException {
         LastFMData user = params.getLastFMData();
         Map<Year, Integer> counts;
         if (params.getTime() == TimeFrameEnum.ALL) {

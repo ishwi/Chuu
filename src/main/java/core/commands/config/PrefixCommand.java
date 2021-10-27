@@ -44,7 +44,7 @@ public class PrefixCommand extends ConcurrentCommand<CharacterParameters> {
     }
 
     @Override
-    protected void onCommand(Context e, @Nonnull CharacterParameters params) {
+    public void onCommand(Context e, @Nonnull CharacterParameters params) {
 
 
         char newPrefix = params.getaChar();

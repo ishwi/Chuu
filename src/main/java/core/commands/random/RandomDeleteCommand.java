@@ -47,7 +47,7 @@ public class RandomDeleteCommand extends ConcurrentCommand<RandomUrlParameters> 
     }
 
     @Override
-    protected void onCommand(Context e, @Nonnull RandomUrlParameters params) throws InstanceNotFoundException {
+    public void onCommand(Context e, @Nonnull RandomUrlParameters params) throws InstanceNotFoundException {
 
 
         String url = params.getUrl();

@@ -52,7 +52,7 @@ public abstract class BaseTasteCommand<T extends CommandParameters> extends Conc
     String hasCustomUrl(T params);
 
     @Override
-    protected void onCommand(Context e, @Nonnull T params) throws LastFmException, InstanceNotFoundException {
+    public void onCommand(Context e, @Nonnull T params) throws LastFmException, InstanceNotFoundException {
         Pair<LastFMData, LastFMData> userDatas = getUserDatas(e, params);
         if (userDatas == null) {
             return;

@@ -34,17 +34,17 @@ public abstract class NpCommand extends ConcurrentCommand<NowPlayingParameters> 
     }
 
     @Override
-    protected void onCommand(Context e, @Nonnull NowPlayingParameters params) {
+    public void onCommand(Context e, @Nonnull NowPlayingParameters params) {
         NowPlayingArtist np = params.getNowPlayingArtist();
         doSomethingWithArtist(np, e, params.getLastFMData().getDiscordId(), params.getLastFMData(), params);
         CompletableFuture.runAsync(() -> {
-                    if (!StringUtils.isBlank(np.url())) {
-                        try {
-                            long trackId = new TrackValidator(db, lastFM).validate(np.artistName(), np.songName()).getTrackId();
-                            db.updateTrackImage(trackId, np.url());
-                        } catch (LastFmException instanceNotFoundException) {
-                            Chuu.getLogger().warn(instanceNotFoundException.getMessage(), instanceNotFoundException);
-                        }
+            if (!StringUtils.isBlank(np.url())) {
+                try {
+                    long trackId = new TrackValidator(db, lastFM).validate(np.artistName(), np.songName()).getTrackId();
+                    db.updateTrackImage(trackId, np.url());
+                } catch (LastFmException instanceNotFoundException) {
+                    Chuu.getLogger().warn(instanceNotFoundException.getMessage(), instanceNotFoundException);
+                }
                     }
                 }
         );

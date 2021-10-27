@@ -68,7 +68,7 @@ public class ObscurityCommand extends ConcurrentCommand<ChuuDataParams> {
     }
 
     @Override
-    protected void onCommand(Context e, @Nonnull ChuuDataParams params) {
+    public void onCommand(Context e, @Nonnull ChuuDataParams params) {
         String name = params.getLastFMData().getName();
         CompletableFuture<AudioFeatures> uF = CompletableFuture.supplyAsync(() -> db.getUserFeatures(name));
         double v;

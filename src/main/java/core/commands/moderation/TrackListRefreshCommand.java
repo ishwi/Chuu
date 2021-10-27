@@ -105,7 +105,7 @@ public class TrackListRefreshCommand extends ConcurrentCommand<ArtistAlbumParame
     }
 
     @Override
-    protected void onCommand(Context e, @NotNull ArtistAlbumParameters params) throws LastFmException, InstanceNotFoundException {
+    public void onCommand(Context e, @NotNull ArtistAlbumParameters params) throws LastFmException, InstanceNotFoundException {
 
         if (params.getLastFMData().getRole() != Role.ADMIN) {
             sendMessage(e, "Only bot admins can use this command!").queue();

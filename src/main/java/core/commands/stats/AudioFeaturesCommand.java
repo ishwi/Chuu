@@ -59,7 +59,7 @@ public class AudioFeaturesCommand extends ConcurrentCommand<ChuuDataParams> {
     }
 
     @Override
-    protected void onCommand(Context e, @Nonnull ChuuDataParams params) {
+    public void onCommand(Context e, @Nonnull ChuuDataParams params) {
         LastFMData lastFMData = params.getLastFMData();
 
         CompletableFuture<Void> cF = CompletableFuture.runAsync(() -> {

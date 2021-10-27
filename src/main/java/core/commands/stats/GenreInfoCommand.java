@@ -47,7 +47,7 @@ public class GenreInfoCommand extends ConcurrentCommand<GenreParameters> {
     }
 
     @Override
-    protected void onCommand(Context e, @Nonnull GenreParameters params) throws LastFmException {
+    public void onCommand(Context e, @Nonnull GenreParameters params) throws LastFmException {
 
 
         String genre = params.getGenre();

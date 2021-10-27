@@ -52,7 +52,7 @@ public class HardwareStatsCommand extends ConcurrentCommand<CommandParameters> {
     }
 
     @Override
-    protected void onCommand(Context e, @Nonnull CommandParameters params) {
+    public void onCommand(Context e, @Nonnull CommandParameters params) {
         BotStats botStats = db.getBotStats();
         int shardTotal = e.getJDA().getShardInfo().getShardTotal();
         int mb = 1024 * 1024;

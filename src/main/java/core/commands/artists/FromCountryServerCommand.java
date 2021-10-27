@@ -138,7 +138,7 @@ public class FromCountryServerCommand extends ConcurrentCommand<OnlyCountryParam
     }
 
     @Override
-    protected void onCommand(Context e, @Nonnull OnlyCountryParameters params) throws LastFmException {
+    public void onCommand(Context e, @Nonnull OnlyCountryParameters params) throws LastFmException {
 
         CountryCode country = params.getCode();
         MbidFetcher mbidFetcher = new MbidFetcher(db, mb);

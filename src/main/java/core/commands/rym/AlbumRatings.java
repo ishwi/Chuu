@@ -73,7 +73,7 @@ public class AlbumRatings extends ConcurrentCommand<ArtistAlbumParameters> {
     }
 
     @Override
-    protected void onCommand(Context e, @Nonnull ArtistAlbumParameters params) throws LastFmException {
+    public void onCommand(Context e, @Nonnull ArtistAlbumParameters params) throws LastFmException {
         EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e);
 
         ScrobbledArtist sA = new ArtistValidator(db, lastFM, e).validate(params.getArtist(), !params.isNoredirect());

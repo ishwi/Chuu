@@ -74,7 +74,7 @@ public class MultipleWhoIsTagCommand extends ConcurrentCommand<MultipleGenresPar
     }
 
     @Override
-    protected void onCommand(Context e, @Nonnull MultipleGenresParameters params) {
+    public void onCommand(Context e, @Nonnull MultipleGenresParameters params) {
 
 
         Set<String> genres = params.getGenres();

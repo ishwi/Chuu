@@ -50,7 +50,7 @@ public class ScrobblesSinceCommand extends ConcurrentCommand<DateParameters> {
     }
 
     @Override
-    protected void onCommand(Context e, @Nonnull DateParameters params) throws LastFmException, InstanceNotFoundException {
+    public void onCommand(Context e, @Nonnull DateParameters params) throws LastFmException, InstanceNotFoundException {
 
         LastFMData lastFMData = db.findLastFMData(params.getUser().getIdLong());
         ZonedDateTime date = params.getDate().atZoneSameInstant(lastFMData.getTimeZone().toZoneId());

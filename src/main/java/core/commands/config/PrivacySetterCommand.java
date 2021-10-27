@@ -48,7 +48,7 @@ public class PrivacySetterCommand extends ConcurrentCommand<EnumParameters<Priva
     }
 
     @Override
-    protected void onCommand(Context e, @Nonnull EnumParameters<PrivacyMode> params) throws InstanceNotFoundException {
+    public void onCommand(Context e, @Nonnull EnumParameters<PrivacyMode> params) throws InstanceNotFoundException {
 
 
         PrivacyMode element = params.getElement();

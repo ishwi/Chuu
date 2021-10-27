@@ -20,7 +20,8 @@ public record Paginator<T>(Context e, EmbedBuilder eb, List<T> items, int pageSi
                            Function<T, String> mapper,
                            BiFunction<Context, EmbedBuilder, RestAction<Message>> creator,
                            BiFunction<Context, EmbedBuilder, RestAction<Message>> creatorWithButtons,
-                           Function<Integer, String> extraText) {
+                           Function<Integer, String> extraText,
+                           Function<List<T>, ActionRow> extraRow) {
 
     public Paginator {
         StringBuilder a = new StringBuilder();
@@ -47,7 +48,7 @@ public record Paginator<T>(Context e, EmbedBuilder eb, List<T> items, int pageSi
     }
 
     private Consumer<Message> paginatorConsumer() {
-        return message -> new Reactionary<>(items, message, pageSize, eb, numberedEntries, pagingIndicator, seconds, mapper, extraText);
+        return message -> new Reactionary<>(items, message, pageSize, eb, numberedEntries, pagingIndicator, seconds, mapper, extraText, extraRow);
     }
 
     public void queue() {

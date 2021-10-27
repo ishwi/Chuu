@@ -63,7 +63,7 @@ public class FavesFromArtistCommand extends ConcurrentCommand<ArtistTimeFramePar
     }
 
     @Override
-    protected void onCommand(Context e, @Nonnull ArtistTimeFrameParameters params) throws LastFmException {
+    public void onCommand(Context e, @Nonnull ArtistTimeFrameParameters params) throws LastFmException {
 
         long userId = params.getLastFMData().getDiscordId();
         TimeFrameEnum timeframew = params.getTimeFrame();

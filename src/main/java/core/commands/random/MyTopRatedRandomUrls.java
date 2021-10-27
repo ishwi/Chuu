@@ -82,7 +82,7 @@ public class MyTopRatedRandomUrls extends ConcurrentCommand<ChuuDataParams> {
     }
 
     @Override
-    protected void onCommand(Context e, @Nonnull ChuuDataParams params) {
+    public void onCommand(Context e, @Nonnull ChuuDataParams params) {
 
 
         long idLong = e.getAuthor().getIdLong();

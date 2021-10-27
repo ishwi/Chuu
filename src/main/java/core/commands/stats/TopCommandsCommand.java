@@ -69,7 +69,7 @@ public class TopCommandsCommand extends ConcurrentCommand<ChuuDataParams> {
     }
 
     @Override
-    protected void onCommand(Context e, @Nonnull ChuuDataParams params) throws LastFmException, InstanceNotFoundException {
+    public void onCommand(Context e, @Nonnull ChuuDataParams params) throws LastFmException, InstanceNotFoundException {
         LastFMData lastFMData = params.getLastFMData();
         List<CommandUsage> userCommands = db.getUserCommands(params.getLastFMData().getDiscordId());
 

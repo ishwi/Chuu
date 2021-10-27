@@ -47,7 +47,7 @@ public class ScrooblingCommand extends ConcurrentCommand<ChuuDataParams> {
     }
 
     @Override
-    protected void onCommand(Context e, @Nonnull ChuuDataParams params) {
+    public void onCommand(Context e, @Nonnull ChuuDataParams params) {
         LastFMData lastFMData = params.getLastFMData();
         boolean scrobbling = lastFMData.isScrobbling();
         char messagePrefix = CommandUtil.getMessagePrefix(e);

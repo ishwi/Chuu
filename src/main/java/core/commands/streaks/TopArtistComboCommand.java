@@ -78,7 +78,7 @@ public class TopArtistComboCommand extends ConcurrentCommand<NumberParameters<Ar
     }
 
     @Override
-    protected void onCommand(Context e, @Nonnull NumberParameters<ArtistParameters> params) throws LastFmException {
+    public void onCommand(Context e, @Nonnull NumberParameters<ArtistParameters> params) throws LastFmException {
 
         Long author = e.getAuthor().getIdLong();
 

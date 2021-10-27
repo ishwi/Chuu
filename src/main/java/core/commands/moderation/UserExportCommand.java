@@ -55,7 +55,7 @@ public class UserExportCommand extends ConcurrentCommand<CommandParameters> {
     }
 
     @Override
-    protected void onCommand(Context e, @Nonnull CommandParameters params) {
+    public void onCommand(Context e, @Nonnull CommandParameters params) {
 
 
         Member member = e.getGuild().getMember(e.getAuthor());

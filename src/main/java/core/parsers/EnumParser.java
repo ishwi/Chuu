@@ -7,6 +7,7 @@ import core.parsers.explanation.util.Explanation;
 import core.parsers.explanation.util.ExplanationLine;
 import core.parsers.explanation.util.ExplanationLineType;
 import core.parsers.params.EnumParameters;
+import core.util.Aliasable;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
@@ -42,8 +43,8 @@ public class EnumParser<T extends Enum<T>> extends Parser<EnumParameters<T>> {
 
     @Override
     public EnumParameters<T> parseSlashLogic(ContextSlashReceived ctx) throws LastFmException, InstanceNotFoundException {
-        EnumSet<T> ts = EnumSet.allOf(clazz);
-        List<String> lines = ts.stream().map(x -> x.name().replaceAll("_", "-").toLowerCase()).toList();
+        List<String> lines = mapEnumToPosibilites();
+
 
         SlashCommandEvent e = ctx.e();
         Optional<String> option = Optional.ofNullable(e.getOption("option")).map(OptionMapping::getAsString);
@@ -58,10 +59,19 @@ public class EnumParser<T extends Enum<T>> extends Parser<EnumParameters<T>> {
         return new EnumParameters<>(ctx, option.map(z -> Enum.valueOf(clazz, z.toUpperCase().replaceAll("-", "_"))).orElse(null), param);
     }
 
+    private List<String> mapEnumToPosibilites() {
+        EnumSet<T> ts = EnumSet.allOf(clazz);
+        return ts.stream().<String>mapMulti((x, consumer) -> {
+            if (x instanceof Aliasable aliasable) {
+                aliasable.aliases().stream().map(String::toLowerCase).forEach(consumer);
+            }
+            consumer.accept(x.name().replaceAll("_", "-").toLowerCase());
+        }).toList();
+    }
+
     @Override
     protected EnumParameters<T> parseLogic(Context e, String[] words) {
-        EnumSet<T> ts = EnumSet.allOf(clazz);
-        List<String> lines = ts.stream().map(x -> x.name().replaceAll("_", "-").toLowerCase()).toList();
+        List<String> lines = mapEnumToPosibilites();
 
         if (words.length == 0) {
             if (allowEmpty) {
@@ -113,6 +123,7 @@ public class EnumParser<T extends Enum<T>> extends Parser<EnumParameters<T>> {
         }
         return List.of(option);
     }
+
 
 }
 

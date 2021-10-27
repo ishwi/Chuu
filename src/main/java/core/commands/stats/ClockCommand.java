@@ -55,7 +55,7 @@ public class ClockCommand extends ConcurrentCommand<ChuuDataParams> {
     }
 
     @Override
-    protected void onCommand(Context e, @Nonnull ChuuDataParams params) throws InstanceNotFoundException {
+    public void onCommand(Context e, @Nonnull ChuuDataParams params) throws InstanceNotFoundException {
 
 
         long discordId = params.getLastFMData().getDiscordId();

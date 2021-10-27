@@ -61,7 +61,7 @@ public class BehindArtistsCommand extends ConcurrentCommand<NumberParameters<Two
     }
 
     @Override
-    protected void onCommand(Context e, @Nonnull NumberParameters<TwoUsersParamaters> params) {
+    public void onCommand(Context e, @Nonnull NumberParameters<TwoUsersParamaters> params) {
 
 
         TwoUsersParamaters innerParams = params.getInnerParams();

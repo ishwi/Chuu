@@ -70,7 +70,7 @@ public class MilestoneCommand extends ConcurrentCommand<NumberParameters<ChuuDat
     }
 
     @Override
-    protected void onCommand(Context e, @Nonnull NumberParameters<ChuuDataParams> params) throws LastFmException {
+    public void onCommand(Context e, @Nonnull NumberParameters<ChuuDataParams> params) throws LastFmException {
         Long extraParam = params.getExtraParam();
         LastFMData lastFMData = params.getInnerParams().getLastFMData();
         Optional<TrackWithArtistId> milestoneOpt = lastFM.getMilestone(lastFMData, extraParam);

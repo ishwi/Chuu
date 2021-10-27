@@ -57,7 +57,7 @@ public class SkipCommand extends MusicCommand<CommandParameters> {
     }
 
     @Override
-    protected void onCommand(Context e, @Nonnull CommandParameters params) {
+    public void onCommand(Context e, @Nonnull CommandParameters params) {
         MusicManager manager = getManager(e);
         sendMessageQueue(e, "Skipped current song");
         manager.nextTrack();

@@ -302,6 +302,10 @@ public class CommandUtil {
         return getUserInfoUnescaped(e, discordID, true);
     }
 
+    public static DiscordUserDisplay getUserInfoUnescaped(long discordID) {
+        return handleUser(null, discordID, false);
+    }
+
 
     public static DiscordUserDisplay getUserInfoEscaped(Context e, long discordID) {
         return getUserInfoEscaped(e, discordID, true);

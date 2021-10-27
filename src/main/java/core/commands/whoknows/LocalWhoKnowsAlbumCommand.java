@@ -19,6 +19,8 @@ import java.util.Optional;
 public class LocalWhoKnowsAlbumCommand extends WhoKnowsBaseCommand<ArtistAlbumParameters> {
 
 
+    public static final List<String> WKA_ALIASES = Arrays.asList("wkalbum", "wka", "whoknowsalbum", "wa");
+
     public LocalWhoKnowsAlbumCommand(ServiceView dao) {
         super(dao);
         respondInPrivate = false;
@@ -39,7 +41,7 @@ public class LocalWhoKnowsAlbumCommand extends WhoKnowsBaseCommand<ArtistAlbumPa
 
     @Override
     public List<String> getAliases() {
-        return Arrays.asList("wkalbum", "wka", "whoknowsalbum", "wa");
+        return WKA_ALIASES;
     }
 
     @Override
@@ -67,10 +69,7 @@ public class LocalWhoKnowsAlbumCommand extends WhoKnowsBaseCommand<ArtistAlbumPa
             sendMessageQueue(ap.getE(), "Couldn't confirm the album " + album.albumName() + " by " + sA.getArtist() + " exists :(");
             return null;
         }
-        WrapperReturnNowPlaying wrapperReturnNowPlaying =
-                effectiveMode.equals(WhoKnowsMode.IMAGE) ?
-                        this.db.getWhoKnowsAlbums(10, albumId, ap.getE().getGuild().getIdLong()) :
-                        this.db.getWhoKnowsAlbums(Integer.MAX_VALUE, albumId, ap.getE().getGuild().getIdLong());
+        WrapperReturnNowPlaying wrapperReturnNowPlaying = generateInnerWrapper(ap, effectiveMode, albumId);
         wrapperReturnNowPlaying.setArtist(ap.getScrobbledArtist().getArtist());
         try {
 
@@ -106,6 +105,12 @@ public class LocalWhoKnowsAlbumCommand extends WhoKnowsBaseCommand<ArtistAlbumPa
 
         wrapperReturnNowPlaying.setArtist(who.getArtist() + " - " + ap.getAlbum());
         return wrapperReturnNowPlaying;
+    }
+
+    protected WrapperReturnNowPlaying generateInnerWrapper(ArtistAlbumParameters ap, WhoKnowsMode effectiveMode, long albumId) {
+        return effectiveMode.equals(WhoKnowsMode.IMAGE) ?
+                this.db.getWhoKnowsAlbums(10, albumId, ap.getE().getGuild().getIdLong()) :
+                this.db.getWhoKnowsAlbums(Integer.MAX_VALUE, albumId, ap.getE().getGuild().getIdLong());
     }
 
 

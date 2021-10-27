@@ -54,7 +54,7 @@ public class AliasesCommand extends ConcurrentCommand<ArtistParameters> {
     }
 
     @Override
-    protected void onCommand(Context e, @Nonnull ArtistParameters params) throws LastFmException {
+    public void onCommand(Context e, @Nonnull ArtistParameters params) throws LastFmException {
         String artist = params.getArtist();
         char prefix = CommandUtil.getMessagePrefix(e);
 

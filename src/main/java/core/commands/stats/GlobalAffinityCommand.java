@@ -70,7 +70,7 @@ public class GlobalAffinityCommand extends ConcurrentCommand<NumberParameters<Ch
     }
 
     @Override
-    protected void onCommand(Context e, @Nonnull NumberParameters<ChuuDataParams> params) throws InstanceNotFoundException {
+    public void onCommand(Context e, @Nonnull NumberParameters<ChuuDataParams> params) throws InstanceNotFoundException {
 
 
         LastFMData ogData = params.getInnerParams().getLastFMData();

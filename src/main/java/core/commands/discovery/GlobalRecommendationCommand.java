@@ -69,7 +69,7 @@ public class GlobalRecommendationCommand extends ConcurrentCommand<NumberParamet
     }
 
     @Override
-    protected void onCommand(Context e, @Nonnull NumberParameters<ChuuDataParams> params) throws InstanceNotFoundException {
+    public void onCommand(Context e, @Nonnull NumberParameters<ChuuDataParams> params) throws InstanceNotFoundException {
 
 
         long firstDiscordID;

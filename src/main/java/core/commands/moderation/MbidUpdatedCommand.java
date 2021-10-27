@@ -50,7 +50,7 @@ public class MbidUpdatedCommand extends ConcurrentCommand<ChuuDataParams> {
 
 
     @Override
-    protected void onCommand(Context e, @Nonnull ChuuDataParams params) throws LastFmException, InstanceNotFoundException {
+    public void onCommand(Context e, @Nonnull ChuuDataParams params) throws LastFmException, InstanceNotFoundException {
         long issuer = e.getAuthor().getIdLong();
         LastFMData lastFMData = db.findLastFMData(issuer);
         if (lastFMData.getRole() != Role.ADMIN) {

@@ -81,7 +81,7 @@ public class EnqueueCommand extends core.commands.abstracts.MusicCommand<WordPar
     }
 
     @Override
-    protected void onCommand(Context e, @Nonnull WordParameter params) {
+    public void onCommand(Context e, @Nonnull WordParameter params) {
 
         var newManager = Chuu.playerRegistry.get(e.getGuild());
         play(e, newManager, params.getWord(), false, false);

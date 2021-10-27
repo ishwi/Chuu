@@ -51,7 +51,7 @@ public class AltCoverListCommand extends ConcurrentCommand<CommandParameters> {
     }
 
     @Override
-    protected void onCommand(Context e, @Nonnull CommandParameters params) {
+    public void onCommand(Context e, @Nonnull CommandParameters params) {
         CoverService coverService = Chuu.getCoverService();
         Map<CoverItem, Integer> counts = coverService.getCounts();
 
@@ -61,7 +61,7 @@ public class AltCoverListCommand extends ConcurrentCommand<CommandParameters> {
         EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e)
                 .setTitle("Alt covers");
 
-        new PaginatorBuilder<>(e, embedBuilder, str).numberedEntries(false).build().queue();
+        new PaginatorBuilder<>(e, embedBuilder, str).unnumered().build().queue();
 
 
     }

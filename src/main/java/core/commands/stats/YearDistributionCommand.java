@@ -64,7 +64,7 @@ public class YearDistributionCommand extends ConcurrentCommand<TimeFrameParamete
     }
 
     @Override
-    protected void onCommand(Context e, @Nonnull TimeFrameParameters params) throws LastFmException {
+    public void onCommand(Context e, @Nonnull TimeFrameParameters params) throws LastFmException {
         LastFMData user = params.getLastFMData();
         Map<Year, Integer> counts;
         if (params.getTime() == TimeFrameEnum.ALL) {

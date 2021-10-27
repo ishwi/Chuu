@@ -60,7 +60,7 @@ public class CrownsStolenCommand extends ConcurrentCommand<NumberParameters<TwoU
     }
 
     @Override
-    protected void onCommand(Context e, @Nonnull NumberParameters<TwoUsersParamaters> params) {
+    public void onCommand(Context e, @Nonnull NumberParameters<TwoUsersParamaters> params) {
 
 
         TwoUsersParamaters innerParams = params.getInnerParams();

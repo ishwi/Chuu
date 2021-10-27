@@ -53,7 +53,7 @@ public class MyCombosCommand extends ConcurrentCommand<ChuuDataParams> {
     }
 
     @Override
-    protected void onCommand(Context e, @Nonnull ChuuDataParams params) {
+    public void onCommand(Context e, @Nonnull ChuuDataParams params) {
 
 
         long discordID = params.getLastFMData().getDiscordId();

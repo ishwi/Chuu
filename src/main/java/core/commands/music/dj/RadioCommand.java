@@ -58,7 +58,7 @@ public class RadioCommand extends MusicCommand<EnumParameters<Station>> {
     }
 
     @Override
-    protected void onCommand(Context e, @Nonnull EnumParameters<Station> params) {
+    public void onCommand(Context e, @Nonnull EnumParameters<Station> params) {
         Station element = params.getElement();
         String input = params.getParams();
         if (element == null) {

@@ -10,6 +10,8 @@ import net.dv8tion.jda.api.requests.RestAction;
 import net.dv8tion.jda.internal.utils.Checks;
 
 import javax.annotation.CheckReturnValue;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.BiFunction;
@@ -18,8 +20,8 @@ import java.util.function.Function;
 public class PaginatorBuilder<T> {
     private static final Function<?, String> toString = Objects::toString;
     long seconds = 40;
-    private Context e;
-    private EmbedBuilder eb;
+    private final Context e;
+    private final EmbedBuilder eb;
     private List<T> items;
     private boolean numberedEntries = true;
     private int pageSize = 10;
@@ -30,10 +32,8 @@ public class PaginatorBuilder<T> {
             (context, eb) -> context.sendMessage(eb.build());
     private BiFunction<Context, EmbedBuilder, RestAction<Message>> creatorWithButtons =
             (context, eb) -> context.sendMessage(eb.build(), ActionRow.of(ButtonUtils.getRightButton()));
+    private Function<List<T>, ActionRow> extraRowGenerator = null;
 
-    public PaginatorBuilder(Context e) {
-        this.e = e;
-    }
 
     public PaginatorBuilder(Context e, EmbedBuilder eb, List<T> items) {
         this.e = e;
@@ -46,25 +46,14 @@ public class PaginatorBuilder<T> {
         return (Function<J, String>) toString;
     }
 
-    public PaginatorBuilder<T> e(Context e) {
-        this.e = e;
-        return this;
-    }
-
-    public PaginatorBuilder<T> embedBuilder(EmbedBuilder eb) {
-        this.eb = eb;
-        return this;
-    }
-
-    public PaginatorBuilder<T> items(List<T> items) {
-        this.items = items;
-        return this;
-    }
 
     public PaginatorBuilder<Memoized<T, String>> memoized(Function<T, String> memoizer) {
         List<Memoized<T, String>> memoizeds = this.items.stream().map(z -> new Memoized<>(z, memoizer)).toList();
         return new PaginatorBuilder<>(e, eb, memoizeds).pageSize(pageSize)
                 .numberedEntries(numberedEntries)
+                .creator(creator)
+                .creatorWithButtons(creatorWithButtons)
+                .extraText(extraText)
                 .pagingIndicator(pagingIndicator)
                 .seconds(seconds);
     }
@@ -75,12 +64,24 @@ public class PaginatorBuilder<T> {
         return this;
     }
 
+    public PaginatorBuilder<T> randomize() {
+        ArrayList<T> items = new ArrayList<>(this.items);
+        Collections.shuffle(items);
+        this.items = List.copyOf(items);
+        return this;
+    }
+
+    public PaginatorBuilder<T> extraRow(Function<List<T>, ActionRow> extraRowGenerator) {
+        this.extraRowGenerator = extraRowGenerator;
+        return this;
+    }
+
     public PaginatorBuilder<T> unnumered() {
         this.numberedEntries = false;
         return this;
     }
 
-    public PaginatorBuilder<T> numberedEntries(boolean numberedEntries) {
+    private PaginatorBuilder<T> numberedEntries(boolean numberedEntries) {
         this.numberedEntries = numberedEntries;
         return this;
     }
@@ -123,6 +124,6 @@ public class PaginatorBuilder<T> {
 
     @CheckReturnValue
     public Paginator<T> build() {
-        return new Paginator<>(e, eb, items, pageSize, numberedEntries, pagingIndicator, seconds, mapper, creator, creatorWithButtons, extraText);
+        return new Paginator<>(e, eb, items, pageSize, numberedEntries, pagingIndicator, seconds, mapper, creator, creatorWithButtons, extraText, extraRowGenerator);
     }
 }

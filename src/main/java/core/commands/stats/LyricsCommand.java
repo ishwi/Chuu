@@ -60,7 +60,7 @@ public class LyricsCommand extends ConcurrentCommand<ArtistAlbumParameters> {
     }
 
     @Override
-    protected void onCommand(Context e, @Nonnull ArtistAlbumParameters params) throws LastFmException {
+    public void onCommand(Context e, @Nonnull ArtistAlbumParameters params) throws LastFmException {
         String song = params.getAlbum();
         String artist = params.getArtist();
         String url = null;

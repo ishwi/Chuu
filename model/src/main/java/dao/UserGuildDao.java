@@ -186,4 +186,5 @@ interface UserGuildDao {
 
     void unflagAsBotted(String lastfmId, Connection connection);
 
+    long createHiddenServer(Connection connection, Set<Long> userIds);
 }

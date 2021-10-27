@@ -72,7 +72,7 @@ public class FeaturedCommand extends ConcurrentCommand<CommandParameters> {
     }
 
     @Override
-    protected void onCommand(Context e, @Nonnull CommandParameters params) {
+    public void onCommand(Context e, @Nonnull CommandParameters params) {
         String userString = this.getUserString(e, currentPresence.getDiscordId(), DEFAULT_USER);
         EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e)
                 .setThumbnail(CommandUtil.noImageUrl(currentPresence.getUrl()))

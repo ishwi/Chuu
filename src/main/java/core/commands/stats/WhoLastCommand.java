@@ -78,7 +78,7 @@ public class WhoLastCommand extends ConcurrentCommand<ArtistParameters> {
     }
 
     @Override
-    protected void onCommand(Context e, @Nonnull ArtistParameters params) throws LastFmException {
+    public void onCommand(Context e, @Nonnull ArtistParameters params) throws LastFmException {
 
         ScrobbledArtist sA = new ArtistValidator(db, lastFM, e).validate(params.getArtist(), !params.isNoredirect());
         params.setScrobbledArtist(sA);

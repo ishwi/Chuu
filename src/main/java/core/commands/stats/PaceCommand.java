@@ -87,7 +87,7 @@ public class PaceCommand extends ConcurrentCommand<NumberParameters<NumberParame
     }
 
     @Override
-    protected void onCommand(Context e, @Nonnull NumberParameters<NumberParameters<NaturalTimeParams>> hopefullyNoOneSeesThis) throws LastFmException {
+    public void onCommand(Context e, @Nonnull NumberParameters<NumberParameters<NaturalTimeParams>> hopefullyNoOneSeesThis) throws LastFmException {
 
 
         NumberParameters<NaturalTimeParams> unitCount = hopefullyNoOneSeesThis.getInnerParams();

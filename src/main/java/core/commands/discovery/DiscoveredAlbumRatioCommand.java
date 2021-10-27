@@ -54,7 +54,7 @@ public class DiscoveredAlbumRatioCommand extends ConcurrentCommand<TimeFramePara
     }
 
     @Override
-    protected void onCommand(Context e, @Nonnull TimeFrameParameters params) throws LastFmException {
+    public void onCommand(Context e, @Nonnull TimeFrameParameters params) throws LastFmException {
 
 
         if (params.getTime().equals(TimeFrameEnum.ALL)) {

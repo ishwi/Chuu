@@ -93,7 +93,7 @@ public class RYMDumpImportCommand extends ConcurrentCommand<UrlParameters> {
     }
 
     @Override
-    protected void onCommand(Context e, @Nonnull UrlParameters params) {
+    public void onCommand(Context e, @Nonnull UrlParameters params) {
 
 
         List<RYMImportRating> ratings = new ArrayList<>();

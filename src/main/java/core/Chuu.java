@@ -20,8 +20,9 @@ import core.music.listeners.VoiceListener;
 import core.music.scrobble.ScrobbleEventManager;
 import core.music.scrobble.StatusProcesser;
 import core.music.utils.ScrobbleProcesser;
+import core.otherlisteners.AlbumYearApproval;
 import core.otherlisteners.AwaitReady;
-import core.otherlisteners.ConstantListener;
+import core.otherlisteners.FriendRequester;
 import core.services.*;
 import core.services.validators.AlbumFinder;
 import core.util.botlists.BotListPoster;
@@ -40,6 +41,7 @@ import net.dv8tion.jda.api.events.guild.member.GuildMemberRemoveEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionAddEvent;
 import net.dv8tion.jda.api.events.message.priv.react.PrivateMessageReactionAddEvent;
+import net.dv8tion.jda.api.hooks.EventListener;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.requests.restaction.CommandListUpdateAction;
 import net.dv8tion.jda.api.requests.restaction.MessageAction;
@@ -242,7 +244,7 @@ public class Chuu {
     }
 
 
-    public static void addAll(ServiceView db, Consumer<net.dv8tion.jda.api.hooks.EventListener> consumer) {
+    public static void addAll(ServiceView db, Consumer<EventListener> consumer) {
         HelpCommand help = new HelpCommand(db);
 
         AdministrativeCommand commandAdministrator = new AdministrativeCommand(db);
@@ -259,7 +261,8 @@ public class Chuu {
         MyCommand<?>[] myCommands = scanListeners(help);
         Arrays.stream(myCommands).forEach(consumer);
         consumer.accept(new VoiceListener());
-        consumer.accept(new ConstantListener(channelId, db.normalService()));
+        consumer.accept(new AlbumYearApproval(channelId, db.normalService()));
+        consumer.accept(new FriendRequester(db.normalService()));
         args = null;
     }
 

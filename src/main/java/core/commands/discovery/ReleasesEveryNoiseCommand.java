@@ -66,7 +66,7 @@ public class ReleasesEveryNoiseCommand extends ConcurrentCommand<UserStringParam
     }
 
     @Override
-    protected void onCommand(Context e, @Nonnull UserStringParameters params) throws LastFmException, InstanceNotFoundException {
+    public void onCommand(Context e, @Nonnull UserStringParameters params) throws LastFmException, InstanceNotFoundException {
         String input = params.getInput();
         boolean isSearchResult = !input.isBlank();
         if (!isSearchResult) {
@@ -106,7 +106,7 @@ public class ReleasesEveryNoiseCommand extends ConcurrentCommand<UserStringParam
                     CommandUtil.singlePlural(count, "release", "releases"), releases);
         };
 
-        new PaginatorBuilder<>(e, eb, strings).mapper(mapper).pageSize(5).numberedEntries(false).build().queue();
+        new PaginatorBuilder<>(e, eb, strings).mapper(mapper).pageSize(5).unnumered().build().queue();
 
     }
 
@@ -147,7 +147,7 @@ public class ReleasesEveryNoiseCommand extends ConcurrentCommand<UserStringParam
             senderWithButtons = (context, embedBuilder) -> context.editMessage(message, embedBuilder.build(), List.of(Paginator.defaultActions()));
         }
 
-        new PaginatorBuilder<>(e, eb, strings).numberedEntries(false)
+        new PaginatorBuilder<>(e, eb, strings).unnumered()
                 .creator(sender)
                 .creatorWithButtons(senderWithButtons)
                 .build().queue();

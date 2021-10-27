@@ -59,7 +59,7 @@ public class SummonCommand extends MusicCommand<ChannelParameters> {
     }
 
     @Override
-    protected void onCommand(Context e, @Nonnull ChannelParameters params) {
+    public void onCommand(Context e, @Nonnull ChannelParameters params) {
         MusicManager manager = Chuu.playerRegistry.get(e.getGuild());
         GuildChannel targetChannel = params.getGuildChannel();
         if (targetChannel instanceof VoiceChannel voiceChannel) {

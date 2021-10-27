@@ -57,7 +57,7 @@ public class DisabledStatusCommand extends ConcurrentCommand<CommandParameters> 
     }
 
     @Override
-    protected void onCommand(Context e, @Nonnull CommandParameters params) {
+    public void onCommand(Context e, @Nonnull CommandParameters params) {
         MessageDisablingService messageDisablingService = Chuu.getMessageDisablingService();
         MultiValuedMap<Pair<Long, Long>, MyCommand<?>> disabledChannelsMap = messageDisablingService.disabledChannelsMap;
         MultiValuedMap<Pair<Long, Long>, MyCommand<?>> enabledChannelsMap = messageDisablingService.enabledChannelsMap;

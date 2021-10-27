@@ -172,7 +172,7 @@ public class ImportCommand extends ConcurrentCommand<UrlParameters> {
     }
 
     @Override
-    protected void onCommand(Context e, @Nonnull UrlParameters params) {
+    public void onCommand(Context e, @Nonnull UrlParameters params) {
         Member member = e.getGuild().getMember(e.getAuthor());
         if (CommandUtil.notEnoughPerms(e)) {
             sendMessageQueue(e, CommandUtil.notEnoughPermsTemplate() + "export the data");

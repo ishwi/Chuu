@@ -67,7 +67,7 @@ public class GlobalCommandsIssuedCommand extends ConcurrentCommand<ChuuDataParam
 
 
     @Override
-    protected void onCommand(Context e, @Nonnull ChuuDataParams params) throws LastFmException, InstanceNotFoundException {
+    public void onCommand(Context e, @Nonnull ChuuDataParams params) throws LastFmException, InstanceNotFoundException {
 
         long idLong = params.getLastFMData().getDiscordId();
         CompletableFuture<Optional<Rank<PrivacyUserCount>>> rankOpt = CompletableFuture.supplyAsync(() -> {

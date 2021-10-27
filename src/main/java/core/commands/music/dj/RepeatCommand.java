@@ -57,7 +57,7 @@ public class RepeatCommand extends MusicCommand<EnumParameters<RepeatOption>> {
     }
 
     @Override
-    protected void onCommand(Context e, @Nonnull EnumParameters<RepeatOption> params) {
+    public void onCommand(Context e, @Nonnull EnumParameters<RepeatOption> params) {
         RepeatOption element = params.getElement();
         MusicManager manager = getManager(e);
         manager.setRepeatOption(element);

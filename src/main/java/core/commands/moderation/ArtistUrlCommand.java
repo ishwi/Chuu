@@ -52,7 +52,7 @@ public class ArtistUrlCommand extends ConcurrentCommand<ArtistUrlParameters> {
     }
 
     @Override
-    protected void onCommand(Context e, @Nonnull ArtistUrlParameters params) throws LastFmException {
+    public void onCommand(Context e, @Nonnull ArtistUrlParameters params) throws LastFmException {
         LastFMData lastFMData = params.getLastFMData();
         if (lastFMData.getRole().equals(Role.IMAGE_BLOCKED)) {
             sendMessageQueue(e, "You don't have enough permissions to add an image!");

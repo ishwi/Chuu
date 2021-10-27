@@ -67,7 +67,7 @@ public class AlbumAltCovers extends ConcurrentCommand<ArtistAlbumParameters> {
     }
 
     @Override
-    protected void onCommand(Context e, @Nonnull ArtistAlbumParameters params) throws LastFmException {
+    public void onCommand(Context e, @Nonnull ArtistAlbumParameters params) throws LastFmException {
         ScrobbledAlbum album = new AlbumValidator(db, lastFM).validate(params.getArtist(), params.getAlbum());
         List<String> covers = Chuu.getCoverService().getCovers(album.getAlbumId());
         if (covers.isEmpty()) {

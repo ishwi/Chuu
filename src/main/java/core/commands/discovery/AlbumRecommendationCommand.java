@@ -63,7 +63,7 @@ public class AlbumRecommendationCommand extends ConcurrentCommand<Recommendation
     }
 
     @Override
-    protected void onCommand(Context e, @Nonnull RecommendationsParams params) throws LastFmException, InstanceNotFoundException {
+    public void onCommand(Context e, @Nonnull RecommendationsParams params) throws LastFmException, InstanceNotFoundException {
 
         long firstDiscordID;
         long secondDiscordID;

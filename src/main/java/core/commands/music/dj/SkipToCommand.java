@@ -67,7 +67,7 @@ public class SkipToCommand extends MusicCommand<NumberParameters<CommandParamete
     }
 
     @Override
-    protected void onCommand(Context e, @Nonnull NumberParameters<CommandParameters> params) {
+    public void onCommand(Context e, @Nonnull NumberParameters<CommandParameters> params) {
         Long toIndex = params.getExtraParam();
         MusicManager manager = getManager(e);
         if (toIndex == null || toIndex <= 0) {

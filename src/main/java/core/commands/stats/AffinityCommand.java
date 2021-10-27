@@ -62,7 +62,7 @@ public class AffinityCommand extends ConcurrentCommand<AffinityParameters> {
     }
 
     @Override
-    protected void onCommand(Context e, @Nonnull AffinityParameters params) throws LastFmException, InstanceNotFoundException {
+    public void onCommand(Context e, @Nonnull AffinityParameters params) throws LastFmException, InstanceNotFoundException {
         if (params.isDoServer()) {
             doGuild(params);
         } else {

@@ -75,7 +75,7 @@ public class LanguageCommand extends ConcurrentCommand<TimeFrameParameters> {
     }
 
     @Override
-    protected void onCommand(Context e, @Nonnull TimeFrameParameters params) throws LastFmException {
+    public void onCommand(Context e, @Nonnull TimeFrameParameters params) throws LastFmException {
 
 
         BlockingQueue<UrlCapsule> queue = new ArrayBlockingQueue<>(3000);

@@ -57,7 +57,7 @@ public class PauseCommand extends MusicCommand<CommandParameters> {
     }
 
     @Override
-    protected void onCommand(Context e, @Nonnull CommandParameters params) {
+    public void onCommand(Context e, @Nonnull CommandParameters params) {
         MusicManager manager = getManager(e);
         manager.getPlayer().setPaused(true);
         e.sendMessageQueue("Paused current song");

@@ -63,7 +63,7 @@ public class RandomLinkDetailsCommand extends ConcurrentCommand<RandomUrlParamet
     }
 
     @Override
-    protected void onCommand(Context e, @Nonnull RandomUrlParameters params) {
+    public void onCommand(Context e, @Nonnull RandomUrlParameters params) {
 
 
         String url = params.getUrl();

@@ -162,15 +162,18 @@ public abstract class MyCommand<T extends CommandParameters> implements EventLis
         logCommand(db, e, this, timeElapsed, sucess, e instanceof ContextMessageReceived);
     }
 
+    protected void parseAndExecute(Context e) throws LastFmException, InstanceNotFoundException {
+        T params = parser.parse(e);
+        if (params != null) {
+            onCommand(e, params);
+        }
+    }
 
     protected boolean handleCommand(Context e) {
         boolean success = false;
         try {
-            T params = parser.parse(e);
-            if (params != null) {
-                onCommand(e, params);
-                success = true;
-            }
+            parseAndExecute(e);
+            success = true;
         } catch (LastFMNoPlaysException ex) {
             String username = ex.getUsername();
             if (e.isFromGuild()) {
@@ -248,7 +251,7 @@ public abstract class MyCommand<T extends CommandParameters> implements EventLis
         }
     }
 
-    protected abstract void onCommand(Context e, @Nonnull T params) throws LastFmException, InstanceNotFoundException;
+    public abstract void onCommand(Context e, @Nonnull T params) throws LastFmException, InstanceNotFoundException;
 
     protected final String getUserString(Context e, long discordId) {
         return getUserString(e, discordId, "Unknown");

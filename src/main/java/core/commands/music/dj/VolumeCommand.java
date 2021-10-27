@@ -71,7 +71,7 @@ public class VolumeCommand extends MusicCommand<NumberParameters<CommandParamete
     }
 
     @Override
-    protected void onCommand(Context e, @Nonnull NumberParameters<CommandParameters> params) {
+    public void onCommand(Context e, @Nonnull NumberParameters<CommandParameters> params) {
         Long volume = params.getExtraParam();
         MusicManager manager = getManager(e);
         int currentVolume = manager.getPlayer().getVolume();

@@ -15,6 +15,9 @@ public class CommandParameters {
         this.e = e;
     }
 
+    public void copyParams(CommandParameters cp) {
+        this.optionals.putAll(cp.optionals);
+    }
 
     public void initParams(Collection<String> optionals) {
         optionals.forEach(x -> this.optionals.put(new OptionalEntity(x, ""), true));

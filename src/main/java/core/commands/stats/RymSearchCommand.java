@@ -46,7 +46,7 @@ public class RymSearchCommand extends ConcurrentCommand<ExtraParameters<WordPara
     }
 
     @Override
-    protected void onCommand(Context e, @Nonnull ExtraParameters<WordParameter, User> params) {
+    public void onCommand(Context e, @Nonnull ExtraParameters<WordParameter, User> params) {
 
 
         String query = params.getInnerParams().getWord();

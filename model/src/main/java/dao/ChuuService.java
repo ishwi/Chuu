@@ -30,6 +30,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.function.ToIntFunction;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class ChuuService implements EveryNoiseService {
     private final Logger logger = LoggerFactory.getLogger(ChuuService.class);
@@ -47,6 +48,7 @@ public class ChuuService implements EveryNoiseService {
     private final DiscoveralDao discoveralDao;
     private final MusicDao musicDao;
     private final EveryNoiseService everyNoiseService;
+    private final FriendDAO friendDAO;
 
     public ChuuService(CommonDatasource dataSource) {
         this.dataSource = dataSource;
@@ -61,6 +63,7 @@ public class ChuuService implements EveryNoiseService {
         this.discoveralDao = new DiscoveralDaoImpl();
         musicDao = new MusidDaoImpl();
         this.everyNoiseService = new EveryNoiseServiceImpl(dataSource);
+        this.friendDAO = new FriendDAOImpl();
     }
 
 
@@ -4275,7 +4278,115 @@ public class ChuuService implements EveryNoiseService {
         } catch (SQLException e) {
             throw new ChuuServiceException();
         }
+    }
 
+    public List<Friend> getUserFriends(long discordId) {
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setReadOnly(true);
+            return friendDAO.getUserFriends(connection, discordId);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    public List<Friend> getIncomingFriendRequests(long discordId) {
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setReadOnly(true);
+            return friendDAO.getIncomingRequests(connection, discordId);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    public List<Friend> getFriendPendingRequests(long discordId) {
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setReadOnly(true);
+            return friendDAO.getPendingRequests(connection, discordId);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    public boolean acceptRequest(long discordId, long requesterId) {
+        try (Connection connection = dataSource.getConnection()) {
+            return friendDAO.acceptRequest(connection, discordId, requesterId);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    public void createRequest(long discordId, long receiverId) {
+        try (Connection connection = dataSource.getConnection()) {
+            friendDAO.createRequest(connection, discordId, receiverId);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    public void rejectRequest(long discordId, long requesterId) {
+        try (Connection connection = dataSource.getConnection()) {
+            friendDAO.rejectRequest(connection, discordId, requesterId);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    public Optional<Friend> areFriends(long discordId, long requesterId) {
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setReadOnly(true);
+            return friendDAO.areFriends(connection, discordId, requesterId);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    public WrapperReturnNowPlaying friendsWhoKnows(long artistId, long discordId, int limit) {
+        try (Connection connection = dataSource.getConnection()) {
+            List<Long> userFriends = friendDAO.getUserFriendsIds(connection, discordId);
+            Set<Long> friendIds = Stream.concat(userFriends.stream(), Stream.of(discordId)).collect(Collectors.toSet());
+            return executeInHiddenServer(friendIds,
+                    (hiddenConnection, guildId) -> queriesDao.knows(connection, artistId, guildId, limit));
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    public WrapperReturnNowPlaying friendsWhoKnowsSong(long trackId, long discordId, int limit) {
+        try (Connection connection = dataSource.getConnection()) {
+            List<Long> userFriends = friendDAO.getUserFriendsIds(connection, discordId);
+            Set<Long> friendIds = Stream.concat(userFriends.stream(), Stream.of(discordId)).collect(Collectors.toSet());
+            return executeInHiddenServer(friendIds,
+                    (hiddenConnection, guildId) -> queriesDao.whoKnowsTrack(connection, trackId, guildId, limit));
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    public WrapperReturnNowPlaying friendsWhoKnowsAlbum(long albumId, long discordId, int limit) {
+        try (Connection connection = dataSource.getConnection()) {
+            List<Long> userFriends = friendDAO.getUserFriendsIds(connection, discordId);
+            Set<Long> friendIds = Stream.concat(userFriends.stream(), Stream.of(discordId)).collect(Collectors.toSet());
+            return executeInHiddenServer(friendIds,
+                    (hiddenConnection, guildId) -> queriesDao.whoKnowsAlbum(connection, albumId, guildId, limit));
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    private <T> T executeInHiddenServer(Set<Long> userIds, HiddenRunnable<T> runnable) {
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setAutoCommit(false);
+            long hiddenServer = userGuildDao.createHiddenServer(connection, userIds);
+            T result = runnable.executeInHiddenServer(connection, hiddenServer);
+            connection.rollback();
+            return result;
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    private interface HiddenRunnable<T> {
+        T executeInHiddenServer(Connection connection, long guildId) throws SQLException;
     }
 }
 

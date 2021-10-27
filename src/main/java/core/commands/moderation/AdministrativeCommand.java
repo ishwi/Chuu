@@ -183,7 +183,7 @@ public class AdministrativeCommand extends ConcurrentCommand<UrlParameters> {
     }
 
     @Override
-    protected void onCommand(Context e, @Nonnull UrlParameters urlParameters) {
+    public void onCommand(Context e, @Nonnull UrlParameters urlParameters) {
         String url = urlParameters.getUrl();
         if (url.length() == 0) {
             db.removeLogo(e.getGuild().getIdLong());

@@ -66,7 +66,7 @@ public class NPModeSetterCommand extends ConcurrentCommand<EnumListParameters<NP
     }
 
     @Override
-    protected void onCommand(Context e, @Nonnull EnumListParameters<NPMode> params) {
+    public void onCommand(Context e, @Nonnull EnumListParameters<NPMode> params) {
 
         EnumSet<NPMode> modes = params.getEnums();
         if (params.isHelp()) {
@@ -80,7 +80,7 @@ public class NPModeSetterCommand extends ConcurrentCommand<EnumListParameters<NP
             EmbedBuilder eb = new ChuuEmbedBuilder(e).setTitle("NP Configuration help")
                     .setDescription(split.get(0));
 
-            new PaginatorBuilder<>(e, eb, split).pageSize(1).numberedEntries(false).build().queue();
+            new PaginatorBuilder<>(e, eb, split).pageSize(1).unnumered().build().queue();
             return;
         }
         if (params.isListing()) {

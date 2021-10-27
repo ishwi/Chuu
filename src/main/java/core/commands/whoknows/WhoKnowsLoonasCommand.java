@@ -102,7 +102,7 @@ public class WhoKnowsLoonasCommand extends WhoKnowsBaseCommand<LOONAParameters> 
     }
 
     @Override
-    protected void onCommand(Context e, @Nonnull LOONAParameters params) {
+    public void onCommand(Context e, @Nonnull LOONAParameters params) {
 
 
         @Nullable String nullableOwner = params.getSubject() == LOONAParameters.Subject.ME ? params.getLastFMData().getName() : null;

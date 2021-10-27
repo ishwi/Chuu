@@ -65,7 +65,7 @@ public class SongAudioFeaturesCommand extends ConcurrentCommand<ArtistAlbumParam
     }
 
     @Override
-    protected void onCommand(Context e, @Nonnull ArtistAlbumParameters params) throws LastFmException {
+    public void onCommand(Context e, @Nonnull ArtistAlbumParameters params) throws LastFmException {
         LastFMData lastFMData = params.getLastFMData();
 
         ScrobbledArtist sA = new ArtistValidator(db, lastFM, e).validate(params.getArtist(), false, true);

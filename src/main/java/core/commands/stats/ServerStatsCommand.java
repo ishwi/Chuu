@@ -53,7 +53,7 @@ public class ServerStatsCommand extends ConcurrentCommand<CommandParameters> {
     }
 
     @Override
-    protected void onCommand(Context e, @Nonnull CommandParameters params) {
+    public void onCommand(Context e, @Nonnull CommandParameters params) {
         ServerStats serverStats = db.getServerStats(e.getGuild().getIdLong());
 
         EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e)

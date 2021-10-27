@@ -63,7 +63,7 @@ public class GlobalAlbumCommand extends ConcurrentCommand<ArtistAlbumParameters>
     }
 
     @Override
-    protected void onCommand(Context e, @Nonnull ArtistAlbumParameters params) throws LastFmException {
+    public void onCommand(Context e, @Nonnull ArtistAlbumParameters params) throws LastFmException {
 
         long userId = params.getLastFMData().getDiscordId();
         ScrobbledArtist sA = new ArtistValidator(db, lastFM, e).validate(params.getArtist(), true, !params.isNoredirect());

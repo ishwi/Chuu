@@ -23,7 +23,7 @@ public abstract class PieableListCommand<T, Y extends CommandParameters> extends
     }
 
     @Override
-    protected void onCommand(Context e, @Nonnull Y params) {
+    public void onCommand(Context e, @Nonnull Y params) {
 
         if (params.hasOptional("pie")) {
             doPie(getList(params), params);

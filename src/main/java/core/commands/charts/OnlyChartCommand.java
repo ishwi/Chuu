@@ -23,7 +23,7 @@ public abstract class OnlyChartCommand<T extends ChartParameters> extends Charta
     }
 
     @Override
-    protected void onCommand(Context e, @Nonnull T params) throws LastFmException {
+    public void onCommand(Context e, @Nonnull T params) throws LastFmException {
 
         CountWrapper<BlockingQueue<UrlCapsule>> countWrapper = processQueue(params);
         BlockingQueue<UrlCapsule> urlCapsules = countWrapper.getResult();

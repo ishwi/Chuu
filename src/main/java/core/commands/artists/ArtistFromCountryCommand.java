@@ -114,7 +114,7 @@ public class ArtistFromCountryCommand extends ConcurrentCommand<CountryParameter
     }
 
     @Override
-    protected void onCommand(Context e, @Nonnull CountryParameters params) throws LastFmException {
+    public void onCommand(Context e, @Nonnull CountryParameters params) throws LastFmException {
 
         CountryCode country = params.getCode();
         LastFMData user = params.getLastFMData();

@@ -116,7 +116,7 @@ public class GenreCommand extends ConcurrentCommand<NumberParameters<TimeFramePa
     }
 
     @Override
-    protected void onCommand(Context e, @Nonnull NumberParameters<TimeFrameParameters> params) throws LastFmException {
+    public void onCommand(Context e, @Nonnull NumberParameters<TimeFrameParameters> params) throws LastFmException {
 
 
         TimeFrameParameters innerParams = params.getInnerParams();

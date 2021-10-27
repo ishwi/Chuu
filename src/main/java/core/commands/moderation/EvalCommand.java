@@ -74,7 +74,7 @@ public class EvalCommand extends ConcurrentCommand<CommandParameters> {
     }
 
     @Override
-    protected void onCommand(Context e, @Nonnull CommandParameters params) {
+    public void onCommand(Context e, @Nonnull CommandParameters params) {
         if (ownerId == null) {
             e.getJDA().retrieveApplicationInfo().queue(x -> ownerId = x.getOwner().getIdLong());
             return;

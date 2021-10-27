@@ -75,7 +75,7 @@ public class WhoAudioCommand extends LeaderboardCommand<EnumParameters<AudioStat
     }
 
     @Override
-    protected void onCommand(Context e, @Nonnull EnumParameters<AudioStats> params) {
+    public void onCommand(Context e, @Nonnull EnumParameters<AudioStats> params) {
         if (params.getElement() == null) {
             EmbedBuilder eb = new ChuuEmbedBuilder(e).setAuthor("Audio leadearboard help");
             EnumSet<AudioStats> stats = EnumSet.allOf(AudioStats.class);

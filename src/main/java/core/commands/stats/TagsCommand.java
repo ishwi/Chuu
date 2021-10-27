@@ -60,7 +60,7 @@ public class TagsCommand extends ConcurrentCommand<ArtistParameters> {
     }
 
     @Override
-    protected void onCommand(Context e, @Nonnull ArtistParameters params) throws LastFmException, InstanceNotFoundException {
+    public void onCommand(Context e, @Nonnull ArtistParameters params) throws LastFmException, InstanceNotFoundException {
         ArtistParameters parse = this.parser.parse(e);
 
         String artist = parse.getArtist();

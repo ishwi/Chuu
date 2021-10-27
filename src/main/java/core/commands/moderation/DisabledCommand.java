@@ -60,7 +60,7 @@ public class DisabledCommand extends ConcurrentCommand<DisabledCommandParameters
     }
 
     @Override
-    protected void onCommand(Context e, @Nonnull DisabledCommandParameters params) {
+    public void onCommand(Context e, @Nonnull DisabledCommandParameters params) {
 
         MessageDisablingService messageDisablingService = Chuu.getMessageDisablingService();
 

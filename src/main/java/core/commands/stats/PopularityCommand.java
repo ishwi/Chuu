@@ -60,7 +60,7 @@ public class PopularityCommand extends ConcurrentCommand<ChuuDataParams> {
     }
 
     @Override
-    protected void onCommand(Context e, @Nonnull ChuuDataParams params) {
+    public void onCommand(Context e, @Nonnull ChuuDataParams params) {
         String name = params.getLastFMData().getName();
         List<ScrobbledTrack> topTracks = db.getTopTracks(name, 2000);
         if (params.hasOptional("sort")) {

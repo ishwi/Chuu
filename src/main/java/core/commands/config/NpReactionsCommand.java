@@ -53,7 +53,7 @@ public class NpReactionsCommand extends ConcurrentCommand<EmotiParameters> {
     }
 
     @Override
-    protected void onCommand(Context e, @Nonnull EmotiParameters params) {
+    public void onCommand(Context e, @Nonnull EmotiParameters params) {
         boolean append = params.hasOptional("append");
 
         if (params.hasOptional("check")) {

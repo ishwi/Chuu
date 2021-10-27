@@ -49,7 +49,7 @@ public class RateLimitCommand extends ConcurrentCommand<RateLimitParams> {
     }
 
     @Override
-    protected void onCommand(Context e, @Nonnull RateLimitParams params) throws InstanceNotFoundException {
+    public void onCommand(Context e, @Nonnull RateLimitParams params) throws InstanceNotFoundException {
 
 
         long idLong = e.getAuthor().getIdLong();

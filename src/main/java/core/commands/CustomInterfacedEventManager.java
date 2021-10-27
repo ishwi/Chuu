@@ -6,6 +6,7 @@ import core.commands.abstracts.MyCommand;
 import core.commands.moderation.AdministrativeCommand;
 import core.music.listeners.VoiceListener;
 import core.otherlisteners.AwaitReady;
+import core.otherlisteners.ChannelConstantListener;
 import core.otherlisteners.ConstantListener;
 import core.otherlisteners.ReactionListener;
 import core.parsers.params.CommandParameters;
@@ -37,7 +38,8 @@ public class CustomInterfacedEventManager implements IEventManager {
     private static final ExecutorService reactionExecutor = Executors.newSingleThreadExecutor();
     private final Set<EventListener> otherListeners = ConcurrentHashMap.newKeySet();
     private final Map<String, MyCommand<? extends CommandParameters>> commandListeners = new HashMap<>();
-    private final Map<Long, ConstantListener> constantListeners = new HashMap<>();
+    private final Map<Long, ChannelConstantListener> channelConstantListeners = new HashMap<>();
+    private final Set<ConstantListener> constantListeners = new HashSet<>();
     private final Map<ReactionListener, ScheduledFuture<?>> reactionaries = new ConcurrentHashMap<>();
     public boolean isReady;
     private Map<String, MyCommand<? extends CommandParameters>> slashVariants;
@@ -54,12 +56,14 @@ public class CustomInterfacedEventManager implements IEventManager {
             case ButtonClickEvent e3 -> e3.getChannel().getIdLong();
             default -> throw new IllegalStateException("Unexpected value: " + event);
         };
-        ConstantListener c = constantListeners.get(channelId);
+        ChannelConstantListener c = channelConstantListeners.get(channelId);
         if (c != null) {
             c.onEvent(event);
             return;
         }
-
+        for (ConstantListener constantListener : constantListeners) {
+            constantListener.onEvent(event);
+        }
         for (ReactionListener listener : reactionaries.keySet()) {
             listener.onEvent(event);
         }
@@ -94,7 +98,11 @@ public class CustomInterfacedEventManager implements IEventManager {
             }), reactionListener.getActiveSeconds(), TimeUnit.SECONDS);
             reactionaries.put(reactionListener, schedule);
         } else if (listener instanceof ConstantListener cl) {
-            constantListeners.put(cl.channelId(), cl);
+            if (listener instanceof ChannelConstantListener ccl) {
+                channelConstantListeners.put(ccl.getChannelId(), ccl);
+            } else {
+                constantListeners.add(cl);
+            }
         }
         if (listener instanceof AwaitReady) {
             otherListeners.add((EventListener) listener);
@@ -119,7 +127,8 @@ public class CustomInterfacedEventManager implements IEventManager {
                 }
             }
             case AwaitReady a -> otherListeners.remove(a);
-            case ConstantListener cl -> constantListeners.remove(cl.channelId(), cl);
+            case ChannelConstantListener ccl -> channelConstantListeners.remove(ccl.getChannelId(), ccl);
+            case ConstantListener cl -> constantListeners.remove(cl);
             default -> {
             }
         }

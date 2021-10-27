@@ -58,7 +58,7 @@ public class ClearQueueCommand extends MusicCommand<CommandParameters> {
     }
 
     @Override
-    protected void onCommand(Context e, @Nonnull CommandParameters params) {
+    public void onCommand(Context e, @Nonnull CommandParameters params) {
         MusicManager manager = Chuu.playerRegistry.get(e.getGuild());
         Queue<String> queue = manager.getQueue();
         if (queue.isEmpty()) {

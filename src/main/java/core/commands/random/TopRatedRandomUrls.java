@@ -53,7 +53,7 @@ public class TopRatedRandomUrls extends ConcurrentCommand<CommandParameters> {
     }
 
     @Override
-    protected void onCommand(Context e, @Nonnull CommandParameters params) {
+    public void onCommand(Context e, @Nonnull CommandParameters params) {
 
 
         boolean server = params.hasOptional("server");

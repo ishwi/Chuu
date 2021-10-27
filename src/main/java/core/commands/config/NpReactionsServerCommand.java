@@ -52,7 +52,7 @@ public class NpReactionsServerCommand extends ConcurrentCommand<EmotiParameters>
     }
 
     @Override
-    protected void onCommand(Context e, @Nonnull EmotiParameters params) {
+    public void onCommand(Context e, @Nonnull EmotiParameters params) {
         if (params.hasOptional("check")) {
             List<String> serverReactions = db.getServerReactions(e.getGuild().getIdLong());
             if (serverReactions.isEmpty()) {

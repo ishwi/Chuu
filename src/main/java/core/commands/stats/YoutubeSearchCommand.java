@@ -51,7 +51,7 @@ public class YoutubeSearchCommand extends ConcurrentCommand<ExtraParameters<Word
     }
 
     @Override
-    protected void onCommand(Context e, @Nonnull ExtraParameters<WordParameter, User> params) {
+    public void onCommand(Context e, @Nonnull ExtraParameters<WordParameter, User> params) {
 
 
         String query = params.getInnerParams().getWord();

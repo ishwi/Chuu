@@ -42,7 +42,7 @@ public abstract class GroupingChartCommand extends ChartableCommand<ChartGroupPa
     }
 
     @Override
-    protected void onCommand(Context e, @Nonnull ChartGroupParameters params) throws LastFmException {
+    public void onCommand(Context e, @Nonnull ChartGroupParameters params) throws LastFmException {
 
         CountWrapper<GroupingQueue> countWrapper = processGroupedQueue(params);
         if (countWrapper.getResult().isEmpty()) {

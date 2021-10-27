@@ -55,7 +55,7 @@ public class SetCommand extends ConcurrentCommand<WordParameter> {
     }
 
     @Override
-    protected void onCommand(Context e, @Nonnull WordParameter params) throws LastFmException, InstanceNotFoundException {
+    public void onCommand(Context e, @Nonnull WordParameter params) throws LastFmException, InstanceNotFoundException {
 
 
         String lastFmName = params.getWord();

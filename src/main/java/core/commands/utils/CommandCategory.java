@@ -24,9 +24,10 @@ public enum CommandCategory {
     MUSIC(18, "Play and scrobble music"),
     SERVER_LEADERBOARDS(19, "Server leaderboards", "leaderboard"),
     RANDOM(20, "Commands about the random pool", "random"),
-    CONFIGURATION(21, "Personalize your bot usage"),
-    MODERATION(22, "Command for bot admins"),
-    SCROBBLING(23, "Commands for scrobbling");
+    FRIENDS(21, "Socialize or something", "friends"),
+    CONFIGURATION(22, "Personalize your bot usage"),
+    MODERATION(23, "Command for bot admins"),
+    SCROBBLING(24, "Commands for scrobbling");
 
     private final int order;
     private final String description;

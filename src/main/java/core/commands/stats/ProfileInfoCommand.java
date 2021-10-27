@@ -58,7 +58,7 @@ public class ProfileInfoCommand extends ConcurrentCommand<ChuuDataParams> {
     }
 
     @Override
-    protected void onCommand(Context e, @Nonnull ChuuDataParams params) throws LastFmException {
+    public void onCommand(Context e, @Nonnull ChuuDataParams params) throws LastFmException {
 
         String lastFmName = params.getLastFMData().getName();
         UserInfo userInfo;

@@ -50,7 +50,7 @@ public class BanArtistTagCommand extends ConcurrentCommand<CommandParameters> {
     }
 
     @Override
-    protected void onCommand(Context e, @Nonnull CommandParameters params) throws LastFmException, InstanceNotFoundException {
+    public void onCommand(Context e, @Nonnull CommandParameters params) throws LastFmException, InstanceNotFoundException {
 
         long idLong = e.getAuthor().getIdLong();
         LastFMData lastFMData = db.findLastFMData(idLong);

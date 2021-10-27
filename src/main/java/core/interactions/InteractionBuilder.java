@@ -305,8 +305,12 @@ public class InteractionBuilder {
     }
 
     public static void processOpts(MyCommand<?> myCommand, Consumer<OptionData> consumer) {
-        List<OptionalEntity> optionals = myCommand.getParser().getOptionals();
-        optionals.stream().filter(t -> !t.isEnabledByDefault()).forEach(t -> {
+        processOpts(myCommand.getParser().getOptionals(), consumer);
+
+    }
+
+    public static void processOpts(List<OptionalEntity> opts, Consumer<OptionData> consumer) {
+        opts.stream().filter(t -> !t.isEnabledByDefault()).forEach(t -> {
             OptionData data = new OptionData(OptionType.STRING,
                     t.value()
 
@@ -314,10 +318,6 @@ public class InteractionBuilder {
             data.addChoice("yes", "yes");
             consumer.accept(data);
         });
-    }
-
-    record Holder(MyCommand<?> command, String path) {
-
     }
 
 

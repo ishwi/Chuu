@@ -59,7 +59,7 @@ public class StatsCommand extends ConcurrentCommand<StatsParams> {
     }
 
     @Override
-    protected void onCommand(Context e, @Nonnull StatsParams params) throws LastFmException, InstanceNotFoundException {
+    public void onCommand(Context e, @Nonnull StatsParams params) throws LastFmException, InstanceNotFoundException {
 
         NowPlayingArtist np = params.getNp();
         ScrobbledTrack st = null;

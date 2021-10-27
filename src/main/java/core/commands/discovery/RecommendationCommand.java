@@ -52,7 +52,7 @@ public class RecommendationCommand extends ConcurrentCommand<RecommendationsPara
     }
 
     @Override
-    protected void onCommand(Context e, @Nonnull RecommendationsParams params) throws InstanceNotFoundException {
+    public void onCommand(Context e, @Nonnull RecommendationsParams params) throws InstanceNotFoundException {
 
         long firstDiscordID;
         long secondDiscordID;

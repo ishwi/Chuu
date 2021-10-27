@@ -43,7 +43,7 @@ public class TimeSpentCommand extends ConcurrentCommand<TimeFrameParameters> {
     }
 
     @Override
-    protected void onCommand(Context e, @Nonnull TimeFrameParameters params) throws LastFmException {
+    public void onCommand(Context e, @Nonnull TimeFrameParameters params) throws LastFmException {
 
         String username = params.getLastFMData().getName();
         long discordId = params.getLastFMData().getDiscordId();

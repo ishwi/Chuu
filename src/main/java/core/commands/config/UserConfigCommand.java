@@ -58,7 +58,7 @@ public class UserConfigCommand extends ConcurrentCommand<UserConfigParameters> {
     }
 
     @Override
-    protected void onCommand(Context e, @Nonnull UserConfigParameters params) throws LastFmException, InstanceNotFoundException {
+    public void onCommand(Context e, @Nonnull UserConfigParameters params) throws LastFmException, InstanceNotFoundException {
 
         UserConfigType config = params.getConfig();
         String value = params.getValue().trim();

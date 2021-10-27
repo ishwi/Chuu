@@ -19,6 +19,8 @@ import java.util.Optional;
 
 public class LocalWhoKnowsSongCommand extends LocalWhoKnowsAlbumCommand {
 
+    public static final List<String> WKT_ALIASES = Arrays.asList("wktrack", "whoknowstrack", "wkt", "wks", "wt", "ws");
+
     public LocalWhoKnowsSongCommand(ServiceView dao) {
         super(dao);
     }
@@ -39,7 +41,6 @@ public class LocalWhoKnowsSongCommand extends LocalWhoKnowsAlbumCommand {
         String artist = sA.getArtist();
 
         ScrobbledArtist who = ap.getScrobbledArtist();
-        long artistId = who.getArtistId();
         WhoKnowsMode effectiveMode = getEffectiveMode(ap.getLastFMData().getWhoKnowsMode(), ap);
         ScrobbledTrack sT = new TrackValidator(db, lastFM).validate(who.getArtistId(), who.getArtist(), ap.getAlbum());
         String track = sT.getName();
@@ -49,10 +50,7 @@ public class LocalWhoKnowsSongCommand extends LocalWhoKnowsAlbumCommand {
             sendMessageQueue(ap.getE(), "Couldn't confirm the song " + sT.getName() + " by " + sA.getArtist() + " exists :(");
             return null;
         }
-        WrapperReturnNowPlaying wrapperReturnNowPlaying =
-                effectiveMode.equals(WhoKnowsMode.IMAGE) ?
-                        this.db.getWhoKnowsTrack(10, trackId, ap.getE().getGuild().getIdLong()) :
-                        this.db.getWhoKnowsTrack(Integer.MAX_VALUE, trackId, ap.getE().getGuild().getIdLong());
+        WrapperReturnNowPlaying wrapperReturnNowPlaying = generateInnerWrapper(ap, effectiveMode, trackId);
         wrapperReturnNowPlaying.setArtist(ap.getScrobbledArtist().getArtist());
         try {
             TrackExtended trackInfo = lastFM.getTrackInfoExtended(ap.getLastFMData(), artist, track);
@@ -90,6 +88,13 @@ public class LocalWhoKnowsSongCommand extends LocalWhoKnowsAlbumCommand {
         return wrapperReturnNowPlaying;
     }
 
+    @Override
+    protected WrapperReturnNowPlaying generateInnerWrapper(ArtistAlbumParameters ap, WhoKnowsMode effectiveMode, long trackId) {
+        return effectiveMode.equals(WhoKnowsMode.IMAGE) ?
+                this.db.getWhoKnowsTrack(10, trackId, ap.getE().getGuild().getIdLong()) :
+                this.db.getWhoKnowsTrack(Integer.MAX_VALUE, trackId, ap.getE().getGuild().getIdLong());
+    }
+
 
     @Override
     public String getDescription() {
@@ -103,6 +108,6 @@ public class LocalWhoKnowsSongCommand extends LocalWhoKnowsAlbumCommand {
 
     @Override
     public List<String> getAliases() {
-        return Arrays.asList("wktrack", "whoknowstrack", "wkt", "wks", "wt", "ws");
+        return WKT_ALIASES;
     }
 }

@@ -55,7 +55,7 @@ public class SearchCommand extends ConcurrentCommand<WordParameter> {
     }
 
     @Override
-    protected void onCommand(Context e, @Nonnull WordParameter params) throws LastFmException, InstanceNotFoundException {
+    public void onCommand(Context e, @Nonnull WordParameter params) throws LastFmException, InstanceNotFoundException {
         String word = params.getWord().toLowerCase(Locale.ROOT);
         List<? extends MyCommand<?>> strings;
         String title;
@@ -96,7 +96,7 @@ public class SearchCommand extends ConcurrentCommand<WordParameter> {
                 .setFooter(footer);
         new PaginatorBuilder<>(e, embedBuilder, strings)
                 .mapper(z -> "**%s**: %s(%s)%n".formatted(z.getName(), z.getDescription(), z.getAliases().stream().limit(3).collect(Collectors.joining(";"))))
-                .numberedEntries(false).build().queue();
+                .unnumered().build().queue();
 
 
     }

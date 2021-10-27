@@ -49,7 +49,7 @@ public class CurveCommand extends ConcurrentCommand<ChuuDataParams> {
     }
 
     @Override
-    protected void onCommand(Context e, @Nonnull ChuuDataParams params) {
+    public void onCommand(Context e, @Nonnull ChuuDataParams params) {
         long discordId = params.getLastFMData().getDiscordId();
         Map<Integer, Integer> userCurve = db.getUserCurve(discordId);
         DiscordUserDisplay uInfo = CommandUtil.getUserInfoUnescaped(e, discordId);

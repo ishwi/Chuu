@@ -59,7 +59,7 @@ public class ServerCommandsIssuedCommand extends ConcurrentCommand<CommandParame
 
 
     @Override
-    protected void onCommand(Context e, @Nonnull CommandParameters params) throws LastFmException, InstanceNotFoundException {
+    public void onCommand(Context e, @Nonnull CommandParameters params) throws LastFmException, InstanceNotFoundException {
         List<UserCount> userCommands = db.getServerCommandsLb(e.getGuild().getIdLong());
 
         if (userCommands.isEmpty()) {

@@ -55,36 +55,36 @@ public class ParserAux {
     User getOneUserPermissive(Context e, ChuuService dao) throws InstanceNotFoundException {
         User sample;
         String join = String.join(" ", message);
-        if (e.isFromGuild()) {
-            List<User> members = e.getMentionedUsers();
-            if (!members.isEmpty()) {
-                sample = members.get(0);
-                message = Arrays.stream(message).filter(s -> !s.equals(sample.getAsMention()) && !s.equals("<@!" + sample.getAsMention().substring(2))).toArray(String[]::new);
-            } else {
-                if (join.isBlank()) {
-                    return e.getAuthor();
+        List<User> members = e.getMentionedUsers();
+        if (!members.isEmpty()) {
+            sample = members.get(0);
+            message = Arrays.stream(message).filter(s -> !s.equals(sample.getAsMention()) && !s.equals("<@!" + sample.getAsMention().substring(2))).toArray(String[]::new);
+        } else {
+            if (join.isBlank()) {
+                return e.getAuthor();
+            }
+            Matcher matcher = userRaw.matcher(join);
+            Matcher lfmM = lfm.matcher(join);
+            if (matcher.matches()) {
+                String userName = matcher.group(1);
+                Optional<User> user = userString(userName, e);
+                if (user.isPresent()) {
+                    return user.get();
                 }
-                Matcher matcher = userRaw.matcher(join);
-                Matcher lfmM = lfm.matcher(join);
-                if (matcher.matches()) {
-                    String userName = matcher.group(1);
-                    Optional<User> user = userString(userName, e, dao);
-                    if (user.isPresent()) {
-                        return user.get();
-                    }
-                } else if (e.isFromGuild() && lfmM.matches()) {
-                    String userName = lfmM.group(1);
-                    long discordIdFromLastfm = dao.getDiscordIdFromLastfm(userName);
-                    Member memberById = e.getGuild().getMemberById(discordIdFromLastfm);
-                    if (memberById != null) {
-                        return memberById.getUser();
-                    } else {
-                        User complete = Chuu.getShardManager().retrieveUserById(discordIdFromLastfm).complete();
-                        if (complete != null) {
-                            return complete;
-                        }
+            } else if (e.isFromGuild() && lfmM.matches()) {
+                String userName = lfmM.group(1);
+                long discordIdFromLastfm = dao.getDiscordIdFromLastfm(userName);
+                Member memberById = e.getGuild().getMemberById(discordIdFromLastfm);
+                if (memberById != null) {
+                    return memberById.getUser();
+                } else {
+                    User complete = Chuu.getShardManager().retrieveUserById(discordIdFromLastfm).complete();
+                    if (complete != null) {
+                        return complete;
                     }
                 }
+            }
+            if (e.isFromGuild()) {
                 Member memberByTag = null;
                 if (user.matcher(join).matches()) {
                     memberByTag = e.getGuild().getMemberByTag(join);
@@ -114,9 +114,11 @@ public class ParserAux {
                     return membersByEffectiveName.get(0).getUser();
                 }
                 return memberByTag.getUser();
+            } else {
+                return userString(join, e).orElse(e.getAuthor());
             }
-        } else
-            sample = e.getAuthor();
+        }
+
         return sample;
     }
 
@@ -131,7 +133,7 @@ public class ParserAux {
                 Matcher lfmM = lfm.matcher(s);
                 if (matcher.matches()) {
                     String userName = matcher.group(1);
-                    Optional<User> user = userString(userName, e, dao);
+                    Optional<User> user = userString(userName, e);
                     if (user.isPresent()) {
                         hasMatched = true;
                         sample = user.get();
@@ -312,41 +314,50 @@ public class ParserAux {
         return getLastFMData(Optional.ofNullable(e.getGuild().getJDA().getUserById(discordIdFromLastfm)), message, db, e);
     }
 
-    Optional<User> userString(String message, Context e, ChuuService db) throws InstanceNotFoundException {
+    Optional<User> userString(String message, Context e) throws InstanceNotFoundException {
         Predicate<Member> isOnServer = Objects::nonNull;
-
-        if (discordId.matcher(message).matches()) {
-            Member memberById = e.getGuild().getMemberById(message);
-            if (!isOnServer.test(memberById) && memberById != null) {
-                throw new InstanceNotFoundException(memberById.getId());
+        if (e.isFromGuild()) {
+            if (discordId.matcher(message).matches()) {
+                Member memberById = e.getGuild().getMemberById(message);
+                if (!isOnServer.test(memberById) && memberById != null) {
+                    throw new InstanceNotFoundException(memberById.getId());
+                }
+                return Optional.ofNullable(memberById).map(Member::getUser);
             }
-            return Optional.ofNullable(memberById).map(Member::getUser);
-        }
 
-        if (user.matcher(message).matches()) {
-            Member memberByTag = e.getGuild().getMemberByTag(message);
-            if (!isOnServer.test(memberByTag) && memberByTag != null) {
-                throw new InstanceNotFoundException(memberByTag.getId());
+            if (user.matcher(message).matches()) {
+                Member memberByTag = e.getGuild().getMemberByTag(message);
+                if (!isOnServer.test(memberByTag) && memberByTag != null) {
+                    throw new InstanceNotFoundException(memberByTag.getId());
+                }
+                return Optional.ofNullable(memberByTag).map(Member::getUser);
             }
-            return Optional.ofNullable(memberByTag).map(Member::getUser);
-        }
 
-        List<Member> membersByEffectiveName = e.getGuild().getMembersByEffectiveName(message, true);
-        if (!membersByEffectiveName.isEmpty()) {
-            Optional<Member> first = membersByEffectiveName.stream().filter(isOnServer).findFirst();
-            if (first.isEmpty()) {
-                throw new InstanceNotFoundException(membersByEffectiveName.get(0).getIdLong());
+            List<Member> membersByEffectiveName = e.getGuild().getMembersByEffectiveName(message, true);
+            if (!membersByEffectiveName.isEmpty()) {
+                Optional<Member> first = membersByEffectiveName.stream().filter(isOnServer).findFirst();
+                if (first.isEmpty()) {
+                    throw new InstanceNotFoundException(membersByEffectiveName.get(0).getIdLong());
+                }
+                return first.map(Member::getUser);
             }
-            return first.map(Member::getUser);
-        }
 
-        List<Member> membersByName = e.getGuild().getMembersByName(message, true);
-        if (!membersByName.isEmpty()) {
-            Optional<Member> user = membersByName.stream().filter(isOnServer).findFirst();
-            if (user.isEmpty()) {
-                throw new InstanceNotFoundException(membersByName.get(0).getIdLong());
+            List<Member> membersByName = e.getGuild().getMembersByName(message, true);
+            if (!membersByName.isEmpty()) {
+                Optional<Member> user = membersByName.stream().filter(isOnServer).findFirst();
+                if (user.isEmpty()) {
+                    throw new InstanceNotFoundException(membersByName.get(0).getIdLong());
+                }
+                return user.map(Member::getUser);
             }
-            return user.map(Member::getUser);
+        } else {
+            if (discordId.matcher(message).matches()) {
+                return Optional.ofNullable(Chuu.getShardManager().getUserById(message));
+            }
+            if (user.matcher(message).matches()) {
+                User userByTag = core.Chuu.getShardManager().getUserByTag(message);
+                return Optional.ofNullable(userByTag);
+            }
         }
         return Optional.empty();
     }

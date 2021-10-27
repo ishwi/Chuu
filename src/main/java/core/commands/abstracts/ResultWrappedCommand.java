@@ -18,7 +18,7 @@ public abstract class ResultWrappedCommand<T, Y extends CommandParameters> exten
     }
 
     @Override
-    protected void onCommand(Context e, @Nonnull Y params) {
+    public void onCommand(Context e, @Nonnull Y params) {
 
         if (params.hasOptional("pie")) {
             doPie(getList(params), params);

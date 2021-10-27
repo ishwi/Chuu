@@ -64,7 +64,7 @@ public record EvalContext(JDA jda, Context e,
             }
 
             @Override
-            protected void onCommand(Context e, @Nonnull CommandParameters params) {
+            public void onCommand(Context e, @Nonnull CommandParameters params) {
                 if (e instanceof ContextMessageReceived f) {
                     mes.accept(f);
                 }

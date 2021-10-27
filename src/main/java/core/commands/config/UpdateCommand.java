@@ -55,7 +55,7 @@ public class UpdateCommand extends ConcurrentCommand<ChuuDataParams> {
     }
 
     @Override
-    protected void onCommand(Context e, @Nonnull ChuuDataParams params) throws LastFmException, InstanceNotFoundException {
+    public void onCommand(Context e, @Nonnull ChuuDataParams params) throws LastFmException, InstanceNotFoundException {
 
         LastFMData lastFMData = params.getLastFMData();
         String lastFmName = lastFMData.getName();

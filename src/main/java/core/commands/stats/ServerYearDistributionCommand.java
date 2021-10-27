@@ -59,7 +59,7 @@ public class ServerYearDistributionCommand extends ConcurrentCommand<CommandPara
 
 
     @Override
-    protected void onCommand(Context e, @Nonnull CommandParameters params) {
+    public void onCommand(Context e, @Nonnull CommandParameters params) {
         var yearCounts = db.getGuildYears(e.getGuild().getIdLong());
         List<String> lines = yearCounts.entrySet().stream().sorted(Map.Entry.comparingByValue((Comparator.reverseOrder()))).map(t ->
                 ". **%d**: %d %s%n".formatted(t.getKey().getValue(), t.getValue(), CommandUtil.singlePlural(t.getValue(), "album", "albums"))

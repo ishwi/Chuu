@@ -53,7 +53,7 @@ public class UserRatings extends ConcurrentCommand<RYMRatingParams> {
     }
 
     @Override
-    protected void onCommand(Context e, @Nonnull RYMRatingParams params) {
+    public void onCommand(Context e, @Nonnull RYMRatingParams params) {
 
 
         Short rating = params.getRating();
@@ -120,7 +120,7 @@ public class UserRatings extends ConcurrentCommand<RYMRatingParams> {
                 .setThumbnail(userInfoConsideringGuildOrNot.urlImage())
                 .setFooter(userInfoConsideringGuildOrNot.username() + " has rated " + stats.getNumberOfRatings() + " albums with an average of " + formatter.format(stats.getAverage() / 2f));
 
-        new PaginatorBuilder<>(e, embedBuilder, stringList).pageSize(8).numberedEntries(false).build().queue();
+        new PaginatorBuilder<>(e, embedBuilder, stringList).pageSize(8).unnumered().build().queue();
 
     }
 }

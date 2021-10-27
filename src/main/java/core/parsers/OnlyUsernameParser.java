@@ -20,13 +20,19 @@ import java.util.List;
  * returns: []; in 0 -> lastfmid, 1 -> discordId, 2... -> opts
  */
 public class OnlyUsernameParser extends DaoParser<ChuuDataParams> {
-    public OnlyUsernameParser(ChuuService dao) {
-        super(dao);
-    }
+    private final boolean required;
+
 
     public OnlyUsernameParser(ChuuService dao, OptionalEntity... opts) {
         super(dao);
         addOptional(opts);
+        this.required = false;
+    }
+
+    public OnlyUsernameParser(ChuuService dao, boolean required, OptionalEntity... opts) {
+        super(dao);
+        addOptional(opts);
+        this.required = required;
     }
 
     @Override
@@ -45,6 +51,10 @@ public class OnlyUsernameParser extends DaoParser<ChuuDataParams> {
 
     @Override
     public List<Explanation> getUsages() {
-        return Collections.singletonList(new PermissiveUserExplanation());
+        Explanation explanation = new PermissiveUserExplanation();
+        if (required) {
+            explanation = InteractionAux.required(explanation);
+        }
+        return Collections.singletonList(explanation);
     }
 }

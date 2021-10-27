@@ -45,7 +45,7 @@ public class SourceCommand extends ConcurrentCommand<CommandParameters> {
     }
 
     @Override
-    protected void onCommand(Context e, @Nonnull CommandParameters params) {
+    public void onCommand(Context e, @Nonnull CommandParameters params) {
         sendMessageQueue(e, String.format("This is the GitHub link of the bot:%n%s", REPO_URL));
     }
 }

@@ -56,7 +56,7 @@ public class UniqueAlbumCommand extends ConcurrentCommand<ChuuDataParams> {
     }
 
     @Override
-    protected void onCommand(Context e, @Nonnull ChuuDataParams params) {
+    public void onCommand(Context e, @Nonnull ChuuDataParams params) {
 
         String lastFmName = params.getLastFMData().getName();
 

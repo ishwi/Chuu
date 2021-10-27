@@ -68,7 +68,7 @@ public class NpVoiceCommand extends MusicCommand<CommandParameters> {
     }
 
     @Override
-    protected void onCommand(Context e, @Nonnull CommandParameters params) {
+    public void onCommand(Context e, @Nonnull CommandParameters params) {
         MusicManager manager = Chuu.playerRegistry.get(e.getGuild());
         AudioTrack playingTrack = manager.getPlayer().getPlayingTrack();
         manager.getTrackScrobble().thenAccept(l -> {

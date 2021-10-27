@@ -22,7 +22,7 @@ public abstract class ListCommand<T, Y extends CommandParameters> extends Concur
     public abstract Parser<Y> initParser();
 
     @Override
-    protected void onCommand(Context e, @Nonnull Y params) {
+    public void onCommand(Context e, @Nonnull Y params) {
 
 
         List<T> list = getList(params);

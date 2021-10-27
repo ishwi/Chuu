@@ -44,7 +44,7 @@ public class LastFmLinkCommand extends ConcurrentCommand<ChuuDataParams> {
     }
 
     @Override
-    protected void onCommand(Context e, @Nonnull ChuuDataParams params) {
+    public void onCommand(Context e, @Nonnull ChuuDataParams params) {
 
 
         DiscordUserDisplay userInfoConsideringGuildOrNot = CommandUtil.getUserInfoEscaped(e, params.getLastFMData().getDiscordId());

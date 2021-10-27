@@ -76,7 +76,7 @@ public abstract class WhoKnowsBaseCommand<T extends CommandParameters> extends C
     }
 
     @Override
-    protected void onCommand(Context e, @Nonnull T params) throws LastFmException {
+    public void onCommand(Context e, @Nonnull T params) throws LastFmException {
 
 
         WhoKnowsMode whoknowsMode = getWhoknowsMode(params);
@@ -121,16 +121,23 @@ public abstract class WhoKnowsBaseCommand<T extends CommandParameters> extends C
         }
     }
 
+    protected String getImageTitle(Context e, T params) {
+        String title;
+        if (e.isFromGuild()) {
+            title = e.getGuild().getName();
+        } else {
+            title = e.getJDA().getSelfUser().getName();
+        }
+        return title;
+    }
+
     BufferedImage doImage(T ap, WrapperReturnNowPlaying wrapperReturnNowPlaying) {
         Context e = ap.getE();
 
         BufferedImage logo = null;
-        String title;
+        String title = getImageTitle(e, ap);
         if (e.isFromGuild()) {
             logo = CommandUtil.getLogo(db, e);
-            title = e.getGuild().getName();
-        } else {
-            title = e.getJDA().getSelfUser().getName();
         }
         BufferedImage image = WhoKnowsMaker.generateWhoKnows(wrapperReturnNowPlaying, EnumSet.allOf(WKMode.class), title, logo, ap.getE().getAuthor().getIdLong());
         sendImage(image, e);

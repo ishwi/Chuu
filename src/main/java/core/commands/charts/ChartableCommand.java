@@ -76,7 +76,7 @@ public abstract class ChartableCommand<T extends ChartParameters> extends Concur
     }
 
     @Override
-    protected void onCommand(Context e, @Nonnull T params) throws LastFmException {
+    public void onCommand(Context e, @Nonnull T params) throws LastFmException {
 
 
         CountWrapper<BlockingQueue<UrlCapsule>> countWrapper = processQueue(params);

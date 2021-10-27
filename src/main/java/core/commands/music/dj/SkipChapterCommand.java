@@ -59,7 +59,7 @@ public class SkipChapterCommand extends MusicCommand<CommandParameters> {
     }
 
     @Override
-    protected void onCommand(Context e, @Nonnull CommandParameters params) {
+    public void onCommand(Context e, @Nonnull CommandParameters params) {
         MusicManager manager = getManager(e);
         manager.getTrackScrobble().thenAccept(z -> {
             if (!(z.processeds().size() > 1)) {

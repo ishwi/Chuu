@@ -68,7 +68,7 @@ public class TagWithYearCommand extends ConcurrentCommand<CommandParameters> {
     }
 
     @Override
-    protected void onCommand(Context e, @Nonnull CommandParameters params) throws InstanceNotFoundException {
+    public void onCommand(Context e, @Nonnull CommandParameters params) throws InstanceNotFoundException {
         long idLong = e.getAuthor().getIdLong();
         Pattern a = Pattern.compile(".*(?:year|y):(\\d{4}).*");
         // Check if it exists

@@ -56,7 +56,7 @@ public class WeeklyCommand extends ConcurrentCommand<ChuuDataParams> {
     }
 
     @Override
-    protected void onCommand(Context e, @Nonnull ChuuDataParams params) throws LastFmException {
+    public void onCommand(Context e, @Nonnull ChuuDataParams params) throws LastFmException {
 
 
         LastFMData lastFmName = params.getLastFMData();

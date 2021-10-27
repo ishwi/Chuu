@@ -48,7 +48,7 @@ public class GlobalBillboardCommand extends BillboardCommand {
     }
 
     @Override
-    protected void onCommand(Context e, @Nonnull NumberParameters<CommandParameters> params) {
+    public void onCommand(Context e, @Nonnull NumberParameters<CommandParameters> params) {
 
         Week week = db.getCurrentWeekId();
         if (week.getId() == 1) {

@@ -42,7 +42,7 @@ public class SupportCommand extends MyCommand<CommandParameters> {
     }
 
     @Override
-    protected void onCommand(Context e, @Nonnull CommandParameters params) {
+    public void onCommand(Context e, @Nonnull CommandParameters params) {
         sendMessageQueue(e, "If you found bugs, have issues with the bots, want to request features or simply want to talk you can find us here:\nhttps://discord.gg/3tYsPMWvQG");
     }
 }

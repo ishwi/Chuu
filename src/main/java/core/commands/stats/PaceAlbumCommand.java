@@ -83,7 +83,7 @@ public class PaceAlbumCommand extends ConcurrentCommand<NumberParameters<AlbumTi
     }
 
     @Override
-    protected void onCommand(Context e, @Nonnull NumberParameters<AlbumTimeFrameParameters> params) throws LastFmException {
+    public void onCommand(Context e, @Nonnull NumberParameters<AlbumTimeFrameParameters> params) throws LastFmException {
 
 
         CustomTimeFrame time = params.getInnerParams().getTimeFrame();

@@ -106,7 +106,7 @@ public class HelpCommand extends ConcurrentCommand<WordParameter> {
     }
 
     @Override
-    protected void onCommand(Context e, @Nonnull WordParameter params) {
+    public void onCommand(Context e, @Nonnull WordParameter params) {
         Character prefix = e.getPrefix();
         if (params.hasOptional("all")) {
 

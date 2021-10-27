@@ -53,7 +53,7 @@ public class AlbumPlaysCommand extends ConcurrentCommand<ArtistAlbumParameters> 
     }
 
     @Override
-    protected void onCommand(Context e, @Nonnull ArtistAlbumParameters params) throws LastFmException, InstanceNotFoundException {
+    public void onCommand(Context e, @Nonnull ArtistAlbumParameters params) throws LastFmException, InstanceNotFoundException {
 
         ScrobbledArtist validable = new ArtistValidator(db, lastFM, e).validate(params.getArtist(), false, !params.isNoredirect());
         params.setScrobbledArtist(validable);

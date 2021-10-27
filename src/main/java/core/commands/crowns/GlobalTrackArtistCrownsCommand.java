@@ -82,7 +82,7 @@ public class GlobalTrackArtistCrownsCommand extends ConcurrentCommand<NumberPara
     }
 
     @Override
-    protected void onCommand(Context e, @Nonnull NumberParameters<ArtistParameters> params) throws LastFmException {
+    public void onCommand(Context e, @Nonnull NumberParameters<ArtistParameters> params) throws LastFmException {
 
 
         ArtistParameters innerParams = params.getInnerParams();

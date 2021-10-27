@@ -87,7 +87,7 @@ public class RandomAlbumCommand extends ConcurrentCommand<RandomUrlParameters> {
     }
 
     @Override
-    protected void onCommand(Context e, @Nonnull RandomUrlParameters params) {
+    public void onCommand(Context e, @Nonnull RandomUrlParameters params) {
 
 
         String url = params.getUrl();

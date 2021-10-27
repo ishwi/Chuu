@@ -11,7 +11,6 @@ import net.dv8tion.jda.api.interactions.components.ActionRow;
 import javax.annotation.Nonnull;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 import java.util.function.Function;
 
 import static java.lang.Math.min;
@@ -24,33 +23,12 @@ public class Reactionary<T> extends ReactionListener {
     private final boolean pagingIndicator;
     private final Function<Integer, String> extraText;
     private final Function<T, String> mapper;
+    private final Function<List<T>, ActionRow> extraRowGen;
     private int counter = 0;
     private boolean missingArrow = true;
 
-    public Reactionary(List<T> list, Message message, EmbedBuilder who) {
 
-        this(list, message, 10, who);
-    }
-
-
-    public Reactionary(List<T> list, Message messageToReact, EmbedBuilder who, boolean numberedEntries) {
-        this(list, messageToReact, 10, who, numberedEntries, false);
-    }
-
-    public Reactionary(List<T> list, Message messageToReact, int pageSize, EmbedBuilder who) {
-        this(list, messageToReact, pageSize, who, true, false);
-    }
-
-    public Reactionary(List<T> list, Message messageToReact, int pageSize, EmbedBuilder who, boolean numberedEntries) {
-        this(list, messageToReact, pageSize, who, numberedEntries, false);
-    }
-
-
-    public Reactionary(List<T> list, Message messageToReact, int pageSize, EmbedBuilder who, boolean numberedEntries, boolean pagingIndicator) {
-        this(list, messageToReact, pageSize, who, numberedEntries, pagingIndicator, 40, Objects::toString, null);
-    }
-
-    public Reactionary(List<T> list, Message messageToReact, int pageSize, EmbedBuilder who, boolean numberedEntries, boolean pagingIndicator, long seconds, Function<T, String> mapper, Function<Integer, String> extraText) {
+    public Reactionary(List<T> list, Message messageToReact, int pageSize, EmbedBuilder who, boolean numberedEntries, boolean pagingIndicator, long seconds, Function<T, String> mapper, Function<Integer, String> extraText, Function<List<T>, ActionRow> extraRow) {
         super(who, messageToReact, seconds);
         this.list = list;
         this.pageSize = pageSize;
@@ -58,6 +36,7 @@ public class Reactionary<T> extends ReactionListener {
         this.pagingIndicator = pagingIndicator;
         this.mapper = mapper;
         this.extraText = extraText;
+        this.extraRowGen = extraRow;
         init();
     }
 
@@ -126,6 +105,8 @@ public class Reactionary<T> extends ReactionListener {
         int currentPage = (int) Math.ceil(start / (float) pageSize) + 1;
         int totalPageNumber = (int) Math.ceil(list.size() / (float) pageSize);
         StringBuilder a = new StringBuilder();
+
+
         for (int i = start; i < start + pageSize && i < list.size(); i++) {
             if (numberedEntries) {
                 a.append(i + 1);
@@ -158,7 +139,19 @@ public class Reactionary<T> extends ReactionListener {
 
         missingArrow = actionRow.getButtons().size() != 2;
         refresh(event.getJDA());
-        message.editMessage(new MessageBuilder().setEmbeds(who.build()).setActionRows(actionRow).build()).queue();
+        List<ActionRow> rows = List.of(actionRow);
+
+        List<T> items = list.subList(start, min(start + pageSize, list.size()));
+        ActionRow extraRow = extraRowGen.apply(items);
+        if (actionRow.isEmpty()) {
+            if (extraRow != null)
+                rows = List.of(extraRow);
+        } else {
+            if (extraRow != null) {
+                rows = List.of(actionRow, extraRow);
+            }
+        }
+        message.editMessage(new MessageBuilder().setEmbeds(who.build()).setActionRows(rows).build()).queue();
     }
 }
 

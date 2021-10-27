@@ -66,7 +66,7 @@ public class LoginCommand extends ConcurrentCommand<CommandParameters> {
     }
 
     @Override
-    protected void onCommand(Context e, @Nonnull CommandParameters params) throws LastFmException {
+    public void onCommand(Context e, @Nonnull CommandParameters params) throws LastFmException {
         boolean notExisting = false;
         LastFMData lastFMData = null;
         String tempUser = null;

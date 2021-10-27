@@ -82,7 +82,7 @@ public class PaceArtistCommand extends ConcurrentCommand<NumberParameters<Artist
     }
 
     @Override
-    protected void onCommand(Context e, @Nonnull NumberParameters<ArtistTimeFrameParameters> params) throws LastFmException {
+    public void onCommand(Context e, @Nonnull NumberParameters<ArtistTimeFrameParameters> params) throws LastFmException {
 
 
         TimeFrameEnum time = params.getInnerParams().getTimeFrame();

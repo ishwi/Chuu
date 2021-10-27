@@ -19,6 +19,8 @@ import java.util.List;
 
 public class WhoKnowsCommand extends WhoKnowsBaseCommand<ArtistParameters> {
 
+    public static final List<String> WK_ALIASES = Arrays.asList("whoknows", "wk", "w");
+
     public WhoKnowsCommand(ServiceView dao) {
         super(dao);
     }
@@ -37,7 +39,7 @@ public class WhoKnowsCommand extends WhoKnowsBaseCommand<ArtistParameters> {
 
     @Override
     public List<String> getAliases() {
-        return Arrays.asList("whoknows", "wk", "w");
+        return WK_ALIASES;
     }
 
 
@@ -47,7 +49,7 @@ public class WhoKnowsCommand extends WhoKnowsBaseCommand<ArtistParameters> {
     }
 
     @Override
-    WrapperReturnNowPlaying generateWrapper(ArtistParameters params, WhoKnowsMode whoKnowsMode) throws LastFmException {
+    protected WrapperReturnNowPlaying generateWrapper(ArtistParameters params, WhoKnowsMode whoKnowsMode) throws LastFmException {
         ScrobbledArtist sA = new ArtistValidator(db, lastFM, params.getE()).validate(params.getArtist(), !params.isNoredirect());
         params.setScrobbledArtist(sA);
         Context e = params.getE();

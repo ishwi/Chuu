@@ -66,7 +66,7 @@ public class RandomLinkRatingCommand extends ConcurrentCommand<NumberParameters<
     }
 
     @Override
-    protected void onCommand(Context e, @Nonnull NumberParameters<RandomUrlParameters> params) {
+    public void onCommand(Context e, @Nonnull NumberParameters<RandomUrlParameters> params) {
 
 
         Long rating = params.getExtraParam();

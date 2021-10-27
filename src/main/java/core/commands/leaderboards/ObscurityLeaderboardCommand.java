@@ -84,7 +84,7 @@ public class ObscurityLeaderboardCommand extends LeaderboardCommand<ChuuDataPara
     }
 
     @Override
-    protected void onCommand(Context e, @Nonnull ChuuDataParams params) {
+    public void onCommand(Context e, @Nonnull ChuuDataParams params) {
 
         var list = getList(params);
         if (list == null) {

@@ -45,7 +45,7 @@ public class RefreshLastfmDataCommand extends ConcurrentCommand<ChuuDataParams> 
     }
 
     @Override
-    protected void onCommand(Context e, @Nonnull ChuuDataParams params) throws LastFmException {
+    public void onCommand(Context e, @Nonnull ChuuDataParams params) throws LastFmException {
         new UserInfoService(db).refreshUserInfo(params.getLastFMData());
         sendMessageQueue(e, "Successfully updated %s's profile data".formatted(getUserString(e, params.getLastFMData().getDiscordId(), params.getLastFMData().getName())));
     }

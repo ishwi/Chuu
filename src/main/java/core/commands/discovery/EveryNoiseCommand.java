@@ -49,7 +49,7 @@ public class EveryNoiseCommand extends ConcurrentCommand<UserStringParameters> {
     }
 
     @Override
-    protected void onCommand(Context e, @Nonnull UserStringParameters params) throws LastFmException, InstanceNotFoundException {
+    public void onCommand(Context e, @Nonnull UserStringParameters params) throws LastFmException, InstanceNotFoundException {
         String input = params.getInput();
         List<NoiseGenre> genres;
         boolean isSearchResult = !input.isBlank();
@@ -76,7 +76,7 @@ public class EveryNoiseCommand extends ConcurrentCommand<UserStringParameters> {
                 .setAuthor(title, "https://everynoise.com/", "https://pbs.twimg.com/profile_images/3736544396/e0d7d0c8f2781c40b5f870df441e670c_400x400.png")
                 .setFooter("You can click the genre for a playlist!\n" + footer, null);
 
-        new PaginatorBuilder<>(e, eb, strings).numberedEntries(false).pageSize(20).build().queue();
+        new PaginatorBuilder<>(e, eb, strings).unnumered().pageSize(20).build().queue();
 
 
     }

@@ -46,7 +46,7 @@ public class WhoIsTagCommand extends ConcurrentCommand<GenreParameters> {
     }
 
     @Override
-    protected void onCommand(Context e, @Nonnull GenreParameters params) {
+    public void onCommand(Context e, @Nonnull GenreParameters params) {
 
 
         String genre = params.getGenre();

@@ -60,7 +60,7 @@ public class GuildConfigCommand extends ConcurrentCommand<GuildConfigParams> {
     }
 
     @Override
-    protected void onCommand(Context e, @Nonnull GuildConfigParams params) throws LastFmException, InstanceNotFoundException {
+    public void onCommand(Context e, @Nonnull GuildConfigParams params) throws LastFmException, InstanceNotFoundException {
         GuildConfigParams parse = this.parser.parse(e);
 
         GuildConfigType config = parse.getConfig();
