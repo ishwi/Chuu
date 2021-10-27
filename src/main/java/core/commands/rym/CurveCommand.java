@@ -19,6 +19,10 @@ import java.util.List;
 import java.util.Map;
 
 public class CurveCommand extends ConcurrentCommand<ChuuDataParams> {
+    private final static String EMPTY_STAR = "<:empty:903016787686350898>";
+    private final static String FULL_STAR = "<:full:903016787526955089>";
+    private final static String HALF_STAR = "<:half:903016787602460682>";
+
     public CurveCommand(ServiceView dao) {
         super(dao);
     }
@@ -61,8 +65,8 @@ public class CurveCommand extends ConcurrentCommand<ChuuDataParams> {
             boolean isOdd = key % 2 == 1;
             int repeating = key / 2;
 
-            String s = "<:full:794269605170118658>".repeat(repeating) + (isOdd ? "<:half:794269605266849862>" : "") + ":" + ((EmbedBuilder.ZERO_WIDTH_SPACE + "\t").repeat(2)).repeat(5 - (key - 1) / 2);
-            embedBuilder.appendDescription(s + x.getValue() + " ratings \n");
+            String s = FULL_STAR.repeat(repeating) + (isOdd ? HALF_STAR : "") + EMPTY_STAR.repeat(5 - (repeating + (isOdd ? 1 : 0)));
+            embedBuilder.appendDescription(s + "\t\t" + x.getValue() + " " + CommandUtil.singlePlural(x.getValue(), "rating", "ratings") + " \n");
         });
         e.sendMessage(embedBuilder.build()).queue();
     }
