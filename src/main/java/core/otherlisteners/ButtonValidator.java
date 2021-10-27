@@ -6,11 +6,13 @@ import net.dv8tion.jda.api.entities.Emoji;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
+import net.dv8tion.jda.api.events.interaction.SelectionMenuEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.Button;
 import net.dv8tion.jda.api.interactions.components.Component;
 import net.dv8tion.jda.api.requests.RestAction;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import java.util.*;
@@ -200,6 +202,11 @@ public class ButtonValidator<T> extends ReactionListener {
     }
 
     @Override
+    public boolean isValid(SelectionMenuEvent event) {
+        return false;
+    }
+
+    @Override
     public void dispose() {
         noMoreElements();
     }
@@ -228,6 +235,11 @@ public class ButtonValidator<T> extends ReactionListener {
             }
         }
         refresh(event.getJDA());
+    }
+
+    @Override
+    public void onSelectedMenuEvent(@NotNull SelectionMenuEvent event) {
+
     }
 
     private void accept(Message mes) {

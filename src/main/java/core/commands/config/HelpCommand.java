@@ -15,12 +15,16 @@
  */
 package core.commands.config;
 
+import com.google.common.collect.Lists;
+import core.Chuu;
 import core.apis.lyrics.TextSplitter;
 import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.abstracts.MyCommand;
 import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
+import core.commands.utils.PrivacyUtils;
+import core.otherlisteners.SelectionEvenListener;
 import core.parsers.HelpParser;
 import core.parsers.Parser;
 import core.parsers.params.WordParameter;
@@ -31,11 +35,23 @@ import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.entities.SelfUser;
+import net.dv8tion.jda.api.interactions.components.ActionRow;
+import net.dv8tion.jda.api.interactions.components.Button;
+import net.dv8tion.jda.api.interactions.components.Component;
+import net.dv8tion.jda.api.interactions.components.selections.SelectOption;
+import net.dv8tion.jda.api.interactions.components.selections.SelectionMenu;
 import net.dv8tion.jda.api.requests.RestAction;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.text.WordUtils;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class HelpCommand extends ConcurrentCommand<WordParameter> {
     private static final String NO_NAME = "No name provided for this command. Sorry!";
@@ -48,6 +64,7 @@ public class HelpCommand extends ConcurrentCommand<WordParameter> {
         String s1 = c2.getAliases().get(0);
         return s.compareToIgnoreCase(s1);
     };
+    private static final String CUSTOM_ALL = "custom_all";
 
 
     public HelpCommand(ServiceView dao) {
@@ -64,7 +81,8 @@ public class HelpCommand extends ConcurrentCommand<WordParameter> {
 
     @Override
     public Parser<WordParameter> initParser() {
-        return new HelpParser(new OptionalEntity("all", "DM you a list of all the commands with an explanation"));
+        return new HelpParser(new OptionalEntity("all", "DM you a list of all the commands with an explanation"),
+                new OptionalEntity("complete", "show all the commands on a huge embed"));
     }
 
     public MyCommand<?> registerCommand(MyCommand<?> command) {
@@ -119,11 +137,139 @@ public class HelpCommand extends ConcurrentCommand<WordParameter> {
             return;
         }
         if (params.getWord() == null) {
-            sendEmbed(e);
+            if (params.hasOptional("--full")) {
+                sendEmbed(e);
+            } else {
+                sendCategories(e);
+            }
             return;
 
         }
         doSend(params.getWord(), e, prefix);
+    }
+
+    private List<ActionRow> invalidateAll(List<ActionRow> rows) {
+        List<ActionRow> disabled = new ArrayList<>();
+        for (ActionRow row : rows) {
+            List<Component> rowComponentes = new ArrayList<>();
+            for (Component component : row.getComponents()) {
+                if (component instanceof SelectionMenu menu) {
+                    rowComponentes.add(menu.asDisabled());
+                } else if (component instanceof Button button) {
+                    rowComponentes.add(button.asDisabled());
+                } else {
+                    rowComponentes.add(component);
+                }
+            }
+            disabled.add(ActionRow.of(rowComponentes));
+        }
+        return disabled;
+    }
+
+    public void sendCategories(Context e) {
+        List<CommandCategory> categories = categoryMap.keySet().stream().sorted(Comparator.comparingInt(CommandCategory::getOrder)).toList();
+        SelfUser su = e.getJDA().getSelfUser();
+        EmbedBuilder eb = new ChuuEmbedBuilder(e).setAuthor("%s commands".formatted(su.getName()), PrivacyUtils.getLastFmUser(Chuu.DEFAULT_LASTFM_ID), su.getAvatarUrl());
+
+
+        ActionRow category = buildMenuCategory(categories, CommandCategory.STARTING.name());
+        List<ActionRow> commandRow = buildMenuCommand(eb, e.getPrefix(), CommandCategory.STARTING, null);
+
+
+        List<ActionRow> rows = Stream.concat(Stream.of(category), commandRow.stream()).toList();
+        e.sendMessage(eb.build(), rows).queue(message ->
+                new SelectionEvenListener(eb, message, true, (embedBuilder, actionRows) ->
+                        new SelectionEvenListener.SelectionResponse(embedBuilder, invalidateAll(actionRows)), e.getAuthor().getIdLong(), e,
+                        this::doAction
+                ));
+
+    }
+
+    private SelectionEvenListener.SelectionResponse doAction(Context e, SelectionMenu selectionMenu, List<String> options, EmbedBuilder eb, List<ActionRow> rows) {
+
+        String selected = options.get(0);
+        String id = selectionMenu.getId();
+        eb.clearFields();
+
+        assert id != null;
+        // First selector pressed
+        if (id.equals("category_id")) {
+            List<CommandCategory> categories = categoryMap.keySet().stream().sorted(Comparator.comparingInt(CommandCategory::getOrder)).toList();
+            if (Objects.equals(selected, CUSTOM_ALL)) {
+                for (Map.Entry<CommandCategory, SortedSet<MyCommand<?>>> a : categoryMap.entrySet()) {
+                    buildCategory(eb, e.getPrefix(), a.getKey(), a.getValue());
+                }
+                ActionRow categoriesRow = buildMenuCategory(categories, CUSTOM_ALL);
+                return new SelectionEvenListener.SelectionResponse(eb, List.of(categoriesRow));
+            } else {
+                CommandCategory commandCategory = CommandCategory.valueOf(selected);
+                ActionRow categoriesRow = buildMenuCategory(categories, commandCategory.name());
+                List<ActionRow> commands = buildMenuCommand(eb, e.getPrefix(), commandCategory, null);
+                List<ActionRow> row = Stream.concat(Stream.of(categoriesRow), commands.stream()).toList();
+                return new SelectionEvenListener.SelectionResponse(eb, row);
+            }
+        } else {
+            // One of the others selectors. Means we are still in the same category
+            Optional<MyCommand<?>> command = categoryMap.values().stream().flatMap(Collection::stream).filter(z -> z.getAliases().get(0).equals(selected)).findFirst();
+            assert command.isPresent();
+            MyCommand<?> c = command.get();
+            SpecificCommandHelp help = new SpecificCommandHelp(c, e.getPrefix());
+
+            List<CommandCategory> categories = categoryMap.keySet().stream().sorted(Comparator.comparingInt(CommandCategory::getOrder)).toList();
+            CommandCategory category = c.getCategory();
+            ActionRow categoriesRow = buildMenuCategory(categories, category.name());
+            List<ActionRow> commands = buildMenuCommand(eb, e.getPrefix(), category, c);
+            eb.addBlankField(false);
+            List<ActionRow> row = Stream.concat(Stream.of(categoriesRow), commands.stream()).toList();
+
+
+            String usage = help.usage;
+            String[] split = usage.split("\n");
+            String header = "**Usage:**";
+            String field = "";
+            assert split.length > 0;
+            header += " " + split[0];
+            if (split.length != 1) {
+                String[] lines = Arrays.copyOfRange(split, 1, split.length);
+                field = String.join("\n", lines);
+            }
+            eb.addField("**Name:**", help.name, false)
+                    .addField("**Description:**", help.description, false)
+                    .addField("**Aliases:**", help.aliases, false)
+                    .addField(header, field, false);
+
+            return new SelectionEvenListener.SelectionResponse(eb, row);
+        }
+    }
+
+
+    @NotNull
+    private ActionRow buildMenuCategory(List<CommandCategory> categories, String value) {
+        SelectionMenu.Builder category = SelectionMenu.create("category_id")
+                .setPlaceholder("Select a command of the %s category to see the details of that command".formatted(value))
+                .setMinValues(1)
+                .addOption("All commands", CUSTOM_ALL, "A list of all the commands available in the bot")
+                .addOptions(categories.stream().map(z -> SelectOption.of(WordUtils.capitalizeFully(z.name().replaceAll("_", " ")), z.name()).withDescription(StringUtils.abbreviate(z.getDescription(), 100))).toList())
+                .setPlaceholder("Select a category to its commands");
+
+        category.setDefaultOptions(List.of(SelectOption.of("test", value)));
+        return ActionRow.of(category.build());
+    }
+
+    private List<ActionRow> buildMenuCommand(EmbedBuilder eb, char prefix, CommandCategory commandCategory, @Nullable MyCommand<?> active) {
+        SortedSet<MyCommand<?>> commandList = categoryMap.get(commandCategory);
+        buildCategory(eb, prefix, commandCategory, commandList);
+        List<List<MyCommand<?>>> commandsPartitions = Lists.partition(new ArrayList<>(commandList), 25);
+
+        AtomicInteger ranker = new AtomicInteger(0);
+
+        return (commandsPartitions.stream().map(z -> ActionRow.of(SelectionMenu.create(String.valueOf(ranker.incrementAndGet()))
+                .addOptions(z.stream().map(w -> SelectOption.of(w.getName(), w.getAliases().get(0))
+                        .withDefault(active == w)
+                        .withDescription(StringUtils.abbreviate(w.getDescription(), 100))).toList())
+                .setPlaceholder(commandsPartitions.size() > 1 ? "Commands %d-%d".formatted(((ranker.get() - 1) * 25) + 1, Math.min(ranker.get() * 25, commandList.size())) : "Commands")
+                .setMinValues(1).build())).toList());
+
     }
 
     public void sendPrivate(MessageChannel channel, Context e) {
@@ -146,9 +292,6 @@ public class HelpCommand extends ConcurrentCommand<WordParameter> {
 
         for (Map.Entry<CommandCategory, SortedSet<MyCommand<?>>> a : categoryMap.entrySet()) {
             CommandCategory key = a.getKey();
-            if (key == CommandCategory.MUSIC || key == CommandCategory.SCROBBLING) {
-                continue;
-            }
             Collection<MyCommand<?>> commandList = a.getValue();
             s.append("\n__**").append(key.toString().replaceAll("_", " ")).append(":**__ _").append(key.getDescription()).append("_\n");
 
@@ -178,38 +321,29 @@ public class HelpCommand extends ConcurrentCommand<WordParameter> {
         EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e);
         Character correspondingPrefix = e.getPrefix();
         for (Map.Entry<CommandCategory, SortedSet<MyCommand<?>>> a : categoryMap.entrySet()) {
-            StringBuilder s = new StringBuilder();
-            CommandCategory key = a.getKey();
-            Collection<MyCommand<?>> commandList = a.getValue();
-            s.append("\n__**").append(key.toString().replaceAll("_", " ")).append(":**__ _").append(key.getDescription()).append("_\n");
-            String line = commandList.stream().map(x -> "*" + correspondingPrefix + x.getAliases().get(0) + "*").collect(Collectors.joining(", "));
-            embedBuilder.addField(new MessageEmbed.Field(s.toString(), line, false));
+            buildCategory(embedBuilder, correspondingPrefix, a.getKey(), a.getValue());
         }
         embedBuilder.setFooter(correspondingPrefix + "help \"command\" for the explanation of one command.\n" + correspondingPrefix + "help --all for the whole help message")
                 .setTitle("Commands");
         e.sendMessage(embedBuilder.build()).queue();
     }
 
+    private void buildCategory(EmbedBuilder embedBuilder, Character correspondingPrefix, CommandCategory category, SortedSet<MyCommand<?>> commands) {
+        String line = commands.stream().map(x -> "*" + correspondingPrefix + x.getAliases().get(0) + "*").collect(Collectors.joining(", "));
+        embedBuilder.addField(new MessageEmbed.Field("\n__**" + category.toString().replaceAll("_", " ") + ":**__ _" + category.getDescription() + "_\n", line, false));
+    }
+
     private void doSend(String command, Context e, Character prefix) {
         List<MyCommand<?>> values = categoryMap.values().stream().flatMap(Collection::stream).toList();
         for (MyCommand<?> c : values) {
             if (c.getAliases().contains(command.toLowerCase())) {
-                String name = c.getName();
-                String description = c.getDescription();
-                String usageInstructions = c.getUsageInstructions();
+                SpecificCommandHelp help = new SpecificCommandHelp(c, prefix);
 
-                name = (name == null || name.isEmpty()) ? NO_NAME : name;
-                description = (description == null || description.isEmpty()) ? NO_DESCRIPTION : description;
-                usageInstructions = (usageInstructions == null || usageInstructions
-                        .isEmpty()) ? NO_USAGE : usageInstructions;
-                boolean resend = false;
-                String realUsageInstructions = usageInstructions;
-                String remainingUsageInstructions = null;
-                List<String> pagees = TextSplitter.split(realUsageInstructions, 1600);
-                e.sendMessage("**Name:** " + name + "\n" +
-                        "**Description:** " + description + "\n" +
-                        "**Aliases:** " + prefix +
-                        String.join(", " + prefix, c.getAliases()) + "\n" +
+                String realUsageInstructions = help.usage;
+                List<String> pagees = TextSplitter.split(realUsageInstructions, 3000);
+                e.sendMessage("**Name:** " + help.name + "\n" +
+                        "**Description:** " + help.description + "\n" +
+                        "**Aliases:** " + help.aliases + "\n" +
                         "**Usage:** " +
                         prefix + pagees.get(0)).queue(x -> {
                     for (int i = 1; i < pagees.size(); i++) {
@@ -221,6 +355,21 @@ public class HelpCommand extends ConcurrentCommand<WordParameter> {
         }
         e.sendMessage("The provided command '**" + command +
                 "**' does not exist. Use " + prefix + "help to list all commands.").queue();
+    }
+
+    private record SpecificCommandHelp(String name, String description, String aliases, String usage) {
+        public SpecificCommandHelp(MyCommand<?> command, char prefix) {
+            this((command.getName() == null || command.getName().isEmpty()) ? NO_NAME : command.getName(),
+                    (command.getDescription() == null || command.getDescription().isEmpty()) ? NO_DESCRIPTION : command.getDescription(),
+                    prefix + String.join(", " + prefix, command.getAliases()),
+                    command.getUsageInstructions());
+        }
+
+        @Override
+        public String usage() {
+            return (usage == null || usage
+                    .isEmpty()) ? NO_USAGE : usage;
+        }
     }
 
 

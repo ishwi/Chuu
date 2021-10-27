@@ -10,6 +10,7 @@ import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
+import net.dv8tion.jda.api.events.interaction.SelectionMenuEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.hooks.EventListener;
 import net.dv8tion.jda.api.hooks.IEventManager;
@@ -22,7 +23,7 @@ public abstract class ReactionListener implements EventListener {
     static final ExecutorService executor = ExecutorsSingleton.getInstance();
 
     private static final String PERMS_MES = "Don't have permissions to clear reactions :(\nYou can still manually remove the reaction\n";
-    private static final String DMS_MES = "Can't clear reactions on dm's, please manually remove the reaction\n";
+    private static final String DMS_MES = "Can't clear reactions on dms, please manually remove the reaction\n";
     public final EmbedBuilder who;
     public final JDA jda;
     private final long activeSeconds;
@@ -48,16 +49,27 @@ public abstract class ReactionListener implements EventListener {
 
     @Override
     public void onEvent(@Nonnull GenericEvent event) {
-        if (event instanceof MessageReactionAddEvent e) {
-            if (isValid(e)) {
-                executor.execute(() -> onMessageReactionAdd(e));
+        switch (event) {
+            case MessageReactionAddEvent e -> {
+                if (isValid(e)) {
+                    executor.execute(() -> onMessageReactionAdd(e));
+                }
             }
-        } else if (event instanceof ButtonClickEvent e) {
-            if (isValid(e)) {
-                executor.execute(() -> onButtonClickedEvent(e));
+            case ButtonClickEvent e -> {
+                if (isValid(e)) {
+                    executor.execute(() -> onButtonClickedEvent(e));
+                }
+            }
+            case SelectionMenuEvent e -> {
+                if (isValid(e)) {
+                    executor.execute(() -> onSelectedMenuEvent(e));
+                }
+            }
+            default -> {
             }
         }
     }
+
 
     void register() {
         jda.getEventManager().register(this);
@@ -82,11 +94,15 @@ public abstract class ReactionListener implements EventListener {
 
     public abstract boolean isValid(ButtonClickEvent event);
 
+    public abstract boolean isValid(SelectionMenuEvent event);
+
     public abstract void dispose();
 
     public abstract void onMessageReactionAdd(@Nonnull MessageReactionAddEvent event);
 
     public abstract void onButtonClickedEvent(@Nonnull ButtonClickEvent event);
+
+    public abstract void onSelectedMenuEvent(@Nonnull SelectionMenuEvent event);
 
     public void clearReacts() {
         clearReacts((Void a) -> {

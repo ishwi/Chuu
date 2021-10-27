@@ -6,7 +6,9 @@ import core.otherlisteners.util.ConfirmatorItem;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
+import net.dv8tion.jda.api.events.interaction.SelectionMenuEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import java.util.Collections;
@@ -66,6 +68,11 @@ public class Confirmator extends ReactionListener {
     }
 
     @Override
+    public boolean isValid(SelectionMenuEvent event) {
+        return false;
+    }
+
+    @Override
     public void dispose() {
         if (!this.wasThisCalled.get()) {
             this.context.editMessage(message, timeoutCallback.apply(who).build(), Collections.emptyList()).queue();
@@ -94,6 +101,10 @@ public class Confirmator extends ReactionListener {
             CompletableFuture.runAsync(() -> item.callback().accept(this.message));
             unregister();
         }
+    }
+
+    @Override
+    public void onSelectedMenuEvent(@NotNull SelectionMenuEvent event) {
     }
 
     public enum Mode {

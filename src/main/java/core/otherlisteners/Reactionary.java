@@ -5,8 +5,10 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
+import net.dv8tion.jda.api.events.interaction.SelectionMenuEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import java.util.Collections;
@@ -59,6 +61,11 @@ public class Reactionary<T> extends ReactionListener {
     @Override
     public boolean isValid(ButtonClickEvent event) {
         return message != null && event.getMessageIdLong() == message.getIdLong();
+    }
+
+    @Override
+    public boolean isValid(SelectionMenuEvent event) {
+        return false;
     }
 
     @Override
@@ -152,6 +159,11 @@ public class Reactionary<T> extends ReactionListener {
             }
         }
         message.editMessage(new MessageBuilder().setEmbeds(who.build()).setActionRows(rows).build()).queue();
+    }
+
+    @Override
+    public void onSelectedMenuEvent(@NotNull SelectionMenuEvent event) {
+
     }
 }
 

@@ -42,7 +42,7 @@ public class LoginCommand extends ConcurrentCommand<CommandParameters> {
 
     @Override
     protected CommandCategory initCategory() {
-        return CommandCategory.SCROBBLING;
+        return CommandCategory.STARTING;
     }
 
     @Override

@@ -20,6 +20,7 @@ import net.dv8tion.jda.api.events.guild.voice.GuildVoiceJoinEvent;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceLeaveEvent;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceMoveEvent;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
+import net.dv8tion.jda.api.events.interaction.SelectionMenuEvent;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
@@ -50,10 +51,11 @@ public class CustomInterfacedEventManager implements IEventManager {
     }
 
     private void handleReaction(@Nonnull GenericEvent event) {
-        assert event instanceof MessageReactionAddEvent || event instanceof ButtonClickEvent;
+        assert event instanceof MessageReactionAddEvent || event instanceof ButtonClickEvent || event instanceof SelectionMenuEvent;
         long channelId = switch (event) {
             case MessageReactionAddEvent e3 -> e3.getChannel().getIdLong();
             case ButtonClickEvent e3 -> e3.getChannel().getIdLong();
+            case SelectionMenuEvent e3 -> e3.getChannel().getIdLong();
             default -> throw new IllegalStateException("Unexpected value: " + event);
         };
         ChannelConstantListener c = channelConstantListeners.get(channelId);
@@ -67,7 +69,6 @@ public class CustomInterfacedEventManager implements IEventManager {
         for (ReactionListener listener : reactionaries.keySet()) {
             listener.onEvent(event);
         }
-
 
     }
 
@@ -153,6 +154,7 @@ public class CustomInterfacedEventManager implements IEventManager {
                 }
                 case MessageReactionAddEvent react -> reactionExecutor.submit(() -> this.handleReaction(react));
                 case ButtonClickEvent button -> reactionExecutor.submit(() -> this.handleReaction(button));
+                case SelectionMenuEvent selected -> reactionExecutor.submit(() -> this.handleReaction(selected));
 
                 // TODO cant group then on one
                 case GuildVoiceJoinEvent gvje -> this.voiceListener.onEvent(gvje);

@@ -5,8 +5,10 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
+import net.dv8tion.jda.api.events.interaction.SelectionMenuEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.requests.RestAction;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import java.util.List;
@@ -194,7 +196,17 @@ public class ReactValidator<T> extends ReactionListener {
     }
 
     @Override
+    public boolean isValid(SelectionMenuEvent event) {
+        return false;
+    }
+
+    @Override
     public void onButtonClickedEvent(@Nonnull ButtonClickEvent event) {
+    }
+
+    @Override
+    public void onSelectedMenuEvent(@NotNull SelectionMenuEvent event) {
+
     }
 
     private void accept(Message mes) {

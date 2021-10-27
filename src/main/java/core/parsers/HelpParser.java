@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Optional;
 
 public class HelpParser extends Parser<WordParameter> {
-    public HelpParser(OptionalEntity opt) {
+    public HelpParser(OptionalEntity... opt) {
         super(opt);
     }
 

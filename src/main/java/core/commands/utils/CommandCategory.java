@@ -26,8 +26,7 @@ public enum CommandCategory {
     RANDOM(20, "Commands about the random pool", "random"),
     FRIENDS(21, "Socialize or something", "friends"),
     CONFIGURATION(22, "Personalize your bot usage"),
-    MODERATION(23, "Command for bot admins"),
-    SCROBBLING(24, "Commands for scrobbling");
+    MODERATION(23, "Command for bot admins");
 
     private final int order;
     private final String description;
