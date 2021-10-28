@@ -28,7 +28,6 @@ public record FriendRequester(ChuuService db) implements ConstantListener {
         final long author = e.getUser().getIdLong();
         switch (action) {
             case ButtonUtils.FRIEND_REQUEST_ACCEPT -> {
-
                 DiscordUserDisplay ui = CommandUtil.getUserInfoUnescaped(requesterId);
                 if (!db.acceptRequest(author, requesterId)) {
                     e.getMessage().editMessage(new MessageBuilder(new ChuuEmbedBuilder(false)

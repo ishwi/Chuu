@@ -1,5 +1,4 @@
 plugins {
-    id 'java'
     id 'java-library'
     id 'se.patrikerdes.use-latest-versions'
     id 'com.github.ben-manes.versions'
@@ -7,12 +6,7 @@ plugins {
 
 }
 
-
-apply plugin: 'java'
 apply plugin: 'java-library'
-
-
-apply plugin: 'idea'
 
 compileJava {
     options.compilerArgs += ["-Xlint:deprecation", "--enable-preview"]
@@ -92,4 +86,8 @@ test {
     useJUnitPlatform()
     jvmArgs '--enable-preview'
 
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.fork = true
 }

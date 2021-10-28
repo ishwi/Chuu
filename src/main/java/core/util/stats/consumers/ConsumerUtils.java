@@ -276,7 +276,7 @@ public class ConsumerUtils {
                     yield -1;
                 }
                 List<ScrobbledAlbum> albums = (List<ScrobbledAlbum>) entities;
-                yield ListUtils.indexOf(albums, (a) -> a.getArtist().equalsIgnoreCase(np.getArtist()) && np.getName().equalsIgnoreCase(a.getAlbum()));
+                yield ListUtils.indexOf(albums, (a) -> a.getArtist().equalsIgnoreCase(np.getArtist()) && np.getAlbum().equalsIgnoreCase(a.getAlbum()));
             }
             case TRACK -> {
                 long trackId = np.getTrackId();

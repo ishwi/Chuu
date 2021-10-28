@@ -70,7 +70,7 @@ dependencies {
     implementation 'com.neovisionaries:nv-i18n:1.29'
     implementation 'com.github.ishwi:java-eval:8de726df14c18523912aa6ff21bfd1b0b7d54924'
     implementation group: 'com.google.guava', name: 'guava', version: '30.1.1-jre'
-    implementation("net.dv8tion:JDA:4.3.0_324")
+    implementation("net.dv8tion:JDA:4.3.0_339")
     implementation group: 'org.jsoup', name: 'jsoup', version: '1.14.2'
 
     implementation group: 'org.apache.commons', name: 'commons-collections4', version: '4.4'
@@ -112,3 +112,6 @@ dependencies {
 
 }
 
+tasks.withType(JavaCompile).configureEach {
+    options.fork = true
+}

@@ -74,7 +74,7 @@ public class DiscoveredAlbumCommand extends ChartableCommand<ChartParameters> {
         if (param.getTimeFrameEnum().isAllTime()) {
             return new CountWrapper<>(0, queue);
         }
-        int i = lastFM.getChart(param.getUser(), param.getTimeFrameEnum(), 3000, 1, TopEntity.ALBUM, ChartUtil.getParser(param.getTimeFrameEnum(), TopEntity.ALBUM, param, lastFM, param.getUser()),
+        int i = lastFM.getChart(param.getUser(), param.getTimeFrameEnum(), 300, 100, TopEntity.ALBUM, ChartUtil.getParser(param.getTimeFrameEnum(), TopEntity.ALBUM, param, lastFM, param.getUser()),
                 queue);
         List<UrlCapsule> capsules = new ArrayList<>(queue.size());
         queue.drainTo(capsules);

@@ -57,8 +57,9 @@ public record TrackValidator(ChuuService db, ConcurrentLastFM lastFM) {
         }
         var st = validate(np.artistName(), np.songName());
         if (np.albumName() != null) {
-            ScrobbledAlbum album = new AlbumValidator(db, lastFM).validate(st.getArtistId(), st.getArtist(), st.getAlbum());
-            st.setAlbumId(st.getAlbumId());
+            ScrobbledAlbum album = new AlbumValidator(db, lastFM).validate(st.getArtistId(), st.getArtist(), np.albumName());
+            st.setAlbumId(album.getAlbumId());
+            st.setAlbum(album.getAlbum());
         }
         return st;
     }

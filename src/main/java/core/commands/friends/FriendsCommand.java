@@ -104,7 +104,7 @@ public class FriendsCommand extends ParentCommmand<FriendsActions> {
 
     @Override
     public String getDescription() {
-        return "aa";
+        return "Manage your friend list and do commands for your full friend list";
     }
 
     @Override
@@ -196,10 +196,10 @@ public class FriendsCommand extends ParentCommmand<FriendsActions> {
     }
 
     private void doNp(Context e, FriendsActions action, String args) throws LastFmException, InstanceNotFoundException {
-        ChuuDataParams chuuDataParams = action.parse(e, deps, args);
+        CommandParameters chuuDataParams = action.parse(e, deps, args);
 
-
-        long discordId = chuuDataParams.getLastFMData().getDiscordId();
+        long discordId = e.getAuthor().getIdLong();
+        LastFMData lastFMData = db.findLastFMData(discordId);
         DiscordUserDisplay ui = CommandUtil.getUserInfoEscaped(e, discordId);
 
         List<Friend> userFriends = db.getUserFriends(discordId);
@@ -210,25 +210,27 @@ public class FriendsCommand extends ParentCommmand<FriendsActions> {
 
         LocalDateTime cooldown;
         if (userFriends.size() > 15) {
-            LocalDateTime ifPresent = controlAccess.getIfPresent(e.getGuild().getIdLong());
+            LocalDateTime ifPresent = controlAccess.getIfPresent(discordId);
             if (ifPresent != null) {
                 format(e, ifPresent, "You have too many friends, so `friends np` can only be executed twice per day ");
                 return;
             }
-            controlAccess.refresh(e.getGuild().getIdLong());
-        } else if ((cooldown = serverControlAccess.getIfPresent(e.getGuild().getIdLong())) != null) {
+            controlAccess.refresh(discordId);
+        } else if ((cooldown = serverControlAccess.getIfPresent(discordId)) != null) {
             format(e, cooldown, "This command has a 5 min cooldown between uses.");
             return;
         } else {
-            serverControlAccess.refresh(e.getGuild().getIdLong());
+            serverControlAccess.refresh(discordId);
         }
 
+        List<LastFMData> users = Stream.concat(userFriends.stream().map(z -> {
+            SimpleUser other = z.other(discordId);
+            return LastFMData.ofUser(other.lastfmId(), other.discordId());
+        }), Stream.of(lastFMData)).toList();
+
         boolean showFresh = !chuuDataParams.hasOptional("recent");
-        List<String> recent = PlayingCommand.obtainNps(lastFM, e, showFresh,
-                Stream.concat(userFriends.stream().map(z -> {
-                    SimpleUser other = z.other(discordId);
-                    return LastFMData.ofUser(other.lastfmId(), other.discordId());
-                }), Stream.of(chuuDataParams.getLastFMData())).toList());
+        List<String> recent = PlayingCommand.obtainNps(lastFM, e, showFresh, users);
+
         if (recent.isEmpty()) {
             sendMessageQueue(e, "No one is playing anything on your friendlist!");
             return;
@@ -324,7 +326,6 @@ public class FriendsCommand extends ParentCommmand<FriendsActions> {
                 }
             }
         } else {
-            db.createRequest(author, discordId);
             DiscordUserDisplay yourself = CommandUtil.getUserInfoEscaped(e, author);
             String artists = db.getAllUserArtist(author, 5).stream().map(ScrobbledArtist::getArtist).collect(Collectors.joining(", "));
 
@@ -340,14 +341,16 @@ public class FriendsCommand extends ParentCommmand<FriendsActions> {
                 return;
             }
             e.getJDA().openPrivateChannelById(discordId).flatMap(privateChannel -> {
+                db.createRequest(author, discordId);
                 EmbedBuilder eb = new ChuuEmbedBuilder(e)
                         .setAuthor("Friend Request from %s".formatted(yourself.username()), PrivacyUtils.getLastFmUser(authorData.getName()), yourself.urlImage())
                         .setDescription(("**Account:** %s%n" +
                                 "**Last.fm:** [%s](%s)%n".formatted(authorData.getName(), PrivacyUtils.getLastFmUser(authorData.getName())) +
                                 "%s").formatted(e.getAuthor().getAsMention(), finalArtists));
-                MessageBuilder messageBuilder = new MessageBuilder(eb.build()).setActionRows(ActionRow.of(ButtonUtils.declineFriendRequest(author), ButtonUtils.acceptFriendRequest(author)));
+                MessageBuilder messageBuilder = new MessageBuilder(eb.build()).setActionRows(
+                        ActionRow.of(ButtonUtils.declineFriendRequest(author), ButtonUtils.acceptFriendRequest(author)));
                 return privateChannel.sendMessage(messageBuilder.build());
-            }).queue(message -> sendMessageQueue(e, "Sent a friend petition to %s".formatted(userInfoEscaped.username())),
+            }).queue(message -> sendMessageQueue(e, "Sent a friend request to %s".formatted(userInfoEscaped.username())),
                     throwable -> e.sendMessage("An error ocurred sending a dm to %s!".formatted(userInfoEscaped.username())).queue());
         }
     }

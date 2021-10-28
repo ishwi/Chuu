@@ -20,8 +20,8 @@ public class FriendDAOImpl implements FriendDAO {
                 from friends a
                          join user b on a.first_user = b.discord_id
                          join user c on a.second_user = c.discord_id
-                where first_user = ?
-                   or second_user = ? and status = 'ACCEPTED'""";
+                where (first_user = ?
+                   or second_user = ?) and status = 'ACCEPTED'""";
         return loadFriends(connection, discordId, friends, sql);
     }
 
@@ -65,8 +65,8 @@ public class FriendDAOImpl implements FriendDAO {
                 from friends a
                          join user b on a.first_user = b.discord_id
                          join user c on a.second_user = c.discord_id
-                where (second_user = ? and status = 'PENDING_FIRST') or
-                (first_user =? and status = 'PENDING_SECOND')""";
+                where (second_user = ? and status = 'PENDING_SECOND') or
+                (first_user =? and status = 'PENDING_FIRST')""";
         return loadFriends(connection, discordId, friends, sql);
     }
 
@@ -78,8 +78,8 @@ public class FriendDAOImpl implements FriendDAO {
                 from friends a
                          join user b on a.first_user = b.discord_id
                          join user c on a.second_user = c.discord_id
-                where (first_user = ? and status = 'PENDING_FIRST') or
-                (second_user =? and status = 'PENDING_SECOND')""";
+                where (first_user = ? and status = 'PENDING_SECOND') or
+                (second_user =? and status = 'PENDING_FIRST')""";
         return loadFriends(connection, discordId, friends, sql);
     }
 
@@ -127,7 +127,7 @@ public class FriendDAOImpl implements FriendDAO {
                 """;
         Friend.UsersSorted usersSorted = new Friend.UsersSorted(discordId, receiverId);
 
-        Friend.FriendStatus status = (discordId == usersSorted.first()) ? Friend.FriendStatus.PENDING_FIRST : Friend.FriendStatus.PENDING_SECOND;
+        Friend.FriendStatus status = (discordId == usersSorted.first()) ? Friend.FriendStatus.PENDING_SECOND : Friend.FriendStatus.PENDING_FIRST;
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
             preparedStatement.setLong(1, usersSorted.first());

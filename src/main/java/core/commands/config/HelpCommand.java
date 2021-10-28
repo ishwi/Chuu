@@ -235,8 +235,16 @@ public class HelpCommand extends ConcurrentCommand<WordParameter> {
             }
             eb.addField("**Name:**", help.name, false)
                     .addField("**Description:**", help.description, false)
-                    .addField("**Aliases:**", help.aliases, false)
-                    .addField(header, field, false);
+                    .addField("**Aliases:**", help.aliases, false);
+            List<String> pages = TextSplitter.split(field, 1024);
+            int count = 0;
+            for (String page : pages) {
+                if (count++ == 0) {
+                    eb.addField(header, page, false);
+                } else {
+                    eb.addField(EmbedBuilder.ZERO_WIDTH_SPACE, page, false);
+                }
+            }
 
             return new SelectionEvenListener.SelectionResponse(eb, row);
         }
@@ -340,7 +348,7 @@ public class HelpCommand extends ConcurrentCommand<WordParameter> {
                 SpecificCommandHelp help = new SpecificCommandHelp(c, prefix);
 
                 String realUsageInstructions = help.usage;
-                List<String> pagees = TextSplitter.split(realUsageInstructions, 3000);
+                List<String> pagees = TextSplitter.split(realUsageInstructions, 1500);
                 e.sendMessage("**Name:** " + help.name + "\n" +
                         "**Description:** " + help.description + "\n" +
                         "**Aliases:** " + help.aliases + "\n" +

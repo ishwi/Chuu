@@ -21,7 +21,6 @@ import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
-import net.dv8tion.jda.api.interactions.commands.build.SubcommandGroupData;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.WordUtils;
 
@@ -108,7 +107,7 @@ public class GuildConfigParser extends DaoParser<GuildConfigParams> implements G
         for (GuildConfigType value : GuildConfigType.values()) {
             optionData.addChoice(value.getCommandName(), value.getCommandName());
         }
-        return List.of(() -> new ExplanationLine("Property to configure", usage, optionData), () -> new ExplanationLineType("value of config", "The value to choose", OptionType.STRING));
+        return List.of(() -> new ExplanationLine("config-property", usage, optionData), () -> new ExplanationLineType("config-value", "", OptionType.STRING));
     }
 
     @Override
@@ -144,7 +143,6 @@ public class GuildConfigParser extends DaoParser<GuildConfigParams> implements G
                     data.addOptions(mode);
                 }
                 case COLOR -> {
-                    SubcommandGroupData group = new SubcommandGroupData(guildConfigType.getCommandName(), StringUtils.abbreviate(guildConfigType.getExplanation(), 100));
                     OptionData mode = new OptionData(OptionType.STRING, "mode", "mode to select", true);
                     mode.addChoice("Random", "random");
                     mode.addChoice("Role", "role");

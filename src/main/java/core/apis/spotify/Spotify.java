@@ -58,17 +58,45 @@ public class Spotify {
         }
     }
 
-    private Paging<AlbumSimplified> searchAlbum(String artist, String album) throws ParseException, SpotifyWebApiException, IOException {
+    public List<AlbumResult> searchAlbums(String artist, String album) {
+        try {
+            return privateSearchAlbums(artist, album);
+        } catch (ParseException | SpotifyWebApiException | IOException e) {
+            Chuu.getLogger().warn("Error getting tracklist {} | {}", artist, album, e);
+            return Collections.emptyList();
+        }
+    }
+
+    private List<AlbumResult> privateSearchAlbums(String artist, String album) throws ParseException, SpotifyWebApiException, IOException {
         initRequest();
         artist = artist.contains(":") ? "\"" + artist + "\"" : artist;
         album = album.contains(":") ? "\"" + album + "\"" : album;
 
         SearchAlbumsRequest build = spotifyApi.searchAlbums("album:" + album + " artist:" + artist).
                 market(CountryCode.NZ)
-                .limit(1)
+                .limit(25)
                 .offset(0)
                 .build();
-        return build.execute();
+        return Arrays.stream(build.execute().getItems())
+                .map(result -> new AlbumResult(result.getId(), result.getArtists()[0].getName(), result.getName(), result.getUri(),
+                        Arrays.stream(result.getImages()).findFirst().map(Image::getUrl).orElse(null)))
+                .distinct()
+                .toList();
+    }
+
+    public String getAlbumLink(String artist, String album) {
+        String returned = null;
+        try {
+            List<AlbumResult> albumResults = privateSearchAlbums(artist, album);
+            for (AlbumResult item : albumResults) {
+                returned = "https://open.spotify.com/album/" + item.uri.split("spotify:album:")[1];
+            }
+
+        } catch (IOException | SpotifyWebApiException | ParseException e) {
+            Chuu.getLogger().warn(e.getMessage(), e);
+        }
+        return returned;
+
     }
 
     private Paging<Track> searchSong(String artist, String track) throws ParseException, SpotifyWebApiException, IOException {
@@ -113,19 +141,21 @@ public class Spotify {
         }
     }
 
-    public String getAlbumLink(String artist, String album) {
-        String returned = null;
-        try {
-            Paging<AlbumSimplified> albumSimplifiedPaging = searchAlbum(artist, album);
-            for (AlbumSimplified item : albumSimplifiedPaging.getItems()) {
-                returned = "https://open.spotify.com/album/" + item.getUri().split("spotify:album:")[1];
-            }
-
-        } catch (IOException | SpotifyWebApiException | ParseException e) {
-            Chuu.getLogger().warn(e.getMessage(), e);
+    public List<dao.entities.Track> getTracklistFromId(String id, String artist) {
+        ArrayList<dao.entities.Track> tracks = new ArrayList<>();
+        if (id == null || id.isBlank()) {
+            return tracks;
         }
-        return returned;
-
+        try {
+            return Arrays.stream(spotifyApi.getAlbum(id).market(CountryCode.NZ).build().execute().getTracks().getItems()).map(x -> {
+                dao.entities.Track track = new dao.entities.Track(artist, x.getName(), 0, false, x.getDurationMs());
+                track.setPosition(x.getTrackNumber() - 1);
+                return track;
+            }).toList();
+        } catch (IOException | SpotifyWebApiException | ParseException e) {
+            Chuu.getLogger().warn("Error reading tracklist by id {}", id, e);
+            return tracks;
+        }
     }
 
     public List<AudioFeatures> getAudioFeatures(Set<String> ids) {
@@ -155,31 +185,24 @@ public class Spotify {
     }
 
     public List<dao.entities.Track> getAlbumTrackList(String artist, String album) {
-        ArrayList<dao.entities.Track> tracks = new ArrayList<>();
-        String returned = "";
+        String id = "";
         try {
-            Paging<AlbumSimplified> albumSimplifiedPaging = searchAlbum(artist, album);
-            for (AlbumSimplified item : albumSimplifiedPaging.getItems()) {
+            List<AlbumResult> albumResults = privateSearchAlbums(artist, album);
+            for (AlbumResult item : albumResults) {
                 if (item != null) {
-                    returned = item.getId();
+                    id = item.id();
+                    break;
                 }
             }
-
         } catch (IOException | SpotifyWebApiException | ParseException e) {
             Chuu.getLogger().warn(e.getMessage(), e);
         }
-        if (returned.equals("")) {
-            return tracks;
-        }
-        try {
-            return Arrays.stream(spotifyApi.getAlbum(returned).market(CountryCode.NZ).build().execute().getTracks().getItems()).map(x -> {
-                dao.entities.Track track = new dao.entities.Track(artist, x.getName(), 0, false, x.getDurationMs());
-                track.setPosition(x.getTrackNumber() - 1);
-                return track;
-            }).toList();
-        } catch (IOException | SpotifyWebApiException | ParseException e) {
-            return tracks;
-        }
+        return getTracklistFromId(id, artist);
+
+
+    }
+
+    public record AlbumResult(String id, String artist, String album, String uri, String cover) {
 
     }
 

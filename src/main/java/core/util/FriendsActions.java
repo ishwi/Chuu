@@ -14,7 +14,7 @@ import java.util.Set;
 public enum FriendsActions implements Subcommand, Aliasable, Descriptible {
     ADD((deps) -> new OnlyUsernameParser(deps.db(), true), "Sends a request to a given user"),
     PENDING((deps) -> NoOpParser.INSTANCE, "Sees the request that you have sent that are yet to be accepted"),
-    INCOMING((deps) -> NoOpParser.INSTANCE, "Lists all your incoming petitions"),
+    INCOMING((deps) -> NoOpParser.INSTANCE, "Lists all your incoming requests"),
     REMOVE((deps) -> new OnlyUsernameParser(deps.db(), true), "Deletes a certain friend from your friend list", "delete", "erase"),
     LIST((deps) -> new OnlyUsernameParser(deps.db()), "Lists all your friends"),
     NP((deps) -> new OnlyUsernameParser(deps.db())
@@ -28,7 +28,7 @@ public enum FriendsActions implements Subcommand, Aliasable, Descriptible {
         return new OnlyChartSizeParser(deps.db())
                 .replaceOptional("plays", Optionals.NOPLAYS.opt)
                 .addOptional(Optionals.PLAYS.opt.withBlockedBy("noplays"));
-    }, "Chart compose of all your friends favourite albums");
+    }, "Chart compose of all your friends favourite artists");
 
     private final SubcommandEx<?> subcommandEx;
     private final Set<String> aliases;

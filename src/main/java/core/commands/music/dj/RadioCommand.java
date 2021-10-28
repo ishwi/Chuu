@@ -109,7 +109,7 @@ public class RadioCommand extends MusicCommand<EnumParameters<Station>> {
             case RANDOM -> new RandomRadioTrackContext(e.getAuthor().getIdLong(), e.getChannel().getIdLong(), new RandomRadio(params.hasOptional("server") ? e.getGuild().getIdLong() : -1, params.hasOptional("server")), -1, null);
             case RELEASES, GENRE -> {
                 if (input == null) {
-                    parser.sendError("Pls Introduce the name of a genre to search for.", e);
+                    parser.sendError("Pls introduce the name of a genre to search for", e);
                     yield null;
                 }
                 Function<NoiseGenre, RadioTrackContext> factory;
