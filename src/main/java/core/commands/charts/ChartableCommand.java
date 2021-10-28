@@ -66,7 +66,7 @@ public abstract class ChartableCommand<T extends ChartParameters> extends Concur
     }
 
 
-    ChartMode getEffectiveMode(ChartParameters chartParameters) {
+    protected ChartMode getEffectiveMode(ChartParameters chartParameters) {
         if (chartParameters.isList()) {
             return ChartMode.LIST;
         } else if (chartParameters.isPie()) {

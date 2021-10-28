@@ -4373,6 +4373,17 @@ public class ChuuService implements EveryNoiseService {
         }
     }
 
+    public ResultWrapper<ScrobbledArtist> friendsTopArtists(long discordId, int limit, boolean doCount) {
+        try (Connection connection = dataSource.getConnection()) {
+            List<Long> userFriends = friendDAO.getUserFriendsIds(connection, discordId);
+            Set<Long> friendIds = Stream.concat(userFriends.stream(), Stream.of(discordId)).collect(Collectors.toSet());
+            return executeInHiddenServer(friendIds,
+                    (hiddenConnection, guildId) -> queriesDao.getGuildTop(connection, guildId, limit, doCount));
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
     private <T> T executeInHiddenServer(Set<Long> userIds, HiddenRunnable<T> runnable) {
         try (Connection connection = dataSource.getConnection()) {
             connection.setAutoCommit(false);

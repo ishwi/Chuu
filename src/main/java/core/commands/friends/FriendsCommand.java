@@ -5,6 +5,7 @@ import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import core.commands.Context;
 import core.commands.ContextMessageReceived;
+import core.commands.charts.GuildTopCommand;
 import core.commands.stats.PlayingCommand;
 import core.commands.utils.*;
 import core.commands.whoknows.LocalWhoKnowsAlbumCommand;
@@ -14,11 +15,7 @@ import core.exceptions.LastFmException;
 import core.otherlisteners.util.PaginatorBuilder;
 import core.parsers.ParentParser;
 import core.parsers.Parser;
-import core.parsers.params.ArtistAlbumParameters;
-import core.parsers.params.ArtistParameters;
-import core.parsers.params.ChuuDataParams;
-import core.parsers.params.EnumParameters;
-import core.services.validators.ArtistValidator;
+import core.parsers.params.*;
 import core.util.Deps;
 import core.util.FriendsActions;
 import dao.ServiceView;
@@ -47,15 +44,19 @@ public class FriendsCommand extends ParentCommmand<FriendsActions> {
     private final WhoKnowsCommand whoKnowsCommand;
     private final LocalWhoKnowsSongCommand whoKnowsTrackCommand;
     private final LocalWhoKnowsAlbumCommand whoKnowsAlbumCommand;
+    private final GuildTopCommand chartCommand;
+
     private final LoadingCache<Long, LocalDateTime> controlAccess;
     private final LoadingCache<Long, LocalDateTime> serverControlAccess;
 
 
     public FriendsCommand(ServiceView dao) {
         super(dao);
-        whoKnowsCommand = initFriendsWhoknows(dao);
-        whoKnowsTrackCommand = initFriendsWhoknowsSong(dao);
-        whoKnowsAlbumCommand = initFriendsWhoknowsAlbum(dao);
+        FriendCommandLoader loader = new FriendCommandLoader(dao);
+        whoKnowsCommand = loader.whoKnowsCommand();
+        whoKnowsTrackCommand = loader.localWhoKnowsSongCommand();
+        whoKnowsAlbumCommand = loader.localWhoKnowsAlbumCommand();
+        chartCommand = loader.guildTopCommand();
         controlAccess = CacheBuilder.newBuilder().concurrencyLevel(2).expireAfterWrite(12, TimeUnit.HOURS).build(
                 new CacheLoader<>() {
                     public LocalDateTime load(@org.jetbrains.annotations.NotNull Long guild) {
@@ -137,6 +138,11 @@ public class FriendsCommand extends ParentCommmand<FriendsActions> {
             case WKT -> {
                 ArtistAlbumParameters artistAlbumParameters = action.parse(e, deps, args);
                 whoKnowsTrackCommand.onCommand(e, artistAlbumParameters);
+            }
+            case TOP -> {
+                ChartSizeParameters chartParameters = action.parse(e, deps, args);
+                chartCommand.onCommand(e, chartParameters);
+
             }
         }
     }
@@ -347,77 +353,5 @@ public class FriendsCommand extends ParentCommmand<FriendsActions> {
     }
 
 
-    private WhoKnowsCommand initFriendsWhoknows(ServiceView dao) {
-        return new WhoKnowsCommand(dao) {
-            @Override
-            protected WrapperReturnNowPlaying generateWrapper(ArtistParameters params, WhoKnowsMode whoKnowsMode) throws LastFmException {
-                ScrobbledArtist sA = new ArtistValidator(db, lastFM, params.getE()).validate(params.getArtist(), !params.isNoredirect());
-                params.setScrobbledArtist(sA);
-                long author = params.getLastFMData().getDiscordId();
-                int limit = whoKnowsMode.equals(WhoKnowsMode.IMAGE) ? 10 : Integer.MAX_VALUE;
-                return db.friendsWhoKnows(sA.getArtistId(), author, limit);
-            }
-
-            @Override
-            protected String getImageTitle(Context e, ArtistParameters params) {
-                DiscordUserDisplay ui = CommandUtil.getUserInfoUnescaped(e, params.getLastFMData().getDiscordId());
-                return "%s's friendlist".formatted(ui.username());
-            }
-
-            @Override
-            public String getTitle(ArtistParameters params, String baseTitle) {
-                DiscordUserDisplay ui = CommandUtil.getUserInfoUnescaped(params.getE(), params.getLastFMData().getDiscordId());
-                return "Who knows " + CommandUtil.escapeMarkdown(params.getScrobbledArtist().getArtist()) + " in %s's friendlist?".formatted(ui.username());
-            }
-        };
-    }
-
-    private LocalWhoKnowsSongCommand initFriendsWhoknowsSong(ServiceView dao) {
-        return new LocalWhoKnowsSongCommand(dao) {
-            protected WrapperReturnNowPlaying generateInnerWrapper(ArtistAlbumParameters ap, WhoKnowsMode effectiveMode, long trackId) {
-                long discordId = ap.getLastFMData().getDiscordId();
-                return effectiveMode.equals(WhoKnowsMode.IMAGE) ?
-                        this.db.friendsWhoKnowsSong(trackId, discordId, 10) :
-                        this.db.friendsWhoKnowsSong(trackId, discordId, Integer.MAX_VALUE);
-            }
-
-            @Override
-            protected String getImageTitle(Context e, ArtistAlbumParameters params) {
-                DiscordUserDisplay ui = CommandUtil.getUserInfoUnescaped(e, params.getLastFMData().getDiscordId());
-                return "%s's friendlist".formatted(ui.username());
-            }
-
-            @Override
-            public String getTitle(ArtistAlbumParameters params, String baseTitle) {
-                DiscordUserDisplay ui = CommandUtil.getUserInfoUnescaped(params.getE(), params.getLastFMData().getDiscordId());
-                return "Who knows " + CommandUtil.escapeMarkdown(params.getArtist() + " - " + params.getAlbum()) + " in %s's friendlist?".formatted(ui.username());
-            }
-        };
-    }
-
-    private LocalWhoKnowsAlbumCommand initFriendsWhoknowsAlbum(ServiceView dao) {
-        return new LocalWhoKnowsAlbumCommand(dao) {
-
-            protected WrapperReturnNowPlaying generateInnerWrapper(ArtistAlbumParameters ap, WhoKnowsMode effectiveMode, long albumId) {
-
-                long disc = ap.getLastFMData().getDiscordId();
-                return effectiveMode.equals(WhoKnowsMode.IMAGE) ?
-                        this.db.friendsWhoKnowsAlbum(albumId, disc, 10) :
-                        this.db.friendsWhoKnowsAlbum(albumId, disc, Integer.MAX_VALUE);
-            }
-
-            @Override
-            protected String getImageTitle(Context e, ArtistAlbumParameters params) {
-                DiscordUserDisplay ui = CommandUtil.getUserInfoUnescaped(e, params.getLastFMData().getDiscordId());
-                return "%s's friendlist".formatted(ui.username());
-            }
-
-            @Override
-            public String getTitle(ArtistAlbumParameters params, String baseTitle) {
-                DiscordUserDisplay ui = CommandUtil.getUserInfoUnescaped(params.getE(), params.getLastFMData().getDiscordId());
-                return "Who knows " + CommandUtil.escapeMarkdown(params.getArtist() + " - " + params.getAlbum()) + " in %s's friendlist?".formatted(ui.username());
-            }
-        };
-    }
 }
 

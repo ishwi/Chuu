@@ -5,6 +5,7 @@ import core.commands.whoknows.LocalWhoKnowsSongCommand;
 import core.commands.whoknows.WhoKnowsCommand;
 import core.parsers.*;
 import core.parsers.utils.OptionalEntity;
+import core.parsers.utils.Optionals;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -22,7 +23,12 @@ public enum FriendsActions implements Subcommand, Aliasable, Descriptible {
             , "fm"),
     WK((deps) -> new ArtistParser(deps.db(), deps.lastFM()), "Who knows an artist in your friendlist", WhoKnowsCommand.WK_ALIASES),
     WKT((deps) -> new ArtistSongParser(deps.db(), deps.lastFM()), "Who knows an song in your friendlist", LocalWhoKnowsSongCommand.WKT_ALIASES),
-    WKA((deps) -> new ArtistAlbumParser(deps.db(), deps.lastFM()), "Who knows an album in your friendlist", LocalWhoKnowsAlbumCommand.WKA_ALIASES);
+    WKA((deps) -> new ArtistAlbumParser(deps.db(), deps.lastFM()), "Who knows an album in your friendlist", LocalWhoKnowsAlbumCommand.WKA_ALIASES),
+    TOP((deps) -> {
+        return new OnlyChartSizeParser(deps.db())
+                .replaceOptional("plays", Optionals.NOPLAYS.opt)
+                .addOptional(Optionals.PLAYS.opt.withBlockedBy("noplays"));
+    }, "Chart compose of all your friends favourite albums");
 
     private final SubcommandEx<?> subcommandEx;
     private final Set<String> aliases;
