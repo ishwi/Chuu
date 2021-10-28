@@ -5,17 +5,24 @@ import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import core.commands.Context;
 import core.commands.ContextMessageReceived;
+import core.commands.artists.BandInfoCommand;
+import core.commands.artists.GlobalFavesFromArtistCommand;
+import core.commands.charts.GuildTopAlbumsCommand;
 import core.commands.charts.GuildTopCommand;
+import core.commands.charts.GuildTopTracksCommand;
 import core.commands.stats.PlayingCommand;
 import core.commands.utils.*;
 import core.commands.whoknows.LocalWhoKnowsAlbumCommand;
 import core.commands.whoknows.LocalWhoKnowsSongCommand;
 import core.commands.whoknows.WhoKnowsCommand;
 import core.exceptions.LastFmException;
+import core.imagerenderer.util.pie.DefaultList;
+import core.imagerenderer.util.pie.IPieableList;
 import core.otherlisteners.util.PaginatorBuilder;
 import core.parsers.ParentParser;
 import core.parsers.Parser;
 import core.parsers.params.*;
+import core.services.validators.ArtistValidator;
 import core.util.Deps;
 import core.util.FriendsActions;
 import dao.ServiceView;
@@ -44,7 +51,11 @@ public class FriendsCommand extends ParentCommmand<FriendsActions> {
     private final WhoKnowsCommand whoKnowsCommand;
     private final LocalWhoKnowsSongCommand whoKnowsTrackCommand;
     private final LocalWhoKnowsAlbumCommand whoKnowsAlbumCommand;
-    private final GuildTopCommand chartCommand;
+    private final GuildTopCommand topArtistsCommands;
+    private final GuildTopAlbumsCommand topAlbumsCommand;
+    private final GuildTopTracksCommand topTracksCommand;
+    private final BandInfoCommand bandInfoCommand;
+    private final IPieableList<AlbumUserPlays, ArtistParameters> pie = DefaultList.fillPie(AlbumUserPlays::getAlbum, AlbumUserPlays::getPlays);
 
     private final LoadingCache<Long, LocalDateTime> controlAccess;
     private final LoadingCache<Long, LocalDateTime> serverControlAccess;
@@ -56,7 +67,10 @@ public class FriendsCommand extends ParentCommmand<FriendsActions> {
         whoKnowsCommand = loader.whoKnowsCommand();
         whoKnowsTrackCommand = loader.localWhoKnowsSongCommand();
         whoKnowsAlbumCommand = loader.localWhoKnowsAlbumCommand();
-        chartCommand = loader.guildTopCommand();
+        topArtistsCommands = loader.guildTopCommand();
+        topAlbumsCommand = loader.guildTopAlbumsCommand();
+        topTracksCommand = loader.guildTopTracksCommand();
+        bandInfoCommand = loader.bandInfoCommand();
         controlAccess = CacheBuilder.newBuilder().concurrencyLevel(2).expireAfterWrite(12, TimeUnit.HOURS).build(
                 new CacheLoader<>() {
                     public LocalDateTime load(@org.jetbrains.annotations.NotNull Long guild) {
@@ -141,8 +155,31 @@ public class FriendsCommand extends ParentCommmand<FriendsActions> {
             }
             case TOP -> {
                 ChartSizeParameters chartParameters = action.parse(e, deps, args);
-                chartCommand.onCommand(e, chartParameters);
+                topArtistsCommands.onCommand(e, chartParameters);
 
+            }
+            case CHART -> {
+                ChartSizeParameters chartParameters = action.parse(e, deps, args);
+                topAlbumsCommand.onCommand(e, chartParameters);
+            }
+            case TOPTRACKS -> {
+                ChartSizeParameters chartParameters = action.parse(e, deps, args);
+                topTracksCommand.onCommand(e, chartParameters);
+            }
+            case FAVS -> {
+                ArtistParameters ap = action.parse(e, deps, args);
+                ScrobbledArtist who = new ArtistValidator(db, lastFM, e).validate(ap.getArtist(), !ap.isNoredirect());
+                LastFMData data = ap.getLastFMData();
+                long discordId = data.getDiscordId();
+                String lastFmName = data.getName();
+                String validArtist = who.getArtist();
+                List<AlbumUserPlays> songs = db.friendsTopArtistSongs(discordId, who.getArtistId(), Integer.MAX_VALUE);
+                DiscordUserDisplay ui = CommandUtil.getUserInfoEscaped(e, discordId);
+                GlobalFavesFromArtistCommand.sendArtistFaves(e, who, validArtist, lastFmName, songs, "%s friends".formatted(ui.username()), "%s friends'".formatted(ui.username()), "in your friendlist!", ui.urlImage(), ap, pie, (b) -> sendImage(b, e));
+            }
+            case ARTIST -> {
+                ArtistParameters ap = action.parse(e, deps, args);
+                bandInfoCommand.onCommand(e, ap);
             }
         }
     }
@@ -344,9 +381,9 @@ public class FriendsCommand extends ParentCommmand<FriendsActions> {
                 db.createRequest(author, discordId);
                 EmbedBuilder eb = new ChuuEmbedBuilder(e)
                         .setAuthor("Friend Request from %s".formatted(yourself.username()), PrivacyUtils.getLastFmUser(authorData.getName()), yourself.urlImage())
-                        .setDescription(("**Account:** %s%n" +
+                        .setDescription(("**Account:** %s (%s)%n" +
                                 "**Last.fm:** [%s](%s)%n".formatted(authorData.getName(), PrivacyUtils.getLastFmUser(authorData.getName())) +
-                                "%s").formatted(e.getAuthor().getAsMention(), finalArtists));
+                                "%s").formatted(e.getAuthor().getAsMention(), e.getAuthor().getAsTag(), finalArtists));
                 MessageBuilder messageBuilder = new MessageBuilder(eb.build()).setActionRows(
                         ActionRow.of(ButtonUtils.declineFriendRequest(author), ButtonUtils.acceptFriendRequest(author)));
                 return privateChannel.sendMessage(messageBuilder.build());

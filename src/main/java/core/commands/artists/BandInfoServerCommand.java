@@ -48,7 +48,7 @@ public class BandInfoServerCommand extends BandInfoCommand {
     }
 
     @Override
-    void bandLogic(ArtistParameters ap) {
+    protected void bandLogic(ArtistParameters ap) {
 
         boolean b = ap.hasOptional("list");
         boolean b1 = ap.hasOptional("pie");
@@ -81,14 +81,14 @@ public class BandInfoServerCommand extends BandInfoCommand {
 
 
     @Override
-    void doImage(ArtistParameters ap, WrapperReturnNowPlaying np, ArtistAlbums ai, int plays, BufferedImage logo, long threshold) {
+    protected void doImage(ArtistParameters ap, WrapperReturnNowPlaying np, ArtistAlbums ai, int plays, BufferedImage logo, long threshold) {
         BufferedImage returnedImage = BandRendered
                 .makeBandImage(np, ai, plays, logo, ap.getE().getGuild().getName(), threshold);
         sendImage(returnedImage, ap.getE());
     }
 
     @Override
-    void configEmbedBuilder(EmbedBuilder embedBuilder, ArtistParameters ap, ArtistAlbums ai) {
+    protected void configEmbedBuilder(EmbedBuilder embedBuilder, ArtistParameters ap, ArtistAlbums ai) {
         embedBuilder.setTitle(ap.getE().getGuild().getName() + "'s top " + CommandUtil.escapeMarkdown(ai.getArtist()) + " albums");
 
     }

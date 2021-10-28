@@ -4345,7 +4345,7 @@ public class ChuuService implements EveryNoiseService {
             List<Long> userFriends = friendDAO.getUserFriendsIds(connection, discordId);
             Set<Long> friendIds = Stream.concat(userFriends.stream(), Stream.of(discordId)).collect(Collectors.toSet());
             return executeInHiddenServer(friendIds,
-                    (hiddenConnection, guildId) -> queriesDao.knows(connection, artistId, guildId, limit));
+                    (hiddenConnection, guildId) -> queriesDao.knows(hiddenConnection, artistId, guildId, limit));
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }
@@ -4356,7 +4356,7 @@ public class ChuuService implements EveryNoiseService {
             List<Long> userFriends = friendDAO.getUserFriendsIds(connection, discordId);
             Set<Long> friendIds = Stream.concat(userFriends.stream(), Stream.of(discordId)).collect(Collectors.toSet());
             return executeInHiddenServer(friendIds,
-                    (hiddenConnection, guildId) -> queriesDao.whoKnowsTrack(connection, trackId, guildId, limit));
+                    (hiddenConnection, guildId) -> queriesDao.whoKnowsTrack(hiddenConnection, trackId, guildId, limit));
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }
@@ -4367,7 +4367,7 @@ public class ChuuService implements EveryNoiseService {
             List<Long> userFriends = friendDAO.getUserFriendsIds(connection, discordId);
             Set<Long> friendIds = Stream.concat(userFriends.stream(), Stream.of(discordId)).collect(Collectors.toSet());
             return executeInHiddenServer(friendIds,
-                    (hiddenConnection, guildId) -> queriesDao.whoKnowsAlbum(connection, albumId, guildId, limit));
+                    (hiddenConnection, guildId) -> queriesDao.whoKnowsAlbum(hiddenConnection, albumId, guildId, limit));
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }
@@ -4378,11 +4378,68 @@ public class ChuuService implements EveryNoiseService {
             List<Long> userFriends = friendDAO.getUserFriendsIds(connection, discordId);
             Set<Long> friendIds = Stream.concat(userFriends.stream(), Stream.of(discordId)).collect(Collectors.toSet());
             return executeInHiddenServer(friendIds,
-                    (hiddenConnection, guildId) -> queriesDao.getGuildTop(connection, guildId, limit, doCount));
+                    (hiddenConnection, guildId) -> queriesDao.getGuildTop(hiddenConnection, guildId, limit, doCount));
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }
     }
+
+    public ResultWrapper<ScrobbledAlbum> friendsTopAlbums(long discordId, int limit, boolean doCount) {
+        try (Connection connection = dataSource.getConnection()) {
+            List<Long> userFriends = friendDAO.getUserFriendsIds(connection, discordId);
+            Set<Long> friendIds = Stream.concat(userFriends.stream(), Stream.of(discordId)).collect(Collectors.toSet());
+            return executeInHiddenServer(friendIds,
+                    (hiddenConnection, guildId) -> queriesDao.getGuildTopAlbum(hiddenConnection, guildId, limit, doCount));
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    public ResultWrapper<ScrobbledTrack> friendsTopTracks(long discordId, int limit, boolean doCount) {
+        try (Connection connection = dataSource.getConnection()) {
+            List<Long> userFriends = friendDAO.getUserFriendsIds(connection, discordId);
+            Set<Long> friendIds = Stream.concat(userFriends.stream(), Stream.of(discordId)).collect(Collectors.toSet());
+            return executeInHiddenServer(friendIds,
+                    (hiddenConnection, guildId) -> trackDao.getGuildTopTracks(hiddenConnection, guildId, limit, doCount));
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    public List<AlbumUserPlays> friendsArtistAlbums(int limit, long artistId, long authorId) {
+        try (Connection connection = dataSource.getConnection()) {
+            List<Long> userFriends = friendDAO.getUserFriendsIds(connection, authorId);
+            Set<Long> friendIds = Stream.concat(userFriends.stream(), Stream.of(authorId)).collect(Collectors.toSet());
+            return executeInHiddenServer(friendIds,
+                    (hiddenConnection, guildId) -> albumDao.getServerTopArtistAlbums(hiddenConnection, guildId, artistId, limit));
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    public long friendsServerArtistPlays(long authorId, long artistId) {
+        try (Connection connection = dataSource.getConnection()) {
+            List<Long> userFriends = friendDAO.getUserFriendsIds(connection, authorId);
+            Set<Long> friendIds = Stream.concat(userFriends.stream(), Stream.of(authorId)).collect(Collectors.toSet());
+            return executeInHiddenServer(friendIds,
+                    (hiddenConnection, guildId) -> queriesDao.getArtistPlays(hiddenConnection, guildId, artistId));
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    public List<AlbumUserPlays> friendsTopArtistSongs(long author, long artistId, int limit) {
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setReadOnly(true);
+            List<Long> userFriends = friendDAO.getUserFriendsIds(connection, author);
+            Set<Long> friendIds = Stream.concat(userFriends.stream(), Stream.of(author)).collect(Collectors.toSet());
+            return executeInHiddenServer(friendIds,
+                    (hiddenConnection, guildId) -> trackDao.getServerTopArtistTracks(hiddenConnection, guildId, artistId, limit));
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
 
     private <T> T executeInHiddenServer(Set<Long> userIds, HiddenRunnable<T> runnable) {
         try (Connection connection = dataSource.getConnection()) {

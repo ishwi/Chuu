@@ -18,7 +18,6 @@ import dao.entities.CountWrapper;
 import dao.entities.ResultWrapper;
 import dao.entities.ScrobbledArtist;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.Guild;
 import org.knowm.xchart.PieChart;
 
 import java.util.Arrays;
@@ -85,11 +84,7 @@ public class GuildTopCommand extends ChartableCommand<ChartSizeParameters> {
     @Override
     public void doList(List<UrlCapsule> urlCapsules, ChartSizeParameters params, int count) {
 
-        Guild guild = params.getE().getGuild();
-
-        EmbedBuilder embedBuilder = configEmbed(new ChuuEmbedBuilder(params.getE())
-                .setThumbnail(guild.getIconUrl()), params, count);
-
+        EmbedBuilder embedBuilder = configEmbed(new ChuuEmbedBuilder(params.getE()), params, count);
         new PaginatorBuilder<>(params.getE(), embedBuilder, urlCapsules).build().queue();
     }
 

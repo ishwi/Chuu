@@ -40,8 +40,9 @@ public class GlobalFavesFromArtistCommand extends ConcurrentCommand<ArtistParame
         this.pie = DefaultList.fillPie(AlbumUserPlays::getAlbum, AlbumUserPlays::getPlays);
     }
 
-    public static <T extends ChuuDataParams> void sendArtistFaves(Context e, ScrobbledArtist who, String validArtist, String lastFmName, List<AlbumUserPlays> faves, String userString,
-                                                                  String inWhere,
+    public static <T extends ChuuDataParams> void sendArtistFaves(Context e, ScrobbledArtist who, String validArtist, String lastFmName, List<AlbumUserPlays> faves,
+                                                                  String footerString,
+                                                                  String headerString, String inWhere,
                                                                   String url,
                                                                   T params,
                                                                   IPieableList<AlbumUserPlays, T> pie,
@@ -52,8 +53,8 @@ public class GlobalFavesFromArtistCommand extends ConcurrentCommand<ArtistParame
             return;
         }
 
-        String footer = "%s users have listened to %d different %s songs!".formatted(userString, faves.size(), who.getArtist());
-        String title = String.format("%s's top %s tracks", userString, who.getArtist());
+        String footer = "%s have listened to %d different %s songs!".formatted(footerString, faves.size(), who.getArtist());
+        String title = String.format("%s top %s tracks", headerString, who.getArtist());
         RemainingImagesMode effectiveMode = CommandUtil.getEffectiveMode(params.getLastFMData().getRemainingImagesMode(), params);
         switch (effectiveMode) {
             case IMAGE, LIST -> {
@@ -128,6 +129,6 @@ public class GlobalFavesFromArtistCommand extends ConcurrentCommand<ArtistParame
 
         List<AlbumUserPlays> songs = db.getGlboalTopArtistTracks(who.getArtistId(), Integer.MAX_VALUE);
 
-        sendArtistFaves(e, who, validArtist, lastFmName, songs, e.getJDA().getSelfUser().getName(), "in the bot!", e.getJDA().getSelfUser().getAvatarUrl(), params, pie, b -> sendImage(b, e));
+        sendArtistFaves(e, who, validArtist, lastFmName, songs, e.getJDA().getSelfUser().getName() + "'s users", e.getJDA().getSelfUser().getName() + "'s", "in the bot!", e.getJDA().getSelfUser().getAvatarUrl(), params, pie, b -> sendImage(b, e));
     }
 }

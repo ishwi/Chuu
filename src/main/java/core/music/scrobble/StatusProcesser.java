@@ -102,7 +102,7 @@ public class StatusProcesser {
                             e.printStackTrace();
                         }
                     } else {
-                        Chuu.getLogger().warn(" END SIN ENTRADA");
+                        Chuu.getLogger().warn("Was not able to remove scrobble {}", status);
                     }
                 });
                 return;

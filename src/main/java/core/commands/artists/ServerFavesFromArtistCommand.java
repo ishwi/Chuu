@@ -66,15 +66,13 @@ public class ServerFavesFromArtistCommand extends ConcurrentCommand<ArtistParame
     @Override
     public void onCommand(Context e, @Nonnull ArtistParameters params) throws LastFmException {
 
-        long userId = params.getLastFMData().getDiscordId();
-
         ScrobbledArtist who = new ArtistValidator(db, lastFM, e).validate(params.getArtist(), !params.isNoredirect());
 
         String lastFmName = params.getLastFMData().getName();
         String validArtist = who.getArtist();
         List<AlbumUserPlays> songs = db.getServerTopArtistTracks(e.getGuild().getIdLong(), who.getArtistId(), Integer.MAX_VALUE);
 
-        GlobalFavesFromArtistCommand.sendArtistFaves(e, who, validArtist, lastFmName, songs, e.getGuild().getName(), "in this server!", e.getGuild().getIconUrl(), params, pie, (b) -> sendImage(b, e));
+        GlobalFavesFromArtistCommand.sendArtistFaves(e, who, validArtist, lastFmName, songs, e.getGuild().getName() + "'s users", e.getGuild().getName() + "'s", "in this server!", e.getGuild().getIconUrl(), params, pie, (b) -> sendImage(b, e));
 
     }
 }

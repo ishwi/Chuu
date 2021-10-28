@@ -28,7 +28,25 @@ public enum FriendsActions implements Subcommand, Aliasable, Descriptible {
         return new OnlyChartSizeParser(deps.db())
                 .replaceOptional("plays", Optionals.NOPLAYS.opt)
                 .addOptional(Optionals.PLAYS.opt.withBlockedBy("noplays"));
-    }, "Chart compose of all your friends favourite artists");
+    }, "Chart compose of all your friends favourite artists"),
+    CHART((deps) -> {
+        return new OnlyChartSizeParser(deps.db())
+                .replaceOptional("plays", Optionals.NOPLAYS.opt)
+                .addOptional(Optionals.PLAYS.opt.withBlockedBy("noplays"));
+    }, "Chart compose of all your friends favourite albums", "c"),
+    TOPTRACKS((deps -> {
+        return new OnlyChartSizeParser(deps.db())
+                .replaceOptional("plays", Optionals.NOPLAYS.opt)
+                .replaceOptional("list", Optionals.IMAGE.opt)
+                .addOptional(Optionals.LIST.opt.withBlockedBy("image", "pie", "aside"))
+                .addOptional(Optionals.PLAYS.opt.withBlockedBy("noplays"));
+    }), "List of top tracks for your friends", "tt"),
+    FAVS((deps) -> new ArtistParser(deps.db(), deps.lastFM())
+            .addOptional(Optionals.LIST.opt)
+            .addOptional(Optionals.PIE.opt)
+            , "Favourite tracks for your friend list", "favourites", "favorites", "artist-songs"),
+    ARTIST((deps) -> new ArtistParser(deps.db(), deps.lastFM())
+            .addOptional(Optionals.PIE.opt), "Favourite albums for an artist in your friend list", "a");
 
     private final SubcommandEx<?> subcommandEx;
     private final Set<String> aliases;

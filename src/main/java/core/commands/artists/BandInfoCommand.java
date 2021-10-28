@@ -69,7 +69,7 @@ public class BandInfoCommand extends ConcurrentCommand<ArtistParameters> {
     }
 
 
-    void bandLogic(ArtistParameters ap) {
+    protected void bandLogic(ArtistParameters ap) {
 
         long idLong = ap.getLastFMData().getDiscordId();
         final String username = ap.getLastFMData().getName();
@@ -118,13 +118,13 @@ public class BandInfoCommand extends ConcurrentCommand<ArtistParameters> {
     }
 
 
-    void doImage(ArtistParameters ap, WrapperReturnNowPlaying np, ArtistAlbums ai, int plays, BufferedImage logo, long threshold) {
+    protected void doImage(ArtistParameters ap, WrapperReturnNowPlaying np, ArtistAlbums ai, int plays, BufferedImage logo, long threshold) {
         BufferedImage returnedImage = BandRendered
                 .makeBandImage(np, ai, plays, logo, CommandUtil.getUserInfoUnescaped(ap.getE(), ap.getLastFMData().getDiscordId()).username(), threshold);
         sendImage(returnedImage, ap.getE());
     }
 
-    void doList(ArtistParameters ap, ArtistAlbums ai) {
+    protected void doList(ArtistParameters ap, ArtistAlbums ai) {
         Context e = ap.getE();
         EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e);
 
@@ -137,13 +137,13 @@ public class BandInfoCommand extends ConcurrentCommand<ArtistParameters> {
         new PaginatorBuilder<>(e, embedBuilder, lines).pageSize(10).build().queue();
     }
 
-    void configEmbedBuilder(EmbedBuilder embedBuilder, ArtistParameters ap, ArtistAlbums ai) {
+    protected void configEmbedBuilder(EmbedBuilder embedBuilder, ArtistParameters ap, ArtistAlbums ai) {
         DiscordUserDisplay uInfo = CommandUtil.getUserInfoEscaped(ap.getE(), ap.getLastFMData().getDiscordId());
         embedBuilder.setTitle(uInfo.username() + "'s top " + CommandUtil.escapeMarkdown(ai.getArtist()) + " albums");
 
     }
 
-    void doPie(ArtistParameters ap, WrapperReturnNowPlaying np, ArtistAlbums ai, BufferedImage logo) {
+    protected void doPie(ArtistParameters ap, WrapperReturnNowPlaying np, ArtistAlbums ai, BufferedImage logo) {
         PieChart pieChart = this.pie.doPie(ap, ai.getAlbumList());
         DiscordUserDisplay uInfo = CommandUtil.getUserInfoUnescaped(ap.getE(), ap.getLastFMData().getDiscordId());
 

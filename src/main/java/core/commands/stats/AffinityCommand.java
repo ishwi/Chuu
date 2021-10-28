@@ -100,10 +100,39 @@ public class AffinityCommand extends ConcurrentCommand<AffinityParameters> {
                 CommandUtil.getLastFmUser(x.getReceivingLastFmId()),
                 (x.getAffinity() > 1 ? 1 : x.getAffinity()) * 100, x.getAffinity() > 1 ? "+" : "")).toList();
 
+
+        int from0to25 = 0;
+        int from25to50 = 0;
+        int from50to75 = 0;
+        int from75to100 = 0;
+
+        for (Affinity affinity : serverAff) {
+            float value = affinity.getAffinity();
+            if (value >= 0 && value < 0.25) {
+                from0to25++;
+            } else if (value >= 0.25 && value < 0.50) {
+                from25to50++;
+            } else if (value >= 0.50 && value < 0.75) {
+                from50to75++;
+            } else {
+                from75to100++;
+            }
+        }
+        String percentages = (from0to25 == 0 ? "" : "%d %s between %d and %d%%%n"
+                .formatted(from0to25, CommandUtil.singlePlural(from0to25, "person", "people"), 0, 24))
+                + (from25to50 == 0 ? "" : "%d %s between %d and %d%%%n"
+                .formatted(from25to50, CommandUtil.singlePlural(from25to50, "person", "people"), 25, 49)) +
+                (from50to75 == 0 ? "" : "%d %s between %d and %d%%%n"
+                        .formatted(from50to75, CommandUtil.singlePlural(from50to75, "person", "people"), 50, 74))
+                + (from75to100 == 0 ? "" : "%d %s between %d and %d%%%n"
+                .formatted(from75to100, CommandUtil.singlePlural(from75to100, "person", "people"), 75, 100));
+
         DiscordUserDisplay uInfo = CommandUtil.getUserInfoUnescaped(e, e.getAuthor().getIdLong());
+        String defaultFooter = String.format("%s's affinity using a threshold of %d plays!%n", uInfo.username(), ap.getThreshold());
+        String footer = ap.getThreshold() != DEFAULT_THRESHOLD ? percentages + defaultFooter : percentages;
         EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e)
                 .setAuthor(uInfo.username() + "'s soulmates in " + e.getGuild().getName(), PrivacyUtils.getLastFmUser(ogData.getName()), uInfo.urlImage())
-                .setFooter(String.format("%s's affinity using a threshold of %d plays!%n", uInfo.username(), ap.getThreshold()), null)
+                .setFooter(footer, null)
                 .setThumbnail(e.getGuild().getIconUrl());
         new PaginatorBuilder<>(e, embedBuilder, lines).build().queue();
     }

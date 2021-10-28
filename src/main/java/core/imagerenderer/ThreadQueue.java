@@ -100,17 +100,21 @@ class ThreadQueue implements Runnable {
 
 
     public void handleInvalidImage(UrlCapsule capsule, int x, int y) {
-        Color temp = g.getColor();
-        g.setColor(Color.WHITE);
-        g.fillRect(x * imageSize, y * imageSize, imageSize, imageSize);
-        g.setColor(temp);
+        synchronized (this) {
+            Color temp = g.getColor();
+            g.setColor(Color.WHITE);
+            g.fillRect(x * imageSize, y * imageSize, imageSize, imageSize);
+            g.setColor(temp);
+        }
         if (asideMode) {
             drawNeverEndingCharts(capsule, y, x, imageSize);
         } else {
-            temp = g.getColor();
-            g.setColor(Color.BLACK);
-            drawNames(capsule, y, x, g, imageSize, null);
-            g.setColor(temp);
+            synchronized (this) {
+                Color temp = g.getColor();
+                g.setColor(Color.BLACK);
+                drawNames(capsule, y, x, g, imageSize, null);
+                g.setColor(temp);
+            }
         }
     }
 
