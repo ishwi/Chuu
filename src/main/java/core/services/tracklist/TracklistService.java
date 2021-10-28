@@ -89,7 +89,7 @@ public abstract class TracklistService {
                 handleList(trackList, spotifyTracklist, albumId, artistId);
             }
             if (trackList.isEmpty()) {
-                List<Track> musicBrainzTracklist = getMusicBrainzTracklist(fullAlbumEntity.getAlbum(), artist, album);
+                List<Track> musicBrainzTracklist = getMusicBrainzTracklist(fullAlbumEntity.getMbid(), artist, album);
                 handleList(trackList, musicBrainzTracklist, albumId, artistId);
                 if (trackList.isEmpty()) {
                     //If is still empty well fuck it

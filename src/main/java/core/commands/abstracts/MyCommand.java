@@ -162,17 +162,14 @@ public abstract class MyCommand<T extends CommandParameters> implements EventLis
         logCommand(db, e, this, timeElapsed, sucess, e instanceof ContextMessageReceived);
     }
 
-    protected void parseAndExecute(Context e) throws LastFmException, InstanceNotFoundException {
-        T params = parser.parse(e);
-        if (params != null) {
-            onCommand(e, params);
-        }
-    }
 
     protected boolean handleCommand(Context e) {
         boolean success = false;
         try {
-            parseAndExecute(e);
+            T params = parser.parse(e);
+            if (params != null) {
+                onCommand(e, params);
+            }
             success = true;
         } catch (LastFMNoPlaysException ex) {
             String username = ex.getUsername();

@@ -14,10 +14,7 @@ import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
-import java.util.Arrays;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 public class EnumParser<T extends Enum<T>> extends Parser<EnumParameters<T>> {
     protected final Class<T> clazz;
@@ -43,7 +40,8 @@ public class EnumParser<T extends Enum<T>> extends Parser<EnumParameters<T>> {
 
     @Override
     public EnumParameters<T> parseSlashLogic(ContextSlashReceived ctx) throws LastFmException, InstanceNotFoundException {
-        List<String> lines = mapEnumToPosibilites();
+        Map<String, String> lineToValue = mapEnumToPosibilites();
+        List<String> lines = lineToValue.keySet().stream().toList();
 
 
         SlashCommandEvent e = ctx.e();
@@ -56,22 +54,27 @@ public class EnumParser<T extends Enum<T>> extends Parser<EnumParameters<T>> {
             return null;
         }
         String param = Optional.ofNullable(e.getOption("parameter")).map(OptionMapping::getAsString).orElse(null);
-        return new EnumParameters<>(ctx, option.map(z -> Enum.valueOf(clazz, z.toUpperCase().replaceAll("-", "_"))).orElse(null), param);
+        return new EnumParameters<>(ctx, option.map(z -> Enum.valueOf(clazz, lineToValue.get(z).toUpperCase().replaceAll("-", "_"))).orElse(null), param);
     }
 
-    private List<String> mapEnumToPosibilites() {
-        EnumSet<T> ts = EnumSet.allOf(clazz);
-        return ts.stream().<String>mapMulti((x, consumer) -> {
-            if (x instanceof Aliasable aliasable) {
-                aliasable.aliases().stream().map(String::toLowerCase).forEach(consumer);
-            }
-            consumer.accept(x.name().replaceAll("_", "-").toLowerCase());
-        }).toList();
+    private Map<String, String> mapEnumToPosibilites() {
+        Map<String, String> map = new HashMap<>();
+
+        EnumSet.allOf(clazz)
+                .forEach((x) -> {
+                    String value = x.name().replaceAll("_", "-").toLowerCase();
+                    if (x instanceof Aliasable aliasable) {
+                        aliasable.aliases().stream().map(String::toLowerCase).forEach(z -> map.put(z, value));
+                    }
+                    map.put(value, value);
+                });
+        return map;
     }
 
     @Override
     protected EnumParameters<T> parseLogic(Context e, String[] words) {
-        List<String> lines = mapEnumToPosibilites();
+        Map<String, String> mapLine = mapEnumToPosibilites();
+        Set<String> lines = mapLine.keySet();
 
         if (words.length == 0) {
             if (allowEmpty) {
@@ -100,7 +103,7 @@ public class EnumParser<T extends Enum<T>> extends Parser<EnumParameters<T>> {
         } else {
             params = null;
         }
-        return new EnumParameters<>(e, Enum.valueOf(clazz, first.get().toUpperCase().replaceAll("-", "_")), params);
+        return new EnumParameters<>(e, Enum.valueOf(clazz, mapLine.get(first.get()).toUpperCase().replaceAll("-", "_")), params);
 
 
     }

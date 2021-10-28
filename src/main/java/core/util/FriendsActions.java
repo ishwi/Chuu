@@ -14,7 +14,7 @@ public enum FriendsActions implements Subcommand, Aliasable, Descriptible {
     ADD((deps) -> new OnlyUsernameParser(deps.db(), true), "Sends a request to a given user"),
     PENDING((deps) -> NoOpParser.INSTANCE, "Sees the request that you have sent that are yet to be accepted"),
     INCOMING((deps) -> NoOpParser.INSTANCE, "Lists all your incoming petitions"),
-    REMOVE((deps) -> new OnlyUsernameParser(deps.db(), true), "Deletes a certain friend from your friend list"),
+    REMOVE((deps) -> new OnlyUsernameParser(deps.db(), true), "Deletes a certain friend from your friend list", "delete", "erase"),
     LIST((deps) -> new OnlyUsernameParser(deps.db()), "Lists all your friends"),
     NP((deps) -> new OnlyUsernameParser(deps.db())
             .addOptional(new OptionalEntity("recent", "the last scrobble instead of the current scrobble")),

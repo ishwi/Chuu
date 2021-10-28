@@ -149,7 +149,10 @@ public class Reactionary<T> extends ReactionListener {
         List<ActionRow> rows = List.of(actionRow);
 
         List<T> items = list.subList(start, min(start + pageSize, list.size()));
-        ActionRow extraRow = extraRowGen.apply(items);
+        ActionRow extraRow = null;
+        if (extraRowGen != null) {
+            extraRow = extraRowGen.apply(items);
+        }
         if (actionRow.isEmpty()) {
             if (extraRow != null)
                 rows = List.of(extraRow);

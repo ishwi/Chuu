@@ -1,5 +1,8 @@
 package core.commands.friends;
 
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import core.commands.Context;
 import core.commands.ContextMessageReceived;
 import core.commands.stats.PlayingCommand;
@@ -23,28 +26,48 @@ import dao.entities.*;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
+import net.dv8tion.jda.api.entities.SelfUser;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.utils.TimeFormat;
 import org.apache.commons.text.WordUtils;
 
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static core.commands.stats.PlayingCommand.format;
 
 public class FriendsCommand extends ParentCommmand<FriendsActions> {
 
     private final WhoKnowsCommand whoKnowsCommand;
     private final LocalWhoKnowsSongCommand whoKnowsTrackCommand;
     private final LocalWhoKnowsAlbumCommand whoKnowsAlbumCommand;
+    private final LoadingCache<Long, LocalDateTime> controlAccess;
+    private final LoadingCache<Long, LocalDateTime> serverControlAccess;
+
 
     public FriendsCommand(ServiceView dao) {
         super(dao);
         whoKnowsCommand = initFriendsWhoknows(dao);
         whoKnowsTrackCommand = initFriendsWhoknowsSong(dao);
         whoKnowsAlbumCommand = initFriendsWhoknowsAlbum(dao);
-
+        controlAccess = CacheBuilder.newBuilder().concurrencyLevel(2).expireAfterWrite(12, TimeUnit.HOURS).build(
+                new CacheLoader<>() {
+                    public LocalDateTime load(@org.jetbrains.annotations.NotNull Long guild) {
+                        return LocalDateTime.now().plus(12, ChronoUnit.HOURS);
+                    }
+                });
+        serverControlAccess = CacheBuilder.newBuilder().concurrencyLevel(2).expireAfterWrite(5, TimeUnit.MINUTES).build(
+                new CacheLoader<>() {
+                    public LocalDateTime load(@org.jetbrains.annotations.NotNull Long guild) {
+                        return LocalDateTime.now().plus(5, ChronoUnit.MINUTES);
+                    }
+                });
     }
 
     @Override
@@ -169,6 +192,7 @@ public class FriendsCommand extends ParentCommmand<FriendsActions> {
     private void doNp(Context e, FriendsActions action, String args) throws LastFmException, InstanceNotFoundException {
         ChuuDataParams chuuDataParams = action.parse(e, deps, args);
 
+
         long discordId = chuuDataParams.getLastFMData().getDiscordId();
         DiscordUserDisplay ui = CommandUtil.getUserInfoEscaped(e, discordId);
 
@@ -177,6 +201,22 @@ public class FriendsCommand extends ParentCommmand<FriendsActions> {
             sendMessageQueue(e, "%s doesn't have any friend :(".formatted(ui.username()));
             return;
         }
+
+        LocalDateTime cooldown;
+        if (userFriends.size() > 15) {
+            LocalDateTime ifPresent = controlAccess.getIfPresent(e.getGuild().getIdLong());
+            if (ifPresent != null) {
+                format(e, ifPresent, "You have too many friends, so `friends np` can only be executed twice per day ");
+                return;
+            }
+            controlAccess.refresh(e.getGuild().getIdLong());
+        } else if ((cooldown = serverControlAccess.getIfPresent(e.getGuild().getIdLong())) != null) {
+            format(e, cooldown, "This command has a 5 min cooldown between uses.");
+            return;
+        } else {
+            serverControlAccess.refresh(e.getGuild().getIdLong());
+        }
+
         boolean showFresh = !chuuDataParams.hasOptional("recent");
         List<String> recent = PlayingCommand.obtainNps(lastFM, e, showFresh,
                 Stream.concat(userFriends.stream().map(z -> {
@@ -232,6 +272,7 @@ public class FriendsCommand extends ParentCommmand<FriendsActions> {
             parser.sendError("Introduce an user to remove!", e);
             return;
         }
+        db.findLastFMData(author);
         DiscordUserDisplay userInfoEscaped = CommandUtil.getUserInfoEscaped(e, discordId);
         Optional<Friend> opt = db.areFriends(discordId, author);
         opt.ifPresentOrElse(f -> {
@@ -254,6 +295,7 @@ public class FriendsCommand extends ParentCommmand<FriendsActions> {
                     " u:[discordId|Tag#Discriminator|name] or lfm:[lastfm-name]", e);
             return;
         }
+        LastFMData authorData = db.findLastFMData(author);
         DiscordUserDisplay userInfoEscaped = CommandUtil.getUserInfoEscaped(e, discordId);
         Optional<Friend> optFriend = db.areFriends(author, discordId);
         if (optFriend.isPresent()) {
@@ -286,10 +328,16 @@ public class FriendsCommand extends ParentCommmand<FriendsActions> {
             } else {
                 finalArtists = "";
             }
+            SelfUser su = e.getJDA().getSelfUser();
+            if (discordId == su.getIdLong()) {
+                sendMessageQueue(e, "%s is not accepting friend requests!".formatted(su.getName()));
+                return;
+            }
             e.getJDA().openPrivateChannelById(discordId).flatMap(privateChannel -> {
                 EmbedBuilder eb = new ChuuEmbedBuilder(e)
-                        .setAuthor("Friend Request from %s".formatted(yourself.username()), null, yourself.urlImage())
-                        .setDescription(("**Accoun:** %s\n" +
+                        .setAuthor("Friend Request from %s".formatted(yourself.username()), PrivacyUtils.getLastFmUser(authorData.getName()), yourself.urlImage())
+                        .setDescription(("**Account:** %s%n" +
+                                "**Last.fm:** [%s](%s)%n".formatted(authorData.getName(), PrivacyUtils.getLastFmUser(authorData.getName())) +
                                 "%s").formatted(e.getAuthor().getAsMention(), finalArtists));
                 MessageBuilder messageBuilder = new MessageBuilder(eb.build()).setActionRows(ActionRow.of(ButtonUtils.declineFriendRequest(author), ButtonUtils.acceptFriendRequest(author)));
                 return privateChannel.sendMessage(messageBuilder.build());

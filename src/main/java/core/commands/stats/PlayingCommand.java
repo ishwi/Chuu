@@ -149,7 +149,7 @@ public class PlayingCommand extends ConcurrentCommand<CommandParameters> {
 
     }
 
-    private void format(Context e, LocalDateTime cooldown, String s) {
+    public static void format(Context e, LocalDateTime cooldown, String s) {
         LocalDateTime now = LocalDateTime.now();
         long hours = now.until(cooldown, ChronoUnit.HOURS);
         now = now.plus(hours, ChronoUnit.HOURS);
@@ -162,7 +162,7 @@ public class PlayingCommand extends ConcurrentCommand<CommandParameters> {
         } else {
             mStr = "%d %s".formatted(minutes, CommandUtil.singlePlural(minutes, "minute", "minutes"));
         }
-        sendMessageQueue(e, "%s (usable in %s%s)".formatted(s, hstr, mStr));
+        e.sendMessage("%s (usable in %s%s)".formatted(s, hstr, mStr)).queue();
     }
 
     @Override
