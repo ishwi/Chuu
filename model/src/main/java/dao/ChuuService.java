@@ -3943,7 +3943,7 @@ public class ChuuService implements EveryNoiseService {
             if (count >= 5) {
                 try {
                     LastFMData lastFmData = userGuildDao.findLastFmData(connection, image.uploader());
-                    if (lastFmData.getRole() == Role.USER) {
+                    if (lastFmData.getRole() != Role.ADMIN) {
                         updaterDao.banUserImage(connection, image.uploader());
                         return true;
                     }

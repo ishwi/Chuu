@@ -351,8 +351,8 @@ public class FriendsCommand extends ParentCommmand<FriendsActions> {
             if (status == Friend.FriendStatus.ACCEPTED) {
                 sendMessageQueue(e, "You and %s were already friends!".formatted(userInfoEscaped.username()));
             } else {
-                if ((usersSorted.first() == author && status == Friend.FriendStatus.PENDING_FIRST)
-                        || (usersSorted.second() == author && status == Friend.FriendStatus.PENDING_SECOND)) {
+                if ((usersSorted.first() == author && status == Friend.FriendStatus.PENDING_SECOND)
+                        || (usersSorted.second() == author && status == Friend.FriendStatus.PENDING_FIRST)) {
                     sendMessageQueue(e, "%s is yet to accept your friend request".formatted(userInfoEscaped.username()));
                 } else {
                     if (db.acceptRequest(usersSorted.first(), usersSorted.second())) {
