@@ -36,7 +36,8 @@ public class UnknownLastFmException extends LastFmException {
     public String getSentMessage() {
         return switch (code) {
             case 17 -> "Maybe you still need to activate your account on last.fm?";
-            case 9 -> "Your session key has been invalidated. Login again pls :(";
+            case INVALID_SESSION_KEY -> "Your session key has been invalidated. Login again pls :(";
+            case RATE_LIMIT_EXCEEDED -> "The bot has been globally ratelimited by last.fm, give the bot a few mins to rest and try again later :(";
             default -> getMessage();
         };
     }

@@ -24,7 +24,7 @@ import core.commands.abstracts.MyCommand;
 import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.PrivacyUtils;
-import core.otherlisteners.SelectionEvenListener;
+import core.otherlisteners.SelectionEventListener;
 import core.parsers.HelpParser;
 import core.parsers.Parser;
 import core.parsers.params.WordParameter;
@@ -137,7 +137,7 @@ public class HelpCommand extends ConcurrentCommand<WordParameter> {
             return;
         }
         if (params.getWord() == null) {
-            if (params.hasOptional("--full")) {
+            if (params.hasOptional("complete")) {
                 sendEmbed(e);
             } else {
                 sendCategories(e);
@@ -175,21 +175,29 @@ public class HelpCommand extends ConcurrentCommand<WordParameter> {
         ActionRow category = buildMenuCategory(categories, CommandCategory.STARTING.name());
         List<ActionRow> commandRow = buildMenuCommand(eb, e.getPrefix(), CommandCategory.STARTING, null);
 
+        String footer = ("%shelp --complete for the full help message%n" +
+                "%shelp --all for a dm with more info%n").formatted(e.getPrefix(), e.getPrefix());
+        eb.setFooter(footer);
 
         List<ActionRow> rows = Stream.concat(Stream.of(category), commandRow.stream()).toList();
         e.sendMessage(eb.build(), rows).queue(message ->
-                new SelectionEvenListener(eb, message, true, (embedBuilder, actionRows) ->
-                        new SelectionEvenListener.SelectionResponse(embedBuilder, invalidateAll(actionRows)), e.getAuthor().getIdLong(), e,
+
+                new SelectionEventListener(eb, message, true, 120, (embedBuilder, actionRows) ->
+                {
+                    embedBuilder.setFooter(footer);
+                    return new SelectionEventListener.SelectionResponse(embedBuilder, invalidateAll(actionRows));
+                }, e.getAuthor().getIdLong(), e,
                         this::doAction
                 ));
 
     }
 
-    private SelectionEvenListener.SelectionResponse doAction(Context e, SelectionMenu selectionMenu, List<String> options, EmbedBuilder eb, List<ActionRow> rows) {
+    private SelectionEventListener.SelectionResponse doAction(Context e, SelectionMenu selectionMenu, List<String> options, EmbedBuilder eb, List<ActionRow> rows) {
 
         String selected = options.get(0);
         String id = selectionMenu.getId();
         eb.clearFields();
+        eb.setFooter(null);
 
         assert id != null;
         // First selector pressed
@@ -200,13 +208,13 @@ public class HelpCommand extends ConcurrentCommand<WordParameter> {
                     buildCategory(eb, e.getPrefix(), a.getKey(), a.getValue());
                 }
                 ActionRow categoriesRow = buildMenuCategory(categories, CUSTOM_ALL);
-                return new SelectionEvenListener.SelectionResponse(eb, List.of(categoriesRow));
+                return new SelectionEventListener.SelectionResponse(eb, List.of(categoriesRow));
             } else {
                 CommandCategory commandCategory = CommandCategory.valueOf(selected);
                 ActionRow categoriesRow = buildMenuCategory(categories, commandCategory.name());
                 List<ActionRow> commands = buildMenuCommand(eb, e.getPrefix(), commandCategory, null);
                 List<ActionRow> row = Stream.concat(Stream.of(categoriesRow), commands.stream()).toList();
-                return new SelectionEvenListener.SelectionResponse(eb, row);
+                return new SelectionEventListener.SelectionResponse(eb, row);
             }
         } else {
             // One of the others selectors. Means we are still in the same category
@@ -246,7 +254,7 @@ public class HelpCommand extends ConcurrentCommand<WordParameter> {
                 }
             }
 
-            return new SelectionEvenListener.SelectionResponse(eb, row);
+            return new SelectionEventListener.SelectionResponse(eb, row);
         }
     }
 

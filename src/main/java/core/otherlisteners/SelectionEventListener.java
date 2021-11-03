@@ -13,7 +13,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 import java.util.function.BiFunction;
 
-public class SelectionEvenListener extends ReactionListener {
+public class SelectionEventListener extends ReactionListener {
     private final boolean allowOtherUsers;
     private final BiFunction<EmbedBuilder, List<ActionRow>, SelectionResponse> getLastMessage;
     private final long whom;
@@ -21,8 +21,8 @@ public class SelectionEvenListener extends ReactionListener {
     private final SelectionAction action;
     private EmbedBuilder currentEmbedBuilder;
 
-    public SelectionEvenListener(EmbedBuilder who, Message message, boolean allowOtherUsers, BiFunction<EmbedBuilder, List<ActionRow>, SelectionResponse> getLastMessage, long whom, Context context, SelectionAction action) {
-        super(who, message);
+    public SelectionEventListener(EmbedBuilder who, Message message, boolean allowOtherUsers, long activeSeconds, BiFunction<EmbedBuilder, List<ActionRow>, SelectionResponse> getLastMessage, long whom, Context context, SelectionAction action) {
+        super(who, message, activeSeconds);
         this.allowOtherUsers = allowOtherUsers;
         this.getLastMessage = getLastMessage;
         this.whom = whom;
@@ -54,8 +54,7 @@ public class SelectionEvenListener extends ReactionListener {
         if (event.getMessageIdLong() != message.getIdLong()) {
             return false;
         }
-        return event.getMessageIdLong() == message.getIdLong() && (this.allowOtherUsers || event.getUser().getIdLong() == whom) &&
-                event.getUser().getIdLong() != event.getJDA().getSelfUser().getIdLong();
+        return event.getMessageIdLong() == message.getIdLong() && (this.allowOtherUsers || event.getUser().getIdLong() == whom);
     }
 
     @Override

@@ -131,7 +131,7 @@ public enum GuildConfigType {
                                 yield String.format("**%s** ➜ %s", key, voiceAnnouncement.enabled());
                             }
                         }
-                        case SET_ON_JOIN -> String.format("**%s** ➜ %s", key, !guildProperties.setOnJoin());
+                        case SET_ON_JOIN -> String.format("**%s** ➜ %s", key, guildProperties.setOnJoin());
                         case CENSOR_CONVERS -> String.format("**%s** ➜ %s", key, !guildProperties.censorCovers());
                     };
                 }).collect(Collectors.joining("\n"));

@@ -69,8 +69,8 @@ public class UnsetCommand extends ConcurrentCommand<CommandParameters> {
                 .setDescription(String.format("%s, are you sure you want to delete all your info from the bot?", userString));
 
         List<ConfirmatorItem> list = List.of(
-                new ConfirmatorItem(Reactions.ACCEPT, who -> who.clear().setTitle(String.format("%s was removed completely from the bot", userString)).setColor(Color.RED), (z) -> db.removeUserCompletely(idLong)),
-                new ConfirmatorItem(Reactions.REJECT, who -> who.clear().setTitle(String.format("Didn't do anything with user %s", userString)).setColor(Color.GREEN), (z) -> {
+                new ConfirmatorItem(Reactions.REJECT, who -> who.clear().setTitle(String.format("%s was removed completely from the bot", userString)).setColor(Color.RED), (z) -> db.removeUserCompletely(idLong)),
+                new ConfirmatorItem(Reactions.ACCEPT, who -> who.clear().setTitle(String.format("Didn't do anything with user %s", userString)).setColor(Color.GREEN), (z) -> {
                 }));
         ActionRow of = ActionRow.of(
                 ButtonUtils.danger("Delete account"),
