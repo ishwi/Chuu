@@ -62,10 +62,8 @@ public abstract class ChartableParser<T extends ChartParameters> extends DaoPars
                     }
                 }
             } else if (e instanceof ContextSlashReceived ctxe) {
-                if (ctxe.e().getOption("rows") == null) {
+                if (ctxe.e().getOption(ChartSizeExplanation.NAME) == null) {
                     params.setY(params.getUser().getDefaultY());
-                }
-                if (ctxe.e().getOption("columns") == null) {
                     params.setX(params.getUser().getDefaultX());
                 }
             }

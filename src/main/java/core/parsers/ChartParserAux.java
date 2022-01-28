@@ -56,7 +56,7 @@ public class ChartParserAux {
     }
 
     public static Point processString(String chartSize) throws InvalidChartValuesException {
-        String[] sizes = chartSize.split("[xX]");
+        String[] sizes = chartSize.split("[xX\s]");
         String x = sizes[0];
         String y = sizes[1];
         if (x.equals("0") || y.equals("0")) {

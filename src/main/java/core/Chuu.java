@@ -21,6 +21,7 @@ import core.music.scrobble.ScrobbleEventManager;
 import core.music.scrobble.StatusProcesser;
 import core.music.utils.ScrobbleProcesser;
 import core.otherlisteners.AlbumYearApproval;
+import core.otherlisteners.AutoCompleteListener;
 import core.otherlisteners.AwaitReady;
 import core.otherlisteners.FriendRequester;
 import core.services.*;
@@ -247,6 +248,7 @@ public class Chuu {
         MyCommand<?>[] myCommands = scanListeners(help);
         Arrays.stream(myCommands).forEach(consumer);
         consumer.accept(new VoiceListener());
+        consumer.accept(new AutoCompleteListener());
         consumer.accept(new AlbumYearApproval(channelId, db.normalService()));
         consumer.accept(new FriendRequester(db.normalService()));
         args = null;

@@ -5,10 +5,7 @@ import core.Chuu;
 import core.commands.abstracts.MyCommand;
 import core.commands.moderation.AdministrativeCommand;
 import core.music.listeners.VoiceListener;
-import core.otherlisteners.AwaitReady;
-import core.otherlisteners.ChannelConstantListener;
-import core.otherlisteners.ConstantListener;
-import core.otherlisteners.ReactionListener;
+import core.otherlisteners.*;
 import core.parsers.params.CommandParameters;
 import net.dv8tion.jda.api.entities.MessageType;
 import net.dv8tion.jda.api.events.GenericEvent;
@@ -19,6 +16,7 @@ import net.dv8tion.jda.api.events.guild.member.GuildMemberRemoveEvent;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceJoinEvent;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceLeaveEvent;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceMoveEvent;
+import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.UserContextInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
@@ -47,6 +45,11 @@ public class CustomInterfacedEventManager implements IEventManager {
     private final Map<String, MyCommand<? extends CommandParameters>> slashVariants = new HashMap<>();
     private AdministrativeCommand administrativeCommand;
     private VoiceListener voiceListener;
+    private AutoCompleteListener autoCompleteListener;
+
+    public Map<String, MyCommand<? extends CommandParameters>> getSlashVariants() {
+        return slashVariants;
+    }
 
     public CustomInterfacedEventManager(int a) {
     }
@@ -83,6 +86,9 @@ public class CustomInterfacedEventManager implements IEventManager {
             throw new IllegalArgumentException("Listener must implement EventListener");
         if (listener instanceof VoiceListener voiceListener) {
             this.voiceListener = voiceListener;
+        }
+        if (listener instanceof AutoCompleteListener acl) {
+            this.autoCompleteListener = acl;
         }
         if ((listener instanceof MyCommand<?> myCommand)) {
             List<String> aliases = myCommand.getAliases();
@@ -147,6 +153,7 @@ public class CustomInterfacedEventManager implements IEventManager {
     public void handle(@Nonnull GenericEvent event) {
         try {
             switch (event) {
+                case CommandAutoCompleteInteractionEvent cacie -> autoCompleteListener.onEvent(event);
                 case MessageReceivedEvent mes -> handleMessageReceived(mes);
                 case UserContextInteractionEvent ucie -> handleUserCommand(ucie);
                 case SlashCommandInteractionEvent sce -> handleSlashCommand(sce);
