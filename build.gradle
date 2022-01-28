@@ -87,6 +87,8 @@ dependencies {
     implementation group: 'org.apache.xmlgraphics', name: 'batik-svggen', version: '1.14'
     implementation group: 'com.zaxxer', name: 'HikariCP', version: '5.0.0'
     implementation 'com.vdurmont:emoji-java:5.1.1'
+// https://mvnrepository.com/artifact/com.opencsv/opencsv
+    implementation 'org.apache.commons:commons-csv:1.9.0'
 
 
     // TEST

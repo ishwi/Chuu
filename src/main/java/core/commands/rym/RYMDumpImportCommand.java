@@ -9,47 +9,47 @@ import core.parsers.params.UrlParameters;
 import dao.ServiceView;
 import dao.entities.RYMImportRating;
 import dao.exceptions.InstanceNotFoundException;
-import org.apache.commons.text.StringEscapeUtils;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVParser;
+import org.apache.commons.csv.CSVRecord;
 
 import javax.annotation.Nonnull;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.URL;
 import java.time.Year;
 import java.time.format.DateTimeParseException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public class RYMDumpImportCommand extends ConcurrentCommand<UrlParameters> {
-    private static final String headerLine = "RYM Album, First Name,Last Name,First Name localized, Last Name localized,Title,Release_Date,Rating,Ownership,Purchase Date,Media Type,Review";
+    private static final List<String> headerLine = List.of("RYM Album", "First Name", "Last Name", "First Name localized", "Last Name localized", "Title", "Release_Date", "Rating", "Ownership", "Purchase Date", "Media Type", "Review");
     private static final Pattern unlocalized = Pattern.compile("(.*) \\[(.*)] ?");
     private static final Set<Long> usersInProcess = new HashSet<>();
-    private static final Function<String, RYMImportRating> mapper = (line) -> {
-        String[] split = line.split(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)", -1);
-        if (split.length != 12)
+    private static final Function<CSVRecord, RYMImportRating> mapper = (line) -> {
+        if (line.size() != 12) {
             return null;
-        split = Arrays.stream(split).map(x -> {
-            x = StringEscapeUtils.unescapeHtml4(x.substring(1, x.length() - 1));
-            int i = x.indexOf('/');
-            if (i != -1 && (i > 0.2 * x.length() || i < 0.9 * x.length())) {
-                x = x.split("/")[0];
-            }
-            return x;
-        }).toArray(String[]::new);
+        }
         try {
-            long rymId = Long.parseLong(split[0]);
-            String firstName = split[1];
-            String lastName = split[2];
-            String firstNameLocalized = split[3];
-            String lastNameLocalized = split[4];
-            String title = split[5];
-            Year year = split[6].isEmpty() ? null : Year.parse(split[6]);
-            Byte rating = Byte.valueOf(split[7]);
-            boolean ownership = split[8].equals("Y");
-            Year purchaseDate = split[9].isEmpty() ? null : Year.parse(split[9]);
-            String mediaType = split[10];
-            String review = split[11];
+            long rymId = Long.parseLong(line.get(0));
+            String firstName = line.get(1);
+            String lastName = line.get(2);
+            String firstNameLocalized = line.get(3);
+            String lastNameLocalized = line.get(4);
+            String title = line.get(5);
+            Year year = line.get(6).isEmpty() ? null : Year.parse(line.get(6));
+            Byte rating = Byte.valueOf(line.get(7));
+            boolean ownership = line.get(8).equals("Y");
+            Year purchaseDate = line.get(9).isEmpty() ? null : Year.parse(line.get(9));
+            String mediaType = line.get(10);
+            String review = line.get(11);
             Matcher matcher;
             if (firstName.isBlank() && firstNameLocalized.isBlank() && lastNameLocalized.isBlank() && (matcher = unlocalized.matcher(lastName)).matches()) {
                 String group = matcher.group(1);
@@ -124,27 +124,32 @@ public class RYMDumpImportCommand extends ConcurrentCommand<UrlParameters> {
                 }
 
                 URL url1 = new URL(url);
-                Scanner s = new Scanner(url1.openStream());
-                if (!s.hasNextLine()) {
-                    sendMessageQueue(e, "File was empty :thinking:");
-                    return;
+                int i = 0;
+                try (InputStream in = url1.openStream();
+                     InputStreamReader reader = new InputStreamReader(in);
+                     CSVParser parse = CSVFormat.Builder.create().setSkipHeaderRecord(false).build().parse(reader)) {
+                    for (CSVRecord record : parse) {
+                        if (i++ == 0) {
+                            if (!record.stream().map(String::trim).toList().equals(headerLine)) {
+                                sendMessageQueue(e, "Header row for the csv didn't match the expected format :thinking:");
+                                return;
+                            }
+                        } else {
+                            RYMImportRating rating = mapper.apply(record);
+                            if (rating == null) {
+                                sendMessageQueue(e, "Following line made the import process crash: " + record.stream().collect(Collectors.joining(",")));
+                                return;
+                            }
+                            if (rating.getRating() == 0) {
+                                continue;
+                            }
+                            ratings.add(rating);
+                        }
+                    }
                 }
-                String next = s.nextLine();
-                if (!next.equals(headerLine)) {
+                if (i == 0) {
                     sendMessageQueue(e, "File did not match rym export format :thinking:");
                     return;
-                }
-                while (s.hasNextLine()) {
-                    String line = s.nextLine();
-                    RYMImportRating rating = mapper.apply(line);
-                    if (rating == null) {
-                        sendMessageQueue(e, "File did not match rym export format :thinking:");
-                        return;
-                    }
-                    if (rating.getRating() == 0) {
-                        continue;
-                    }
-                    ratings.add(rating);
                 }
             } catch (IOException ioException) {
                 sendMessageQueue(e, "An Unexpected Error happened parsing the file :thinking:");
@@ -161,6 +166,7 @@ public class RYMDumpImportCommand extends ConcurrentCommand<UrlParameters> {
         } finally {
             usersInProcess.remove(e.getAuthor().getIdLong());
         }
+
     }
 
     @Override
