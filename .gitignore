@@ -13,3 +13,5 @@ bin/
 /src/test/generated_tests/**
 /src/test/generated_tests/
 *.env
+/model/src/main/resources/db/migrations/0.sql
+/src/main/java/core/music/everynoise/temp.txxt
