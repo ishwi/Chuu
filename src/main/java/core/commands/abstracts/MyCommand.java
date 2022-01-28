@@ -7,6 +7,7 @@ import core.apis.last.TokenExceptionHandler;
 import core.commands.Context;
 import core.commands.ContextMessageReceived;
 import core.commands.ContextSlashReceived;
+import core.commands.ContextUserCommandReceived;
 import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
@@ -23,7 +24,8 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.GenericEvent;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.command.UserContextInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.exceptions.ErrorResponseException;
 import net.dv8tion.jda.api.exceptions.InsufficientPermissionException;
@@ -64,13 +66,7 @@ public abstract class MyCommand<T extends CommandParameters> implements EventLis
     }
 
     private static void logCommand(ChuuService service, Context e, MyCommand<?> command, long exectTime, boolean success, boolean isNormalCommand) {
-        service.logCommand(
-                e.getAuthor().getIdLong(),
-                e.isFromGuild() ? e.getGuild().getIdLong() : null,
-                command.getName(),
-                exectTime,
-                Instant.now(),
-                success, isNormalCommand);
+        service.logCommand(e.getAuthor().getIdLong(), e.isFromGuild() ? e.getGuild().getIdLong() : null, command.getName(), exectTime, Instant.now(), success, isNormalCommand);
     }
 
     protected abstract CommandCategory initCategory();
@@ -98,7 +94,7 @@ public abstract class MyCommand<T extends CommandParameters> implements EventLis
         onMessageReceived(((MessageReceivedEvent) event));
     }
 
-    public void onSlashCommandReceived(@Nonnull SlashCommandEvent event) {
+    public void onSlashCommandReceived(@Nonnull SlashCommandInteractionEvent event) {
         if (!event.isFromGuild() && !respondInPrivate) {
             event.reply("This command only works in a server").queue();
             return;
@@ -112,6 +108,21 @@ public abstract class MyCommand<T extends CommandParameters> implements EventLis
         ContextSlashReceived ctx = new ContextSlashReceived(event);
         doCommand(ctx);
 
+    }
+
+    public void onUserCommandReceived(UserContextInteractionEvent event) {
+        if (!event.isFromGuild() && !respondInPrivate) {
+            event.reply("This command only works in a server").queue();
+            return;
+        }
+        if (!canAnswerFast) {
+            event.deferReply(ephemeral).queue();
+            if (ephemeral) {
+                event.getHook().setEphemeral(true);
+            }
+        }
+        ContextUserCommandReceived ctx = new ContextUserCommandReceived(event);
+        doCommand(ctx);
     }
 
     /**
@@ -198,13 +209,10 @@ public abstract class MyCommand<T extends CommandParameters> implements EventLis
 
             String instanceNotFoundTemplate = InstanceNotFoundException.getInstanceNotFoundTemplate();
 
-            String s = instanceNotFoundTemplate
-                    .replaceFirst("user_to_be_used_yep_yep", Matcher.quoteReplacement(getUserString(e, ex.getDiscordId(), ex
-                            .getLastFMName())));
+            String s = instanceNotFoundTemplate.replaceFirst("user_to_be_used_yep_yep", Matcher.quoteReplacement(getUserString(e, ex.getDiscordId(), ex.getLastFMName())));
             s = s.replaceFirst("prefix_to_be_used_yep_yep", Matcher.quoteReplacement(String.valueOf(CommandUtil.getMessagePrefix(e))));
 
-            MessageEmbed build = new ChuuEmbedBuilder(e)
-                    .setDescription(s).build();
+            MessageEmbed build = new ChuuEmbedBuilder(e).setDescription(s).build();
             if (e instanceof ContextMessageReceived mes) {
                 mes.e().getChannel().sendMessageEmbeds(build).reference(mes.e().getMessage()).queue();
 
@@ -214,8 +222,7 @@ public abstract class MyCommand<T extends CommandParameters> implements EventLis
 
         } catch (LastFMConnectionException ex) {
             parser.sendError("Last.fm is not working well or the bot might be overloaded :(", e);
-        } catch (
-                Exception ex) {
+        } catch (Exception ex) {
             if (ex instanceof LastFMServiceException && ex.getMessage().equals("500")) {
                 parser.sendError("Last.fm is not working well atm :(", e);
                 return false;
@@ -228,8 +235,7 @@ public abstract class MyCommand<T extends CommandParameters> implements EventLis
 
             Chuu.getLogger().warn("Internal Chuu error happened handling command {} | {} ", getName(), e.toLog(), ex);
         }
-        if (e.isFromGuild())
-            deleteMessage(e, e.getGuild().getIdLong());
+        if (e.isFromGuild()) deleteMessage(e, e.getGuild().getIdLong());
         return success;
     }
 
@@ -280,8 +286,7 @@ public abstract class MyCommand<T extends CommandParameters> implements EventLis
         e.sendImage(image, chartQuality);
     }
 
-    protected final void sendImage(BufferedImage image, Context e, ChartQuality chartQuality, EmbedBuilder
-            embedBuilder) {
+    protected final void sendImage(BufferedImage image, Context e, ChartQuality chartQuality, EmbedBuilder embedBuilder) {
         e.sendImage(image, chartQuality, embedBuilder);
     }
 

@@ -197,13 +197,13 @@ public class MusicManager extends AudioEventAdapter implements AudioSendHandler 
         }
     }
 
-    public boolean openAudioConnection(VoiceChannel channel, Context e) {
+    public boolean openAudioConnection(AudioChannel channel, Context e) {
         if (!getGuild().getSelfMember().hasPermission(channel, Permission.VOICE_CONNECT, Permission.VOICE_SPEAK)) {
             e.sendMessage("Unable to connect to **" + channel.getName() + "**. I must have permission to `Connect` and `Speak`.").queue();
             destroy();
             return false;
         }
-        if (channel.getUserLimit() != 0 && channel.getMembers().size() >= channel.getUserLimit() && !getGuild().getSelfMember().hasPermission(channel, Permission.VOICE_MOVE_OTHERS)) {
+        if (channel instanceof VoiceChannel vc && vc.getUserLimit() != 0 && channel.getMembers().size() >= vc.getUserLimit() && !getGuild().getSelfMember().hasPermission(channel, Permission.VOICE_MOVE_OTHERS)) {
             e.sendMessage("The bot can't join due to the user limit. Grant me `" + Permission.VOICE_MOVE_OTHERS.getName() + "` or raise the user limit.").queue();
             destroy();
             return false;
@@ -223,9 +223,9 @@ public class MusicManager extends AudioEventAdapter implements AudioSendHandler 
         moveAudioConnection(channel, getCurrentRequestChannel());
     }
 
-    public void moveAudioConnection(VoiceChannel channel, @Nullable MessageChannel source) {
+    public void moveAudioConnection(AudioChannel channel, @Nullable MessageChannel source) {
         Member selfMember = getGuild().getSelfMember();
-        if (selfMember.getVoiceState() == null || !selfMember.getVoiceState().inVoiceChannel()) {
+        if (selfMember.getVoiceState() == null || !selfMember.getVoiceState().inAudioChannel()) {
             destroy();
         }
         if (!selfMember.hasPermission(channel, Permission.VOICE_CONNECT)) {
@@ -327,10 +327,7 @@ public class MusicManager extends AudioEventAdapter implements AudioSendHandler 
         // Avoid spamming by just sending it if the last time it was announced was more than 10s ago.
         if (lastTimeAnnounced == 0L || lastTimeAnnounced + 10000 < System.currentTimeMillis()) {
             var reqData = track.getUserData(TrackContext.class);
-            getScrobble().thenAccept(ts -> announcementChannel.sendMessageEmbeds(new ChuuEmbedBuilder(true)
-                    .setDescription("Now playing __**%s**__ requested by <@%d>"
-                            .formatted(ts.toLink(track.getInfo().uri), reqData.requester()))
-                    .setColor(CommandUtil.pastelColor()).build()).queue(t -> lastTimeAnnounced = System.currentTimeMillis()));
+            getScrobble().thenAccept(ts -> announcementChannel.sendMessageEmbeds(new ChuuEmbedBuilder(true).setDescription("Now playing __**%s**__ requested by <@%d>".formatted(ts.toLink(track.getInfo().uri), reqData.requester())).setColor(CommandUtil.pastelColor()).build()).queue(t -> lastTimeAnnounced = System.currentTimeMillis()));
         }
     }
 
@@ -529,11 +526,7 @@ public class MusicManager extends AudioEventAdapter implements AudioSendHandler 
     public CompletableFuture<TrackScrobble> getTrackScrobble() {
         return CommandUtil.supplyLog(() -> scrobbleProcesser.processScrobble(null, getLastValidTrack())).thenApply(z -> {
             this.scrobble = z.scrobble();
-            this.breakpoints = z.processeds()
-                    .stream()
-                    .skip(1)
-                    .dropWhile(l -> l.msStart() < player.getPlayingTrack().getPosition())
-                    .map(Processed::msStart).collect(Collectors.toCollection(ArrayList::new));
+            this.breakpoints = z.processeds().stream().skip(1).dropWhile(l -> l.msStart() < player.getPlayingTrack().getPosition()).map(Processed::msStart).collect(Collectors.toCollection(ArrayList::new));
             return z;
         });
     }
@@ -544,9 +537,7 @@ public class MusicManager extends AudioEventAdapter implements AudioSendHandler 
         }
         return CommandUtil.supplyLog(() -> scrobbleProcesser.processScrobble(null, anyTrack)).thenApply(z -> {
             this.scrobble = z.scrobble();
-            this.breakpoints = z.processeds().stream().skip(1)
-                    .dropWhile(l -> l.msStart() < anyTrack.getPosition())
-                    .map(Processed::msStart).collect(Collectors.toCollection(ArrayList::new));
+            this.breakpoints = z.processeds().stream().skip(1).dropWhile(l -> l.msStart() < anyTrack.getPosition()).map(Processed::msStart).collect(Collectors.toCollection(ArrayList::new));
             return z;
         });
     }
@@ -567,8 +558,7 @@ public class MusicManager extends AudioEventAdapter implements AudioSendHandler 
     }
 
     public CompletableFuture<Void> signalChapter(long currentMs, long totalMs, long baseline) {
-        return getTrackScrobble().thenAccept(z ->
-                this.listener.signalChapterEnd(z, currentMs, totalMs, baseline));
+        return getTrackScrobble().thenAccept(z -> this.listener.signalChapterEnd(z, currentMs, totalMs, baseline));
     }
 
     public Long getChannelId() {

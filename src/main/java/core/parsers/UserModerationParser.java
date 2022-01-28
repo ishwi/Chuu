@@ -1,7 +1,7 @@
 package core.parsers;
 
 import core.commands.Context;
-import core.commands.ContextSlashReceived;
+import core.commands.InteracionReceived;
 import core.exceptions.LastFmException;
 import core.parsers.explanation.util.Explanation;
 import core.parsers.explanation.util.ExplanationLineType;
@@ -11,6 +11,7 @@ import core.parsers.utils.OptionalEntity;
 import dao.ChuuService;
 import dao.entities.LastFMData;
 import dao.exceptions.InstanceNotFoundException;
+import net.dv8tion.jda.api.interactions.commands.CommandInteraction;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 
 import java.util.Collections;
@@ -22,7 +23,7 @@ public class UserModerationParser extends DaoParser<ChuuDataParams> {
     }
 
     @Override
-    public ChuuDataParams parseSlashLogic(ContextSlashReceived ctx) throws LastFmException, InstanceNotFoundException {
+    public ChuuDataParams parseSlashLogic(InteracionReceived<? extends CommandInteraction> ctx) throws LastFmException, InstanceNotFoundException {
         var str = ctx.e().getOption("lastfm-name").getAsString();
         return parseLogic(ctx, new String[]{str});
     }

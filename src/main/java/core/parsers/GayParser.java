@@ -2,7 +2,7 @@ package core.parsers;
 
 import core.commands.Context;
 import core.commands.ContextMessageReceived;
-import core.commands.ContextSlashReceived;
+import core.commands.InteracionReceived;
 import core.exceptions.LastFmException;
 import core.parsers.explanation.PermissiveUserExplanation;
 import core.parsers.explanation.TimeframeExplanation;
@@ -19,7 +19,7 @@ import dao.entities.LastFMData;
 import dao.entities.TimeFrameEnum;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.interactions.commands.CommandInteraction;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
@@ -42,8 +42,8 @@ public class GayParser extends ChartableParser<GayParams> {
     }
 
     @Override
-    public GayParams parseSlashLogic(ContextSlashReceived ctx) throws LastFmException, InstanceNotFoundException {
-        SlashCommandEvent e = ctx.e();
+    public GayParams parseSlashLogic(InteracionReceived<? extends CommandInteraction> ctx) throws LastFmException, InstanceNotFoundException {
+        CommandInteraction e = ctx.e();
         User user = InteractionAux.parseUser(e);
         TimeFrameEnum timeFrameEnum = InteractionAux.parseTimeFrame(e, defaultTFE);
         GayType flag = GayType.valueOf(e.getOption("flag").getAsString());

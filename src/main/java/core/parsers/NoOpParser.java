@@ -1,10 +1,11 @@
 package core.parsers;
 
 import core.commands.Context;
-import core.commands.ContextSlashReceived;
+import core.commands.InteracionReceived;
 import core.parsers.explanation.util.Explanation;
 import core.parsers.params.CommandParameters;
 import core.parsers.utils.OptionalEntity;
+import net.dv8tion.jda.api.interactions.commands.CommandInteraction;
 import org.apache.commons.lang3.ArrayUtils;
 
 import java.util.Collections;
@@ -27,8 +28,8 @@ public class NoOpParser extends Parser<CommandParameters> {
     }
 
     @Override
-    public CommandParameters parseSlashLogic(ContextSlashReceived e) {
-        return new CommandParameters(e);
+    public CommandParameters parseSlashLogic(InteracionReceived<? extends CommandInteraction> ctx) {
+        return new CommandParameters(ctx);
     }
 
     @Override

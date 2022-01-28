@@ -1,7 +1,7 @@
 package core.parsers;
 
 import core.commands.Context;
-import core.commands.ContextSlashReceived;
+import core.commands.InteracionReceived;
 import core.parsers.explanation.PermissiveUserExplanation;
 import core.parsers.explanation.util.Explanation;
 import core.parsers.interactions.InteractionAux;
@@ -11,7 +11,7 @@ import dao.ChuuService;
 import dao.entities.LastFMData;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.interactions.commands.CommandInteraction;
 
 import java.util.Collections;
 import java.util.List;
@@ -36,8 +36,8 @@ public class OnlyUsernameParser extends DaoParser<ChuuDataParams> {
     }
 
     @Override
-    public ChuuDataParams parseSlashLogic(ContextSlashReceived ctx) throws InstanceNotFoundException {
-        SlashCommandEvent e = ctx.e();
+    public ChuuDataParams parseSlashLogic(InteracionReceived<? extends CommandInteraction> ctx) throws InstanceNotFoundException {
+        CommandInteraction e = ctx.e();
         User user = InteractionAux.parseUser(e);
         var data = findLastfmFromID(user, ctx);
         return new ChuuDataParams(ctx, data);

@@ -2,7 +2,7 @@ package core.parsers;
 
 import core.commands.Context;
 import core.commands.ContextMessageReceived;
-import core.commands.ContextSlashReceived;
+import core.commands.InteracionReceived;
 import core.exceptions.LastFmException;
 import core.parsers.explanation.ArtistExplanation;
 import core.parsers.explanation.UrlExplanation;
@@ -16,7 +16,7 @@ import dao.entities.LastFMData;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.interactions.commands.CommandInteraction;
 
 import java.util.List;
 import java.util.regex.Pattern;
@@ -39,8 +39,8 @@ public class ArtistUrlParser extends DaoParser<ArtistUrlParameters> {
     }
 
     @Override
-    public ArtistUrlParameters parseSlashLogic(ContextSlashReceived ctx) throws LastFmException, InstanceNotFoundException {
-        SlashCommandEvent e = ctx.e();
+    public ArtistUrlParameters parseSlashLogic(InteracionReceived<? extends CommandInteraction> ctx) throws LastFmException, InstanceNotFoundException {
+        CommandInteraction e = ctx.e();
         User caller = InteractionAux.parseUser(e);
         LastFMData data = findLastfmFromID(caller, ctx);
         String artist = e.getOption(ArtistExplanation.NAME).getAsString();

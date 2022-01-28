@@ -136,7 +136,7 @@ public class FriendsCommand extends ParentCommmand<FriendsActions> {
     public void doSubcommand(Context e, FriendsActions action, String args, EnumParameters<FriendsActions> params) throws LastFmException, InstanceNotFoundException {
         switch (action) {
             case ADD -> doAdd(e, action, args);
-            case PENDING -> doShowPending(e, action, args);
+            case PENDING -> doShowPending(e);
             case INCOMING -> doShowIncoming(e, action, args);
             case REMOVE -> doRemove(e, action, args);
             case LIST -> doList(e, action, args);
@@ -213,7 +213,7 @@ public class FriendsCommand extends ParentCommmand<FriendsActions> {
                 }).build().queue();
     }
 
-    private void doShowPending(Context e, FriendsActions action, String args) {
+    private void doShowPending(Context e) {
         long author = e.getAuthor().getIdLong();
         List<Friend> userPendingFriends = db.getFriendPendingRequests(author);
         if (userPendingFriends.isEmpty()) {

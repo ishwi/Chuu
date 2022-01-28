@@ -1,7 +1,7 @@
 package core.parsers;
 
 import core.commands.Context;
-import core.commands.ContextSlashReceived;
+import core.commands.InteracionReceived;
 import core.exceptions.LastFmException;
 import core.parsers.exceptions.InvalidDateException;
 import core.parsers.explanation.FullTimeframeExplanation;
@@ -16,7 +16,7 @@ import dao.entities.TimeFrameEnum;
 import dao.entities.TriFunction;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.interactions.commands.CommandInteraction;
 import org.apache.commons.collections4.set.ListOrderedSet;
 
 import java.time.*;
@@ -158,8 +158,8 @@ public class DateParser extends DaoParser<DateParameters> {
     }
 
     @Override
-    public DateParameters parseSlashLogic(ContextSlashReceived ctx) throws LastFmException, InstanceNotFoundException {
-        SlashCommandEvent e = ctx.e();
+    public DateParameters parseSlashLogic(InteracionReceived<? extends CommandInteraction> ctx) throws LastFmException, InstanceNotFoundException {
+        CommandInteraction e = ctx.e();
         User user = InteractionAux.parseUser(e);
         try {
             CustomTimeFrame customTimeFrame = InteractionAux.parseCustomTimeFrame(e, TimeFrameEnum.ALL);

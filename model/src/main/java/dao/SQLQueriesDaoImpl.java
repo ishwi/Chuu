@@ -4593,9 +4593,25 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
     public List<ScrobbledTrack> regexTrack(Connection connection, String regex, long userId) {
         List<ScrobbledTrack> scrobbledTracks = new ArrayList<>();
 
-        String mySql = "SELECT b.id,d.id,c.id,c.name,d.album_name,b.duration,b.track_name,COALESCE(b.url,d.url,c.url),a.playnumber,a.loved " +
-                "FROM scrobbled_track a JOIN track b ON a.track_id = b.id JOIN artist c ON b.artist_id = c.id LEFT JOIN album d ON b.album_id = d.id JOIN user e ON a.lastfm_id = e.lastfm_id " +
-                "WHERE e.discord_id = ? AND b.track_name REGEXP  ? ORDER BY playnumber DESC";
+        String mySql = """
+                SELECT b.id,
+                       d.id,
+                       c.id,
+                       c.name,
+                       d.album_name,
+                       b.duration,
+                       b.track_name,
+                       COALESCE(b.url, d.url, c.url),
+                       a.playnumber,
+                       a.loved
+                FROM scrobbled_track a
+                         JOIN track b ON a.track_id = b.id
+                         JOIN artist c ON b.artist_id = c.id
+                         LEFT JOIN album d ON b.album_id = d.id
+                         JOIN user e ON a.lastfm_id = e.lastfm_id
+                WHERE e.discord_id = ?
+                  AND b.track_name REGEXP  ?
+                ORDER BY playnumber DESC""";
         try
                 (PreparedStatement preparedStatement = connection.prepareStatement(mySql)) {
             preparedStatement.setLong(1, userId);

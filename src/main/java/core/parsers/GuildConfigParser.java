@@ -1,7 +1,7 @@
 package core.parsers;
 
 import core.commands.Context;
-import core.commands.ContextSlashReceived;
+import core.commands.InteracionReceived;
 import core.commands.abstracts.MyCommand;
 import core.commands.utils.CommandUtil;
 import core.exceptions.LastFmException;
@@ -14,12 +14,13 @@ import core.parsers.utils.OptionalEntity;
 import dao.ChuuService;
 import dao.entities.*;
 import dao.exceptions.InstanceNotFoundException;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.interactions.commands.Command;
+import net.dv8tion.jda.api.interactions.commands.CommandInteraction;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
-import net.dv8tion.jda.api.interactions.commands.build.CommandData;
+import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
+import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.WordUtils;
@@ -39,8 +40,8 @@ public class GuildConfigParser extends DaoParser<GuildConfigParams> implements G
     }
 
     @Override
-    public GuildConfigParams parseSlashLogic(ContextSlashReceived ctx) throws LastFmException, InstanceNotFoundException {
-        SlashCommandEvent e = ctx.e();
+    public GuildConfigParams parseSlashLogic(InteracionReceived<? extends CommandInteraction> ctx) throws LastFmException, InstanceNotFoundException {
+        CommandInteraction e = ctx.e();
         String subcommandName = e.getSubcommandName();
         String[] words;
         if (subcommandName.equals("list")) {
@@ -117,8 +118,8 @@ public class GuildConfigParser extends DaoParser<GuildConfigParams> implements G
 
 
     @Override
-    public CommandData generateCommandData(MyCommand<?> myCommand) {
-        CommandData commandData = new CommandData("server-config", "server configuration");
+    public SlashCommandData generateCommandData(MyCommand<?> myCommand) {
+        SlashCommandData commandData = Commands.slash("server-config", "server configuration");
         SubcommandData user = new SubcommandData("list", "List all the server configs");
         commandData.addSubcommands(user);
         Command.Choice clear = new Command.Choice("Default", "clear");

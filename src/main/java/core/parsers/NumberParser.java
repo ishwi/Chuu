@@ -4,7 +4,7 @@ import core.parsers.explanation.util.ExplanationLineType;
 import core.parsers.explanation.util.Interactible;
 import core.parsers.params.CommandParameters;
 import core.parsers.params.NumberParameters;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.interactions.commands.CommandInteraction;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
@@ -28,7 +28,7 @@ public class NumberParser<K extends CommandParameters, T extends Parser<K>> exte
     private static final Pattern allow0 = Pattern.compile("[0-9]{1,17}[kKmM]?");
     private static final Predicate<String> predicate = digitMatcher.asMatchPredicate();
     private static final Function<Interactible, String> nameObtainer = s -> s.options().stream().filter(t -> t.getType() == OptionType.INTEGER).map(OptionData::getName).findFirst().orElse("number");
-    private static final Function<String, Function<SlashCommandEvent, Long>> slash = s -> event ->
+    private static final Function<String, Function<CommandInteraction, Long>> slash = s -> event ->
     {
         OptionMapping number = event.getOption(s);
         if (number == null) {
@@ -145,7 +145,8 @@ public class NumberParser<K extends CommandParameters, T extends Parser<K>> exte
                 number -> number > max || number < 0,
                 NumberParser::parseStr,
                 errorMessages,
-                Collections.singletonList(() -> new ExplanationLineType(header, description, OptionType.INTEGER)), null,
+                Collections.singletonList(() -> new ExplanationLineType(header, description, OptionType.INTEGER))
+                , null,
                 null,
                 panicOnFailure,
                 catchFirst, slash.apply(header), (k, aLong) ->

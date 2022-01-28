@@ -113,15 +113,13 @@ public class ChuuService implements EveryNoiseService {
         }
     }
 
-    public void incrementalUpdate(TimestampWrapper<List<ScrobbledArtist>> wrapper, String
-            id, List<ScrobbledAlbum> albumData, List<TrackWithArtistId> trackWithArtistIds) {
+    public void incrementalUpdate(TimestampWrapper<List<ScrobbledArtist>> wrapper, String id, List<ScrobbledAlbum> albumData, List<TrackWithArtistId> trackWithArtistIds) {
         try (Connection connection = dataSource.getConnection()) {
             try {
                 List<ScrobbledArtist> artistData = wrapper.getWrapped().stream().peek(x -> x.setDiscordID(id)).toList();
                 albumData = albumData.stream().filter(x -> x.getAlbum() != null && !x.getAlbum().isBlank()).toList();
                 connection.setAutoCommit(true);
-                if (!artistData.isEmpty())
-                    updaterDao.upsertArtist(connection, artistData);
+                if (!artistData.isEmpty()) updaterDao.upsertArtist(connection, artistData);
                 updaterDao.fillIds(connection, artistData);
                 Map<String, Long> artistIds = artistData.stream().collect(Collectors.toMap(ScrobbledArtist::getArtist, ScrobbledArtist::getArtistId, (a, b) -> {
                     assert a.equals(b);
@@ -132,9 +130,7 @@ public class ChuuService implements EveryNoiseService {
                 albumData.forEach(x -> {
                     Long artistId = artistIds.get(x.getArtist());
                     if (artistId == null) {
-                        String normalizeArtistName = compile.matcher(
-                                Normalizer.normalize(x.getArtist(), Normalizer.Form.NFKD)
-                        ).replaceAll("");
+                        String normalizeArtistName = compile.matcher(Normalizer.normalize(x.getArtist(), Normalizer.Form.NFKD)).replaceAll("");
                         artistId = artistIds.get(normalizeArtistName);
                         artistId = handleNonExistingArtistFromAlbum(connection, x, artistId);
                     }
@@ -144,9 +140,7 @@ public class ChuuService implements EveryNoiseService {
                 connection.commit();
 
                 insertAlbums(albumData, id, connection, false);
-                Map<AlbumInfo, ScrobbledAlbum> albumInfoes = albumData.stream()
-                        .filter(x -> x.getAlbum() != null && !x.getAlbum().isBlank())
-                        .collect(Collectors.toMap(x -> new AlbumInfoIgnoreMbid(x.getAlbumMbid(), x.getAlbum(), x.getArtist()), x -> x, (x, y) -> x));
+                Map<AlbumInfo, ScrobbledAlbum> albumInfoes = albumData.stream().filter(x -> x.getAlbum() != null && !x.getAlbum().isBlank()).collect(Collectors.toMap(x -> new AlbumInfoIgnoreMbid(x.getAlbumMbid(), x.getAlbum(), x.getArtist()), x -> x, (x, y) -> x));
                 trackWithArtistIds.forEach(x -> {
                     if (x.getAlbum() != null && !x.getAlbum().isBlank()) {
                         ScrobbledAlbum scrobbledAlbum = albumInfoes.get(new AlbumInfo(x.getAlbumMbid(), x.getName(), x.getArtist()));
@@ -321,12 +315,10 @@ public class ChuuService implements EveryNoiseService {
         return globalWhoKnows(artistId, 10, includeBottedUsers, ownerId, hidePrivate);
     }
 
-    public WrapperReturnNowPlaying globalWhoKnows(long artistId, int limit, boolean includeBottedUsers,
-                                                  long ownerId, boolean hidePrivate) {
+    public WrapperReturnNowPlaying globalWhoKnows(long artistId, int limit, boolean includeBottedUsers, long ownerId, boolean hidePrivate) {
         try (Connection connection = dataSource.getConnection()) {
             connection.setReadOnly(true);
-            if (limit < 1)
-                limit = 10;
+            if (limit < 1) limit = 10;
             return queriesDao.getGlobalWhoKnows(connection, artistId, limit, includeBottedUsers, ownerId, hidePrivate);
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
@@ -340,8 +332,7 @@ public class ChuuService implements EveryNoiseService {
     public WrapperReturnNowPlaying whoKnows(long artistId, long guildId, int limit) {
         try (Connection connection = dataSource.getConnection()) {
             connection.setReadOnly(true);
-            if (limit < 1)
-                limit = 10;
+            if (limit < 1) limit = 10;
             return queriesDao.knows(connection, artistId, guildId, limit);
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
@@ -937,8 +928,7 @@ public class ChuuService implements EveryNoiseService {
         try (Connection connection = dataSource.getConnection()) {
             connection.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE);
             if (updaterDao.findRandomUrlById(connection, randomUrlEntity.url()) == null) {
-                updaterDao.insertRandomUrl(connection, randomUrlEntity.url(), randomUrlEntity
-                        .discordId(), -1L);
+                updaterDao.insertRandomUrl(connection, randomUrlEntity.url(), randomUrlEntity.discordId(), -1L);
                 return true;
             }
             return false;
@@ -1141,8 +1131,7 @@ public class ChuuService implements EveryNoiseService {
 
     }
 
-    public UniqueWrapper<ArtistPlays> getGlobalCrowns(String lastfmid, int threshold, boolean includeBottedUsers,
-                                                      long ownerId) {
+    public UniqueWrapper<ArtistPlays> getGlobalCrowns(String lastfmid, int threshold, boolean includeBottedUsers, long ownerId) {
         try (Connection connection = dataSource.getConnection()) {
             return queriesDao.getGlobalCrowns(connection, lastfmid, threshold, includeBottedUsers, ownerId);
         } catch (SQLException e) {
@@ -1151,8 +1140,7 @@ public class ChuuService implements EveryNoiseService {
 
     }
 
-    public UniqueWrapper<ArtistPlays> getGlobalAlbumCrowns(String lastfmid, int threshold, boolean includeBottedUsers,
-                                                           long ownerId) {
+    public UniqueWrapper<ArtistPlays> getGlobalAlbumCrowns(String lastfmid, int threshold, boolean includeBottedUsers, long ownerId) {
         try (Connection connection = dataSource.getConnection()) {
             return queriesDao.getGlobalAlbumCrowns(connection, lastfmid, threshold, includeBottedUsers, ownerId);
         } catch (SQLException e) {
@@ -1339,8 +1327,7 @@ public class ChuuService implements EveryNoiseService {
         }
     }
 
-    public void changeLastFMName(long userId, String lastFmID) throws
-            DuplicateInstanceException, InstanceNotFoundException {
+    public void changeLastFMName(long userId, String lastFmID) throws DuplicateInstanceException, InstanceNotFoundException {
         try (Connection connection = dataSource.getConnection()) {
             try {
                 LastFMData lastFMData = userGuildDao.findByLastFMId(connection, lastFmID);
@@ -1624,8 +1611,7 @@ public class ChuuService implements EveryNoiseService {
         }
     }
 
-    public List<ScrobbledArtist> getRecommendation(long giverDiscordId, long receiverDiscordId,
-                                                   boolean ignorePast, int limit) {
+    public List<ScrobbledArtist> getRecommendation(long giverDiscordId, long receiverDiscordId, boolean ignorePast, int limit) {
         try (Connection connection = dataSource.getConnection()) {
             return queriesDao.getRecommendations(connection, giverDiscordId, receiverDiscordId, ignorePast, limit);
         } catch (SQLException e) {
@@ -1662,8 +1648,7 @@ public class ChuuService implements EveryNoiseService {
         }
     }
 
-    public List<CrownableArtist> getCrownable(Long discordId, Long guildId, boolean skipCrownws, boolean onlySecond,
-                                              int crownDistance) {
+    public List<CrownableArtist> getCrownable(Long discordId, Long guildId, boolean skipCrownws, boolean onlySecond, int crownDistance) {
         try (Connection connection = dataSource.getConnection()) {
             connection.setReadOnly(true);
             return queriesDao.getCrownable(connection, discordId, guildId, skipCrownws, onlySecond, crownDistance);
@@ -2035,10 +2020,7 @@ public class ChuuService implements EveryNoiseService {
                     }
 
                     knownAlbums.addAll(ratingsWithKnownArtist);
-                    knownAlbums = knownAlbums.stream()
-                            .collect(Collectors.groupingBy(RYMImportRating::getId, Collectors.toList())).values().stream()
-                            .map(rymImportRatings -> rymImportRatings.stream().max(Comparator.comparingInt(RYMImportRating::getRating)).orElse(null))
-                            .filter(Objects::nonNull).toList();
+                    knownAlbums = knownAlbums.stream().collect(Collectors.groupingBy(RYMImportRating::getId, Collectors.toList())).values().stream().map(rymImportRatings -> rymImportRatings.stream().max(Comparator.comparingInt(RYMImportRating::getRating)).orElse(null)).filter(Objects::nonNull).toList();
                 }
 
                 updaterDao.deleteAllRatings(connection, userId);
@@ -2186,8 +2168,7 @@ public class ChuuService implements EveryNoiseService {
             } catch (SQLException e) {
                 throw new ChuuServiceException(e);
             }
-        } catch (
-                SQLException e) {
+        } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }
 
@@ -2265,8 +2246,7 @@ public class ChuuService implements EveryNoiseService {
         Map<Boolean, List<ScrobbledTrack>> whyDoesThisNotHaveAnId = scrobbledTracks.stream().collect(Collectors.partitioningBy(x -> x.getTrackId() >= 1 && x.getArtistId() >= 1));
         whyDoesThisNotHaveAnId.get(false).forEach(x -> logger.warn(String.format("%s %s caused a foreign key for user %s", x.getAlbum(), x.getArtist(), id)));
         List<ScrobbledTrack> finalTruer = whyDoesThisNotHaveAnId.get(true);
-        if (!finalTruer.isEmpty())
-            trackDao.addSrobbledTracks(connection, finalTruer);
+        if (!finalTruer.isEmpty()) trackDao.addSrobbledTracks(connection, finalTruer);
         connection.commit();
     }
 
@@ -3251,8 +3231,7 @@ public class ChuuService implements EveryNoiseService {
             } catch (SQLException e) {
                 throw new ChuuServiceException(e);
             }
-        } catch (
-                SQLException e) {
+        } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }
 
@@ -3727,8 +3706,7 @@ public class ChuuService implements EveryNoiseService {
     public void insertServerReactions(long guildId, List<String> reactions) {
         try (Connection connection = dataSource.getConnection()) {
             userGuildDao.clearServerReactions(connection, guildId);
-            if (!reactions.isEmpty())
-                userGuildDao.insertServerReactions(connection, guildId, reactions);
+            if (!reactions.isEmpty()) userGuildDao.insertServerReactions(connection, guildId, reactions);
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }
@@ -3755,8 +3733,7 @@ public class ChuuService implements EveryNoiseService {
     public void insertUserReactions(long userId, List<String> reactions) {
         try (Connection connection = dataSource.getConnection()) {
             userGuildDao.clearUserReacts(connection, userId);
-            if (!reactions.isEmpty())
-                userGuildDao.insertUserReactions(connection, userId, reactions);
+            if (!reactions.isEmpty()) userGuildDao.insertUserReactions(connection, userId, reactions);
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }
@@ -4344,8 +4321,7 @@ public class ChuuService implements EveryNoiseService {
         try (Connection connection = dataSource.getConnection()) {
             List<Long> userFriends = friendDAO.getUserFriendsIds(connection, discordId);
             Set<Long> friendIds = Stream.concat(userFriends.stream(), Stream.of(discordId)).collect(Collectors.toSet());
-            return executeInHiddenServer(friendIds,
-                    (hiddenConnection, guildId) -> queriesDao.knows(hiddenConnection, artistId, guildId, limit));
+            return executeInHiddenServer(friendIds, (hiddenConnection, guildId) -> queriesDao.knows(hiddenConnection, artistId, guildId, limit));
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }
@@ -4355,8 +4331,7 @@ public class ChuuService implements EveryNoiseService {
         try (Connection connection = dataSource.getConnection()) {
             List<Long> userFriends = friendDAO.getUserFriendsIds(connection, discordId);
             Set<Long> friendIds = Stream.concat(userFriends.stream(), Stream.of(discordId)).collect(Collectors.toSet());
-            return executeInHiddenServer(friendIds,
-                    (hiddenConnection, guildId) -> queriesDao.whoKnowsTrack(hiddenConnection, trackId, guildId, limit));
+            return executeInHiddenServer(friendIds, (hiddenConnection, guildId) -> queriesDao.whoKnowsTrack(hiddenConnection, trackId, guildId, limit));
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }
@@ -4366,8 +4341,7 @@ public class ChuuService implements EveryNoiseService {
         try (Connection connection = dataSource.getConnection()) {
             List<Long> userFriends = friendDAO.getUserFriendsIds(connection, discordId);
             Set<Long> friendIds = Stream.concat(userFriends.stream(), Stream.of(discordId)).collect(Collectors.toSet());
-            return executeInHiddenServer(friendIds,
-                    (hiddenConnection, guildId) -> queriesDao.whoKnowsAlbum(hiddenConnection, albumId, guildId, limit));
+            return executeInHiddenServer(friendIds, (hiddenConnection, guildId) -> queriesDao.whoKnowsAlbum(hiddenConnection, albumId, guildId, limit));
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }
@@ -4377,8 +4351,7 @@ public class ChuuService implements EveryNoiseService {
         try (Connection connection = dataSource.getConnection()) {
             List<Long> userFriends = friendDAO.getUserFriendsIds(connection, discordId);
             Set<Long> friendIds = Stream.concat(userFriends.stream(), Stream.of(discordId)).collect(Collectors.toSet());
-            return executeInHiddenServer(friendIds,
-                    (hiddenConnection, guildId) -> queriesDao.getGuildTop(hiddenConnection, guildId, limit, doCount));
+            return executeInHiddenServer(friendIds, (hiddenConnection, guildId) -> queriesDao.getGuildTop(hiddenConnection, guildId, limit, doCount));
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }
@@ -4388,8 +4361,7 @@ public class ChuuService implements EveryNoiseService {
         try (Connection connection = dataSource.getConnection()) {
             List<Long> userFriends = friendDAO.getUserFriendsIds(connection, discordId);
             Set<Long> friendIds = Stream.concat(userFriends.stream(), Stream.of(discordId)).collect(Collectors.toSet());
-            return executeInHiddenServer(friendIds,
-                    (hiddenConnection, guildId) -> queriesDao.getGuildTopAlbum(hiddenConnection, guildId, limit, doCount));
+            return executeInHiddenServer(friendIds, (hiddenConnection, guildId) -> queriesDao.getGuildTopAlbum(hiddenConnection, guildId, limit, doCount));
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }
@@ -4399,8 +4371,7 @@ public class ChuuService implements EveryNoiseService {
         try (Connection connection = dataSource.getConnection()) {
             List<Long> userFriends = friendDAO.getUserFriendsIds(connection, discordId);
             Set<Long> friendIds = Stream.concat(userFriends.stream(), Stream.of(discordId)).collect(Collectors.toSet());
-            return executeInHiddenServer(friendIds,
-                    (hiddenConnection, guildId) -> trackDao.getGuildTopTracks(hiddenConnection, guildId, limit, doCount));
+            return executeInHiddenServer(friendIds, (hiddenConnection, guildId) -> trackDao.getGuildTopTracks(hiddenConnection, guildId, limit, doCount));
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }
@@ -4410,8 +4381,7 @@ public class ChuuService implements EveryNoiseService {
         try (Connection connection = dataSource.getConnection()) {
             List<Long> userFriends = friendDAO.getUserFriendsIds(connection, authorId);
             Set<Long> friendIds = Stream.concat(userFriends.stream(), Stream.of(authorId)).collect(Collectors.toSet());
-            return executeInHiddenServer(friendIds,
-                    (hiddenConnection, guildId) -> albumDao.getServerTopArtistAlbums(hiddenConnection, guildId, artistId, limit));
+            return executeInHiddenServer(friendIds, (hiddenConnection, guildId) -> albumDao.getServerTopArtistAlbums(hiddenConnection, guildId, artistId, limit));
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }
@@ -4421,8 +4391,7 @@ public class ChuuService implements EveryNoiseService {
         try (Connection connection = dataSource.getConnection()) {
             List<Long> userFriends = friendDAO.getUserFriendsIds(connection, authorId);
             Set<Long> friendIds = Stream.concat(userFriends.stream(), Stream.of(authorId)).collect(Collectors.toSet());
-            return executeInHiddenServer(friendIds,
-                    (hiddenConnection, guildId) -> queriesDao.getArtistPlays(hiddenConnection, guildId, artistId));
+            return executeInHiddenServer(friendIds, (hiddenConnection, guildId) -> queriesDao.getArtistPlays(hiddenConnection, guildId, artistId));
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }
@@ -4433,8 +4402,7 @@ public class ChuuService implements EveryNoiseService {
             connection.setReadOnly(true);
             List<Long> userFriends = friendDAO.getUserFriendsIds(connection, author);
             Set<Long> friendIds = Stream.concat(userFriends.stream(), Stream.of(author)).collect(Collectors.toSet());
-            return executeInHiddenServer(friendIds,
-                    (hiddenConnection, guildId) -> trackDao.getServerTopArtistTracks(hiddenConnection, guildId, artistId, limit));
+            return executeInHiddenServer(friendIds, (hiddenConnection, guildId) -> trackDao.getServerTopArtistTracks(hiddenConnection, guildId, artistId, limit));
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }
@@ -4448,6 +4416,24 @@ public class ChuuService implements EveryNoiseService {
             T result = runnable.executeInHiddenServer(connection, hiddenServer);
             connection.rollback();
             return result;
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    public List<UnheardCount> getUnheardSongs(String lastFmName, long artistId, boolean listeners, Long filter) {
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setReadOnly(true);
+            return trackDao.getUnheardSongs(connection, lastFmName, artistId, listeners, filter);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    public List<UnheardCount> getUnheardAlbums(String lastFmName, long artistId, boolean listeners, Long filter) {
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setReadOnly(true);
+            return albumDao.getUnheardAlbum(connection, lastFmName, artistId, listeners, filter);
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }

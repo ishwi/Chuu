@@ -1,7 +1,7 @@
 package core.parsers;
 
 import core.commands.Context;
-import core.commands.ContextSlashReceived;
+import core.commands.InteracionReceived;
 import core.exceptions.LastFmException;
 import core.parsers.explanation.StrictUserExplanation;
 import core.parsers.explanation.util.Explanation;
@@ -13,7 +13,7 @@ import dao.ChuuService;
 import dao.entities.LastFMData;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.interactions.commands.CommandInteraction;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 
@@ -34,8 +34,8 @@ public class UserStringParser extends DaoParser<UserStringParameters> {
     }
 
     @Override
-    public UserStringParameters parseSlashLogic(ContextSlashReceived ctx) throws LastFmException, InstanceNotFoundException {
-        SlashCommandEvent e = ctx.e();
+    public UserStringParameters parseSlashLogic(InteracionReceived<? extends CommandInteraction> ctx) throws LastFmException, InstanceNotFoundException {
+        CommandInteraction e = ctx.e();
         User user = InteractionAux.parseUser(e);
         OptionMapping option = e.getOption("search-phrase");
         if (!allowEmpty && option == null) {

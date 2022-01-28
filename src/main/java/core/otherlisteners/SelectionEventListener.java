@@ -3,11 +3,11 @@ package core.otherlisteners;
 import core.commands.Context;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
-import net.dv8tion.jda.api.events.interaction.SelectionMenuEvent;
+import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.component.SelectMenuInteractionEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
-import net.dv8tion.jda.api.interactions.components.selections.SelectionMenu;
+import net.dv8tion.jda.api.interactions.components.selections.SelectMenu;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -42,12 +42,12 @@ public class SelectionEventListener extends ReactionListener {
     }
 
     @Override
-    public boolean isValid(ButtonClickEvent event) {
+    public boolean isValid(ButtonInteractionEvent event) {
         return false;
     }
 
     @Override
-    public boolean isValid(SelectionMenuEvent event) {
+    public boolean isValid(SelectMenuInteractionEvent event) {
         if (this.message == null) {
             return false;
         }
@@ -70,14 +70,14 @@ public class SelectionEventListener extends ReactionListener {
     }
 
     @Override
-    public void onButtonClickedEvent(@NotNull ButtonClickEvent event) {
+    public void onButtonClickedEvent(@NotNull ButtonInteractionEvent event) {
 
     }
 
     @Override
-    public void onSelectedMenuEvent(@NotNull SelectionMenuEvent event) {
+    public void onSelectedMenuEvent(@NotNull SelectMenuInteractionEvent event) {
         event.deferEdit().queue();
-        SelectionMenu component = event.getComponent();
+        SelectMenu component = event.getComponent();
         List<ActionRow> actionRows = event.getMessage().getActionRows();
 
         SelectionResponse sr = action.processEvent(context, component, event.getValues(), who, actionRows);
@@ -89,7 +89,7 @@ public class SelectionEventListener extends ReactionListener {
     }
 
     public interface SelectionAction {
-        SelectionResponse processEvent(Context e, SelectionMenu menu, List<String> selected, EmbedBuilder eb, List<ActionRow> actionRows);
+        SelectionResponse processEvent(Context e, SelectMenu menu, List<String> selected, EmbedBuilder eb, List<ActionRow> actionRows);
     }
 
     public record SelectionResponse(EmbedBuilder embedBuilder, List<ActionRow> rows) {

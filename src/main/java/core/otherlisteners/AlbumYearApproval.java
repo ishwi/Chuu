@@ -5,7 +5,7 @@ import dao.ChuuService;
 import dao.entities.AlbumInfo;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
+import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 
 import java.time.Year;
 
@@ -21,7 +21,7 @@ public final class AlbumYearApproval extends ChannelConstantListener {
     }
 
     @Override
-    public void handleClick(ButtonClickEvent e) {
+    public void handleClick(ButtonInteractionEvent e) {
         Message message = e.getMessage();
         if (e.getComponentId().equals(REJECT)) {
             message.delete().queue();

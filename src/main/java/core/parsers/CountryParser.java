@@ -2,7 +2,7 @@ package core.parsers;
 
 import com.neovisionaries.i18n.CountryCode;
 import core.commands.Context;
-import core.commands.ContextSlashReceived;
+import core.commands.InteracionReceived;
 import core.exceptions.LastFmException;
 import core.parsers.explanation.CountryExplanation;
 import core.parsers.explanation.TimeframeExplanation;
@@ -16,7 +16,7 @@ import dao.entities.LastFMData;
 import dao.entities.TimeFrameEnum;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.interactions.commands.CommandInteraction;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 
 import java.util.List;
@@ -35,8 +35,8 @@ public class CountryParser extends DaoParser<CountryParameters> {
     }
 
     @Override
-    public CountryParameters parseSlashLogic(ContextSlashReceived ctx) throws LastFmException, InstanceNotFoundException {
-        SlashCommandEvent e = ctx.e();
+    public CountryParameters parseSlashLogic(InteracionReceived<? extends CommandInteraction> ctx) throws LastFmException, InstanceNotFoundException {
+        CommandInteraction e = ctx.e();
         TimeFrameEnum timeFrameEnum = InteractionAux.parseTimeFrame(e, TimeFrameEnum.ALL);
         User user = InteractionAux.parseUser(e);
         LastFMData data = findLastfmFromID(user, ctx);

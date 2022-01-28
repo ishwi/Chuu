@@ -2,6 +2,7 @@ package core.commands.stats;
 
 import core.commands.Context;
 import core.commands.abstracts.NpCommand;
+import core.commands.ui.UserCommandMarker;
 import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandUtil;
 import core.exceptions.LastFmException;
@@ -29,7 +30,7 @@ import java.util.concurrent.atomic.LongAdder;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-public class NowPlayingCommand extends NpCommand {
+public class NowPlayingCommand extends NpCommand implements UserCommandMarker {
     private final MusicBrainzService mb;
 
     public NowPlayingCommand(ServiceView dao) {
@@ -62,13 +63,9 @@ public class NowPlayingCommand extends NpCommand {
         String lastFMName = nowPlayingArtist.username();
 
 
-        a.append("**").append(CommandUtil.escapeMarkdown(nowPlayingArtist.artistName()))
-                .append("** | ").append(CommandUtil.escapeMarkdown(nowPlayingArtist.albumName())).append("\n");
+        a.append("**").append(CommandUtil.escapeMarkdown(nowPlayingArtist.artistName())).append("** | ").append(CommandUtil.escapeMarkdown(nowPlayingArtist.albumName())).append("\n");
 
-        EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e).setAuthor(title, CommandUtil.getLastFmUser(lastFMName), urlHolder)
-                .setThumbnail(CommandUtil.noImageUrl(nowPlayingArtist.url()))
-                .setTitle(CommandUtil.escapeMarkdown(nowPlayingArtist.songName()), LinkUtils.getLastFMArtistTrack(nowPlayingArtist.artistName(), nowPlayingArtist.songName()))
-                .setDescription(a);
+        EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e).setAuthor(title, CommandUtil.getLastFmUser(lastFMName), urlHolder).setThumbnail(CommandUtil.noImageUrl(nowPlayingArtist.url())).setTitle(CommandUtil.escapeMarkdown(nowPlayingArtist.songName()), LinkUtils.getLastFMArtistTrack(nowPlayingArtist.artistName(), nowPlayingArtist.songName())).setDescription(a);
 
 
         ScrobbledArtist sA = new ScrobbledArtist(nowPlayingArtist.artistName(), 0, null);
@@ -113,9 +110,7 @@ public class NowPlayingCommand extends NpCommand {
         }
 
         //
-        String url = npModes.contains(NPMode.ARTIST_PIC) && sA.getUrl() != null && !sA.getUrl().isBlank()
-                ? sA.getUrl()
-                : null;
+        String url = npModes.contains(NPMode.ARTIST_PIC) && sA.getUrl() != null && !sA.getUrl().isBlank() ? sA.getUrl() : null;
         if (url != null && footer.isBlank()) {
             footer += EmbedBuilder.ZERO_WIDTH_SPACE;
         }

@@ -2,6 +2,7 @@ package core.commands.stats;
 
 import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
+import core.commands.ui.UserCommandMarker;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.parsers.OnlyUsernameParser;
@@ -13,7 +14,7 @@ import dao.entities.DiscordUserDisplay;
 import javax.annotation.Nonnull;
 import java.util.List;
 
-public class LastFmLinkCommand extends ConcurrentCommand<ChuuDataParams> {
+public class LastFmLinkCommand extends ConcurrentCommand<ChuuDataParams> implements UserCommandMarker {
     public LastFmLinkCommand(ServiceView dao) {
         super(dao);
     }

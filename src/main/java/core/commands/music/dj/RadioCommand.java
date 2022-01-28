@@ -13,9 +13,9 @@ import core.parsers.Parser;
 import core.parsers.params.EnumParameters;
 import dao.ServiceView;
 import dao.everynoise.NoiseGenre;
+import net.dv8tion.jda.api.entities.AudioChannel;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
-import net.dv8tion.jda.api.entities.VoiceChannel;
 import net.dv8tion.jda.api.requests.RestAction;
 import org.apache.commons.text.WordUtils;
 
@@ -150,9 +150,9 @@ public class RadioCommand extends MusicCommand<EnumParameters<Station>> {
         if (musicManager.isIdle()) {
             musicManager.nextTrack();
         }
-        if (e.getGuild().getSelfMember().getVoiceState() == null || !e.getGuild().getSelfMember().getVoiceState().inVoiceChannel()) {
-            if (e.getMember() != null && e.getMember().getVoiceState() != null && e.getMember().getVoiceState().inVoiceChannel()) {
-                VoiceChannel channel = e.getMember().getVoiceState().getChannel();
+        if (e.getGuild().getSelfMember().getVoiceState() == null || !e.getGuild().getSelfMember().getVoiceState().inAudioChannel()) {
+            if (e.getMember() != null && e.getMember().getVoiceState() != null && e.getMember().getVoiceState().inAudioChannel()) {
+                AudioChannel channel = e.getMember().getVoiceState().getChannel();
 
                 if (e.getGuild().getAudioManager().getConnectedChannel() != null) {
                     musicManager.moveAudioConnection(channel, e.getChannel());

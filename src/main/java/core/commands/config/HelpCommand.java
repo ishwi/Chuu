@@ -37,10 +37,10 @@ import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.SelfUser;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
-import net.dv8tion.jda.api.interactions.components.Button;
-import net.dv8tion.jda.api.interactions.components.Component;
+import net.dv8tion.jda.api.interactions.components.ItemComponent;
+import net.dv8tion.jda.api.interactions.components.buttons.Button;
+import net.dv8tion.jda.api.interactions.components.selections.SelectMenu;
 import net.dv8tion.jda.api.interactions.components.selections.SelectOption;
-import net.dv8tion.jda.api.interactions.components.selections.SelectionMenu;
 import net.dv8tion.jda.api.requests.RestAction;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.WordUtils;
@@ -151,9 +151,9 @@ public class HelpCommand extends ConcurrentCommand<WordParameter> {
     private List<ActionRow> invalidateAll(List<ActionRow> rows) {
         List<ActionRow> disabled = new ArrayList<>();
         for (ActionRow row : rows) {
-            List<Component> rowComponentes = new ArrayList<>();
-            for (Component component : row.getComponents()) {
-                if (component instanceof SelectionMenu menu) {
+            List<ItemComponent> rowComponentes = new ArrayList<>();
+            for (ItemComponent component : row.getComponents()) {
+                if (component instanceof SelectMenu menu) {
                     rowComponentes.add(menu.asDisabled());
                 } else if (component instanceof Button button) {
                     rowComponentes.add(button.asDisabled());
@@ -192,10 +192,10 @@ public class HelpCommand extends ConcurrentCommand<WordParameter> {
 
     }
 
-    private SelectionEventListener.SelectionResponse doAction(Context e, SelectionMenu selectionMenu, List<String> options, EmbedBuilder eb, List<ActionRow> rows) {
+    private SelectionEventListener.SelectionResponse doAction(Context e, SelectMenu SelectMenu, List<String> options, EmbedBuilder eb, List<ActionRow> rows) {
 
         String selected = options.get(0);
-        String id = selectionMenu.getId();
+        String id = SelectMenu.getId();
         eb.clearFields();
         eb.setFooter(null);
 
@@ -261,7 +261,7 @@ public class HelpCommand extends ConcurrentCommand<WordParameter> {
 
     @NotNull
     private ActionRow buildMenuCategory(List<CommandCategory> categories, String value) {
-        SelectionMenu.Builder category = SelectionMenu.create("category_id")
+        SelectMenu.Builder category = SelectMenu.create("category_id")
                 .setPlaceholder("Select a command of the %s category to see the details of that command".formatted(value))
                 .setMinValues(1)
                 .addOption("All commands", CUSTOM_ALL, "A list of all the commands available in the bot")
@@ -279,7 +279,7 @@ public class HelpCommand extends ConcurrentCommand<WordParameter> {
 
         AtomicInteger ranker = new AtomicInteger(0);
 
-        return (commandsPartitions.stream().map(z -> ActionRow.of(SelectionMenu.create(String.valueOf(ranker.incrementAndGet()))
+        return (commandsPartitions.stream().map(z -> ActionRow.of(SelectMenu.create(String.valueOf(ranker.incrementAndGet()))
                 .addOptions(z.stream().map(w -> SelectOption.of(w.getName(), w.getAliases().get(0))
                         .withDefault(active == w)
                         .withDescription(StringUtils.abbreviate(w.getDescription(), 100))).toList())

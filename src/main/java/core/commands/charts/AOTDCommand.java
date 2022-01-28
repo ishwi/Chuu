@@ -35,7 +35,7 @@ public class AOTDCommand extends ChartableCommand<ChartYearRangeParameters> {
 
     @Override
     public ChartableParser<ChartYearRangeParameters> initParser() {
-        return new ChartDecadeParser(db, searchSpace);
+        return new ChartDecadeParser(db);
     }
 
     @Override

@@ -1,7 +1,7 @@
 package core.parsers;
 
 import core.commands.Context;
-import core.commands.ContextSlashReceived;
+import core.commands.InteracionReceived;
 import core.exceptions.LastFmException;
 import core.parsers.explanation.PermissiveUserExplanation;
 import core.parsers.explanation.RatingExplanation;
@@ -13,7 +13,7 @@ import dao.ChuuService;
 import dao.entities.LastFMData;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.interactions.commands.CommandInteraction;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -31,8 +31,8 @@ public class RYMRatingParser extends DaoParser<RYMRatingParams> {
     }
 
     @Override
-    public RYMRatingParams parseSlashLogic(ContextSlashReceived ctx) throws LastFmException, InstanceNotFoundException {
-        SlashCommandEvent e = ctx.e();
+    public RYMRatingParams parseSlashLogic(InteracionReceived<? extends CommandInteraction> ctx) throws LastFmException, InstanceNotFoundException {
+        CommandInteraction e = ctx.e();
         Short rating = Optional.ofNullable(e.getOption(RatingExplanation.NAME)).map(OptionMapping::getAsLong).map(Long::shortValue).orElse(null);
         User user = InteractionAux.parseUser(e);
         return new RYMRatingParams(ctx, findLastfmFromID(user, ctx), rating);

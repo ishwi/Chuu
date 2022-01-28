@@ -2,7 +2,7 @@ package core.parsers;
 
 import com.google.common.collect.Lists;
 import core.commands.Context;
-import core.commands.ContextSlashReceived;
+import core.commands.InteracionReceived;
 import core.commands.abstracts.MyCommand;
 import core.commands.utils.CommandUtil;
 import core.exceptions.LastFmException;
@@ -14,12 +14,13 @@ import core.parsers.params.EnumListParameters;
 import dao.ChuuService;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.interactions.commands.Command;
+import net.dv8tion.jda.api.interactions.commands.CommandInteraction;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
-import net.dv8tion.jda.api.interactions.commands.build.CommandData;
+import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
+import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 import org.apache.commons.text.WordUtils;
 
@@ -46,8 +47,8 @@ public class EnumListParser<T extends Enum<T>> extends DaoParser<EnumListParamet
 
     }
 
-    public CommandData generateCommandData(MyCommand<?> myCommand) {
-        CommandData commandData = new CommandData(myCommand.slashName(), myCommand.getDescription());
+    public SlashCommandData generateCommandData(MyCommand<?> myCommand) {
+        SlashCommandData commandData = Commands.slash(myCommand.slashName(), myCommand.getDescription());
 
         SubcommandData set = new SubcommandData("set", "Replaces all your " + name + " with the ones provided");
         set.addOption(OptionType.STRING, name, "List of all " + name + " to set", true);
@@ -94,8 +95,8 @@ public class EnumListParser<T extends Enum<T>> extends DaoParser<EnumListParamet
     }
 
     @Override
-    public EnumListParameters<T> parseSlashLogic(ContextSlashReceived ctx) throws LastFmException, InstanceNotFoundException {
-        SlashCommandEvent e = ctx.e();
+    public EnumListParameters<T> parseSlashLogic(InteracionReceived<? extends CommandInteraction> ctx) throws LastFmException, InstanceNotFoundException {
+        CommandInteraction e = ctx.e();
         String subcommandName = e.getSubcommandName();
         User user = InteractionAux.parseUser(e);
         assert subcommandName != null;
@@ -117,7 +118,7 @@ public class EnumListParser<T extends Enum<T>> extends DaoParser<EnumListParamet
         };
     }
 
-    private EnumListParameters<T> parseSlash(ContextSlashReceived ctx, SlashCommandEvent e, User user, boolean isAdding, boolean isRemoving, boolean isHelp) {
+    private EnumListParameters<T> parseSlash(InteracionReceived<? extends CommandInteraction> ctx, CommandInteraction e, User user, boolean isAdding, boolean isRemoving, boolean isHelp) {
 
         EnumSet<T> ts = EnumSet.complementOf(excluded);
         List<List<T>> partition = Lists.partition(new ArrayList<>(ts), 25);

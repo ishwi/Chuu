@@ -1,8 +1,6 @@
 package core.parsers;
 
-import core.commands.Context;
-import core.commands.ContextMessageReceived;
-import core.commands.ContextSlashReceived;
+import core.commands.*;
 import core.commands.utils.CommandUtil;
 import core.exceptions.LastFmException;
 import core.parsers.explanation.util.Explanation;
@@ -10,7 +8,7 @@ import core.parsers.explanation.util.UsageLogic;
 import core.parsers.params.CommandParameters;
 import core.parsers.utils.OptionalEntity;
 import dao.exceptions.InstanceNotFoundException;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.interactions.commands.CommandInteraction;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import org.apache.commons.lang3.tuple.Pair;
@@ -88,14 +86,18 @@ public abstract class Parser<T extends CommandParameters> {
     public T parse(Context e) throws LastFmException, InstanceNotFoundException {
         if (e instanceof ContextMessageReceived mes) {
             return parseMessage(mes);
-        } else if (e instanceof ContextSlashReceived sce) {
-            return parseSlash(sce);
+        } else if (e instanceof InteracionReceived sce) {
+            if (e instanceof ContextSlashReceived csr) {
+                return parseSlash(csr);
+            } else if (e instanceof ContextUserCommandReceived cucr) {
+                return parseSlash(cucr);
+            }
         }
         return null;
     }
 
-    public final T parseSlash(ContextSlashReceived ctx) throws LastFmException, InstanceNotFoundException {
-        SlashCommandEvent e = ctx.e();
+    public final T parseSlash(InteracionReceived<? extends CommandInteraction> ctx) throws LastFmException, InstanceNotFoundException {
+        CommandInteraction e = ctx.e();
         List<OptionMapping> strings = e.getOptionsByType(OptionType.STRING);
         List<String> optionals = new ArrayList<>();
         for (OptionMapping s : strings) {
@@ -112,10 +114,10 @@ public abstract class Parser<T extends CommandParameters> {
         return preParams;
     }
 
+
     private void processOpts(List<String> optionals) {
         Set<OptionalEntity> defaults = opts.stream().filter(OptionalEntity::isEnabledByDefault).collect(Collectors.toSet());
-        for (
-                OptionalEntity aDefault : defaults) {
+        for (OptionalEntity aDefault : defaults) {
             boolean block = false;
             for (String blocked : aDefault.blockedBy()) {
                 if (optionals.contains(blocked)) {
@@ -129,7 +131,7 @@ public abstract class Parser<T extends CommandParameters> {
         }
     }
 
-    public T parseSlashLogic(ContextSlashReceived ctx) throws LastFmException, InstanceNotFoundException {
+    public T parseSlashLogic(InteracionReceived<? extends CommandInteraction> ctx) throws LastFmException, InstanceNotFoundException {
         throw new UnsupportedOperationException();
     }
 

@@ -2,7 +2,7 @@ package core.parsers;
 
 import core.commands.Context;
 import core.commands.ContextMessageReceived;
-import core.commands.ContextSlashReceived;
+import core.commands.InteracionReceived;
 import core.exceptions.LastFmException;
 import core.parsers.explanation.util.Explanation;
 import core.parsers.explanation.util.ExplanationLineType;
@@ -10,6 +10,7 @@ import core.parsers.interactions.InteractionAux;
 import core.parsers.params.WordParameter;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.interactions.commands.CommandInteraction;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 
 import java.util.List;
@@ -22,7 +23,7 @@ public class MusicInputParser extends Parser<WordParameter> {
     }
 
     @Override
-    public WordParameter parseSlashLogic(ContextSlashReceived ctx) throws LastFmException, InstanceNotFoundException {
+    public WordParameter parseSlashLogic(InteracionReceived<? extends CommandInteraction> ctx) throws LastFmException, InstanceNotFoundException {
         return new WordParameter(ctx, ctx.e().getOption("input").getAsString());
     }
 

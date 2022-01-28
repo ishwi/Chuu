@@ -34,7 +34,7 @@ public class GlobalAOTD extends ChartableCommand<ChartYearRangeParameters> {
 
     @Override
     public ChartableParser<ChartYearRangeParameters> initParser() {
-        return new ChartDecadeParser(db, 1);
+        return new ChartDecadeParser(db);
 
     }
 

@@ -5,8 +5,8 @@ import core.commands.utils.CommandUtil;
 import core.otherlisteners.util.ConfirmatorItem;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
-import net.dv8tion.jda.api.events.interaction.SelectionMenuEvent;
+import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.component.SelectMenuInteractionEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import org.jetbrains.annotations.NotNull;
 
@@ -57,7 +57,7 @@ public class Confirmator extends ReactionListener {
     }
 
     @Override
-    public boolean isValid(ButtonClickEvent event) {
+    public boolean isValid(ButtonInteractionEvent event) {
         if (event.getMessageIdLong() != message.getIdLong()) {
             return false;
         }
@@ -68,7 +68,7 @@ public class Confirmator extends ReactionListener {
     }
 
     @Override
-    public boolean isValid(SelectionMenuEvent event) {
+    public boolean isValid(SelectMenuInteractionEvent event) {
         return false;
     }
 
@@ -92,7 +92,7 @@ public class Confirmator extends ReactionListener {
 
 
     @Override
-    public void onButtonClickedEvent(@Nonnull ButtonClickEvent event) {
+    public void onButtonClickedEvent(@Nonnull ButtonInteractionEvent event) {
         event.deferEdit().queue();
         ConfirmatorItem item = this.idMap.get(event.getComponentId());
         if (item != null) {
@@ -104,7 +104,7 @@ public class Confirmator extends ReactionListener {
     }
 
     @Override
-    public void onSelectedMenuEvent(@NotNull SelectionMenuEvent event) {
+    public void onSelectedMenuEvent(@NotNull SelectMenuInteractionEvent event) {
     }
 
     public enum Mode {

@@ -1,6 +1,6 @@
 package core.otherlisteners;
 
-import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
+import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 
 public abstract class ChannelConstantListener implements ConstantListener {
     private final long channelId;
@@ -14,7 +14,7 @@ public abstract class ChannelConstantListener implements ConstantListener {
     }
 
     @Override
-    public boolean isValid(ButtonClickEvent e) {
+    public boolean isValid(ButtonInteractionEvent e) {
         return e.getChannel().getIdLong() == channelId;
     }
 

@@ -23,9 +23,9 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Emoji;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
+import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
-import net.dv8tion.jda.api.interactions.components.Button;
+import net.dv8tion.jda.api.interactions.components.buttons.Button;
 
 import javax.annotation.Nonnull;
 import java.util.*;
@@ -107,7 +107,7 @@ public class UrlQueueReview extends ConcurrentCommand<CommandParameters> {
         Map<Long, Integer> approvedMap = new HashMap<>();
         Queue<ImageQueue> queue = new ArrayDeque<>(db.getNextQueue());
         AtomicInteger totalImages = new AtomicInteger(queue.size());
-        HashMap<String, Reaction<ImageQueue, ButtonClickEvent, ButtonResult>> actionMap = new LinkedHashMap<>();
+        HashMap<String, Reaction<ImageQueue, ButtonInteractionEvent, ButtonResult>> actionMap = new LinkedHashMap<>();
         actionMap.put(DELETE, (q, r) -> {
             rejectedMap.merge(q.uploader(), 1, Integer::sum);
             db.rejectQueuedImage(q.queuedId(), q);

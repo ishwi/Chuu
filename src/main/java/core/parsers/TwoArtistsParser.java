@@ -1,13 +1,13 @@
 package core.parsers;
 
 import core.commands.Context;
-import core.commands.ContextSlashReceived;
+import core.commands.InteracionReceived;
 import core.exceptions.LastFmException;
 import core.parsers.explanation.util.Explanation;
 import core.parsers.explanation.util.ExplanationLine;
 import core.parsers.params.TwoArtistParams;
 import dao.exceptions.InstanceNotFoundException;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.interactions.commands.CommandInteraction;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
@@ -25,8 +25,8 @@ public class TwoArtistsParser extends Parser<TwoArtistParams> {
     }
 
     @Override
-    public TwoArtistParams parseSlashLogic(ContextSlashReceived ctx) throws LastFmException, InstanceNotFoundException {
-        SlashCommandEvent e = ctx.e();
+    public TwoArtistParams parseSlashLogic(InteracionReceived<? extends CommandInteraction> ctx) throws LastFmException, InstanceNotFoundException {
+        CommandInteraction e = ctx.e();
         String alias = e.getOption("alias").getAsString();
         String existingArtist = e.getOption("existing-artist").getAsString();
         return new TwoArtistParams(ctx, alias, existingArtist);

@@ -1,11 +1,12 @@
 package core.parsers;
 
 import core.commands.Context;
-import core.commands.ContextSlashReceived;
+import core.commands.InteracionReceived;
 import core.parsers.explanation.util.Explanation;
 import core.parsers.explanation.util.ExplanationLine;
 import core.parsers.params.WordParameter;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.interactions.commands.CommandInteraction;
+import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
@@ -20,14 +21,15 @@ public class SetParser extends Parser<WordParameter> {
 
 
     @Override
-    public WordParameter parseSlashLogic(ContextSlashReceived e) {
-        SlashCommandEvent e1 = e.e();
-        String lfmName = e1.getOption("lfm-user").getAsString();
-        if (lfmName == null) {
-            sendError(getErrorMessage(0), e);
+    public WordParameter parseSlashLogic(InteracionReceived<? extends CommandInteraction> ctx) {
+        CommandInteraction e1 = ctx.e();
+        OptionMapping option = e1.getOption("lfm-user");
+        if (option == null) {
+            sendError(getErrorMessage(0), ctx);
             return null;
         }
-        return new WordParameter(e, lfmName);
+        String lfmName = option.getAsString();
+        return new WordParameter(ctx, lfmName);
     }
 
     @Override

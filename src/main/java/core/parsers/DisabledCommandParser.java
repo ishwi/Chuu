@@ -3,6 +3,7 @@ package core.parsers;
 import core.commands.Context;
 import core.commands.ContextMessageReceived;
 import core.commands.ContextSlashReceived;
+import core.commands.InteracionReceived;
 import core.commands.abstracts.MyCommand;
 import core.commands.moderation.DisabledCommand;
 import core.commands.utils.CommandUtil;
@@ -14,9 +15,11 @@ import core.parsers.explanation.util.ExplanationLineType;
 import core.parsers.params.DisabledCommandParameters;
 import core.parsers.utils.OptionalEntity;
 import dao.exceptions.InstanceNotFoundException;
+import net.dv8tion.jda.api.interactions.commands.CommandInteraction;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
-import net.dv8tion.jda.api.interactions.commands.build.CommandData;
+import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
+import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 
 import java.util.ArrayList;
@@ -42,7 +45,7 @@ public class DisabledCommandParser extends Parser<DisabledCommandParameters> imp
     }
 
     @Override
-    public DisabledCommandParameters parseSlashLogic(ContextSlashReceived ctx) throws LastFmException, InstanceNotFoundException {
+    public DisabledCommandParameters parseSlashLogic(InteracionReceived<? extends CommandInteraction> ctx) throws LastFmException, InstanceNotFoundException {
         return parseLogic(ctx, new String[]{ctx.e().getOption("command-name").getAsString()});
     }
 
@@ -108,8 +111,8 @@ public class DisabledCommandParser extends Parser<DisabledCommandParameters> imp
 
 
     @Override
-    public CommandData generateCommandData(MyCommand<?> myCommand) {
-        CommandData commands = new CommandData(myCommand.slashName(), myCommand.getDescription());
+    public SlashCommandData generateCommandData(MyCommand<?> myCommand) {
+        SlashCommandData commands = Commands.slash(myCommand.slashName(), myCommand.getDescription());
         var a = new SubcommandData("enable", "Enables the command");
         var b = new SubcommandData("disable", "Disables the command");
         var c = new SubcommandData("toggle", "Toggles the command");

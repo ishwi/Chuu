@@ -1,7 +1,7 @@
 package core.parsers;
 
 import core.commands.Context;
-import core.commands.ContextSlashReceived;
+import core.commands.InteracionReceived;
 import core.exceptions.LastFmException;
 import core.parsers.params.ChartParameters;
 import core.parsers.params.RainbowParams;
@@ -10,6 +10,7 @@ import core.parsers.utils.Optionals;
 import dao.ChuuService;
 import dao.entities.TimeFrameEnum;
 import dao.exceptions.InstanceNotFoundException;
+import net.dv8tion.jda.api.interactions.commands.CommandInteraction;
 
 public class RainbowParser extends ChartableParser<RainbowParams> {
     private final ChartNormalParser inner;
@@ -21,7 +22,7 @@ public class RainbowParser extends ChartableParser<RainbowParams> {
 
 
     @Override
-    public RainbowParams parseSlashLogic(ContextSlashReceived ctx) throws LastFmException, InstanceNotFoundException {
+    public RainbowParams parseSlashLogic(InteracionReceived<? extends CommandInteraction> ctx) throws LastFmException, InstanceNotFoundException {
         ChartParameters chartParameters = inner.parseSlashLogic(ctx);
         if (chartParameters == null) {
             return null;

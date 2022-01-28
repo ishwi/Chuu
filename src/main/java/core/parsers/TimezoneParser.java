@@ -1,7 +1,7 @@
 package core.parsers;
 
 import core.commands.Context;
-import core.commands.ContextSlashReceived;
+import core.commands.InteracionReceived;
 import core.exceptions.LastFmException;
 import core.parsers.explanation.util.Explanation;
 import core.parsers.explanation.util.ExplanationLine;
@@ -10,6 +10,7 @@ import core.parsers.utils.OptionalEntity;
 import dao.ChuuService;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.interactions.commands.CommandInteraction;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import org.apache.commons.lang3.StringUtils;
@@ -57,7 +58,7 @@ public class TimezoneParser extends DaoParser<TimezoneParams> {
     }
 
     @Override
-    public TimezoneParams parseSlashLogic(ContextSlashReceived ctx) throws LastFmException, InstanceNotFoundException {
+    public TimezoneParams parseSlashLogic(InteracionReceived<? extends CommandInteraction> ctx) throws LastFmException, InstanceNotFoundException {
         return parseLogic(ctx, new String[]{ctx.e().getOption("timezone").getAsString()});
     }
 

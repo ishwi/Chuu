@@ -7,19 +7,19 @@ import dao.ChuuService;
 import dao.entities.DiscordUserDisplay;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
-import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
+import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 
 import java.awt.*;
 
 public record FriendRequester(ChuuService db) implements ConstantListener {
     @Override
-    public boolean isValid(ButtonClickEvent e) {
+    public boolean isValid(ButtonInteractionEvent e) {
         String id = e.getComponentId();
         return id.startsWith(ButtonUtils.FRIEND_REQUEST_ACCEPT) || id.startsWith(ButtonUtils.FRIEND_REQUEST_REJECT);
     }
 
     @Override
-    public void handleClick(ButtonClickEvent e) {
+    public void handleClick(ButtonInteractionEvent e) {
         String id = e.getComponentId();
         String[] split = id.split(":");
         assert split.length == 2;

@@ -1,7 +1,7 @@
 package core.parsers.interactions;
 
 import core.apis.last.ConcurrentLastFM;
-import core.commands.ContextSlashReceived;
+import core.commands.InteracionReceived;
 import core.exceptions.LastFmException;
 import core.parsers.ChartParserAux;
 import core.parsers.exceptions.InvalidChartValuesException;
@@ -15,9 +15,10 @@ import core.services.NPService;
 import dao.entities.*;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.interactions.commands.CommandInteraction;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
+import net.dv8tion.jda.api.interactions.commands.context.UserContextInteraction;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.Nonnull;
@@ -36,31 +37,34 @@ public class InteractionAux {
 
     }
 
-    public static TimeFrameEnum parseTimeFrame(SlashCommandEvent e, TimeFrameEnum fallback) {
+    public static TimeFrameEnum parseTimeFrame(CommandInteraction e, TimeFrameEnum fallback) {
         return Optional.ofNullable(e.getOption(TimeframeExplanation.NAME)).map(OptionMapping::getAsString).map(TimeFrameEnum::get).orElse(fallback);
     }
 
-    public static NaturalTimeFrameEnum parseNaturalTimeFrame(SlashCommandEvent e, NaturalTimeFrameEnum fallback) {
+    public static NaturalTimeFrameEnum parseNaturalTimeFrame(CommandInteraction e, NaturalTimeFrameEnum fallback) {
         return Optional.ofNullable(e.getOption(NaturalTimeframeExplanation.NAME)).map(OptionMapping::getAsString).map(NaturalTimeFrameEnum::get).orElse(fallback);
     }
 
-    public static User parseUser(SlashCommandEvent e) {
+    public static User parseUser(CommandInteraction e) {
+        if (e instanceof UserContextInteraction uci) {
+            return uci.getTarget();
+        }
         return Optional.ofNullable(e.getOption(StrictUserExplanation.NAME)).map(OptionMapping::getAsUser).orElse(e.getUser());
     }
 
     public static @Nullable
-    String parseUrl(SlashCommandEvent e) {
+    String parseUrl(CommandInteraction e) {
         return Optional.ofNullable(e.getOption(UrlExplanation.NAME)).map(OptionMapping::getAsString).orElse(null);
     }
 
-    public static String parseSize(SlashCommandEvent e) {
+    public static String parseSize(CommandInteraction e) {
         long rows = Optional.ofNullable(e.getOption("columns")).map(OptionMapping::getAsLong).orElse(5L);
         long columns = Optional.ofNullable(e.getOption("rows")).map(OptionMapping::getAsLong).orElse(5L);
         return rows + "x" + columns;
     }
 
     public static @Nullable
-    Point parseSize(SlashCommandEvent e, Callback errorMessage) {
+    Point parseSize(CommandInteraction e, Callback errorMessage) {
         int x = 5;
         int y = 5;
         try {
@@ -73,7 +77,7 @@ public class InteractionAux {
 
 
     public static @Nullable
-    ArtistAlbum parseAlbum(SlashCommandEvent e, Callback errorMessage) {
+    ArtistAlbum parseAlbum(CommandInteraction e, Callback errorMessage) {
         return parseCommonArtistAlbum(errorMessage, e, AlbumExplanation.NAME);
     }
 
@@ -86,7 +90,7 @@ public class InteractionAux {
     }
 
     @org.jetbrains.annotations.Nullable
-    public static InteractionAux.ArtistAlbum parseCommonArtistAlbum(Callback errorCallback, SlashCommandEvent e, String explanation) {
+    public static InteractionAux.ArtistAlbum parseCommonArtistAlbum(Callback errorCallback, CommandInteraction e, String explanation) {
         var artist = e.getOption(ArtistExplanation.NAME);
         var album = e.getOption(explanation);
 
@@ -100,16 +104,13 @@ public class InteractionAux {
     }
 
     public static @Nullable
-    ArtistAlbum parseSong(SlashCommandEvent e, Callback errorMessage) {
+    ArtistAlbum parseSong(CommandInteraction e, Callback errorMessage) {
         return parseCommonArtistAlbum(errorMessage, e, TrackExplanation.NAME);
 
     }
 
-    public static <T> T processArtist(ContextSlashReceived ctx, ConcurrentLastFM lastFM, User author, User oneUser, LastFMData data, Function<User, Optional<LastFMData>> getter, boolean forComparison, boolean isAllowUnaothorizedUsers,
-                                      BiFunction<NowPlayingArtist, LastFMData, T> npFound,
-                                      BiFunction<String, LastFMData, T> notFound
-    ) throws LastFmException, InstanceNotFoundException {
-        SlashCommandEvent e = ctx.e();
+    public static <T> T processArtist(InteracionReceived<? extends CommandInteraction> ctx, ConcurrentLastFM lastFM, User author, User oneUser, LastFMData data, Function<User, Optional<LastFMData>> getter, boolean forComparison, boolean isAllowUnaothorizedUsers, BiFunction<NowPlayingArtist, LastFMData, T> npFound, BiFunction<String, LastFMData, T> notFound) throws LastFmException, InstanceNotFoundException {
+        CommandInteraction e = ctx.e();
         var artist = e.getOption(ArtistExplanation.NAME);
 
 
@@ -134,14 +135,7 @@ public class InteractionAux {
         }
     }
 
-    public static <T> T processAlbum(@Nonnull ArtistAlbum album, ConcurrentLastFM lastFM,
-                                     LastFMData callerData, boolean forComparison,
-                                     User author,
-                                     User caller,
-                                     Function<User, Optional<LastFMData>> getter,
-                                     BiFunction<NowPlayingArtist, LastFMData, T> npFound,
-                                     BiFunction<String[], LastFMData, T> notFound
-    ) throws LastFmException, InstanceNotFoundException {
+    public static <T> T processAlbum(@Nonnull ArtistAlbum album, ConcurrentLastFM lastFM, LastFMData callerData, boolean forComparison, User author, User caller, Function<User, Optional<LastFMData>> getter, BiFunction<NowPlayingArtist, LastFMData, T> npFound, BiFunction<String[], LastFMData, T> notFound) throws LastFmException, InstanceNotFoundException {
 
         if (album.empty()) {
             NowPlayingArtist np;
@@ -164,7 +158,7 @@ public class InteractionAux {
     }
 
     public static @Nullable
-    Year parseYear(SlashCommandEvent e, Callback errorCallback) {
+    Year parseYear(CommandInteraction e, Callback errorCallback) {
         Year year = Optional.ofNullable(e.getOption(YearExplanation.NAME)).map(OptionMapping::getAsLong).map(Long::intValue).map(Year::of).orElse(Year.now());
         if (Year.now().compareTo(year) < 0) {
             errorCallback.execute();
@@ -173,7 +167,7 @@ public class InteractionAux {
         return year;
     }
 
-    public static CustomTimeFrame parseCustomTimeFrame(SlashCommandEvent e, TimeFrameEnum defaulted) throws InvalidDateException {
+    public static CustomTimeFrame parseCustomTimeFrame(CommandInteraction e, TimeFrameEnum defaulted) throws InvalidDateException {
         OptionMapping option = e.getOption(TimeframeExplanation.NAME);
         if (option != null) {
             return CustomTimeFrame.ofTimeFrameEnum(TimeFrameEnum.get(option.getAsString()));

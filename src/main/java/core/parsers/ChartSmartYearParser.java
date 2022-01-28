@@ -1,7 +1,7 @@
 package core.parsers;
 
 import core.commands.Context;
-import core.commands.ContextSlashReceived;
+import core.commands.InteracionReceived;
 import core.exceptions.LastFmException;
 import core.parsers.exceptions.InvalidChartValuesException;
 import core.parsers.explanation.FullTimeframeExplanation;
@@ -16,7 +16,7 @@ import dao.entities.LastFMData;
 import dao.entities.TimeFrameEnum;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.interactions.commands.CommandInteraction;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 
 import java.awt.*;
@@ -61,8 +61,8 @@ public class ChartSmartYearParser extends ChartableParser<ChartYearParameters> {
     }
 
     @Override
-    public ChartYearParameters parseSlashLogic(ContextSlashReceived ctx) throws LastFmException, InstanceNotFoundException {
-        SlashCommandEvent e = ctx.e();
+    public ChartYearParameters parseSlashLogic(InteracionReceived<? extends CommandInteraction> ctx) throws LastFmException, InstanceNotFoundException {
+        CommandInteraction e = ctx.e();
         Point point = InteractionAux.parseSize(e, () -> sendError(getErrorMessage(8), ctx));
         if (point == null) {
             return null;

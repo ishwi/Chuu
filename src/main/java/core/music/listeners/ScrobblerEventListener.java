@@ -11,8 +11,8 @@ import core.music.scrobble.ScrobbleEventManager;
 import core.music.scrobble.ScrobbleStates;
 import core.music.scrobble.ScrobbleStatus;
 import core.music.utils.TrackScrobble;
+import net.dv8tion.jda.api.entities.AudioChannel;
 import net.dv8tion.jda.api.entities.GuildVoiceState;
-import net.dv8tion.jda.api.entities.VoiceChannel;
 
 import java.time.Instant;
 
@@ -43,15 +43,15 @@ public class ScrobblerEventListener implements AudioEventListener {
 
     }
 
-    private VoiceChannel getCurrentChannelEnd() {
+    private AudioChannel getCurrentChannelEnd() {
         if (musicManager.getChannelId() != null) {
             return musicManager.getGuild().getVoiceChannelById(musicManager.getChannelId());
         } else return getCurrentChannel();
     }
 
-    private VoiceChannel getCurrentChannel() {
+    private AudioChannel getCurrentChannel() {
         GuildVoiceState voiceState = musicManager.getGuild().getSelfMember().getVoiceState();
-        if (voiceState == null || !voiceState.inVoiceChannel() || voiceState.getChannel() == null)
+        if (voiceState == null || !voiceState.inAudioChannel() || voiceState.getChannel() == null)
             return null;
         return voiceState.getChannel();
     }

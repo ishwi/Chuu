@@ -4,8 +4,8 @@ import core.commands.Context;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.GenericEvent;
-import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
-import net.dv8tion.jda.api.events.interaction.SelectionMenuEvent;
+import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.component.SelectMenuInteractionEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.requests.RestAction;
 import org.jetbrains.annotations.NotNull;
@@ -191,21 +191,21 @@ public class ReactValidator<T> extends ReactionListener {
     }
 
     @Override
-    public boolean isValid(ButtonClickEvent event) {
+    public boolean isValid(ButtonInteractionEvent event) {
         return false;
     }
 
     @Override
-    public boolean isValid(SelectionMenuEvent event) {
+    public boolean isValid(SelectMenuInteractionEvent event) {
         return false;
     }
 
     @Override
-    public void onButtonClickedEvent(@Nonnull ButtonClickEvent event) {
+    public void onButtonClickedEvent(@Nonnull ButtonInteractionEvent event) {
     }
 
     @Override
-    public void onSelectedMenuEvent(@NotNull SelectionMenuEvent event) {
+    public void onSelectedMenuEvent(@NotNull SelectMenuInteractionEvent event) {
 
     }
 

@@ -9,8 +9,8 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.GenericEvent;
-import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
-import net.dv8tion.jda.api.events.interaction.SelectionMenuEvent;
+import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.component.SelectMenuInteractionEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.hooks.EventListener;
 import net.dv8tion.jda.api.hooks.IEventManager;
@@ -55,12 +55,12 @@ public abstract class ReactionListener implements EventListener {
                     executor.execute(() -> onMessageReactionAdd(e));
                 }
             }
-            case ButtonClickEvent e -> {
+            case ButtonInteractionEvent e -> {
                 if (isValid(e)) {
                     executor.execute(() -> onButtonClickedEvent(e));
                 }
             }
-            case SelectionMenuEvent e -> {
+            case SelectMenuInteractionEvent e -> {
                 if (isValid(e)) {
                     executor.execute(() -> onSelectedMenuEvent(e));
                 }
@@ -92,17 +92,17 @@ public abstract class ReactionListener implements EventListener {
 
     public abstract boolean isValid(MessageReactionAddEvent event);
 
-    public abstract boolean isValid(ButtonClickEvent event);
+    public abstract boolean isValid(ButtonInteractionEvent event);
 
-    public abstract boolean isValid(SelectionMenuEvent event);
+    public abstract boolean isValid(SelectMenuInteractionEvent event);
 
     public abstract void dispose();
 
     public abstract void onMessageReactionAdd(@Nonnull MessageReactionAddEvent event);
 
-    public abstract void onButtonClickedEvent(@Nonnull ButtonClickEvent event);
+    public abstract void onButtonClickedEvent(@Nonnull ButtonInteractionEvent event);
 
-    public abstract void onSelectedMenuEvent(@Nonnull SelectionMenuEvent event);
+    public abstract void onSelectedMenuEvent(@Nonnull SelectMenuInteractionEvent event);
 
     public void clearReacts() {
         clearReacts((Void a) -> {

@@ -20,13 +20,13 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Emoji;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.Event;
-import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.events.interaction.GenericInteractionCreateEvent;
+import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.message.react.GenericMessageReactionEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
-import net.dv8tion.jda.api.interactions.components.Button;
-import net.dv8tion.jda.api.interactions.components.Component;
+import net.dv8tion.jda.api.interactions.components.ItemComponent;
+import net.dv8tion.jda.api.interactions.components.buttons.Button;
 
 import javax.annotation.Nonnull;
 import java.time.ZoneOffset;
@@ -177,7 +177,7 @@ public class VotingCommand extends ConcurrentCommand<ArtistParameters> {
 
         List<ActionRow> rows = new ArrayList<>();
         rows.add(of);
-        List<Component> components = of.getComponents();
+        List<ItemComponent> components = of.getComponents();
         if (allArtistImages.size() > 1) {
             components.add(Button.primary(RIGHT_ARROW, Emoji.fromUnicode(RIGHT_ARROW)));
         }
@@ -187,11 +187,11 @@ public class VotingCommand extends ConcurrentCommand<ArtistParameters> {
         List<ActionRow> copy = new ArrayList<>(rows);
 
 
-        Map<String, Reaction<VotingEntity, ButtonClickEvent, ButtonResult>> stringReactionMap = generateActions(e,
+        Map<String, Reaction<VotingEntity, ButtonInteractionEvent, ButtonResult>> stringReactionMap = generateActions(e,
                 GenericInteractionCreateEvent::getUser,
                 () -> () -> new ButtonResult.Result(false, null),
-                (ButtonClickEvent r, Boolean t) -> ButtonValidator.leftMove(allArtistImages.size(), counter, r, t, copy),
-                (ButtonClickEvent r, Boolean t) -> ButtonValidator.rightMove(allArtistImages.size(), counter, r, t, copy),
+                (ButtonInteractionEvent r, Boolean t) -> ButtonValidator.leftMove(allArtistImages.size(), counter, r, t, copy),
+                (ButtonInteractionEvent r, Boolean t) -> ButtonValidator.rightMove(allArtistImages.size(), counter, r, t, copy),
                 allArtistImages, lastFMData, counter, size);
 
         return new Result(stringReactionMap, rows);
@@ -269,7 +269,7 @@ public class VotingCommand extends ConcurrentCommand<ArtistParameters> {
         return actionMap;
     }
 
-    private record Result(Map<String, Reaction<VotingEntity, ButtonClickEvent, ButtonResult>> map,
+    private record Result(Map<String, Reaction<VotingEntity, ButtonInteractionEvent, ButtonResult>> map,
                           List<ActionRow> rows) {
     }
 

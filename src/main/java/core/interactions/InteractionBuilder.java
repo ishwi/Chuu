@@ -20,8 +20,9 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.interactions.commands.Command;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
-import net.dv8tion.jda.api.interactions.commands.build.CommandData;
+import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
+import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 import net.dv8tion.jda.api.requests.restaction.CommandListUpdateAction;
 import org.apache.commons.lang3.StringUtils;
@@ -88,12 +89,14 @@ public class InteractionBuilder {
     @CheckReturnValue
     public static CommandListUpdateAction setGlobalCommands(JDA jda) {
         CommandListUpdateAction commandUpdateAction = jda.updateCommands();
-        return fillAction(jda, commandUpdateAction);
+        CommandListUpdateAction firstBatch = fillAction(jda, commandUpdateAction);
+        return UserCommandsBuilder.fillAction(jda, firstBatch);
     }
 
     @CheckReturnValue
     public static CommandListUpdateAction setServerCommand(Guild guild) {
         CommandListUpdateAction commandUpdateAction = guild.updateCommands();
+
         return fillAction(guild.getJDA(), commandUpdateAction);
     }
 
@@ -107,11 +110,11 @@ public class InteractionBuilder {
                 .filter(t -> !ignored.contains(t.getClass()))
                 .toList();
 
-        List<CommandData> tmp = new ArrayList<>();
+        List<SlashCommandData> tmp = new ArrayList<>();
 
 
-        CommandData timeCommands = myCommands.stream().filter(t -> timeGrouped.contains(t.getClass())).reduce(
-                new CommandData("time", "Commands that use timed data"),
+        SlashCommandData timeCommands = myCommands.stream().filter(t -> timeGrouped.contains(t.getClass())).reduce(
+                Commands.slash("time", "Commands that use timed data"),
                 (commandData, myCommand) -> {
                     SubcommandData subcommandData = processSubComand(myCommand);
                     commandMap.put(commandData.getName() + '/' + subcommandData.getName(), myCommand);
@@ -123,9 +126,8 @@ public class InteractionBuilder {
                     return c;
                 });
         myCommands = myCommands.stream().filter(t -> !timeGrouped.contains(t.getClass())).toList();
-
-        CommandData colorCommands = myCommands.stream().filter(t -> colorGrouped.contains(t.getClass())).reduce(
-                new CommandData("colour", "Charts that use colour of images"),
+        SlashCommandData colorCommands = myCommands.stream().filter(t -> colorGrouped.contains(t.getClass())).reduce(
+                Commands.slash("colour", "Charts that use colour of images"),
                 (commandData, myCommand) -> {
                     SubcommandData subcommandData = processSubComand(myCommand);
                     commandMap.put(commandData.getName() + '/' + subcommandData.getName(), myCommand);
@@ -138,10 +140,10 @@ public class InteractionBuilder {
                 });
         myCommands = myCommands.stream().filter(t -> !colorGrouped.contains(t.getClass())).toList();
 
-        Map<CommandData, MyCommand<?>> toBeprocessed = new HashMap<>();
+        Map<SlashCommandData, MyCommand<?>> toBeprocessed = new HashMap<>();
         var categoryToCommand = myCommands.stream().collect(Collectors.groupingBy(MyCommand::getCategory));
-        List<CommandData> categoryCommands = categoryToCommand.entrySet().stream().filter(t -> categorized.contains(t.getKey())).map((k) -> k.getValue().stream().reduce(
-                new CommandData(k.getKey().getPrefix(), k.getKey().getDescription()),
+        List<SlashCommandData> categoryCommands = categoryToCommand.entrySet().stream().filter(t -> categorized.contains(t.getKey())).map((k) -> k.getValue().stream().reduce(
+                Commands.slash(k.getKey().getPrefix(), k.getKey().getDescription()),
                 (commandData, myCommand) -> {
                     SubcommandData subcommandData;
                     if (myCommand instanceof RandomAlbumCommand ra) {
@@ -164,7 +166,7 @@ public class InteractionBuilder {
                         commandData.addSubcommands(get, submit);
                         return commandData;
                     } else if (myCommand.getParser() instanceof Generable<?> w) {
-                        CommandData gen = w.generateCommandData(myCommand);
+                        SlashCommandData gen = w.generateCommandData(myCommand);
                         if (!gen.getSubcommands().isEmpty()) {
                             toBeprocessed.put(gen, myCommand);
                             return commandData;
@@ -187,9 +189,9 @@ public class InteractionBuilder {
         });
         myCommands = myCommands.stream().filter(not(t -> categorized.contains(t.getCategory()))).toList();
 
-        List<CommandData> generables = myCommands.stream().filter(t -> (t.getParser() instanceof Generable<?>)).map(z -> {
+        List<SlashCommandData> generables = myCommands.stream().filter(t -> (t.getParser() instanceof Generable<?>)).map(z -> {
             Generable<?> generable = (Generable<?>) z.getParser();
-            CommandData commandData = generable.generateCommandData(z);
+            SlashCommandData commandData = generable.generateCommandData(z);
             commandData.getSubcommands().forEach(w -> commandMap.put(commandData.getName() + '/' + w.getName(), z));
             return commandData;
         }).toList();
@@ -215,7 +217,7 @@ public class InteractionBuilder {
                 .map(t -> (MyCommand<?>) t).filter(t -> t instanceof UserConfigCommand || t instanceof GuildConfigCommand)
                 .map(z -> {
                     Generable<?> parser = (Generable<?>) z.getParser();
-                    CommandData commandData = parser.generateCommandData(z);
+                    SlashCommandData commandData = parser.generateCommandData(z);
                     commandData.getSubcommands().forEach(r -> commandMap.put(commandData.getName() + "/" + r.getName(), z));
                     return commandData;
                 }).forEach(tmp::add);
@@ -232,7 +234,7 @@ public class InteractionBuilder {
             }
         });
 
-        Map<String, Long> collect = tmp.stream().mapMulti((CommandData a, Consumer<String> b) -> {
+        Map<String, Long> collect = tmp.stream().mapMulti((SlashCommandData a, Consumer<String> b) -> {
             if (a.getSubcommands().isEmpty()) {
                 b.accept(a.getName());
             } else {
@@ -249,12 +251,12 @@ public class InteractionBuilder {
             throw new IllegalStateException("Slash commands repeated!");
         }
 
-        Chuu.customManager.setSlashVariants(commandMap);
+        Chuu.customManager.addSlashVariants(commandMap);
 
         return commandUpdateAction.addCommands(tmp);
     }
 
-    private static int countCommand(CommandData commandData) {
+    private static int countCommand(SlashCommandData commandData) {
         return commandData.getName().length() +
                 commandData.getDescription().length() +
                 countOptions(commandData.getOptions()) +
@@ -270,12 +272,12 @@ public class InteractionBuilder {
         return optionData.stream().mapToInt(t -> t.getDescription().length() + t.getName().length() + t.getChoices().stream().map(Command.Choice::getName).mapToInt(String::length).sum()).sum();
     }
 
-    private static int countCommandData(CommandData commandData) {
+    private static int countCommandData(SlashCommandData commandData) {
         return commandData.toData().toString().length();
     }
 
     @Nonnull
-    private static SubcommandData processSubComand(MyCommand<?> myCommand) {
+    static SubcommandData processSubComand(MyCommand<?> myCommand) {
         SubcommandData commandData = generateSubData(myCommand);
         List<Explanation> usages = myCommand.getParser().getUsages();
         insertUsage(commandData, usages);
@@ -296,8 +298,8 @@ public class InteractionBuilder {
     }
 
     @Nonnull
-    private static CommandData processCommand(MyCommand<?> myCommand) {
-        CommandData commandData = new CommandData(myCommand.slashName(), StringUtils.abbreviate(myCommand.getDescription(), 100));
+    private static SlashCommandData processCommand(MyCommand<?> myCommand) {
+        SlashCommandData commandData = Commands.slash(myCommand.slashName(), StringUtils.abbreviate(myCommand.getDescription(), 100));
         List<Explanation> usages = myCommand.getParser().getUsages();
         usages.forEach(t -> commandData.addOptions(new ArrayList<>(t.explanation().options())));
         processOpts(myCommand, commandData::addOptions);

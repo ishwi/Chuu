@@ -1,7 +1,7 @@
 package core.parsers;
 
 import core.commands.Context;
-import core.commands.ContextSlashReceived;
+import core.commands.InteracionReceived;
 import core.commands.abstracts.MyCommand;
 import core.exceptions.LastFmException;
 import core.parsers.explanation.StrictUserExplanation;
@@ -15,10 +15,11 @@ import dao.entities.LastFMData;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.interactions.commands.CommandInteraction;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
-import net.dv8tion.jda.api.interactions.commands.build.CommandData;
+import net.dv8tion.jda.api.interactions.commands.build.Commands;
+import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.List;
@@ -41,8 +42,8 @@ public abstract class MultiStringParser<T extends CommandParameters> extends Dao
 
 
     @Override
-    public T parseSlashLogic(ContextSlashReceived ctx) throws LastFmException, InstanceNotFoundException {
-        SlashCommandEvent e = ctx.e();
+    public T parseSlashLogic(InteracionReceived<? extends CommandInteraction> ctx) throws LastFmException, InstanceNotFoundException {
+        CommandInteraction e = ctx.e();
         User user = InteractionAux.parseUser(e);
         Set<String> strs = e.getOptionsByType(OptionType.STRING).stream().map(OptionMapping::getAsString).collect(Collectors.toSet());
         if (strs.isEmpty()) {
@@ -98,8 +99,8 @@ public abstract class MultiStringParser<T extends CommandParameters> extends Dao
     protected abstract T doSomethingWords(LastFMData lastFMData, Context e, Set<String> strings);
 
     @Override
-    public CommandData generateCommandData(MyCommand<?> myCommand) {
-        CommandData commandData = new CommandData(myCommand.slashName(), myCommand.getDescription());
+    public SlashCommandData generateCommandData(MyCommand<?> myCommand) {
+        SlashCommandData commandData = Commands.slash(myCommand.slashName(), myCommand.getDescription());
         commandData.addOption(OptionType.INTEGER, "from-np", "# of " + entityNamePlural + " to fetch from np");
 
         for (int i = 1; i <= 5; i++) {

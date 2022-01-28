@@ -2,7 +2,7 @@ package core.parsers;
 
 import core.apis.last.ConcurrentLastFM;
 import core.commands.Context;
-import core.commands.ContextSlashReceived;
+import core.commands.InteracionReceived;
 import core.exceptions.LastFmException;
 import core.parsers.explanation.PermissiveUserExplanation;
 import core.parsers.explanation.util.Explanation;
@@ -14,7 +14,7 @@ import dao.entities.LastFMData;
 import dao.entities.NowPlayingArtist;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.interactions.commands.CommandInteraction;
 
 import java.util.Collections;
 import java.util.List;
@@ -28,8 +28,8 @@ public class NpParser extends DaoParser<NowPlayingParameters> {
     }
 
     @Override
-    public NowPlayingParameters parseSlashLogic(ContextSlashReceived ctx) throws LastFmException, InstanceNotFoundException {
-        SlashCommandEvent e = ctx.e();
+    public NowPlayingParameters parseSlashLogic(InteracionReceived<? extends CommandInteraction> ctx) throws LastFmException, InstanceNotFoundException {
+        CommandInteraction e = ctx.e();
         User user = InteractionAux.parseUser(e);
 
         LastFMData data = findLastfmFromID(user, ctx);

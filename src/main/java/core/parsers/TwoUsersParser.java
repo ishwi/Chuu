@@ -1,7 +1,7 @@
 package core.parsers;
 
 import core.commands.Context;
-import core.commands.ContextSlashReceived;
+import core.commands.InteracionReceived;
 import core.exceptions.LastFmException;
 import core.parsers.explanation.TwoUsersExplanation;
 import core.parsers.explanation.util.Explanation;
@@ -11,7 +11,7 @@ import dao.ChuuService;
 import dao.entities.LastFMData;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.interactions.commands.CommandInteraction;
 
 import java.util.List;
 
@@ -26,15 +26,15 @@ public class TwoUsersParser extends DaoParser<TwoUsersParamaters> {
     }
 
     @Override
-    public TwoUsersParamaters parseSlashLogic(ContextSlashReceived e) throws LastFmException, InstanceNotFoundException {
+    public TwoUsersParamaters parseSlashLogic(InteracionReceived<? extends CommandInteraction> ctx) throws LastFmException, InstanceNotFoundException {
 
-        SlashCommandEvent event = e.e();
+        CommandInteraction event = ctx.e();
         User oneUser = event.getOption(TwoUsersExplanation.NAME).getAsUser();
-        if (!e.isFromGuild() && oneUser.getIdLong() != e.getAuthor().getIdLong()) {
-            sendError("Can't get two different users on DM's", e);
+        if (!ctx.isFromGuild() && oneUser.getIdLong() != ctx.getAuthor().getIdLong()) {
+            sendError("Can't get two different users on DM's", ctx);
             return null;
         }
-        return new TwoUsersParamaters(e, findLastfmFromID(e.getAuthor(), e), findLastfmFromID(oneUser, e));
+        return new TwoUsersParamaters(ctx, findLastfmFromID(ctx.getAuthor(), ctx), findLastfmFromID(oneUser, ctx));
     }
 
     public TwoUsersParamaters parseLogic(Context e, String[] words) throws InstanceNotFoundException {

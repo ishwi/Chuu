@@ -19,9 +19,10 @@ import net.dv8tion.jda.api.events.guild.member.GuildMemberRemoveEvent;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceJoinEvent;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceLeaveEvent;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceMoveEvent;
-import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
-import net.dv8tion.jda.api.events.interaction.SelectionMenuEvent;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.command.UserContextInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.component.SelectMenuInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.hooks.EventListener;
@@ -43,7 +44,7 @@ public class CustomInterfacedEventManager implements IEventManager {
     private final Set<ConstantListener> constantListeners = new HashSet<>();
     private final Map<ReactionListener, ScheduledFuture<?>> reactionaries = new ConcurrentHashMap<>();
     public boolean isReady;
-    private Map<String, MyCommand<? extends CommandParameters>> slashVariants;
+    private final Map<String, MyCommand<? extends CommandParameters>> slashVariants = new HashMap<>();
     private AdministrativeCommand administrativeCommand;
     private VoiceListener voiceListener;
 
@@ -51,11 +52,11 @@ public class CustomInterfacedEventManager implements IEventManager {
     }
 
     private void handleReaction(@Nonnull GenericEvent event) {
-        assert event instanceof MessageReactionAddEvent || event instanceof ButtonClickEvent || event instanceof SelectionMenuEvent;
+        assert event instanceof MessageReactionAddEvent || event instanceof ButtonInteractionEvent || event instanceof SelectMenuInteractionEvent;
         long channelId = switch (event) {
             case MessageReactionAddEvent e3 -> e3.getChannel().getIdLong();
-            case ButtonClickEvent e3 -> e3.getChannel().getIdLong();
-            case SelectionMenuEvent e3 -> e3.getChannel().getIdLong();
+            case ButtonInteractionEvent e3 -> e3.getChannel().getIdLong();
+            case SelectMenuInteractionEvent e3 -> e3.getChannel().getIdLong();
             default -> throw new IllegalStateException("Unexpected value: " + event);
         };
         ChannelConstantListener c = channelConstantListeners.get(channelId);
@@ -147,14 +148,15 @@ public class CustomInterfacedEventManager implements IEventManager {
         try {
             switch (event) {
                 case MessageReceivedEvent mes -> handleMessageReceived(mes);
-                case SlashCommandEvent sce -> handleSlashCommand(sce);
+                case UserContextInteractionEvent ucie -> handleUserCommand(ucie);
+                case SlashCommandInteractionEvent sce -> handleSlashCommand(sce);
                 case ReadyEvent re -> {
                     for (EventListener listener : otherListeners)
                         listener.onEvent(re);
                 }
                 case MessageReactionAddEvent react -> reactionExecutor.submit(() -> this.handleReaction(react));
-                case ButtonClickEvent button -> reactionExecutor.submit(() -> this.handleReaction(button));
-                case SelectionMenuEvent selected -> reactionExecutor.submit(() -> this.handleReaction(selected));
+                case ButtonInteractionEvent button -> reactionExecutor.submit(() -> this.handleReaction(button));
+                case SelectMenuInteractionEvent selected -> reactionExecutor.submit(() -> this.handleReaction(selected));
 
                 // TODO cant group then on one
                 case GuildVoiceJoinEvent gvje -> this.voiceListener.onEvent(gvje);
@@ -173,7 +175,7 @@ public class CustomInterfacedEventManager implements IEventManager {
         }
     }
 
-    private void handleSlashCommand(SlashCommandEvent sce) {
+    private void handleSlashCommand(SlashCommandInteractionEvent sce) {
         if (!isReady) {
             return;
         }
@@ -196,6 +198,24 @@ public class CustomInterfacedEventManager implements IEventManager {
             return;
         }
         myCommand.onSlashCommandReceived(sce);
+    }
+
+
+    private void handleUserCommand(UserContextInteractionEvent ucie) {
+        if (!isReady) {
+            return;
+        }
+        MyCommand<? extends CommandParameters> myCommand;
+        if (ucie.getSubcommandName() == null) {
+            myCommand = commandListeners.get(ucie.getName().toLowerCase(Locale.ROOT));
+        } else {
+            myCommand = slashVariants.get(ucie.getCommandPath());
+            if (myCommand == null) {
+                myCommand = commandListeners.get(ucie.getSubcommandName());
+            }
+        }
+
+        myCommand.onUserCommandReceived(ucie);
     }
 
     private void handleMessageReceived(MessageReceivedEvent mes) {
@@ -259,8 +279,8 @@ public class CustomInterfacedEventManager implements IEventManager {
         }
     }
 
-    public void setSlashVariants(Map<String, MyCommand<?>> slashVariants) {
-        this.slashVariants = slashVariants;
+    public void addSlashVariants(Map<String, MyCommand<?>> slashVariants) {
+        this.slashVariants.putAll(slashVariants);
     }
 
 }

@@ -3,6 +3,7 @@ package core.commands.stats;
 import core.Chuu;
 import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
+import core.commands.ui.UserCommandMarker;
 import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
@@ -28,11 +29,10 @@ import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.List;
 
-public class ProfileInfoCommand extends ConcurrentCommand<ChuuDataParams> {
+public class ProfileInfoCommand extends ConcurrentCommand<ChuuDataParams> implements UserCommandMarker {
 
     public ProfileInfoCommand(ServiceView dao) {
         super(dao);
-        this.respondInPrivate = false;
     }
 
     @Override
@@ -64,8 +64,6 @@ public class ProfileInfoCommand extends ConcurrentCommand<ChuuDataParams> {
         UserInfo userInfo;
         long albumCount;
 
-
-        long guildId = e.getGuild().getIdLong();
         long discordId = params.getLastFMData().getDiscordId();
 
         var topArtist = db.getAllUserArtist(discordId, 1).stream().findFirst().orElse(null);
@@ -74,7 +72,6 @@ public class ProfileInfoCommand extends ConcurrentCommand<ChuuDataParams> {
             String s = CommandUtil.albumUrl(db, lastFM, topAlbum.getArtistId(), topAlbum.getArtist(), topAlbum.getAlbum());
             topAlbum.setUrl(s);
         }
-        int guildCrownThreshold = db.getGuildCrownThreshold(guildId);
         CommandStats commandStats = db.getCommandStats(discordId);
         userInfo = new UserInfoService(db).maybeRefresh(params.getLastFMData());
         albumCount = db.getUserAlbumCount(discordId);

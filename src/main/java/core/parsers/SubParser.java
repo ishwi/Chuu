@@ -1,11 +1,12 @@
 package core.parsers;
 
 import core.commands.Context;
-import core.commands.ContextSlashReceived;
+import core.commands.InteracionReceived;
 import core.exceptions.LastFmException;
 import core.parsers.explanation.util.Explanation;
 import core.parsers.params.CommandParameters;
 import dao.exceptions.InstanceNotFoundException;
+import net.dv8tion.jda.api.interactions.commands.CommandInteraction;
 
 import java.util.List;
 
@@ -19,7 +20,7 @@ public class SubParser<T extends CommandParameters> extends Parser<T> {
     }
 
     @Override
-    public T parseSlashLogic(ContextSlashReceived ctx) throws LastFmException, InstanceNotFoundException {
+    public T parseSlashLogic(InteracionReceived<? extends CommandInteraction> ctx) throws LastFmException, InstanceNotFoundException {
         return initalParser.parseSlashLogic(ctx);
     }
 

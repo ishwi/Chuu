@@ -93,8 +93,8 @@ public class PlayingCommand extends ConcurrentCommand<CommandParameters> {
                             username + "](" +
                             CommandUtil.getLastFmUser(usersWrapper.getName()) +
                             "): " +
-                            CommandUtil.escapeMarkdown(value.songName() +
-                                    " - " + value.artistName() +
+                            CommandUtil.escapeMarkdown(value.artistName() +
+                                    " - " + value.songName() +
                                     " | " + value.albumName() + "\n");
                 }
         ).collect(Collectors.toCollection(ArrayList::new));

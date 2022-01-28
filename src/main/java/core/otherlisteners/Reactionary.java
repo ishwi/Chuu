@@ -4,8 +4,8 @@ import core.commands.utils.ButtonUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
-import net.dv8tion.jda.api.events.interaction.SelectionMenuEvent;
+import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.component.SelectMenuInteractionEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import org.jetbrains.annotations.NotNull;
@@ -59,12 +59,12 @@ public class Reactionary<T> extends ReactionListener {
     }
 
     @Override
-    public boolean isValid(ButtonClickEvent event) {
+    public boolean isValid(ButtonInteractionEvent event) {
         return message != null && event.getMessageIdLong() == message.getIdLong();
     }
 
     @Override
-    public boolean isValid(SelectionMenuEvent event) {
+    public boolean isValid(SelectMenuInteractionEvent event) {
         return false;
     }
 
@@ -89,7 +89,7 @@ public class Reactionary<T> extends ReactionListener {
     }
 
     @Override
-    public void onButtonClickedEvent(@Nonnull ButtonClickEvent event) {
+    public void onButtonClickedEvent(@Nonnull ButtonInteractionEvent event) {
         event.deferEdit().queue();
         if (message == null) {
             return;
@@ -165,7 +165,7 @@ public class Reactionary<T> extends ReactionListener {
     }
 
     @Override
-    public void onSelectedMenuEvent(@NotNull SelectionMenuEvent event) {
+    public void onSelectedMenuEvent(@NotNull SelectMenuInteractionEvent event) {
 
     }
 }

@@ -101,8 +101,8 @@ public class Spotify {
 
     private Paging<Track> searchSong(String artist, String track) throws ParseException, SpotifyWebApiException, IOException {
         initRequest();
-        artist = artist.contains(":") ? "\"" + artist + "\"" : artist;
-        track = track.contains(":") ? "\"" + track + "\"" : track;
+        artist = artist.contains(":") ? "\"%s\"".formatted(artist) : artist;
+        track = track.contains(":") ? "\"%s\"".formatted(track) : track;
 
         SearchTracksRequest build = spotifyApi.searchTracks("track:" + track + " artist:" + artist).
                 market(CountryCode.NZ)

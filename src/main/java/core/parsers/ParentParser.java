@@ -1,6 +1,6 @@
 package core.parsers;
 
-import core.commands.ContextSlashReceived;
+import core.commands.InteracionReceived;
 import core.commands.abstracts.MyCommand;
 import core.exceptions.LastFmException;
 import core.interactions.InteractionBuilder;
@@ -11,9 +11,11 @@ import core.util.Deps;
 import core.util.Descriptible;
 import core.util.Subcommand;
 import dao.exceptions.InstanceNotFoundException;
+import net.dv8tion.jda.api.interactions.commands.CommandInteraction;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
-import net.dv8tion.jda.api.interactions.commands.build.CommandData;
+import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
+import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 
 import java.util.*;
@@ -33,7 +35,7 @@ public class ParentParser<T extends Enum<T> & Subcommand & Descriptible> extends
     }
 
     @Override
-    public EnumParameters<T> parseSlashLogic(ContextSlashReceived ctx) throws LastFmException, InstanceNotFoundException {
+    public EnumParameters<T> parseSlashLogic(InteracionReceived<? extends CommandInteraction> ctx) throws LastFmException, InstanceNotFoundException {
         String subcommandName = ctx.e().getSubcommandName();
         assert subcommandName != null;
         Optional<T> first = EnumSet.allOf(clazz).stream().filter(z -> subcommandName.equalsIgnoreCase(z.name())).findFirst();
@@ -58,8 +60,8 @@ public class ParentParser<T extends Enum<T> & Subcommand & Descriptible> extends
     }
 
     @Override
-    public CommandData generateCommandData(MyCommand<?> myCommand) {
-        CommandData commandData = new CommandData(myCommand.slashName(), myCommand.getDescription());
+    public SlashCommandData generateCommandData(MyCommand<?> myCommand) {
+        SlashCommandData commandData = Commands.slash(myCommand.slashName(), myCommand.getDescription());
         for (T t : EnumSet.allOf(clazz)) {
             SubcommandData sub = new SubcommandData(t.name().toLowerCase(Locale.ROOT), t.getDescription());
             Parser<?> parser = t.getSubcommandEx().getParser(deps);

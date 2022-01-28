@@ -1,7 +1,7 @@
 package core.parsers;
 
 import core.commands.Context;
-import core.commands.ContextSlashReceived;
+import core.commands.InteracionReceived;
 import core.commands.abstracts.MyCommand;
 import core.commands.utils.CommandUtil;
 import core.exceptions.LastFmException;
@@ -15,14 +15,14 @@ import dao.entities.ChartMode;
 import dao.entities.RemainingImagesMode;
 import dao.entities.WhoKnowsMode;
 import dao.exceptions.InstanceNotFoundException;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.interactions.commands.Command;
+import net.dv8tion.jda.api.interactions.commands.CommandInteraction;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
-import net.dv8tion.jda.api.interactions.commands.build.CommandData;
+import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
+import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
-import net.dv8tion.jda.api.interactions.commands.build.SubcommandGroupData;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.WordUtils;
 
@@ -38,8 +38,8 @@ public class UserConfigParser extends DaoParser<UserConfigParameters> implements
     }
 
     @Override
-    public UserConfigParameters parseSlashLogic(ContextSlashReceived ctx) throws LastFmException, InstanceNotFoundException {
-        SlashCommandEvent e = ctx.e();
+    public UserConfigParameters parseSlashLogic(InteracionReceived<? extends CommandInteraction> ctx) throws LastFmException, InstanceNotFoundException {
+        CommandInteraction e = ctx.e();
         String subcommandName = e.getSubcommandName();
         String[] words;
         assert subcommandName != null;
@@ -57,8 +57,7 @@ public class UserConfigParser extends DaoParser<UserConfigParameters> implements
     protected UserConfigParameters parseLogic(Context e, String[] words) {
         char prefix = CommandUtil.getMessagePrefix(e);
         if (words.length == 1) {
-            String line = Arrays.stream(UserConfigType.values()).filter(x -> x.getCommandName().equalsIgnoreCase(words[0])).map(x ->
-                    String.format("\t**%s** ➜ %s", x.getCommandName(), x.getExplanation())).collect(Collectors.joining("\n"));
+            String line = Arrays.stream(UserConfigType.values()).filter(x -> x.getCommandName().equalsIgnoreCase(words[0])).map(x -> String.format("\t**%s** ➜ %s", x.getCommandName(), x.getExplanation())).collect(Collectors.joining("\n"));
             if (line.isBlank()) {
                 line = Arrays.stream(UserConfigType.values()).map(UserConfigType::getCommandName).collect(Collectors.joining(", "));
                 sendError(words[0] + " is not a valid configuration, use one of the following:\n\t" + line, e);
@@ -107,8 +106,8 @@ public class UserConfigParser extends DaoParser<UserConfigParameters> implements
     }
 
     @Override
-    public CommandData generateCommandData(MyCommand<?> myCommand) {
-        CommandData commandData = new CommandData("user-config", "user configuration");
+    public SlashCommandData generateCommandData(MyCommand<?> myCommand) {
+        SlashCommandData commandData = Commands.slash("user-config", "user configuration");
         SubcommandData user = new SubcommandData("list", "List all the user configs");
         commandData.addSubcommands(user);
         Command.Choice clear = new Command.Choice("default", "clear");
@@ -135,7 +134,6 @@ public class UserConfigParser extends DaoParser<UserConfigParameters> implements
                     data.addOptions(mode);
                 }
                 case COLOR -> {
-                    SubcommandGroupData group = new SubcommandGroupData(userConfigType.getCommandName(), StringUtils.abbreviate(userConfigType.getExplanation(), 100));
                     OptionData mode = new OptionData(OptionType.STRING, "mode", "mode to select", true);
                     mode.addChoice("Random", "random");
                     mode.addChoice("Role", "role");

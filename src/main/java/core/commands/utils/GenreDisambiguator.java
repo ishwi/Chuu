@@ -9,8 +9,8 @@ import dao.entities.QuadConsumer;
 import dao.everynoise.NoiseGenre;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
-import net.dv8tion.jda.api.interactions.components.Button;
-import net.dv8tion.jda.api.interactions.components.Component;
+import net.dv8tion.jda.api.interactions.components.ItemComponent;
+import net.dv8tion.jda.api.interactions.components.buttons.Button;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,7 +36,7 @@ public class GenreDisambiguator {
                 int counter = 1;
                 List<ConfirmatorItem> reacts = new ArrayList<>();
                 StringBuilder description = new StringBuilder();
-                List<Component> buttons = new ArrayList<>();
+                List<ItemComponent> buttons = new ArrayList<>();
                 var eb = new ChuuEmbedBuilder(e).setTitle("Multiple genres found");
                 for (NoiseGenre noiseGenre : matchingGenre) {
                     //  48 is 0x0030 -> which is 0 || 0x0031 is 1 ...

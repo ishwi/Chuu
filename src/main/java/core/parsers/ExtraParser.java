@@ -1,13 +1,13 @@
 package core.parsers;
 
 import core.commands.Context;
-import core.commands.ContextSlashReceived;
+import core.commands.InteracionReceived;
 import core.exceptions.LastFmException;
 import core.parsers.explanation.util.Explanation;
 import core.parsers.params.CommandParameters;
 import core.parsers.params.ExtraParameters;
 import dao.exceptions.InstanceNotFoundException;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.interactions.commands.CommandInteraction;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -42,7 +42,7 @@ public class ExtraParser<Z extends ExtraParameters<Y, J>, Y extends CommandParam
     private final boolean panicOnMultiple;
     private final boolean catchFirst;
     private final BiPredicate<Y, J> innerPredicate;
-    private final Function<SlashCommandEvent, J> fromSlash;
+    private final Function<CommandInteraction, J> fromSlash;
     private final BiFunction<Y, J, Z> finalReducer;
     boolean reverseOrder = false;
 
@@ -52,7 +52,7 @@ public class ExtraParser<Z extends ExtraParameters<Y, J>, Y extends CommandParam
                        Predicate<J> safetyPredicate,
                        Function<String, J> fromString,
                        Map<Integer, String> errorMessages,
-                       BiFunction<Y, J, Z> finalReducer, List<Explanation> explanations, Function<SlashCommandEvent, J> fromSlash) {
+                       BiFunction<Y, J, Z> finalReducer, List<Explanation> explanations, Function<CommandInteraction, J> fromSlash) {
         this(innerParser, defaultItem, matchingItems, safetyPredicate, fromString, errorMessages, null, finalReducer, explanations, fromSlash);
     }
 
@@ -63,7 +63,7 @@ public class ExtraParser<Z extends ExtraParameters<Y, J>, Y extends CommandParam
                        Predicate<J> safetyPredicate,
                        Function<String, J> fromString,
                        Map<Integer, String> errorMessages,
-                       BiPredicate<Y, J> innerPredicate, BiFunction<Y, J, Z> finalReducer, List<Explanation> explanations, Function<SlashCommandEvent, J> fromSlash) {
+                       BiPredicate<Y, J> innerPredicate, BiFunction<Y, J, Z> finalReducer, List<Explanation> explanations, Function<CommandInteraction, J> fromSlash) {
         this(innerParser, defaultItem, matchingItems, safetyPredicate, fromString, errorMessages, explanations, innerPredicate, null, true, false, fromSlash, finalReducer);
     }
 
@@ -76,7 +76,7 @@ public class ExtraParser<Z extends ExtraParameters<Y, J>, Y extends CommandParam
                        Map<Integer, String> errorMessages,
                        List<Explanation> explanations, BiPredicate<Y, J> innerPredicate,
                        Function<List<J>, J> chooserPredicate,
-                       boolean panicOnMultiple, boolean catchFirst, Function<SlashCommandEvent, J> fromSlash, BiFunction<Y, J, Z> finalReducer) {
+                       boolean panicOnMultiple, boolean catchFirst, Function<CommandInteraction, J> fromSlash, BiFunction<Y, J, Z> finalReducer) {
         super();
         this.innerParser = innerParser;
         def = defaultItem;
@@ -105,7 +105,7 @@ public class ExtraParser<Z extends ExtraParameters<Y, J>, Y extends CommandParam
     }
 
     @Override
-    public Z parseSlashLogic(ContextSlashReceived ctx) throws LastFmException, InstanceNotFoundException {
+    public Z parseSlashLogic(InteracionReceived<? extends CommandInteraction> ctx) throws LastFmException, InstanceNotFoundException {
 
         J item = fromSlash.apply(ctx.e());
         if (item == null) {

@@ -54,4 +54,5 @@ public interface AlbumDao {
 
     Set<String> getAlbumTags(Connection connection, long artistId);
 
+    List<UnheardCount> getUnheardAlbum(Connection connection, String lastFmName, long artistId, boolean listeners, Long filter);
 }

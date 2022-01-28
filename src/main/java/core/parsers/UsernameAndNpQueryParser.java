@@ -2,7 +2,7 @@ package core.parsers;
 
 import core.apis.last.ConcurrentLastFM;
 import core.commands.Context;
-import core.commands.ContextSlashReceived;
+import core.commands.InteracionReceived;
 import core.exceptions.LastFmException;
 import core.parsers.explanation.QuerySearchExplanation;
 import core.parsers.explanation.StrictUserExplanation;
@@ -16,7 +16,7 @@ import dao.entities.LastFMData;
 import dao.entities.NowPlayingArtist;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.interactions.commands.CommandInteraction;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 
 import java.util.List;
@@ -39,8 +39,8 @@ public class UsernameAndNpQueryParser extends DaoParser<ExtraParameters<WordPara
     }
 
     @Override
-    public ExtraParameters<WordParameter, User> parseSlashLogic(ContextSlashReceived ctx) throws LastFmException, InstanceNotFoundException {
-        SlashCommandEvent e = ctx.e();
+    public ExtraParameters<WordParameter, User> parseSlashLogic(InteracionReceived<? extends CommandInteraction> ctx) throws LastFmException, InstanceNotFoundException {
+        CommandInteraction e = ctx.e();
         User user = InteractionAux.parseUser(e);
         String s = Optional.ofNullable(e.getOption(QuerySearchExplanation.NAME)).map(OptionMapping::getAsString).orElse(null);
         if (s == null) {

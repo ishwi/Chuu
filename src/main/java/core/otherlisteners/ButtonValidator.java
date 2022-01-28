@@ -5,12 +5,13 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Emoji;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.GenericEvent;
-import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
-import net.dv8tion.jda.api.events.interaction.SelectionMenuEvent;
+import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.component.SelectMenuInteractionEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
+import net.dv8tion.jda.api.interactions.components.ActionComponent;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
-import net.dv8tion.jda.api.interactions.components.Button;
-import net.dv8tion.jda.api.interactions.components.Component;
+import net.dv8tion.jda.api.interactions.components.ItemComponent;
+import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.requests.RestAction;
 import org.jetbrains.annotations.NotNull;
 
@@ -36,25 +37,16 @@ public class ButtonValidator<T> extends ReactionListener {
     private final BiFunction<T, EmbedBuilder, EmbedBuilder> fillBuilder;
     private final long whom;
     private final Context context;
-    private final Map<String, Reaction<T, ButtonClickEvent, ButtonResult>> actionMap;
+    private final Map<String, Reaction<T, ButtonInteractionEvent, ButtonResult>> actionMap;
     private final boolean allowOtherUsers;
     private final boolean renderInSameElement;
-    private final Queue<ButtonClickEvent> tbp = new LinkedBlockingDeque<>();
+    private final Queue<ButtonInteractionEvent> tbp = new LinkedBlockingDeque<>();
     private final AtomicBoolean hasCleaned = new AtomicBoolean(false);
     private List<ActionRow> actionRows;
     private T currentElement;
 
 
-    public ButtonValidator(UnaryOperator<EmbedBuilder> getLastMessage,
-                           Supplier<T> elementFetcher,
-                           BiFunction<T, EmbedBuilder, EmbedBuilder> fillBuilder,
-                           EmbedBuilder who,
-                           Context context,
-                           long discordId,
-                           Map<String, Reaction<T, ButtonClickEvent, ButtonResult>> actionMap,
-                           List<ActionRow> actionRows
-            , boolean allowOtherUsers,
-                           boolean renderInSameElement, int timeout) {
+    public ButtonValidator(UnaryOperator<EmbedBuilder> getLastMessage, Supplier<T> elementFetcher, BiFunction<T, EmbedBuilder, EmbedBuilder> fillBuilder, EmbedBuilder who, Context context, long discordId, Map<String, Reaction<T, ButtonInteractionEvent, ButtonResult>> actionMap, List<ActionRow> actionRows, boolean allowOtherUsers, boolean renderInSameElement, int timeout) {
         super(who, null, 30, context.getJDA());
         this.getLastMessage = getLastMessage;
         this.elementFetcher = elementFetcher;
@@ -69,24 +61,16 @@ public class ButtonValidator<T> extends ReactionListener {
         init();
     }
 
-    public ButtonValidator(UnaryOperator<EmbedBuilder> getLastMessage,
-                           Supplier<T> elementFetcher,
-                           BiFunction<T, EmbedBuilder, EmbedBuilder> fillBuilder,
-                           EmbedBuilder who,
-                           Context context,
-                           long discordId,
-                           Map<String, Reaction<T, ButtonClickEvent, ButtonResult>> actionMap,
-                           List<ActionRow> actionRows
-            , boolean allowOtherUsers,
-                           boolean renderInSameElement) {
+
+    public ButtonValidator(UnaryOperator<EmbedBuilder> getLastMessage, Supplier<T> elementFetcher, BiFunction<T, EmbedBuilder, EmbedBuilder> fillBuilder, EmbedBuilder who, Context context, long discordId, Map<String, Reaction<T, ButtonInteractionEvent, ButtonResult>> actionMap, List<ActionRow> actionRows, boolean allowOtherUsers, boolean renderInSameElement) {
         this(getLastMessage, elementFetcher, fillBuilder, who, context, discordId, actionMap, actionRows, allowOtherUsers, renderInSameElement, 30);
     }
 
     @org.jetbrains.annotations.NotNull
-    public static ButtonResult rightMove(int size, AtomicInteger counter, ButtonClickEvent r, boolean isSame, List<ActionRow> baseRows) {
+    public static ButtonResult rightMove(int size, AtomicInteger counter, ButtonInteractionEvent r, boolean isSame, List<ActionRow> baseRows) {
         int i = counter.incrementAndGet();
         List<ActionRow> rows = baseRows;
-        List<Component> arrowLess = rows.get(0).getComponents().stream().filter(z -> !(z.getId().equals(LEFT_ARROW) || z.getId().equals(RIGHT_ARROW))).collect(Collectors.toCollection(ArrayList::new));
+        List<ActionComponent> arrowLess = rows.get(0).getActionComponents().stream().filter((ActionComponent z) -> !(Objects.equals(z.getId(), LEFT_ARROW) || Objects.equals(z.getId(), RIGHT_ARROW))).collect(Collectors.toCollection(ArrayList::new));
         arrowLess.add(Button.primary(LEFT_ARROW, Emoji.fromUnicode(LEFT_ARROW)));
         rows = Stream.concat(Stream.of(ActionRow.of(arrowLess)), rows.stream().skip(1)).toList();
         if (i != size - 1) {
@@ -101,10 +85,10 @@ public class ButtonValidator<T> extends ReactionListener {
     }
 
     @org.jetbrains.annotations.NotNull
-    public static ButtonResult leftMove(int size, AtomicInteger counter, ButtonClickEvent r, boolean isSame, List<ActionRow> baseRows) {
+    public static ButtonResult leftMove(int size, AtomicInteger counter, ButtonInteractionEvent r, boolean isSame, List<ActionRow> baseRows) {
         int i = counter.decrementAndGet();
         List<ActionRow> rows = baseRows;
-        List<Component> arrowLess = rows.get(0).getComponents().stream().filter(z -> !(z.getId().equals(LEFT_ARROW) || z.getId().equals(RIGHT_ARROW))).collect(Collectors.toCollection(ArrayList::new));
+        List<ItemComponent> arrowLess = rows.get(0).getActionComponents().stream().filter(z -> !(Objects.equals(z.getId(), LEFT_ARROW) || Objects.equals(z.getId(), RIGHT_ARROW))).collect(Collectors.toCollection(ArrayList::new));
 
         if (i != 0) {
             arrowLess.add(Button.primary(LEFT_ARROW, Emoji.fromUnicode(LEFT_ARROW)));
@@ -161,7 +145,7 @@ public class ButtonValidator<T> extends ReactionListener {
 
     @Override
     public void onEvent(@Nonnull GenericEvent event) {
-        if (event instanceof ButtonClickEvent e) {
+        if (event instanceof ButtonInteractionEvent e) {
             if (isValid(e)) {
                 executor.execute(() -> onButtonClickedEvent(e));
             }
@@ -178,7 +162,7 @@ public class ButtonValidator<T> extends ReactionListener {
         messageAction.queue(z -> {
             this.message = z;
             while (!tbp.isEmpty()) {
-                ButtonClickEvent poll = tbp.poll();
+                ButtonInteractionEvent poll = tbp.poll();
                 onEvent(poll);
             }
         });
@@ -190,19 +174,18 @@ public class ButtonValidator<T> extends ReactionListener {
     }
 
     @Override
-    public boolean isValid(ButtonClickEvent event) {
+    public boolean isValid(ButtonInteractionEvent event) {
         if (this.message == null) {
             return false;
         }
         if (event.getMessageIdLong() != message.getIdLong()) {
             return false;
         }
-        return event.getMessageIdLong() == message.getIdLong() && (this.allowOtherUsers || event.getUser().getIdLong() == whom) &&
-                event.getUser().getIdLong() != event.getJDA().getSelfUser().getIdLong();
+        return event.getMessageIdLong() == message.getIdLong() && (this.allowOtherUsers || event.getUser().getIdLong() == whom) && event.getUser().getIdLong() != event.getJDA().getSelfUser().getIdLong();
     }
 
     @Override
-    public boolean isValid(SelectionMenuEvent event) {
+    public boolean isValid(SelectMenuInteractionEvent event) {
         return false;
     }
 
@@ -217,11 +200,10 @@ public class ButtonValidator<T> extends ReactionListener {
     }
 
     @Override
-    public void onButtonClickedEvent(@Nonnull ButtonClickEvent event) {
+    public void onButtonClickedEvent(@Nonnull ButtonInteractionEvent event) {
         event.deferEdit().queue();
-        Reaction<T, ButtonClickEvent, ButtonResult> action = this.actionMap.get(event.getComponentId());
-        if (action == null)
-            return;
+        Reaction<T, ButtonInteractionEvent, ButtonResult> action = this.actionMap.get(event.getComponentId());
+        if (action == null) return;
         ButtonResult apply = action.release(currentElement, event);
         RestAction<Message> messageAction = this.doTheThing(apply);
         if (messageAction != null) {
@@ -238,7 +220,7 @@ public class ButtonValidator<T> extends ReactionListener {
     }
 
     @Override
-    public void onSelectedMenuEvent(@NotNull SelectionMenuEvent event) {
+    public void onSelectedMenuEvent(@NotNull SelectMenuInteractionEvent event) {
 
     }
 

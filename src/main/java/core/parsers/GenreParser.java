@@ -3,7 +3,7 @@ package core.parsers;
 import core.apis.ExecutorsSingleton;
 import core.apis.last.ConcurrentLastFM;
 import core.commands.Context;
-import core.commands.ContextSlashReceived;
+import core.commands.InteracionReceived;
 import core.exceptions.LastFmException;
 import core.parsers.explanation.GenreExplanation;
 import core.parsers.explanation.StrictUserExplanation;
@@ -18,7 +18,7 @@ import dao.entities.LastFMData;
 import dao.entities.NowPlayingArtist;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.interactions.commands.CommandInteraction;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import org.apache.commons.text.WordUtils;
 
@@ -37,8 +37,8 @@ public class GenreParser extends DaoParser<GenreParameters> {
     }
 
     @Override
-    public GenreParameters parseSlashLogic(ContextSlashReceived ctx) throws LastFmException, InstanceNotFoundException {
-        SlashCommandEvent e = ctx.e();
+    public GenreParameters parseSlashLogic(InteracionReceived<? extends CommandInteraction> ctx) throws LastFmException, InstanceNotFoundException {
+        CommandInteraction e = ctx.e();
         User user = InteractionAux.parseUser(e);
         LastFMData data = findLastfmFromID(user, ctx);
         NowPlayingArtist nowPlayingInfo = null;

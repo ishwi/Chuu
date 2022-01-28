@@ -177,8 +177,8 @@ public class DateUtils {
         return null;
     }
 
-    public static record DateParsed(String[] remainingWords, OffsetDateTime from,
-                                    OffsetDateTime to) {
+    public record DateParsed(String[] remainingWords, OffsetDateTime from,
+                             OffsetDateTime to) {
 
 
     }

@@ -19,7 +19,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
-public sealed interface Context permits ContextMessageReceived, ContextSlashReceived {
+public sealed interface Context permits ContextMessageReceived, ContextSlashReceived, ContextUserCommandReceived, InteracionReceived {
 
     User getAuthor();
 

@@ -2,6 +2,7 @@ package core.commands.stats;
 
 import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
+import core.commands.ui.UserCommandMarker;
 import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
@@ -28,7 +29,7 @@ import java.util.List;
 /**
  * Credits: to lfmwhoknows bot owner for the idea
  */
-public class AffinityCommand extends ConcurrentCommand<AffinityParameters> {
+public class AffinityCommand extends ConcurrentCommand<AffinityParameters> implements UserCommandMarker {
     public static final int DEFAULT_THRESHOLD = 30;
 
     public AffinityCommand(ServiceView dao) {

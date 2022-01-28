@@ -2,7 +2,7 @@ package core.parsers;
 
 import core.apis.last.ConcurrentLastFM;
 import core.commands.Context;
-import core.commands.ContextSlashReceived;
+import core.commands.InteracionReceived;
 import core.exceptions.LastFmException;
 import core.parsers.explanation.AlbumExplanation;
 import core.parsers.explanation.StrictTimeframeExplanation;
@@ -21,7 +21,7 @@ import dao.entities.NowPlayingArtist;
 import dao.entities.TimeFrameEnum;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.interactions.commands.CommandInteraction;
 
 import java.util.List;
 
@@ -87,8 +87,8 @@ public class AlbumTimeFrameParser extends DaoParser<AlbumTimeFrameParameters> {
     }
 
     @Override
-    public AlbumTimeFrameParameters parseSlashLogic(ContextSlashReceived ctx) throws LastFmException, InstanceNotFoundException {
-        SlashCommandEvent e = ctx.e();
+    public AlbumTimeFrameParameters parseSlashLogic(InteracionReceived<? extends CommandInteraction> ctx) throws LastFmException, InstanceNotFoundException {
+        CommandInteraction e = ctx.e();
         InteractionAux.ArtistAlbum artistAlbum = InteractionAux.parseAlbum(e, () -> sendError(this.getErrorMessage(8), ctx));
         if (artistAlbum == null) {
             return null;

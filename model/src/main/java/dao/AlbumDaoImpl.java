@@ -605,5 +605,57 @@ public class AlbumDaoImpl extends BaseDAO implements AlbumDao {
 
     }
 
+    @Override
+    public List<UnheardCount> getUnheardAlbum(Connection connection, String lastFmName, long artistId, boolean listeners, Long filter) {
+        List<UnheardCount> unheard = new ArrayList<>();
+
+        String mySql = """
+                with ids as (select *
+                             from (Select id
+                                   from album a
+                                   where artist_id = ?
+                                
+                                   EXCEPT
+                                   Select a.album_id
+                                   from scrobbled_album a
+                                   where artist_id = ?
+                                     and lastfm_id = ?) main)
+                select album_name, count(*) listeners, sum(a.playnumber) as plays
+                from scrobbled_album a
+                         join album t on t.id = a.album_id
+                where album_id in (select id from ids)
+                """;
+
+        if (filter != null) {
+            mySql += " and playnumber > ? ";
+        }
+        mySql += " group by t.id, album_name ";
+        if (listeners) {
+            mySql += "order by listeners desc";
+        } else {
+            mySql += "order by plays desc ";
+        }
+
+
+        try (PreparedStatement preparedStatement = connection.prepareStatement(mySql)) {
+            preparedStatement.setLong(1, artistId);
+            preparedStatement.setLong(2, artistId);
+            preparedStatement.setString(3, lastFmName);
+            if (filter != null) {
+                preparedStatement.setLong(4, filter);
+            }
+            ResultSet resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                String trackName = resultSet.getString(1);
+                long listenrs = resultSet.getLong(2);
+                long scrobbles = resultSet.getLong(3);
+                unheard.add(new UnheardCount(trackName, listenrs, scrobbles));
+            }
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+        return unheard;
+    }
+
 
 }

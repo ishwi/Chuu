@@ -23,9 +23,9 @@ import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Emoji;
-import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
+import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
-import net.dv8tion.jda.api.interactions.components.Button;
+import net.dv8tion.jda.api.interactions.components.buttons.Button;
 
 import javax.annotation.Nonnull;
 import java.util.HashMap;
@@ -111,7 +111,7 @@ public class ReportReviewCommand extends ConcurrentCommand<CommandParameters> {
         Set<Long> skippedIds = new HashSet<>();
         try {
             int totalReports = db.getReportCount();
-            HashMap<String, Reaction<ReportEntity, ButtonClickEvent, ButtonResult>> actionMap = new HashMap<>();
+            HashMap<String, Reaction<ReportEntity, ButtonInteractionEvent, ButtonResult>> actionMap = new HashMap<>();
             actionMap.put(DELETE, (reportEntity, r) -> {
                 db.removeReportedImage(reportEntity.getImageReported(), reportEntity.getWhoGotReported(), idLong);
                 statBan.getAndIncrement();
@@ -158,7 +158,7 @@ public class ReportReviewCommand extends ConcurrentCommand<CommandParameters> {
                     },
                     () -> db.getNextReport(maxId, skippedIds),
                     builder.apply(e.getJDA(), totalReports, navigationCounter::get)
-                    , embedBuilder, e, e.getAuthor().getIdLong(), actionMap, List.of(of), false, true);
+                    , embedBuilder, e, e.getAuthor().getIdLong(), actionMap, List.of(of), false, true, 120);
         } catch (Throwable ex) {
             Chuu.getLogger().warn(ex.getMessage(), ex);
         } finally {

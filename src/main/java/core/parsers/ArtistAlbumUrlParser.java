@@ -3,7 +3,7 @@ package core.parsers;
 import core.apis.last.ConcurrentLastFM;
 import core.commands.Context;
 import core.commands.ContextMessageReceived;
-import core.commands.ContextSlashReceived;
+import core.commands.InteracionReceived;
 import core.exceptions.LastFmException;
 import core.parsers.explanation.AlbumExplanation;
 import core.parsers.explanation.UrlExplanation;
@@ -18,7 +18,7 @@ import dao.entities.LastFMData;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.interactions.commands.CommandInteraction;
 
 import java.util.List;
 import java.util.regex.Pattern;
@@ -43,8 +43,8 @@ public class ArtistAlbumUrlParser extends DaoParser<ArtistAlbumUrlParameters> {
     }
 
     @Override
-    public ArtistAlbumUrlParameters parseSlashLogic(ContextSlashReceived ctx) throws LastFmException, InstanceNotFoundException {
-        SlashCommandEvent e = ctx.e();
+    public ArtistAlbumUrlParameters parseSlashLogic(InteracionReceived<? extends CommandInteraction> ctx) throws LastFmException, InstanceNotFoundException {
+        CommandInteraction e = ctx.e();
         User oneUser = InteractionAux.parseUser(e);
         LastFMData userName = findLastfmFromID(oneUser, ctx);
         InteractionAux.ArtistAlbum artistAlbum = InteractionAux.parseAlbum(e, () -> sendError(this.getErrorMessage(0), ctx));

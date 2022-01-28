@@ -32,13 +32,11 @@ public abstract class BaseTasteCommand<T extends CommandParameters> extends Conc
 
     public BaseTasteCommand(ServiceView dao) {
         super(dao);
-        respondInPrivate = false;
+        respondInPrivate = true;
     }
 
     private static Optional<Color> getColor(Context e, long discordId) {
-        return Optional.ofNullable(e.getGuild().getMemberById(discordId))
-                .flatMap(t -> t.getRoles().stream().filter(z -> z.getColor() != null).findFirst())
-                .map(Role::getColor);
+        return Optional.ofNullable(e.getGuild()).map(g -> g.getMemberById(discordId)).flatMap(t -> t.getRoles().stream().filter(z -> z.getColor() != null).findFirst()).map(Role::getColor);
     }
 
     @Override
@@ -92,25 +90,17 @@ public abstract class BaseTasteCommand<T extends CommandParameters> extends Conc
             userInfo1.setUsername(CommandUtil.getUserInfoUnescaped(e, secondId).username());
         }
         Pair<Integer, Integer> tasteBar = getTasteBar(resultWrapper, userInfo, userInfo1, params);
-        var palette = getColor(e, firstId)
-                .flatMap(t ->
-                        getColor(e, secondId).map(z -> Pair.of(t, z))).orElse(null);
+        var palette = getColor(e, firstId).flatMap(t -> getColor(e, secondId).map(z -> Pair.of(t, z))).orElse(null);
         BufferedImage image = TasteRenderer.generateTasteImage(resultWrapper, List.of(userInfo, userInfo1), getEntity(params), hasCustomUrl(params), this.thumbnailPerRow, tasteBar, palette);
         sendImage(image, e);
     }
 
     private void doList(Context e, long ogDiscordID, long secondDiscordId, ResultWrapper<UserArtistComparison> resultWrapper, T params) {
-        List<String> strings = resultWrapper.getResultList().stream().map(x -> String.format(". [%s](%s) - %d vs %d plays%n",
-                x.getArtistID(),
-                LinkUtils.getLastFmArtistUrl(x.getArtistID()),
-                x.getCountA(), x.getCountB())).toList();
+        List<String> strings = resultWrapper.getResultList().stream().map(x -> String.format(". [%s](%s) - %d vs %d plays%n", x.getArtistID(), LinkUtils.getLastFmArtistUrl(x.getArtistID()), x.getCountA(), x.getCountB())).toList();
 
         DiscordUserDisplay uinfo = CommandUtil.getUserInfoEscaped(e, ogDiscordID);
         DiscordUserDisplay uinfo1 = CommandUtil.getUserInfoEscaped(e, secondDiscordId);
-        EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e)
-                .setTitle(String.format("%s vs %s", uinfo.username(), uinfo1.username()))
-                .setFooter(String.format("Both user have %d common %s", resultWrapper.getRows(), getEntity(params)), null)
-                .setThumbnail(uinfo1.urlImage());
+        EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e).setTitle(String.format("%s vs %s", uinfo.username(), uinfo1.username())).setFooter(String.format("Both user have %d common %s", resultWrapper.getRows(), getEntity(params)), null).setThumbnail(uinfo1.urlImage());
         new PaginatorBuilder<>(e, embedBuilder, strings).build().queue();
     }
 

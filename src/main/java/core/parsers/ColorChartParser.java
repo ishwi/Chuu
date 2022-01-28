@@ -1,7 +1,7 @@
 package core.parsers;
 
 import core.commands.Context;
-import core.commands.ContextSlashReceived;
+import core.commands.InteracionReceived;
 import core.exceptions.LastFmException;
 import core.parsers.exceptions.InvalidChartValuesException;
 import core.parsers.explanation.ColorExplanation;
@@ -16,7 +16,7 @@ import dao.entities.LastFMData;
 import dao.entities.TimeFrameEnum;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.interactions.commands.CommandInteraction;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import org.apache.commons.lang3.tuple.Pair;
 import org.beryx.awt.color.ColorFactory;
@@ -33,8 +33,8 @@ public class ColorChartParser extends ChartableParser<ColorChartParams> {
     }
 
     @Override
-    public ColorChartParams parseSlashLogic(ContextSlashReceived ctx) throws LastFmException, InstanceNotFoundException {
-        SlashCommandEvent e = ctx.e();
+    public ColorChartParams parseSlashLogic(InteracionReceived<? extends CommandInteraction> ctx) throws LastFmException, InstanceNotFoundException {
+        CommandInteraction e = ctx.e();
         User user = InteractionAux.parseUser(e);
         Point point = InteractionAux.parseSize(e, () -> this.sendError(getErrorMessage(6), ctx));
         if (point == null) {
