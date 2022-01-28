@@ -39,8 +39,6 @@ public class UpdaterHoarder {
     public int updateUser() throws LastFmException {
         List<TrackWithArtistId> trackWithArtistIds;
 
-        String lastFMName = user.getLastFMName();
-
         trackWithArtistIds = lastFM.getWeeklyBillboard(lastFMData,
                 user.getTimestamp()
                 , Integer.MAX_VALUE);

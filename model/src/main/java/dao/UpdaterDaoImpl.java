@@ -494,6 +494,30 @@ public class UpdaterDaoImpl extends BaseDAO implements UpdaterDao {
     }
 
     @Override
+    public void updateArtistRanking(Connection connection) {
+        String sql = """
+                call update_artist_ranking(500);
+                """;
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            preparedStatement.execute();
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    @Override
+    public void updateArtistRankingUnset(Connection connection) {
+        String sql = """
+                call update_artist_ranking_not_set(10000);
+                """;
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            preparedStatement.execute();
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    @Override
     public RandomUrlEntity findRandomUrlById(Connection con, String urlQ) {
         String queryString = "SELECT * " +
                 "FROM randomlinks  " +

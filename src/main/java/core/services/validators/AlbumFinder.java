@@ -1,7 +1,5 @@
 package core.services.validators;
 
-import core.apis.discogs.DiscogsApi;
-import core.apis.discogs.DiscogsSingleton;
 import core.apis.last.ConcurrentLastFM;
 import core.apis.spotify.Spotify;
 import core.apis.spotify.SpotifySingleton;
@@ -13,7 +11,6 @@ import java.util.Optional;
 
 public record AlbumFinder(ChuuService db, ConcurrentLastFM lastFM, TrackValidator trackValidator) {
 
-    private static final DiscogsApi discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
     private static final Spotify spotifyApi = SpotifySingleton.getInstance();
 
 

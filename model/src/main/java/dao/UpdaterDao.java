@@ -49,6 +49,8 @@ interface UpdaterDao {
 
     RandomUrlEntity getRandomUrlFromServer(Connection con, long discordId, @Nullable RandomTarget randomTarget);
 
+    void updateArtistRankingUnset(Connection connection);
+
     RandomUrlEntity findRandomUrlById(Connection con, String url);
 
     RandomUrlDetails randomUrlDetails(Connection con, String urlQ);
@@ -201,6 +203,9 @@ interface UpdaterDao {
     RandomUrlEntity getRandomUrlFromUser(Connection connection, long userId, RandomTarget randomTarget);
 
     List<ImageQueue> getUrlQueue(Connection connection);
+
+
+    void updateArtistRanking(Connection connection);
 
 
 }

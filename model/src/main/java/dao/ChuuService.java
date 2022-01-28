@@ -567,6 +567,46 @@ public class ChuuService implements EveryNoiseService {
         }
     }
 
+    public List<String> searchArtists(String inputTerm, int limit) {
+        try (Connection connection = dataSource.getConnection()) {
+            return queriesDao.searchArtist(connection, inputTerm, limit);
+        } catch (SQLException e) {
+            throw new ChuuServiceException();
+        }
+    }
+
+    public List<String> searchAlbumsForArtist(String inputTerm, long artistId, int limit) {
+        try (Connection connection = dataSource.getConnection()) {
+            return queriesDao.searchAlbumsForArtist(connection, artistId, inputTerm, limit);
+        } catch (SQLException e) {
+            throw new ChuuServiceException();
+        }
+    }
+
+    public List<String> searchAlbums(String inputTerm, int limit) {
+        try (Connection connection = dataSource.getConnection()) {
+            return queriesDao.searchAlbums(connection, inputTerm, limit);
+        } catch (SQLException e) {
+            throw new ChuuServiceException();
+        }
+    }
+
+    public List<String> searchTracks(String inputTerm, int limit) {
+        try (Connection connection = dataSource.getConnection()) {
+            return queriesDao.searchTracks(connection, inputTerm, limit);
+        } catch (SQLException e) {
+            throw new ChuuServiceException();
+        }
+    }
+
+    public List<String> searchTracksForArtist(String inputTerm, long artistId, int limit) {
+        try (Connection connection = dataSource.getConnection()) {
+            return queriesDao.searchTracksForArtist(connection, artistId, inputTerm, limit);
+        } catch (SQLException e) {
+            throw new ChuuServiceException();
+        }
+    }
+
     public void upsertSpotify(String url, long artistId, String spotifyId) {
         this.upsertSpotify(url, artistId, 537353774205894676L, spotifyId);
     }
@@ -4434,6 +4474,22 @@ public class ChuuService implements EveryNoiseService {
         try (Connection connection = dataSource.getConnection()) {
             connection.setReadOnly(true);
             return albumDao.getUnheardAlbum(connection, lastFmName, artistId, listeners, filter);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    public void updateArtistRanking() {
+        try (Connection connection = dataSource.getConnection()) {
+            updaterDao.updateArtistRanking(connection);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    public void updateArtistRankingNew() {
+        try (Connection connection = dataSource.getConnection()) {
+            updaterDao.updateArtistRankingUnset(connection);
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }

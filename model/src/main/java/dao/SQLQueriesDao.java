@@ -42,6 +42,8 @@ interface SQLQueriesDao {
     List<LbEntry<Integer>> uniqueLeaderboard(Connection connection, long guildId);
 
 
+    List<String> searchAlbums(Connection connection, String inputTerm, int limit);
+
     Optional<Rank<PrivacyUserCount>> getGlobalPosition(Connection connection, long discordId);
 
     List<PrivacyUserCount> getGlobalCommands(Connection connection);
@@ -292,5 +294,13 @@ interface SQLQueriesDao {
 
 
     List<LbEntry<Float>> audioLb(Connection connection, AudioStats element, long guildId, Order order);
+
+    List<String> searchArtist(Connection connection, String inputTerm, int limit);
+
+    List<String> searchAlbumsForArtist(Connection connection, long artistId, String inputTerm, int limit);
+
+    List<String> searchTracksForArtist(Connection connection, long artistId, String inputTerm, int limit);
+
+    List<String> searchTracks(Connection connection, String inputTerm, int limit);
 
 }

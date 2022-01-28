@@ -1678,6 +1678,176 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
         return getLbEntries(con, guildId, queryString, (s, aLong, aFloat) -> new AudioLbEntry(s, aLong, aFloat, element), false, 0, Float.class);
     }
 
+    @Override
+    public List<String> searchArtist(Connection connection, String inputTerm, int limit) {
+        List<String> results = new ArrayList<>();
+        String queryString = """
+                select distinct name
+                     from (SELECT name as name, 2 as ranking, play_ranking as numeric_ranking
+                     
+                           from artist
+                           where  name like ?
+                           union
+                           (
+                           select coalesce ((select name from artist where name = ?), ?) as name, 1 as ranking, 0 as numeric_ranking)
+                           order by ranking asc, numeric_ranking desc
+                          ) main
+                     
+                     limit ?""";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+            preparedStatement.setString(1, "" + inputTerm + "%");
+            preparedStatement.setString(2, inputTerm);
+            preparedStatement.setString(3, inputTerm);
+            preparedStatement.setInt(4, limit);
+
+            /* Execute query. */
+            ResultSet resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                results.add(resultSet.getString(1));
+            }
+            return results;
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+
+    }
+
+    @Override
+    public List<String> searchAlbumsForArtist(Connection connection, long artistId, String inputTerm, int limit) {
+        List<String> results = new ArrayList<>();
+        String queryString = """
+                select distinct name
+                     from (SELECT album_name as name, 2 as ranking
+                     
+                           from album
+                           where  album_name like ? and artist_id = ? 
+                           union
+                           (
+                           select coalesce ((select album_name from album where album_name = ? and artist_id = ? ), ?) as name, 1 as ranking)
+                           order by ranking asc
+                          ) main
+                     
+                     limit ?""";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+            preparedStatement.setString(1, "" + inputTerm + "%");
+            preparedStatement.setLong(2, artistId);
+            preparedStatement.setString(3, inputTerm);
+            preparedStatement.setLong(4, artistId);
+            preparedStatement.setString(5, inputTerm);
+            preparedStatement.setInt(6, limit);
+
+            /* Execute query. */
+            ResultSet resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                results.add(resultSet.getString(1));
+            }
+            return results;
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    @Override
+    public List<String> searchTracksForArtist(Connection connection, long artistId, String inputTerm, int limit) {
+        List<String> results = new ArrayList<>();
+        String queryString = """
+                select distinct name
+                     from (SELECT track_name as name, 2 as ranking
+                     
+                           from track
+                           where  track_name like ? and artist_id = ? 
+                           union
+                           (
+                           select coalesce ((select track_name from track where track_name = ? and artist_id = ? ), ?) as name, 1 as ranking)
+                           order by ranking asc
+                          ) main
+                     
+                     limit ?""";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+            preparedStatement.setString(1, "" + inputTerm + "%");
+            preparedStatement.setLong(2, artistId);
+            preparedStatement.setString(3, inputTerm);
+            preparedStatement.setLong(4, artistId);
+            preparedStatement.setString(5, inputTerm);
+            preparedStatement.setInt(6, limit);
+
+            /* Execute query. */
+            ResultSet resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                results.add(resultSet.getString(1));
+            }
+            return results;
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    @Override
+    public List<String> searchTracks(Connection connection, String inputTerm, int limit) {
+        List<String> results = new ArrayList<>();
+        String queryString = """
+                select distinct name
+                     from (SELECT track_name as name, 2 as ranking
+                     
+                           from track
+                           where  track_name like ? 
+                           union
+                           (
+                           select coalesce ((select track_name from track where track_name = ? limit 1), ?) as name, 1 as ranking)
+                           order by ranking asc
+                          ) main
+                     
+                     limit ?""";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+            preparedStatement.setString(1, "" + inputTerm + "%");
+            preparedStatement.setString(2, inputTerm);
+            preparedStatement.setString(3, inputTerm);
+            preparedStatement.setInt(4, limit);
+
+            /* Execute query. */
+            ResultSet resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                results.add(resultSet.getString(1));
+            }
+            return results;
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    @Override
+    public List<String> searchAlbums(Connection connection, String inputTerm, int limit) {
+        List<String> results = new ArrayList<>();
+        String queryString = """
+                select distinct name
+                     from (SELECT album_name as name, 2 as ranking
+                     
+                           from album
+                           where  album_name like ? 
+                           union
+                           (
+                           select coalesce ((select album_name from album where album_name = ? limit 1), ?) as name, 1 as ranking)
+                           order by ranking asc
+                          ) main
+                     
+                     limit ?""";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+            preparedStatement.setString(1, "" + inputTerm + "%");
+            preparedStatement.setString(2, inputTerm);
+            preparedStatement.setString(3, inputTerm);
+            preparedStatement.setInt(4, limit);
+
+            /* Execute query. */
+            ResultSet resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                results.add(resultSet.getString(1));
+            }
+            return results;
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
 
     @Override
     public Optional<Rank<PrivacyUserCount>> getGlobalPosition(Connection connection, long discordId) {

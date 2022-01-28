@@ -1,10 +1,7 @@
 package core.services;
 
 import core.music.everynoise.EveryNoiseScrapper;
-import core.scheduledtasks.ArtistMbidUpdater;
-import core.scheduledtasks.ImageUpdaterThread;
-import core.scheduledtasks.SpotifyUpdaterThread;
-import core.scheduledtasks.UpdaterThread;
+import core.scheduledtasks.*;
 import dao.ChuuService;
 
 import java.time.*;
@@ -27,6 +24,10 @@ public class ScheduledService {
                 new UpdaterThread(dao, true), 60, 120,
                 TimeUnit.SECONDS);
 
+        scheduledExecutorService.scheduleAtFixedRate(new ImportRankingArtist(dao), 14, 50, TimeUnit.DAYS);
+        scheduledExecutorService.scheduleAtFixedRate(new ImportRankingArtistNew(dao), 1, 1, TimeUnit.DAYS);
+
+        scheduledExecutorService.scheduleAtFixedRate(new ImageUpdaterThread(dao), 20, 12, TimeUnit.MINUTES);
         scheduledExecutorService.scheduleAtFixedRate(new ImageUpdaterThread(dao), 20, 12, TimeUnit.MINUTES);
         scheduledExecutorService.scheduleAtFixedRate(
                 new SpotifyUpdaterThread(dao), 5, 5, TimeUnit.MINUTES);

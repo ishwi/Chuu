@@ -3,6 +3,7 @@ package core.parsers.explanation;
 import core.parsers.explanation.util.Explanation;
 import core.parsers.explanation.util.ExplanationLineAutoComplete;
 import core.parsers.explanation.util.Interactible;
+import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.Command;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
@@ -49,8 +50,8 @@ public class ChartSizeExplanation implements Explanation {
         return new ExplanationLineAutoComplete("sizeXsize", "If the size is not specified it defaults to 5x5", optionData, this::generateChoices);
     }
 
-    public List<Command.Choice> generateChoices(String input) {
-
+    public List<Command.Choice> generateChoices(CommandAutoCompleteInteractionEvent e) {
+        String input = e.getFocusedOption().getValue();
         if (StringUtils.isBlank(input)) {
             return defaultChoices();
         } else {

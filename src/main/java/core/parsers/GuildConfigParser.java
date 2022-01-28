@@ -25,10 +25,7 @@ import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.WordUtils;
 
-import java.util.Arrays;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -44,7 +41,7 @@ public class GuildConfigParser extends DaoParser<GuildConfigParams> implements G
         CommandInteraction e = ctx.e();
         String subcommandName = e.getSubcommandName();
         String[] words;
-        if (subcommandName.equals("list")) {
+        if (Objects.equals(subcommandName, "list")) {
             words = new String[]{};
         } else {
             words = Stream.concat(Stream.of(subcommandName), e.getOptions().stream().map(OptionMapping::getAsString)).toArray(String[]::new);

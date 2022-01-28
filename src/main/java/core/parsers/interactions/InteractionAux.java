@@ -7,9 +7,7 @@ import core.parsers.ChartParserAux;
 import core.parsers.exceptions.InvalidChartValuesException;
 import core.parsers.exceptions.InvalidDateException;
 import core.parsers.explanation.*;
-import core.parsers.explanation.util.Explanation;
-import core.parsers.explanation.util.ExplanationLine;
-import core.parsers.explanation.util.Interactible;
+import core.parsers.explanation.util.*;
 import core.parsers.utils.CustomTimeFrame;
 import core.services.NPService;
 import dao.entities.*;
@@ -83,7 +81,9 @@ public class InteractionAux {
         Interactible intercepted = explanation.explanation();
         List<OptionData> optionData = explanation.explanation().options();
         optionData.forEach(t -> t.setRequired(true));
-
+        if (explanation.explanation() instanceof Autocompletable e) {
+            return () -> new ExplanationLineAutoComplete(intercepted.header(), intercepted.usage(), optionData, e::autocomplete);
+        }
         return () -> new ExplanationLine(intercepted.header(), intercepted.usage(), optionData);
     }
 

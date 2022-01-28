@@ -25,6 +25,7 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.hooks.EventListener;
 import net.dv8tion.jda.api.hooks.IEventManager;
+import net.dv8tion.jda.api.interactions.commands.CommandInteraction;
 import net.dv8tion.jda.internal.JDAImpl;
 
 import javax.annotation.Nonnull;
@@ -186,15 +187,7 @@ public class CustomInterfacedEventManager implements IEventManager {
         if (!isReady) {
             return;
         }
-        MyCommand<? extends CommandParameters> myCommand;
-        if (sce.getSubcommandName() == null) {
-            myCommand = commandListeners.get(sce.getName().toLowerCase(Locale.ROOT));
-        } else {
-            myCommand = slashVariants.get(sce.getCommandPath());
-            if (myCommand == null) {
-                myCommand = commandListeners.get(sce.getSubcommandName());
-            }
-        }
+        MyCommand<? extends CommandParameters> myCommand = parseCommand(sce);
         ContextSlashReceived ctx = new ContextSlashReceived(sce);
         if (!Chuu.getMessageDisablingService().isMessageAllowed(myCommand, ctx)) {
             if (Chuu.getMessageDisablingService().doResponse(ctx))
@@ -207,20 +200,39 @@ public class CustomInterfacedEventManager implements IEventManager {
         myCommand.onSlashCommandReceived(sce);
     }
 
+    public MyCommand<? extends CommandParameters> parseCommand(CommandInteraction sce) {
+        MyCommand<? extends CommandParameters> myCommand;
+        if (sce.getSubcommandName() == null) {
+            myCommand = commandListeners.get(sce.getName().toLowerCase(Locale.ROOT));
+        } else {
+            myCommand = slashVariants.get(sce.getCommandPath());
+            if (myCommand == null) {
+                myCommand = commandListeners.get(sce.getSubcommandName());
+            }
+        }
+        return myCommand;
+    }
+
+    public MyCommand<? extends CommandParameters> parseCommand(CommandAutoCompleteInteractionEvent sce) {
+        MyCommand<? extends CommandParameters> myCommand;
+        if (sce.getSubcommandName() == null) {
+            myCommand = commandListeners.get(sce.getName().toLowerCase(Locale.ROOT));
+        } else {
+            myCommand = slashVariants.get(sce.getCommandPath());
+            if (myCommand == null) {
+                myCommand = commandListeners.get(sce.getSubcommandName());
+            }
+        }
+        return myCommand;
+    }
+
 
     private void handleUserCommand(UserContextInteractionEvent ucie) {
         if (!isReady) {
             return;
         }
-        MyCommand<? extends CommandParameters> myCommand;
-        if (ucie.getSubcommandName() == null) {
-            myCommand = commandListeners.get(ucie.getName().toLowerCase(Locale.ROOT));
-        } else {
-            myCommand = slashVariants.get(ucie.getCommandPath());
-            if (myCommand == null) {
-                myCommand = commandListeners.get(ucie.getSubcommandName());
-            }
-        }
+
+        MyCommand<? extends CommandParameters> myCommand = parseCommand(ucie);
 
         myCommand.onUserCommandReceived(ucie);
     }
