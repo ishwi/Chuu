@@ -39,6 +39,8 @@ import java.util.stream.Stream;
 public class CustomInterfacedEventManager implements IEventManager {
 
     private static final ExecutorService reactionExecutor = Executors.newSingleThreadExecutor();
+    private static final ExecutorService autocompleteExecutor = Executors.newFixedThreadPool(2);
+    private static final ExecutorService commandOrchestror = Executors.newFixedThreadPool(4);
     private final Set<EventListener> otherListeners = ConcurrentHashMap.newKeySet();
     private final Map<String, MyCommand<? extends CommandParameters>> commandListeners = new HashMap<>();
     private final Map<Long, ChannelConstantListener> channelConstantListeners = new HashMap<>();
@@ -156,10 +158,10 @@ public class CustomInterfacedEventManager implements IEventManager {
     public void handle(@Nonnull GenericEvent event) {
         try {
             switch (event) {
-                case CommandAutoCompleteInteractionEvent cacie -> autoCompleteListener.onEvent(event);
-                case MessageReceivedEvent mes -> handleMessageReceived(mes);
-                case UserContextInteractionEvent ucie -> handleUserCommand(ucie);
-                case SlashCommandInteractionEvent sce -> handleSlashCommand(sce);
+                case CommandAutoCompleteInteractionEvent cacie -> autocompleteExecutor.submit((ChuuRunnable) () -> autoCompleteListener.onEvent(event));
+                case MessageReceivedEvent mes -> commandOrchestror.submit((ChuuRunnable) () -> handleMessageReceived(mes));
+                case UserContextInteractionEvent ucie -> commandOrchestror.submit((ChuuRunnable) () -> handleUserCommand(ucie));
+                case SlashCommandInteractionEvent sce -> commandOrchestror.submit((ChuuRunnable) () -> handleSlashCommand(sce));
                 case ReadyEvent re -> {
                     for (EventListener listener : otherListeners)
                         listener.onEvent(re);

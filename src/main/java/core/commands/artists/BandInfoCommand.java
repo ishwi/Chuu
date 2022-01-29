@@ -119,6 +119,7 @@ public class BandInfoCommand extends ConcurrentCommand<ArtistParameters> {
 
 
     protected void doImage(ArtistParameters ap, WrapperReturnNowPlaying np, ArtistAlbums ai, int plays, BufferedImage logo, long threshold) {
+        np.setIndexes();
         BufferedImage returnedImage = BandRendered
                 .makeBandImage(np, ai, plays, logo, CommandUtil.getUserInfoUnescaped(ap.getE(), ap.getLastFMData().getDiscordId()).username(), threshold);
         sendImage(returnedImage, ap.getE());

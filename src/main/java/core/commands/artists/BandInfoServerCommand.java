@@ -82,6 +82,7 @@ public class BandInfoServerCommand extends BandInfoCommand {
 
     @Override
     protected void doImage(ArtistParameters ap, WrapperReturnNowPlaying np, ArtistAlbums ai, int plays, BufferedImage logo, long threshold) {
+        np.setIndexes();
         BufferedImage returnedImage = BandRendered
                 .makeBandImage(np, ai, plays, logo, ap.getE().getGuild().getName(), threshold);
         sendImage(returnedImage, ap.getE());
