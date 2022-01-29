@@ -103,8 +103,8 @@ public class NpVoiceCommand extends MusicCommand<CommandParameters> {
             if (playingTrack.getDuration() == Long.MAX_VALUE) {
                 timeString = "Streaming";
             } else {
-                var position = CommandUtil.getTimestamp(fakePosition);
-                var duration = CommandUtil.getTimestamp(z.duration());
+                var position = CommandUtil.msToString(fakePosition);
+                var duration = CommandUtil.msToString(z.duration());
                 timeString = "`[" + position + " / " + duration + "]`";
             }
             embedBuilder.addField("Time", timeString, true);

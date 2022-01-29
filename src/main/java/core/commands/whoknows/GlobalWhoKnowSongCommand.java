@@ -9,13 +9,11 @@ import core.parsers.params.ArtistAlbumParameters;
 import core.services.validators.ArtistValidator;
 import core.services.validators.TrackValidator;
 import dao.ServiceView;
-import dao.entities.LastFMData;
-import dao.entities.ScrobbledArtist;
-import dao.entities.WhoKnowsMode;
-import dao.entities.WrapperReturnNowPlaying;
+import dao.entities.*;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 public class GlobalWhoKnowSongCommand extends GlobalBaseWhoKnowCommand<ArtistAlbumParameters> {
     public GlobalWhoKnowSongCommand(ServiceView dao) {
@@ -49,10 +47,7 @@ public class GlobalWhoKnowSongCommand extends GlobalBaseWhoKnowCommand<ArtistAlb
         return "Global Who Knows Track";
     }
 
-    @Override
-    WhoKnowsMode getWhoknowsMode(ArtistAlbumParameters params) {
-        return getEffectiveMode(params.getLastFMData().getWhoKnowsMode(), params);
-    }
+
 
     @Override
     WrapperReturnNowPlaying generateWrapper(ArtistAlbumParameters params, WhoKnowsMode whoKnowsMode) throws LastFmException {
@@ -62,7 +57,10 @@ public class GlobalWhoKnowSongCommand extends GlobalBaseWhoKnowCommand<ArtistAlb
         params.setScrobbledArtist(sA);
 
         long trackId = new TrackValidator(db, lastFM).validate(sA.getArtistId(), sA.getArtist(), params.getAlbum()).getTrackId();
+        ScrobbledAlbum fakeAlbum = new ScrobbledAlbum(trackId, null);
+        fakeAlbum.setAlbum(params.getAlbum());
 
+        params.setScrobbledAlbum(fakeAlbum);
         WhoKnowsMode effectiveMode = getEffectiveMode(params.getLastFMData().getWhoKnowsMode(), params);
 
         boolean b = CommandUtil.showBottedAccounts(params.getLastFMData(), params, db);
@@ -75,6 +73,20 @@ public class GlobalWhoKnowSongCommand extends GlobalBaseWhoKnowCommand<ArtistAlb
             return null;
         }
         return wrapperReturnNowPlaying;
+    }
+
+    @Override
+    public Optional<Rank<ReturnNowPlaying>> fetchNotInList(ArtistAlbumParameters ap, WrapperReturnNowPlaying wr) {
+        ScrobbledAlbum sA = ap.getScrobbledAlbum();
+        boolean showBotted = CommandUtil.showBottedAccounts(ap.getLastFMData(), ap, db);
+        List<GlobalCrown> globals = db.getGlobalTrackRanking(sA.getAlbumId(), showBotted, ap.getE().getAuthor().getIdLong());
+        Optional<GlobalCrown> yourPosition = globals.stream().filter(x -> x.getDiscordId() == ap.getLastFMData().getDiscordId()).findFirst();
+        return yourPosition.map(gc -> new Rank<>(
+                new GlobalReturnNowPlayingSong(gc.getDiscordId(),
+                        gc.getLastfmID(),
+                        ap.getScrobbledArtist().getArtist(),
+                        gc.getPlaycount(),
+                        ap.getLastFMData().getPrivacyMode(), sA.getAlbum()), gc.getRanking() - 1));
     }
 
     @Override

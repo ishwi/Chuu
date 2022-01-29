@@ -148,8 +148,9 @@ public class Spotify {
         }
         try {
             return Arrays.stream(spotifyApi.getAlbum(id).market(CountryCode.NZ).build().execute().getTracks().getItems()).map(x -> {
-                dao.entities.Track track = new dao.entities.Track(artist, x.getName(), 0, false, x.getDurationMs());
+                dao.entities.Track track = new dao.entities.Track(artist, x.getName(), 0, false, x.getDurationMs() / 1000);
                 track.setPosition(x.getTrackNumber() - 1);
+                track.setSpotifyId(x.getId());
                 return track;
             }).toList();
         } catch (IOException | SpotifyWebApiException | ParseException e) {

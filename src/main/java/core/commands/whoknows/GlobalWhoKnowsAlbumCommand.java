@@ -13,6 +13,7 @@ import dao.entities.*;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 public class GlobalWhoKnowsAlbumCommand extends GlobalBaseWhoKnowCommand<ArtistAlbumParameters> {
     public GlobalWhoKnowsAlbumCommand(ServiceView dao) {
@@ -46,10 +47,6 @@ public class GlobalWhoKnowsAlbumCommand extends GlobalBaseWhoKnowCommand<ArtistA
         return "Global who knows album";
     }
 
-    @Override
-    WhoKnowsMode getWhoknowsMode(ArtistAlbumParameters params) {
-        return getEffectiveMode(params.getLastFMData().getWhoKnowsMode(), params);
-    }
 
     @Override
     WrapperReturnNowPlaying generateWrapper(ArtistAlbumParameters params, WhoKnowsMode whoKnowsMode) throws LastFmException {
@@ -58,6 +55,8 @@ public class GlobalWhoKnowsAlbumCommand extends GlobalBaseWhoKnowCommand<ArtistA
         long artistId = sA.getArtistId();
         params.setScrobbledArtist(sA);
         Album album = CommandUtil.albumvalidate(db, sA, lastFM, params.getAlbum());
+        params.setScrobbledAlbum(new ScrobbledAlbum(album, sA.getArtist()));
+
         WhoKnowsMode effectiveMode = getEffectiveMode(params.getLastFMData().getWhoKnowsMode(), params);
 
         boolean b = CommandUtil.showBottedAccounts(params.getLastFMData(), params, db);
@@ -71,6 +70,22 @@ public class GlobalWhoKnowsAlbumCommand extends GlobalBaseWhoKnowCommand<ArtistA
         }
         wrapperReturnNowPlaying.setUrl(Chuu.getCoverService().getCover(album, e));
         return wrapperReturnNowPlaying;
+    }
+
+    @Override
+    public Optional<Rank<ReturnNowPlaying>> fetchNotInList(ArtistAlbumParameters ap, WrapperReturnNowPlaying wr) {
+        ScrobbledAlbum sAlb = ap.getScrobbledAlbum();
+        boolean showBotted = CommandUtil.showBottedAccounts(ap.getLastFMData(), ap, db);
+        List<GlobalCrown> globals = db.getGlobalAlbumRanking(sAlb.getAlbumId(), showBotted, ap.getE().getAuthor().getIdLong());
+        Optional<GlobalCrown> yourPosition = globals.stream().filter(x -> x.getDiscordId() == ap.getLastFMData().getDiscordId()).findFirst();
+        return yourPosition.map(gc -> new Rank<>(
+                new GlobalReturnNowPlayingAlbum(gc.getDiscordId(),
+                        gc.getLastfmID(),
+                        ap.getScrobbledArtist().getArtist(),
+                        gc.getPlaycount(),
+                        ap.getLastFMData().getPrivacyMode(),
+                        sAlb.getAlbum()), gc.getRanking() - 1));
+
     }
 
     @Override

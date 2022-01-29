@@ -59,13 +59,17 @@ public class NowPlayingCommand extends NpCommand implements UserCommandMarker {
             npModes = db.getNPModes(discordId);
         }
 
-        String title = String.format("%s's %s song:", userName, nowPlayingArtist.current() ? "current" : "last");
+        String title = "%s's %s song:".formatted(userName, nowPlayingArtist.current() ? "current" : "last");
         String lastFMName = nowPlayingArtist.username();
 
 
-        a.append("**").append(CommandUtil.escapeMarkdown(nowPlayingArtist.artistName())).append("** | ").append(CommandUtil.escapeMarkdown(nowPlayingArtist.albumName())).append("\n");
+        a.append("**").append(CommandUtil.escapeMarkdown(nowPlayingArtist.artistName()))
+                .append("** | ").append(CommandUtil.escapeMarkdown(nowPlayingArtist.albumName())).append("\n");
 
-        EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e).setAuthor(title, CommandUtil.getLastFmUser(lastFMName), urlHolder).setThumbnail(CommandUtil.noImageUrl(nowPlayingArtist.url())).setTitle(CommandUtil.escapeMarkdown(nowPlayingArtist.songName()), LinkUtils.getLastFMArtistTrack(nowPlayingArtist.artistName(), nowPlayingArtist.songName())).setDescription(a);
+        EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e).setAuthor(title, CommandUtil.getLastFmUser(lastFMName), urlHolder)
+                .setThumbnail(CommandUtil.noImageUrl(nowPlayingArtist.url()))
+                .setTitle(CommandUtil.escapeMarkdown(nowPlayingArtist.songName()), LinkUtils.getLastFMArtistTrack(nowPlayingArtist.artistName(), nowPlayingArtist.songName()))
+                .setDescription(a);
 
 
         ScrobbledArtist sA = new ScrobbledArtist(nowPlayingArtist.artistName(), 0, null);
@@ -110,7 +114,9 @@ public class NowPlayingCommand extends NpCommand implements UserCommandMarker {
         }
 
         //
-        String url = npModes.contains(NPMode.ARTIST_PIC) && sA.getUrl() != null && !sA.getUrl().isBlank() ? sA.getUrl() : null;
+        String url = npModes.contains(NPMode.ARTIST_PIC) && sA.getUrl() != null && !sA.getUrl().isBlank()
+                ? sA.getUrl()
+                : null;
         if (url != null && footer.isBlank()) {
             footer += EmbedBuilder.ZERO_WIDTH_SPACE;
         }

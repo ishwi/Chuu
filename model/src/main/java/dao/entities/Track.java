@@ -13,6 +13,7 @@ public class Track {
     private int position;
     private String imageUrl;
     private String mbid;
+    private String spotifyId;
 
     public Track(String artist, String name, int plays, boolean isLoved, int duration) {
         this.artist = artist;
@@ -69,6 +70,14 @@ public class Track {
 
     public void setMbid(String mbid) {
         this.mbid = mbid;
+    }
+
+    public String getSpotifyId() {
+        return spotifyId;
+    }
+
+    public void setSpotifyId(String spotifyId) {
+        this.spotifyId = spotifyId;
     }
 
     @Override

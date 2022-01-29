@@ -7,10 +7,7 @@ import core.parsers.MultipleArtistsParser;
 import core.parsers.Parser;
 import core.parsers.params.MultiArtistParameters;
 import dao.ServiceView;
-import dao.entities.ReturnNowPlaying;
-import dao.entities.WKMode;
-import dao.entities.WhoKnowsMode;
-import dao.entities.WrapperReturnNowPlaying;
+import dao.entities.*;
 
 import java.awt.image.BufferedImage;
 import java.util.*;
@@ -21,10 +18,6 @@ public class MultipleWhoKnowsCommand extends WhoKnowsBaseCommand<MultiArtistPara
         super(dao);
     }
 
-    @Override
-    WhoKnowsMode getWhoknowsMode(MultiArtistParameters params) {
-        return getEffectiveMode(params.getLastFMData().getWhoKnowsMode(), params);
-    }
 
     private String join(Set<String> a) {
         return String.join(",", a);
@@ -41,10 +34,21 @@ public class MultipleWhoKnowsCommand extends WhoKnowsBaseCommand<MultiArtistPara
         } else {
             title = e.getJDA().getSelfUser().getName();
         }
+        handleWkMode(ap, wrapperReturnNowPlaying);
         BufferedImage image = WhoKnowsMaker.generateWhoKnows(wrapperReturnNowPlaying, EnumSet.allOf(WKMode.class), title, logo, ap.getE().getAuthor().getIdLong());
         sendImage(image, e);
 
         return logo;
+    }
+
+    @Override
+    LastFMData obtainLastFmData(MultiArtistParameters ap) {
+        return ap.getLastFMData();
+    }
+
+    @Override
+    public Optional<Rank<ReturnNowPlaying>> fetchNotInList(MultiArtistParameters ap, WrapperReturnNowPlaying wr) {
+        return Optional.empty();
     }
 
     @Override

@@ -76,4 +76,7 @@ public interface TrackDao {
 
 
     List<UnheardCount> getUnheardSongs(Connection connection, String lastFmName, long artistId, boolean listeners, Long filter);
+
+    List<Track> getUserTracksByLength(Connection connection, String lastfmId, boolean longestFirst, Integer limit);
+
 }

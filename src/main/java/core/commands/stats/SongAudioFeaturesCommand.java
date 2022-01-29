@@ -112,7 +112,7 @@ public class SongAudioFeaturesCommand extends ConcurrentCommand<ArtistAlbumParam
                 .addField("Loudness:", db.format(audioFeature.getLoudness() + 60), true)
                 .addField("Energy:", df.format(audioFeature.getEnergy() / s), true)
                 .addField("Average Tempo:", (int) (audioFeature.getTempo() / s) + " BPM", true)
-                .addField("Length:", CommandUtil.getTimestamp(audioFeature.getDurationMs()), true);
+                .addField("Length:", CommandUtil.msToString(audioFeature.getDurationMs()), true);
         if (CommandUtil.rand.nextFloat() > 0.92f) {
             embedBuilder.setFooter("Data comes from Spotify");
         }

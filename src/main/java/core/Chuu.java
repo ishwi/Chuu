@@ -156,26 +156,37 @@ public class Chuu {
 
         AtomicInteger counter = new AtomicInteger(0);
         EnumSet<CacheFlag> cacheFlags = EnumSet.allOf(CacheFlag.class);
-        DefaultShardManagerBuilder builder = DefaultShardManagerBuilder.create(getIntents()).setChunkingFilter(ChunkingFilter.ALL).enableCache(CacheFlag.EMOTE, CacheFlag.VOICE_STATE).disableCache(CacheFlag.ACTIVITY, CacheFlag.CLIENT_STATUS, CacheFlag.ONLINE_STATUS).setAudioSendFactory(new NativeAudioSendFactory()).setBulkDeleteSplittingEnabled(false).setToken(properties.getProperty("DISCORD_TOKEN")).setAutoReconnect(true).setEventManagerProvider(a -> customManager).addEventListeners(evalCommand).setShardsTotal(-1).addEventListeners(new AwaitReady(counter, (ShardManager shard) -> {
+        DefaultShardManagerBuilder builder = DefaultShardManagerBuilder.
+                create(getIntents())
+                .setChunkingFilter(ChunkingFilter.ALL)
+                .enableCache(CacheFlag.EMOTE, CacheFlag.VOICE_STATE)
+                .disableCache(CacheFlag.ACTIVITY, CacheFlag.CLIENT_STATUS, CacheFlag.ONLINE_STATUS)
+                .setAudioSendFactory(new NativeAudioSendFactory()).setBulkDeleteSplittingEnabled(false)
+                .setToken(properties.getProperty("DISCORD_TOKEN"))
+                .setAutoReconnect(true)
+                .setEventManagerProvider(a -> customManager)
+                .addEventListeners(evalCommand)
+                .setShardsTotal(-1)
+                .addEventListeners(new AwaitReady(counter, (ShardManager shard) -> {
 
-            JDA firstShard = shard.getShardById(0);
-            assert firstShard != null;
-            if (!startRightAway) {
-                shutDownPreviousInstance(() -> {
-                    addAll(db, shardManager::addEventListener);
-                    customManager.isReady = true;
-                    doTyping = true;
-                    messageDisablingService = new MessageDisablingService(firstShard, service);
-                    InteractionBuilder.setGlobalCommands(firstShard);
-                });
-            }
-            scheduledService.addSchedule(() -> new BotListPoster().doPost(), 5, 120, TimeUnit.MINUTES);
+                    JDA firstShard = shard.getShardById(0);
+                    assert firstShard != null;
+                    if (!startRightAway) {
+                        shutDownPreviousInstance(() -> {
+                            addAll(db, shardManager::addEventListener);
+                            customManager.isReady = true;
+                            doTyping = true;
+                            messageDisablingService = new MessageDisablingService(firstShard, service);
+                            InteractionBuilder.setGlobalCommands(firstShard);
+                        });
+                    }
+                    scheduledService.addSchedule(() -> new BotListPoster().doPost(), 5, 120, TimeUnit.MINUTES);
 
-            updatePresence("Chuu");
-            if (installGlobalCommands) {
-                InteractionBuilder.setGlobalCommands(firstShard).queue();
-            }
-        }));
+                    updatePresence("Chuu");
+                    if (installGlobalCommands) {
+                        InteractionBuilder.setGlobalCommands(firstShard).queue();
+                    }
+                }));
 
         try {
             if (startRightAway) {
@@ -256,14 +267,22 @@ public class Chuu {
 
     private static MyCommand<?>[] scanListeners(HelpCommand help) {
         try (ScanResult result = new ClassGraph().acceptPackages("core.commands").scan()) {
-            return result.getAllClasses().stream().filter(x -> x.isStandardClass() && !x.isAbstract()).filter(x -> !x.getSimpleName().equals(HelpCommand.class.getSimpleName()) && !x.getSimpleName().equals(AdministrativeCommand.class.getSimpleName()) && !x.getSimpleName().equals(PrefixCommand.class.getSimpleName()) && !x.getSimpleName().equals(TagWithYearCommand.class.getSimpleName()) && !x.getSimpleName().equals(EvalCommand.class.getSimpleName()) && !x.getSimpleName().equals(FeaturedCommand.class.getSimpleName())).filter(x -> x.extendsSuperclass("core.commands.abstracts.MyCommand")).map(x -> {
-                try {
-                    return (MyCommand<?>) x.loadClass().getConstructor(ServiceView.class).newInstance(db);
-                } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-                    throw new ChuuServiceException(e);
-                }
+            return result.getAllClasses().stream()
+                    .filter(x -> x.isStandardClass() && !x.isAbstract())
+                    .filter(x -> !x.getSimpleName().equals(HelpCommand.class.getSimpleName())
+                            && !x.getSimpleName().equals(AdministrativeCommand.class.getSimpleName())
+                            && !x.getSimpleName().equals(PrefixCommand.class.getSimpleName())
+                            && !x.getSimpleName().equals(TagWithYearCommand.class.getSimpleName())
+                            && !x.getSimpleName().equals(EvalCommand.class.getSimpleName())
+                            && !x.getSimpleName().equals(FeaturedCommand.class.getSimpleName()))
+                    .filter(x -> x.extendsSuperclass("core.commands.abstracts.MyCommand")).map(x -> {
+                        try {
+                            return (MyCommand<?>) x.loadClass().getConstructor(ServiceView.class).newInstance(db);
+                        } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+                            throw new ChuuServiceException(e);
+                        }
 
-            }).peek(help::registerCommand).toArray(MyCommand<?>[]::new);
+                    }).peek(help::registerCommand).toArray(MyCommand<?>[]::new);
         } catch (Exception ex) {
             logger.error("There was an error while registering the commands!", ex);
             logger.error(ex.getMessage(), ex);
@@ -351,7 +370,10 @@ public class Chuu {
     public static void main(String[] args) {
         Chuu.args = args;
         if (System.getProperty("file.encoding").equals("UTF-8")) {
-            setupBot(Arrays.stream(args).anyMatch(x -> x.equalsIgnoreCase("stop-asking")), Arrays.stream(args).noneMatch(x -> x.equalsIgnoreCase("no-global")), Arrays.stream(args).anyMatch(x -> x.equalsIgnoreCase("start-away")), Arrays.stream(args).anyMatch(x -> x.equalsIgnoreCase("not-main")));
+            setupBot(Arrays.stream(args).anyMatch(x -> x.equalsIgnoreCase("stop-asking")),
+                    Arrays.stream(args).noneMatch(x -> x.equalsIgnoreCase("no-global")),
+                    Arrays.stream(args).anyMatch(x -> x.equalsIgnoreCase("start-away")),
+                    Arrays.stream(args).anyMatch(x -> x.equalsIgnoreCase("not-main")));
         } else {
             throw new ChuuServiceException("Set up utf-8 pls");
         }

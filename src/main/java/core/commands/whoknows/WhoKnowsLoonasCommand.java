@@ -139,7 +139,6 @@ public class WhoKnowsLoonasCommand extends WhoKnowsBaseCommand<LOONAParameters> 
 
         switch (display) {
             case COLLAGE:
-                boolean fixedSize = false;
                 int xSize = 5;
                 int y = 5;
                 switch (mode) {
@@ -262,7 +261,7 @@ public class WhoKnowsLoonasCommand extends WhoKnowsBaseCommand<LOONAParameters> 
                 }
                 Map<String, ReturnNowPlaying> userToPlays = groupByUser(whoKnowsArtistSet);
                 WrapperReturnNowPlaying wrapperReturnNowPlaying = handleRepresentatives(params, userToPlays);
-
+                wrapperReturnNowPlaying.setIndexes();
                 super.doImage(params, wrapperReturnNowPlaying);
                 break;
             case COUNT:
@@ -289,6 +288,7 @@ public class WhoKnowsLoonasCommand extends WhoKnowsBaseCommand<LOONAParameters> 
                                                     return z;
                                                 }).orElse(null))));
                 wrapperReturnNowPlaying = handleRepresentatives(params, userToPlays);
+                wrapperReturnNowPlaying.setIndexes();
                 doList(params, wrapperReturnNowPlaying);
                 break;
         }
@@ -343,8 +343,19 @@ public class WhoKnowsLoonasCommand extends WhoKnowsBaseCommand<LOONAParameters> 
         } else {
             title = e.getJDA().getSelfUser().getName();
         }
+        handleWkMode(ap, wrapperReturnNowPlaying);
         return WhoKnowsMaker.generateWhoKnows(wrapperReturnNowPlaying, EnumSet.allOf(WKMode.class), title, logo, e.getAuthor().getIdLong());
 
+    }
+
+    @Override
+    LastFMData obtainLastFmData(LOONAParameters ap) {
+        return ap.getLastFMData();
+    }
+
+    @Override
+    public Optional<Rank<ReturnNowPlaying>> fetchNotInList(LOONAParameters ap, WrapperReturnNowPlaying wr) {
+        return Optional.empty();
     }
 
     void doList(LOONAParameters ap, WrapperReturnNowPlaying wrapperReturnNowPlaying) {
@@ -362,7 +373,7 @@ public class WhoKnowsLoonasCommand extends WhoKnowsBaseCommand<LOONAParameters> 
                 .setTitle(getTitle(ap, usable)).
                 setThumbnail(CommandUtil.noImageUrl(wrapperReturnNowPlaying.getUrl()));
 
-        new PaginatorBuilder<>(e, embedBuilder, wrapperReturnNowPlaying.getReturnNowPlayings()).build().queue();
+        new PaginatorBuilder<>(e, embedBuilder, wrapperReturnNowPlaying.getReturnNowPlayings()).unnumered().build().queue();
 
     }
 

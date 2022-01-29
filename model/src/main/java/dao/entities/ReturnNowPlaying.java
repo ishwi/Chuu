@@ -1,18 +1,16 @@
 package dao.entities;
 
-import java.awt.*;
 import java.util.function.Supplier;
 
 public class ReturnNowPlaying {
-    String itemUrl;
     private String artist;
     private long discordId;
     private String discordName;
-    private Color roleColor;
     private String lastFMId;
     private int playNumber;
     private String memoized;
     private Supplier<String> generateString;
+    private long index;
 
     public ReturnNowPlaying(long discordId, String lastFMId, String artist, int playNumber) {
         this.discordId = discordId;
@@ -36,16 +34,12 @@ public class ReturnNowPlaying {
         return discordName;
     }
 
+    public long getIndex() {
+        return index;
+    }
+
     public void setDiscordName(String discordName) {
         this.discordName = discordName;
-    }
-
-    public Color getRoleColor() {
-        return roleColor;
-    }
-
-    public void setRoleColor(Color roleColor) {
-        this.roleColor = roleColor;
     }
 
     public String getArtist() {
@@ -70,6 +64,10 @@ public class ReturnNowPlaying {
 
     public void setPlayNumber(int playNumber) {
         this.playNumber = playNumber;
+    }
+
+    public void setIndex(long fakedIndex) {
+        this.index = fakedIndex;
     }
 
     public void setMemoized(String memoized) {

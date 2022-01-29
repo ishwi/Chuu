@@ -622,29 +622,36 @@ public class TrackDaoImpl extends BaseDAO implements TrackDao {
 
     @Override
     public void insertTracks(Connection connection, List<ScrobbledTrack> nonExistingId) {
-        StringBuilder mySql = new StringBuilder("INSERT INTO track (artist_id,track_name,url,mbid,duration,album_id) VALUES (?,?,?,?,?,?)");
+        StringBuilder mySql = new StringBuilder("INSERT INTO track (artist_id,track_name,url,mbid,duration,album_id,spotify_id) VALUES (?,?,?,?,?,?,?)");
 
-        mySql.append(",(?,?,?,?,?,?)".repeat(Math.max(0, nonExistingId.size() - 1)));
-        mySql.append(" on duplicate key update " + " mbid = if(mbid is null and values(mbid) is not null,values(mbid),mbid), " + " duration = if(duration is null and values(duration) is not null,values(duration),duration), " + " url = if(url is null and values(url) is not null,values(url),url), " + " album_id = if(album_id is null and values(album_id) is not null,values(album_id),album_id)  returning id ");
+        mySql.append(",(?,?,?,?,?,?,?)".repeat(Math.max(0, nonExistingId.size() - 1)));
+        mySql.append(" on duplicate key update  " +
+                "mbid = if(mbid is null and values(mbid) is not null,values(mbid),mbid), " +
+                " duration = if(duration is null and values(duration) is not null and values(duration) != 0,values(duration),duration)," +
+                "url = if(url is null and values(url) is not null,values(url),url)," +
+                "album_id = if(album_id is null and values(album_id) is not null,values(album_id),album_id)  " +
+                "spotify_id = if(spotify_id is null and values(spotify_id) is not null,values(spotify_id),spotify_id)  " +
+                "returning id ");
 
         try {
             PreparedStatement preparedStatement = connection.prepareStatement(mySql.toString());
             for (int i = 0; i < nonExistingId.size(); i++) {
                 ScrobbledTrack x = nonExistingId.get(i);
-                preparedStatement.setLong(6 * i + 1, x.getArtistId());
-                preparedStatement.setString(6 * i + 2, x.getName());
-                preparedStatement.setString(6 * i + 3, x.getUrl());
+                preparedStatement.setLong(7 * i + 1, x.getArtistId());
+                preparedStatement.setString(7 * i + 2, x.getName());
+                preparedStatement.setString(7 * i + 3, x.getUrl());
                 String trackMbid = x.getMbid();
                 if (trackMbid == null || trackMbid.isBlank()) {
                     trackMbid = null;
                 }
-                preparedStatement.setString(6 * i + 4, trackMbid);
-                preparedStatement.setInt(6 * i + 5, x.getDuration());
+                preparedStatement.setString(7 * i + 4, trackMbid);
+                preparedStatement.setInt(7 * i + 5, x.getDuration());
                 if (x.getAlbumId() < 1) {
-                    preparedStatement.setNull(6 * i + 6, Types.BIGINT);
+                    preparedStatement.setNull(7 * i + 6, Types.BIGINT);
                 } else {
-                    preparedStatement.setLong(6 * i + 6, x.getAlbumId());
+                    preparedStatement.setLong(7 * i + 6, x.getAlbumId());
                 }
+                preparedStatement.setString(7 * i + 7, x.getSpotifyId());
 
 
             }
@@ -1039,5 +1046,55 @@ public class TrackDaoImpl extends BaseDAO implements TrackDao {
             throw new ChuuServiceException(e);
         }
         return unheard;
+    }
+
+    @Override
+    public List<Track> getUserTracksByLength(Connection connection, String lastfmId, boolean longestFirst, Integer limit) {
+        List<Track> returnList = new ArrayList<>();
+        String mySql = """
+                SELECT
+                    a.playnumber,
+                    b.track_name,
+                    duration,
+                    b.url,
+                    c.name
+                FROM scrobbled_track a
+                join track b on a.track_id = b.id
+                join artist c on b.artist_id = c.id
+                WHERE
+                    a.lastfm_id = ?
+                    and duration != 0
+                ORDER BY duration
+                """;
+        if (longestFirst) {
+            mySql += " desc";
+        }
+        if (limit != null) {
+            mySql += " LIMIT ?";
+        }
+        try {
+            PreparedStatement preparedStatement = connection.prepareStatement(mySql);
+            int i = 1;
+            preparedStatement.setString(i++, lastfmId);
+            if (limit != null) {
+                preparedStatement.setInt(i, limit);
+            }
+            ResultSet resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                int plays = resultSet.getInt(1);
+                String trackName = resultSet.getString(2);
+                int duration = resultSet.getInt(3);
+                String url = resultSet.getString(4);
+                String name = resultSet.getString(5);
+
+                Track e = new Track(name, trackName, plays, false, duration == 0 ? 200 : duration);
+                e.setImageUrl(url);
+                returnList.add(e);
+            }
+
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+        return returnList;
     }
 }

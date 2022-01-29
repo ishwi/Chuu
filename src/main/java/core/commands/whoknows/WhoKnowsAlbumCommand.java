@@ -43,11 +43,6 @@ public class WhoKnowsAlbumCommand extends WhoKnowsBaseCommand<ArtistAlbumParamet
 
 
     @Override
-    WhoKnowsMode getWhoknowsMode(ArtistAlbumParameters params) {
-        return getEffectiveMode(params.getLastFMData().getWhoKnowsMode(), params);
-    }
-
-    @Override
     WrapperReturnNowPlaying generateWrapper(ArtistAlbumParameters ap, WhoKnowsMode whoKnowsMode) throws LastFmException {
         ScrobbledArtist sA = new ArtistValidator(db, lastFM, ap.getE()).validate(ap.getArtist(), !ap.isNoredirect());
         ap.setScrobbledArtist(sA);
@@ -106,6 +101,27 @@ public class WhoKnowsAlbumCommand extends WhoKnowsBaseCommand<ArtistAlbumParamet
 
         return new WrapperReturnNowPlaying(list2, userCounts.size(), Chuu.getCoverService().getCover(sA.getArtistId(), urlContainter.getAlbumUrl(), ap.getE()),
                 correctedArtist + " - " + correctedAlbum);
+    }
+
+    @Override
+    LastFMData obtainLastFmData(ArtistAlbumParameters ap) {
+        return ap.getLastFMData();
+    }
+
+    @Override
+    public Optional<Rank<ReturnNowPlaying>> fetchNotInList(ArtistAlbumParameters ap, WrapperReturnNowPlaying wr) {
+        // We have added the rnp to the list before
+        Optional<ReturnNowPlaying> first = Optional.empty();
+        int rank = 0;
+        for (ReturnNowPlaying z : wr.getReturnNowPlayings()) {
+            if (z.getDiscordId() == ap.getLastFMData().getDiscordId()) {
+                first = Optional.of(z);
+                break;
+            }
+            rank++;
+        }
+        int finalRank = rank;
+        return first.map(rnp -> new Rank<>(rnp, finalRank));
     }
 
 

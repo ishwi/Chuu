@@ -1780,6 +1780,35 @@ public class UpdaterDaoImpl extends BaseDAO implements UpdaterDao {
     }
 
     @Override
+    public void insertAudioFeatures(Connection connection, List<AudioFeatures> audioFeatures) {
+
+
+        String queryString = "insert ignore  into audio_features(spotify_id,acousticness,danceability,energy,instrumentalness,`key`,liveness,loudness,speechiness,tempo,valence,time_signature) values " +
+                "(?,?,?,?,?,?,?,?,?,?,?,?)" + ",(?,?,?,?,?,?,?,?,?,?,?,?)".repeat(Math.max(0, audioFeatures.size() - 1));
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+            for (int i = 0; i < audioFeatures.size(); i++) {
+                preparedStatement.setString(12 * i + 1, audioFeatures.get(i).id());
+                preparedStatement.setFloat(12 * i + 2, audioFeatures.get(i).acousticness());
+                preparedStatement.setFloat(12 * i + 3, audioFeatures.get(i).danceability());
+                preparedStatement.setFloat(12 * i + 4, audioFeatures.get(i).energy());
+                preparedStatement.setFloat(12 * i + 5, audioFeatures.get(i).instrumentalness());
+                preparedStatement.setInt(12 * i + 6, audioFeatures.get(i).key());
+                preparedStatement.setFloat(12 * i + 7, audioFeatures.get(i).liveness());
+                preparedStatement.setDouble(12 * i + 8, audioFeatures.get(i).loudness());
+                preparedStatement.setFloat(12 * i + 9, audioFeatures.get(i).speechiness());
+                preparedStatement.setFloat(12 * i + 10, audioFeatures.get(i).tempo());
+                preparedStatement.setFloat(12 * i + 11, audioFeatures.get(i).valence());
+                preparedStatement.setInt(12 * i + 12, audioFeatures.get(i).timeSignature());
+            }
+            preparedStatement.execute();
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+
+    }
+
+
+    @Override
     public void insertUserInfo(Connection connection, UserInfo userInfo) {
         String queryString = "INSERT IGNORE  INTO user_info(lastfm_id,profile_pic,login_moment) VALUES (?,?,?) ON DUPLICATE KEY UPDATE profile_pic = VALUES(profile_pic) ";
 
@@ -1858,13 +1887,13 @@ public class UpdaterDaoImpl extends BaseDAO implements UpdaterDao {
     }
 
     @Override
-    public long storeRejected(Connection connection, ImageQueue reportEntity) {
+    public long storeRejected(Connection connection, String url, long artistId, long uploader) {
         String queryString = "INSERT INTO rejected(url,artist_id,discord_id) VALUES (?,?,?) RETURNING id  ";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
             int i = 1;
-            preparedStatement.setString(i++, reportEntity.url());
-            preparedStatement.setLong(i++, reportEntity.artistId());
-            preparedStatement.setLong(i, reportEntity.uploader());
+            preparedStatement.setString(i++, url);
+            preparedStatement.setLong(i++, artistId);
+            preparedStatement.setLong(i, uploader);
             preparedStatement.executeUpdate();
             ResultSet resultSet = preparedStatement.getResultSet();
             if (resultSet.next()) {

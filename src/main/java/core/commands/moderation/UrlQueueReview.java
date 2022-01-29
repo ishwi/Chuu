@@ -199,7 +199,7 @@ public class UrlQueueReview extends ConcurrentCommand<CommandParameters> {
                 },
                 queue::poll,
                 builder.apply(e.getJDA(), totalImages, navigationCounter::get, strikesMap, rejectedMap, approvedMap)
-                , embedBuilder, e, e.getAuthor().getIdLong(), actionMap, List.of(of), false, true, 60);
+                , embedBuilder, e, e.getAuthor().getIdLong(), actionMap, List.of(of), false, true, 120);
 
     }
 

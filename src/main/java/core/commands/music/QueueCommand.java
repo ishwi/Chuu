@@ -94,7 +94,7 @@ public class QueueCommand extends MusicCommand<CommandParameters> {
                     } else {
                         item = "__%s__".formatted(sc.scrobble().toLink(tr.getInfo().uri));
                     }
-                    return "`[%s]` %s\n".formatted(CommandUtil.getTimestamp(tr.getDuration()), item);
+                    return "`[%s]` %s\n".formatted(CommandUtil.msToString(tr.getDuration()), item);
                 }).toList();
         EmbedBuilder eb = new ChuuEmbedBuilder(e)
                 .setAuthor("Music Queue", null, np.scrobble().image())
@@ -113,7 +113,7 @@ public class QueueCommand extends MusicCommand<CommandParameters> {
             str.add("Nothing in the queue-");
         } else {
             eb.addField("Entries", String.valueOf(queue.size()), true)
-                    .addField("Total Duration", CommandUtil.getTimestamp(duration), true);
+                    .addField("Total Duration", CommandUtil.msToString(duration), true);
         }
 
 

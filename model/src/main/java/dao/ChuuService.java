@@ -1577,7 +1577,7 @@ public class ChuuService implements EveryNoiseService {
 
     public void rejectQueuedImage(long queuedId, ImageQueue reportEntity) {
         try (Connection connection = dataSource.getConnection()) {
-            updaterDao.storeRejected(connection, reportEntity);
+            updaterDao.storeRejected(connection, reportEntity.url(), reportEntity.artistId(), reportEntity.uploader());
             updaterDao.removeQueuedImage(connection, queuedId);
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
@@ -3415,6 +3415,7 @@ public class ChuuService implements EveryNoiseService {
                 ScrobbledTrack scrobbledTrack = new ScrobbledTrack(x.getArtist(), x.getName(), 0, false, x.getDuration(), x.getImageUrl(), null, x.getMbid());
                 scrobbledTrack.setAlbumId(albumId);
                 scrobbledTrack.setArtistId(artistId);
+                scrobbledTrack.setSpotifyId(x.getSpotifyId());
                 scrobbledTrack.setPosition(x.getPosition());
                 return scrobbledTrack;
             }).toList();
@@ -3951,9 +3952,32 @@ public class ChuuService implements EveryNoiseService {
         }
     }
 
+    public boolean strikeExisting(ReportEntity r) {
+        try (Connection connection = dataSource.getConnection()) {
+            updaterDao.removeReport(connection, r.getReportId());
+            long rejectedId = updaterDao.storeRejected(connection, r.getUrl(), r.getArtistReported(), r.getWhoGotReported());
+            updaterDao.addStrike(connection, r.getWhoGotReported(), rejectedId);
+            long count = updaterDao.userStrikes(connection, r.getWhoGotReported());
+            if (count >= 5) {
+                try {
+                    LastFMData lastFmData = userGuildDao.findLastFmData(connection, r.getWhoGotReported());
+                    if (lastFmData.getRole() != Role.ADMIN) {
+                        updaterDao.banUserImage(connection, r.getWhoGotReported());
+                        return true;
+                    }
+                } catch (InstanceNotFoundException exception) {
+                    throw new ChuuServiceException(exception);
+                }
+            }
+            return false;
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
     public boolean strikeQueue(long queuedId, ImageQueue image) {
         try (Connection connection = dataSource.getConnection()) {
-            long rejectedId = updaterDao.storeRejected(connection, image);
+            long rejectedId = updaterDao.storeRejected(connection, image.url(), image.artistId(), image.uploader());
             updaterDao.removeQueuedImage(connection, queuedId);
             updaterDao.addStrike(connection, image.uploader(), rejectedId);
             long count = updaterDao.userStrikes(connection, image.uploader());
@@ -4490,6 +4514,14 @@ public class ChuuService implements EveryNoiseService {
     public void updateArtistRankingNew() {
         try (Connection connection = dataSource.getConnection()) {
             updaterDao.updateArtistRankingUnset(connection);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    public List<Track> getUserTrackByLength(String lastfmId, boolean longestFirst) {
+        try (Connection connection = dataSource.getConnection()) {
+            return trackDao.getUserTracksByLength(connection, lastfmId, longestFirst, 1000);
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }

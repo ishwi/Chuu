@@ -8,12 +8,10 @@ import core.parsers.Parser;
 import core.parsers.params.ArtistParameters;
 import core.services.validators.ArtistValidator;
 import dao.ServiceView;
-import dao.entities.LastFMData;
-import dao.entities.ScrobbledArtist;
-import dao.entities.WhoKnowsMode;
-import dao.entities.WrapperReturnNowPlaying;
+import dao.entities.*;
 
 import java.util.List;
+import java.util.Optional;
 
 public class GlobalWhoKnowsCommand extends GlobalBaseWhoKnowCommand<ArtistParameters> {
 
@@ -66,6 +64,21 @@ public class GlobalWhoKnowsCommand extends GlobalBaseWhoKnowCommand<ArtistParame
         }
         wrapperReturnNowPlaying.setUrl(sA.getUrl());
         return wrapperReturnNowPlaying;
+    }
+
+    @Override
+    public Optional<Rank<ReturnNowPlaying>> fetchNotInList(ArtistParameters ap, WrapperReturnNowPlaying wr) {
+        ScrobbledArtist sA = ap.getScrobbledArtist();
+        boolean showBotted = CommandUtil.showBottedAccounts(ap.getLastFMData(), ap, db);
+        List<GlobalCrown> globals = db.getGlobalArtistRanking(sA.getArtistId(), showBotted, ap.getE().getAuthor().getIdLong());
+        Optional<GlobalCrown> yourPosition = globals.stream().filter(x -> x.getDiscordId() == ap.getLastFMData().getDiscordId()).findFirst();
+        return yourPosition.map(gc -> new Rank<>(
+                new GlobalReturnNowPlaying(gc.getDiscordId(),
+                        gc.getLastfmID(),
+                        ap.getScrobbledArtist().getArtist(),
+                        gc.getPlaycount(),
+                        ap.getLastFMData().getPrivacyMode()), gc.getRanking() - 1));
+
     }
 
     @Override

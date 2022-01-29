@@ -9,12 +9,11 @@ import core.parsers.params.ArtistParameters;
 import core.parsers.utils.Optionals;
 import core.services.validators.ArtistValidator;
 import dao.ServiceView;
-import dao.entities.ScrobbledArtist;
-import dao.entities.WhoKnowsMode;
-import dao.entities.WrapperReturnNowPlaying;
+import dao.entities.*;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 
 public class WhoKnowsCommand extends WhoKnowsBaseCommand<ArtistParameters> {
@@ -44,11 +43,6 @@ public class WhoKnowsCommand extends WhoKnowsBaseCommand<ArtistParameters> {
 
 
     @Override
-    WhoKnowsMode getWhoknowsMode(ArtistParameters ap) {
-        return getEffectiveMode(ap.getLastFMData().getWhoKnowsMode(), ap);
-    }
-
-    @Override
     protected WrapperReturnNowPlaying generateWrapper(ArtistParameters params, WhoKnowsMode whoKnowsMode) throws LastFmException {
         ScrobbledArtist sA = new ArtistValidator(db, lastFM, params.getE()).validate(params.getArtist(), !params.isNoredirect());
         params.setScrobbledArtist(sA);
@@ -64,6 +58,25 @@ public class WhoKnowsCommand extends WhoKnowsBaseCommand<ArtistParameters> {
                 .forEach(x -> x.setDiscordName(CommandUtil.getUserInfoUnescaped(e, x.getDiscordId()).username()));
         wrapperReturnNowPlaying.setUrl(sA.getUrl());
         return wrapperReturnNowPlaying;
+    }
+
+    @Override
+    LastFMData obtainLastFmData(ArtistParameters ap) {
+        return ap.getLastFMData();
+    }
+
+    @Override
+    public Optional<Rank<ReturnNowPlaying>> fetchNotInList(ArtistParameters ap, WrapperReturnNowPlaying wr) {
+        WrapperReturnNowPlaying wrp = this.db.whoKnows(ap.getScrobbledArtist().getArtistId(), ap.getE().getGuild().getIdLong());
+
+        List<ReturnNowPlaying> returnNowPlayings = wrp.getReturnNowPlayings();
+        for (int i = 0; i < returnNowPlayings.size(); i++) {
+            ReturnNowPlaying returnNowPlaying = returnNowPlayings.get(i);
+            if (returnNowPlaying.getDiscordId() == ap.getE().getAuthor().getIdLong()) {
+                return Optional.of(new Rank<>(returnNowPlaying, i + 1L));
+            }
+        }
+        return Optional.empty();
     }
 
     @Override

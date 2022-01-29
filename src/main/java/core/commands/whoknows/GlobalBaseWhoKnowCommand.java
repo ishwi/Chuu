@@ -40,6 +40,7 @@ public abstract class GlobalBaseWhoKnowCommand<T extends CommandParameters> exte
         if (e.isFromGuild()) {
             logo = CommandUtil.getLogo(db, e);
         }
+        handleWkMode(ap, wrapperReturnNowPlaying);
         BufferedImage image = WhoKnowsMaker.generateWhoKnows(wrapperReturnNowPlaying, EnumSet.allOf(WKMode.class), title, logo, e.getAuthor().getIdLong());
         if (obtainLastFmData(ap).getPrivacyMode() == PrivacyMode.NORMAL && CommandUtil.rand.nextFloat() >= 0.95f) {
             char prefix = e.getPrefix();
@@ -73,7 +74,7 @@ public abstract class GlobalBaseWhoKnowCommand<T extends CommandParameters> exte
                             privacy = mapPrivacy(x, privacy, ap, privacyMode, showableUsers);
                             x.setDiscordName(privacy.discordName());
                             x.setLastFMId(privacy.lastfmName());
-                            return ". " +
+                            return x.getIndex() + 1 + ". " +
                                     "**[" + privacy.discordName() + "](" +
                                     PrivacyUtils.getUrlTitle(x) +
                                     ")** - " +

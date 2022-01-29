@@ -9,15 +9,13 @@ import core.parsers.GenreParser;
 import core.parsers.Parser;
 import core.parsers.params.GenreParameters;
 import dao.ServiceView;
-import dao.entities.ScrobbledArtist;
-import dao.entities.WKMode;
-import dao.entities.WhoKnowsMode;
-import dao.entities.WrapperReturnNowPlaying;
+import dao.entities.*;
 import org.jsoup.internal.StringUtil;
 
 import java.awt.image.BufferedImage;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Optional;
 
 import static core.commands.whoknows.MultipleWhoKnowsTagCommand.formatTag;
 import static java.util.function.Predicate.not;
@@ -31,10 +29,6 @@ public class WhoKnowsTagCommand extends WhoKnowsBaseCommand<GenreParameters> {
         super(dao, true);
     }
 
-    @Override
-    WhoKnowsMode getWhoknowsMode(GenreParameters params) {
-        return getEffectiveMode(params.getLastFMData().getWhoKnowsMode(), params);
-    }
 
     @Override
     public String slashName() {
@@ -65,10 +59,20 @@ public class WhoKnowsTagCommand extends WhoKnowsBaseCommand<GenreParameters> {
         }
         List<String> urls = db.getTopInTag(ap.getGenre(), e.getGuild().getIdLong(), 100).stream().map(ScrobbledArtist::getUrl).filter(not(StringUtil::isBlank)).toList();
         BufferedImage thumb = ThumbsMaker.generate(urls);
-
+        handleWkMode(ap, wrapperReturnNowPlaying);
         BufferedImage image = WhoKnowsMaker.generateWhoKnows(wrapperReturnNowPlaying, EnumSet.allOf(WKMode.class), title, logo, ap.getE().getAuthor().getIdLong(), thumb);
         sendImage(image, e);
         return logo;
+    }
+
+    @Override
+    LastFMData obtainLastFmData(GenreParameters ap) {
+        return ap.getLastFMData();
+    }
+
+    @Override
+    public Optional<Rank<ReturnNowPlaying>> fetchNotInList(GenreParameters ap, WrapperReturnNowPlaying wr) {
+        return Optional.empty();
     }
 
     @Override

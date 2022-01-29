@@ -23,6 +23,8 @@ import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Emoji;
+import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
@@ -32,6 +34,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiFunction;
@@ -130,11 +133,27 @@ public class ReportReviewCommand extends ConcurrentCommand<CommandParameters> {
                 navigationCounter.incrementAndGet();
                 return ButtonResult.defaultResponse;
             });
+            actionMap.put(STRIKE, (a, r) -> {
+                statBan.getAndIncrement();
+                navigationCounter.incrementAndGet();
+                CompletableFuture.runAsync(() -> {
+                    boolean banned = db.strikeExisting(a);
+                    if (banned) {
+                        TextChannel textChannelById = Chuu.getShardManager().getTextChannelById(Chuu.channel2Id);
+                        db.removeQueuedPictures(a.getWhoGotReported());
+                        if (textChannelById != null)
+                            textChannelById.sendMessageEmbeds(new ChuuEmbedBuilder(e).setTitle("Banned user for adding pics")
+                                    .setDescription("User: **%s**\n".formatted(User.fromId(a.getWhoGotReported()).getAsMention())).build()).queue();
+                    }
+                });
+                return ButtonResult.defaultResponse;
+            });
 
             ActionRow of = ActionRow.of(
                     Button.danger(DELETE, "Remove image").withEmoji(Emoji.fromUnicode(DELETE)),
                     Button.primary(ACCEPT, "Ignore report").withEmoji(Emoji.fromUnicode(ACCEPT)),
-                    Button.secondary(RIGHT_ARROW, "Skip").withEmoji(Emoji.fromUnicode(RIGHT_ARROW))
+                    Button.secondary(RIGHT_ARROW, "Skip").withEmoji(Emoji.fromUnicode(RIGHT_ARROW)),
+                    Button.danger(STRIKE, "Strike").withEmoji(Emoji.fromUnicode(STRIKE))
             );
 
             new ButtonValidator<>(

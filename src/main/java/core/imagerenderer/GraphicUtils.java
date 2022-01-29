@@ -327,12 +327,14 @@ public class GraphicUtils {
 
             g.setColor(GraphicUtils.getBetter(colorB1));
 
-            String name = nowPlayingArtistList.get(i).getDiscordName();
+            ReturnNowPlaying rnp = nowPlayingArtistList.get(i);
+            String name = rnp.getDiscordName();
+            long index = rnp.getIndex();
             Font tempFont = g.getFont();
 
             int startName = x;
             if (doNumber) {
-                String strNumber = "#" + (phase + i + 1) + " ";
+                String strNumber = "#" + (phase + index + 1) + " ";
                 g.drawString(strNumber, x, yCounter + (margin - metrics.getAscent() / 2));
                 startName += g.getFontMetrics().stringWidth(strNumber);
             }
@@ -343,7 +345,7 @@ public class GraphicUtils {
             g.drawString(fontMetadata.atrribute().getIterator(), startName, yCounter + (margin - metrics.getAscent() / 2));
 
             g.setFont(tempFont.deriveFont(initialSize));
-            String plays = String.valueOf(nowPlayingArtistList.get(i).getPlayNumber());
+            String plays = String.valueOf(rnp.getPlayNumber());
             int stringWidth = metrics.stringWidth(plays);
             int playPos = x + width - (rowHeight + stringWidth);
             int playEnd = playPos + stringWidth;

@@ -60,12 +60,12 @@ public class UnheardCommand extends ConcurrentCommand<NumberParameters<ArtistPar
 
     @Override
     public List<String> getAliases() {
-        return List.of("unheard", "notlistened", "tolisten");
+        return List.of("unexplored", "unheard", "notlistened", "tolisten");
     }
 
     @Override
     public String getName() {
-        return "Unheard";
+        return "Unexplored";
     }
 
 

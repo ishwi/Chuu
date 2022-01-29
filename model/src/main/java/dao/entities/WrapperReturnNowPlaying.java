@@ -50,5 +50,11 @@ public class WrapperReturnNowPlaying {
         this.rows = rows;
     }
 
-
+    public void setIndexes() {
+        List<ReturnNowPlaying> rnp = this.getReturnNowPlayings();
+        for (int j = 0, rnpSize = rnp.size(); j < rnpSize; j++) {
+            ReturnNowPlaying returnNowPlaying = rnp.get(j);
+            returnNowPlaying.setIndex(j);
+        }
+    }
 }

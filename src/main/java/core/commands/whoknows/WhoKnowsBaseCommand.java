@@ -20,19 +20,20 @@ import core.parsers.DaoParser;
 import core.parsers.params.CommandParameters;
 import core.parsers.utils.Optionals;
 import dao.ServiceView;
-import dao.entities.ReturnNowPlaying;
-import dao.entities.WKMode;
-import dao.entities.WhoKnowsMode;
-import dao.entities.WrapperReturnNowPlaying;
+import dao.entities.*;
 import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import org.imgscalr.Scalr;
+import org.jetbrains.annotations.NotNull;
 import org.knowm.xchart.PieChart;
 
 import javax.annotation.Nonnull;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.EnumSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.function.Supplier;
 
 public abstract class WhoKnowsBaseCommand<T extends CommandParameters> extends ConcurrentCommand<T> {
     final DiscogsApi discogsApi;
@@ -84,33 +85,26 @@ public abstract class WhoKnowsBaseCommand<T extends CommandParameters> extends C
         if (wrapperReturnNowPlaying == null) {
             return;
         }
+        wrapperReturnNowPlaying.setIndexes();
         generateWhoKnows(wrapperReturnNowPlaying, params, e.getAuthor().getIdLong(), whoknowsMode);
 
     }
 
 
-    abstract WhoKnowsMode getWhoknowsMode(T params);
+    WhoKnowsMode getWhoknowsMode(T params) {
+        return getEffectiveMode(obtainLastFmData(params).getWhoKnowsMode(), params);
+    }
 
     abstract WrapperReturnNowPlaying generateWrapper(T params, WhoKnowsMode whoKnowsMode) throws LastFmException;
 
     public void generateWhoKnows(WrapperReturnNowPlaying wrapperReturnNowPlaying, T ap, long author, WhoKnowsMode effectiveMode) {
         wrapperReturnNowPlaying.getReturnNowPlayings()
                 .forEach(x ->
-                        x.setGenerateString(() -> {
-                            String userString = getUserString(ap.getE(), x.getDiscordId());
-                            x.setDiscordName(userString);
-                            return ". " +
-                                    "**[" + LinkUtils.cleanMarkdownCharacter(userString) + "](" +
-                                    PrivacyUtils.getUrlTitle(x) +
-                                    ")** - " +
-                                    x.getPlayNumber() + " plays\n";
-                        })
+                        x.setGenerateString(supplierGenerator(ap, x))
                 );
         switch (effectiveMode) {
 
             case IMAGE, PIE -> {
-                wrapperReturnNowPlaying.getReturnNowPlayings().stream().limit(15)
-                        .forEach(x -> x.setDiscordName(CommandUtil.getUserInfoUnescaped(ap.getE(), x.getDiscordId()).username()));
                 if (effectiveMode.equals(WhoKnowsMode.IMAGE)) {
                     doImage(ap, wrapperReturnNowPlaying);
                 } else {
@@ -119,6 +113,19 @@ public abstract class WhoKnowsBaseCommand<T extends CommandParameters> extends C
             }
             case LIST -> doList(ap, wrapperReturnNowPlaying);
         }
+    }
+
+    @NotNull
+    Supplier<String> supplierGenerator(T ap, ReturnNowPlaying x) {
+        return () -> {
+            String userString = getUserString(ap.getE(), x.getDiscordId());
+            x.setDiscordName(userString);
+            return x.getIndex() + 1 + ". " +
+                    "**[" + LinkUtils.cleanMarkdownCharacter(userString) + "](" +
+                    PrivacyUtils.getUrlTitle(x) +
+                    ")** - " +
+                    x.getPlayNumber() + " plays\n";
+        };
     }
 
     protected String getImageTitle(Context e, T params) {
@@ -139,11 +146,37 @@ public abstract class WhoKnowsBaseCommand<T extends CommandParameters> extends C
         if (e.isFromGuild()) {
             logo = CommandUtil.getLogo(db, e);
         }
+        handleWkMode(ap, wrapperReturnNowPlaying);
         BufferedImage image = WhoKnowsMaker.generateWhoKnows(wrapperReturnNowPlaying, EnumSet.allOf(WKMode.class), title, logo, ap.getE().getAuthor().getIdLong());
         sendImage(image, e);
 
         return logo;
     }
+
+    void handleWkMode(T ap, WrapperReturnNowPlaying wr) {
+        List<ReturnNowPlaying> rnp = wr.getReturnNowPlayings();
+        LastFMData data = obtainLastFmData(ap);
+        if (rnp.stream().limit(10).noneMatch(np -> np.getDiscordId() == data.getDiscordId())) {
+            if (rnp.size() >= 10) {
+                Optional<Rank<ReturnNowPlaying>> userOpt = fetchNotInList(ap, wr);
+                if (userOpt.isPresent()) {
+                    Rank<ReturnNowPlaying> userPos = userOpt.get();
+                    ReturnNowPlaying rn = userPos.entity();
+                    rn.setIndex(userPos.rank());
+                    rnp.set(9, rn);
+                    if (rn.getGenerateString() == null) {
+                        rn.setGenerateString(supplierGenerator(ap, rn));
+                    }
+                }
+            }
+        }
+
+    }
+
+    abstract LastFMData obtainLastFmData(T ap);
+
+
+    public abstract Optional<Rank<ReturnNowPlaying>> fetchNotInList(T ap, WrapperReturnNowPlaying wr);
 
     void doList(T ap, WrapperReturnNowPlaying wrapperReturnNowPlaying) {
 
@@ -159,7 +192,7 @@ public abstract class WhoKnowsBaseCommand<T extends CommandParameters> extends C
         EmbedBuilder embedBuilder = new ChuuEmbedBuilder(ap.getE()).setTitle(getTitle(ap, usable)).
                 setThumbnail(CommandUtil.noImageUrl(wrapperReturnNowPlaying.getUrl()));
 
-        new PaginatorBuilder<>(e, embedBuilder, wrapperReturnNowPlaying.getReturnNowPlayings()).build().queue();
+        new PaginatorBuilder<>(e, embedBuilder, wrapperReturnNowPlaying.getReturnNowPlayings()).unnumered().build().queue();
 
     }
 

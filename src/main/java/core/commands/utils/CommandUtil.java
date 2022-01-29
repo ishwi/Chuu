@@ -424,7 +424,8 @@ public class CommandUtil {
 
     }
 
-    public static String getTimestamp(long ms) {
+
+    public static String msToString(long ms) {
         var s = ms / 1000;
         var m = s / 60;
         var h = m / 60;

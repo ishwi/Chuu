@@ -49,18 +49,11 @@ public class LocalWhoKnowsAlbumCommand extends WhoKnowsBaseCommand<ArtistAlbumPa
         return "Get local guild Album plays";
     }
 
-
-    @Override
-    WhoKnowsMode getWhoknowsMode(ArtistAlbumParameters params) {
-        return getEffectiveMode(params.getLastFMData().getWhoKnowsMode(), params);
-    }
-
     @Override
     WrapperReturnNowPlaying generateWrapper(ArtistAlbumParameters ap, WhoKnowsMode whoKnowsMode) throws LastFmException {
         ScrobbledArtist sA = new ArtistValidator(db, lastFM, ap.getE()).validate(ap.getArtist(), !ap.isNoredirect());
         ap.setScrobbledArtist(sA);
         ScrobbledArtist who = ap.getScrobbledArtist();
-        long artistId = who.getArtistId();
         WhoKnowsMode effectiveMode = getEffectiveMode(ap.getLastFMData().getWhoKnowsMode(), ap);
         Album album = CommandUtil.albumvalidate(db, ap
                 .getScrobbledArtist(), lastFM, ap.getAlbum());
@@ -105,6 +98,27 @@ public class LocalWhoKnowsAlbumCommand extends WhoKnowsBaseCommand<ArtistAlbumPa
 
         wrapperReturnNowPlaying.setArtist(who.getArtist() + " - " + ap.getAlbum());
         return wrapperReturnNowPlaying;
+    }
+
+    @Override
+    LastFMData obtainLastFmData(ArtistAlbumParameters ap) {
+        return ap.getLastFMData();
+    }
+
+    @Override
+    public Optional<Rank<ReturnNowPlaying>> fetchNotInList(ArtistAlbumParameters ap, WrapperReturnNowPlaying wr) {
+        // We have added the rnp to the list before
+        Optional<ReturnNowPlaying> first = Optional.empty();
+        int rank = 0;
+        for (ReturnNowPlaying z : wr.getReturnNowPlayings()) {
+            if (z.getDiscordId() == ap.getLastFMData().getDiscordId()) {
+                first = Optional.of(z);
+                break;
+            }
+            rank++;
+        }
+        int finalRank = rank;
+        return first.map(rnp -> new Rank<>(rnp, finalRank));
     }
 
     protected WrapperReturnNowPlaying generateInnerWrapper(ArtistAlbumParameters ap, WhoKnowsMode effectiveMode, long albumId) {

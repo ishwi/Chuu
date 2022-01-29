@@ -44,14 +44,18 @@ public class LoveMaker {
         GraphicUtils.initRandomImageBlurredBackground(g, X_SIZE, Y_SIZE);
 
         BufferedImage first = getImageFromUrl(firstImage);
-        int xImageStarter = X_MARGIN + (IMAGE_SIZE - first.getWidth()) / 2;
-        int yImageStarter = Y_MARGIN + (IMAGE_SIZE - first.getHeight()) / 2;
-        g.drawImage(first, xImageStarter, yImageStarter, null);
+        if (first != null) {
+            int xImageStarter = X_MARGIN + (IMAGE_SIZE - first.getWidth()) / 2;
+            int yImageStarter = Y_MARGIN + (IMAGE_SIZE - first.getHeight()) / 2;
+            g.drawImage(first, xImageStarter, yImageStarter, null);
+        }
 
         BufferedImage second = getImageFromUrl(secondImage);
-        xImageStarter = X_SIZE - X_MARGIN - (IMAGE_SIZE + second.getWidth()) / 2;
-        yImageStarter = Y_MARGIN + (IMAGE_SIZE - second.getHeight()) / 2;
-        g.drawImage(second, xImageStarter, yImageStarter, null);
+        if (second != null) {
+            int xImageStarter = X_SIZE - X_MARGIN - (IMAGE_SIZE + second.getWidth()) / 2;
+            int yImageStarter = Y_MARGIN + (IMAGE_SIZE - second.getHeight()) / 2;
+            g.drawImage(second, xImageStarter, yImageStarter, null);
+        }
         g.setColor(GraphicUtils.makeMoreTransparent(Color.GRAY, 0.7f));
 
         g.fillRect(X_MARGIN + IMAGE_MARGIN + IMAGE_SIZE, Y_MARGIN + (IMAGE_SIZE / 2), BAR_SIZE, (IMAGE_SIZE / 2));

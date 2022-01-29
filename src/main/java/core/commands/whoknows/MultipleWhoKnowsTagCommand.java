@@ -64,12 +64,23 @@ public class MultipleWhoKnowsTagCommand extends WhoKnowsBaseCommand<MultipleGenr
         } else {
             title = e.getJDA().getSelfUser().getName();
         }
+        handleWkMode(ap, wrapperReturnNowPlaying);
         List<String> urls = db.getTopInTag(ap.getGenres(), e.getGuild().getIdLong(), 100, ap.getMode()).stream().map(ScrobbledArtist::getUrl).filter(not(StringUtil::isBlank)).toList();
         BufferedImage thumb = ThumbsMaker.generate(urls);
 
         BufferedImage image = WhoKnowsMaker.generateWhoKnows(wrapperReturnNowPlaying, EnumSet.allOf(WKMode.class), title, logo, ap.getE().getAuthor().getIdLong(), thumb);
         sendImage(image, e);
         return logo;
+    }
+
+    @Override
+    LastFMData obtainLastFmData(MultipleGenresParameters ap) {
+        return ap.getLastFMData();
+    }
+
+    @Override
+    public Optional<Rank<ReturnNowPlaying>> fetchNotInList(MultipleGenresParameters ap, WrapperReturnNowPlaying wr) {
+        return Optional.empty();
     }
 
     @Override

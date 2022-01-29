@@ -20,7 +20,7 @@ public class SpotifyTrackService {
         this.service = service;
     }
 
-    public List<ScrobbledTrack> getTracksWithId() {
+    public List<ScrobbledTrack> getTrackWithNoSpotifyId() {
         List<ScrobbledTrack> topTracks = service.getTopTracksNoSpotifyId(lastfmId, 50);
         List<Pair<ScrobbledTrack, Track>> pairs = spotifyApi.searchMultipleTracks(topTracks);
         pairs.forEach(x -> {

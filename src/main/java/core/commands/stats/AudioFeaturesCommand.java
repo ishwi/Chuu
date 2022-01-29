@@ -64,7 +64,7 @@ public class AudioFeaturesCommand extends ConcurrentCommand<ChuuDataParams> {
 
         CompletableFuture<Void> cF = CompletableFuture.runAsync(() -> {
             SpotifyTrackService spotifyTrackService = new SpotifyTrackService(db, lastFMData.getName());
-            List<ScrobbledTrack> tracksWithId = spotifyTrackService.getTracksWithId();
+            List<ScrobbledTrack> tracksWithId = spotifyTrackService.getTrackWithNoSpotifyId();
             List<AudioFeatures> audioFeatures = spotify.getAudioFeatures(tracksWithId.stream().map(ScrobbledTrack::getSpotifyId).collect(Collectors.toSet()));
             var audioFeaturesStream = audioFeatures.stream().map(t ->
                     new dao.entities.AudioFeatures(t.getAcousticness(), t.getAnalysisUrl(), t.getDanceability(), t.getDurationMs(), t.getEnergy(), t.getId(), t.getInstrumentalness(), t.getKey(), t.getLiveness(), t.getLoudness(), t.getSpeechiness(), t.getTempo(), t.getTimeSignature(), t.getTrackHref(), t.getUri(), t.getValence())).toList();
@@ -94,7 +94,7 @@ public class AudioFeaturesCommand extends ConcurrentCommand<ChuuDataParams> {
                 .addField("Loudness:", db.format(userFeatures.loudness()), true)
                 .addField("Energy:", df.format(userFeatures.energy()), true)
                 .addField("Average Tempo:", Math.round(userFeatures.tempo()) + " BPM", true)
-                .addField("Average song length", CommandUtil.getTimestamp(userFeatures.durationMs()), true);
+                .addField("Average song length", CommandUtil.msToString(userFeatures.durationMs()), true);
         if (CommandUtil.rand.nextFloat() > 0.92f) {
             embedBuilder.setFooter("Data comes from Spotify");
         }
