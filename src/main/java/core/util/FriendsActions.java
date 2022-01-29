@@ -12,18 +12,18 @@ import java.util.Collections;
 import java.util.Set;
 
 public enum FriendsActions implements Subcommand, Aliasable, Descriptible {
-    ADD((deps) -> new OnlyUsernameParser(deps.db(), true), "Sends a request to a given user"),
-    PENDING((deps) -> NoOpParser.INSTANCE, "Sees the request that you have sent that are yet to be accepted"),
+    ADD((deps) -> new OnlyUsernameParser(deps.db(), true), "Sends a friend request to a given user"),
+    PENDING((deps) -> NoOpParser.INSTANCE, "Lists the friend requests you have sent that are yet to be accepted"),
     INCOMING((deps) -> NoOpParser.INSTANCE, "Lists all your incoming requests"),
-    REMOVE((deps) -> new OnlyUsernameParser(deps.db(), true), "Deletes a certain friend from your friend list", "delete", "erase"),
+    REMOVE((deps) -> new OnlyUsernameParser(deps.db(), true), "Removes the specified friend from your friend list", "delete", "erase"),
     LIST((deps) -> new OnlyUsernameParser(deps.db()), "Lists all your friends"),
     NP((deps) -> new OnlyUsernameParser(deps.db())
             .addOptional(new OptionalEntity("recent", "the last scrobble instead of the current scrobble")),
             "What your friends are playing right now"
             , "fm"),
-    WK((deps) -> new ArtistParser(deps.db(), deps.lastFM()), "Who knows an artist in your friendlist", WhoKnowsCommand.WK_ALIASES),
-    WKT((deps) -> new ArtistSongParser(deps.db(), deps.lastFM()), "Who knows an song in your friendlist", LocalWhoKnowsSongCommand.WKT_ALIASES),
-    WKA((deps) -> new ArtistAlbumParser(deps.db(), deps.lastFM()), "Who knows an album in your friendlist", LocalWhoKnowsAlbumCommand.WKA_ALIASES),
+    WK((deps) -> new ArtistParser(deps.db(), deps.lastFM()), "Who knows an artist in your friend list", WhoKnowsCommand.WK_ALIASES),
+    WKT((deps) -> new ArtistSongParser(deps.db(), deps.lastFM()), "Who knows a song in your friend list", LocalWhoKnowsSongCommand.WKT_ALIASES),
+    WKA((deps) -> new ArtistAlbumParser(deps.db(), deps.lastFM()), "Who knows an album in your friend list", LocalWhoKnowsAlbumCommand.WKA_ALIASES),
     TOP((deps) -> {
         return new OnlyChartSizeParser(deps.db())
                 .replaceOptional("plays", Optionals.NOPLAYS.opt)
