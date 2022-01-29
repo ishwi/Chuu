@@ -59,7 +59,7 @@ public class WhoKnowsTagCommand extends WhoKnowsBaseCommand<GenreParameters> {
         }
         List<String> urls = db.getTopInTag(ap.getGenre(), e.getGuild().getIdLong(), 100).stream().map(ScrobbledArtist::getUrl).filter(not(StringUtil::isBlank)).toList();
         BufferedImage thumb = ThumbsMaker.generate(urls);
-        handleWkMode(ap, wrapperReturnNowPlaying);
+        handleWkMode(ap, wrapperReturnNowPlaying, WhoKnowsMode.IMAGE);
         BufferedImage image = WhoKnowsMaker.generateWhoKnows(wrapperReturnNowPlaying, EnumSet.allOf(WKMode.class), title, logo, ap.getE().getAuthor().getIdLong(), thumb);
         sendImage(image, e);
         return logo;

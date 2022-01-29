@@ -7,6 +7,8 @@ import core.commands.moderation.AdministrativeCommand;
 import core.music.listeners.VoiceListener;
 import core.otherlisteners.*;
 import core.parsers.params.CommandParameters;
+import core.services.ChuuRunnable;
+import net.dv8tion.jda.api.entities.Channel;
 import net.dv8tion.jda.api.entities.MessageType;
 import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.ReadyEvent;
@@ -59,7 +61,7 @@ public class CustomInterfacedEventManager implements IEventManager {
         assert event instanceof MessageReactionAddEvent || event instanceof ButtonInteractionEvent || event instanceof SelectMenuInteractionEvent;
         long channelId = switch (event) {
             case MessageReactionAddEvent e3 -> e3.getChannel().getIdLong();
-            case ButtonInteractionEvent e3 -> e3.getChannel().getIdLong();
+            case ButtonInteractionEvent e3 -> Optional.ofNullable(e3.getChannel()).map(Channel::getIdLong).orElse(0L);
             case SelectMenuInteractionEvent e3 -> e3.getChannel().getIdLong();
             default -> throw new IllegalStateException("Unexpected value: " + event);
         };
@@ -162,9 +164,9 @@ public class CustomInterfacedEventManager implements IEventManager {
                     for (EventListener listener : otherListeners)
                         listener.onEvent(re);
                 }
-                case MessageReactionAddEvent react -> reactionExecutor.submit(() -> this.handleReaction(react));
-                case ButtonInteractionEvent button -> reactionExecutor.submit(() -> this.handleReaction(button));
-                case SelectMenuInteractionEvent selected -> reactionExecutor.submit(() -> this.handleReaction(selected));
+                case MessageReactionAddEvent react -> reactionExecutor.submit((ChuuRunnable) () -> this.handleReaction(react));
+                case ButtonInteractionEvent button -> reactionExecutor.submit((ChuuRunnable) () -> this.handleReaction(button));
+                case SelectMenuInteractionEvent selected -> reactionExecutor.submit((ChuuRunnable) () -> this.handleReaction(selected));
 
                 // TODO cant group then on one
                 case GuildVoiceJoinEvent gvje -> this.voiceListener.onEvent(gvje);

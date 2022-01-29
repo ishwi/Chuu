@@ -64,7 +64,7 @@ public class MultipleWhoKnowsTagCommand extends WhoKnowsBaseCommand<MultipleGenr
         } else {
             title = e.getJDA().getSelfUser().getName();
         }
-        handleWkMode(ap, wrapperReturnNowPlaying);
+        handleWkMode(ap, wrapperReturnNowPlaying, WhoKnowsMode.IMAGE);
         List<String> urls = db.getTopInTag(ap.getGenres(), e.getGuild().getIdLong(), 100, ap.getMode()).stream().map(ScrobbledArtist::getUrl).filter(not(StringUtil::isBlank)).toList();
         BufferedImage thumb = ThumbsMaker.generate(urls);
 

@@ -343,7 +343,7 @@ public class WhoKnowsLoonasCommand extends WhoKnowsBaseCommand<LOONAParameters> 
         } else {
             title = e.getJDA().getSelfUser().getName();
         }
-        handleWkMode(ap, wrapperReturnNowPlaying);
+        handleWkMode(ap, wrapperReturnNowPlaying, WhoKnowsMode.IMAGE);
         return WhoKnowsMaker.generateWhoKnows(wrapperReturnNowPlaying, EnumSet.allOf(WKMode.class), title, logo, e.getAuthor().getIdLong());
 
     }
@@ -373,7 +373,7 @@ public class WhoKnowsLoonasCommand extends WhoKnowsBaseCommand<LOONAParameters> 
                 .setTitle(getTitle(ap, usable)).
                 setThumbnail(CommandUtil.noImageUrl(wrapperReturnNowPlaying.getUrl()));
 
-        new PaginatorBuilder<>(e, embedBuilder, wrapperReturnNowPlaying.getReturnNowPlayings()).unnumered().build().queue();
+        new PaginatorBuilder<>(e, embedBuilder, wrapperReturnNowPlaying.getReturnNowPlayings()).mapper(ReturnNowPlaying::toDisplay).unnumered().build().queue();
 
     }
 

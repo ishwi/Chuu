@@ -70,7 +70,7 @@ public class GlobalWhoKnowsCommand extends GlobalBaseWhoKnowCommand<ArtistParame
     public Optional<Rank<ReturnNowPlaying>> fetchNotInList(ArtistParameters ap, WrapperReturnNowPlaying wr) {
         ScrobbledArtist sA = ap.getScrobbledArtist();
         boolean showBotted = CommandUtil.showBottedAccounts(ap.getLastFMData(), ap, db);
-        List<GlobalCrown> globals = db.getGlobalArtistRanking(sA.getArtistId(), showBotted, ap.getE().getAuthor().getIdLong());
+        List<GlobalCrown> globals = db.getGlobalArtistRanking(sA.getArtistId(), showBotted, ap.getLastFMData().getDiscordId());
         Optional<GlobalCrown> yourPosition = globals.stream().filter(x -> x.getDiscordId() == ap.getLastFMData().getDiscordId()).findFirst();
         return yourPosition.map(gc -> new Rank<>(
                 new GlobalReturnNowPlaying(gc.getDiscordId(),

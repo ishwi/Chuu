@@ -30,6 +30,7 @@ import org.knowm.xchart.PieChart;
 import javax.annotation.Nonnull;
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
@@ -146,31 +147,51 @@ public abstract class WhoKnowsBaseCommand<T extends CommandParameters> extends C
         if (e.isFromGuild()) {
             logo = CommandUtil.getLogo(db, e);
         }
-        handleWkMode(ap, wrapperReturnNowPlaying);
+        handleWkMode(ap, wrapperReturnNowPlaying, WhoKnowsMode.IMAGE);
         BufferedImage image = WhoKnowsMaker.generateWhoKnows(wrapperReturnNowPlaying, EnumSet.allOf(WKMode.class), title, logo, ap.getE().getAuthor().getIdLong());
         sendImage(image, e);
 
         return logo;
     }
 
-    void handleWkMode(T ap, WrapperReturnNowPlaying wr) {
+    Optional<ReturnNowPlaying> handleWkMode(T ap, WrapperReturnNowPlaying wr, WhoKnowsMode mode) {
         List<ReturnNowPlaying> rnp = wr.getReturnNowPlayings();
         LastFMData data = obtainLastFmData(ap);
+
         if (rnp.stream().limit(10).noneMatch(np -> np.getDiscordId() == data.getDiscordId())) {
-            if (rnp.size() >= 10) {
-                Optional<Rank<ReturnNowPlaying>> userOpt = fetchNotInList(ap, wr);
-                if (userOpt.isPresent()) {
-                    Rank<ReturnNowPlaying> userPos = userOpt.get();
-                    ReturnNowPlaying rn = userPos.entity();
-                    rn.setIndex(userPos.rank());
-                    rnp.set(9, rn);
-                    if (rn.getGenerateString() == null) {
-                        rn.setGenerateString(supplierGenerator(ap, rn));
+            if (mode == WhoKnowsMode.LIST) {
+                boolean found = false;
+                int j = 0;
+                for (ReturnNowPlaying returnNowPlaying : rnp) {
+                    if (returnNowPlaying.getDiscordId() == data.getDiscordId()) {
+                        found = true;
+                        break;
                     }
+                    j++;
+                }
+                if (found) {
+                    return Optional.of(rnp.get(j));
+                }
+            } else {
+                if (rnp.size() >= 10) {
+                    Optional<Rank<ReturnNowPlaying>> userOpt = fetchNotInList(ap, wr);
+                    if (userOpt.isPresent()) {
+                        Rank<ReturnNowPlaying> userPos = userOpt.get();
+                        ReturnNowPlaying rn = userPos.entity();
+                        rn.setIndex(userPos.rank());
+                        List<ReturnNowPlaying> copy = new ArrayList<>(rnp);
+                        copy.set(9, rn);
+                        wr.setReturnNowPlayings(copy);
+
+                        if (rn.getGenerateString() == null) {
+                            rn.setGenerateString(supplierGenerator(ap, rn));
+                        }
+                    }
+                    return userOpt.map(Rank::entity);
                 }
             }
         }
-
+        return Optional.empty();
     }
 
     abstract LastFMData obtainLastFmData(T ap);
@@ -188,11 +209,14 @@ public abstract class WhoKnowsBaseCommand<T extends CommandParameters> extends C
         } else {
             usable = e.getJDA().getSelfUser().getName();
         }
+        Optional<ReturnNowPlaying> rnp = handleWkMode(ap, wrapperReturnNowPlaying, WhoKnowsMode.LIST);
 
         EmbedBuilder embedBuilder = new ChuuEmbedBuilder(ap.getE()).setTitle(getTitle(ap, usable)).
                 setThumbnail(CommandUtil.noImageUrl(wrapperReturnNowPlaying.getUrl()));
 
-        new PaginatorBuilder<>(e, embedBuilder, wrapperReturnNowPlaying.getReturnNowPlayings()).unnumered().build().queue();
+        PaginatorBuilder<ReturnNowPlaying> pb = new PaginatorBuilder<>(e, embedBuilder, wrapperReturnNowPlaying.getReturnNowPlayings()).mapper(ReturnNowPlaying::toDisplay).unnumered();
+        rnp.ifPresent(returnNowPlaying -> pb.extraText(i -> returnNowPlaying.toDisplay()));
+        pb.build().queue();
 
     }
 

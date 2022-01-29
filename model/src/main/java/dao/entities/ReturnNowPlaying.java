@@ -74,18 +74,17 @@ public class ReturnNowPlaying {
         this.memoized = memoized;
     }
 
-    @Override
-    public String toString() {
+    public String toDisplay() {
         if (memoized == null) {
             memoized = generateString.get();
         }
         return memoized;
+    }
 //        return ". " +
 //                "**[" + LinkUtils.cleanMarkdownCharacter(discordName) + "](" +
 //                itemUrl +
 //                ")** - " +
 //                getPlayNumber() + " plays\n";
-    }
 
 
     public Supplier<String> getGenerateString() {
@@ -94,5 +93,10 @@ public class ReturnNowPlaying {
 
     public void setGenerateString(Supplier<String> generateString) {
         this.generateString = generateString;
+    }
+
+    @Override
+    public String toString() {
+        return super.toString();
     }
 }

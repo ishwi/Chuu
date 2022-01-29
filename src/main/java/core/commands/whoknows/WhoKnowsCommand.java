@@ -67,13 +67,13 @@ public class WhoKnowsCommand extends WhoKnowsBaseCommand<ArtistParameters> {
 
     @Override
     public Optional<Rank<ReturnNowPlaying>> fetchNotInList(ArtistParameters ap, WrapperReturnNowPlaying wr) {
-        WrapperReturnNowPlaying wrp = this.db.whoKnows(ap.getScrobbledArtist().getArtistId(), ap.getE().getGuild().getIdLong());
+        WrapperReturnNowPlaying wrp = this.db.whoKnows(ap.getScrobbledArtist().getArtistId(), ap.getE().getGuild().getIdLong(), Integer.MAX_VALUE);
 
         List<ReturnNowPlaying> returnNowPlayings = wrp.getReturnNowPlayings();
         for (int i = 0; i < returnNowPlayings.size(); i++) {
             ReturnNowPlaying returnNowPlaying = returnNowPlayings.get(i);
-            if (returnNowPlaying.getDiscordId() == ap.getE().getAuthor().getIdLong()) {
-                return Optional.of(new Rank<>(returnNowPlaying, i + 1L));
+            if (returnNowPlaying.getDiscordId() == ap.getLastFMData().getDiscordId()) {
+                return Optional.of(new Rank<>(returnNowPlaying, i));
             }
         }
         return Optional.empty();

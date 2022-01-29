@@ -1,6 +1,5 @@
 package core.commands.moderation;
 
-import com.google.common.collect.Lists;
 import core.Chuu;
 import core.apis.spotify.Spotify;
 import core.apis.spotify.SpotifySingleton;
@@ -129,25 +128,23 @@ public class TrackListRefreshCommand extends ConcurrentCommand<ArtistAlbumParame
         EmbedBuilder eb = new ChuuEmbedBuilder(e)
                 .setAuthor("Searching for %s | %s and found %d matching items".formatted(artist, album, items.size()));
         StringBuilder sb = new StringBuilder("Please select one from the following items:\n\n");
-        List<List<Spotify.AlbumResult>> partition = Lists.partition(items.stream().limit(25).toList(), 5);
 
         List<ConfirmatorItem> ci = new ArrayList<>();
         Function<Spotify.AlbumResult, ConfirmatorResult> mapper = (Spotify.AlbumResult z) -> obtainSend(() -> spotify.getTracklistFromId(z.id(), z.artist()), "Spotify", albumId, artistId, e, z.artist(), z.album(), z.cover());
 
         AtomicInteger counter = new AtomicInteger();
-        List<ActionRow> rows = partition.stream().map(w -> ActionRow.of(
-                w.stream().map(z -> {
-                            sb.append(counter.incrementAndGet()).append(": ").append("[%s](%s)%n".formatted(z.album(), SpotifyUtils.getAlbumLink(z.id())));
-                            ci.add(new ConfirmatorItem(z.id(), r -> r, (m) -> {
-                                ConfirmatorResult apply = mapper.apply(z);
-                                if (apply != null) {
-                                    m.editMessageComponents(apply.actionRows).setEmbeds(apply.eb.build()).queue(apply.generator);
-                                }
-                            }));
-                            return Button.of(ButtonStyle.PRIMARY, z.id(), counter.get() + ": " + z.album());
+        List<ActionRow> rows = ActionRow.partitionOf(items.stream().limit(25).map(z ->
+                {
+                    sb.append(counter.incrementAndGet()).append(": ").append("[%s](%s)%n".formatted(z.album(), SpotifyUtils.getAlbumLink(z.id())));
+                    ci.add(new ConfirmatorItem(z.id(), r -> r, (m) -> {
+                        ConfirmatorResult apply = mapper.apply(z);
+                        if (apply != null) {
+                            m.editMessageComponents(apply.actionRows).setEmbeds(apply.eb.build()).queue(apply.generator);
                         }
-                ).toList())
-        ).toList();
+                    }));
+                    return Button.of(ButtonStyle.PRIMARY, z.id(), counter.get() + ": " + z.album());
+                }
+        ).toList());
         e.sendMessage(eb.setDescription(sb).build(), rows).queue(finalMesage ->
                 new Confirmator(eb, e, finalMesage, e.getAuthor().getIdLong(), ci,
                         embedBuilder -> embedBuilder.setColor(Color.RED).setDescription("Didn't select any album!"), true, 120));

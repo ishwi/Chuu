@@ -38,6 +38,7 @@ public class WrapperReturnNowPlaying {
         return returnNowPlayings;
     }
 
+
     public void setReturnNowPlayings(List<ReturnNowPlaying> returnNowPlayings) {
         this.returnNowPlayings = returnNowPlayings;
     }

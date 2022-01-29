@@ -34,7 +34,7 @@ public class MultipleWhoKnowsCommand extends WhoKnowsBaseCommand<MultiArtistPara
         } else {
             title = e.getJDA().getSelfUser().getName();
         }
-        handleWkMode(ap, wrapperReturnNowPlaying);
+        handleWkMode(ap, wrapperReturnNowPlaying, WhoKnowsMode.IMAGE);
         BufferedImage image = WhoKnowsMaker.generateWhoKnows(wrapperReturnNowPlaying, EnumSet.allOf(WKMode.class), title, logo, ap.getE().getAuthor().getIdLong());
         sendImage(image, e);
 

@@ -122,9 +122,7 @@ public class LocalWhoKnowsAlbumCommand extends WhoKnowsBaseCommand<ArtistAlbumPa
     }
 
     protected WrapperReturnNowPlaying generateInnerWrapper(ArtistAlbumParameters ap, WhoKnowsMode effectiveMode, long albumId) {
-        return effectiveMode.equals(WhoKnowsMode.IMAGE) ?
-                this.db.getWhoKnowsAlbums(10, albumId, ap.getE().getGuild().getIdLong()) :
-                this.db.getWhoKnowsAlbums(Integer.MAX_VALUE, albumId, ap.getE().getGuild().getIdLong());
+        return this.db.getWhoKnowsAlbums(Integer.MAX_VALUE, albumId, ap.getE().getGuild().getIdLong());
     }
 
 

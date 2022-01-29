@@ -1,6 +1,5 @@
 package core.commands.utils;
 
-import com.google.common.collect.Lists;
 import core.commands.Context;
 import core.otherlisteners.Confirmator;
 import core.otherlisteners.util.ConfirmatorItem;
@@ -51,7 +50,7 @@ public class GenreDisambiguator {
                     }
                     buttons.add(Button.primary(emote, noiseGenre.name()));
                 }
-                List<ActionRow> rows = Lists.partition(buttons, 5).stream().map(ActionRow::of).toList();
+                List<ActionRow> rows = ActionRow.partitionOf(buttons);
                 if (!e.isFromGuild()) {
                     eb.setFooter("Please disambiguate choosing the appropiate emote");
                 } else {

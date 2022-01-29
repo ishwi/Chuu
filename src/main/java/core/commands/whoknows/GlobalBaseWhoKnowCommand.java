@@ -40,7 +40,7 @@ public abstract class GlobalBaseWhoKnowCommand<T extends CommandParameters> exte
         if (e.isFromGuild()) {
             logo = CommandUtil.getLogo(db, e);
         }
-        handleWkMode(ap, wrapperReturnNowPlaying);
+        handleWkMode(ap, wrapperReturnNowPlaying, WhoKnowsMode.IMAGE);
         BufferedImage image = WhoKnowsMaker.generateWhoKnows(wrapperReturnNowPlaying, EnumSet.allOf(WKMode.class), title, logo, e.getAuthor().getIdLong());
         if (obtainLastFmData(ap).getPrivacyMode() == PrivacyMode.NORMAL && CommandUtil.rand.nextFloat() >= 0.95f) {
             char prefix = e.getPrefix();

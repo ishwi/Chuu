@@ -90,9 +90,7 @@ public class LocalWhoKnowsSongCommand extends LocalWhoKnowsAlbumCommand {
 
     @Override
     protected WrapperReturnNowPlaying generateInnerWrapper(ArtistAlbumParameters ap, WhoKnowsMode effectiveMode, long trackId) {
-        return effectiveMode.equals(WhoKnowsMode.IMAGE) ?
-                this.db.getWhoKnowsTrack(10, trackId, ap.getE().getGuild().getIdLong()) :
-                this.db.getWhoKnowsTrack(Integer.MAX_VALUE, trackId, ap.getE().getGuild().getIdLong());
+        return this.db.getWhoKnowsTrack(Integer.MAX_VALUE, trackId, ap.getE().getGuild().getIdLong());
     }
 
 
