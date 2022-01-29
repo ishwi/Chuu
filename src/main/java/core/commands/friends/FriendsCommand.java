@@ -107,7 +107,7 @@ public class FriendsCommand extends ParentCommmand<FriendsActions> {
         DiscordUserDisplay ui = CommandUtil.getUserInfoUnescaped(params.getE().getAuthor().getIdLong());
         EmbedBuilder eb = new ChuuEmbedBuilder(e).setDescription(str)
                 .setAuthor("Friend subcommands", null, ui.urlImage())
-                .setFooter("Do `" + e.getPrefix() + "friend add` to add a friend to your friendlist!");
+                .setFooter("Do `" + e.getPrefix() + "friend add` to add a friend to your friend list!");
         e.sendMessage(eb.build()).queue();
     }
 
@@ -175,7 +175,7 @@ public class FriendsCommand extends ParentCommmand<FriendsActions> {
                 String validArtist = who.getArtist();
                 List<AlbumUserPlays> songs = db.friendsTopArtistSongs(discordId, who.getArtistId(), Integer.MAX_VALUE);
                 DiscordUserDisplay ui = CommandUtil.getUserInfoEscaped(e, discordId);
-                GlobalFavesFromArtistCommand.sendArtistFaves(e, who, validArtist, lastFmName, songs, "%s friends".formatted(ui.username()), "%s friends'".formatted(ui.username()), "in your friendlist!", ui.urlImage(), ap, pie, (b) -> sendImage(b, e));
+                GlobalFavesFromArtistCommand.sendArtistFaves(e, who, validArtist, lastFmName, songs, "%s friends".formatted(ui.username()), "%s friends'".formatted(ui.username()), "in your friend list!", ui.urlImage(), ap, pie, (b) -> sendImage(b, e));
             }
             case ARTIST -> {
                 ArtistParameters ap = action.parse(e, deps, args);
@@ -217,11 +217,11 @@ public class FriendsCommand extends ParentCommmand<FriendsActions> {
         long author = e.getAuthor().getIdLong();
         List<Friend> userPendingFriends = db.getFriendPendingRequests(author);
         if (userPendingFriends.isEmpty()) {
-            sendMessageQueue(e, "There are no pending requests");
+            sendMessageQueue(e, "There are no pending friend requests");
             return;
         }
 
-        EmbedBuilder eb = new ChuuEmbedBuilder(e).setTitle("Your yet to be accepted requests");
+        EmbedBuilder eb = new ChuuEmbedBuilder(e).setTitle("Your pending friend requests");
         new PaginatorBuilder<>(e, eb, userPendingFriends)
                 .pageSize(1)
                 .unnumered()
@@ -241,7 +241,7 @@ public class FriendsCommand extends ParentCommmand<FriendsActions> {
 
         List<Friend> userFriends = db.getUserFriends(discordId);
         if (userFriends.isEmpty()) {
-            sendMessageQueue(e, "%s doesn't have any friend :(".formatted(ui.username()));
+            sendMessageQueue(e, "%s doesn't have any friends :(".formatted(ui.username()));
             return;
         }
 
@@ -254,7 +254,7 @@ public class FriendsCommand extends ParentCommmand<FriendsActions> {
             }
             controlAccess.refresh(discordId);
         } else if ((cooldown = serverControlAccess.getIfPresent(discordId)) != null) {
-            format(e, cooldown, "This command has a 5 min cooldown between uses.");
+            format(e, cooldown, "This command has a 5 minute cooldown between uses.");
             return;
         } else {
             serverControlAccess.refresh(discordId);
@@ -269,12 +269,12 @@ public class FriendsCommand extends ParentCommmand<FriendsActions> {
         List<String> recent = PlayingCommand.obtainNps(lastFM, e, showFresh, users);
 
         if (recent.isEmpty()) {
-            sendMessageQueue(e, "No one is playing anything on your friendlist!");
+            sendMessageQueue(e, "No one is playing anything on your friend list!");
             return;
         }
         EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e)
                 .setTitle(
-                        showFresh ? "What is being played now in your friendlist" : "What was being played in your friendlist ");
+                        showFresh ? "What is being played now in your friend list" : "What was being played in your friend list ");
 
         new PaginatorBuilder<>(e, embedBuilder, recent).pageSize(20).randomize().unnumered().withIndicator().build().queue();
     }
@@ -336,8 +336,7 @@ public class FriendsCommand extends ParentCommmand<FriendsActions> {
         long discordId = chuuDataParams.getLastFMData().getDiscordId();
         long author = e.getAuthor().getIdLong();
         if (discordId == author) {
-            parser.sendError("Couldn't read any user from your input. You might be able to have better results using" +
-                    " u:[discordId|Tag#Discriminator|name] or lfm:[lastfm-name]", e);
+            parser.sendError("You can't add yourself!", e);
             return;
         }
         LastFMData authorData = db.findLastFMData(author);
@@ -358,7 +357,7 @@ public class FriendsCommand extends ParentCommmand<FriendsActions> {
                     if (db.acceptRequest(usersSorted.first(), usersSorted.second())) {
                         sendMessageQueue(e, "Accepted %s's friend request!".formatted(userInfoEscaped.username()));
                     } else {
-                        sendMessageQueue(e, "Something went wrong accepting the request. Probably the request has become invalid.");
+                        sendMessageQueue(e, "Something went wrong accepting the request. The request may have become invalid.");
                     }
                 }
             }
@@ -388,7 +387,7 @@ public class FriendsCommand extends ParentCommmand<FriendsActions> {
                         ActionRow.of(ButtonUtils.declineFriendRequest(author), ButtonUtils.acceptFriendRequest(author)));
                 return privateChannel.sendMessage(messageBuilder.build());
             }).queue(message -> sendMessageQueue(e, "Sent a friend request to %s".formatted(userInfoEscaped.username())),
-                    throwable -> e.sendMessage("An error ocurred sending a dm to %s!".formatted(userInfoEscaped.username())).queue());
+                    throwable -> e.sendMessage("An error occurred while trying to send a DM to %s!".formatted(userInfoEscaped.username())).queue());
         }
     }
 
