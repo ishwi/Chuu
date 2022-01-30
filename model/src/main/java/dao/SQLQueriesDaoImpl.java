@@ -3467,9 +3467,6 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
         return bannedTags;
     }
 
-    private String prepareINQuery(int size) {
-        return String.join(",", Collections.nCopies(size, "(?,?)"));
-    }
 
     private String prepareSingle(int size) {
         return String.join(",", Collections.nCopies(size, "(?)"));
@@ -3656,7 +3653,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
     public Map<Genre, Integer> genreCountsByArtist(Connection connection, List<ArtistInfo> artistInfos) {
 
         String queryString = "SELECT tag,count(*) as coun FROM artist a join artist_tags b  on a.id = b.artist_id WHERE name IN (%s) group by b.tag";
-        String sql = String.format(queryString, artistInfos.isEmpty() ? null : preparePlaceHolders(artistInfos.size()));
+        String sql = String.format(queryString, preparePlaceHolders(artistInfos.size()));
 
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
@@ -3696,7 +3693,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
                         "where d.guild_Id = ? " +
                         "and  (name) in  (%s) " +
                         "ORDER BY a.playNumber desc ";
-        String sql = String.format(queryString, artists.isEmpty() ? null : preparePlaceHolders(artists.size()));
+        String sql = String.format(queryString, preparePlaceHolders(artists.size()));
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
 
@@ -3782,7 +3779,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
 
         }
         queryString += "ORDER BY plays desc ";
-        String sql = String.format(queryString, tags.isEmpty() ? null : preparePlaceHolders(tags.size()));
+        String sql = String.format(queryString, preparePlaceHolders(tags.size()));
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
 
@@ -3841,7 +3838,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
 
         }
         queryString += "order by plays desc limit ?";
-        String sql = String.format(queryString, tags.isEmpty() ? null : preparePlaceHolders(tags.size()));
+        String sql = String.format(queryString, preparePlaceHolders(tags.size()));
 
         try (
                 PreparedStatement preparedStatement = connection.prepareStatement(sql)) {

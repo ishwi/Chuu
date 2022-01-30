@@ -105,7 +105,7 @@ public class EveryNoiseDAOImpl implements EveryNoiseDAO {
                 preparedStatement.setString(setter++, genre.release());
                 preparedStatement.setString(setter++, genre.uri());
             }
-            preparedStatement.executeUpdate();
+            preparedStatement.execute();
             ResultSet resultSet = preparedStatement.getResultSet();
 
             while (resultSet.next()) {

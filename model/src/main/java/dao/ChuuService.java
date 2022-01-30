@@ -2024,7 +2024,9 @@ public class ChuuService implements EveryNoiseService {
 
                     //This were the ids that were found, we reduce a bit the size of the table
                     Collection<Long> rymIdsToDelete = artists.keySet();
-                    rymDao.deletePartialTempTable(connection, Set.copyOf(rymIdsToDelete));
+                    if (!rymIdsToDelete.isEmpty()) {
+                        rymDao.deletePartialTempTable(connection, Set.copyOf(rymIdsToDelete));
+                    }
 
                     //Over the remaining items we do an auxiliar search
                     Map<Long, Long> artistsAuxiliar = rymDao.findArtistsAuxiliar(connection);
@@ -2065,11 +2067,15 @@ public class ChuuService implements EveryNoiseService {
                 updaterDao.deleteAllRatings(connection, userId);
                 Savepoint savepoint = connection.setSavepoint();
                 try {
-                    rymDao.insertRatings(connection, knownAlbums, userId);
+                    if (!knownAlbums.isEmpty()) {
+                        rymDao.insertRatings(connection, knownAlbums, userId);
+                    }
                     connection.commit();
                 } catch (SQLTransactionRollbackException exception) {
                     connection.rollback(savepoint);
-                    rymDao.insertRatings(connection, knownAlbums, userId);
+                    if (!knownAlbums.isEmpty()) {
+                        rymDao.insertRatings(connection, knownAlbums, userId);
+                    }
 
                     connection.commit();
                 }
@@ -2958,6 +2964,9 @@ public class ChuuService implements EveryNoiseService {
     public List<ScrobbledAlbum> fillAlbumIdsByMBID(List<AlbumInfo> albums) {
 
         try (Connection connection = dataSource.getConnection()) {
+            if (albums.isEmpty()) {
+                return Collections.emptyList();
+            }
             return updaterDao.fillAlbumsByMBID(connection, albums);
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
@@ -3020,6 +3029,9 @@ public class ChuuService implements EveryNoiseService {
 
     public List<ScrobbledArtist> getTopInTag(Set<String> genre, Long guildId, int limit, SearchMode mode) {
         try (Connection connection = dataSource.getConnection()) {
+            if (genre.isEmpty()) {
+                return Collections.emptyList();
+            }
             return queriesDao.getTopTagSet(connection, genre, guildId, limit, mode);
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
@@ -3040,6 +3052,9 @@ public class ChuuService implements EveryNoiseService {
 
     public Optional<ScrobbledArtist> getTopInTag(Set<String> genre, Long guildId, SearchMode mode) {
         try (Connection connection = dataSource.getConnection()) {
+            if (genre.isEmpty()) {
+                return Optional.empty();
+            }
             List<ScrobbledArtist> topTag = queriesDao.getTopTagSet(connection, genre, guildId, 1, mode);
             if (topTag.isEmpty()) {
                 return Optional.empty();
@@ -3090,6 +3105,9 @@ public class ChuuService implements EveryNoiseService {
 
     public List<AlbumInfo> getAlbumsWithTags(List<AlbumInfo> albums, long discordId, String tag) {
         try (Connection connection = dataSource.getConnection()) {
+            if (albums.isEmpty()) {
+                return Collections.emptyList();
+            }
             List<ScrobbledAlbum> list = albums.stream().map(z -> new ScrobbledAlbum(z.getName(), z.getArtist(), null, null)).toList();
             updaterDao.fillIds(connection, list);
             albumDao.fillIds(connection, list);
@@ -3102,6 +3120,9 @@ public class ChuuService implements EveryNoiseService {
 
     public List<TrackInfo> getTrackWithTags(List<TrackInfo> tracks, long discordId, String tag) {
         try (Connection connection = dataSource.getConnection()) {
+            if (tracks.isEmpty()) {
+                return Collections.emptyList();
+            }
             List<ScrobbledTrack> list = tracks.stream().map(z -> new ScrobbledTrack(z.getArtist(), z.getTrack(), 0, false, 0, null, null, null)).toList();
             updaterDao.fillIds(connection, list);
             trackDao.fillIds(connection, list);
@@ -3156,6 +3177,9 @@ public class ChuuService implements EveryNoiseService {
 
     public List<ArtistInfo> getArtistWithTag(List<ArtistInfo> artists, long discordId, String genre) {
         try (Connection connection = dataSource.getConnection()) {
+            if (artists.isEmpty()) {
+                return Collections.emptyList();
+            }
             return queriesDao.getArtistWithTag(connection, artists, discordId, genre);
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
@@ -3184,6 +3208,9 @@ public class ChuuService implements EveryNoiseService {
 
     public Map<Genre, Integer> genreCountsByArtist(List<ArtistInfo> artistInfos) {
         try (Connection connection = dataSource.getConnection()) {
+            if (artistInfos.isEmpty()) {
+                return Collections.emptyMap();
+            }
             return queriesDao.genreCountsByArtist(connection, artistInfos);
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
@@ -3192,6 +3219,9 @@ public class ChuuService implements EveryNoiseService {
 
     public Map<Genre, Integer> genreCountsByAlbum(List<AlbumInfo> albumInfos) {
         try (Connection connection = dataSource.getConnection()) {
+            if (albumInfos != null) {
+                return Collections.emptyMap();
+            }
             return albumDao.genreCountsByAlbum(connection, albumInfos);
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
@@ -3200,6 +3230,9 @@ public class ChuuService implements EveryNoiseService {
 
     public List<WrapperReturnNowPlaying> getWhoKnowsArtistSet(Set<String> artists, long guildId, int limit, @Nullable String user) {
         try (Connection connection = dataSource.getConnection()) {
+            if (artists.isEmpty()) {
+                return Collections.emptyList();
+            }
             return queriesDao.whoknowsSet(connection, artists, guildId, limit, user);
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
@@ -3209,6 +3242,9 @@ public class ChuuService implements EveryNoiseService {
 
     public WrapperReturnNowPlaying getWhoKnowsTagSet(Set<String> tags, long guildId, int limit, @Nullable String user, SearchMode searchMode) {
         try (Connection connection = dataSource.getConnection()) {
+            if (tags.isEmpty()) {
+                return new WrapperReturnNowPlaying(Collections.emptyList(), 0, null, String.join(" | ", tags));
+            }
             return queriesDao.whoknowsTagsSet(connection, tags, guildId, limit, user, searchMode);
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
@@ -3499,7 +3535,10 @@ public class ChuuService implements EveryNoiseService {
     public List<AlbumInfo> albumsOfYear(List<AlbumInfo> getYearReleaes, Year year) {
         try (Connection connection = dataSource.getConnection()) {
             connection.setReadOnly(true);
-            return albumDao.get(connection, getYearReleaes, year);
+            if (!getYearReleaes.isEmpty()) {
+                return albumDao.get(connection, getYearReleaes, year);
+            }
+            return Collections.emptyList();
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }
@@ -3515,7 +3554,9 @@ public class ChuuService implements EveryNoiseService {
 
     public void insertAlbumsOfYear(List<AlbumInfo> foundByYear, Year year) {
         try (Connection connection = dataSource.getConnection()) {
-            albumDao.insertAlbumsOfYear(connection, foundByYear, year);
+            if (!foundByYear.isEmpty()) {
+                albumDao.insertAlbumsOfYear(connection, foundByYear, year);
+            }
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }
@@ -3933,6 +3974,9 @@ public class ChuuService implements EveryNoiseService {
     public Map<Year, Integer> getUserYearsFromList(String lastfmId, List<AlbumInfo> albums) {
         try (Connection connection = dataSource.getConnection()) {
             connection.setReadOnly(true);
+            if (albums.isEmpty()) {
+                return Collections.emptyMap();
+            }
             return albumDao.countByYears(connection, lastfmId, albums);
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
@@ -3943,6 +3987,9 @@ public class ChuuService implements EveryNoiseService {
     public Map<Year, Integer> getUserDecadesFromList(String lastfmId, List<AlbumInfo> albums) {
         try (Connection connection = dataSource.getConnection()) {
             connection.setReadOnly(true);
+            if (albums.isEmpty()) {
+                return Collections.emptyMap();
+            }
             return albumDao.countByDecades(connection, lastfmId, albums);
         } catch (SQLException e) {
             throw new ChuuServiceException(e);

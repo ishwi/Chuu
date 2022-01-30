@@ -27,10 +27,12 @@ public class DiscoveralDaoImpl implements DiscoveralDao {
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryBody)) {
             preparedStatement.execute();
-
+            if (scrobbledAlbums.isEmpty()) {
+                return;
+            }
             queryBody =
                     "INSERT INTO discovered_temp(artist_name,album_name,album_id,play_count)  VALUES %s";
-            String sql = String.format(queryBody, scrobbledAlbums.isEmpty() ? (null) : String.join(",", Collections.nCopies(scrobbledAlbums.size(), "(?,?,?,?)")));
+            String sql = String.format(queryBody, String.join(",", Collections.nCopies(scrobbledAlbums.size(), "(?,?,?,?)")));
             try (PreparedStatement preparedStatement2 = connection.prepareStatement(sql)) {
 
                 int i = 1;
@@ -65,10 +67,13 @@ public class DiscoveralDaoImpl implements DiscoveralDao {
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryBody)) {
             preparedStatement.execute();
+            if (scrobbledAlbums.isEmpty()) {
+                return;
+            }
 
             queryBody =
                     "                                INSERT INTO discovered_artist_temp(artist_name,play_count)  VALUES %s";
-            String sql = String.format(queryBody, scrobbledAlbums.isEmpty() ? (null) : String.join(",", Collections.nCopies(scrobbledAlbums.size(), "(?,?)")));
+            String sql = String.format(queryBody, String.join(",", Collections.nCopies(scrobbledAlbums.size(), "(?,?)")));
             try (PreparedStatement preparedStatement2 = connection.prepareStatement(sql)) {
 
                 int i = 1;

@@ -30,10 +30,12 @@ public class SQLRYMDaoImpl implements SQLRYMDao {
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryBody)) {
             preparedStatement.execute();
-
+            if (ratings.isEmpty()) {
+                return;
+            }
             queryBody =
                     "                                INSERT INTO temp_rating(rym_id,last_name,first_name,first_localized_name,last_localized_name) VALUES %s";
-            String sql = String.format(queryBody, ratings.isEmpty() ? (null) : String.join(",", Collections.nCopies(ratings.size(), "(?,?,?,?,?)")));
+            String sql = String.format(queryBody, String.join(",", Collections.nCopies(ratings.size(), "(?,?,?,?,?)")));
             try (PreparedStatement preparedStatement2 = connection.prepareStatement(sql)) {
 
                 int i = 1;
@@ -272,8 +274,11 @@ public class SQLRYMDaoImpl implements SQLRYMDao {
 
     @Override
     public void deletePartialTempTable(Connection connection, Set<Long> idsToWipe) {
+        if (idsToWipe.isEmpty()) {
+            return;
+        }
         String s = "Delete from temp_rating where rym_id in (%s)";
-        String s1 = idsToWipe.isEmpty() ? null : String.join(",", Collections.nCopies(idsToWipe.size(), "?"));
+        String s1 = String.join(",", Collections.nCopies(idsToWipe.size(), "?"));
         String query = String.format(s, s1);
 
 

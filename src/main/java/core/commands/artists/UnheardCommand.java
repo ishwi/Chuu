@@ -80,7 +80,7 @@ public class UnheardCommand extends ConcurrentCommand<NumberParameters<ArtistPar
         String userString = uInfo.username();
 
         Long extraParam = numberParameters.getExtraParam();
-        List<UnheardCount> unheardSongs = db.getUnheardSongs(lastFmName, who.getArtistId(), params.hasOptional("listeners"), extraParam);
+        List<UnheardCount> unheardSongs = db.getUnheardSongs(lastFmName, who.getArtistId(), numberParameters.hasOptional("listeners"), extraParam);
         String artist = who.getArtist();
         String extraText = "";
         if (extraParam != null) {

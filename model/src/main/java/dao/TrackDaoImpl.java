@@ -20,15 +20,14 @@ public class TrackDaoImpl extends BaseDAO implements TrackDao {
         return String.join(",", Collections.nCopies(size, "(?)"));
     }
 
-    private String prepareINQueryTuple(int size) {
-        return String.join(",", Collections.nCopies(size, "(?,?)"));
-    }
-
     @Override
     public void fillIdsMbids(Connection connection, List<ScrobbledTrack> list) {
+        if (list.isEmpty()) {
+            return;
+        }
         String queryString = "SELECT id,mbid FROM track WHERE  mbid in (%s)  ";
 
-        String sql = String.format(queryString, list.isEmpty() ? null : prepareINQuerySingle(list.size()));
+        String sql = String.format(queryString, prepareINQuerySingle(list.size()));
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
             for (int i = 0; i < list.size(); i++) {
@@ -477,6 +476,9 @@ public class TrackDaoImpl extends BaseDAO implements TrackDao {
 
     @Override
     public void updateLovedSongs(Connection connection, Set<Long> ids, boolean loved, String lastfmId) {
+        if (ids.isEmpty()) {
+            return;
+        }
         String sql = "UPDATE scrobbled_track set loved = ? where lastfm_id = ? and track_id in (" + prepareINQuerySingle(ids.size()) + ")";
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
             int i = 1;
@@ -1017,10 +1019,11 @@ public class TrackDaoImpl extends BaseDAO implements TrackDao {
                 where track_id in (select id from ids)
                 """;
 
-        if (filter != null) {
-            mySql += "having sum(a.playnumber) > ? ";
-        }
+
         mySql += " group by t.id, track_name ";
+        if (filter != null) {
+            mySql += "having plays > ? ";
+        }
         if (listeners) {
             mySql += "order by listeners desc";
         } else {

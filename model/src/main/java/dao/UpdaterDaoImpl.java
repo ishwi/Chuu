@@ -4,6 +4,7 @@ import dao.entities.*;
 import dao.exceptions.ChuuServiceException;
 import dao.exceptions.DuplicateInstanceException;
 import dao.exceptions.InstanceNotFoundException;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
 import javax.annotation.Nullable;
@@ -151,7 +152,7 @@ public class UpdaterDaoImpl extends BaseDAO implements UpdaterDao {
 
 
             /* Execute query. */
-            preparedStatement.executeUpdate();
+            preparedStatement.execute();
             ResultSet resultSet = preparedStatement.getResultSet();
             if (resultSet.next()) {
                 return resultSet.getLong(1);
@@ -709,10 +710,12 @@ public class UpdaterDaoImpl extends BaseDAO implements UpdaterDao {
 
     @Override
     public void fillIds(Connection connection, List<? extends ScrobbledArtist> list) {
-
+        if (list.isEmpty()) {
+            return;
+        }
 
         String queryString = "SELECT id, name FROM  artist WHERE name IN (%s)  ";
-        String sql = String.format(queryString, list.isEmpty() ? null : preparePlaceHolders(list.size()));
+        String sql = String.format(queryString, preparePlaceHolders(list.size()));
 
         sql += " ORDER BY  name";
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
@@ -1283,8 +1286,11 @@ public class UpdaterDaoImpl extends BaseDAO implements UpdaterDao {
 
     @Override
     public void fillALbumsByRYMID(Connection connection, List<RYMImportRating> list) {
+        if (list.isEmpty()) {
+            return;
+        }
         String queryString = "SELECT id, album_name, artist_id,rym_id  FROM  album WHERE rym_id in (%s) ";
-        String sql = String.format(queryString, list.isEmpty() ? null : preparePlaceHolders(list.size()));
+        String sql = String.format(queryString, preparePlaceHolders(list.size()));
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
 
@@ -1477,7 +1483,7 @@ public class UpdaterDaoImpl extends BaseDAO implements UpdaterDao {
     @Override
     public List<ScrobbledAlbum> fillAlbumsByMBID(Connection connection, List<AlbumInfo> albums) {
         String queryString = "SELECT id,artist_id,mbid,url FROM  album WHERE mbid IN (%s)  ";
-        String sql = String.format(queryString, albums.isEmpty() ? null : preparePlaceHolders(albums.size()));
+        String sql = String.format(queryString, preparePlaceHolders(albums.size()));
         List<ScrobbledAlbum> scrobbledAlbums = new ArrayList<>();
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
 
@@ -1562,10 +1568,12 @@ public class UpdaterDaoImpl extends BaseDAO implements UpdaterDao {
 
     @Override
     public Map<String, String> validateTags(Connection connection, List<Genre> genreList) {
+        if (genreList.isEmpty()) {
+            return Collections.emptyMap();
+        }
         Map<String, String> returnMap = new HashMap<>();
         String queryString = "Select invalid,correction from corrected_tags where invalid in (%s)";
-        String sql = String.format(queryString, genreList.isEmpty() ? null : preparePlaceHolders(genreList.size()));
-        List<ScrobbledAlbum> scrobbledAlbums = new ArrayList<>();
+        String sql = String.format(queryString, preparePlaceHolders(genreList.size()));
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
 
             for (int i = 0; i < genreList.size(); i++) {
@@ -1714,7 +1722,7 @@ public class UpdaterDaoImpl extends BaseDAO implements UpdaterDao {
             } else {
                 preparedStatement.setNull(2, Types.BIGINT);
             }
-            preparedStatement.setString(3, commandName);
+            preparedStatement.setString(3, StringUtils.abbreviate(commandName, null, 30));
             preparedStatement.setLong(4, nanos);
             preparedStatement.setBoolean(5, success);
             preparedStatement.setBoolean(6, isNormalCommand);
@@ -1869,7 +1877,7 @@ public class UpdaterDaoImpl extends BaseDAO implements UpdaterDao {
             preparedStatement.setString(i++, url);
             preparedStatement.setLong(i++, artistId);
             preparedStatement.setLong(i, uploader);
-            preparedStatement.executeUpdate();
+            preparedStatement.execute();
             ResultSet resultSet = preparedStatement.getResultSet();
             if (resultSet.next()) {
                 return resultSet.getLong(1);

@@ -26,9 +26,12 @@ public class AlbumDaoImpl extends BaseDAO implements AlbumDao {
 
     @Override
     public void fillIds(Connection connection, List<ScrobbledAlbum> list) {
+        if (list.isEmpty()) {
+            return;
+        }
         String queryString = "SELECT id,artist_id,album_name FROM  album USE INDEX (artist_id) WHERE  (artist_id,album_name) in  (%s)  ";
 
-        String sql = String.format(queryString, list.isEmpty() ? null : prepareINQueryTuple(list.size()));
+        String sql = String.format(queryString, prepareINQueryTuple(list.size()));
 
         UUID a = UUID.randomUUID();
         String seed = a.toString();
@@ -626,10 +629,11 @@ public class AlbumDaoImpl extends BaseDAO implements AlbumDao {
                 where album_id in (select id from ids)
                 """;
 
-        if (filter != null) {
-            mySql += " having sum(a.playnumber) > ? ";
-        }
+
         mySql += " group by t.id, album_name ";
+        if (filter != null) {
+            mySql += " having plays > ? ";
+        }
         if (listeners) {
             mySql += "order by listeners desc";
         } else {
