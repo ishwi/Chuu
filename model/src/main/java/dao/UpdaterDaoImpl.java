@@ -459,7 +459,7 @@ public class UpdaterDaoImpl extends BaseDAO implements UpdaterDao {
     }
 
     @Override
-    public List<ImageQueue> getUrlQueue(Connection connection) {
+    public List<ImageQueue> getUrlQueue(Connection connection, boolean newFirst) {
         List<ImageQueue> queues = new ArrayList<>();
         String queryString = """
                 SELECT a.id,a.url,a.artist_id,a.discord_id,a.added_date, c.name,
@@ -469,8 +469,11 @@ public class UpdaterDaoImpl extends BaseDAO implements UpdaterDao {
                 guild_id
                 FROM queued_url a JOIN
                 artist c ON a.artist_id = c.id
-                ORDER BY a.added_date DESC
+                ORDER BY a.added_date
                 """;
+        if (newFirst) {
+            queryString += "DESC";
+        }
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
             ResultSet resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
@@ -1778,7 +1781,6 @@ public class UpdaterDaoImpl extends BaseDAO implements UpdaterDao {
         }
 
     }
-
 
 
     @Override

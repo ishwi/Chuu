@@ -24,14 +24,14 @@ import com.sedmelluq.discord.lavaplayer.track.AudioItem;
 import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.BasicAudioPlaylist;
-import com.wrapper.spotify.SpotifyApi;
-import com.wrapper.spotify.exceptions.SpotifyWebApiException;
-import com.wrapper.spotify.model_objects.IPlaylistItem;
-import com.wrapper.spotify.model_objects.specification.*;
 import core.music.sources.spotify.SpotifyAudioSourceManager;
 import dao.exceptions.ChuuServiceException;
 import org.apache.hc.core5.http.ParseException;
 import org.jetbrains.annotations.Nullable;
+import se.michaelthelin.spotify.SpotifyApi;
+import se.michaelthelin.spotify.exceptions.SpotifyWebApiException;
+import se.michaelthelin.spotify.model_objects.IPlaylistItem;
+import se.michaelthelin.spotify.model_objects.specification.*;
 
 import java.io.IOException;
 import java.util.*;

@@ -13,14 +13,22 @@ import core.music.sources.youtube.webscrobbler.processers.ChuuAudioTrackInfo;
 import java.net.URI;
 import java.util.List;
 import java.util.StringJoiner;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class ChuuYoutubeAudioTrack extends YoutubeAudioTrack {
 
     private final YoutubeAudioSourceManager sourceManager;
-    private final AtomicBoolean isSet = new AtomicBoolean(false);
     public ChuuAudioTrackInfo newInfo;
     private FormatWithUrl cachedFormatWithUrl;
+    private final Lock readLock;
+    private final Lock writeLock;
+
+    {
+        ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
+        readLock = lock.readLock();
+        writeLock = lock.writeLock();
+    }
 
     /**
      * @param trackInfo     Track info
@@ -65,19 +73,24 @@ public class ChuuYoutubeAudioTrack extends YoutubeAudioTrack {
     }
 
     public boolean isSet() {
-        return isSet.get();
+        try {
+            readLock.lock();
+            return cachedFormatWithUrl != null;
+        } finally {
+            readLock.unlock();
+        }
     }
 
     public AudioTrackInfo process() throws Exception {
         if (!trackInfo.isStream) {
-            if (isSet.compareAndSet(false, false)) {
-                try (HttpInterface httpInterface = sourceManager.getHttpInterface()) {
-                    loadBestFormatWithUrl(httpInterface);
-                } catch (Exception e) {
-                    Chuu.getLogger().info("Something went wrong loading a track in chuu interceptor: " + e.getMessage(), e);
-                    throw e;
-                }
+            try (HttpInterface httpInterface = sourceManager.getHttpInterface()) {
+                loadBestFormatWithUrl(httpInterface);
+            } catch (Exception e) {
+                Chuu.getLogger().info("Something went wrong loading a track in chuu interceptor: " + e.getMessage(), e);
+                throw e;
             }
+
+
         }
         return getInfo();
     }
@@ -97,9 +110,12 @@ public class ChuuYoutubeAudioTrack extends YoutubeAudioTrack {
         } else {
             try (HttpInterface httpInterface = sourceManager.getHttpInterface()) {
                 FormatWithUrl format;
-                if (isSet.compareAndSet(true, true)) {
+                readLock.lock();
+                if (this.cachedFormatWithUrl != null) {
+                    readLock.unlock();
                     format = cachedFormatWithUrl;
                 } else {
+                    readLock.unlock();
                     format = loadBestFormatWithUrl(httpInterface);
                 }
                 processStatic(localExecutor, httpInterface, format);
@@ -118,30 +134,35 @@ public class ChuuYoutubeAudioTrack extends YoutubeAudioTrack {
     }
 
     private FormatWithUrl loadBestFormatWithUrl(HttpInterface httpInterface) throws Exception {
-        if (this.isSet.compareAndSet(false, false)) {
-            YoutubeTrackDetails details = sourceManager.getTrackDetailsLoader()
-                    .loadDetails(httpInterface, getIdentifier(), true, sourceManager);
+        try {
+            writeLock.lock();
+            if (this.cachedFormatWithUrl == null) {
+                YoutubeTrackDetails details = sourceManager.getTrackDetailsLoader()
+                        .loadDetails(httpInterface, getIdentifier(), true, sourceManager);
 
-            // If the error reason is "Video unavailable" details will return null
-            if (details == null) {
-                throw new FriendlyException("This video is not available", FriendlyException.Severity.COMMON, null);
+                // If the error reason is "Video unavailable" details will return null
+                if (details == null) {
+                    throw new FriendlyException("This video is not available", FriendlyException.Severity.COMMON, null);
+                }
+
+                List<YoutubeTrackFormat> formats = details.getFormats(httpInterface, sourceManager.getSignatureResolver());
+
+                YoutubeTrackFormat format = findBestSupportedFormat(formats);
+
+                URI signedUrl = sourceManager.getSignatureResolver()
+                        .resolveFormatUrl(httpInterface, details.getPlayerScript(), format);
+                FormatWithUrl formatWithUrl = new FormatWithUrl(format, signedUrl);
+
+                setCachedInfo((ChuuAudioTrackInfo) details.getTrackInfo(), formatWithUrl);
             }
-
-            List<YoutubeTrackFormat> formats = details.getFormats(httpInterface, sourceManager.getSignatureResolver());
-
-            YoutubeTrackFormat format = findBestSupportedFormat(formats);
-
-            URI signedUrl = sourceManager.getSignatureResolver()
-                    .resolveFormatUrl(httpInterface, details.getPlayerScript(), format);
-            FormatWithUrl formatWithUrl = new FormatWithUrl(format, signedUrl);
-
-            setCachedInfo((ChuuAudioTrackInfo) details.getTrackInfo(), formatWithUrl);
+            return cachedFormatWithUrl;
+        } finally {
+            writeLock.unlock();
         }
-        return cachedFormatWithUrl;
     }
 
     private void setCachedInfo(ChuuAudioTrackInfo newInfo, FormatWithUrl details) {
-        if (this.isSet.compareAndSet(false, true)) {
+        if (this.cachedFormatWithUrl == null) {
             this.newInfo = newInfo;
             this.cachedFormatWithUrl = details;
         } else {

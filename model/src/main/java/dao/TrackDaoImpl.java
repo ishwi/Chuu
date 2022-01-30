@@ -629,7 +629,7 @@ public class TrackDaoImpl extends BaseDAO implements TrackDao {
                 "mbid = if(mbid is null and values(mbid) is not null,values(mbid),mbid), " +
                 " duration = if(duration is null and values(duration) is not null and values(duration) != 0,values(duration),duration)," +
                 "url = if(url is null and values(url) is not null,values(url),url)," +
-                "album_id = if(album_id is null and values(album_id) is not null,values(album_id),album_id)  " +
+                "album_id = if(album_id is null and values(album_id) is not null,values(album_id),album_id),  " +
                 "spotify_id = if(spotify_id is null and values(spotify_id) is not null,values(spotify_id),spotify_id)  " +
                 "returning id ");
 
@@ -1018,11 +1018,11 @@ public class TrackDaoImpl extends BaseDAO implements TrackDao {
                 """;
 
         if (filter != null) {
-            mySql += " and a.playnumber > ? ";
+            mySql += "having sum(a.playnumber) > ? ";
         }
         mySql += " group by t.id, track_name ";
         if (listeners) {
-            mySql += "order by listenrs desc";
+            mySql += "order by listeners desc";
         } else {
             mySql += "order by plays desc ";
         }

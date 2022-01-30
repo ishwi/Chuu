@@ -1,7 +1,5 @@
 package core.commands.stats;
 
-import com.wrapper.spotify.model_objects.specification.AudioFeatures;
-import com.wrapper.spotify.model_objects.specification.Track;
 import core.apis.spotify.Spotify;
 import core.apis.spotify.SpotifySingleton;
 import core.commands.Context;
@@ -24,6 +22,8 @@ import dao.entities.ScrobbledArtist;
 import dao.entities.ScrobbledTrack;
 import net.dv8tion.jda.api.EmbedBuilder;
 import org.apache.commons.lang3.tuple.Pair;
+import se.michaelthelin.spotify.model_objects.specification.AudioFeatures;
+import se.michaelthelin.spotify.model_objects.specification.Track;
 
 import javax.annotation.Nonnull;
 import java.text.DecimalFormat;
@@ -77,7 +77,7 @@ public class SongAudioFeaturesCommand extends ConcurrentCommand<ArtistAlbumParam
 
 
         SpotifyTrackService spotifyTrackService = new SpotifyTrackService(db, lastFMData.getName());
-        List<Pair<ScrobbledTrack, com.wrapper.spotify.model_objects.specification.Track>> pairs = spotifyTrackService.searchTracks(List.of(scrobbledTrack));
+        List<Pair<ScrobbledTrack, se.michaelthelin.spotify.model_objects.specification.Track>> pairs = spotifyTrackService.searchTracks(List.of(scrobbledTrack));
 
         if (pairs.isEmpty() || pairs.get(0).getValue() == null) {
             sendMessageQueue(e, "Couldn't find any audio feature for **%s by %s**".formatted(params.getAlbum(), sA.getArtist()));

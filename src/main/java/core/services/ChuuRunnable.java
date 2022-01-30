@@ -13,5 +13,5 @@ public interface ChuuRunnable extends Runnable {
         }
     }
 
-    void execute();
+    void execute() throws Exception;
 }

@@ -1,11 +1,11 @@
 package core.services;
 
-import com.wrapper.spotify.model_objects.specification.Track;
 import core.apis.spotify.Spotify;
 import core.apis.spotify.SpotifySingleton;
 import dao.ChuuService;
 import dao.entities.ScrobbledTrack;
 import org.apache.commons.lang3.tuple.Pair;
+import se.michaelthelin.spotify.model_objects.specification.Track;
 
 import java.util.List;
 

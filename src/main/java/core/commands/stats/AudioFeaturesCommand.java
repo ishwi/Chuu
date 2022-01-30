@@ -1,6 +1,5 @@
 package core.commands.stats;
 
-import com.wrapper.spotify.model_objects.specification.AudioFeatures;
 import core.apis.spotify.Spotify;
 import core.apis.spotify.SpotifySingleton;
 import core.commands.Context;
@@ -18,6 +17,7 @@ import dao.entities.DiscordUserDisplay;
 import dao.entities.LastFMData;
 import dao.entities.ScrobbledTrack;
 import net.dv8tion.jda.api.EmbedBuilder;
+import se.michaelthelin.spotify.model_objects.specification.AudioFeatures;
 
 import javax.annotation.Nonnull;
 import java.text.DecimalFormat;

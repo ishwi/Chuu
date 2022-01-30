@@ -627,7 +627,7 @@ public class AlbumDaoImpl extends BaseDAO implements AlbumDao {
                 """;
 
         if (filter != null) {
-            mySql += " and playnumber > ? ";
+            mySql += " having sum(a.playnumber) > ? ";
         }
         mySql += " group by t.id, album_name ";
         if (listeners) {

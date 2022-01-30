@@ -22,15 +22,15 @@ import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioSourceManager
 import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioItem;
 import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
-import com.wrapper.spotify.SpotifyApi;
-import com.wrapper.spotify.exceptions.SpotifyWebApiException;
-import com.wrapper.spotify.model_objects.specification.AlbumSimplified;
-import com.wrapper.spotify.model_objects.specification.Image;
-import com.wrapper.spotify.model_objects.specification.Track;
 import core.music.sources.spotify.SpotifyAudioSourceManager;
 import dao.exceptions.ChuuServiceException;
 import org.apache.hc.core5.http.ParseException;
 import org.jetbrains.annotations.Nullable;
+import se.michaelthelin.spotify.SpotifyApi;
+import se.michaelthelin.spotify.exceptions.SpotifyWebApiException;
+import se.michaelthelin.spotify.model_objects.specification.AlbumSimplified;
+import se.michaelthelin.spotify.model_objects.specification.Image;
+import se.michaelthelin.spotify.model_objects.specification.Track;
 
 import java.io.IOException;
 import java.util.Arrays;

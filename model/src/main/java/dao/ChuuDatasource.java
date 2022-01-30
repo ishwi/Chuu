@@ -15,11 +15,11 @@ public final class ChuuDatasource implements CommonDatasource {
     public ChuuDatasource() {
 
         HikariConfig config = new HikariConfig(CONFIG);
-        config.setConnectionInitSql("set @@sql_mode='NO_ZERO_DATE';");
         config.setTransactionIsolation("TRANSACTION_READ_UNCOMMITTED");
         config.setMaximumPoolSize(14);
         config.setMinimumIdle(8);
         config.setPoolName("Normal-pool-Chuu");
+        config.addDataSourceProperty("connectionCollation", "utf8mb4_unicode_ci");
         this.ds = new HikariDataSource(config);
 
     }

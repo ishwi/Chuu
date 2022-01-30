@@ -21,7 +21,7 @@ import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioSourceManager;
 import com.sedmelluq.discord.lavaplayer.track.AudioItem;
 import com.sedmelluq.discord.lavaplayer.track.AudioReference;
-import com.wrapper.spotify.SpotifyApi;
+import se.michaelthelin.spotify.SpotifyApi;
 
 import javax.annotation.Nullable;
 import java.util.concurrent.CompletableFuture;

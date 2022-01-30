@@ -35,6 +35,7 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.CompletableFuture;
@@ -110,7 +111,7 @@ public class QueueCommand extends MusicCommand<CommandParameters> {
 
         if (str.isEmpty()) {
             // Thinking emoji
-            str.add("Nothing in the queue-");
+            str = Collections.singletonList("Nothing in the queue-");
         } else {
             eb.addField("Entries", String.valueOf(queue.size()), true)
                     .addField("Total Duration", CommandUtil.msToString(duration), true);

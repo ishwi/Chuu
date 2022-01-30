@@ -169,7 +169,6 @@ public abstract class MyCommand<T extends CommandParameters> implements EventLis
         long startTime = System.nanoTime();
         boolean sucess = handleCommand(e);
         long timeElapsed = System.nanoTime() - startTime;
-        System.out.printf("Execution time in milliseconds %s: %d%n", getName(), timeElapsed / 1000);
         logCommand(db, e, this, timeElapsed, sucess, e instanceof ContextMessageReceived);
     }
 

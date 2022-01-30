@@ -67,13 +67,6 @@ public class UpdateCommand extends ConcurrentCommand<ChuuDataParams> {
         db.findLastFMData(discordID);
         boolean force = params.hasOptional("force");
         String userString = getUserString(e, discordID, lastFmName);
-        if (e.isFromGuild()) {
-            if (db.getAll(e.getGuild().getIdLong()).stream()
-                    .noneMatch(s -> s.getLastFMName().equals(lastFmName))) {
-                sendMessageQueue(e, userString + " is not registered in this server");
-                return;
-            }
-        }
         boolean removeFlag = true;
         try {
             if (!UpdaterService.lockAndContinue(lastFmName)) {

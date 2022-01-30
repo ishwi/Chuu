@@ -5,6 +5,7 @@ import com.sedmelluq.discord.lavaplayer.tools.ExceptionTools;
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.tools.JsonBrowser;
 import com.sedmelluq.discord.lavaplayer.tools.io.HttpInterface;
+import core.Chuu;
 import core.music.sources.youtube.webscrobbler.processers.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,6 +49,17 @@ public class ChuuTrackLoader extends DefaultYoutubeTrackDetailsLoader implements
             }
             List<Processed> process = new ChapterProcesser().process(initialData.playerResponse, mainInfo);
             if (process == null) {
+                try {
+                    long length = getLength(mainInfo);
+                    if (length > 500) {
+                        JsonBrowser chapterData = loadTrackInfoFromMainPage(httpInterface, videoId);
+                        process = new ChapterProcesser().process(initialData.playerResponse, chapterData);
+                    }
+                } catch (Exception e) {
+                    Chuu.getLogger().warn("Error doing extraction from metadata");
+                }
+            }
+            if (process == null) {
                 process = new DescriptionProcesser().process(initialData.playerResponse, mainInfo);
             }
             if (process == null) {
@@ -62,5 +74,8 @@ public class ChuuTrackLoader extends DefaultYoutubeTrackDetailsLoader implements
         }
     }
 
+    private long getLength(JsonBrowser info) {
+        return info.get("videoDetails").get("lengthSeconds").asLong(-1);
+    }
 
 }

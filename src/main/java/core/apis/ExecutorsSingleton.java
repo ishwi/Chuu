@@ -22,10 +22,10 @@ public class ExecutorsSingleton {
 
             instance = new ThreadPoolExecutor(
                     3,
-                    300,
+                    150,
                     240L,
                     TimeUnit.SECONDS,
-                    new ArrayBlockingQueue<>(200),
+                    new ArrayBlockingQueue<>(100),
                     r -> new Thread(r, "Chuu-executor-" + counter.getAndIncrement()),
                     (r, executor) -> Chuu.getLogger().info(" Discarded thread: " + r.toString())
             );

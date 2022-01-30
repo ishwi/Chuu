@@ -27,6 +27,7 @@ import com.sedmelluq.discord.lavaplayer.source.soundcloud.SoundCloudAudioSourceM
 import com.sedmelluq.discord.lavaplayer.source.twitch.TwitchStreamAudioSourceManager;
 import com.sedmelluq.discord.lavaplayer.source.vimeo.VimeoAudioSourceManager;
 import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioSourceManager;
+import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeHttpContextFilter;
 import com.sedmelluq.discord.lavaplayer.tools.io.MessageInput;
 import com.sedmelluq.discord.lavaplayer.tools.io.MessageOutput;
 import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
@@ -50,13 +51,8 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import javax.annotation.Nullable;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.UncheckedIOException;
-import java.util.ArrayList;
-import java.util.Base64;
-import java.util.List;
+import java.io.*;
+import java.util.*;
 
 public class ExtendedAudioPlayerManager extends DefaultAudioPlayerManager {
 
@@ -75,6 +71,14 @@ public class ExtendedAudioPlayerManager extends DefaultAudioPlayerManager {
                     .withRetryLimit(6)
                     .forSource(youtubeAudioSourceManager).setup();
         }
+        Optional<Properties> opt = readYoutubeConfig();
+        if (opt.isPresent()) {
+            Properties props = opt.get();
+            String PSID = props.getProperty("PSID");
+            String PAPISID = props.getProperty("PAPISID");
+            YoutubeHttpContextFilter.setPSID(PSID);
+            YoutubeHttpContextFilter.setPAPISID(PAPISID);
+        }
         registerSourceManagers(
                 new SpotifyAudioSourceManager(youtubeAudioSourceManager),
                 youtubeAudioSourceManager,
@@ -89,6 +93,17 @@ public class ExtendedAudioPlayerManager extends DefaultAudioPlayerManager {
         );
 
 
+    }
+
+    public static Optional<Properties> readYoutubeConfig() {
+
+        Properties properties = new Properties();
+        try (InputStream in = Chuu.class.getResourceAsStream("/youtube.properties")) {
+            properties.load(in);
+            return Optional.of(properties);
+        } catch (IOException e) {
+            return Optional.empty();
+        }
     }
 
     private void registerSourceManagers(AudioSourceManager... sourceManager) {

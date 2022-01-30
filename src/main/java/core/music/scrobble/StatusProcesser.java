@@ -1,24 +1,36 @@
 package core.music.scrobble;
 
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import core.Chuu;
 import core.apis.last.ConcurrentLastFM;
 import core.apis.last.LastFMFactory;
 import core.apis.last.entities.Scrobble;
 import core.exceptions.LastFmException;
+import core.services.ChuuRunnable;
 import dao.ChuuService;
 import dao.entities.LastFMData;
 import net.dv8tion.jda.api.entities.ISnowflake;
 
 import javax.annotation.Nonnull;
-import java.util.*;
+import java.time.Instant;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 public class StatusProcesser {
-    private static final Map<Identifier, ScrobbleStatus> statuses = new HashMap<>();
-    private static final Map<Identifier, ScrobbleStatus> overriden = new HashMap<>();
+    private static final Cache<Identifier, ScrobbleStatus> statuses = Caffeine.newBuilder()
+            .expireAfterAccess(60, TimeUnit.MINUTES).build();
+    private static final Cache<Identifier, ScrobbleStatus> overriden = Caffeine.newBuilder()
+            .expireAfterAccess(60, TimeUnit.MINUTES).maximumSize(500L).build();
     private final ConcurrentLastFM lastFM = LastFMFactory.getNewInstance();
+    private static final Executor scrobbleRequester = Executors.newFixedThreadPool(3);
     private final ChuuService db;
 
     public StatusProcesser(ChuuService db) {
@@ -26,7 +38,7 @@ public class StatusProcesser {
     }
 
     private static Identifier genId(ScrobbleStatus status) {
-        return new Identifier(status.channelId(), status.scrobble().uuid());
+        return new Identifier(status.guildId(), status.scrobble().uuid());
     }
 
 
@@ -45,21 +57,42 @@ public class StatusProcesser {
         processStart(next);
     }
 
-    private void processMetadataChange(ScrobbleStatus next) throws LastFmException {
-        ScrobbleStatus previous = statuses.remove(genId(next));
-        if (previous == null) {
-            Chuu.getLogger().info("Something went wrong metadata, didnt pexists previous");
-        } else {
-            Long duration = next.scrobble().scrobble().duration();
-            processStart(new ScrobbleStatus(ScrobbleStates.SCROBBLING,
-                    next.scrobble()
-                    , next.voiceChannelSupplier(), next.channelId(), previous.moment(), next.callback(), next.extraParams()));
+    private ScrobbleStatus evict(ScrobbleStatus next) {
+        Identifier key = genId(next);
+        ScrobbleStatus status = statuses.getIfPresent(key);
+        if (status != null) {
+            statuses.invalidate(key);
+            return status;
         }
-
+        return null;
     }
 
-    private void processStart(ScrobbleStatus status) throws LastFmException {
-        ScrobbleStatus previous = statuses.put(genId(status), status);
+    private ScrobbleStatus evictOverriden(ScrobbleStatus next) {
+        Identifier key = genId(next);
+        ScrobbleStatus status = overriden.getIfPresent(key);
+        if (status != null) {
+            statuses.invalidate(key);
+            return status;
+        }
+        return null;
+    }
+
+    private void processMetadataChange(ScrobbleStatus next) throws LastFmException {
+        ScrobbleStatus previous = evict(next);
+        if (previous == null) {
+            Chuu.getLogger().info("Something went wrong metadata, didnt exists previous");
+            processStart(new ScrobbleStatus(ScrobbleStates.SCROBBLING,
+                    next.scrobble()
+                    , next.voiceChannelSupplier(), next.guildId(), next.moment(), next.callback(), next.extraParams()));
+        } else {
+            processStart(new ScrobbleStatus(ScrobbleStates.SCROBBLING,
+                    next.scrobble()
+                    , next.voiceChannelSupplier(), next.guildId(), previous.moment(), next.callback(), next.extraParams()));
+        }
+    }
+
+    private void processStart(ScrobbleStatus status) {
+        ScrobbleStatus previous = statuses.get(genId(status), (k) -> status);
         if (previous != null) {
             overriden.put(genId(previous), previous);
         }
@@ -71,12 +104,22 @@ public class StatusProcesser {
         } else {
             scrobble = status.scrobble().scrobble();
         }
-        if (Chuu.chuuSess != null) {
-            lastFM.flagNP(Chuu.chuuSess, scrobble);
-        }
-        for (LastFMData data : scrobbleableUsers) {
-            lastFM.flagNP(data.getSession(), scrobble);
-        }
+
+
+        CompletableFuture.allOf(scrobbleableUsers.stream().map(z -> (ChuuRunnable) () -> lastFM.flagNP(z.getSession(), scrobble))
+                .map(r -> CompletableFuture.runAsync(r, scrobbleRequester)).toArray(CompletableFuture[]::new)).handle(
+                (unused, throwable) -> {
+                    if (throwable != null) {
+                        Chuu.getLogger().debug("Error flagging np", throwable);
+                    }
+                    return null;
+                });
+
+        Optional.ofNullable(Chuu.chuuSess)
+                .ifPresent(sess -> CompletableFuture.runAsync(
+                        (ChuuRunnable) () -> lastFM.flagNP(sess, scrobble)
+                        , scrobbleRequester));
+
         status.callback().accept(status, scrobbleableUsers);
     }
 
@@ -89,27 +132,25 @@ public class StatusProcesser {
                 .filter(x -> voiceMembers.contains(x.getDiscordId())).collect(Collectors.toSet());
     }
 
-    private void processEnd(ScrobbleStatus status) throws LastFmException {
-        ScrobbleStatus first = statuses.remove(genId(status));
+    private void processEnd(ScrobbleStatus status) {
+        ScrobbleStatus first = evict(status);
         if (first == null) {
-            first = overriden.remove(genId(status));
+            first = evictOverriden(status);
             if (first == null) {
-                CompletableFuture.delayedExecutor(10, TimeUnit.SECONDS).execute(() -> {
-                    if (statuses.containsKey(genId(status)) || overriden.containsKey(genId(status))) {
-                        try {
-                            this.processEnd(status);
-                        } catch (LastFmException e) {
-                            e.printStackTrace();
-                        }
-                    } else {
-                        Chuu.getLogger().warn("Was not able to remove scrobble {}", status);
-                    }
-                });
-                return;
+                Chuu.getLogger().warn("Was not able to remove scrobble {}", status);
+//                return;
             }
-        }
 
-        long seconds = status.moment().getEpochSecond() - first.moment().getEpochSecond();
+        }
+        long seconds;
+        Instant moment;
+        if (first == null) {
+            moment = status.moment();
+            seconds = Instant.now().getEpochSecond() - status.moment().getEpochSecond();
+        } else {
+            moment = first.moment();
+            seconds = status.moment().getEpochSecond() - first.moment().getEpochSecond();
+        }
         if (seconds < 30 || (seconds < (status.scrobble().scrobble().duration() / 1000) / 2 && seconds < 4 * 60)) {
             Chuu.getLogger().info("Didnt scrobble {}: Duration {}", status.scrobble().identifier(), seconds);
             return;
@@ -122,16 +163,23 @@ public class StatusProcesser {
         } else {
             scrobble = status.scrobble().scrobble();
         }
+        CompletableFuture.allOf(scrobbleableUsers.stream().map(z -> (ChuuRunnable) () -> lastFM.scrobble(z.getSession(), scrobble, moment))
+                .map(r -> CompletableFuture.runAsync(r, scrobbleRequester)).toArray(CompletableFuture[]::new)).handle(
+                (unused, throwable) -> {
+                    if (throwable != null) {
+                        Chuu.getLogger().debug("Error submitting scrobble", throwable);
+                    }
+                    return null;
+                });
 
-        for (LastFMData data : scrobbleableUsers) {
-            lastFM.scrobble(data.getSession(), scrobble, first.moment());
-        }
-        if (Chuu.chuuSess != null) {
-            lastFM.scrobble(Chuu.chuuSess, scrobble, first.moment());
-        }
+        Optional.ofNullable(Chuu.chuuSess)
+                .ifPresent(sess -> CompletableFuture.runAsync(
+                        (ChuuRunnable) () -> lastFM.scrobble(sess, scrobble, moment)
+                        , scrobbleRequester));
+
         status.callback().accept(status, scrobbleableUsers);
     }
 
-    private record Identifier(long channelId, UUID uuid) {
+    private record Identifier(long guildId, java.util.UUID identifier) {
     }
 }

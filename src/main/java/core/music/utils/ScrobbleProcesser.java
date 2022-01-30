@@ -63,7 +63,7 @@ public record ScrobbleProcesser(AlbumFinder albumFinder) {
                         AudioTrackInfo process = cyat.process();
                         inn = inn.fromAudioTrack(cyat.getInfo());
                     } catch (Exception e) {
-                        Chuu.getLogger().warn("Error processando song que no estaba proceada {}", cyat, e);
+                        Chuu.getLogger().warn("Error processando song que no estaba procesada {}", cyat, e);
                     }
                 }
             }

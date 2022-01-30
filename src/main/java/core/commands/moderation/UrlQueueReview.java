@@ -12,6 +12,7 @@ import core.otherlisteners.Reaction;
 import core.parsers.NoOpParser;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
+import core.parsers.utils.OptionalEntity;
 import dao.ImageQueue;
 import dao.ServiceView;
 import dao.entities.LastFMData;
@@ -72,7 +73,7 @@ public class UrlQueueReview extends ConcurrentCommand<CommandParameters> {
 
     @Override
     public Parser<CommandParameters> initParser() {
-        return NoOpParser.INSTANCE;
+        return new NoOpParser().addOptional(new OptionalEntity("new", "new"));
     }
 
     @Override
@@ -105,7 +106,7 @@ public class UrlQueueReview extends ConcurrentCommand<CommandParameters> {
         Map<Long, Integer> strikesMap = new HashMap<>();
         Map<Long, Integer> rejectedMap = new HashMap<>();
         Map<Long, Integer> approvedMap = new HashMap<>();
-        Queue<ImageQueue> queue = new ArrayDeque<>(db.getNextQueue());
+        Queue<ImageQueue> queue = new ArrayDeque<>(db.getNextQueue(params.hasOptional("new")));
         AtomicInteger totalImages = new AtomicInteger(queue.size());
         HashMap<String, Reaction<ImageQueue, ButtonInteractionEvent, ButtonResult>> actionMap = new LinkedHashMap<>();
         actionMap.put(DELETE, (q, r) -> {

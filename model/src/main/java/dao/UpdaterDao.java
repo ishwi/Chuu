@@ -203,7 +203,7 @@ interface UpdaterDao {
 
     RandomUrlEntity getRandomUrlFromUser(Connection connection, long userId, RandomTarget randomTarget);
 
-    List<ImageQueue> getUrlQueue(Connection connection);
+    List<ImageQueue> getUrlQueue(Connection connection, boolean newFirst);
 
 
     void updateArtistRanking(Connection connection);

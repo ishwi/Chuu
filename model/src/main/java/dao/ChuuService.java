@@ -137,7 +137,6 @@ public class ChuuService implements EveryNoiseService {
                     x.setArtistId(artistId);
                 });
                 connection.setAutoCommit(false);
-                connection.commit();
 
                 insertAlbums(albumData, id, connection, false);
                 Map<AlbumInfo, ScrobbledAlbum> albumInfoes = albumData.stream().filter(x -> x.getAlbum() != null && !x.getAlbum().isBlank()).collect(Collectors.toMap(x -> new AlbumInfoIgnoreMbid(x.getAlbumMbid(), x.getAlbum(), x.getArtist()), x -> x, (x, y) -> x));
@@ -1593,9 +1592,9 @@ public class ChuuService implements EveryNoiseService {
 
     }
 
-    public List<ImageQueue> getNextQueue() {
+    public List<ImageQueue> getNextQueue(boolean newFirst) {
         try (Connection connection = dataSource.getConnection()) {
-            return updaterDao.getUrlQueue(connection);
+            return updaterDao.getUrlQueue(connection, newFirst);
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }
@@ -2226,6 +2225,7 @@ public class ChuuService implements EveryNoiseService {
 
         Map<Boolean, List<ScrobbledAlbum>> map = list.stream().peek(x -> x.setDiscordID(id)).collect(Collectors.partitioningBy(scrobbledArtist -> scrobbledArtist.getAlbumId() == -1));
         List<ScrobbledAlbum> nonExistingId = map.get(true);
+        connection.commit();
         connection.setAutoCommit(true);
         if (!nonExistingId.isEmpty()) {
             nonExistingId.forEach(x -> {
@@ -2239,7 +2239,6 @@ public class ChuuService implements EveryNoiseService {
         List<ScrobbledAlbum> scrobbledAlbums = map.get(false);
         scrobbledAlbums.addAll(nonExistingId);
         connection.setAutoCommit(false);
-        connection.commit();
         if (doDeletion) {
             albumDao.deleteAllUserAlbums(connection, id);
         }
@@ -2279,7 +2278,6 @@ public class ChuuService implements EveryNoiseService {
         List<ScrobbledTrack> scrobbledTracks = map.get(false);
         scrobbledTracks.addAll(nonExistingId);
         connection.setAutoCommit(false);
-        connection.commit();
         if (doDeletion) {
             trackDao.deleteAllUserTracks(connection, id);
         }
@@ -3267,7 +3265,6 @@ public class ChuuService implements EveryNoiseService {
                 }
                 updaterDao.setUpdatedTime(connection, id, null, null);
                 connection.setAutoCommit(false);
-                connection.commit();
             } catch (SQLException e) {
                 throw new ChuuServiceException(e);
             }

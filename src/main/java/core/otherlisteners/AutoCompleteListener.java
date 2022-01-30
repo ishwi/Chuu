@@ -12,6 +12,7 @@ import net.dv8tion.jda.api.hooks.EventListener;
 import net.dv8tion.jda.api.interactions.AutoCompleteQuery;
 import net.dv8tion.jda.api.interactions.commands.Command;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
 
 import java.util.List;
 
@@ -26,6 +27,8 @@ public class AutoCompleteListener implements EventListener {
     }
 
     private void handle(CommandAutoCompleteInteractionEvent e) {
+        Logger logger = Chuu.getLogger();
+        logger.info("Autocompleting event {}", e);
         AutoCompleteQuery focusedOption = e.getFocusedOption();
         MyCommand<? extends CommandParameters> myCommand = Chuu.customManager.parseCommand(e);
         List<Command.Choice> interactibles = myCommand.getParser().getUsages().stream().map(Explanation::explanation)
@@ -33,6 +36,7 @@ public class AutoCompleteListener implements EventListener {
                 .map(w -> (Autocompletable & Interactible) w)
                 .filter(w -> w.options().stream().anyMatch(optionData -> optionData.isAutoComplete() && optionData.getName().equals(focusedOption.getName())))
                 .flatMap(w -> w.autocomplete(e).stream()).toList();
+        logger.info("Autocompleting event {} | replying with {}", e, interactibles);
         e.replyChoices(interactibles).queue();
     }
 

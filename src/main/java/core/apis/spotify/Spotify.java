@@ -1,20 +1,20 @@
 package core.apis.spotify;
 
 import com.neovisionaries.i18n.CountryCode;
-import com.wrapper.spotify.SpotifyApi;
-import com.wrapper.spotify.exceptions.SpotifyWebApiException;
-import com.wrapper.spotify.model_objects.credentials.ClientCredentials;
-import com.wrapper.spotify.model_objects.special.SearchResult;
-import com.wrapper.spotify.model_objects.specification.*;
-import com.wrapper.spotify.requests.authorization.client_credentials.ClientCredentialsRequest;
-import com.wrapper.spotify.requests.data.search.SearchItemRequest;
-import com.wrapper.spotify.requests.data.search.simplified.SearchAlbumsRequest;
-import com.wrapper.spotify.requests.data.search.simplified.SearchTracksRequest;
-import com.wrapper.spotify.requests.data.tracks.GetAudioFeaturesForSeveralTracksRequest;
 import core.Chuu;
 import dao.entities.ScrobbledTrack;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.hc.core5.http.ParseException;
+import se.michaelthelin.spotify.SpotifyApi;
+import se.michaelthelin.spotify.exceptions.SpotifyWebApiException;
+import se.michaelthelin.spotify.model_objects.credentials.ClientCredentials;
+import se.michaelthelin.spotify.model_objects.special.SearchResult;
+import se.michaelthelin.spotify.model_objects.specification.*;
+import se.michaelthelin.spotify.requests.authorization.client_credentials.ClientCredentialsRequest;
+import se.michaelthelin.spotify.requests.data.search.SearchItemRequest;
+import se.michaelthelin.spotify.requests.data.search.simplified.SearchAlbumsRequest;
+import se.michaelthelin.spotify.requests.data.search.simplified.SearchTracksRequest;
+import se.michaelthelin.spotify.requests.data.tracks.GetAudioFeaturesForSeveralTracksRequest;
 
 import java.io.IOException;
 import java.time.LocalDateTime;

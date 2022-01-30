@@ -28,9 +28,9 @@ import com.sedmelluq.discord.lavaplayer.track.AudioItem;
 import com.sedmelluq.discord.lavaplayer.track.AudioReference;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackInfo;
-import com.wrapper.spotify.SpotifyApi;
 import core.apis.spotify.SpotifySingleton;
 import core.music.sources.spotify.loaders.*;
+import se.michaelthelin.spotify.SpotifyApi;
 
 import java.io.DataInput;
 import java.io.DataOutput;
