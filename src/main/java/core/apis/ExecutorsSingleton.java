@@ -1,6 +1,6 @@
 package core.apis;
 
-import core.Chuu;
+import core.util.ChuuRejector;
 
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ExecutorService;
@@ -22,12 +22,12 @@ public class ExecutorsSingleton {
 
             instance = new ThreadPoolExecutor(
                     3,
-                    150,
-                    240L,
+                    100,
+                    30L,
                     TimeUnit.SECONDS,
                     new ArrayBlockingQueue<>(100),
                     r -> new Thread(r, "Chuu-executor-" + counter.getAndIncrement()),
-                    (r, executor) -> Chuu.getLogger().info(" Discarded thread: " + r.toString())
+                    new ChuuRejector()
             );
         }
         return instance;

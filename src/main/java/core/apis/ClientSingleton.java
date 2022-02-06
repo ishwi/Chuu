@@ -1,7 +1,7 @@
 package core.apis;
 
 
-import core.Chuu;
+import core.util.ChuuRejector;
 
 import java.net.http.HttpClient;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -32,13 +32,12 @@ public class ClientSingleton {
         private static final AtomicInteger ranker = new AtomicInteger(0);
         private static final Executor executor = new ThreadPoolExecutor(
                 0
-                , 10,
+                , 20,
                 60L,
                 TimeUnit.SECONDS,
                 new ArrayBlockingQueue<>(50),
                 r -> new Thread(r, "Api-Executor" + ranker.getAndIncrement()),
-                (r, executor) -> Chuu.getLogger().info(" Discarded thread: " + r.toString())
-        );
+                new ChuuRejector());
         private static final HttpClient instance = HttpClient.newBuilder()
                 .executor(executor)
                 .priority(1) //HTTP/2 priority

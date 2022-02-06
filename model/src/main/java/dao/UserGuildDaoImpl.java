@@ -3,6 +3,7 @@ package dao;
 import dao.entities.*;
 import dao.exceptions.ChuuServiceException;
 import dao.exceptions.InstanceNotFoundException;
+import dao.utils.SQLUtils;
 import org.apache.commons.collections4.MultiValuedMap;
 import org.apache.commons.collections4.multimap.ArrayListValuedHashMap;
 import org.apache.commons.collections4.multimap.HashSetValuedHashMap;
@@ -1768,6 +1769,17 @@ public class UserGuildDaoImpl implements UserGuildDao {
             throw new ChuuServiceException(e);
         }
         return randomId;
+    }
+
+    @Override
+    public Set<Long> findExistingById(Connection connection, Collection<Long> ids) {
+        Set<Long> existingIds = new HashSet<>();
+        SQLUtils.doBatchesSelect(connection, "SELECT id from user WHERE  (discord_id) in  ( ", new ArrayList<>(ids),
+                (ps, st, i) -> ps.setLong(i + 1, st),
+                rs -> existingIds.add(rs.getLong("id")),
+                1, " )");
+        return existingIds;
+
     }
 
     private List<LastFMData> getServerData(Connection con, long guildId, String queryString) {

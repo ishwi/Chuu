@@ -270,6 +270,14 @@ public class ChuuService implements EveryNoiseService {
         }
     }
 
+    public Set<Long> findExistingById(Collection<Long> discordID) {
+        try (Connection connection = dataSource.getConnection()) {
+            return userGuildDao.findExistingById(connection, discordID);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
     public LastFMData computeLastFmData(long discordID, long guildId) throws InstanceNotFoundException {
         try (Connection connection = dataSource.getConnection()) {
             return userGuildDao.findLastFmData(connection, discordID, guildId);

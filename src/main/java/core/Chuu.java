@@ -26,6 +26,7 @@ import core.otherlisteners.AwaitReady;
 import core.otherlisteners.FriendRequester;
 import core.services.*;
 import core.services.validators.AlbumFinder;
+import core.util.ChuuFixedPool;
 import core.util.botlists.BotListPoster;
 import dao.ChuuDatasource;
 import dao.ChuuService;
@@ -57,7 +58,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
-import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.LongAdder;
@@ -131,7 +131,7 @@ public class Chuu {
         scrobbleProcesser = new ScrobbleProcesser(new AlbumFinder(service, LastFMFactory.getNewInstance()));
         playerManager = new ExtendedAudioPlayerManager(scrobbleEventManager, scrobbleProcesser);
         playerRegistry = new PlayerRegistry(playerManager);
-        scheduledService = new ScheduledService(Executors.newScheduledThreadPool(4), db.normalService());
+        scheduledService = new ScheduledService(ChuuFixedPool.ofScheduled(3, "Scheduler-runner"), db.normalService());
         if (!notMain) {
             // Only on main instance
             scheduledService.setScheduled();
@@ -155,7 +155,7 @@ public class Chuu {
         EvalCommand evalCommand = new EvalCommand(db);
 
         AtomicInteger counter = new AtomicInteger(0);
-        EnumSet<CacheFlag> cacheFlags = EnumSet.allOf(CacheFlag.class);
+
         DefaultShardManagerBuilder builder = DefaultShardManagerBuilder.
                 create(getIntents())
                 .setChunkingFilter(ChunkingFilter.ALL)

@@ -15,19 +15,16 @@ public class ScrobbleEventManager {
     private static final AtomicBoolean doLoop = new AtomicBoolean(true);
     private final StatusProcesser processer;
 
-    {
+    public ScrobbleEventManager(StatusProcesser statusProcesser) {
+        processer = statusProcesser;
         AtomicInteger ranker = new AtomicInteger();
         ThreadPoolExecutor manager = new ThreadPoolExecutor(CONSUMER_COUNT, CONSUMER_COUNT, 0, TimeUnit.SECONDS, new ArrayBlockingQueue<>(CONSUMER_COUNT),
                 r -> new Thread(r, "Scrobble-executor-" + ranker.getAndIncrement()),
-                (r, executor) -> Chuu.getLogger().warn("TRYING TO CREATE MORE THAN 3 THREADS ON SCROBBLE LOOP")
+                (r, executor) -> Chuu.getLogger().warn("TRYING TO CREATE MORE THAN {} THREADS ON SCROBBLE LOOP", CONSUMER_COUNT)
         );
         for (int i = 0; i < CONSUMER_COUNT; i++) {
             manager.submit(new ScrobbleLoop());
         }
-    }
-
-    public ScrobbleEventManager(StatusProcesser statusProcesser) {
-        processer = statusProcesser;
     }
 
     public void submitEvent(ScrobbleStatus status) {

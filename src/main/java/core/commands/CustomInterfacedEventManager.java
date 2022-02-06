@@ -3,11 +3,11 @@ package core.commands;
 import com.google.common.util.concurrent.RateLimiter;
 import core.Chuu;
 import core.commands.abstracts.MyCommand;
-import core.commands.moderation.AdministrativeCommand;
 import core.music.listeners.VoiceListener;
 import core.otherlisteners.*;
 import core.parsers.params.CommandParameters;
 import core.services.ChuuRunnable;
+import core.util.ChuuFixedPool;
 import net.dv8tion.jda.api.entities.Channel;
 import net.dv8tion.jda.api.entities.MessageType;
 import net.dv8tion.jda.api.events.GenericEvent;
@@ -32,15 +32,18 @@ import net.dv8tion.jda.internal.JDAImpl;
 
 import javax.annotation.Nonnull;
 import java.util.*;
-import java.util.concurrent.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
 @SuppressWarnings("UnstableApiUsage")
 public class CustomInterfacedEventManager implements IEventManager {
 
-    private static final ExecutorService reactionExecutor = Executors.newSingleThreadExecutor();
-    private static final ExecutorService autocompleteExecutor = Executors.newFixedThreadPool(2);
-    private static final ExecutorService commandOrchestror = Executors.newFixedThreadPool(4);
+    private static final ExecutorService reactionExecutor = ChuuFixedPool.of(2, "Reaction-handle-");
+    private static final ExecutorService autocompleteExecutor = ChuuFixedPool.of(8, "AutoComplete-handle-");
+    private static final ExecutorService commandOrchestror = ChuuFixedPool.of(3, "Command-orchestrator-");
     private final Set<EventListener> otherListeners = ConcurrentHashMap.newKeySet();
     private final Map<String, MyCommand<? extends CommandParameters>> commandListeners = new HashMap<>();
     private final Map<Long, ChannelConstantListener> channelConstantListeners = new HashMap<>();
@@ -48,13 +51,9 @@ public class CustomInterfacedEventManager implements IEventManager {
     private final Map<ReactionListener, ScheduledFuture<?>> reactionaries = new ConcurrentHashMap<>();
     public boolean isReady;
     private final Map<String, MyCommand<? extends CommandParameters>> slashVariants = new HashMap<>();
-    private AdministrativeCommand administrativeCommand;
     private VoiceListener voiceListener;
     private AutoCompleteListener autoCompleteListener;
-
-    public Map<String, MyCommand<? extends CommandParameters>> getSlashVariants() {
-        return slashVariants;
-    }
+    private JoinLeaveListener joinLeaveListener;
 
     public CustomInterfacedEventManager(int a) {
     }
@@ -81,9 +80,6 @@ public class CustomInterfacedEventManager implements IEventManager {
 
     }
 
-    public void setVoiceListener(VoiceListener voiceListener) {
-        this.voiceListener = voiceListener;
-    }
 
     @Override
     public void register(@Nonnull Object listener) {
@@ -95,14 +91,15 @@ public class CustomInterfacedEventManager implements IEventManager {
         if (listener instanceof AutoCompleteListener acl) {
             this.autoCompleteListener = acl;
         }
+        if (listener instanceof JoinLeaveListener jl) {
+            this.joinLeaveListener = jl;
+        }
         if ((listener instanceof MyCommand<?> myCommand)) {
             List<String> aliases = myCommand.getAliases();
             for (String alias : aliases) {
                 commandListeners.put(alias, myCommand);
             }
-            if (listener instanceof AdministrativeCommand admin) {
-                this.administrativeCommand = admin;
-            }
+
         }
         if (listener instanceof ReactionListener reactionListener) {
             ScheduledFuture<?> schedule = Chuu.getScheduledService().addSchedule((() -> {
@@ -175,9 +172,9 @@ public class CustomInterfacedEventManager implements IEventManager {
                 case GuildVoiceLeaveEvent gvle -> this.voiceListener.onEvent(gvle);
                 case GuildVoiceMoveEvent gvme -> this.voiceListener.onEvent(gvme);
 
-                case GuildMemberRemoveEvent gmre -> this.administrativeCommand.onEvent(gmre);
-                case GuildMemberJoinEvent gmje -> this.administrativeCommand.onEvent(gmje);
-                case GuildJoinEvent gje -> this.administrativeCommand.onEvent(gje);
+                case GuildMemberRemoveEvent gmre -> this.joinLeaveListener.onEvent(gmre);
+                case GuildMemberJoinEvent gmje -> this.joinLeaveListener.onEvent(gmje);
+                case GuildJoinEvent gje -> this.joinLeaveListener.onEvent(gje);
                 default -> {
                 }
 

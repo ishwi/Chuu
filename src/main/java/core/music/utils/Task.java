@@ -18,12 +18,13 @@
 package core.music.utils;
 
 
+import core.util.ChuuFixedPool;
 import dao.exceptions.ChuuServiceException;
 
 import java.util.concurrent.*;
 
 public final class Task {
-    private static final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
+    private static final ScheduledExecutorService executor = ChuuFixedPool.ofScheduled(2, "Task-cleaner-");
     private final long delay;
     private final TimeUnit unit;
     private final Runnable runnable;
@@ -35,7 +36,7 @@ public final class Task {
         this.runnable = runnable;
     }
 
-    public final boolean isRunning() {
+    public boolean isRunning() {
         if (task == null) {
             return false;
         }
@@ -53,12 +54,12 @@ public final class Task {
         }
     }
 
-    public final void start() {
+    public void start() {
         stop(false);
         task = executor.schedule(runnable, delay, unit);
     }
 
-    public final void stop(boolean interrupt) {
+    public void stop(boolean interrupt) {
         if (task != null) {
             task.cancel(interrupt);
         }
