@@ -16,7 +16,6 @@ import core.commands.moderation.TagWithYearCommand;
 import core.interactions.InteractionBuilder;
 import core.music.ExtendedAudioPlayerManager;
 import core.music.PlayerRegistry;
-import core.music.listeners.VoiceListener;
 import core.music.scrobble.ScrobbleEventManager;
 import core.music.scrobble.StatusProcesser;
 import core.music.utils.ScrobbleProcesser;
@@ -258,7 +257,6 @@ public class Chuu {
         consumer.accept(help.registerCommand(featuredCommand));
         MyCommand<?>[] myCommands = scanListeners(help);
         Arrays.stream(myCommands).forEach(consumer);
-        consumer.accept(new VoiceListener());
         consumer.accept(new AutoCompleteListener());
         consumer.accept(new AlbumYearApproval(channelId, db.normalService()));
         consumer.accept(new FriendRequester(db.normalService()));

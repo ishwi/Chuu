@@ -27,7 +27,7 @@ public class ExecutorsSingleton {
                     TimeUnit.SECONDS,
                     new ArrayBlockingQueue<>(100),
                     r -> new Thread(r, "Chuu-executor-" + counter.getAndIncrement()),
-                    new ChuuRejector()
+                    new ChuuRejector("Command-Pool")
             );
         }
         return instance;

@@ -41,9 +41,9 @@ import java.util.stream.Stream;
 @SuppressWarnings("UnstableApiUsage")
 public class CustomInterfacedEventManager implements IEventManager {
 
-    private static final ExecutorService reactionExecutor = ChuuFixedPool.of(2, "Reaction-handle-");
+    private static final ExecutorService reactionExecutor = ChuuFixedPool.of(6, "Reaction-handle-");
     private static final ExecutorService autocompleteExecutor = ChuuFixedPool.of(8, "AutoComplete-handle-");
-    private static final ExecutorService commandOrchestror = ChuuFixedPool.of(3, "Command-orchestrator-");
+    private static final ExecutorService commandOrchestror = ChuuFixedPool.of(4, "Command-orchestrator-");
     private final Set<EventListener> otherListeners = ConcurrentHashMap.newKeySet();
     private final Map<String, MyCommand<? extends CommandParameters>> commandListeners = new HashMap<>();
     private final Map<Long, ChannelConstantListener> channelConstantListeners = new HashMap<>();
@@ -51,7 +51,7 @@ public class CustomInterfacedEventManager implements IEventManager {
     private final Map<ReactionListener, ScheduledFuture<?>> reactionaries = new ConcurrentHashMap<>();
     public boolean isReady;
     private final Map<String, MyCommand<? extends CommandParameters>> slashVariants = new HashMap<>();
-    private VoiceListener voiceListener;
+    private VoiceListener voiceListener = new VoiceListener();
     private AutoCompleteListener autoCompleteListener;
     private JoinLeaveListener joinLeaveListener;
 

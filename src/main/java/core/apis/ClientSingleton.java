@@ -37,7 +37,7 @@ public class ClientSingleton {
                 TimeUnit.SECONDS,
                 new ArrayBlockingQueue<>(50),
                 r -> new Thread(r, "Api-Executor" + ranker.getAndIncrement()),
-                new ChuuRejector());
+                new ChuuRejector("Http-Pool"));
         private static final HttpClient instance = HttpClient.newBuilder()
                 .executor(executor)
                 .priority(1) //HTTP/2 priority
