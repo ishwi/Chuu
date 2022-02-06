@@ -11,6 +11,7 @@ import core.exceptions.LastFmException;
 import core.parsers.explanation.util.Explanation;
 import core.parsers.explanation.util.ExplanationLineType;
 import core.parsers.params.EmotiParameters;
+import core.util.StringUtils;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.entities.Emote;
 import net.dv8tion.jda.api.interactions.commands.CommandInteraction;
@@ -33,7 +34,8 @@ public class EmojeParser extends Parser<EmotiParameters> {
     @Override
     public EmotiParameters parseSlashLogic(InteracionReceived<? extends CommandInteraction> ctx) throws LastFmException, InstanceNotFoundException {
         CommandInteraction e = ctx.e();
-        var option = Optional.ofNullable(e.getOption("emote-emoji")).map(OptionMapping::getAsString).map(z -> z.split("\\s+")).orElse(new String[]{});
+        var option = Optional.ofNullable(e.getOption("emote-emoji")).map(OptionMapping::getAsString)
+                .map(StringUtils.WORD_SPLITTER::split).orElse(new String[]{});
         return parseWords(ctx, option);
 
     }

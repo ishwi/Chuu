@@ -13,6 +13,7 @@ import core.parsers.interactions.InteractionAux;
 import core.parsers.params.GayParams;
 import core.parsers.utils.CustomTimeFrame;
 import core.parsers.utils.Optionals;
+import core.util.StringUtils;
 import dao.ChuuService;
 import dao.entities.GayType;
 import dao.entities.LastFMData;
@@ -56,7 +57,7 @@ public class GayParser extends ChartableParser<GayParams> {
         TimeFrameEnum timeFrame = this.defaultTFE;
         GayType type = null;
         if (e instanceof ContextMessageReceived mes) {
-            String substring = mes.e().getMessage().getContentRaw().substring(1).split("\\s+")[0].toLowerCase();
+            String substring = StringUtils.WORD_SPLITTER.split(mes.e().getMessage().getContentRaw().substring(1))[0].toLowerCase();
             type = switch (substring) {
                 case "trans" -> GayType.TRANS;
                 case "ace" -> GayType.ACE;

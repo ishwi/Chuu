@@ -13,7 +13,7 @@ public class PrefixService {
 
 
     public PrefixService(ChuuService db) {
-        this.prefixMap = (db.getGuildPrefixes(Chuu.DEFAULT_PREFIX));
+        this.prefixMap = db.getGuildPrefixes(Chuu.DEFAULT_PREFIX);
     }
 
     public void addGuildPrefix(long guildId, Character prefix) {

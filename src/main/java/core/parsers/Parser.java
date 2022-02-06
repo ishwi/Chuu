@@ -7,12 +7,14 @@ import core.parsers.explanation.util.Explanation;
 import core.parsers.explanation.util.UsageLogic;
 import core.parsers.params.CommandParameters;
 import core.parsers.utils.OptionalEntity;
+import core.util.StringUtils;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.interactions.commands.CommandInteraction;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import org.apache.commons.lang3.tuple.Pair;
 
+import java.nio.CharBuffer;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
@@ -158,7 +160,7 @@ public abstract class Parser<T extends CommandParameters> {
 
 
     private String[] getSubMessage(String string) {
-        String[] parts = string.substring(1).split("\\s+");
+        String[] parts = StringUtils.WORD_SPLITTER.split(CharBuffer.wrap(string, 1, string.length()));
         return Arrays.copyOfRange(parts, 1, parts.length);
 
     }

@@ -1774,9 +1774,9 @@ public class UserGuildDaoImpl implements UserGuildDao {
     @Override
     public Set<Long> findExistingById(Connection connection, Collection<Long> ids) {
         Set<Long> existingIds = new HashSet<>();
-        SQLUtils.doBatchesSelect(connection, "SELECT id from user WHERE  (discord_id) in  ( ", new ArrayList<>(ids),
+        SQLUtils.doBatchesSelect(connection, "SELECT discord_id from user WHERE  (discord_id) in  ( ", new ArrayList<>(ids),
                 (ps, st, i) -> ps.setLong(i + 1, st),
-                rs -> existingIds.add(rs.getLong("id")),
+                rs -> existingIds.add(rs.getLong("discord_id")),
                 1, " )");
         return existingIds;
 

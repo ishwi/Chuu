@@ -8,6 +8,7 @@ import core.otherlisteners.*;
 import core.parsers.params.CommandParameters;
 import core.services.ChuuRunnable;
 import core.util.ChuuFixedPool;
+import core.util.StringUtils;
 import net.dv8tion.jda.api.entities.Channel;
 import net.dv8tion.jda.api.entities.MessageType;
 import net.dv8tion.jda.api.events.GenericEvent;
@@ -31,6 +32,7 @@ import net.dv8tion.jda.api.interactions.commands.CommandInteraction;
 import net.dv8tion.jda.internal.JDAImpl;
 
 import javax.annotation.Nonnull;
+import java.nio.CharBuffer;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
@@ -41,9 +43,9 @@ import java.util.stream.Stream;
 @SuppressWarnings("UnstableApiUsage")
 public class CustomInterfacedEventManager implements IEventManager {
 
-    private static final ExecutorService reactionExecutor = ChuuFixedPool.of(6, "Reaction-handle-");
-    private static final ExecutorService autocompleteExecutor = ChuuFixedPool.of(8, "AutoComplete-handle-");
-    private static final ExecutorService commandOrchestror = ChuuFixedPool.of(4, "Command-orchestrator-");
+    private static final ExecutorService reactionExecutor = ChuuFixedPool.of(6, "Reaction-handle-", 15);
+    private static final ExecutorService autocompleteExecutor = ChuuFixedPool.of(2, "AutoComplete-handle-");
+    private static final ExecutorService commandOrchestror = ChuuFixedPool.of(2, "Command-orchestrator-", 15); // How does this simple thing get filled so fast??
     private final Set<EventListener> otherListeners = ConcurrentHashMap.newKeySet();
     private final Map<String, MyCommand<? extends CommandParameters>> commandListeners = new HashMap<>();
     private final Map<Long, ChannelConstantListener> channelConstantListeners = new HashMap<>();
@@ -51,7 +53,7 @@ public class CustomInterfacedEventManager implements IEventManager {
     private final Map<ReactionListener, ScheduledFuture<?>> reactionaries = new ConcurrentHashMap<>();
     public boolean isReady;
     private final Map<String, MyCommand<? extends CommandParameters>> slashVariants = new HashMap<>();
-    private VoiceListener voiceListener = new VoiceListener();
+    private VoiceListener voiceListener;
     private AutoCompleteListener autoCompleteListener;
     private JoinLeaveListener joinLeaveListener;
 
@@ -156,7 +158,7 @@ public class CustomInterfacedEventManager implements IEventManager {
         try {
             switch (event) {
                 case CommandAutoCompleteInteractionEvent cacie -> autocompleteExecutor.submit((ChuuRunnable) () -> autoCompleteListener.onEvent(event));
-                case MessageReceivedEvent mes -> commandOrchestror.submit((ChuuRunnable) () -> handleMessageReceived(mes));
+                case MessageReceivedEvent mes -> handleMessageReceived(mes); // Delegate running in pool if its a valid message
                 case UserContextInteractionEvent ucie -> commandOrchestror.submit((ChuuRunnable) () -> handleUserCommand(ucie));
                 case SlashCommandInteractionEvent sce -> commandOrchestror.submit((ChuuRunnable) () -> handleSlashCommand(sce));
                 case ReadyEvent re -> {
@@ -245,7 +247,8 @@ public class CustomInterfacedEventManager implements IEventManager {
         ContextMessageReceived ctx = new ContextMessageReceived(mes);
         Character correspondingPrefix = Chuu.prefixService.getCorrespondingPrefix(ctx);
         String contentRaw = mes.getMessage().getContentRaw();
-        if ((contentRaw.length() <= 1)) {
+        int length = contentRaw.length();
+        if ((length <= 1)) {
             return;
         }
         if (mes.isFromGuild() && contentRaw.charAt(0) != correspondingPrefix) {
@@ -265,7 +268,7 @@ public class CustomInterfacedEventManager implements IEventManager {
                 return;
             }
         }
-        String substring = contentRaw.substring(1).split("\\s+")[0];
+        String substring = StringUtils.WORD_SPLITTER.split(CharBuffer.wrap(contentRaw, 1, length))[0];
         MyCommand<?> myCommand = commandListeners.get(substring.toLowerCase());
         if (myCommand != null) {
             if (!Chuu.getMessageDisablingService().isMessageAllowed(myCommand, ctx)) {
@@ -273,7 +276,7 @@ public class CustomInterfacedEventManager implements IEventManager {
                     mes.getChannel().sendMessage("This command is disabled in this channel.").queue();
                 return;
             }
-            myCommand.onMessageReceived(mes);
+            commandOrchestror.execute((ChuuRunnable) () -> myCommand.onMessageReceived(mes));
         }
     }
 

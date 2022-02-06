@@ -11,6 +11,7 @@ import core.parsers.params.ColorChartParams;
 import core.parsers.utils.CustomTimeFrame;
 import core.parsers.utils.OptionalEntity;
 import core.parsers.utils.Optionals;
+import core.util.StringUtils;
 import dao.ChuuService;
 import dao.entities.LastFMData;
 import dao.entities.TimeFrameEnum;
@@ -43,7 +44,7 @@ public class ColorChartParser extends ChartableParser<ColorChartParams> {
         TimeFrameEnum timeFrameEnum = InteractionAux.parseTimeFrame(e, defaultTFE);
         Pair<Set<Color>, List<String>> parser = parser(Optional.ofNullable(e.getOption(ColorExplanation.NAME))
                 .map(OptionMapping::getAsString)
-                .map(z -> z.split("\\s+"))
+                .map(StringUtils.WORD_SPLITTER::split)
                 .orElse(new String[]{}), ctx);
         if (parser == null) {
             return null;

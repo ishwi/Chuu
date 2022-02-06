@@ -59,7 +59,9 @@ public record JoinLeaveListener(ChuuService db, ConcurrentLastFM lastFM) impleme
 
                 List<Long> temp = members.stream().filter(x -> !x.getUser().isBot()).map(x -> x.getUser().getIdLong())
                         .filter(x -> !thisServer.contains(x)).toList(); // Not on this server (In case leave/rejoin)
-
+                if (temp.isEmpty()) {
+                    return;
+                }
                 Set<Long> existingInDb = db.findExistingById(temp);
                 var toInsert = temp.stream().filter(existingInDb::contains).toList();
                 toInsert.forEach(x -> db.addGuildUser(x, event.getGuild().getIdLong()));

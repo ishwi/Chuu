@@ -11,6 +11,7 @@ import core.parsers.interactions.InteractionAux;
 import core.parsers.params.ChartYearRangeParameters;
 import core.parsers.utils.CustomTimeFrame;
 import core.parsers.utils.OptionalEntity;
+import core.util.StringUtils;
 import dao.ChuuService;
 import dao.entities.LastFMData;
 import dao.entities.TimeFrameEnum;
@@ -112,7 +113,7 @@ public class ChartDecadeParser extends ChartableParser<ChartYearRangeParameters>
             numberOfYears = secondYear2.minusYears(i).getValue();
             matched = true;
             String replace = join.replace(matcher.group(1), "");
-            subMessage = replace.split("\\s+");
+            subMessage = StringUtils.WORD_SPLITTER.split(replace);
         }
 
 

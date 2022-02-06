@@ -13,6 +13,7 @@ import core.imagerenderer.GraphicUtils;
 import core.parsers.ChartableParser;
 import core.parsers.ColorChartParser;
 import core.parsers.params.ColorChartParams;
+import core.util.StringUtils;
 import dao.ServiceView;
 import dao.entities.CountWrapper;
 import dao.entities.TimeFrameEnum;
@@ -204,7 +205,7 @@ public class ColorChartCommand extends OnlyChartCommand<ColorChartParams> {
     private String getColorsParams(ColorChartParams params) {
         if (params.getE() instanceof ContextMessageReceived mes) {
             Message message = mes.e().getMessage();
-            return Arrays.stream(message.getContentRaw().split("\\s+")).filter(x ->
+            return Arrays.stream(StringUtils.WORD_SPLITTER.split(message.getContentRaw())).filter(x ->
             {
                 try {
                     ColorFactory.valueOf(x);

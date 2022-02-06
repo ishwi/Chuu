@@ -11,6 +11,7 @@ import core.music.radio.*;
 import core.parsers.EnumParser;
 import core.parsers.Parser;
 import core.parsers.params.EnumParameters;
+import core.util.StringUtils;
 import dao.ServiceView;
 import dao.everynoise.NoiseGenre;
 import net.dv8tion.jda.api.entities.AudioChannel;
@@ -66,7 +67,7 @@ public class RadioCommand extends MusicCommand<EnumParameters<Station>> {
 
             boolean falltrough = false;
             if (input != null) {
-                String finalInput = input.split("\\s+")[0];
+                String finalInput = StringUtils.WORD_SPLITTER.split(input)[0];
                 if (finalInput.equalsIgnoreCase("stop")) {
                     MusicManager existing = Chuu.playerRegistry.getExisting(e.getGuild());
                     if (existing == null) {

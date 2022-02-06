@@ -11,6 +11,7 @@ import core.parsers.interactions.InteractionAux;
 import core.parsers.params.RandomUrlParameters;
 import core.parsers.utils.OptionalEntity;
 import core.parsers.utils.Optionals;
+import core.util.StringUtils;
 import dao.ChuuService;
 import dao.entities.RandomTarget;
 import dao.exceptions.InstanceNotFoundException;
@@ -37,7 +38,7 @@ public class RandomAlbumParser extends DaoParser<RandomUrlParameters> {
             return new RandomUrlParameters(ctx, "", user);
         } else {
             String url = option.getAsString();
-            String[] words = url.split("\\s+");
+            String[] words = StringUtils.WORD_SPLITTER.split(url);
             if (words.length != 1) {
                 sendError("Only submit a link pls", ctx);
                 return null;

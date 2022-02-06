@@ -13,6 +13,7 @@ import core.parsers.params.ArtistAlbumParameters;
 import core.parsers.params.ArtistAlbumUrlParameters;
 import core.parsers.utils.OptionalEntity;
 import core.parsers.utils.Optionals;
+import core.util.StringUtils;
 import dao.ChuuService;
 import dao.entities.LastFMData;
 import dao.exceptions.InstanceNotFoundException;
@@ -115,7 +116,7 @@ public class ArtistAlbumUrlParser extends DaoParser<ArtistAlbumUrlParameters> {
             sendError(getErrorMessage(0), e);
             return null;
         }
-        ArtistAlbumParameters artistAlbumParameters = parser.parseLogic(e, remaining.split("\\s+"));
+        ArtistAlbumParameters artistAlbumParameters = parser.parseLogic(e, StringUtils.WORD_SPLITTER.split(remaining));
 
         return new ArtistAlbumUrlParameters(e, artistAlbumParameters.getArtist(), artistAlbumParameters.getAlbum(), findLastfmFromID(e.getAuthor(), e), url);
     }

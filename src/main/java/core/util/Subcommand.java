@@ -14,7 +14,7 @@ public interface Subcommand {
     @SuppressWarnings("unchecked")
     default <T extends CommandParameters> T parse(Context e, Deps deps, String args) throws LastFmException, InstanceNotFoundException {
         Parser<?> parser = getSubcommandEx().getParser(deps);
-        String[] argsArr = args == null ? new String[]{} : args.split("\\s+");
+        String[] argsArr = args == null ? new String[]{} : StringUtils.WORD_SPLITTER.split(args);
         SubParser<T> tSubParser = new SubParser<>((Parser<T>) parser, argsArr);
         parser.getOptionals().forEach(tSubParser::addOptional);
         return tSubParser.parse(e);

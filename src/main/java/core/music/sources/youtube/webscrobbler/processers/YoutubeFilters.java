@@ -1,5 +1,7 @@
 package core.music.sources.youtube.webscrobbler.processers;
 
+import core.util.StringUtils;
+
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -18,7 +20,7 @@ public class YoutubeFilters {
         // trim starting white chars and dash
         filters.put(Pattern.compile("^[/,:;~\\s\"-]"), "");
         filters.put(Pattern.compile("^[/,:;~\\s\"-]+$"), "");
-        filters.put(Pattern.compile("\\s+"), " ");
+        filters.put(StringUtils.WORD_SPLITTER, " ");
         trimFilter = filters;
 
 

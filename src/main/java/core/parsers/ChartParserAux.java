@@ -4,6 +4,7 @@ import core.parsers.exceptions.InvalidChartValuesException;
 import core.parsers.exceptions.InvalidDateException;
 import core.parsers.utils.CustomTimeFrame;
 import core.parsers.utils.DateUtils;
+import core.util.StringUtils;
 import dao.entities.NaturalTimeFrameEnum;
 import dao.entities.TimeFrameEnum;
 import org.apache.commons.lang3.tuple.Pair;
@@ -98,7 +99,7 @@ public class ChartParserAux {
             }
             permissiveString = permissiveString.toLowerCase(Locale.ROOT);
             NaturalTimeFrameEnum naturalTimeFrameEnum = NaturalTimeFrameEnum.get(permissiveString);
-            message = words.replaceAll(natural, "").split("\\s+");
+            message = StringUtils.WORD_SPLITTER.split(words);
             if (message.length == 1 && message[0].isBlank()) {
                 message = new String[]{};
             }
