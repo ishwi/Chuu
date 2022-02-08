@@ -15,7 +15,7 @@ public class ChuuRejector implements RejectedExecutionHandler {
 
     @Override
     public void rejectedExecution(Runnable r, ThreadPoolExecutor e) {
-        Chuu.getLogger().info("Queue was full {}  ", poolName);
+        Chuu.getLogger().info("Queue was full {} | Executor Status {} | Size {}", poolName, e.isShutdown(), e.getQueue().size());
         if (!e.isShutdown()) {
             e.getQueue().poll();
             e.execute(r);

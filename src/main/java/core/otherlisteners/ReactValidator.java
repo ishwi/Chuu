@@ -13,8 +13,6 @@ import org.jetbrains.annotations.NotNull;
 import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.Map;
-import java.util.Queue;
-import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiFunction;
@@ -35,7 +33,6 @@ public class ReactValidator<T> extends ReactionListener {
     private final Map<String, Reaction<T, MessageReactionAddEvent, ReactionResult>> actionMap;
     private final boolean allowOtherUsers;
     private final boolean renderInSameElement;
-    private final Queue<MessageReactionAddEvent> tbp = new LinkedBlockingDeque<>();
     private final AtomicBoolean hasCleaned = new AtomicBoolean(false);
     private T currentElement;
 
@@ -138,10 +135,6 @@ public class ReactValidator<T> extends ReactionListener {
         }
         messageAction.queue(z -> {
             this.message = z;
-            while (!tbp.isEmpty()) {
-                MessageReactionAddEvent poll = tbp.poll();
-                onMessageReactionAdd(poll);
-            }
             initEmotes();
         });
     }
@@ -155,7 +148,7 @@ public class ReactValidator<T> extends ReactionListener {
     public void onEvent(@Nonnull GenericEvent event) {
         if (event instanceof MessageReactionAddEvent e) {
             if (isValid(e)) {
-                executor.execute(() -> onMessageReactionAdd(e));
+                onMessageReactionAdd(e);
             }
         }
     }

@@ -17,7 +17,6 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import java.util.*;
-import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiFunction;
@@ -40,7 +39,6 @@ public class ButtonValidator<T> extends ReactionListener {
     private final Map<String, Reaction<T, ButtonInteractionEvent, ButtonResult>> actionMap;
     private final boolean allowOtherUsers;
     private final boolean renderInSameElement;
-    private final Queue<ButtonInteractionEvent> tbp = new LinkedBlockingDeque<>();
     private final AtomicBoolean hasCleaned = new AtomicBoolean(false);
     private List<ActionRow> actionRows;
     private T currentElement;
@@ -147,7 +145,7 @@ public class ButtonValidator<T> extends ReactionListener {
     public void onEvent(@Nonnull GenericEvent event) {
         if (event instanceof ButtonInteractionEvent e) {
             if (isValid(e)) {
-                executor.execute(() -> onButtonClickedEvent(e));
+                onButtonClickedEvent(e);
             }
         }
     }
@@ -161,10 +159,6 @@ public class ButtonValidator<T> extends ReactionListener {
         }
         messageAction.queue(z -> {
             this.message = z;
-            while (!tbp.isEmpty()) {
-                ButtonInteractionEvent poll = tbp.poll();
-                onEvent(poll);
-            }
         });
     }
 
