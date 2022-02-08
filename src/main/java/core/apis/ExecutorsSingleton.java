@@ -21,11 +21,11 @@ public class ExecutorsSingleton {
         if (instance == null) {
 
             instance = new ThreadPoolExecutor(
-                    3,
-                    100,
+                    15,
+                    40,
                     30L,
                     TimeUnit.SECONDS,
-                    new ArrayBlockingQueue<>(100),
+                    new ArrayBlockingQueue<>(40),
                     r -> new Thread(r, "Chuu-executor-" + counter.getAndIncrement()),
                     new ChuuRejector("Command-Pool")
             );

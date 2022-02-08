@@ -128,7 +128,7 @@ public class Chuu {
         scrobbleProcesser = new ScrobbleProcesser(new AlbumFinder(service, LastFMFactory.getNewInstance()));
         playerManager = new ExtendedAudioPlayerManager(scrobbleEventManager, scrobbleProcesser);
         playerRegistry = new PlayerRegistry(playerManager);
-        scheduledService = new ScheduledService(ChuuFixedPool.ofScheduled(3, "Scheduler-runner"), db.normalService());
+        scheduledService = new ScheduledService(ChuuFixedPool.ofScheduled(15, "Scheduler-runner"), db.normalService());
         if (!notMain) {
             // Only on main instance
             scheduledService.setScheduled();
