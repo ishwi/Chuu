@@ -33,4 +33,8 @@ public class ExecutorsSingleton {
         return instance;
     }
 
+    public static ThreadPoolExecutor getCast() {
+        return ((ThreadPoolExecutor) instance);
+    }
+
 }

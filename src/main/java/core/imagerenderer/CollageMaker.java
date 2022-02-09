@@ -1,7 +1,6 @@
 package core.imagerenderer;
 
 import core.Chuu;
-import core.apis.ExecutorsSingleton;
 import core.apis.last.entities.chartentities.UrlCapsule;
 import dao.exceptions.ChuuServiceException;
 
@@ -62,7 +61,7 @@ public class CollageMaker {
             g.fillRect(0, 0, result.getWidth(), result.getHeight());
         }
         AtomicInteger max = new AtomicInteger(queue.size());
-        ExecutorService es = ExecutorsSingleton.getInstance();
+        ExecutorService es = GraphicUtils.GRAPHIC_EXECUTOR;
 
         List<Callable<Object>> calls = new ArrayList<>();
         for (int i = 0; i < 2; i++) {

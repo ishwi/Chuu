@@ -43,9 +43,8 @@ import java.util.stream.Stream;
 @SuppressWarnings("UnstableApiUsage")
 public class CustomInterfacedEventManager implements IEventManager {
 
-    private static final ExecutorService reactionExecutor = ChuuFixedPool.of(6, "Reaction-handle-", 15);
-    private static final ExecutorService autocompleteExecutor = ChuuFixedPool.of(2, "AutoComplete-handle-");
-    private static final ExecutorService commandOrchestror = ChuuFixedPool.of(2, "Command-orchestrator-", 15); // How does this simple thing get filled so fast??
+    private static final ExecutorService reactionExecutor = ChuuFixedPool.of(4, "Reaction-handle-", 6, 25);
+    private static final ExecutorService autocompleteExecutor = ChuuFixedPool.of(2, "AutoComplete-handle-", 2, 5);
     private final Set<EventListener> otherListeners = ConcurrentHashMap.newKeySet();
     private final Map<String, MyCommand<? extends CommandParameters>> commandListeners = new HashMap<>();
     private final Map<Long, ChannelConstantListener> channelConstantListeners = new HashMap<>();
@@ -159,8 +158,8 @@ public class CustomInterfacedEventManager implements IEventManager {
             switch (event) {
                 case CommandAutoCompleteInteractionEvent cacie -> autocompleteExecutor.submit((ChuuRunnable) () -> autoCompleteListener.onEvent(event));
                 case MessageReceivedEvent mes -> handleMessageReceived(mes); // Delegate running in pool if its a valid message
-                case UserContextInteractionEvent ucie -> commandOrchestror.submit((ChuuRunnable) () -> handleUserCommand(ucie));
-                case SlashCommandInteractionEvent sce -> commandOrchestror.submit((ChuuRunnable) () -> handleSlashCommand(sce));
+                case UserContextInteractionEvent ucie -> handleUserCommand(ucie);
+                case SlashCommandInteractionEvent sce -> handleSlashCommand(sce);
                 case ReadyEvent re -> {
                     for (EventListener listener : otherListeners)
                         listener.onEvent(re);
@@ -276,7 +275,7 @@ public class CustomInterfacedEventManager implements IEventManager {
                     mes.getChannel().sendMessage("This command is disabled in this channel.").queue();
                 return;
             }
-            commandOrchestror.execute((ChuuRunnable) () -> myCommand.onMessageReceived(mes));
+            myCommand.onMessageReceived(mes);
         }
     }
 

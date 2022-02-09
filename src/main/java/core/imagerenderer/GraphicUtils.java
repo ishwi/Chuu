@@ -7,6 +7,7 @@ import core.imagerenderer.util.CIELab;
 import core.imagerenderer.util.D;
 import core.imagerenderer.util.fitter.StringFitter;
 import core.imagerenderer.util.fitter.StringFitterBuilder;
+import core.util.ChuuFixedPool;
 import dao.entities.ReturnNowPlaying;
 import dao.entities.WrapperReturnNowPlaying;
 import net.dv8tion.jda.api.entities.Message;
@@ -27,9 +28,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import java.util.Random;
+import java.util.concurrent.ExecutorService;
 
 public class GraphicUtils {
-
+    public static final ExecutorService GRAPHIC_EXECUTOR = ChuuFixedPool.of(5, "Graphic-Pool-", 10, 15);
     public static final BufferedImage noArtistImage;
     public static final Font NORMAL_FONT = new Font("Noto Sans", Font.PLAIN, 14);
     static final Random ran = new Random();

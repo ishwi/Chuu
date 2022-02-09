@@ -2,6 +2,7 @@ package core.apis.last.queues;
 
 import core.Chuu;
 import core.apis.last.entities.chartentities.UrlCapsule;
+import core.imagerenderer.GraphicUtils;
 import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
@@ -39,20 +40,18 @@ public class DiscardableQueue<T extends UrlCapsule> implements BlockingQueue<Url
     @Override
     public boolean offer(@Nonnull UrlCapsule item) {
         CompletableFuture<?> future = CompletableFuture.supplyAsync(() -> {
-                    if (innerQueue.size() < maxNumberOfElements) {
+            if (innerQueue.size() < maxNumberOfElements) {
 
-                        T entity = factoryFunction.apply(item);
-                        if (!discard.test(entity)) {
-                            innerQueue.add(entity);
-                        } else {
-                            cleanUp(entity);
-                        }
+                T entity = factoryFunction.apply(item);
+                if (!discard.test(entity)) {
+                    innerQueue.add(entity);
+                } else {
+                    cleanUp(entity);
+                }
 
-                    }
-                    return 0;
-                }).
-
-                toCompletableFuture();
+            }
+            return 0;
+        }, GraphicUtils.GRAPHIC_EXECUTOR).toCompletableFuture();
         return taskQueue.offer(future);
     }
 
