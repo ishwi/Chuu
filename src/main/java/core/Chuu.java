@@ -48,6 +48,8 @@ import net.dv8tion.jda.api.sharding.ShardManager;
 import net.dv8tion.jda.api.sharding.ThreadPoolProvider;
 import net.dv8tion.jda.api.utils.ChunkingFilter;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
+import okhttp3.Dispatcher;
+import okhttp3.OkHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -161,7 +163,7 @@ public class Chuu {
 
         DefaultShardManagerBuilder builder = DefaultShardManagerBuilder.
                 create(getIntents())
-                .setChunkingFilter(ChunkingFilter.ALL)
+                .setChunkingFilter(ChunkingFilter.NONE)
                 .enableCache(CacheFlag.EMOJI, CacheFlag.VOICE_STATE)
                 .disableCache(CacheFlag.ACTIVITY, CacheFlag.CLIENT_STATUS, CacheFlag.ONLINE_STATUS)
                 .setAudioSendFactory(new NativeAudioSendFactory()).setBulkDeleteSplittingEnabled(false)
@@ -171,6 +173,10 @@ public class Chuu {
                 .setAudioPoolProvider(scheduledBuilder.apply("Audio"))
                 .setRateLimitPoolProvider(scheduledBuilder.apply("RateLimiter"))
                 .setGatewayPoolProvider(scheduledBuilder.apply("Gateway"))
+                .setHttpClientBuilder(new OkHttpClient.Builder()
+                        .dispatcher(new Dispatcher(ChuuVirtualPool.of("OkHttp")))
+                        .readTimeout(20, TimeUnit.SECONDS)
+                        .writeTimeout(30, TimeUnit.SECONDS))
                 .setAutoReconnect(true)
                 .setEventManagerProvider(a -> customManager)
                 .addEventListeners(evalCommand)

@@ -93,7 +93,7 @@ public record ScrobbleProcesser(AlbumFinder albumFinder) {
             Album result = scope.result();
             return innerScrobble.withAlbum(result.albumName()).withImage(result.url());
         } catch (InterruptedException | ExecutionException e) {
-            Chuu.getLogger().info("Error processing album", e);
+            Chuu.getLogger().debug("Error processing album", e);
             return innerScrobble;
         }
     }

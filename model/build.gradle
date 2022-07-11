@@ -50,19 +50,19 @@ dependencies {
     implementation group: 'com.zaxxer', name: 'HikariCP', version: '5.0.1'
     api group: 'org.apache.commons', name: 'commons-collections4', version: '4.4'
     // https://mvnrepository.com/artifact/org.mariadb.jdbc/mariadb-java-client
-    api 'org.mariadb.jdbc:mariadb-java-client:3.0.5'
+    api 'org.mariadb.jdbc:mariadb-java-client:3.0.6'
 
 
-    implementation group: 'mysql', name: 'mysql-connector-java', version: '8.0.28'
+//    implementation group: 'mysql', name: 'mysql-connector-java', version: '8.0.25'
 
     testImplementation 'org.mockito:mockito-core:4.6.1'
     testImplementation('org.junit.jupiter:junit-jupiter:5.9.0-M1')
 // https://mvnrepository.com/artifact/org.mariadb.jdbc/mariadb-java-client
-    liquibaseRuntime 'org.mariadb.jdbc:mariadb-java-client:3.0.5'
+    liquibaseRuntime 'org.mariadb.jdbc:mariadb-java-client:3.0.6'
 
     liquibaseRuntime 'org.liquibase:liquibase-core:4.11.0'
     liquibaseRuntime 'org.liquibase:liquibase-groovy-dsl:3.0.2'
-    liquibaseRuntime group: 'mysql', name: 'mysql-connector-java', version: '8.0.28'
+//    liquibaseRuntime group: 'mysql', name: 'mysql-connector-java', version: '8.0.25'
     liquibaseRuntime group: 'javax.xml.bind', name: 'jaxb-api', version: '2.4.0-b180830.0359'
 // https://mvnrepository.com/artifact/org.yaml/snakeyaml
     liquibaseRuntime group: 'org.yaml', name: 'snakeyaml', version: '1.30'

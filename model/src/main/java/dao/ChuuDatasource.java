@@ -20,6 +20,7 @@ public final class ChuuDatasource implements CommonDatasource {
         config.setMinimumIdle(2);
         config.setThreadFactory(Thread.ofVirtual().name("Short-Chuu-", 0).factory());
         config.setPoolName("Normal-pool-Chuu");
+        config.setConnectionInitSql("set @@sql_mode='NO_ZERO_DATE';");
         config.addDataSourceProperty("connectionCollation", "utf8mb4_unicode_ci");
         this.ds = new HikariDataSource(config);
 

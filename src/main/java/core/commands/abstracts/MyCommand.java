@@ -232,7 +232,7 @@ public abstract class MyCommand<T extends CommandParameters> implements EventLis
             }
             parser.sendError("Internal Chuu Error", e);
 
-            Chuu.getLogger().warn("Internal Chuu error happened handling command {} | {} ", getName(), e.toLog(), ex);
+            Chuu.getLogger().warn("Internal Chuu error happened handling command {} | {} | in {}", getName(), e.toLog(), e.isFromGuild() ? e.getGuild().getName() : "in dms", ex);
         }
         if (e.isFromGuild()) deleteMessage(e, e.getGuild().getIdLong());
         return success;

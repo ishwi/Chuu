@@ -121,6 +121,7 @@ public class ChuuService implements EveryNoiseService {
                 connection.setAutoCommit(true);
                 if (!artistData.isEmpty()) updaterDao.upsertArtist(connection, artistData);
                 updaterDao.fillIds(connection, artistData);
+
                 Map<String, Long> artistIds = artistData.stream().collect(Collectors.toMap(ScrobbledArtist::getArtist, ScrobbledArtist::getArtistId, (a, b) -> {
                     assert a.equals(b);
                     return a;
@@ -2557,7 +2558,9 @@ public class ChuuService implements EveryNoiseService {
             insertTracks(groupedTracks, lastfmId, connection, false);
 
         } catch (SQLException throwables) {
-            throwables.printStackTrace();
+            logger.warn(throwables.getMessage(), throwables);
+        } finally {
+            connection.setAutoCommit(false);
         }
     }
 
@@ -3308,7 +3311,6 @@ public class ChuuService implements EveryNoiseService {
                     insertTracks(trackData, id, connection);
                 }
                 updaterDao.setUpdatedTime(connection, id, null, null);
-                connection.setAutoCommit(false);
             } catch (SQLException e) {
                 throw new ChuuServiceException(e);
             }

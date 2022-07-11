@@ -3818,18 +3818,19 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
     @Override
     public List<ScrobbledArtist> getTopTagSet(Connection connection, Set<String> tags, Long guildId, int limit, SearchMode mode) {
         List<ScrobbledArtist> scrobbledArtists = new ArrayList<>();
-        String queryString = " " +
-                "Select a.artist_id,sum(playNumber) plays,b.url,b.name" +
-                " from scrobbled_artist a " +
-                "join artist_tags e on a.artist_id = e.artist_id  " +
-                "join artist b on a.artist_id = b.id" +
-                " join user c on a.lastfm_id = c.lastfm_id ";
+        String queryString = """
+                Select a.artist_id,sum(playNumber) plays,b.url,b.name
+                from scrobbled_artist a
+                join artist_tags e on a.artist_id = e.artist_id
+                join artist b on a.artist_id = b.id
+                join user c on a.lastfm_id = c.lastfm_id
+                """;
 
         if (guildId != null) {
             queryString += " join user_guild d on c.discord_id = d.discord_id " +
                     "where e.tag in (%s) and d.guild_id = ?";
         } else {
-            queryString += "where e.tag in (%s) and d.guild_id = ?";
+            queryString += "where e.tag in (%s) ";
 
         }
         queryString += " group by a.artist_id ";

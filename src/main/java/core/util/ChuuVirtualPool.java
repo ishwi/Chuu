@@ -10,12 +10,12 @@ public class ChuuVirtualPool {
 
     public static ScheduledExecutorService ofScheduled(String poolName) {
         return new ScheduledThreadPoolExecutor(1,
-                Thread.ofVirtual().name(poolName, 0).factory(),
+                Thread.ofVirtual().name("Scheduled-" + poolName + "-Virtual", 0).factory(),
                 new ChuuRejector(poolName));
     }
 
     public static ExecutorService of(String poolName) {
-        return Executors.newThreadPerTaskExecutor(Thread.ofVirtual().name(poolName + "-", 0).factory());
+        return Executors.newThreadPerTaskExecutor(Thread.ofVirtual().name(poolName + "-Virtual-", 0).factory());
     }
 
 
