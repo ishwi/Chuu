@@ -2,6 +2,7 @@ package core.otherlisteners;
 
 import core.Chuu;
 import core.apis.last.ConcurrentLastFM;
+import core.util.ChuuVirtualPool;
 import dao.ChuuService;
 import dao.entities.GuildProperties;
 import dao.entities.LastFMData;
@@ -19,26 +20,14 @@ import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 public record JoinLeaveListener(ChuuService db, ConcurrentLastFM lastFM) implements EventListener {
-    private static final ExecutorService GUILD_JOIN_POOL = new ThreadPoolExecutor(1, 4, 0L, TimeUnit.MILLISECONDS,
-            // Easy on the db task and not that frequent, should only fill in case the db is down, in which case we just discard them
-            new LinkedBlockingQueue<>(5), (r, executor1) -> Chuu.getLogger().warn("Guild join pool | Thread discarded"));
+    private static final ExecutorService GUILD_JOIN_POOL = ChuuVirtualPool.of("Guild-Join-Pool");
 
-    private static final ExecutorService MEMBER_JOIN_POOL =
-            new ThreadPoolExecutor(1, 2,
-                    0L, TimeUnit.MILLISECONDS,
-                    // Easy on the db taks, should only fill in case the db is down, in which case we just discard them
-                    new LinkedBlockingQueue<>(5), (r, executor1) -> Chuu.getLogger().warn("Member join pool | Thread discarded"));
-    private static final ExecutorService DELETE_POOL =
-            // Delete thread can be time consuming so we execute on its own pool with a bigger size
-            new ThreadPoolExecutor(2, 10,
-                    0L, TimeUnit.MILLISECONDS,
-                    new LinkedBlockingQueue<>(25), (r, executor1) -> Chuu.getLogger().warn("Deleted member pool | Thread discarded"));
+    private static final ExecutorService MEMBER_JOIN_POOL = ChuuVirtualPool.of("Guild-Member-Join-Pool");
+    private static final ExecutorService DELETE_POOL = ChuuVirtualPool.of("Delete-Pool");
+
 
     @Override
     public void onEvent(@NotNull GenericEvent event) {

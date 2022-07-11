@@ -8,8 +8,13 @@ plugins {
 
 apply plugin: 'java-library'
 
+
 compileJava {
-    options.compilerArgs += ["-Xlint:deprecation", "--enable-preview"]
+    options.compilerArgs += ["-Xlint:deprecation", "--enable-preview", "--add-modules", "jdk.incubator.concurrent"]
+
+}
+compileTestJava {
+    options.compilerArgs += ["-Xlint:deprecation", "--enable-preview", "--add-modules", "jdk.incubator.concurrent"]
 
 }
 test {
@@ -17,8 +22,8 @@ test {
 }
 
 compileJava.options.encoding = 'UTF-8'
-sourceCompatibility = 17
-targetCompatibility = 17
+sourceCompatibility = 19
+targetCompatibility = 19
 group 'ish'
 version '1.0'
 update.dependsOn processResources
@@ -32,11 +37,11 @@ repositories {
 
 dependencies {
     testImplementation group: 'junit', name: 'junit', version: '4.13.2'
-    implementation group: 'org.postgresql', name: 'postgresql', version: '42.3.1'
+    implementation group: 'org.postgresql', name: 'postgresql', version: '42.3.6'
     implementation 'com.google.code.findbugs:jsr305:3.0.2'
     api group: 'org.apache.commons', name: 'commons-lang3', version: '3.12.0'
     api group: 'org.apache.commons', name: 'commons-text', version: '1.9'
-    api group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.13.1'
+    api group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.13.3'
     api 'org.jetbrains:annotations:23.0.0'
     api 'com.neovisionaries:nv-i18n:1.29'
 
@@ -45,17 +50,17 @@ dependencies {
     implementation group: 'com.zaxxer', name: 'HikariCP', version: '5.0.1'
     api group: 'org.apache.commons', name: 'commons-collections4', version: '4.4'
     // https://mvnrepository.com/artifact/org.mariadb.jdbc/mariadb-java-client
-    api 'org.mariadb.jdbc:mariadb-java-client:3.0.3'
+    api 'org.mariadb.jdbc:mariadb-java-client:3.0.5'
 
 
     implementation group: 'mysql', name: 'mysql-connector-java', version: '8.0.28'
 
-    testImplementation "org.mockito:mockito-core:4.3.1"
-    testImplementation("org.junit.jupiter:junit-jupiter:5.8.2")
+    testImplementation 'org.mockito:mockito-core:4.6.1'
+    testImplementation('org.junit.jupiter:junit-jupiter:5.9.0-M1')
 // https://mvnrepository.com/artifact/org.mariadb.jdbc/mariadb-java-client
-    liquibaseRuntime 'org.mariadb.jdbc:mariadb-java-client:3.0.3'
+    liquibaseRuntime 'org.mariadb.jdbc:mariadb-java-client:3.0.5'
 
-    liquibaseRuntime 'org.liquibase:liquibase-core:4.7.1'
+    liquibaseRuntime 'org.liquibase:liquibase-core:4.11.0'
     liquibaseRuntime 'org.liquibase:liquibase-groovy-dsl:3.0.2'
     liquibaseRuntime group: 'mysql', name: 'mysql-connector-java', version: '8.0.28'
     liquibaseRuntime group: 'javax.xml.bind', name: 'jaxb-api', version: '2.4.0-b180830.0359'

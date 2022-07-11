@@ -5,6 +5,7 @@ import com.sedmelluq.discord.lavaplayer.container.mpeg.MpegAudioTrack;
 import com.sedmelluq.discord.lavaplayer.source.youtube.*;
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.tools.io.HttpInterface;
+import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackInfo;
 import com.sedmelluq.discord.lavaplayer.track.playback.LocalAudioTrackExecutor;
 import core.Chuu;
@@ -18,11 +19,12 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class ChuuYoutubeAudioTrack extends YoutubeAudioTrack {
 
+
     private final YoutubeAudioSourceManager sourceManager;
-    public ChuuAudioTrackInfo newInfo;
-    private FormatWithUrl cachedFormatWithUrl;
     private final Lock readLock;
     private final Lock writeLock;
+    public ChuuAudioTrackInfo newInfo;
+    private FormatWithUrl cachedFormatWithUrl;
 
     {
         ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
@@ -65,6 +67,9 @@ public class ChuuYoutubeAudioTrack extends YoutubeAudioTrack {
             return false;
         } else if (other == null) {
             return true;
+        } else if (info.mimeType.equals("audio/webm") && format.getAudioChannels() > 2) {
+            // Opus with more than 2 audio channels is unsupported by LavaPlayer currently.
+            return false;
         } else if (info.ordinal() != other.getInfo().ordinal()) {
             return info.ordinal() < other.getInfo().ordinal();
         } else {
@@ -81,7 +86,15 @@ public class ChuuYoutubeAudioTrack extends YoutubeAudioTrack {
         }
     }
 
-    public AudioTrackInfo process() throws Exception {
+    @Override
+    public AudioTrackInfo getInfo() {
+        if (this.newInfo == null) {
+            return super.getInfo();
+        }
+        return newInfo;
+    }
+
+    public AudioTrackInfo processInfo() throws Exception {
         if (!trackInfo.isStream) {
             try (HttpInterface httpInterface = sourceManager.getHttpInterface()) {
                 loadBestFormatWithUrl(httpInterface);
@@ -93,14 +106,6 @@ public class ChuuYoutubeAudioTrack extends YoutubeAudioTrack {
 
         }
         return getInfo();
-    }
-
-    @Override
-    public AudioTrackInfo getInfo() {
-        if (this.newInfo == null) {
-            return super.getInfo();
-        }
-        return newInfo;
     }
 
     @Override
@@ -123,15 +128,6 @@ public class ChuuYoutubeAudioTrack extends YoutubeAudioTrack {
         }
     }
 
-    private void processStatic(LocalAudioTrackExecutor localExecutor, HttpInterface httpInterface, FormatWithUrl format) throws Exception {
-        try (YoutubePersistentHttpStream stream = new YoutubePersistentHttpStream(httpInterface, format.signedUrl, format.details.getContentLength())) {
-            if (format.details.getType().getMimeType().endsWith("/webm")) {
-                processDelegate(new MatroskaAudioTrack(trackInfo, stream), localExecutor);
-            } else {
-                processDelegate(new MpegAudioTrack(trackInfo, stream), localExecutor);
-            }
-        }
-    }
 
     private FormatWithUrl loadBestFormatWithUrl(HttpInterface httpInterface) throws Exception {
         try {
@@ -168,6 +164,23 @@ public class ChuuYoutubeAudioTrack extends YoutubeAudioTrack {
         } else {
             Chuu.getLogger().warn("Concurrency problem while intercepting track?? {} ", newInfo.identifier);
         }
+    }
+
+    private void processStatic(LocalAudioTrackExecutor localExecutor, HttpInterface httpInterface, FormatWithUrl format) throws Exception {
+        try (YoutubePersistentHttpStream stream = new YoutubePersistentHttpStream(httpInterface, format.signedUrl, format.details.getContentLength())) {
+            if (format.details.getType().getMimeType().endsWith("/webm")) {
+                processDelegate(new MatroskaAudioTrack(trackInfo, stream), localExecutor);
+            } else {
+                processDelegate(new MpegAudioTrack(trackInfo, stream), localExecutor);
+            }
+        }
+    }
+
+    @Override
+    protected AudioTrack makeShallowClone() {
+        ChuuYoutubeAudioTrack yt = new ChuuYoutubeAudioTrack(trackInfo, sourceManager);
+        yt.setCachedInfo(this.newInfo, this.cachedFormatWithUrl);
+        return yt;
     }
 
     private record FormatWithUrl(YoutubeTrackFormat details,

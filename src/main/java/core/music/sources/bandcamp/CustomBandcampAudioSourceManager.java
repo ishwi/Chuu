@@ -22,7 +22,6 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
@@ -165,7 +164,7 @@ public class CustomBandcampAudioSourceManager implements AudioSourceManager, Htt
                 throw new IOException("Invalid status code for track page: " + statusCode);
             }
 
-            responseText = IOUtils.toString(response.getEntity().getContent(), StandardCharsets.UTF_8);
+            responseText = IOUtils.toString(response.getEntity().getContent());
         }
 
         return extractor.extract(httpInterface, responseText);

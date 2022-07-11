@@ -11,13 +11,16 @@ import core.music.sources.youtube.webscrobbler.ChuuYoutubeAudioTrack;
 import core.music.sources.youtube.webscrobbler.processers.ChuuAudioTrackInfo;
 import core.music.sources.youtube.webscrobbler.processers.Processed;
 import core.services.validators.AlbumFinder;
+import dao.entities.Album;
 import dao.entities.Metadata;
+import jdk.incubator.concurrent.StructuredTaskScope;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.UUID;
+import java.util.concurrent.ExecutionException;
 
 public record ScrobbleProcesser(AlbumFinder albumFinder) {
     public static final Cache<String, TrackScrobble> processed = Caffeine.newBuilder()
@@ -60,7 +63,7 @@ public record ScrobbleProcesser(AlbumFinder albumFinder) {
                     inn = inn.fromChuu(newInfo);
                 } else {
                     try {
-                        AudioTrackInfo process = cyat.process();
+                        cyat.processInfo();
                         inn = inn.fromAudioTrack(cyat.getInfo());
                     } catch (Exception e) {
                         Chuu.getLogger().warn("Error processando song que no estaba procesada {}", cyat, e);
@@ -83,13 +86,15 @@ public record ScrobbleProcesser(AlbumFinder albumFinder) {
 
 
     public InnerScrobble processAlbum(InnerScrobble innerScrobble, AudioTrack song) {
-
-        return albumFinder.find(innerScrobble.artist(), innerScrobble.song())
-                .or(() -> albumFinder.findSpotify(innerScrobble.artist(), innerScrobble.song()))
-                .map(z ->
-                        innerScrobble
-                                .withAlbum(z.albumName())
-                                .withImage(z.url()))
-                .orElse(innerScrobble);
+        try (var scope = new StructuredTaskScope.ShutdownOnSuccess<Album>()) {
+            scope.fork(() -> albumFinder.find(innerScrobble.artist(), innerScrobble.song()).orElseThrow());
+            scope.fork(() -> albumFinder.findSpotify(innerScrobble.artist(), innerScrobble.song()).orElseThrow());
+            scope.join();
+            Album result = scope.result();
+            return innerScrobble.withAlbum(result.albumName()).withImage(result.url());
+        } catch (InterruptedException | ExecutionException e) {
+            Chuu.getLogger().info("Error processing album", e);
+            return innerScrobble;
+        }
     }
 }

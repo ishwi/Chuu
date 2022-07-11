@@ -12,7 +12,7 @@ public class YoutubeSearchManagerSingleton {
 
     public static synchronized YoutubeAudioSourceManager getInstance() {
         if (instance == null) {
-            instance = new ChuuYTAudioSourceManager(true);
+            instance = new ChuuYTAudioSourceManager(true, null, null);
         }
         return instance;
     }

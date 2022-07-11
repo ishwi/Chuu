@@ -27,7 +27,6 @@ import com.sedmelluq.discord.lavaplayer.source.soundcloud.SoundCloudAudioSourceM
 import com.sedmelluq.discord.lavaplayer.source.twitch.TwitchStreamAudioSourceManager;
 import com.sedmelluq.discord.lavaplayer.source.vimeo.VimeoAudioSourceManager;
 import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioSourceManager;
-import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeHttpContextFilter;
 import com.sedmelluq.discord.lavaplayer.tools.io.MessageInput;
 import com.sedmelluq.discord.lavaplayer.tools.io.MessageOutput;
 import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
@@ -76,8 +75,6 @@ public class ExtendedAudioPlayerManager extends DefaultAudioPlayerManager {
             Properties props = opt.get();
             String PSID = props.getProperty("PSID");
             String PAPISID = props.getProperty("PAPISID");
-            YoutubeHttpContextFilter.setPSID(PSID);
-            YoutubeHttpContextFilter.setPAPISID(PAPISID);
         }
         registerSourceManagers(
                 new SpotifyAudioSourceManager(youtubeAudioSourceManager),

@@ -11,6 +11,7 @@ import core.exceptions.LastFmException;
 import core.parsers.params.CommandParameters;
 import core.services.ColorService;
 import core.services.validators.ArtistValidator;
+import core.util.ChuuVirtualPool;
 import dao.ChuuService;
 import dao.entities.*;
 import dao.exceptions.InstanceNotFoundException;
@@ -453,7 +454,7 @@ public class CommandUtil {
     }
 
     public static <T> CompletableFuture<T> supplyLog(Supplier<T> supplier) {
-        return CompletableFuture.supplyAsync(supplier).whenComplete((u, ex) -> {
+        return CompletableFuture.supplyAsync(supplier, ChuuVirtualPool.of("Log-Supplier")).whenComplete((u, ex) -> {
             if (ex != null) {
                 Chuu.getLogger().warn(ex.getMessage(), ex);
             }

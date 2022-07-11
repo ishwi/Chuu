@@ -30,8 +30,6 @@ class ThreadQueue implements Runnable {
     private final StringFitter titleFitter;
     private final StringFitter subTitleFitter;
     int START_FONT_SIZE = 24;
-    final Font JAPANESE_FONT = new Font("Yu Gothic", Font.PLAIN, START_FONT_SIZE);
-    final Font KOREAN_FONT = new Font("Malgun Gothic", Font.PLAIN, START_FONT_SIZE);
     int lowerLimitStringSize = 14;
     int imageSize = 300;
 
@@ -100,7 +98,7 @@ class ThreadQueue implements Runnable {
 
 
     public void handleInvalidImage(UrlCapsule capsule, int x, int y) {
-        synchronized (this) {
+        synchronized (g) {
             Color temp = g.getColor();
             g.setColor(Color.WHITE);
             g.fillRect(x * imageSize, y * imageSize, imageSize, imageSize);
@@ -109,10 +107,10 @@ class ThreadQueue implements Runnable {
         if (asideMode) {
             drawNeverEndingCharts(capsule, y, x, imageSize);
         } else {
-            synchronized (this) {
+            synchronized (g) {
                 Color temp = g.getColor();
                 g.setColor(Color.BLACK);
-                drawNames(capsule, y, x, g, imageSize, null);
+                drawNames(capsule, y, x, g, null);
                 g.setColor(temp);
             }
         }
@@ -161,7 +159,7 @@ class ThreadQueue implements Runnable {
         if (asideMode) {
             drawNeverEndingCharts(capsule, y, x, imageSize);
         } else {
-            drawNames(capsule, y, x, g, imageSize, null);
+            drawNames(capsule, y, x, g, null);
         }
     }
 
@@ -197,7 +195,7 @@ class ThreadQueue implements Runnable {
         } else {
             Graphics2D gTemp = image.createGraphics();
             GraphicUtils.setQuality(gTemp);
-            drawNames(capsule, 0, 0, gTemp, image.getWidth(), image);
+            drawNames(capsule, 0, 0, gTemp, image);
             gTemp.dispose();
         }
     }
@@ -208,8 +206,7 @@ class ThreadQueue implements Runnable {
             String line = chartLine.getLine();
             StringFitter.FontMetadata fontMetadata = chooseFont(line, chartLine.getType().equals(ChartLine.Type.TITLE));
             FontMetrics fontMetrics = g.getFontMetrics(fontMetadata.maxFont());
-            FontMetrics metrics = g.getFontMetrics(START_FONT);
-            height += metrics.getAscent() - metrics.getDescent() + 7;
+            height += fontMetrics.getAscent() - fontMetrics.getDescent() + 7;
             mapToFill.put(chartLine, fontMetadata);
         }
         return height;
@@ -243,7 +240,7 @@ class ThreadQueue implements Runnable {
         g.drawString(fontMetadata.atrribute().getIterator(), this.x * imageWidth + 5, (int) ((baseline + (v + 1) * x) + (1 * v)));
     }
 
-    void drawNames(UrlCapsule capsule, int y, int x, Graphics2D g, int imageWidth, BufferedImage image) {
+    void drawNames(UrlCapsule capsule, int y, int x, Graphics2D g, BufferedImage image) {
         List<ChartLine> chartLines = capsule.getLines();
         if (chartLines.isEmpty()) {
             return;
@@ -259,13 +256,10 @@ class ThreadQueue implements Runnable {
         int accum = 3;
 
         for (ChartLine chartLine : chartLines) {
-            int fontSize = START_FONT_SIZE;
             StringFitter.FontMetadata font = map.get(chartLine);
             FontMetrics metric = g.getFontMetrics(font.maxFont());
             int nextIncrease = metric.getAscent() - metric.getDescent() + 7;
-            int artistWidth = (int) font.bounds().getWidth();
             int xOffset = 5;
-            String line = chartLine.getLine();
             accum += nextIncrease;
             if (image != null) {
                 g.setColor(Color.WHITE);

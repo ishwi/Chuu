@@ -18,13 +18,13 @@
 package core.music.utils;
 
 
-import core.util.ChuuFixedPool;
+import core.util.ChuuVirtualPool;
 import dao.exceptions.ChuuServiceException;
 
 import java.util.concurrent.*;
 
 public final class Task {
-    private static final ScheduledExecutorService executor = ChuuFixedPool.ofScheduled(2, "Task-cleaner-");
+    private static final ScheduledExecutorService executor = ChuuVirtualPool.ofScheduled("Task-cleaner-");
     private final long delay;
     private final TimeUnit unit;
     private final Runnable runnable;

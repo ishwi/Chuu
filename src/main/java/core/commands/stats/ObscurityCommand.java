@@ -70,7 +70,7 @@ public class ObscurityCommand extends ConcurrentCommand<ChuuDataParams> {
     @Override
     public void onCommand(Context e, @Nonnull ChuuDataParams params) {
         String name = params.getLastFMData().getName();
-        CompletableFuture<AudioFeatures> uF = CompletableFuture.supplyAsync(() -> db.getUserFeatures(name));
+        CompletableFuture<AudioFeatures> uF = CommandUtil.supplyLog(() -> db.getUserFeatures(name));
         double v;
         if (params.hasOptional("refresh") || CommandUtil.rand.nextBoolean()) {
             v = db.processObscurity(name);
@@ -78,7 +78,7 @@ public class ObscurityCommand extends ConcurrentCommand<ChuuDataParams> {
             v = db.obtainObscurity(name).orElseGet(() -> db.processObscurity(name));
         }
         long id = params.getLastFMData().getDiscordId();
-        CompletableFuture<String> titleCF = CompletableFuture.supplyAsync(() -> {
+        CompletableFuture<String> titleCF = CommandUtil.supplyLog(() -> {
             String title = "";
             if (e.isFromGuild()) {
                 List<LbEntry<Double>> obscurityRankings = db.getObscurityRankings(e.getGuild().getIdLong());

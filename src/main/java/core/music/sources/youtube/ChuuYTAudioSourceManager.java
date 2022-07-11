@@ -8,9 +8,7 @@ import com.sedmelluq.discord.lavaplayer.tools.io.HttpClientTools;
 import com.sedmelluq.discord.lavaplayer.tools.io.HttpInterface;
 import com.sedmelluq.discord.lavaplayer.track.AudioItem;
 import com.sedmelluq.discord.lavaplayer.track.AudioReference;
-import com.sedmelluq.discord.lavaplayer.track.AudioTrackInfo;
 import core.music.sources.youtube.webscrobbler.ChuuTrackLoader;
-import core.music.sources.youtube.webscrobbler.ChuuYoutubeAudioTrack;
 import core.music.sources.youtube.webscrobbler.processers.ChuuAudioTrackInfo;
 import core.music.sources.youtube.webscrobbler.processers.ChuuYoutubeTrackDetails;
 
@@ -21,8 +19,8 @@ public class ChuuYTAudioSourceManager extends YoutubeAudioSourceManager {
     private final LoadingRoutes loadingRoutes;
     private final YoutubeLinkRouter linkRouter;
 
-    public ChuuYTAudioSourceManager(boolean allowSearch) {
-        this(allowSearch, new ChuuTrackLoader(), new YoutubeSearchProvider(),
+    public ChuuYTAudioSourceManager(boolean allowSearch, String email, String password) {
+        this(allowSearch, email, password, new ChuuTrackLoader(), new YoutubeSearchProvider(),
                 new YoutubeSearchMusicProvider(),
                 new YoutubeSignatureCipherManager(),
                 new DefaultYoutubePlaylistLoader(),
@@ -32,20 +30,18 @@ public class ChuuYTAudioSourceManager extends YoutubeAudioSourceManager {
 
 
     public ChuuYTAudioSourceManager(boolean allowSearch,
-                                    ChuuTrackLoader chuuTrackLoader,
-                                    YoutubeSearchProvider youtubeSearchProvider,
-                                    YoutubeSearchMusicProvider youtubeSearchMusicProvider,
-                                    YoutubeSignatureCipherManager youtubeSignatureCipherManager,
+                                    String email,
+                                    String password,
+                                    YoutubeTrackDetailsLoader trackDetailsLoader,
+                                    YoutubeSearchResultLoader searchResultLoader,
+                                    YoutubeSearchMusicResultLoader searchMusicResultLoader,
+                                    YoutubeSignatureResolver signatureResolver,
                                     YoutubePlaylistLoader playlistLoader,
-                                    DefaultYoutubeLinkRouter defaultYoutubeLinkRouter,
-                                    YoutubeMixProvider youtubeMixProvider) {
-        super(allowSearch, chuuTrackLoader, youtubeSearchProvider, youtubeSearchMusicProvider, youtubeSignatureCipherManager, playlistLoader, defaultYoutubeLinkRouter, youtubeMixProvider);
-        this.loadingRoutes = new LoadingRoutes(allowSearch, this, playlistLoader, youtubeMixProvider, youtubeSearchProvider, youtubeSearchMusicProvider);
-        this.linkRouter = defaultYoutubeLinkRouter;
-    }
-
-    private YoutubeAudioTrack buildTrackFromInfo(AudioTrackInfo info) {
-        return new ChuuYoutubeAudioTrack(info, this);
+                                    YoutubeLinkRouter linkRouter,
+                                    YoutubeMixLoader mixLoader) {
+        super(allowSearch, email, password, trackDetailsLoader, searchResultLoader, searchMusicResultLoader, signatureResolver, playlistLoader, linkRouter, mixLoader);
+        this.loadingRoutes = new LoadingRoutes(allowSearch, this, playlistLoader, mixLoader, searchResultLoader, searchMusicResultLoader);
+        this.linkRouter = linkRouter;
     }
 
     @Override

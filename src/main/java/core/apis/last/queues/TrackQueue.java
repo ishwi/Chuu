@@ -4,6 +4,7 @@ import core.apis.discogs.DiscogsApi;
 import core.apis.last.entities.chartentities.TrackDurationChart;
 import core.apis.last.entities.chartentities.UrlCapsule;
 import core.apis.spotify.Spotify;
+import core.commands.utils.CommandUtil;
 import dao.ChuuService;
 
 import javax.annotation.Nonnull;
@@ -51,7 +52,7 @@ public class TrackQueue extends ArtistQueue {
                     x.setPos(ranker.getAndIncrement());
                 }).takeWhile(y ->
                         y.getPos() < limit
-                ).map(z -> CompletableFuture.supplyAsync(() -> z)
+                ).map(z -> CommandUtil.supplyLog(() -> z)
                 ).toList());
         return secondsCounter.get();
     }

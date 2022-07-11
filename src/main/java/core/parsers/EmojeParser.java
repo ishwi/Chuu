@@ -13,10 +13,13 @@ import core.parsers.explanation.util.ExplanationLineType;
 import core.parsers.params.EmotiParameters;
 import core.util.StringUtils;
 import dao.exceptions.InstanceNotFoundException;
-import net.dv8tion.jda.api.entities.Emote;
+import net.dv8tion.jda.api.entities.emoji.CustomEmoji;
+import net.dv8tion.jda.api.entities.emoji.Emoji;
+import net.dv8tion.jda.api.entities.emoji.RichCustomEmoji;
 import net.dv8tion.jda.api.interactions.commands.CommandInteraction;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.sharding.ShardManager;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
@@ -56,17 +59,22 @@ public class EmojeParser extends Parser<EmotiParameters> {
             collect.get(true).forEach(z -> {
                 Matcher matcher = compile.matcher(z);
                 if (matcher.matches()) {
-                    Emote emote = Chuu.getShardManager().getEmoteById(matcher.group(1));
-                    emotable.add(new EmotiParameters.CustomEmote(counter.incrementAndGet(), emote));
+                    RichCustomEmoji emote = Chuu.getShardManager().getEmojiById(matcher.group(1));
+                    emotable.add(new EmotiParameters.DiscordEmote(counter.incrementAndGet(), emote));
                 }
             });
             words = collect.get(false).toArray(String[]::new);
         }
         for (String word : words) {
             if (e instanceof ContextMessageReceived ctm) {
-                for (Emote emote : ctm.e().getMessage().getEmotes()) {
-                    if (word.contains(emote.getAsMention())) {
-                        emotable.add(new EmotiParameters.CustomEmote(counter.incrementAndGet(), emote));
+                for (CustomEmoji emote : ctm.e().getMessage().getMentions().getCustomEmojis()) {
+                    if (word.contains(emote.getFormatted())) {
+                        ShardManager shardManager = e.getJDA().getShardManager();
+                        assert shardManager != null;
+                        RichCustomEmoji emojiById = shardManager.getEmojiById(emote.getId());
+                        if (emojiById != null) {
+                            emotable.add(new EmotiParameters.DiscordEmote(counter.incrementAndGet(), emojiById));
+                        }
                         word = word.replaceFirst(emote.getAsMention(), "");
                     }
                 }
@@ -74,7 +82,7 @@ public class EmojeParser extends Parser<EmotiParameters> {
             List<String> strings = EmojiParser.extractEmojis(word);
             if (!strings.isEmpty()) {
                 strings.forEach(emoji ->
-                        emotable.add(new EmotiParameters.CustomEmoji(counter.incrementAndGet(), emoji)));
+                        emotable.add(new EmotiParameters.UnicodeEmote(counter.incrementAndGet(), Emoji.fromUnicode(emoji))));
             }
         }
 

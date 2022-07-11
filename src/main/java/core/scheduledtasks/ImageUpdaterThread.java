@@ -26,7 +26,7 @@ public class ImageUpdaterThread implements Runnable {
     @Override
     public void run() {
         Set<ScrobbledArtist> artistData = dao.getNullUrls();
-        Chuu.getLogger().info("Seraching for {} urls via discogs", artistData.size());
+        Chuu.getLogger().info("Searching for {} urls via discogs", artistData.size());
         int counter = 0;
         for (ScrobbledArtist artistDatum : artistData) {
             String url;

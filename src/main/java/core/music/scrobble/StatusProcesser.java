@@ -8,6 +8,7 @@ import core.apis.last.LastFMFactory;
 import core.apis.last.entities.Scrobble;
 import core.exceptions.LastFmException;
 import core.services.ChuuRunnable;
+import core.util.ChuuVirtualPool;
 import dao.ChuuService;
 import dao.entities.LastFMData;
 import net.dv8tion.jda.api.entities.ISnowflake;
@@ -20,7 +21,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -30,7 +30,7 @@ public class StatusProcesser {
     private static final Cache<Identifier, ScrobbleStatus> overriden = Caffeine.newBuilder()
             .expireAfterAccess(60, TimeUnit.MINUTES).maximumSize(500L).build();
     private final ConcurrentLastFM lastFM = LastFMFactory.getNewInstance();
-    private static final Executor scrobbleRequester = Executors.newFixedThreadPool(3);
+    private static final Executor scrobbleRequester = ChuuVirtualPool.of("Scrobbler-Manager");
     private final ChuuService db;
 
     public StatusProcesser(ChuuService db) {

@@ -363,7 +363,10 @@ public class MusicManager extends AudioEventAdapter implements AudioSendHandler 
         if (userData == null) {
             return;
         }
-        guild.getTextChannelById(userData.channelRequester()).sendMessage("Song stuck").queue();
+        TextChannel textChannel = guild.getTextChannelById(userData.channelRequester());
+        if (textChannel != null) {
+            textChannel.sendMessage("Song stuck").queue();
+        }
         nextTrack();
     }
 
@@ -377,7 +380,9 @@ public class MusicManager extends AudioEventAdapter implements AudioSendHandler 
         var channel = getGuild().getTextChannelById(track.getUserData(TrackContext.class).channelRequester());
 
         if (System.currentTimeMillis() > lastErrorAnnounced + 5000) {
-            channel.sendMessage(String.format("An unknown error occurred while playing **%s**:\n%s", track.getInfo().title, exception.getMessage())).queue((t) -> lastErrorAnnounced = System.currentTimeMillis());
+            if (channel != null) {
+                channel.sendMessage(String.format("An unknown error occurred while playing **%s**:\n%s", track.getInfo().title, exception.getMessage())).queue((t) -> lastErrorAnnounced = System.currentTimeMillis());
+            }
         }
         Chuu.getLogger().warn(exception.getMessage(), exception);
 

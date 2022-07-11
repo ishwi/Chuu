@@ -12,6 +12,7 @@ import core.exceptions.LastFmException;
 import core.parsers.NoOpParser;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
+import core.util.ChuuVirtualPool;
 import dao.ServiceView;
 import dao.entities.LastFMData;
 import dao.exceptions.DuplicateInstanceException;
@@ -25,7 +26,6 @@ import javax.annotation.Nonnull;
 import java.awt.*;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -100,7 +100,7 @@ public class LoginCommand extends ConcurrentCommand<CommandParameters> {
             if (e instanceof ContextMessageReceived t) {
                 sendMessage(e, "Sent you a DM with the login details!").queue();
             }
-            ScheduledExecutorService scheduledExecutor = Executors.newSingleThreadScheduledExecutor();
+            ScheduledExecutorService scheduledExecutor = ChuuVirtualPool.ofScheduled("Login");
             AtomicInteger counter = new AtomicInteger();
             scheduledExecutor.scheduleWithFixedDelay(() -> {
                 counter.incrementAndGet();

@@ -12,6 +12,7 @@ import core.apis.last.exceptions.AlbumException;
 import core.apis.last.exceptions.ArtistException;
 import core.apis.last.exceptions.ExceptionEntity;
 import core.apis.last.exceptions.TrackException;
+import core.commands.utils.CommandUtil;
 import core.exceptions.*;
 import core.parsers.params.ChartParameters;
 import core.parsers.utils.CustomTimeFrame;
@@ -1336,11 +1337,8 @@ public class ConcurrentLastFM {//implements LastFMService {
             LastFmException {
         List<TrackWithArtistId> list = new ArrayList<>();
         String url = BASE + GET_ALL + user.getName() + apiKey + ENDING + "&extended=1" + "&from=" + (from - 1);
-        CompletableFuture<Object> objectCompletableFuture = new CompletableFuture<>();
         AtomicInteger page = new AtomicInteger(0);
         AtomicInteger totalPages = new AtomicInteger(1);
-        boolean firstPage = false;
-        String urlPage = url + "&page=" + page.incrementAndGet();
         CustomTimeFrame timeFrameEnum = new CustomTimeFrame(TimeFrameEnum.ALL);
         JSONObject methodObj = doMethod(url, new ExceptionEntity(user.getName()), user);
         if (!methodObj.has("recenttracks")) {
@@ -1374,7 +1372,7 @@ public class ConcurrentLastFM {//implements LastFMService {
         String imageUrl = obtainImage(trackObj);
 
 
-        CompletableFuture<List<TrackWithArtistId>> listCompletableFuture = CompletableFuture.supplyAsync(() -> {
+        CompletableFuture<List<TrackWithArtistId>> listCompletableFuture = CommandUtil.supplyLog(() -> {
 
             if (attrObj.getInt("total") == 0) {
                 return Collections.emptyList();

@@ -21,6 +21,7 @@ import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import core.Chuu;
 import core.commands.Context;
 import core.commands.abstracts.MusicCommand;
+import core.commands.music.QueueCommand.DecodedAndCoded;
 import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandUtil;
 import core.music.MusicManager;
@@ -30,15 +31,15 @@ import core.parsers.NoOpParser;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
 import dao.ServiceView;
+import jdk.incubator.concurrent.StructuredTaskScope;
 import net.dv8tion.jda.api.EmbedBuilder;
-import org.apache.commons.lang3.tuple.Pair;
 
 import javax.annotation.Nonnull;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Future;
 
 public class QueueCommand extends MusicCommand<CommandParameters> {
     public QueueCommand(ServiceView dao) {
@@ -77,25 +78,25 @@ public class QueueCommand extends MusicCommand<CommandParameters> {
     }
 
 
-    private void handleList(Pair<TrackScrobble, List<Pair<AudioTrack, TrackScrobble>>> result, MusicManager manager, Context e) {
+    private void handleList(List<DecodedAndCoded> result, MusicManager manager, Context e, DecodedAndCoded dataNp) {
 
 
-        TrackScrobble np = result.getLeft();
-        List<Pair<AudioTrack, TrackScrobble>> queue = result.getRight();
-        long duration = queue.stream().mapToLong(z -> z.getKey().getDuration()).sum();
+        TrackScrobble np = dataNp.scrobble;
+        AudioTrack current = dataNp.track;
 
-        AudioTrack current = manager.getLastValidTrack();
-        List<String> str = queue.stream()
-                .map(z -> {
-                    AudioTrack tr = z.getLeft();
-                    TrackScrobble sc = z.getRight();
-                    String item;
-                    if (sc.processeds().size() > 1) {
-                        item = "__%s__ [%d/%d]".formatted(sc.scrobble().toLink(tr.getInfo().uri), 1, sc.processeds().size());
-                    } else {
-                        item = "__%s__".formatted(sc.scrobble().toLink(tr.getInfo().uri));
+        long duration = result.stream().mapToLong(z -> z.track().getDuration()).sum();
+
+        List<String> str = result.stream()
+                .map(z -> switch (z) {
+                    case DecodedAndCoded(AudioTrack tr, TrackScrobble sc) -> {
+                        String item;
+                        if (sc.processeds().size() > 1) {
+                            item = "__%s__ [%d/%d]".formatted(sc.scrobble().toLink(tr.getInfo().uri), 1, sc.processeds().size());
+                        } else {
+                            item = "__%s__".formatted(sc.scrobble().toLink(tr.getInfo().uri));
+                        }
+                        yield "`[%s]` %s\n".formatted(CommandUtil.msToString(tr.getDuration()), item);
                     }
-                    return "`[%s]` %s\n".formatted(CommandUtil.msToString(tr.getDuration()), item);
                 }).toList();
         EmbedBuilder eb = new ChuuEmbedBuilder(e)
                 .setAuthor("Music Queue", null, np.scrobble().image())
@@ -113,7 +114,7 @@ public class QueueCommand extends MusicCommand<CommandParameters> {
             // Thinking emoji
             str = Collections.singletonList("Nothing in the queue-");
         } else {
-            eb.addField("Entries", String.valueOf(queue.size()), true)
+            eb.addField("Entries", String.valueOf(result.size()), true)
                     .addField("Total Duration", CommandUtil.msToString(duration), true);
         }
 
@@ -124,7 +125,6 @@ public class QueueCommand extends MusicCommand<CommandParameters> {
 
     }
 
-
     @Override
     public void onCommand(Context e, @Nonnull CommandParameters params) {
         MusicManager manager = Chuu.playerRegistry.getExisting(e.getGuild().getIdLong());
@@ -133,30 +133,30 @@ public class QueueCommand extends MusicCommand<CommandParameters> {
             return;
         }
         Queue<String> queue = manager.getQueue();
-        long length = 0L;
-        EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e);
-        StringBuilder stringBuilder = new StringBuilder();
-        List<String> str = new ArrayList<>();
-        List<CompletableFuture<Pair<AudioTrack, TrackScrobble>>> completableFutures = queue.stream()
-                .map(z ->
-                        CompletableFuture.supplyAsync(() -> Chuu.playerManager.decodeAudioTrack(z))
-                                .thenCompose(track -> manager.getTrackScrobble(track)
-                                        .thenApply(l -> Pair.of(track, l))))
-                .toList();
-        CompletableFuture<List<Pair<AudioTrack, TrackScrobble>>> finish = sequence(completableFutures);
-        finish.thenCompose(result -> manager.getTrackScrobble().thenApply(l -> Pair.of(l, result)))
-                .handle((result, tr) -> {
-                    if (tr != null) {
-                        sendMessageQueue(e, "An error happened while processing the queue!");
-                    } else {
-                        try {
-                            handleList(result, manager, e);
-                        } catch (Exception ex) {
-                            Chuu.getLogger().warn(ex.getMessage(), ex);
-                        }
-                    }
-                    return null;
-                });
+
+
+        try (var scope = new StructuredTaskScope.ShutdownOnFailure()) {
+            List<Future<DecodedAndCoded>> items = queue.stream().map(decoding -> scope.fork(() ->
+            {
+                AudioTrack track = Chuu.playerManager.decodeAudioTrack(decoding);
+                TrackScrobble cf = manager.getTrackScrobble(track).join();
+                return new DecodedAndCoded(track, cf);
+            })).toList();
+            Future<DecodedAndCoded> last = scope.fork(() -> new DecodedAndCoded(manager.getCurrentTrack(), manager.getTrackScrobble().join()));
+            scope.join();
+
+            List<DecodedAndCoded> decodedAndCodeds = items.stream().map(Future::resultNow).toList();
+            handleList(decodedAndCodeds, manager, e, last.resultNow());
+        } catch (InterruptedException ex) {
+            sendMessageQueue(e, "An error happened while processing the queue!");
+            throw new RuntimeException(ex);
+        }
+
+
+    }
+
+    record DecodedAndCoded(AudioTrack track, TrackScrobble scrobble) {
+
     }
 
 }

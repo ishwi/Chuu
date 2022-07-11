@@ -16,8 +16,9 @@ public final class ChuuDatasource implements CommonDatasource {
 
         HikariConfig config = new HikariConfig(CONFIG);
         config.setTransactionIsolation("TRANSACTION_READ_UNCOMMITTED");
-        config.setMaximumPoolSize(14);
-        config.setMinimumIdle(8);
+        config.setMaximumPoolSize(12);
+        config.setMinimumIdle(2);
+        config.setThreadFactory(Thread.ofVirtual().name("Short-Chuu-", 0).factory());
         config.setPoolName("Normal-pool-Chuu");
         config.addDataSourceProperty("connectionCollation", "utf8mb4_unicode_ci");
         this.ds = new HikariDataSource(config);

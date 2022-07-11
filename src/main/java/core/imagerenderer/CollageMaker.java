@@ -60,11 +60,12 @@ public class CollageMaker {
             g.setColor(Color.BLACK);
             g.fillRect(0, 0, result.getWidth(), result.getHeight());
         }
-        AtomicInteger max = new AtomicInteger(queue.size());
+        int size = queue.size();
+        AtomicInteger max = new AtomicInteger(size);
         ExecutorService es = GraphicUtils.GRAPHIC_EXECUTOR;
-
         List<Callable<Object>> calls = new ArrayList<>();
-        for (int i = 0; i < 2; i++) {
+        int bound = Math.min(15, size);
+        for (int i = 0; i < bound; i++) {
             calls.add(Executors.callable(new ThreadQueue(queue, g, x, y, max, imageSize == 150, asideMode)));
         }
         try {

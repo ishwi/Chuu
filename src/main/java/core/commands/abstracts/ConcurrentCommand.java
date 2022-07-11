@@ -1,15 +1,15 @@
 package core.commands.abstracts;
 
-import core.apis.ExecutorsSingleton;
 import core.commands.Context;
 import core.parsers.params.CommandParameters;
+import core.util.ChuuVirtualPool;
 import dao.ServiceView;
 
 import java.util.concurrent.ExecutorService;
 
 
 public abstract class ConcurrentCommand<T extends CommandParameters> extends MyCommand<T> {
-    public static final ExecutorService executor = ExecutorsSingleton.getInstance();
+    public static final ExecutorService executor = ChuuVirtualPool.of("Commands");
 
 
     public ConcurrentCommand(ServiceView dao, boolean isLongRunningCommand) {

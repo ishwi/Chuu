@@ -3,6 +3,7 @@ package core.parsers;
 import core.commands.Context;
 import core.commands.InteracionReceived;
 import core.commands.abstracts.MyCommand;
+import core.commands.utils.CommandUtil;
 import core.exceptions.LastFmException;
 import core.parsers.explanation.StrictUserExplanation;
 import core.parsers.explanation.util.Explanation;
@@ -13,7 +14,6 @@ import core.parsers.utils.OptionalEntity;
 import dao.ChuuService;
 import dao.entities.LastFMData;
 import dao.exceptions.InstanceNotFoundException;
-import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.interactions.commands.CommandInteraction;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
@@ -104,7 +104,7 @@ public abstract class MultiStringParser<T extends CommandParameters> extends Dao
         commandData.addOption(OptionType.INTEGER, "from-np", "# of " + entityNamePlural + " to fetch from np");
 
         for (int i = 1; i <= 5; i++) {
-            commandData.addOption(OptionType.STRING, entityName + "-" + i, EmbedBuilder.ZERO_WIDTH_SPACE);
+            commandData.addOption(OptionType.STRING, entityName + "-" + i, i + CommandUtil.getRank(i) + " " + entityName);
         }
         return commandData;
     }

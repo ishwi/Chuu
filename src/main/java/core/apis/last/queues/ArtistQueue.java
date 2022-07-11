@@ -5,6 +5,7 @@ import core.apis.discogs.DiscogsApi;
 import core.apis.last.entities.chartentities.UrlCapsule;
 import core.apis.spotify.Spotify;
 import core.commands.utils.CommandUtil;
+import core.util.ChuuVirtualPool;
 import dao.ChuuService;
 import dao.entities.ScrobbledArtist;
 import dao.entities.UpdaterStatus;
@@ -57,7 +58,7 @@ public class ArtistQueue extends LinkedBlockingQueue<UrlCapsule> {
                 getUrl(item);
             }
             return item;
-        }).toCompletableFuture();
+        }, ChuuVirtualPool.of("Capsule-Fetcher")).toCompletableFuture();
         return wrapper.offer(future);
 
     }

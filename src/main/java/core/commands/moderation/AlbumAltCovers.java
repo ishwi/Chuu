@@ -18,6 +18,7 @@ import dao.ServiceView;
 import dao.entities.ScrobbledAlbum;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 
 import javax.annotation.Nonnull;
@@ -85,7 +86,7 @@ public class AlbumAltCovers extends ConcurrentCommand<ArtistAlbumParameters> {
                     r.getReaction().clearReactions().queue();
                 }
                 if (i == covers.size() - 2) {
-                    r.getChannel().addReactionById(r.getMessageIdLong(), RIGHT_ARROW).queue();
+                    r.getChannel().addReactionById(r.getMessageIdLong(), Emoji.fromUnicode(RIGHT_ARROW)).queue();
                 }
                 return () -> false;
             });
@@ -95,7 +96,7 @@ public class AlbumAltCovers extends ConcurrentCommand<ArtistAlbumParameters> {
                     r.getReaction().clearReactions().queue();
                 }
                 if (i == 1) {
-                    r.getChannel().addReactionById(r.getMessageIdLong(), LEFT_ARROW).queue();
+                    r.getChannel().addReactionById(r.getMessageIdLong(), Emoji.fromUnicode(LEFT_ARROW)).queue();
                 }
                 return () -> false;
             });

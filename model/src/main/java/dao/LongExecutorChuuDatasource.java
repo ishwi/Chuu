@@ -16,8 +16,9 @@ public final class LongExecutorChuuDatasource implements CommonDatasource {
 
         HikariConfig config = new HikariConfig(CONFIG);
         config.setTransactionIsolation("TRANSACTION_READ_UNCOMMITTED");
-        config.setMaximumPoolSize(14);
+        config.setMaximumPoolSize(18);
         config.setMinimumIdle(5);
+        config.setThreadFactory(Thread.ofVirtual().name("Long-Chuu", 0).factory());
         config.setPoolName("Long-Pool-Chuu");
         config.addDataSourceProperty("connectionCollation", "utf8mb4_unicode_ci");
         this.ds = new HikariDataSource(config);

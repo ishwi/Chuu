@@ -55,7 +55,7 @@ public class Reactionary<T> extends ReactionListener {
         if (message == null) {
             return false;
         }
-        return event.getMessageIdLong() == message.getIdLong() && ((event.getUser() == null || !event.getUser().isBot()) && event.getReaction().getReactionEmote().isEmoji());
+        return event.getMessageIdLong() == message.getIdLong() && ((event.getUser() == null || !event.getUser().isBot()));
     }
 
     @Override

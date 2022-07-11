@@ -42,7 +42,7 @@ public class CountryParse {
                 country = CountryCode.getByAlpha2Code(value.toUpperCase());
             } else {
                 String finalCountryCode = value;
-                Optional<Locale> opt = Arrays.stream(Locale.getISOCountries()).map(x -> new Locale("en", x)).
+                Optional<Locale> opt = Arrays.stream(Locale.getISOCountries()).map(x -> Locale.of("en", x)).
                         filter(y -> y.getDisplayCountry().equalsIgnoreCase(finalCountryCode))
                         .findFirst();
                 if (opt.isPresent()) {

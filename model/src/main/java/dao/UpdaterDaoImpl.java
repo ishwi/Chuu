@@ -4,6 +4,7 @@ import dao.entities.*;
 import dao.exceptions.ChuuServiceException;
 import dao.exceptions.DuplicateInstanceException;
 import dao.exceptions.InstanceNotFoundException;
+import dao.utils.SQLUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -27,25 +28,12 @@ public class UpdaterDaoImpl extends BaseDAO implements UpdaterDao {
     @Override
     public void addSrobbledArtists(Connection con, List<ScrobbledArtist> scrobbledArtists) {
 
-        StringBuilder mySql =
-                new StringBuilder("INSERT INTO  scrobbled_artist" +
-                        "                  (artist_id,lastfm_id,playnumber) VALUES (?, ?, ?) ");
+        SQLUtils.doBatches(con, "INSERT INTO  scrobbled_artist (artist_id,lastfm_id,playnumber) VALUES ", scrobbledArtists, (ps, st, i) -> {
+            ps.setLong(3 * i + 1, st.getArtistId());
+            ps.setString(3 * i + 2, st.getDiscordID());
+            ps.setInt(3 * i + 3, st.getCount());
+        }, 3, "  ON DUPLICATE KEY UPDATE playnumber =  VALUES(playnumber) + playnumber");
 
-        mySql.append(", (?,?,?)".repeat(Math.max(0, scrobbledArtists.size() - 1)));
-        mySql.append(" ON DUPLICATE KEY UPDATE playnumber =  VALUES(playnumber) + playnumber");
-
-        try {
-            PreparedStatement preparedStatement = con.prepareStatement(mySql.toString());
-            for (int i = 0; i < scrobbledArtists.size(); i++) {
-                preparedStatement.setLong(3 * i + 1, scrobbledArtists.get(i).getArtistId());
-                preparedStatement.setString(3 * i + 2, scrobbledArtists.get(i).getDiscordID());
-                preparedStatement.setInt(3 * i + 3, scrobbledArtists.get(i).getCount());
-
-            }
-            preparedStatement.execute();
-        } catch (SQLException e) {
-            throw new ChuuServiceException(e);
-        }
     }
 
     @Override

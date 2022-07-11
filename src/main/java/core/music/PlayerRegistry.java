@@ -19,11 +19,11 @@ package core.music;
 
 import core.Chuu;
 import core.services.VoiceAnnounceService;
+import core.util.ChuuVirtualPool;
 import net.dv8tion.jda.api.entities.Guild;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
@@ -34,7 +34,7 @@ public class PlayerRegistry {
 
     public PlayerRegistry(ExtendedAudioPlayerManager playerManager) {
         this.playerManager = playerManager;
-        ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
+        ScheduledExecutorService executor = ChuuVirtualPool.ofScheduled("Registry");
         executor.scheduleAtFixedRate(this::sweep, 3, 3, TimeUnit.MINUTES);
     }
 

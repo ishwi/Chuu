@@ -23,7 +23,7 @@ import core.music.utils.ScrobbleProcesser;
 import core.otherlisteners.*;
 import core.services.*;
 import core.services.validators.AlbumFinder;
-import core.util.ChuuFixedPool;
+import core.util.ChuuVirtualPool;
 import core.util.botlists.BotListPoster;
 import dao.ChuuDatasource;
 import dao.ChuuService;
@@ -45,6 +45,7 @@ import net.dv8tion.jda.api.requests.restaction.CommandListUpdateAction;
 import net.dv8tion.jda.api.requests.restaction.MessageAction;
 import net.dv8tion.jda.api.sharding.DefaultShardManagerBuilder;
 import net.dv8tion.jda.api.sharding.ShardManager;
+import net.dv8tion.jda.api.sharding.ThreadPoolProvider;
 import net.dv8tion.jda.api.utils.ChunkingFilter;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
 import org.slf4j.Logger;
@@ -55,10 +56,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.LongAdder;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @SuppressWarnings("UnstableApiUsage")
@@ -100,11 +105,10 @@ public class Chuu {
         lastFMMetric.increment();
     }
 
-
     private static Collection<GatewayIntent> getIntents() {
         EnumSet<GatewayIntent> gatewayIntents = GatewayIntent.fromEvents(GuildMemberRemoveEvent.class, MessageReceivedEvent.class);
         gatewayIntents.add(GatewayIntent.GUILD_VOICE_STATES);
-        gatewayIntents.add(GatewayIntent.GUILD_EMOJIS);
+        gatewayIntents.add(GatewayIntent.GUILD_EMOJIS_AND_STICKERS);
         return gatewayIntents;
     }
 
@@ -128,7 +132,7 @@ public class Chuu {
         scrobbleProcesser = new ScrobbleProcesser(new AlbumFinder(service, LastFMFactory.getNewInstance()));
         playerManager = new ExtendedAudioPlayerManager(scrobbleEventManager, scrobbleProcesser);
         playerRegistry = new PlayerRegistry(playerManager);
-        scheduledService = new ScheduledService(ChuuFixedPool.ofScheduled(4, "Scheduler-runner"), db.normalService());
+        scheduledService = new ScheduledService(ChuuVirtualPool.ofScheduled("Scheduler-runner"), db.normalService());
         if (!notMain) {
             // Only on main instance
             scheduledService.setScheduled();
@@ -152,14 +156,21 @@ public class Chuu {
         EvalCommand evalCommand = new EvalCommand(db);
 
         AtomicInteger counter = new AtomicInteger(0);
+        Function<String, ThreadPoolProvider<ScheduledExecutorService>> scheduledBuilder = (str) -> (shard) -> Executors.newScheduledThreadPool(1, Thread.ofVirtual().name("JDA-" + shard + "-" + str, 0).factory());
+        Function<String, ThreadPoolProvider<ExecutorService>> executorBuilder = (str) -> (shard) -> Executors.newThreadPerTaskExecutor(Thread.ofVirtual().name("JDA-" + shard + "-" + str, 0).factory());
 
         DefaultShardManagerBuilder builder = DefaultShardManagerBuilder.
                 create(getIntents())
                 .setChunkingFilter(ChunkingFilter.ALL)
-                .enableCache(CacheFlag.EMOTE, CacheFlag.VOICE_STATE)
+                .enableCache(CacheFlag.EMOJI, CacheFlag.VOICE_STATE)
                 .disableCache(CacheFlag.ACTIVITY, CacheFlag.CLIENT_STATUS, CacheFlag.ONLINE_STATUS)
                 .setAudioSendFactory(new NativeAudioSendFactory()).setBulkDeleteSplittingEnabled(false)
                 .setToken(properties.getProperty("DISCORD_TOKEN"))
+                .setEventPoolProvider(executorBuilder.apply("Event"))
+                .setCallbackPoolProvider(executorBuilder.apply("Callback"))
+                .setAudioPoolProvider(scheduledBuilder.apply("Audio"))
+                .setRateLimitPoolProvider(scheduledBuilder.apply("RateLimiter"))
+                .setGatewayPoolProvider(scheduledBuilder.apply("Gateway"))
                 .setAutoReconnect(true)
                 .setEventManagerProvider(a -> customManager)
                 .addEventListeners(evalCommand)
@@ -238,7 +249,6 @@ public class Chuu {
 
     }
 
-
     public static void addAll(ServiceView db, Consumer<EventListener> consumer) {
         HelpCommand help = new HelpCommand(db);
 
@@ -276,7 +286,8 @@ public class Chuu {
                     .filter(x -> x.extendsSuperclass("core.commands.abstracts.MyCommand")).map(x -> {
                         try {
                             return (MyCommand<?>) x.loadClass().getConstructor(ServiceView.class).newInstance(db);
-                        } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+                        } catch (InstantiationException | IllegalAccessException | InvocationTargetException |
+                                 NoSuchMethodException e) {
                             throw new ChuuServiceException(e);
                         }
 
@@ -303,7 +314,6 @@ public class Chuu {
     public static Logger getLogger() {
         return logger;
     }
-
 
     public static Properties readToken() {
 
@@ -366,6 +376,7 @@ public class Chuu {
     }
 
     public static void main(String[] args) {
+        System.out.println("Stating");
         Chuu.args = args;
         if (System.getProperty("file.encoding").equals("UTF-8")) {
             setupBot(Arrays.stream(args).anyMatch(x -> x.equalsIgnoreCase("stop-asking")),
@@ -376,5 +387,6 @@ public class Chuu {
             throw new ChuuServiceException("Set up utf-8 pls");
         }
     }
+
 
 }

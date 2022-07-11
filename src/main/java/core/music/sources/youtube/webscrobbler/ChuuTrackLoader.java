@@ -5,7 +5,6 @@ import com.sedmelluq.discord.lavaplayer.tools.ExceptionTools;
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.tools.JsonBrowser;
 import com.sedmelluq.discord.lavaplayer.tools.io.HttpInterface;
-import core.Chuu;
 import core.music.sources.youtube.webscrobbler.processers.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,13 +16,6 @@ import static com.sedmelluq.discord.lavaplayer.tools.ExceptionTools.throwWithDeb
 
 public class ChuuTrackLoader extends DefaultYoutubeTrackDetailsLoader implements YoutubeTrackDetailsLoader {
     private static final Logger log = LoggerFactory.getLogger(DefaultYoutubeTrackDetailsLoader.class);
-
-    private static final String[] EMBED_CONFIG_PREFIXES = new String[]{
-            "'WEB_PLAYER_CONTEXT_CONFIGS':",
-            "WEB_PLAYER_CONTEXT_CONFIGS\":",
-            "'PLAYER_CONFIG':",
-            "\"PLAYER_CONFIG\":"
-    };
 
 
     @Override
@@ -41,31 +33,32 @@ public class ChuuTrackLoader extends DefaultYoutubeTrackDetailsLoader implements
             boolean requireFormats,
             YoutubeAudioSourceManager manager
     ) throws IOException {
-        JsonBrowser mainInfo = loadTrackInfoFromInnertube(httpInterface, videoId, manager);
+        JsonBrowser mainInfo = loadTrackInfoFromInnertube(httpInterface, videoId, manager, null);
         try {
-            YoutubeTrackJsonData initialData = loadBaseResponse(mainInfo, httpInterface, videoId);
+            YoutubeTrackJsonData initialData = loadBaseResponse(mainInfo, httpInterface, videoId, manager);
             if (initialData == null) {
                 return null;
             }
             List<Processed> process = new ChapterProcesser().process(initialData.playerResponse, mainInfo);
-            if (process == null) {
-                try {
-                    long length = getLength(mainInfo);
-                    if (length > 500) {
-                        JsonBrowser chapterData = loadTrackInfoFromMainPage(httpInterface, videoId);
-                        process = new ChapterProcesser().process(initialData.playerResponse, chapterData);
-                    }
-                } catch (Exception e) {
-                    Chuu.getLogger().warn("Error doing extraction from metadata");
-                }
-            }
+//            if (process == null) {
+//                try {
+//                    long length = getLength(mainInfo);
+//                    if (length > 500) {
+//                         TODO not working anymore
+//                        JsonBrowser trackInfoFromMainPage = loadTrackInfoFromMainPage(httpInterface, videoId);
+//                        process = new ChapterProcesser().process(initialData.playerResponse, trackInfoFromMainPage);
+//                    }
+//                } catch (Exception e) {
+//                    Chuu.getLogger().warn("Error doing extraction from metadata");
+//                }
+//            }
             if (process == null) {
                 process = new DescriptionProcesser().process(initialData.playerResponse, mainInfo);
             }
             if (process == null) {
                 process = new TitleProcesser().process(initialData.playerResponse, mainInfo);
             }
-            YoutubeTrackJsonData finalData = augmentWithPlayerScript(initialData, httpInterface, requireFormats);
+            YoutubeTrackJsonData finalData = augmentWithPlayerScript(initialData, httpInterface, videoId, requireFormats);
             return new ChuuYoutubeTrackDetails(videoId, finalData, process);
         } catch (FriendlyException e) {
             throw e;
@@ -73,6 +66,7 @@ public class ChuuTrackLoader extends DefaultYoutubeTrackDetailsLoader implements
             throw throwWithDebugInfo(log, e, "Error when extracting data", "mainJson", mainInfo.format());
         }
     }
+
 
     private long getLength(JsonBrowser info) {
         return info.get("videoDetails").get("lengthSeconds").asLong(-1);

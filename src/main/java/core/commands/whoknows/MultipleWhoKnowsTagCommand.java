@@ -19,7 +19,6 @@ import java.awt.image.BufferedImage;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 import static java.util.function.Predicate.not;
@@ -97,7 +96,7 @@ public class MultipleWhoKnowsTagCommand extends WhoKnowsBaseCommand<MultipleGenr
     WrapperReturnNowPlaying generateWrapper(MultipleGenresParameters params, WhoKnowsMode whoKnowsMode) {
         Context e = params.getE();
         SearchMode mode = params.getMode();
-        CompletableFuture<Optional<ScrobbledArtist>> completableFuture = CompletableFuture.supplyAsync(() -> db.getTopInTag(params.getGenres(), e.getGuild().getIdLong(), mode));
+//        CompletableFuture<Optional<ScrobbledArtist>> completableFuture = CompletableFuture.supplyAsync(() -> db.getTopInTag(params.getGenres(), e.getGuild().getIdLong(), mode));
 
         WrapperReturnNowPlaying wrapperReturnNowPlaying =
                 this.db.getWhoKnowsTagSet(params.getGenres(), e.getGuild().getIdLong(), Integer.MAX_VALUE, null, mode);

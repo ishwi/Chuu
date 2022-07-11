@@ -3,6 +3,7 @@ package core.otherlisteners;
 import core.commands.Context;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.SelectMenuInteractionEvent;
@@ -58,11 +59,11 @@ public class ReactValidator<T> extends ReactionListener {
             if (isSame) {
                 r.getReaction().clearReactions().queue();
             } else {
-                r.getChannel().removeReactionById(r.getMessageId(), LEFT_ARROW).queue();
+                r.getChannel().removeReactionById(r.getMessageId(), Emoji.fromUnicode(LEFT_ARROW)).queue();
             }
         }
         if (i == size - 2) {
-            r.getChannel().addReactionById(r.getMessageIdLong(), RIGHT_ARROW).queue();
+            r.getChannel().addReactionById(r.getMessageIdLong(), Emoji.fromUnicode(RIGHT_ARROW)).queue();
         }
         return () -> false;
     }
@@ -74,11 +75,11 @@ public class ReactValidator<T> extends ReactionListener {
             if (isSame) {
                 r.getReaction().clearReactions().queue();
             } else {
-                r.getChannel().removeReactionById(r.getMessageId(), RIGHT_ARROW).queue();
+                r.getChannel().removeReactionById(r.getMessageId(), Emoji.fromUnicode(RIGHT_ARROW)).queue();
             }
         }
         if (i == 1) {
-            r.getChannel().addReactionById(r.getMessageIdLong(), LEFT_ARROW).queue();
+            r.getChannel().addReactionById(r.getMessageIdLong(), Emoji.fromUnicode(LEFT_ARROW)).queue();
         }
         return () -> false;
     }
@@ -105,7 +106,7 @@ public class ReactValidator<T> extends ReactionListener {
     }
 
     private void initEmotes() {
-        List<RestAction<Void>> reacts = this.actionMap.keySet().stream().map(x -> message.addReaction(x)).toList();
+        List<RestAction<Void>> reacts = this.actionMap.keySet().stream().map(x -> message.addReaction(Emoji.fromFormatted(x))).toList();
         RestAction.allOf(reacts).queue();
     }
 
@@ -155,7 +156,7 @@ public class ReactValidator<T> extends ReactionListener {
 
     @Override
     public void onMessageReactionAdd(@Nonnull MessageReactionAddEvent event) {
-        Reaction<T, MessageReactionAddEvent, ReactionResult> action = this.actionMap.get(event.getReaction().getReactionEmote().getEmoji());
+        Reaction<T, MessageReactionAddEvent, ReactionResult> action = this.actionMap.get(event.getReaction().getEmoji().getFormatted());
         if (action == null)
             return;
         ReactionResult apply = action.release(currentElement, event);
@@ -180,7 +181,7 @@ public class ReactValidator<T> extends ReactionListener {
             return false;
         }
         return !(event.getMessageIdLong() != message.getIdLong() || (!this.allowOtherUsers && event.getUserIdLong() != whom) ||
-                event.getUserIdLong() == event.getJDA().getSelfUser().getIdLong() || !event.getReaction().getReactionEmote().isEmoji());
+                event.getUserIdLong() == event.getJDA().getSelfUser().getIdLong());
     }
 
     @Override

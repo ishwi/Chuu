@@ -5,6 +5,7 @@ import core.apis.last.entities.chartentities.TrackDurationAlbumArtistChart;
 import core.apis.last.entities.chartentities.TrackDurationChart;
 import core.apis.last.entities.chartentities.UrlCapsule;
 import core.apis.spotify.Spotify;
+import core.commands.utils.CommandUtil;
 import dao.ChuuService;
 import dao.entities.AlbumInfo;
 import dao.entities.EntityInfo;
@@ -14,7 +15,6 @@ import dao.musicbrainz.MusicBrainzService;
 import dao.musicbrainz.MusicBrainzServiceSingleton;
 
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
@@ -165,13 +165,15 @@ public class TrackGroupAlbumQueue extends TrackGroupArtistQueue {
                     urlCapsule.setPos(i);
                     return i < requested;
                 }).toList();
-        items.forEach(t -> wrapper.offer(CompletableFuture.supplyAsync(() ->
-        {
-            if (t.getUrl() == null || t.getUrl().equals(defaultTrackImage)) {
-                getUrl(t);
-            }
-            return t;
-        })));
+        for (UrlCapsule t : items) {
+            wrapper.offer(CommandUtil.supplyLog(() ->
+            {
+                if (t.getUrl() == null || t.getUrl().equals(defaultTrackImage)) {
+                    getUrl(t);
+                }
+                return t;
+            }));
+        }
         this.ready = true;
         this.count = items.size();
         return items;

@@ -31,8 +31,7 @@ public class AlbumInfo extends EntityInfo {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof AlbumInfo)) return false;
-        AlbumInfo albumInfo = (AlbumInfo) o;
+        if (!(o instanceof AlbumInfo albumInfo)) return false;
         if (getMbid() != null && !getMbid().isBlank() && albumInfo.getMbid() != null && !albumInfo.getMbid().isBlank()) {
             return super.equals(o);
         }

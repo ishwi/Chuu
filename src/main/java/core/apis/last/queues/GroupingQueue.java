@@ -3,6 +3,7 @@ package core.apis.last.queues;
 import core.apis.discogs.DiscogsApi;
 import core.apis.last.entities.chartentities.UrlCapsule;
 import core.apis.spotify.Spotify;
+import core.util.ChuuVirtualPool;
 import dao.ChuuService;
 
 import javax.annotation.Nonnull;
@@ -57,7 +58,7 @@ public abstract class GroupingQueue extends ArtistQueue {
         {
             getUrl(t);
             return t;
-        })));
+        }, ChuuVirtualPool.of("Set-Up-Grouping"))));
         this.ready = true;
         this.count = collected.size();
         return collected;

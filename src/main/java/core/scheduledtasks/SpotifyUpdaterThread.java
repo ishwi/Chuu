@@ -27,7 +27,7 @@ public class SpotifyUpdaterThread implements Runnable {
     @Override
     public void run() {
         Set<ScrobbledArtist> artistData = dao.getSpotifyNulledUrls();
-        Chuu.getLogger().info("Seraching for {} urls via spotiyf", artistData.size());
+        Chuu.getLogger().info("Searching for {} urls via Spotify", artistData.size());
         int counter = 0;
         for (ScrobbledArtist artistDatum : artistData) {
             String url;

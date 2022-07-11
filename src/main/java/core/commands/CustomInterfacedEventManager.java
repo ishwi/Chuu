@@ -7,9 +7,10 @@ import core.music.listeners.VoiceListener;
 import core.otherlisteners.*;
 import core.parsers.params.CommandParameters;
 import core.services.ChuuRunnable;
-import core.util.ChuuFixedPool;
+import core.util.ChuuVirtualPool;
 import core.util.StringUtils;
 import net.dv8tion.jda.api.entities.Channel;
+import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageType;
 import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.ReadyEvent;
@@ -43,15 +44,15 @@ import java.util.stream.Stream;
 @SuppressWarnings("UnstableApiUsage")
 public class CustomInterfacedEventManager implements IEventManager {
 
-    private static final ExecutorService reactionExecutor = ChuuFixedPool.of(4, "Reaction-handle-", 6, 25);
-    private static final ExecutorService autocompleteExecutor = ChuuFixedPool.of(2, "AutoComplete-handle-", 2, 5);
+    private static final ExecutorService reactionExecutor = ChuuVirtualPool.of("Reaction-handle-");
+    private static final ExecutorService autocompleteExecutor = ChuuVirtualPool.of("AutoComplete-handle-");
     private final Set<EventListener> otherListeners = ConcurrentHashMap.newKeySet();
     private final Map<String, MyCommand<? extends CommandParameters>> commandListeners = new HashMap<>();
     private final Map<Long, ChannelConstantListener> channelConstantListeners = new HashMap<>();
     private final Set<ConstantListener> constantListeners = new HashSet<>();
     private final Map<ReactionListener, ScheduledFuture<?>> reactionaries = new ConcurrentHashMap<>();
-    public boolean isReady;
     private final Map<String, MyCommand<? extends CommandParameters>> slashVariants = new HashMap<>();
+    public boolean isReady;
     private VoiceListener voiceListener;
     private AutoCompleteListener autoCompleteListener;
     private JoinLeaveListener joinLeaveListener;
@@ -63,7 +64,7 @@ public class CustomInterfacedEventManager implements IEventManager {
         assert event instanceof MessageReactionAddEvent || event instanceof ButtonInteractionEvent || event instanceof SelectMenuInteractionEvent;
         long channelId = switch (event) {
             case MessageReactionAddEvent e3 -> e3.getChannel().getIdLong();
-            case ButtonInteractionEvent e3 -> Optional.ofNullable(e3.getChannel()).map(Channel::getIdLong).orElse(0L);
+            case ButtonInteractionEvent e3 -> Optional.of(e3.getChannel()).map(Channel::getIdLong).orElse(0L);
             case SelectMenuInteractionEvent e3 -> e3.getChannel().getIdLong();
             default -> throw new IllegalStateException("Unexpected value: " + event);
         };
@@ -156,17 +157,22 @@ public class CustomInterfacedEventManager implements IEventManager {
     public void handle(@Nonnull GenericEvent event) {
         try {
             switch (event) {
-                case CommandAutoCompleteInteractionEvent cacie -> autocompleteExecutor.submit((ChuuRunnable) () -> autoCompleteListener.onEvent(event));
-                case MessageReceivedEvent mes -> handleMessageReceived(mes); // Delegate running in pool if its a valid message
+                case CommandAutoCompleteInteractionEvent cacie ->
+                        autocompleteExecutor.submit((ChuuRunnable) () -> autoCompleteListener.onEvent(event));
+                case MessageReceivedEvent mes ->
+                        handleMessageReceived(mes); // Delegate running in pool if its a valid message
                 case UserContextInteractionEvent ucie -> handleUserCommand(ucie);
                 case SlashCommandInteractionEvent sce -> handleSlashCommand(sce);
                 case ReadyEvent re -> {
                     for (EventListener listener : otherListeners)
                         listener.onEvent(re);
                 }
-                case MessageReactionAddEvent react -> reactionExecutor.submit((ChuuRunnable) () -> this.handleReaction(react));
-                case ButtonInteractionEvent button -> reactionExecutor.submit((ChuuRunnable) () -> this.handleReaction(button));
-                case SelectMenuInteractionEvent selected -> reactionExecutor.submit((ChuuRunnable) () -> this.handleReaction(selected));
+                case MessageReactionAddEvent react ->
+                        reactionExecutor.submit((ChuuRunnable) () -> this.handleReaction(react));
+                case ButtonInteractionEvent button ->
+                        reactionExecutor.submit((ChuuRunnable) () -> this.handleReaction(button));
+                case SelectMenuInteractionEvent selected ->
+                        reactionExecutor.submit((ChuuRunnable) () -> this.handleReaction(selected));
 
                 // TODO cant group then on one
                 case GuildVoiceJoinEvent gvje -> this.voiceListener.onEvent(gvje);
@@ -251,8 +257,9 @@ public class CustomInterfacedEventManager implements IEventManager {
             return;
         }
         if (mes.isFromGuild() && contentRaw.charAt(0) != correspondingPrefix) {
-            if (mes.getMessage().getMentionedUsers().contains(mes
-                    .getJDA().getSelfUser()) && mes.getMessage().getType() != MessageType.INLINE_REPLY) {
+            if (mes.getMessage().getMentions().isMentioned(mes.getJDA().getSelfUser(),
+                    Message.MentionType.USER)
+                    && mes.getMessage().getType() != MessageType.INLINE_REPLY) {
                 if (mes.getMessage().getContentRaw().contains("prefix")) {
                     mes.getChannel().sendMessage("My prefix is: `" + correspondingPrefix + "`").queue();
                 }

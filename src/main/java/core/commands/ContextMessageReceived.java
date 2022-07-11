@@ -73,7 +73,7 @@ public final record ContextMessageReceived(MessageReceivedEvent e) implements Co
 
     @Override
     public List<User> getMentionedUsers() {
-        return e.getMessage().getMentionedUsers();
+        return e.getMessage().getMentions().getUsers();
     }
 
     @Override

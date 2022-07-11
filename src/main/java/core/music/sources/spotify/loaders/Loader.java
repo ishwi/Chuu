@@ -21,6 +21,7 @@ import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioSourceManager;
 import com.sedmelluq.discord.lavaplayer.track.AudioItem;
 import com.sedmelluq.discord.lavaplayer.track.AudioReference;
+import core.util.ChuuVirtualPool;
 import se.michaelthelin.spotify.SpotifyApi;
 
 import javax.annotation.Nullable;
@@ -46,7 +47,7 @@ public abstract class Loader {
     public abstract AudioItem load(AudioPlayerManager manager, SpotifyApi spotifyApi, Matcher matcher);
 
     public CompletableFuture<AudioItem> queueYoutubeSearch(AudioPlayerManager manager, String identifier) {
-        return CompletableFuture.supplyAsync(() -> youtubeAudioSourceManager.loadItem(manager, new AudioReference(identifier, null)));
+        return CompletableFuture.supplyAsync(() -> youtubeAudioSourceManager.loadItem(manager, new AudioReference(identifier, null)), ChuuVirtualPool.of("Spotify-Loader"));
     }
 
     protected void check(boolean condition, String message) {

@@ -1,7 +1,9 @@
 package core.parsers.params;
 
 import core.commands.Context;
-import net.dv8tion.jda.api.entities.Emote;
+import net.dv8tion.jda.api.entities.emoji.Emoji;
+import net.dv8tion.jda.api.entities.emoji.RichCustomEmoji;
+import net.dv8tion.jda.api.entities.emoji.UnicodeEmoji;
 
 import java.util.List;
 import java.util.SortedSet;
@@ -20,23 +22,23 @@ public class EmotiParameters extends CommandParameters {
     }
 
     public boolean hasEmotes() {
-        return getEmojis.stream().anyMatch(t -> t instanceof CustomEmote);
+        return getEmojis.stream().anyMatch(t -> t instanceof DiscordEmote);
     }
 
     public List<String> getEmojis() {
-        return getEmojis.stream().filter(t -> t instanceof CustomEmoji).map(t -> ((CustomEmoji) t).entity()).toList();
+        return getEmojis.stream().filter(t -> t instanceof UnicodeEmote).map(t -> ((UnicodeEmote) t).entity().getName()).toList();
     }
 
-    public List<Emote> getEmotes() {
-        return getEmojis.stream().filter(t -> t instanceof CustomEmote).map(t -> ((CustomEmote) t).entity()).toList();
+    public List<RichCustomEmoji> getEmotes() {
+        return getEmojis.stream().filter(t -> t instanceof DiscordEmote).map(t -> ((DiscordEmote) t).entity()).toList();
     }
 
     public boolean hasEmojis() {
-        return getEmojis.stream().anyMatch(t -> t instanceof CustomEmoji);
+        return getEmojis.stream().anyMatch(t -> t instanceof UnicodeEmote);
 
     }
 
-    public interface Emotable<T> {
+    public interface Emotable<T extends Emoji> {
         static String toDisplay(String title) {
             if (title.matches("a:.*\\d+")) {
                 return "<" + title + ">";
@@ -53,7 +55,7 @@ public class EmotiParameters extends CommandParameters {
         String getContent();
     }
 
-    public record CustomEmote(int position, Emote entity) implements Emotable<Emote> {
+    public record DiscordEmote(int position, RichCustomEmoji entity) implements Emotable<RichCustomEmoji> {
 
         @Override
         public String getContent() {
@@ -65,7 +67,7 @@ public class EmotiParameters extends CommandParameters {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
 
-            CustomEmote that = (CustomEmote) o;
+            DiscordEmote that = (DiscordEmote) o;
 
             return entity.equals(that.entity);
         }
@@ -76,10 +78,10 @@ public class EmotiParameters extends CommandParameters {
         }
     }
 
-    public record CustomEmoji(int position, String entity) implements Emotable<String> {
+    public record UnicodeEmote(int position, UnicodeEmoji entity) implements Emotable<UnicodeEmoji> {
         @Override
         public String getContent() {
-            return entity;
+            return entity.getName();
         }
 
         @Override
@@ -87,7 +89,7 @@ public class EmotiParameters extends CommandParameters {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
 
-            CustomEmoji that = (CustomEmoji) o;
+            UnicodeEmote that = (UnicodeEmote) o;
 
             return entity.equals(that.entity);
         }

@@ -70,14 +70,7 @@ public class GlobalCommandsIssuedCommand extends ConcurrentCommand<ChuuDataParam
     public void onCommand(Context e, @Nonnull ChuuDataParams params) throws LastFmException, InstanceNotFoundException {
 
         long idLong = params.getLastFMData().getDiscordId();
-        CompletableFuture<Optional<Rank<PrivacyUserCount>>> rankOpt = CompletableFuture.supplyAsync(() -> {
-            try {
-                Thread.sleep(10000);
-            } catch (InterruptedException interruptedException) {
-                interruptedException.printStackTrace();
-            }
-            return db.getUserPosition(idLong);
-        }, ExecutorsSingleton.getInstance());
+        CompletableFuture<Optional<Rank<PrivacyUserCount>>> rankOpt = CompletableFuture.supplyAsync(() -> db.getUserPosition(idLong), ExecutorsSingleton.getInstance());
         List<PrivacyUserCount> globalCommandLb = db.getGlobalCommandLb(e.getGuild().getIdLong());
         Optional<PrivacyUserCount> first = Optional.empty();
         int j = 0;

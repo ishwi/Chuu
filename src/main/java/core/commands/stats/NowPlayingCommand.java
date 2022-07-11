@@ -18,6 +18,7 @@ import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.requests.RestAction;
 
 import java.util.ArrayList;
@@ -161,7 +162,7 @@ public class NowPlayingCommand extends NpCommand implements UserCommandMarker {
                 serverReactions = db.getUserReacts(e.getAuthor().getIdLong());
             }
             if (!serverReactions.isEmpty()) {
-                RestAction.allOf(serverReactions.stream().map(unicode -> message.addReaction(unicode).mapToResult()).toList()).queue();
+                RestAction.allOf(serverReactions.stream().map(unicode -> message.addReaction(Emoji.fromFormatted(unicode)).mapToResult()).toList()).queue();
             }
         });
     }
