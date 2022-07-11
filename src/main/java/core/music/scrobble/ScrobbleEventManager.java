@@ -38,7 +38,7 @@ public class ScrobbleEventManager {
                                 }
                             })
                             .start();
-                } catch (InterruptedException e) {
+                } catch (Exception e) {
                     Chuu.getLogger().info("Thread interrupted");
                     Chuu.getLogger().info(e.getMessage(), e);
                 }

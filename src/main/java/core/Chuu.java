@@ -158,8 +158,12 @@ public class Chuu {
         EvalCommand evalCommand = new EvalCommand(db);
 
         AtomicInteger counter = new AtomicInteger(0);
-        Function<String, ThreadPoolProvider<ScheduledExecutorService>> scheduledBuilder = (str) -> (shard) -> Executors.newScheduledThreadPool(1, Thread.ofVirtual().name("JDA-" + shard + "-" + str, 0).factory());
-        Function<String, ThreadPoolProvider<ExecutorService>> executorBuilder = (str) -> (shard) -> Executors.newThreadPerTaskExecutor(Thread.ofVirtual().name("JDA-" + shard + "-" + str, 0).factory());
+        Function<String, ThreadPoolProvider<ScheduledExecutorService>> scheduledBuilder = (str) -> (shard) -> Executors.newScheduledThreadPool(1, Thread.ofVirtual()
+                .uncaughtExceptionHandler((t, e) -> logger.warn(e.getMessage(), e))
+                .name("JDA-" + shard + "-" + str, 0).factory());
+        Function<String, ThreadPoolProvider<ExecutorService>> executorBuilder = (str) -> (shard) -> Executors.newThreadPerTaskExecutor(Thread.ofVirtual()
+                .uncaughtExceptionHandler((t, e) -> logger.warn(e.getMessage(), e)).
+                name("JDA-" + shard + "-" + str, 0).factory());
 
         DefaultShardManagerBuilder builder = DefaultShardManagerBuilder.
                 create(getIntents())
@@ -178,6 +182,7 @@ public class Chuu {
                         .readTimeout(20, TimeUnit.SECONDS)
                         .writeTimeout(30, TimeUnit.SECONDS))
                 .setAutoReconnect(true)
+                .setThreadFactory(Thread.ofVirtual().uncaughtExceptionHandler((t, e) -> logger.warn(e.getMessage(), e)).name("JDA-Main-", 0).factory())
                 .setEventManagerProvider(a -> customManager)
                 .addEventListeners(evalCommand)
                 .setShardsTotal(-1)

@@ -1,7 +1,8 @@
 package core.apis;
 
+import core.util.ChuuVirtualPool;
+
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 public class ExecutorsSingleton {
     private volatile static ExecutorService instance;
@@ -12,7 +13,7 @@ public class ExecutorsSingleton {
 
     public static ExecutorService getInstance() {
         if (instance == null) {
-            instance = Executors.newThreadPerTaskExecutor(Thread.ofVirtual().allowSetThreadLocals(false).inheritInheritableThreadLocals(false).name("Chuu-executor-", 0).factory());
+            instance = ChuuVirtualPool.of("Chuu-executor");
         }
         return instance;
 

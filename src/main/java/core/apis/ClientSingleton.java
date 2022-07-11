@@ -1,8 +1,9 @@
 package core.apis;
 
 
+import core.util.ChuuVirtualPool;
+
 import java.net.http.HttpClient;
-import java.util.concurrent.Executors;
 
 public class ClientSingleton {
 
@@ -21,9 +22,7 @@ public class ClientSingleton {
     private static final class InstanceHolder {
 
         private static final HttpClient instance = HttpClient.newBuilder()
-                .executor(
-
-                        Executors.newThreadPerTaskExecutor(Thread.ofVirtual().allowSetThreadLocals(false).inheritInheritableThreadLocals(false).name("Api-Executor", 0).factory()))
+                .executor(ChuuVirtualPool.of("Api-Executor"))
                 .priority(1) //HTTP/2 priority
                 .version(HttpClient.Version.HTTP_2)
                 .build();

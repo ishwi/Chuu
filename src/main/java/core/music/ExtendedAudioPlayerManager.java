@@ -26,7 +26,9 @@ import com.sedmelluq.discord.lavaplayer.source.http.HttpAudioSourceManager;
 import com.sedmelluq.discord.lavaplayer.source.soundcloud.SoundCloudAudioSourceManager;
 import com.sedmelluq.discord.lavaplayer.source.twitch.TwitchStreamAudioSourceManager;
 import com.sedmelluq.discord.lavaplayer.source.vimeo.VimeoAudioSourceManager;
+import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAccessTokenTracker;
 import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioSourceManager;
+import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeHttpContextFilter;
 import com.sedmelluq.discord.lavaplayer.tools.io.MessageInput;
 import com.sedmelluq.discord.lavaplayer.tools.io.MessageOutput;
 import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
@@ -63,19 +65,20 @@ public class ExtendedAudioPlayerManager extends DefaultAudioPlayerManager {
         configuration.setFrameBufferFactory(NonAllocatingAudioFrameBuffer::new);
         YoutubeAudioSourceManager youtubeAudioSourceManager = YoutubeSearchManagerSingleton.getInstance();
 
+        YoutubeAccessTokenTracker byPasser = new YoutubeAccessTokenTracker(null, null, null);
+        YoutubeHttpContextFilter filter = new YoutubeHttpContextFilter();
+        filter.setTokenTracker(byPasser);
+
         if (Chuu.ipv6Block != null && !Chuu.ipv6Block.isEmpty()) {
             @SuppressWarnings("rawtypes") List<IpBlock> blocks = List.of(new Ipv6Block(Chuu.ipv6Block));
             RotatingNanoIpRoutePlanner planner = new RotatingNanoIpRoutePlanner(blocks);
             new YoutubeIpRotatorSetup(planner)
                     .withRetryLimit(6)
+                    .withMainDelegateFilter(filter)
+                    .withSearchDelegateFilter(filter)
                     .forSource(youtubeAudioSourceManager).setup();
         }
-        Optional<Properties> opt = readYoutubeConfig();
-        if (opt.isPresent()) {
-            Properties props = opt.get();
-            String PSID = props.getProperty("PSID");
-            String PAPISID = props.getProperty("PAPISID");
-        }
+
         registerSourceManagers(
                 new SpotifyAudioSourceManager(youtubeAudioSourceManager),
                 youtubeAudioSourceManager,
