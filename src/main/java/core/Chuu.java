@@ -5,6 +5,7 @@ import com.sedmelluq.discord.lavaplayer.jdaudp.NativeAudioSendFactory;
 import core.apis.discogs.DiscogsSingleton;
 import core.apis.last.LastFMFactory;
 import core.apis.spotify.SpotifySingleton;
+import core.commands.Context;
 import core.commands.CustomInterfacedEventManager;
 import core.commands.abstracts.MyCommand;
 import core.commands.config.HelpCommand;
@@ -37,6 +38,7 @@ import io.github.classgraph.ScanResult;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberRemoveEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.EventListener;
@@ -74,6 +76,7 @@ public class Chuu {
     public static final Character DEFAULT_PREFIX = '!';
     public static final String DEFAULT_LASTFM_ID = "chuubot";
     private static final LongAdder lastFMMetric = new LongAdder();
+    private static final LongAdder cacheMetric = new LongAdder();
     private static final Set<String> privateLastFms = new HashSet<>();
     public static PlayerRegistry playerRegistry;
     public static ExtendedAudioPlayerManager playerManager;
@@ -144,8 +147,12 @@ public class Chuu {
             long l = lastFMMetric.longValue();
             lastFMMetric.reset();
             service.updateMetric(Metrics.LASTFM_PETITIONS, l);
-            logger.info("Made {} petitions in the last 5 minutes", l);
-        }, 5, 5, TimeUnit.MINUTES);
+            logger.info("Made {} lastfm requests in the last 5 minutes", l);
+
+            long c = cacheMetric.longValue();
+            cacheMetric.reset();
+            logger.info("Made {} db requests in the last 5 minutes", c);
+        }, 2, 5, TimeUnit.MINUTES);
 
 
         ratelimited = service.getRateLimited().entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, y -> RateLimiter.create(y.getValue())));
@@ -169,14 +176,24 @@ public class Chuu {
                 create(getIntents())
                 .setChunkingFilter(ChunkingFilter.NONE)
                 .enableCache(CacheFlag.EMOJI, CacheFlag.VOICE_STATE)
-                .disableCache(CacheFlag.ACTIVITY, CacheFlag.CLIENT_STATUS, CacheFlag.ONLINE_STATUS)
+                .disableCache(CacheFlag.ACTIVITY, CacheFlag.CLIENT_STATUS, CacheFlag.ONLINE_STATUS, CacheFlag.MEMBER_OVERRIDES, CacheFlag.STICKER, CacheFlag.ROLE_TAGS)
                 .setAudioSendFactory(new NativeAudioSendFactory()).setBulkDeleteSplittingEnabled(false)
+                .setMemberCachePolicy(member -> {
+                    ShardManager shard = member.getJDA().getShardManager();
+                    if (shard == null || shard.getUserById(member.getIdLong()) == null) {
+                        cacheMetric.increment();
+                        return db.longService().existsUser(member.getIdLong());
+                    }
+                    return true;
+                })
+                .setLargeThreshold(50)
                 .setToken(properties.getProperty("DISCORD_TOKEN"))
                 .setEventPoolProvider(executorBuilder.apply("Event"))
                 .setCallbackPoolProvider(executorBuilder.apply("Callback"))
                 .setAudioPoolProvider(scheduledBuilder.apply("Audio"))
                 .setRateLimitPoolProvider(scheduledBuilder.apply("RateLimiter"))
                 .setGatewayPoolProvider(scheduledBuilder.apply("Gateway"))
+
                 .setHttpClientBuilder(new OkHttpClient.Builder()
                         .dispatcher(new Dispatcher(ChuuVirtualPool.of("OkHttp")))
                         .readTimeout(20, TimeUnit.SECONDS)
@@ -399,5 +416,16 @@ public class Chuu {
         }
     }
 
+    public static void refreshCache(long id, Context e) {
+        ShardManager shard = Chuu.getShardManager();
+        User user = shard.getUserById(id);
+        if (user == null) {
+            if (e.isFromGuild()) {
+                e.getGuild().loadMembers().onSuccess(members -> {
+                });
+            }  //                shard.retrieveUserById(id).queue();
+
+        }
+    }
 
 }

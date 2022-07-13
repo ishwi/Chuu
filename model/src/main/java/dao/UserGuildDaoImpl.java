@@ -1782,6 +1782,19 @@ public class UserGuildDaoImpl implements UserGuildDao {
 
     }
 
+    @Override
+    public boolean existUser(Connection connection, long id) {
+        try (PreparedStatement ps = connection.prepareStatement("select 1 from user where discord_id = ?")) {
+            ps.setLong(1, id);
+            ResultSet rs = ps.executeQuery();
+            return rs.next();
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+
+
+    }
+
     private List<LastFMData> getServerData(Connection con, long guildId, String queryString) {
         List<LastFMData> lastFMData = new ArrayList<>();
         try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {

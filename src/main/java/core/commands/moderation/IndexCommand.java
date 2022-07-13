@@ -1,5 +1,6 @@
 package core.commands.moderation;
 
+import core.Chuu;
 import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
@@ -64,6 +65,9 @@ public class IndexCommand extends ConcurrentCommand<CommandParameters> {
             sendMessageQueue(e, "Didn't have anyone to add");
         } else {
             sendMessageQueue(e, String.format("Successfully added %s %s to this server", toInsert.size(), CommandUtil.singlePlural(toInsert.size(), "member", "members")));
+        }
+        for (Long id : toInsert) {
+            Chuu.refreshCache(id, e);
         }
         if (!notOnServer.isEmpty()) {
             notOnServer.forEach(x -> db.removeUserFromOneGuildConsequent(x, e.getGuild().getIdLong()));

@@ -69,9 +69,9 @@ public class LoginCommand extends ConcurrentCommand<CommandParameters> {
     public void onCommand(Context e, @Nonnull CommandParameters params) throws LastFmException {
         boolean notExisting = false;
         LastFMData lastFMData = null;
-        String tempUser = null;
+        long authorId = e.getAuthor().getIdLong();
         try {
-            lastFMData = db.findLastFMData(e.getAuthor().getIdLong());
+            lastFMData = db.findLastFMData(authorId);
         } catch (InstanceNotFoundException exception) {
             notExisting = true;
         }
@@ -100,75 +100,79 @@ public class LoginCommand extends ConcurrentCommand<CommandParameters> {
             if (e instanceof ContextMessageReceived t) {
                 sendMessage(e, "Sent you a DM with the login details!").queue();
             }
-            ScheduledExecutorService scheduledExecutor = ChuuVirtualPool.ofScheduled("Login");
-            AtomicInteger counter = new AtomicInteger();
-            scheduledExecutor.scheduleWithFixedDelay(() -> {
-                counter.incrementAndGet();
-                if (counter.get() >= 25) {
-                    db.storeSess(null, authToken);
-                    scheduledExecutor.shutdown();
-                    consume.accept(new ChuuEmbedBuilder(e).setTitle("Link expired").setDescription("Try to run the command again if you want to authorize the bot!").setColor(Color.red));
-                }
+            try (ScheduledExecutorService scheduledExecutor = ChuuVirtualPool.ofScheduled("Login")) {
+                AtomicInteger counter = new AtomicInteger();
+                scheduledExecutor.scheduleWithFixedDelay(() -> {
+                    counter.incrementAndGet();
+                    if (counter.get() >= 25) {
+                        db.storeSess(null, authToken);
+                        scheduledExecutor.shutdown();
+                        consume.accept(new ChuuEmbedBuilder(e).setTitle("Link expired").setDescription("Try to run the command again if you want to authorize the bot!").setColor(Color.red));
+                    }
 
-                try {
+                    try {
 
-                    String session = lastFM.findSession(authToken);
-                    String userAccount = lastFM.findUserAccount(session);
+                        String session = lastFM.findSession(authToken);
+                        String userAccount = lastFM.findUserAccount(session);
 
-                    if (!finalNotExisting) {
-                        if (userAccount.equalsIgnoreCase(finalLastFMData.getName())) {
-                            db.storeSess(session, finalLastFMData.getName());
-                            consume.accept(new ChuuEmbedBuilder(e).setColor(Color.green).setTitle(":white_check_mark: Successfully logged in!"));
-                            scheduledExecutor.shutdown();
-                            return;
-                        } else {
-                            consumeStr.accept("You had previously logged in with a different account. Will reset eveything now");
-                            try {
-                                db.changeLastFMName(e.getAuthor().getIdLong(), userAccount);
-                                db.storeSess(session, userAccount);
-                            } catch (DuplicateInstanceException duplicateInstanceException) {
-                                db.removeUserCompletely(e.getAuthor().getIdLong());
-                                db.changeDiscordId(e.getAuthor().getIdLong(), userAccount);
-                                db.storeSess(session, userAccount);
-                            } catch (InstanceNotFoundException duplicateInstanceException) {
-                                Chuu.getLogger().warn("infe shouldnt happen here {}", duplicateInstanceException.getMessage());
-                                consumeStr.accept("Something unusual happpened, try again later :(");
+                        String authorName = e.getAuthor().getName();
+                        if (!finalNotExisting) {
+                            if (userAccount.equalsIgnoreCase(finalLastFMData.getName())) {
+                                db.storeSess(session, finalLastFMData.getName());
+                                consume.accept(new ChuuEmbedBuilder(e).setColor(Color.green).setTitle(":white_check_mark: Successfully logged in!"));
                                 scheduledExecutor.shutdown();
                                 return;
+                            } else {
+                                consumeStr.accept("You had previously logged in with a different account. Will reset eveything now");
+                                try {
+                                    db.changeLastFMName(authorId, userAccount);
+                                    db.storeSess(session, userAccount);
+                                } catch (DuplicateInstanceException duplicateInstanceException) {
+                                    db.removeUserCompletely(authorId);
+                                    db.changeDiscordId(authorId, userAccount);
+                                    db.storeSess(session, userAccount);
+                                } catch (InstanceNotFoundException duplicateInstanceException) {
+                                    Chuu.getLogger().warn("infe shouldnt happen here {}", duplicateInstanceException.getMessage());
+                                    consumeStr.accept("Something unusual happpened, try again later :(");
+                                    scheduledExecutor.shutdown();
+                                    return;
+                                }
+                                setCommand.setProcess(e, userAccount, authorId, LastFMData.ofUser(userAccount), authorName);
+                                scheduledExecutor.shutdown();
+
                             }
-                            setCommand.setProcess(e, userAccount, e.getAuthor().getIdLong(), LastFMData.ofUser(userAccount), e.getAuthor().getName());
-                            scheduledExecutor.shutdown();
-
                         }
-                    }
 
-                    LastFMData newUser = LastFMData.ofUser(userAccount);
-                    if (e.isFromGuild()) {
-                        newUser.setGuildID(e.getGuild().getIdLong());
-                    }
-                    try {
-                        db.getDiscordIdFromLastfm(userAccount);
-                        // Exists
-                        db.removeUserCompletely(e.getAuthor().getIdLong());
-                        db.changeDiscordId(e.getAuthor().getIdLong(), userAccount);
-                        db.storeSess(session, userAccount);
 
-                    } catch (InstanceNotFoundException ex) {
-                        newUser.setDiscordId(e.getAuthor().getIdLong());
-                        db.insertNewUser(newUser);
-                        db.storeSess(session, userAccount);
-                        consume.accept(new ChuuEmbedBuilder(e).setTitle(":white_check_mark: Successfully logged in!").setDescription("Now I will try to index your library").setColor(Color.green));
-                        setCommand.setProcess(e, userAccount, e.getAuthor().getIdLong(), LastFMData.ofUser(userAccount), e.getAuthor().getName());
+                        try {
+                            db.getDiscordIdFromLastfm(userAccount);
+                            // Exists
+                            db.removeUserCompletely(authorId);
+                            db.changeDiscordId(authorId, userAccount);
+                            db.storeSess(session, userAccount);
+
+                        } catch (InstanceNotFoundException ex) {
+                            LastFMData newUser = LastFMData.ofUser(userAccount);
+                            if (e.isFromGuild()) {
+                                newUser.setGuildID(e.getGuild().getIdLong());
+                            }
+                            newUser.setDiscordId(authorId);
+                            db.insertNewUser(newUser);
+                            Chuu.refreshCache(authorId, e);
+                            db.storeSess(session, userAccount);
+                            consume.accept(new ChuuEmbedBuilder(e).setTitle(":white_check_mark: Successfully logged in!").setDescription("Now I will try to index your library").setColor(Color.green));
+                            setCommand.setProcess(e, userAccount, authorId, LastFMData.ofUser(userAccount), authorName);
+                            scheduledExecutor.shutdown();
+                            return;
+                        }
                         scheduledExecutor.shutdown();
-                        return;
+                        consume.accept(new ChuuEmbedBuilder(e).setTitle(":white_check_mark: Successfully logged in!").setColor(Color.green));
+                    } catch (LastFmException instanceNotFoundException) {
+                        instanceNotFoundException.printStackTrace();
                     }
-                    scheduledExecutor.shutdown();
-                    consume.accept(new ChuuEmbedBuilder(e).setTitle(":white_check_mark: Successfully logged in!").setColor(Color.green));
-                } catch (LastFmException instanceNotFoundException) {
-                    instanceNotFoundException.printStackTrace();
-                }
 
-            }, 6, 5, TimeUnit.SECONDS);
+                }, 6, 5, TimeUnit.SECONDS);
+            }
         }, error ->
         {
             if (e instanceof ContextMessageReceived ctmr) {

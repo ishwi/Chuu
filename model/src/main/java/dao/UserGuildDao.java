@@ -190,4 +190,5 @@ interface UserGuildDao {
 
     Set<Long> findExistingById(Connection connection, Collection<Long> discordID);
 
+    boolean existUser(Connection connection, long id);
 }

@@ -152,7 +152,7 @@ public class SetCommand extends ConcurrentCommand<WordParameter> {
         lastFMData.setGuildID(guildID);
 
         db.insertNewUser(lastFMData);
-
+        Chuu.refreshCache(userId, e);
         setProcess(e, lastFmName, userId, lastFMData, e.getAuthor().getName());
 
     }

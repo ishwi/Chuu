@@ -4581,6 +4581,15 @@ public class ChuuService implements EveryNoiseService {
         }
     }
 
+    public boolean existsUser(long id) {
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setReadOnly(true);
+            return userGuildDao.existUser(connection, id);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
     private interface HiddenRunnable<T> {
         T executeInHiddenServer(Connection connection, long guildId) throws SQLException;
     }
