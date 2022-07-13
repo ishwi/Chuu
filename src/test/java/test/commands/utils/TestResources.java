@@ -33,7 +33,7 @@ public class TestResources extends ExternalResource {
     public static ChuuService dao;
     public static JDA testerJDA;
     public static JDA ogJDA;
-    public static TextChannel channelWorker;
+    public static BaseGuildMessageChannel channelWorker;
     public static long channelId;
     public static boolean setUp = false;
     public static long developerId;
@@ -84,7 +84,7 @@ public class TestResources extends ExternalResource {
         // Initialization code goes here
     }
 
-    private void deleteAllMessage(TextChannel channel) {
+    private void deleteAllMessage(BaseGuildMessageChannel channel) {
         List<Message> messages = channel.getHistory().retrievePast(50).complete();
         OffsetDateTime twoWeeksAgo = OffsetDateTime.now().minus(2, ChronoUnit.WEEKS);
 
