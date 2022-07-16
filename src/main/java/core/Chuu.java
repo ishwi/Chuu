@@ -177,12 +177,17 @@ public class Chuu {
                 .disableCache(CacheFlag.ACTIVITY, CacheFlag.CLIENT_STATUS, CacheFlag.ONLINE_STATUS, CacheFlag.MEMBER_OVERRIDES, CacheFlag.STICKER, CacheFlag.ROLE_TAGS)
                 .setAudioSendFactory(new NativeAudioSendFactory()).setBulkDeleteSplittingEnabled(false)
                 .setMemberCachePolicy(member -> {
-                    ShardManager shard = member.getJDA().getShardManager();
-                    if (shard != null && member.getJDA().getUserById(member.getId()) != null && shard.getUserById(member.getIdLong()) != null) {
-                        return true;
+                    try {
+                        ShardManager shard = member.getJDA().getShardManager();
+                        if (shard != null && member.getJDA().getUserById(member.getId()) != null && shard.getUserById(member.getIdLong()) != null) {
+                            return true;
+                        }
+                        cacheMetric.increment();
+                        return monitoringService.existsUser(member.getIdLong());
+                    } catch (Exception e) {
+                        getLogger().info("Timeout on member caching | Member {} | Cache {} ", member.getUser().getAsTag(), member.getGuild().getName(), e);
+                        return false;
                     }
-                    cacheMetric.increment();
-                    return monitoringService.existsUser(member.getIdLong());
                 })
                 .setLargeThreshold(50)
                 .setToken(properties.getProperty("DISCORD_TOKEN"))

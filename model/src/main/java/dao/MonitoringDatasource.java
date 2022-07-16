@@ -19,10 +19,12 @@ public final class MonitoringDatasource implements CommonDatasource {
 
         HikariConfig config = new HikariConfig(CONFIG);
         config.setTransactionIsolation("TRANSACTION_READ_UNCOMMITTED");
-        config.setMaximumPoolSize(4);
+        config.setMaximumPoolSize(8);
         config.setMinimumIdle(4);
-        config.setIdleTimeout(0);
+        config.setIdleTimeout(30000);
         config.setConnectionTimeout(250);
+        config.setThreadFactory(Thread.ofVirtual().name("Montoring-Chuu", 0)
+                .uncaughtExceptionHandler((t, e) -> log.warn(e.getMessage(), e)).factory());
         config.setAutoCommit(false);
         config.setReadOnly(true);
         config.setDriverClassName("org.mariadb.jdbc.Driver");
