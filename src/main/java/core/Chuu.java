@@ -26,10 +26,7 @@ import core.services.*;
 import core.services.validators.AlbumFinder;
 import core.util.ChuuVirtualPool;
 import core.util.botlists.BotListPoster;
-import dao.ChuuDatasource;
-import dao.ChuuService;
-import dao.LongExecutorChuuDatasource;
-import dao.ServiceView;
+import dao.*;
 import dao.entities.Callback;
 import dao.entities.Metrics;
 import dao.exceptions.ChuuServiceException;
@@ -98,6 +95,7 @@ public class Chuu {
     private static ScrobbleEventManager scrobbleEventManager;
     private static ScrobbleProcesser scrobbleProcesser;
     private static ScheduledService scheduledService;
+    private static ChuuService monitoringService;
 
     public static String getLastFmId(String lastfmId) {
         if (privateLastFms.contains(lastfmId)) {
@@ -163,7 +161,7 @@ public class Chuu {
 
         customManager = new CustomInterfacedEventManager(0);
         EvalCommand evalCommand = new EvalCommand(db);
-
+        monitoringService = new ChuuService(new MonitoringDatasource());
         AtomicInteger counter = new AtomicInteger(0);
         Function<String, ThreadPoolProvider<ScheduledExecutorService>> scheduledBuilder = (str) -> (shard) -> Executors.newScheduledThreadPool(1, Thread.ofVirtual()
                 .uncaughtExceptionHandler((t, e) -> logger.warn(e.getMessage(), e))
@@ -180,19 +178,19 @@ public class Chuu {
                 .setAudioSendFactory(new NativeAudioSendFactory()).setBulkDeleteSplittingEnabled(false)
                 .setMemberCachePolicy(member -> {
                     ShardManager shard = member.getJDA().getShardManager();
-                    if (shard == null || shard.getUserById(member.getIdLong()) == null) {
-                        cacheMetric.increment();
-                        return db.longService().existsUser(member.getIdLong());
+                    if (shard != null && member.getJDA().getUserById(member.getId()) != null && shard.getUserById(member.getIdLong()) != null) {
+                        return true;
                     }
-                    return true;
+                    cacheMetric.increment();
+                    return monitoringService.existsUser(member.getIdLong());
                 })
                 .setLargeThreshold(50)
                 .setToken(properties.getProperty("DISCORD_TOKEN"))
                 .setEventPoolProvider(executorBuilder.apply("Event"))
-                .setCallbackPoolProvider(executorBuilder.apply("Callback"))
+//                .setCallbackPoolProvider(executorBuilder.apply("Callback"))
                 .setAudioPoolProvider(scheduledBuilder.apply("Audio"))
                 .setRateLimitPoolProvider(scheduledBuilder.apply("RateLimiter"))
-                .setGatewayPoolProvider(scheduledBuilder.apply("Gateway"))
+//                .setGatewayPoolProvider(scheduledBuilder.apply("Gateway"))
 
                 .setHttpClientBuilder(new OkHttpClient.Builder()
                         .dispatcher(new Dispatcher(ChuuVirtualPool.of("OkHttp")))

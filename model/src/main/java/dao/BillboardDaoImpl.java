@@ -2,6 +2,7 @@ package dao;
 
 import dao.entities.*;
 import dao.exceptions.ChuuServiceException;
+import dao.utils.SQLUtils;
 import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
@@ -420,29 +421,17 @@ public class BillboardDaoImpl implements BillboardDao {
     @Override
     public void insertUserData(Connection connection, List<TrackWithArtistId> trackList, String lastfmId, int weekId) {
 
-        StringBuilder mySql =
-                new StringBuilder("INSERT ignore INTO  user_billboard_data_scrobbles" +
-                        "                  (week_id,artist_id,track_name,lastfm_id,album_name,timestamp) VALUES (?,?,?,?,?,?) ");
-
-        mySql.append(", (?,?,?,?,?,?)".repeat(Math.max(0, trackList.size() - 1)));
-
-        try {
-            PreparedStatement preparedStatement = connection.prepareStatement(mySql.toString());
-            for (int i = 0; i < trackList.size(); i++) {
-                TrackWithArtistId trackWithArtistId = trackList.get(i);
-                preparedStatement.setLong(6 * i + 1, weekId);
-
-                preparedStatement.setLong(6 * i + 2, trackWithArtistId.getArtistId());
-                preparedStatement.setString(6 * i + 3, trackWithArtistId.getName());
-                preparedStatement.setString(6 * i + 4, lastfmId);
-                String album = trackWithArtistId.getAlbum();
-                preparedStatement.setString(6 * i + 5, album.isBlank() ? null : album);
-                preparedStatement.setTimestamp(6 * i + 6, Timestamp.from(Instant.ofEpochSecond(trackWithArtistId.getUtc())));
-            }
-            preparedStatement.execute();
-        } catch (SQLException e) {
-            throw new ChuuServiceException(e);
-        }
+        SQLUtils.doBatches(connection, "INSERT ignore INTO user_billboard_data_scrobbles (week_id,artist_id,track_name,lastfm_id,album_name,timestamp) VALUES ",
+                trackList, (ps, t, i) -> {
+                    int base = 6 * i;
+                    ps.setLong(base + 1, weekId);
+                    ps.setLong(base + 2, t.getArtistId());
+                    ps.setString(base + 3, t.getName());
+                    ps.setString(base + 4, lastfmId);
+                    String album = t.getAlbum();
+                    ps.setString(base + 5, album.isBlank() ? null : album);
+                    ps.setTimestamp(base + 6, Timestamp.from(Instant.ofEpochSecond(t.getUtc())));
+                }, 6);
 
     }
 

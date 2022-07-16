@@ -108,7 +108,7 @@ public class EvalCommand extends ConcurrentCommand<CommandParameters> {
         try {
             JavaEvaluator javaEvaluator = new JavaEvaluator();
             CompilationResult r = javaEvaluator.compile()
-                    .addCompilerOptions("-Xlint:unchecked", "--target=17", "--enable-preview", "--source=17")
+                    .addCompilerOptions("-Xlint:unchecked", "--target=19", "--enable-preview", "--source=19")
                     .source("Eval", source
                     )
                     .execute();

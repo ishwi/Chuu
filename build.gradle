@@ -1,3 +1,9 @@
+buildscript {
+    dependencies {
+        classpath 'org.ow2.asm:asm:9.3'
+    }
+}
+
 plugins {
     id 'java'
     id 'application'
@@ -5,6 +11,7 @@ plugins {
     id 'info.solidsoft.pitest' version '1.6.0'
     id 'se.patrikerdes.use-latest-versions' version '0.2.18'
     id 'com.github.ben-manes.versions' version '0.41.0'
+
 }
 
 repositories {
@@ -52,7 +59,6 @@ shadowJar {
 }
 
 dependencies {
-// https://mvnrepository.com/artifact/org.knowm.xchart/xchart
     implementation project(':model')
     implementation group: 'org.knowm.xchart', name: 'xchart', version: '3.8.1'
 
