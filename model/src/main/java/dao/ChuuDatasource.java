@@ -21,8 +21,9 @@ public final class ChuuDatasource implements CommonDatasource {
 
         HikariConfig config = new HikariConfig(CONFIG);
         config.setTransactionIsolation("TRANSACTION_READ_UNCOMMITTED");
-        config.setMaximumPoolSize(20);
+        config.setMaximumPoolSize(18);
         config.setMinimumIdle(2);
+        config.setConnectionTimeout(10000);
         config.setThreadFactory(Thread.ofVirtual().uncaughtExceptionHandler((t, e) -> log.warn(e.getMessage(), e)).name("Short-Chuu-", 0).factory());
         config.setPoolName("Normal-pool-Chuu");
         config.setDriverClassName("org.mariadb.jdbc.Driver");
