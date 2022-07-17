@@ -69,6 +69,8 @@ dependencies {
 
 
     implementation 'com.github.walkyst.lavaplayer-fork:lavaplayer:1.3.98.1'
+// https://mvnrepository.com/artifact/net.sf.trove4j/trove4j
+    implementation 'net.sf.trove4j:trove4j:3.0.3'
 
     // Audio
     implementation 'com.github.natanbc:lavadsp:0.7.7'

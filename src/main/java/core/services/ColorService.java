@@ -3,37 +3,37 @@ package core.services;
 import core.Chuu;
 import core.commands.Context;
 import core.commands.utils.CommandUtil;
+import core.util.TroveIniter;
 import dao.ChuuService;
 import dao.entities.EmbedColor;
+import gnu.trove.map.hash.TLongObjectHashMap;
+import gnu.trove.set.hash.TLongHashSet;
 import net.dv8tion.jda.api.entities.Role;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.awt.*;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 
 public class ColorService {
 
-    private static Map<Long, EmbedColor.EmbedColorType> guildColorTypes;
-    private static Map<Long, EmbedColor.EmbedColorType> userColorTypes;
-    private static Map<Long, Color[]> usersByColor;
-    private static Map<Long, Color[]> guildByColors;
-    private static Set<Long> hasEmptyGuild;
+    private static TLongObjectHashMap<EmbedColor.EmbedColorType> guildColorTypes;
+    private static TLongObjectHashMap<EmbedColor.EmbedColorType> userColorTypes;
+    private static TLongObjectHashMap<Color[]> usersByColor;
+    private static TLongObjectHashMap<Color[]> guildByColors;
+    private static TLongHashSet hasEmptyGuild;
 
     public static void init(ChuuService chuuService) {
-        guildByColors = chuuService.getServerWithPalette();
-        usersByColor = chuuService.getUsersWithPalette();
-        guildColorTypes = chuuService.getServerColorTypes();
-        userColorTypes = chuuService.getUserColorTypes();
-        hasEmptyGuild = chuuService.getGuildsWithEmptyColorOverride();
+        guildByColors = TroveIniter.init(chuuService.getServerWithPalette());
+        usersByColor = TroveIniter.init(chuuService.getUsersWithPalette());
+        guildColorTypes = TroveIniter.init(chuuService.getServerColorTypes());
+        userColorTypes = TroveIniter.init(chuuService.getUserColorTypes());
+        hasEmptyGuild = new TLongHashSet(chuuService.getGuildsWithEmptyColorOverride());
     }
 
     public static @Nonnull
     Color computeColor(Context event) {
-        long idLong;
         if (event.isFromGuild()) {
             EmbedColor.EmbedColorType colorType = guildColorTypes.get(event.getGuild().getIdLong());
             if (colorType == null) {
@@ -72,7 +72,7 @@ public class ColorService {
     }
 
     @Nullable
-    private static Color getColor(Context e, EmbedColor.EmbedColorType colorType, Map<Long, Color[]> map, long key) {
+    private static Color getColor(Context e, EmbedColor.EmbedColorType colorType, TLongObjectHashMap<Color[]> map, long key) {
         return switch (colorType) {
             case RANDOM -> CommandUtil.pastelColor();
 
@@ -105,7 +105,7 @@ public class ColorService {
         handleLists(userId, newEmbedColor, userColorTypes, usersByColor);
     }
 
-    private static void handleLists(long id, @Nullable EmbedColor newEmbedColor, Map<Long, EmbedColor.EmbedColorType> typeMap, Map<Long, Color[]> colorMap) {
+    private static void handleLists(long id, @Nullable EmbedColor newEmbedColor, TLongObjectHashMap<EmbedColor.EmbedColorType> typeMap, TLongObjectHashMap<Color[]> colorMap) {
         if (newEmbedColor == null) {
             typeMap.remove(id);
             colorMap.remove(id);

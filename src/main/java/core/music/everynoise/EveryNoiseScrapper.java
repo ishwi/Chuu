@@ -1,6 +1,7 @@
 package core.music.everynoise;
 
 import core.apis.lyrics.TextSplitter;
+import core.util.VirtualParallel;
 import dao.everynoise.NoiseGenre;
 import dao.everynoise.ReleaseWithGenres;
 import org.jsoup.Jsoup;
@@ -27,8 +28,9 @@ public class EveryNoiseScrapper {
     private final static int length_album = "spotify:album:".length();
 
     public static Stream<? extends Item> albumToItem(Document genrePage) {
-        return genrePage.select(".genrename")
-                .parallelStream().flatMap(z -> {
+        List<Element> items = genrePage.select(".genrename").stream().toList();
+        return VirtualParallel.runIO(items,
+                z -> {
                     String genre = z.child(0).html();
                     return z.nextElementSibling().select(".albumbox").stream().map(album -> {
                         Element b = album.selectFirst("b");
@@ -38,23 +40,22 @@ public class EveryNoiseScrapper {
                         String href = i.parent().attr("href").substring(14);
                         return new Item(artist, release, href, genre);
                     });
-                });
+                }).stream().flatMap(itemStream -> itemStream);
     }
 
     public List<NoiseGenre> scrapeGenres() throws IOException {
         Document doc = Jsoup.connect(GENRE_PLAYLIST).maxBodySize(0).get();
-        return doc.select("tr[valign=top]").parallelStream().map(z -> {
+        return VirtualParallel.runIO(doc.select("tr[valign=top]").stream().toList(), z -> {
             Element linkElement = z.child(1);
             Element nameElement = z.child(2);
             String href = linkElement.child(0).attr("href").substring(length);
             String genreName = nameElement.child(0).html();
             return new NoiseGenre(genreName, href);
-        }).toList();
-
+        }).stream().toList();
     }
 
     public List<ReleaseWithGenres> scrape(List<String> genres, LocalDate week) throws UncheckedIOException {
-        String collect = genres.parallelStream().map(z -> URLEncoder.encode(z, StandardCharsets.UTF_8)).collect(Collectors.joining("%2C"));
+        String collect = genres.stream().map(z -> URLEncoder.encode(z, StandardCharsets.UTF_8)).collect(Collectors.joining("%2C"));
         List<String> pages = TextSplitter.split(collect, URL_LENGTH, "%2C");
 
         return pages.stream().map(page -> {

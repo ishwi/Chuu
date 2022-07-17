@@ -267,7 +267,6 @@ public class FriendsCommand extends ParentCommmand<FriendsActions> {
 
         boolean showFresh = !chuuDataParams.hasOptional("recent");
         List<String> recent = PlayingCommand.obtainNps(lastFM, e, showFresh, users);
-
         if (recent.isEmpty()) {
             sendMessageQueue(e, "No one is playing anything on your friend list!");
             return;

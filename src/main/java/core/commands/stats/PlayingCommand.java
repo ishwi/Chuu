@@ -14,6 +14,7 @@ import core.parsers.NoOpParser;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
 import core.parsers.utils.OptionalEntity;
+import core.util.VirtualParallel;
 import dao.ServiceView;
 import dao.entities.LastFMData;
 import dao.entities.NowPlayingArtist;
@@ -24,6 +25,7 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 public class PlayingCommand extends ConcurrentCommand<CommandParameters> {
@@ -49,6 +51,56 @@ public class PlayingCommand extends ConcurrentCommand<CommandParameters> {
                 });
     }
 
+    public static List<String> obtainNps(ConcurrentLastFM lastFM, Context e, boolean showFresh, List<LastFMData> users) {
+        int size = users.size();
+        AtomicInteger counter = new AtomicInteger();
+        List<SortPair> items = new ArrayList<>(VirtualParallel.runIO(users, u -> {
+                    if (size > 20) {
+                        int i = CommandUtil.rand.nextInt(((size / 100) + 1) * counter.incrementAndGet() * 4);
+                        Thread.sleep(i);
+                    }
+                    NowPlayingArtist np = lastFM.getNowPlayingInfo(u);
+                    if ((showFresh && !np.current())) {
+                        return null;
+                    }
+                    String username = CommandUtil.getUserInfoEscaped(e, u.getDiscordId()).username();
+                    String started = !showFresh && np.current() ? "#" : "+";
+                    return new SortPair("%s [%s](%s): %s".formatted(started, username, CommandUtil.getLastFmUser(u.getName()),
+                            CommandUtil.escapeMarkdown("%s - %s | %s\n".formatted(np.artistName(), np.songName(), np.albumName()))), np);
+                }
+        ));
+        Map<String, List<SortPair>> collect = items.stream().collect(Collectors.groupingBy(sortPair -> sortPair.artist().artistName().toLowerCase(Locale.ROOT), LinkedHashMap::new, Collectors.toList()));
+        Comparator<SortPair> comparator = (a, b) -> String.CASE_INSENSITIVE_ORDER.compare(a.artist.songName(), b.artist.songName());
+        Comparator<SortPair> c = comparator.thenComparing(Comparator.nullsLast(Comparator.comparing(a -> a.artist.albumName(), String.CASE_INSENSITIVE_ORDER)))
+                .thenComparing(Comparator.nullsLast(Comparator.comparing(a -> a.artist.songName(), String.CASE_INSENSITIVE_ORDER)));
+
+        for (var artistGroup : collect.entrySet()) {
+            List<SortPair> artist = artistGroup.getValue();
+            artist.sort(c);
+            if (artist.size() > 1) {
+                artist.add(new SortPair("\n", null));
+            }
+        }
+        List<Map.Entry<String, List<SortPair>>> entries = new ArrayList<>(collect.entrySet());
+        return entries.stream().sorted(Comparator.comparingInt(entry -> -entry.getValue().size())).flatMap(w -> w.getValue().stream()).map(w -> w.output).toList();
+    }
+
+    public static void format(Context e, LocalDateTime cooldown, String s) {
+        LocalDateTime now = LocalDateTime.now();
+        long hours = now.until(cooldown, ChronoUnit.HOURS);
+        now = now.plus(hours, ChronoUnit.HOURS);
+        long minutes = now.until(cooldown, ChronoUnit.MINUTES);
+        String hstr = hours <= 0 ? "" : "%d %s and ".formatted(hours, CommandUtil.singlePlural(hours, "hour", "hours"));
+        String mStr;
+        if (minutes <= 0 && hours <= 0) {
+            long seconds = now.until(cooldown, ChronoUnit.SECONDS);
+            mStr = "%d %s".formatted(seconds, CommandUtil.singlePlural(seconds, "second", "seconds"));
+        } else {
+            mStr = "%d %s".formatted(minutes, CommandUtil.singlePlural(minutes, "minute", "minutes"));
+        }
+        e.sendMessage("%s (usable in %s%s)".formatted(s, hstr, mStr)).queue();
+    }
+
     @Override
     protected CommandCategory initCategory() {
         return CommandCategory.NOW_PLAYING;
@@ -59,7 +111,6 @@ public class PlayingCommand extends ConcurrentCommand<CommandParameters> {
         return new NoOpParser(new OptionalEntity("recent", "show last song from ALL users"));
     }
 
-
     @Override
     public String getDescription() {
         return ("Returns lists of all people that are playing music right now");
@@ -68,36 +119,6 @@ public class PlayingCommand extends ConcurrentCommand<CommandParameters> {
     @Override
     public List<String> getAliases() {
         return Arrays.asList("playing", "servernp");
-    }
-
-    public static List<String> obtainNps(ConcurrentLastFM lastFM, Context e, boolean showFresh, List<LastFMData> users) {
-        return users.parallelStream().map(u ->
-        {
-            Optional<NowPlayingArtist> opt;
-            try {
-                opt = Optional.of(lastFM.getNowPlayingInfo(u));
-            } catch (Exception ex) {
-                opt = Optional.empty();
-            }
-            return Map.entry(u, opt);
-        }).filter(x -> {
-            Optional<NowPlayingArtist> value = x.getValue();
-            return value.isPresent() && !(showFresh && !value.get().current());
-        }).map(x -> {
-                    LastFMData usersWrapper = x.getKey();
-                    assert x.getValue().isPresent();
-                    NowPlayingArtist value = x.getValue().get(); //Checked previous filter
-                    String username = CommandUtil.getUserInfoEscaped(e, usersWrapper.getDiscordId()).username();
-                    String started = !showFresh && value.current() ? "#" : "+";
-                    return started + " [" +
-                            username + "](" +
-                            CommandUtil.getLastFmUser(usersWrapper.getName()) +
-                            "): " +
-                            CommandUtil.escapeMarkdown(value.artistName() +
-                                    " - " + value.songName() +
-                                    " | " + value.albumName() + "\n");
-                }
-        ).collect(Collectors.toCollection(ArrayList::new));
     }
 
     @Override
@@ -129,7 +150,6 @@ public class PlayingCommand extends ConcurrentCommand<CommandParameters> {
                                 + CommandUtil.escapeMarkdown(e.getGuild().getName()));
 
         List<String> result = obtainNps(lastFM, e, showFresh, users);
-        Collections.shuffle(result, CommandUtil.rand);
         if (result.isEmpty()) {
             sendMessageQueue(e, "No one is listening to music at the moment UwU");
             return;
@@ -149,25 +169,15 @@ public class PlayingCommand extends ConcurrentCommand<CommandParameters> {
 
     }
 
-    public static void format(Context e, LocalDateTime cooldown, String s) {
-        LocalDateTime now = LocalDateTime.now();
-        long hours = now.until(cooldown, ChronoUnit.HOURS);
-        now = now.plus(hours, ChronoUnit.HOURS);
-        long minutes = now.until(cooldown, ChronoUnit.MINUTES);
-        String hstr = hours <= 0 ? "" : "%d %s and ".formatted(hours, CommandUtil.singlePlural(hours, "hour", "hours"));
-        String mStr;
-        if (minutes <= 0 && hours <= 0) {
-            long seconds = now.until(cooldown, ChronoUnit.SECONDS);
-            mStr = "%d %s".formatted(seconds, CommandUtil.singlePlural(seconds, "second", "seconds"));
-        } else {
-            mStr = "%d %s".formatted(minutes, CommandUtil.singlePlural(minutes, "minute", "minutes"));
-        }
-        e.sendMessage("%s (usable in %s%s)".formatted(s, hstr, mStr)).queue();
-    }
-
     @Override
     public String getName() {
         return "Playing";
+    }
+
+    private record ApiPair(LastFMData user, Optional<NowPlayingArtist> artist) {
+    }
+
+    private record SortPair(String output, NowPlayingArtist artist) {
     }
 
 

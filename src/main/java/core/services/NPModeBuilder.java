@@ -92,7 +92,7 @@ public class NPModeBuilder {
                     NPMode.SCROBBLE_COUNT
             );
 
-            Map<NPMode, Integer> temp = new HashMap<>();
+            Map<NPMode, Integer> temp = new EnumMap<>(NPMode.class);
             for (int i = 0; i < tags.size(); i++) {
                 NPMode npMode = tags.get(i);
                 temp.put(npMode, i);

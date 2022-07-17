@@ -24,7 +24,6 @@ import dao.exceptions.InstanceNotFoundException;
 import dao.musicbrainz.MusicBrainzService;
 import dao.musicbrainz.MusicBrainzServiceSingleton;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.Message;
 import org.apache.commons.io.FileUtils;
 
 import javax.annotation.Nonnull;
@@ -32,7 +31,6 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
 
 import static core.parsers.ExtraParser.LIMIT_ERROR;
 
@@ -84,6 +82,11 @@ public class ServerCountryCommand extends ConcurrentCommand<NumberParameters<Com
     }
 
     @Override
+    public String slashName() {
+        return "countries";
+    }
+
+    @Override
     public String getName() {
         return "Server Countries";
     }
@@ -93,8 +96,6 @@ public class ServerCountryCommand extends ConcurrentCommand<NumberParameters<Com
 
 
         Long palette = params.getExtraParam();
-        CompletableFuture<Message> future = null;
-        List<ArtistInfo> topArtists;
         String name = e.getGuild().getName();
         RemainingImagesMode mode;
 

@@ -35,21 +35,27 @@ public interface IPieable<T, Y extends CommandParameters> {
 
         Color better = randomPalette.getAnnotationColour();
         PieStyler styler = pieChart.getStyler();
-        styler.setLegendVisible(false);
+
         styler.setLabelsDistance(1.15);
-        styler.setPlotContentSize(0.80);
-        styler.setCircular(true);
-        styler.setLabelType(PieStyler.LabelType.NameAndPercentage);
-        styler.setForceAllLabelsVisible(true);
-        styler.setClockwiseDirectionType(CommandUtil.rand.nextBoolean() ? PieStyler.ClockwiseDirectionType.CLOCKWISE : PieStyler.ClockwiseDirectionType.COUNTER_CLOCKWISE);
-        styler.setStartAngleInDegrees(90);
-        styler.setChartFontColor(better);
-        styler.setPlotBackgroundColor(randomPalette.getBesselColour());
-        styler.setLabelsFontColor(better);
-        styler.setPlotBorderVisible(false);
-        styler.setStartAngleInDegrees(CommandUtil.rand.nextInt(360));
-        styler.setChartTitleBoxBackgroundColor(randomPalette.getTitleColour());
-        styler.setChartBackgroundColor(randomPalette.getBackGroundColor());
+
+        styler.setCircular(true)
+                .setLabelType(PieStyler.LabelType.NameAndPercentage)
+                .setLabelsFontColorAutomaticEnabled(false)
+                .setLabelsFontColor(better)
+                .setForceAllLabelsVisible(true)
+                .setClockwiseDirectionType(CommandUtil.rand.nextBoolean() ? PieStyler.ClockwiseDirectionType.CLOCKWISE : PieStyler.ClockwiseDirectionType.COUNTER_CLOCKWISE)
+                .setStartAngleInDegrees(90)
+                .setStartAngleInDegrees(CommandUtil.rand.nextInt(360));
+
+
+        styler.setLegendVisible(false)
+                .setPlotContentSize(0.80)
+                .setChartFontColor(better)
+                .setPlotBackgroundColor(randomPalette.getBackGroundColor())
+                .setPlotBorderVisible(false)
+                .setChartTitleBoxBackgroundColor(randomPalette.getTitleColour())
+                .setChartBackgroundColor(randomPalette.getBesselColour());
+
         Color[] series = randomPalette.setPieSeriesColour();
         randomPalette.configChart(pieChart);
         if (series != null) {

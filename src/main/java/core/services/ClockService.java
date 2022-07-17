@@ -4,6 +4,7 @@ import core.Chuu;
 import core.imagerenderer.CircleRenderer;
 import core.imagerenderer.GraphicUtils;
 import core.imagerenderer.stealing.jiff.GifSequenceWriter;
+import core.util.VirtualParallel;
 import dao.entities.PreBillboardUserDataTimestamped;
 import dao.exceptions.ChuuServiceException;
 
@@ -47,8 +48,9 @@ public class ClockService {
                         case BY_WEEK -> byWeek(x);
                         case BY_DAY -> byDay(x);
                     }, HashMap::new, Collectors.toList()));
-            List<BufferedImage> images = dayToData.entrySet().parallelStream().sorted(Map.Entry.comparingByKey()).map(
-                    t -> {
+
+            List<BufferedImage> images = VirtualParallel.runIO(dayToData.entrySet().stream().sorted(Map.Entry.comparingByKey()).toList(),
+                    (Map.Entry<Integer, List<PreBillboardUserDataTimestamped>> t) -> {
                         Integer key = t.getKey();
                         List<PreBillboardUserDataTimestamped> value = t.getValue();
 
@@ -70,7 +72,7 @@ public class ClockService {
                             throw new RuntimeException(e);
                         }
                     }
-            ).toList();
+            );
             GifSequenceWriter.saveGif(output, images, 0, 300);
 
 

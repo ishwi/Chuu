@@ -2,6 +2,7 @@ package dao.entities;
 
 import java.awt.*;
 import java.util.Arrays;
+import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -44,7 +45,9 @@ public enum GayType {
                             Color.decode("#A4A4A4"),
                             Color.decode("#FFFFFF"),
                             Color.decode("#810081"));
-                }));
+                },
+                (a, b) -> a,
+                () -> new EnumMap<>(GayType.class)));
     }
 
     private final int columns;

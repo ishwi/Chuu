@@ -1082,11 +1082,8 @@ public class ChuuService implements EveryNoiseService {
         }
     }
 
-    public void addGuildPrefix(Map<Long, Character> prefixMap, long guildID, Character prefix) {
+    public void addGuildPrefix(long guildID, char prefix) {
         try (Connection connection = dataSource.getConnection()) {
-            if (prefixMap.containsKey(guildID)) {
-                userGuildDao.createGuild(connection, guildID);
-            }
             updaterDao.upsertGuildPrefix(connection, guildID, prefix);
         } catch (SQLException e) {
             throw new ChuuServiceException(e);

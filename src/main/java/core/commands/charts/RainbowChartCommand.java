@@ -14,6 +14,7 @@ import core.imagerenderer.GraphicUtils;
 import core.parsers.ChartableParser;
 import core.parsers.RainbowParser;
 import core.parsers.params.RainbowParams;
+import core.util.VirtualParallel;
 import dao.ServiceView;
 import dao.entities.CountWrapper;
 import dao.entities.DiscordUserDisplay;
@@ -115,28 +116,39 @@ public class RainbowChartCommand extends OnlyChartCommand<RainbowParams> {
         List<UrlCapsule> temp = new ArrayList<>();
         queue.drainTo(temp);
         AtomicInteger coutner = new AtomicInteger(0);
-        temp = temp.stream().filter(z -> !z.getUrl().isBlank()).takeWhile(z -> coutner.incrementAndGet() <= param.getX() * param.getY()).toList();
+        List<UrlCapsule> toProcess = temp.stream().filter(z -> !z.getUrl().isBlank()).takeWhile(z -> coutner.incrementAndGet() <= param.getX() * param.getY()).toList();
         int rows = param.getX();
         int cols = param.getY();
-        if (temp.size() < rows * cols) {
-            rows = (int) Math.floor(Math.sqrt(temp.size()));
+        if (toProcess.size() < rows * cols) {
+            rows = (int) Math.floor(Math.sqrt(toProcess.size()));
             cols = rows;
             param.setX(rows);
             param.setY(cols);
 
-
         }
-        List<PreComputedChartEntity> preComputedItems = temp.parallelStream().map(z -> {
-
+        long maxSize = (long) rows * cols;
+        List<PreComputedChartEntity> preComputedItems = VirtualParallel.runIO(toProcess, maxSize, (UrlCapsule z) -> {
             String cover = Chuu.getCoverService().getCover(z.getArtistName(), z.getAlbumName(), z.getUrl(), param.getE());
             z.setUrl(cover);
             BufferedImage image = GraphicUtils.getImage(cover);
+            if (image == null) {
+                return null;
+            }
             if (param.isColor()) {
                 return new PreComputedByColor(z, image, inverted);
             } else {
                 return new PreComputedByBrightness(z, image, inverted);
             }
-        }).sorted().limit((long) rows * cols).toList();
+        }).stream().sorted().toList();
+        if (preComputedItems.size() < maxSize) {
+            rows = (int) Math.floor(Math.sqrt(preComputedItems.size()));
+            cols = rows;
+            param.setX(rows);
+            param.setY(cols);
+        }
+        if (rows == 0 || cols == 0) {
+            sendMessageQueue(param.getE(), "Couldn't get enough covers for the rainbow :(");
+        }
         if (isColumn) {
             int counter = 0;
             for (int i = 0; i < rows; i++) {

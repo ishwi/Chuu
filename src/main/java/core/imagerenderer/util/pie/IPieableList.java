@@ -30,7 +30,7 @@ public interface IPieableList<T, Y extends CommandParameters> extends IPieable<L
             }
             entries.put(newTitles, valueMapping.applyAsInt(x));
         });
-        int sum = data.stream().skip(12).parallel().mapToInt(valueMapping).sum();
+        int sum = data.stream().skip(12).mapToInt(valueMapping).sum();
         others.put("Others​", sum);
         return parted;
     }

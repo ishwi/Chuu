@@ -158,7 +158,7 @@ public class LoginCommand extends ConcurrentCommand<CommandParameters> {
                             }
                             newUser.setDiscordId(authorId);
                             db.insertNewUser(newUser);
-                            Chuu.refreshCache(authorId, e);
+                            Chuu.refreshCache(authorId);
                             db.storeSess(session, userAccount);
                             consume.accept(new ChuuEmbedBuilder(e).setTitle(":white_check_mark: Successfully logged in!").setDescription("Now I will try to index your library").setColor(Color.green));
                             setCommand.setProcess(e, userAccount, authorId, LastFMData.ofUser(userAccount), authorName);

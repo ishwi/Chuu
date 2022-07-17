@@ -5,7 +5,6 @@ import com.sedmelluq.discord.lavaplayer.jdaudp.NativeAudioSendFactory;
 import core.apis.discogs.DiscogsSingleton;
 import core.apis.last.LastFMFactory;
 import core.apis.spotify.SpotifySingleton;
-import core.commands.Context;
 import core.commands.CustomInterfacedEventManager;
 import core.commands.abstracts.MyCommand;
 import core.commands.config.HelpCommand;
@@ -29,13 +28,15 @@ import core.util.botlists.BotListPoster;
 import dao.*;
 import dao.entities.Callback;
 import dao.entities.Metrics;
+import dao.entities.UsersWrapper;
 import dao.exceptions.ChuuServiceException;
+import gnu.trove.set.TLongSet;
+import gnu.trove.set.hash.TLongHashSet;
 import io.github.classgraph.ClassGraph;
 import io.github.classgraph.ScanResult;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberRemoveEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.EventListener;
@@ -75,6 +76,9 @@ public class Chuu {
     private static final LongAdder lastFMMetric = new LongAdder();
     private static final LongAdder cacheMetric = new LongAdder();
     private static final Set<String> privateLastFms = new HashSet<>();
+    private static final TLongSet knownIds = new TLongHashSet();
+
+
     public static PlayerRegistry playerRegistry;
     public static ExtendedAudioPlayerManager playerManager;
     public static String chuuSess;
@@ -84,7 +88,6 @@ public class Chuu {
     public static PrefixService prefixService;
     public static CustomInterfacedEventManager customManager;
     public static boolean doTyping = true;
-    private static String[] args;
     private static ShardManager shardManager;
     private static Logger logger;
     private static Map<Long, RateLimiter> ratelimited;
@@ -127,8 +130,10 @@ public class Chuu {
         db = new ServiceView(new ChuuService(new ChuuDatasource()), new ChuuService(new LongExecutorChuuDatasource()));
         ChuuService service = db.normalService();
         prefixService = new PrefixService(service);
+
         ColorService.init(service);
         coverService = new CoverService(service);
+
         DiscogsSingleton.init(properties.getProperty("DC_SC"), properties.getProperty("DC_KY"));
         SpotifySingleton.init(properties.getProperty("client_ID"), properties.getProperty("client_Secret"));
         scrobbleEventManager = new ScrobbleEventManager(new StatusProcesser(service));
@@ -136,6 +141,8 @@ public class Chuu {
         playerManager = new ExtendedAudioPlayerManager(scrobbleEventManager, scrobbleProcesser);
         playerRegistry = new PlayerRegistry(playerManager);
         scheduledService = new ScheduledService(ChuuVirtualPool.ofScheduled("Scheduler-runner"), db.normalService());
+        List<Long> ids = db.longService().getAllALL().stream().map(UsersWrapper::getDiscordID).toList();
+        knownIds.addAll(ids);
         if (!notMain) {
             // Only on main instance
             scheduledService.setScheduled();
@@ -182,17 +189,25 @@ public class Chuu {
                         if (shard != null && member.getJDA().getUserById(member.getId()) != null && shard.getUserById(member.getIdLong()) != null) {
                             return true;
                         }
-                        cacheMetric.increment();
-                        return monitoringService.existsUser(member.getIdLong());
+                        if (knownIds.contains(member.getIdLong())) {
+                            return true;
+                        } else {
+                            cacheMetric.increment();
+                            boolean b = monitoringService.existsUser(member.getIdLong());
+                            if (b) {
+                                knownIds.add(member.getIdLong());
+                            }
+                            return b;
+                        }
                     } catch (Exception e) {
-                        getLogger().info("Timeout on member caching | Member {} | Cache {} ", member.getUser().getAsTag(), member.getGuild().getName(), e);
+                        getLogger().info("Timeout on member caching | Member {} | Guild {} ", member.getUser().getAsTag(), member.getGuild().getName(), e);
                         return false;
                     }
                 })
                 .setLargeThreshold(50)
                 .setToken(properties.getProperty("DISCORD_TOKEN"))
                 .setEventPoolProvider(executorBuilder.apply("Event"))
-//                .setCallbackPoolProvider(executorBuilder.apply("Callback"))
+                .setCallbackPoolProvider(executorBuilder.apply("Callback"))
                 .setAudioPoolProvider(scheduledBuilder.apply("Audio"))
                 .setRateLimitPoolProvider(scheduledBuilder.apply("RateLimiter"))
 //                .setGatewayPoolProvider(scheduledBuilder.apply("Gateway"))
@@ -301,7 +316,6 @@ public class Chuu {
         consumer.accept(new AutoCompleteListener());
         consumer.accept(new AlbumYearApproval(channelId, db.normalService()));
         consumer.accept(new FriendRequester(db.normalService()));
-        args = null;
     }
 
     private static MyCommand<?>[] scanListeners(HelpCommand help) {
@@ -408,7 +422,6 @@ public class Chuu {
 
     public static void main(String[] args) {
         System.out.println("Stating");
-        Chuu.args = args;
         if (System.getProperty("file.encoding").equals("UTF-8")) {
             setupBot(Arrays.stream(args).anyMatch(x -> x.equalsIgnoreCase("stop-asking")),
                     Arrays.stream(args).noneMatch(x -> x.equalsIgnoreCase("no-global")),
@@ -419,16 +432,8 @@ public class Chuu {
         }
     }
 
-    public static void refreshCache(long id, Context e) {
-        ShardManager shard = Chuu.getShardManager();
-        User user = shard.getUserById(id);
-        if (user == null) {
-            if (e.isFromGuild()) {
-                e.getGuild().loadMembers().onSuccess(members -> {
-                });
-            }  //                shard.retrieveUserById(id).queue();
-
-        }
+    public static void refreshCache(long id) {
+        knownIds.add(id);
     }
 
 }

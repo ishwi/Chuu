@@ -9,13 +9,10 @@ import core.parsers.PrefixParser;
 import core.parsers.params.CharacterParameters;
 import core.services.PrefixService;
 import dao.ServiceView;
-import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.sharding.ShardManager;
 
 import javax.annotation.Nonnull;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 public class PrefixCommand extends ConcurrentCommand<CharacterParameters> {
     public PrefixCommand(ServiceView dao) {
@@ -46,10 +43,10 @@ public class PrefixCommand extends ConcurrentCommand<CharacterParameters> {
     @Override
     public void onCommand(Context e, @Nonnull CharacterParameters params) {
 
-
         char newPrefix = params.getaChar();
+        db.createGuild(e.getGuild().getIdLong());
+        db.addGuildPrefix(e.getGuild().getIdLong(), newPrefix);
         PrefixService prefixService = Chuu.prefixService;
-        db.addGuildPrefix(prefixService.getPrefixMap(), e.getGuild().getIdLong(), newPrefix);
         prefixService.addGuildPrefix(e.getGuild().getIdLong(), newPrefix);
 
         sendMessageQueue(e, newPrefix + " is the new server prefix");
@@ -60,16 +57,4 @@ public class PrefixCommand extends ConcurrentCommand<CharacterParameters> {
         return "Prefix setter";
     }
 
-    public void onStartup(ShardManager jda) {
-
-        Map<Long, Character> prefixMap = Chuu.prefixService.getPrefixMap();
-        List<Guild> guilds = jda.getGuilds();
-        for (Guild guild : guilds) {
-            long guildId = guild.getIdLong();
-            if (!prefixMap.containsKey(guildId)) {
-                db.addGuildPrefix(prefixMap, guildId, Chuu.DEFAULT_PREFIX);
-                prefixMap.put(guildId, Chuu.DEFAULT_PREFIX);
-            }
-        }
-    }
 }

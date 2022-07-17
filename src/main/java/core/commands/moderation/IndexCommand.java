@@ -67,7 +67,7 @@ public class IndexCommand extends ConcurrentCommand<CommandParameters> {
             sendMessageQueue(e, String.format("Successfully added %s %s to this server", toInsert.size(), CommandUtil.singlePlural(toInsert.size(), "member", "members")));
         }
         for (Long id : toInsert) {
-            Chuu.refreshCache(id, e);
+            Chuu.refreshCache(id);
         }
         if (!notOnServer.isEmpty()) {
             notOnServer.forEach(x -> db.removeUserFromOneGuildConsequent(x, e.getGuild().getIdLong()));

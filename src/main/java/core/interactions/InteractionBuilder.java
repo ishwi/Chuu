@@ -48,7 +48,7 @@ public class InteractionBuilder {
             return true;
         }
     };
-    private static final Set<CommandCategory> categorized = Set.of(
+    private static final Set<CommandCategory> categorized = EnumSet.of(
             CommandCategory.RYM,
             CommandCategory.BOT_INFO,
             CommandCategory.CROWNS,
@@ -141,7 +141,10 @@ public class InteractionBuilder {
         myCommands = myCommands.stream().filter(t -> !colorGrouped.contains(t.getClass())).toList();
 
         Map<SlashCommandData, MyCommand<?>> toBeprocessed = new HashMap<>();
-        var categoryToCommand = myCommands.stream().collect(Collectors.groupingBy(MyCommand::getCategory));
+        var categoryToCommand = myCommands.stream().collect(Collectors.groupingBy(MyCommand::getCategory,
+                () -> new EnumMap<>(CommandCategory.class),
+                Collectors.toList()
+        ));
         List<SlashCommandData> categoryCommands = categoryToCommand.entrySet().stream().filter(t -> categorized.contains(t.getKey())).map((k) -> k.getValue().stream().reduce(
                 Commands.slash(k.getKey().getPrefix(), k.getKey().getDescription()),
                 (commandData, myCommand) -> {

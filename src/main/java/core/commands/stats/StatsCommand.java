@@ -67,7 +67,7 @@ public class StatsCommand extends ConcurrentCommand<StatsParams> {
             st = new TrackValidator(db, lastFM).fromNP(np);
         }
         Set<StatsParser.StatsParam> enums = params.getEnums();
-        HashMap<Stats, Integer> aux = enums.stream().collect(HashMap::new, (a, b) -> a.put(b.mode(), b.param()), HashMap::putAll);
+        EnumMap<Stats, Integer> aux = enums.stream().collect(() -> new EnumMap<>(Stats.class), (a, b) -> a.put(b.mode(), b.param()), EnumMap::putAll);
         EnumSet<Stats> enumSet = aux.keySet().stream().collect(Collectors.toCollection(() -> EnumSet.noneOf(Stats.class)));
 
         if (params.isHelp()) {

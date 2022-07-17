@@ -176,7 +176,7 @@ public class WhoKnowsLoonasCommand extends WhoKnowsBaseCommand<LOONAParameters> 
                             Map<LOONA, List<ReturnNowPlaying>> groupedByType = whoKnowsArtistSet
                                     .stream()
                                     .flatMap(x -> x.getReturnNowPlayings().stream())
-                                    .collect(Collectors.groupingBy(x -> reverseLookUp.get(x.getArtist()), Collectors.toList()));
+                                    .collect(Collectors.groupingBy(x -> reverseLookUp.get(x.getArtist()), () -> new EnumMap<>(LOONA.class), Collectors.toList()));
                             whoKnowsArtistSet = groupedByType.entrySet().stream()
 
                                     .sorted(Comparator.comparingInt((Map.Entry<LOONA, List<ReturnNowPlaying>> t) -> t.getValue().stream().mapToInt(ReturnNowPlaying::getPlayNumber).sum()).reversed())
@@ -206,7 +206,7 @@ public class WhoKnowsLoonasCommand extends WhoKnowsBaseCommand<LOONAParameters> 
 
                         } else if (subCommand == LOONAParameters.SubCommand.GENERAL) {
                             Map<LOONA.Type, List<ReturnNowPlaying>> groupedByType = whoKnowsArtistSet.stream().flatMap(x -> x.getReturnNowPlayings().stream())
-                                    .collect(Collectors.groupingBy(x -> reverseLookUp.get(x.getArtist()).getType(), Collectors.toList()));
+                                    .collect(Collectors.groupingBy(x -> reverseLookUp.get(x.getArtist()).getType(), () -> new EnumMap<>(LOONA.Type.class), Collectors.toList()));
                             whoKnowsArtistSet = groupedByType.entrySet().stream()
 
                                     .sorted(Comparator.comparingInt((Map.Entry<LOONA.Type, List<ReturnNowPlaying>> t) -> t.getValue().stream().mapToInt(ReturnNowPlaying::getPlayNumber).sum()).reversed())
@@ -244,18 +244,25 @@ public class WhoKnowsLoonasCommand extends WhoKnowsBaseCommand<LOONAParameters> 
                 }
 
                 BlockingQueue<Pair<BufferedImage, Integer>> imageIndex = whoKnowsArtistSet.stream().
-                        map(x -> Pair.of(doImage(params, x), atomicInteger.getAndIncrement())).collect(Collectors.toCollection(LinkedBlockingQueue::new));
+                        map(x -> Pair.of(doImage(params, x), atomicInteger.getAndIncrement()))
+                        .collect(Collectors.toCollection(LinkedBlockingQueue::new));
                 BufferedImage bufferedImage = CollageGenerator.generateCollageThreaded(xSize, y, imageIndex, ChartQuality.PNG_BIG);
                 sendImage(bufferedImage, e, ChartQuality.PNG_BIG);
 
                 break;
             case SUM:
                 if (mode == LOONAParameters.Mode.GROUPED && subCommand == LOONAParameters.SubCommand.GROUPED) {
-                    Map<LOONA, List<ReturnNowPlaying>> groupedByType = whoKnowsArtistSet.stream().flatMap(x -> x.getReturnNowPlayings().stream()).collect(Collectors.groupingBy(x -> reverseLookUp.get(x.getArtist()), Collectors.toList()));
+                    Map<LOONA, List<ReturnNowPlaying>> groupedByType = whoKnowsArtistSet.stream()
+                            .flatMap(x -> x.getReturnNowPlayings().stream())
+                            .collect(Collectors.groupingBy(x -> reverseLookUp.get(x.getArtist()),
+                                    () -> new EnumMap<>(LOONA.class),
+                                    Collectors.toList()));
                     whoKnowsArtistSet = group(groupedByType, setUserAsRepresentative(), LOONA::getRepresentative);
 
                 } else if (mode == LOONAParameters.Mode.GROUPED && subCommand == LOONAParameters.SubCommand.GENERAL) {
-                    Map<LOONA.Type, List<ReturnNowPlaying>> groupedByType = whoKnowsArtistSet.stream().flatMap(x -> x.getReturnNowPlayings().stream()).collect(Collectors.groupingBy(x -> reverseLookUp.get(x.getArtist()).getType(), Collectors.toList()));
+                    Map<LOONA.Type, List<ReturnNowPlaying>> groupedByType = whoKnowsArtistSet.stream().flatMap(x -> x.getReturnNowPlayings().stream()).collect(Collectors.groupingBy(x -> reverseLookUp.get(x.getArtist()).getType(),
+                            () -> new EnumMap<>(LOONA.Type.class),
+                            Collectors.toList()));
                     whoKnowsArtistSet = group(groupedByType, setUserAsRepresentative(), LOONA::getRepresentative);
 
                 }
@@ -268,11 +275,16 @@ public class WhoKnowsLoonasCommand extends WhoKnowsBaseCommand<LOONAParameters> 
                 if (mode == LOONAParameters.Mode.GROUPED) {
                     whoKnowsArtistSet = switch (subCommand) {
                         case GENERAL -> {
-                            Map<LOONA.Type, List<ReturnNowPlaying>> groupedByType = whoKnowsArtistSet.stream().flatMap(x -> x.getReturnNowPlayings().stream()).collect(Collectors.groupingBy(x -> reverseLookUp.get(x.getArtist()).getType(), Collectors.toList()));
+                            Map<LOONA.Type, List<ReturnNowPlaying>> groupedByType = whoKnowsArtistSet.stream().flatMap(x -> x.getReturnNowPlayings().stream()).collect(Collectors.groupingBy(x -> reverseLookUp.get(x.getArtist()).getType(),
+                                    () -> new EnumMap<>(LOONA.Type.class),
+                                    Collectors.toList()));
                             yield group(groupedByType, setArtistAsrepresentative(), LOONA::getRepresentative);
                         }
                         case GROUPED, SPECIFIC -> {
-                            Map<LOONA, List<ReturnNowPlaying>> groupedByLoonas = whoKnowsArtistSet.stream().flatMap(x -> x.getReturnNowPlayings().stream()).collect(Collectors.groupingBy(x -> reverseLookUp.get(x.getArtist()), Collectors.toList()));
+                            Map<LOONA, List<ReturnNowPlaying>> groupedByLoonas = whoKnowsArtistSet.stream().flatMap(x -> x.getReturnNowPlayings().stream())
+                                    .collect(Collectors.groupingBy(x -> reverseLookUp.get(x.getArtist()),
+                                            () -> new EnumMap<>(LOONA.class),
+                                            Collectors.toList()));
                             yield group(groupedByLoonas, setArtistAsrepresentative(), LOONA::getRepresentative);
                         }
                     };

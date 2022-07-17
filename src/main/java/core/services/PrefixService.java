@@ -1,29 +1,36 @@
 package core.services;
 
-import core.Chuu;
 import core.commands.Context;
 import dao.ChuuService;
+import gnu.trove.map.TLongCharMap;
+import gnu.trove.map.hash.TLongCharHashMap;
 
 import java.util.Map;
 
 import static core.Chuu.DEFAULT_PREFIX;
 
 public class PrefixService {
-    private final Map<Long, Character> prefixMap;
+    private final TLongCharMap prefixMap;
 
 
     public PrefixService(ChuuService db) {
-        this.prefixMap = db.getGuildPrefixes(Chuu.DEFAULT_PREFIX);
+        Map<Long, Character> prefixes = db.getGuildPrefixes(DEFAULT_PREFIX);
+        long[] ids = new long[prefixes.size()];
+        char[] datas = new char[prefixes.size()];
+        int i = 0;
+        for (var entry : prefixes.entrySet()) {
+            ids[i] = entry.getKey();
+            datas[i] = entry.getValue();
+            i++;
+        }
+        this.prefixMap = new TLongCharHashMap(ids, datas);
     }
 
     public void addGuildPrefix(long guildId, Character prefix) {
         if (prefix.equals(DEFAULT_PREFIX)) {
             prefixMap.remove(guildId);
         } else {
-            Character replace = prefixMap.replace(guildId, prefix);
-            if (replace == null) {
-                prefixMap.put(guildId, prefix);
-            }
+            prefixMap.put(guildId, prefix);
         }
     }
 
@@ -31,12 +38,12 @@ public class PrefixService {
         if (!e.isFromGuild())
             return DEFAULT_PREFIX;
         long id = e.getGuild().getIdLong();
-        Character character = prefixMap.get(id);
-        return character == null ? DEFAULT_PREFIX : character;
+        char character = prefixMap.get(id);
+        return character == prefixMap.getNoEntryValue() ? DEFAULT_PREFIX : character;
 
     }
 
-    public Map<Long, Character> getPrefixMap() {
+    public TLongCharMap getPrefixMap() {
         return prefixMap;
     }
 }
