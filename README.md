@@ -24,13 +24,13 @@ There is also a support server if you want to ask any questions directly. [Join 
 
 You can also build the bot and install it on your own. In order to do that you need:<br><br>
 
-- Java 17+ with preview features enabled<br><br>
+- Java 19+ <br><br>
 - MariaDB 10.5+<br><br>
-- Postgresql 12+<br><br>
+- Postgresql 14+<br><br>
 - [A Discogs developer account](https://www.discogs.com/developers)
 
-    - DC_KY
-    - DC_SC
+  - DC_KY
+  - DC_SC
 
 - [A Spotify developer account](https://developer.spotify.com/)
     - client_ID

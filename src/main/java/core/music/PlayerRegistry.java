@@ -34,7 +34,7 @@ public class PlayerRegistry {
 
     public PlayerRegistry(ExtendedAudioPlayerManager playerManager) {
         this.playerManager = playerManager;
-        ScheduledExecutorService executor = ChuuVirtualPool.ofScheduled("Registry");
+        ScheduledExecutorService executor = ChuuVirtualPool.ofScheduled(1, "Registry");
         executor.scheduleAtFixedRate(this::sweep, 3, 3, TimeUnit.MINUTES);
     }
 

@@ -56,22 +56,23 @@ public class IndexCommand extends ConcurrentCommand<CommandParameters> {
         Set<Long> allBot = db.getAllALL().stream().map(UsersWrapper::getDiscordID).collect(Collectors.toUnmodifiableSet());
         Set<Long> thisServer = db.getAll(e.getGuild().getIdLong()).stream().map(UsersWrapper::getDiscordID).collect(Collectors.toUnmodifiableSet());
         Set<Long> serverBlocked = db.getServerBlocked(e.getGuild().getIdLong());
-
-        Set<Long> members = e.getGuild().getMembers().stream().filter(x -> x.getUser().getIdLong() != x.getJDA().getSelfUser().getIdLong()).map(x -> x.getUser().getIdLong()).collect(Collectors.toSet());
-        List<Long> toInsert = members.stream().filter(x -> allBot.contains(x) && !thisServer.contains(x) && !serverBlocked.contains(x)).toList();
-        toInsert.forEach(x -> db.addGuildUser(x, e.getGuild().getIdLong()));
-        List<Long> notOnServer = thisServer.stream().filter(x -> !members.contains(x)).toList();
-        if (toInsert.isEmpty()) {
-            sendMessageQueue(e, "Didn't have anyone to add");
-        } else {
-            sendMessageQueue(e, String.format("Successfully added %s %s to this server", toInsert.size(), CommandUtil.singlePlural(toInsert.size(), "member", "members")));
-        }
-        for (Long id : toInsert) {
-            Chuu.refreshCache(id);
-        }
-        if (!notOnServer.isEmpty()) {
-            notOnServer.forEach(x -> db.removeUserFromOneGuildConsequent(x, e.getGuild().getIdLong()));
-            sendMessageQueue(e, String.format("Removed %s %s that no longer were in this server", toInsert.size(), CommandUtil.singlePlural(toInsert.size(), "member", "members")));
-        }
+        e.getGuild().loadMembers().onSuccess(_members -> {
+            var members = _members.stream().filter(x -> x.getUser().getIdLong() != x.getJDA().getSelfUser().getIdLong()).map(x -> x.getUser().getIdLong()).collect(Collectors.toSet());
+            List<Long> toInsert = members.stream().filter(x -> allBot.contains(x) && !thisServer.contains(x) && !serverBlocked.contains(x)).toList();
+            toInsert.forEach(x -> db.addGuildUser(x, e.getGuild().getIdLong()));
+            List<Long> notOnServer = thisServer.stream().filter(x -> !members.contains(x)).toList();
+            if (toInsert.isEmpty()) {
+                sendMessageQueue(e, "Didn't have anyone to add");
+            } else {
+                sendMessageQueue(e, String.format("Successfully added %s %s to this server", toInsert.size(), CommandUtil.singlePlural(toInsert.size(), "member", "members")));
+            }
+            for (Long id : toInsert) {
+                Chuu.refreshCache(id);
+            }
+            if (!notOnServer.isEmpty()) {
+                notOnServer.forEach(x -> db.removeUserFromOneGuildConsequent(x, e.getGuild().getIdLong()));
+                sendMessageQueue(e, String.format("Removed %s %s that no longer were in this server", notOnServer.size(), CommandUtil.singlePlural(notOnServer.size(), "member", "members")));
+            }
+        });
     }
 }

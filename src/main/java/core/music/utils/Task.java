@@ -24,7 +24,7 @@ import dao.exceptions.ChuuServiceException;
 import java.util.concurrent.*;
 
 public final class Task {
-    private static final ScheduledExecutorService executor = ChuuVirtualPool.ofScheduled("Task-cleaner-");
+    private static final ScheduledExecutorService executor = ChuuVirtualPool.ofScheduled(2, "Task-cleaner-");
     private final long delay;
     private final TimeUnit unit;
     private final Runnable runnable;

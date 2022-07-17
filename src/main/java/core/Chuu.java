@@ -60,7 +60,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.LongAdder;
@@ -140,7 +139,7 @@ public class Chuu {
         scrobbleProcesser = new ScrobbleProcesser(new AlbumFinder(service, LastFMFactory.getNewInstance()));
         playerManager = new ExtendedAudioPlayerManager(scrobbleEventManager, scrobbleProcesser);
         playerRegistry = new PlayerRegistry(playerManager);
-        scheduledService = new ScheduledService(ChuuVirtualPool.ofScheduled("Scheduler-runner"), db.normalService());
+        scheduledService = new ScheduledService(Executors.newScheduledThreadPool(6), db.normalService());
         List<Long> ids = db.longService().getAllALL().stream().map(UsersWrapper::getDiscordID).toList();
         knownIds.addAll(ids);
         if (!notMain) {
@@ -170,9 +169,6 @@ public class Chuu {
         EvalCommand evalCommand = new EvalCommand(db);
         monitoringService = new ChuuService(new MonitoringDatasource());
         AtomicInteger counter = new AtomicInteger(0);
-        Function<String, ThreadPoolProvider<ScheduledExecutorService>> scheduledBuilder = (str) -> (shard) -> Executors.newScheduledThreadPool(1, Thread.ofVirtual()
-                .uncaughtExceptionHandler((t, e) -> logger.warn(e.getMessage(), e))
-                .name("JDA-" + shard + "-" + str, 0).factory());
         Function<String, ThreadPoolProvider<ExecutorService>> executorBuilder = (str) -> (shard) -> Executors.newThreadPerTaskExecutor(Thread.ofVirtual()
                 .uncaughtExceptionHandler((t, e) -> logger.warn(e.getMessage(), e)).
                 name("JDA-" + shard + "-" + str, 0).factory());
@@ -208,10 +204,6 @@ public class Chuu {
                 .setToken(properties.getProperty("DISCORD_TOKEN"))
                 .setEventPoolProvider(executorBuilder.apply("Event"))
                 .setCallbackPoolProvider(executorBuilder.apply("Callback"))
-                .setAudioPoolProvider(scheduledBuilder.apply("Audio"))
-                .setRateLimitPoolProvider(scheduledBuilder.apply("RateLimiter"))
-//                .setGatewayPoolProvider(scheduledBuilder.apply("Gateway"))
-
                 .setHttpClientBuilder(new OkHttpClient.Builder()
                         .dispatcher(new Dispatcher(ChuuVirtualPool.of("OkHttp")))
                         .readTimeout(20, TimeUnit.SECONDS)
