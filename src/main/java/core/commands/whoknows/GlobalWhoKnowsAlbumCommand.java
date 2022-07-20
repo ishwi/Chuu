@@ -49,7 +49,7 @@ public class GlobalWhoKnowsAlbumCommand extends GlobalBaseWhoKnowCommand<ArtistA
 
 
     @Override
-    WrapperReturnNowPlaying generateWrapper(ArtistAlbumParameters params, WhoKnowsMode whoKnowsMode) throws LastFmException {
+    WrapperReturnNowPlaying generateWrapper(ArtistAlbumParameters params, WhoKnowsDisplayMode whoKnowsDisplayMode) throws LastFmException {
         ScrobbledArtist sA = new ArtistValidator(db, lastFM, params.getE()).validate(params.getArtist(), !params.isNoredirect());
         Context e = params.getE();
         long artistId = sA.getArtistId();
@@ -57,11 +57,11 @@ public class GlobalWhoKnowsAlbumCommand extends GlobalBaseWhoKnowCommand<ArtistA
         Album album = CommandUtil.albumvalidate(db, sA, lastFM, params.getAlbum());
         params.setScrobbledAlbum(new ScrobbledAlbum(album, sA.getArtist()));
 
-        WhoKnowsMode effectiveMode = getEffectiveMode(params.getLastFMData().getWhoKnowsMode(), params);
+        WhoKnowsDisplayMode effectiveMode = getEffectiveMode(params.getLastFMData().getWhoKnowsMode(), params);
 
         boolean b = CommandUtil.showBottedAccounts(params.getLastFMData(), params, db);
         long author = params.getE().getAuthor().getIdLong();
-        int limit = effectiveMode.equals(WhoKnowsMode.IMAGE) ? 10 : Integer.MAX_VALUE;
+        int limit = effectiveMode.equals(WhoKnowsDisplayMode.IMAGE) ? 10 : Integer.MAX_VALUE;
         WrapperReturnNowPlaying wrapperReturnNowPlaying =
                 this.db.getGlobalWhoKnowsAlbum(limit, album.id(), author, b, hidePrivate(params));
         if (wrapperReturnNowPlaying.getRows() == 0) {

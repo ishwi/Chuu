@@ -13,7 +13,7 @@ import core.parsers.utils.OptionalEntity;
 import dao.ChuuService;
 import dao.entities.ChartMode;
 import dao.entities.RemainingImagesMode;
-import dao.entities.WhoKnowsMode;
+import dao.entities.WhoKnowsDisplayMode;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.interactions.commands.Command;
 import net.dv8tion.jda.api.interactions.commands.CommandInteraction;
@@ -124,9 +124,9 @@ public class UserConfigParser extends DaoParser<UserConfigParameters> implements
                     mode.addChoices(clear);
                     data.addOptions(mode);
                 }
-                case WHOKNOWS_MODE -> {
+                case WHOKNOWS_DISPLAY_MODE -> {
                     OptionData mode = new OptionData(OptionType.STRING, "whoknows-mode", StringUtils.abbreviate(userConfigType.getExplanation(), 100), true);
-                    for (WhoKnowsMode value : WhoKnowsMode.values()) {
+                    for (WhoKnowsDisplayMode value : WhoKnowsDisplayMode.values()) {
                         mode.addChoice(WordUtils.capitalizeFully(value.toString()), value.name());
                     }
                     mode.addChoices(clear);

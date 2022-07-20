@@ -43,12 +43,12 @@ public class WhoKnowsCommand extends WhoKnowsBaseCommand<ArtistParameters> {
 
 
     @Override
-    protected WrapperReturnNowPlaying generateWrapper(ArtistParameters params, WhoKnowsMode whoKnowsMode) throws LastFmException {
+    protected WrapperReturnNowPlaying generateWrapper(ArtistParameters params, WhoKnowsDisplayMode whoKnowsDisplayMode) throws LastFmException {
         ScrobbledArtist sA = new ArtistValidator(db, lastFM, params.getE()).validate(params.getArtist(), !params.isNoredirect());
         params.setScrobbledArtist(sA);
         Context e = params.getE();
         WrapperReturnNowPlaying wrapperReturnNowPlaying =
-                whoKnowsMode.equals(WhoKnowsMode.IMAGE) ? this.db.whoKnows(sA.getArtistId(), e.getGuild().getIdLong()) : this.db.whoKnows(sA.getArtistId(), e.getGuild().getIdLong(), Integer.MAX_VALUE);
+                whoKnowsDisplayMode.equals(WhoKnowsDisplayMode.IMAGE) ? this.db.whoKnows(sA.getArtistId(), e.getGuild().getIdLong()) : this.db.whoKnows(sA.getArtistId(), e.getGuild().getIdLong(), Integer.MAX_VALUE);
         if (wrapperReturnNowPlaying.getRows() == 0) {
             sendMessageQueue(e, "No one knows " + CommandUtil.escapeMarkdown(sA.getArtist()));
             return null;

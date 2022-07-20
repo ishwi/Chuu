@@ -1,5 +1,6 @@
 package core.commands.random;
 
+import core.Chuu;
 import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.ChuuEmbedBuilder;
@@ -91,7 +92,7 @@ public class RandomLinkDetailsCommand extends ConcurrentCommand<RandomUrlParamet
         try {
             own = db.findLastFMData(randomUrl.discordId());
         } catch (InstanceNotFoundException exception) {
-            exception.printStackTrace();
+            Chuu.getLogger().info(exception.getMessage(), exception);
         }
         AtomicInteger atomicInteger = new AtomicInteger(1);
         Set<Long> ids;

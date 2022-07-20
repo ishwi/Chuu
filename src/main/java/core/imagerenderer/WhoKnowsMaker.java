@@ -3,7 +3,6 @@ package core.imagerenderer;
 import core.imagerenderer.stealing.blur.GaussianFilter;
 import core.imagerenderer.util.fitter.StringFitter;
 import core.imagerenderer.util.fitter.StringFitterBuilder;
-import dao.entities.WKMode;
 import dao.entities.WrapperReturnNowPlaying;
 import org.imgscalr.Scalr;
 
@@ -12,7 +11,6 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.EnumSet;
 
 public class WhoKnowsMaker {
     static final Font EMOJI_FONT = new Font("Symbola", Font.PLAIN, 32);
@@ -41,11 +39,11 @@ public class WhoKnowsMaker {
 
     }
 
-    public static BufferedImage generateWhoKnows(WrapperReturnNowPlaying wrapperReturnNowPlaying, EnumSet<WKMode> modes, String discordName, BufferedImage logo, long author) {
-        return generateWhoKnows(wrapperReturnNowPlaying, modes, discordName, logo, author, GraphicUtils.getImage(wrapperReturnNowPlaying.getUrl()));
+    public static BufferedImage generateWhoKnows(WrapperReturnNowPlaying wrapperReturnNowPlaying, String discordName, BufferedImage logo) {
+        return generateWhoKnows(wrapperReturnNowPlaying, discordName, logo, GraphicUtils.getImage(wrapperReturnNowPlaying.getUrl()));
     }
 
-    public static BufferedImage generateWhoKnows(WrapperReturnNowPlaying wrapperReturnNowPlaying, EnumSet<WKMode> modes, String discordName, BufferedImage logo, long author, BufferedImage leftSide) {
+    public static BufferedImage generateWhoKnows(WrapperReturnNowPlaying wrapperReturnNowPlaying, String discordName, BufferedImage logo, BufferedImage leftSide) {
 
         BufferedImage canvas = new BufferedImage(X_MAX, Y_MAX, BufferedImage.TYPE_INT_RGB);
         String artist;

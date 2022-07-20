@@ -5,6 +5,7 @@ import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandUtil;
 import core.imagerenderer.ChartQuality;
 import core.imagerenderer.CollageGenerator;
+import core.imagerenderer.ExetricWKMaker;
 import core.imagerenderer.WhoKnowsMaker;
 import core.otherlisteners.util.PaginatorBuilder;
 import core.parsers.LOOONAParser;
@@ -348,15 +349,23 @@ public class WhoKnowsLoonasCommand extends WhoKnowsBaseCommand<LOONAParameters> 
     BufferedImage doImage(LOONAParameters ap, WrapperReturnNowPlaying wrapperReturnNowPlaying) {
         Context e = ap.getE();
         BufferedImage logo = null;
-        String title;
+        ImageTitle title;
         if (e.isFromGuild()) {
             logo = CommandUtil.getLogo(db, e);
-            title = e.getGuild().getName();
+            title = new ImageTitle(e.getGuild().getName(), e.getGuild().getIconUrl());
         } else {
-            title = e.getJDA().getSelfUser().getName();
+            title = new ImageTitle(e.getJDA().getSelfUser().getName(), e.getJDA().getSelfUser().getAvatarUrl());
         }
-        handleWkMode(ap, wrapperReturnNowPlaying, WhoKnowsMode.IMAGE);
-        return WhoKnowsMaker.generateWhoKnows(wrapperReturnNowPlaying, EnumSet.allOf(WKMode.class), title, logo, e.getAuthor().getIdLong());
+        handleWkMode(ap, wrapperReturnNowPlaying, WhoKnowsDisplayMode.IMAGE);
+        LastFMData data = obtainLastFmData(ap);
+        BufferedImage image;
+        if (data.getWkModes().contains(WKMode.BETA)) {
+            image = ExetricWKMaker.generateWhoKnows(wrapperReturnNowPlaying, title.title(), title.logo(), logo);
+        } else {
+            image = WhoKnowsMaker.generateWhoKnows(wrapperReturnNowPlaying, title.title(), logo);
+        }
+
+        return image;
 
     }
 
@@ -413,12 +422,12 @@ public class WhoKnowsLoonasCommand extends WhoKnowsBaseCommand<LOONAParameters> 
 
 
     @Override
-    WhoKnowsMode getWhoknowsMode(LOONAParameters params) {
-        return WhoKnowsMode.IMAGE;
+    WhoKnowsDisplayMode getWhoknowsMode(LOONAParameters params) {
+        return WhoKnowsDisplayMode.IMAGE;
     }
 
     @Override
-    WrapperReturnNowPlaying generateWrapper(LOONAParameters params, WhoKnowsMode whoKnowsMode) {
+    WrapperReturnNowPlaying generateWrapper(LOONAParameters params, WhoKnowsDisplayMode whoKnowsDisplayMode) {
         return null;
     }
 
@@ -429,10 +438,10 @@ public class WhoKnowsLoonasCommand extends WhoKnowsBaseCommand<LOONAParameters> 
 
     public String countString(ReturnNowPlaying returnNowPlaying) {
         return ". " +
-                "[" + CommandUtil.escapeMarkdown(returnNowPlaying.getArtist()) + "](" +
-                LinkUtils
-                        .getLastFmArtistUrl(returnNowPlaying.getArtist()) +
-                ") - " +
-                returnNowPlaying.getPlayNumber() + " listeners\n";
+               "[" + CommandUtil.escapeMarkdown(returnNowPlaying.getArtist()) + "](" +
+               LinkUtils
+                       .getLastFmArtistUrl(returnNowPlaying.getArtist()) +
+               ") - " +
+               returnNowPlaying.getPlayNumber() + " listeners\n";
     }
 }

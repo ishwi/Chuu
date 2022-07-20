@@ -11,6 +11,7 @@ import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.commands.utils.PrivacyUtils;
 import core.exceptions.LastFmException;
+import core.imagerenderer.ExetricWKMaker;
 import core.imagerenderer.GraphicUtils;
 import core.imagerenderer.WhoKnowsMaker;
 import core.imagerenderer.util.pie.IPieableList;
@@ -31,7 +32,6 @@ import javax.annotation.Nonnull;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
@@ -60,15 +60,15 @@ public abstract class WhoKnowsBaseCommand<T extends CommandParameters> extends C
 
     }
 
-    public static WhoKnowsMode getEffectiveMode(WhoKnowsMode whoKnowsMode, CommandParameters chartParameters) {
+    public static WhoKnowsDisplayMode getEffectiveMode(WhoKnowsDisplayMode whoKnowsDisplayMode, CommandParameters chartParameters) {
         boolean pie = chartParameters.hasOptional("pie");
         boolean list = chartParameters.hasOptional("list");
-        if ((whoKnowsMode.equals(WhoKnowsMode.LIST) && !list && !pie) || (!whoKnowsMode.equals(WhoKnowsMode.LIST) && list)) {
-            return WhoKnowsMode.LIST;
-        } else if (whoKnowsMode.equals(WhoKnowsMode.PIE) && !pie || !whoKnowsMode.equals(WhoKnowsMode.PIE) && pie) {
-            return WhoKnowsMode.PIE;
+        if ((whoKnowsDisplayMode.equals(WhoKnowsDisplayMode.LIST) && !list && !pie) || (!whoKnowsDisplayMode.equals(WhoKnowsDisplayMode.LIST) && list)) {
+            return WhoKnowsDisplayMode.LIST;
+        } else if (whoKnowsDisplayMode.equals(WhoKnowsDisplayMode.PIE) && !pie || !whoKnowsDisplayMode.equals(WhoKnowsDisplayMode.PIE) && pie) {
+            return WhoKnowsDisplayMode.PIE;
         } else {
-            return WhoKnowsMode.IMAGE;
+            return WhoKnowsDisplayMode.IMAGE;
         }
     }
 
@@ -81,24 +81,24 @@ public abstract class WhoKnowsBaseCommand<T extends CommandParameters> extends C
     public void onCommand(Context e, @Nonnull T params) throws LastFmException {
 
 
-        WhoKnowsMode whoknowsMode = getWhoknowsMode(params);
-        WrapperReturnNowPlaying wrapperReturnNowPlaying = generateWrapper(params, whoknowsMode);
+        WhoKnowsDisplayMode whoknowsDisplayMode = getWhoknowsMode(params);
+        WrapperReturnNowPlaying wrapperReturnNowPlaying = generateWrapper(params, whoknowsDisplayMode);
         if (wrapperReturnNowPlaying == null) {
             return;
         }
         wrapperReturnNowPlaying.setIndexes();
-        generateWhoKnows(wrapperReturnNowPlaying, params, e.getAuthor().getIdLong(), whoknowsMode);
+        generateWhoKnows(wrapperReturnNowPlaying, params, e.getAuthor().getIdLong(), whoknowsDisplayMode);
 
     }
 
 
-    WhoKnowsMode getWhoknowsMode(T params) {
+    WhoKnowsDisplayMode getWhoknowsMode(T params) {
         return getEffectiveMode(obtainLastFmData(params).getWhoKnowsMode(), params);
     }
 
-    abstract WrapperReturnNowPlaying generateWrapper(T params, WhoKnowsMode whoKnowsMode) throws LastFmException;
+    abstract WrapperReturnNowPlaying generateWrapper(T params, WhoKnowsDisplayMode whoKnowsDisplayMode) throws LastFmException;
 
-    public void generateWhoKnows(WrapperReturnNowPlaying wrapperReturnNowPlaying, T ap, long author, WhoKnowsMode effectiveMode) {
+    public void generateWhoKnows(WrapperReturnNowPlaying wrapperReturnNowPlaying, T ap, long author, WhoKnowsDisplayMode effectiveMode) {
         wrapperReturnNowPlaying.getReturnNowPlayings()
                 .forEach(x ->
                         x.setGenerateString(supplierGenerator(ap, x))
@@ -106,7 +106,7 @@ public abstract class WhoKnowsBaseCommand<T extends CommandParameters> extends C
         switch (effectiveMode) {
 
             case IMAGE, PIE -> {
-                if (effectiveMode.equals(WhoKnowsMode.IMAGE)) {
+                if (effectiveMode.equals(WhoKnowsDisplayMode.IMAGE)) {
                     doImage(ap, wrapperReturnNowPlaying);
                 } else {
                     doPie(ap, wrapperReturnNowPlaying);
@@ -122,72 +122,78 @@ public abstract class WhoKnowsBaseCommand<T extends CommandParameters> extends C
             String userString = getUserString(ap.getE(), x.getDiscordId());
             x.setDiscordName(userString);
             return x.getIndex() + 1 + ". " +
-                    "**[" + LinkUtils.cleanMarkdownCharacter(userString) + "](" +
-                    PrivacyUtils.getUrlTitle(x) +
-                    ")** - " +
-                    x.getPlayNumber() + " plays\n";
+                   "**[" + LinkUtils.cleanMarkdownCharacter(userString) + "](" +
+                   PrivacyUtils.getUrlTitle(x) +
+                   ")** - " +
+                   x.getPlayNumber() + " plays\n";
         };
     }
 
-    protected String getImageTitle(Context e, T params) {
-        String title;
+    protected ImageTitle getImageTitle(Context e, T params) {
         if (e.isFromGuild()) {
-            title = e.getGuild().getName();
+            return new ImageTitle(e.getGuild().getName(), e.getGuild().getIconUrl());
         } else {
-            title = e.getJDA().getSelfUser().getName();
+            return new ImageTitle(e.getJDA().getSelfUser().getName(), e.getJDA().getSelfUser().getAvatarUrl());
         }
-        return title;
     }
 
     BufferedImage doImage(T ap, WrapperReturnNowPlaying wrapperReturnNowPlaying) {
         Context e = ap.getE();
 
         BufferedImage logo = null;
-        String title = getImageTitle(e, ap);
+        ImageTitle title = getImageTitle(e, ap);
         if (e.isFromGuild()) {
             logo = CommandUtil.getLogo(db, e);
         }
-        handleWkMode(ap, wrapperReturnNowPlaying, WhoKnowsMode.IMAGE);
-        BufferedImage image = WhoKnowsMaker.generateWhoKnows(wrapperReturnNowPlaying, EnumSet.allOf(WKMode.class), title, logo, ap.getE().getAuthor().getIdLong());
+        handleWkMode(ap, wrapperReturnNowPlaying, WhoKnowsDisplayMode.IMAGE);
+        LastFMData data = obtainLastFmData(ap);
+        BufferedImage image;
+        if (data.getWkModes().contains(WKMode.BETA)) {
+            image = ExetricWKMaker.generateWhoKnows(wrapperReturnNowPlaying, title.title, title.logo, logo);
+        } else {
+            image = WhoKnowsMaker.generateWhoKnows(wrapperReturnNowPlaying, title.title, logo);
+        }
         sendImage(image, e);
 
         return logo;
     }
 
-    Optional<ReturnNowPlaying> handleWkMode(T ap, WrapperReturnNowPlaying wr, WhoKnowsMode mode) {
+
+    Optional<ReturnNowPlaying> handleWkMode(T ap, WrapperReturnNowPlaying wr, WhoKnowsDisplayMode mode) {
         List<ReturnNowPlaying> rnp = wr.getReturnNowPlayings();
         LastFMData data = obtainLastFmData(ap);
-
-        if (rnp.stream().limit(10).noneMatch(np -> np.getDiscordId() == data.getDiscordId())) {
-            if (mode == WhoKnowsMode.LIST) {
-                boolean found = false;
-                int j = 0;
-                for (ReturnNowPlaying returnNowPlaying : rnp) {
-                    if (returnNowPlaying.getDiscordId() == data.getDiscordId()) {
-                        found = true;
-                        break;
-                    }
-                    j++;
-                }
-                if (found) {
-                    return Optional.of(rnp.get(j));
-                }
-            } else {
-                if (rnp.size() >= 10) {
-                    Optional<Rank<ReturnNowPlaying>> userOpt = fetchNotInList(ap, wr);
-                    if (userOpt.isPresent()) {
-                        Rank<ReturnNowPlaying> userPos = userOpt.get();
-                        ReturnNowPlaying rn = userPos.entity();
-                        rn.setIndex(userPos.rank());
-                        List<ReturnNowPlaying> copy = new ArrayList<>(rnp);
-                        copy.set(9, rn);
-                        wr.setReturnNowPlayings(copy);
-
-                        if (rn.getGenerateString() == null) {
-                            rn.setGenerateString(supplierGenerator(ap, rn));
+        if (data.getWkModes().contains(WKMode.OWN_RANK)) {
+            if (rnp.stream().limit(10).noneMatch(np -> np.getDiscordId() == data.getDiscordId())) {
+                if (mode == WhoKnowsDisplayMode.LIST) {
+                    boolean found = false;
+                    int j = 0;
+                    for (ReturnNowPlaying returnNowPlaying : rnp) {
+                        if (returnNowPlaying.getDiscordId() == data.getDiscordId()) {
+                            found = true;
+                            break;
                         }
+                        j++;
                     }
-                    return userOpt.map(Rank::entity);
+                    if (found) {
+                        return Optional.of(rnp.get(j));
+                    }
+                } else {
+                    if (rnp.size() >= 10) {
+                        Optional<Rank<ReturnNowPlaying>> userOpt = fetchNotInList(ap, wr);
+                        if (userOpt.isPresent()) {
+                            Rank<ReturnNowPlaying> userPos = userOpt.get();
+                            ReturnNowPlaying rn = userPos.entity();
+                            rn.setIndex(userPos.rank());
+                            List<ReturnNowPlaying> copy = new ArrayList<>(rnp);
+                            copy.set(9, rn);
+                            wr.setReturnNowPlayings(copy);
+
+                            if (rn.getGenerateString() == null) {
+                                rn.setGenerateString(supplierGenerator(ap, rn));
+                            }
+                        }
+                        return userOpt.map(Rank::entity);
+                    }
                 }
             }
         }
@@ -195,7 +201,6 @@ public abstract class WhoKnowsBaseCommand<T extends CommandParameters> extends C
     }
 
     abstract LastFMData obtainLastFmData(T ap);
-
 
     public abstract Optional<Rank<ReturnNowPlaying>> fetchNotInList(T ap, WrapperReturnNowPlaying wr);
 
@@ -209,7 +214,7 @@ public abstract class WhoKnowsBaseCommand<T extends CommandParameters> extends C
         } else {
             usable = e.getJDA().getSelfUser().getName();
         }
-        Optional<ReturnNowPlaying> rnp = handleWkMode(ap, wrapperReturnNowPlaying, WhoKnowsMode.LIST);
+        Optional<ReturnNowPlaying> rnp = handleWkMode(ap, wrapperReturnNowPlaying, WhoKnowsDisplayMode.LIST);
 
         EmbedBuilder embedBuilder = new ChuuEmbedBuilder(ap.getE()).setTitle(getTitle(ap, usable)).
                 setThumbnail(CommandUtil.noImageUrl(wrapperReturnNowPlaying.getUrl()));
@@ -244,4 +249,7 @@ public abstract class WhoKnowsBaseCommand<T extends CommandParameters> extends C
     }
 
     public abstract String getTitle(T params, String baseTitle);
+
+    public record ImageTitle(String title, String logo) {
+    }
 }

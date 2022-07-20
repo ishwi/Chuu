@@ -3,6 +3,7 @@ package core.commands.whoknows;
 import core.commands.Context;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
+import core.imagerenderer.ExetricWKMaker;
 import core.imagerenderer.ThumbsMaker;
 import core.imagerenderer.WhoKnowsMaker;
 import core.parsers.GenreParser;
@@ -13,7 +14,6 @@ import dao.entities.*;
 import org.jsoup.internal.StringUtil;
 
 import java.awt.image.BufferedImage;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 
@@ -41,7 +41,7 @@ public class WhoKnowsTagCommand extends WhoKnowsBaseCommand<GenreParameters> {
     }
 
     @Override
-    public void generateWhoKnows(WrapperReturnNowPlaying wrapperReturnNowPlaying, GenreParameters ap, long author, WhoKnowsMode effectiveMode) {
+    public void generateWhoKnows(WrapperReturnNowPlaying wrapperReturnNowPlaying, GenreParameters ap, long author, WhoKnowsDisplayMode effectiveMode) {
         super.generateWhoKnows(wrapperReturnNowPlaying, ap, author, effectiveMode);
     }
 
@@ -50,19 +50,25 @@ public class WhoKnowsTagCommand extends WhoKnowsBaseCommand<GenreParameters> {
         Context e = ap.getE();
 
         BufferedImage logo = null;
-        String title;
+        ImageTitle title;
         if (e.isFromGuild()) {
             logo = CommandUtil.getLogo(db, e);
-            title = e.getGuild().getName();
+            title = new ImageTitle(e.getGuild().getName(), e.getGuild().getIconUrl());
         } else {
-            title = e.getJDA().getSelfUser().getName();
+            title = new ImageTitle(e.getJDA().getSelfUser().getName(), e.getJDA().getSelfUser().getAvatarUrl());
         }
         List<String> urls = db.getTopInTag(ap.getGenre(), e.getGuild().getIdLong(), 100).stream().map(ScrobbledArtist::getUrl).filter(not(StringUtil::isBlank)).toList();
         BufferedImage thumb = ThumbsMaker.generate(urls);
-        handleWkMode(ap, wrapperReturnNowPlaying, WhoKnowsMode.IMAGE);
-        BufferedImage image = WhoKnowsMaker.generateWhoKnows(wrapperReturnNowPlaying, EnumSet.allOf(WKMode.class), title, logo, ap.getE().getAuthor().getIdLong(), thumb);
+        handleWkMode(ap, wrapperReturnNowPlaying, WhoKnowsDisplayMode.IMAGE);
+        LastFMData data = obtainLastFmData(ap);
+        BufferedImage image;
+        if (data.getWkModes().contains(WKMode.BETA)) {
+            image = ExetricWKMaker.generateWhoKnows(wrapperReturnNowPlaying, title.title(), title.logo(), logo, thumb);
+        } else {
+            image = WhoKnowsMaker.generateWhoKnows(wrapperReturnNowPlaying, title.title(), logo, thumb);
+        }
         sendImage(image, e);
-        return logo;
+        return image;
     }
 
     @Override
@@ -76,10 +82,10 @@ public class WhoKnowsTagCommand extends WhoKnowsBaseCommand<GenreParameters> {
     }
 
     @Override
-    WrapperReturnNowPlaying generateWrapper(GenreParameters params, WhoKnowsMode whoKnowsMode) {
+    WrapperReturnNowPlaying generateWrapper(GenreParameters params, WhoKnowsDisplayMode whoKnowsDisplayMode) {
         Context e = params.getE();
         WrapperReturnNowPlaying wrapperReturnNowPlaying =
-                whoKnowsMode.equals(WhoKnowsMode.IMAGE) ?
+                whoKnowsDisplayMode.equals(WhoKnowsDisplayMode.IMAGE) ?
                         this.db.whoKnowsGenre(params.getGenre(), e.getGuild().getIdLong()) :
                         this.db.whoKnowsGenre(params.getGenre(), e.getGuild().getIdLong(), Integer.MAX_VALUE);
         if (wrapperReturnNowPlaying.getRows() == 0) {

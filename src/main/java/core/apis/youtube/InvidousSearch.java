@@ -69,7 +69,7 @@ public class InvidousSearch implements YoutubeSearch {
                 responseUrl = "https://www.youtube.com/watch?v=" + jsonObject.getJSONObject(0).getString("videoId");
             }
         } catch (IOException | InterruptedException exception) {
-            exception.printStackTrace();
+            Chuu.getLogger().info(exception.getMessage(), exception);
         }
         return responseUrl;
 

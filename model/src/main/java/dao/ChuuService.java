@@ -1846,9 +1846,9 @@ public class ChuuService implements EveryNoiseService {
 
     }
 
-    public void setWhoknowsMode(long discordId, @Nonnull WhoKnowsMode whoKnowsMode) {
+    public void setWhoknowsMode(long discordId, @Nonnull WhoKnowsDisplayMode whoKnowsDisplayMode) {
         try (Connection connection = dataSource.getConnection()) {
-            userGuildDao.setUserProperty(connection, discordId, "whoknows_mode", whoKnowsMode);
+            userGuildDao.setUserProperty(connection, discordId, "whoknows_mode", whoKnowsDisplayMode);
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }
@@ -1881,7 +1881,7 @@ public class ChuuService implements EveryNoiseService {
         }
     }
 
-    public void setServerWhoknowMode(long guildId, @Nullable WhoKnowsMode images) {
+    public void setServerWhoknowMode(long guildId, @Nullable WhoKnowsDisplayMode images) {
         try (Connection connection = dataSource.getConnection()) {
             userGuildDao.setGuildProperty(connection, guildId, "whoknows_mode", images);
         } catch (SQLException e) {
@@ -2897,8 +2897,6 @@ public class ChuuService implements EveryNoiseService {
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }
-
-
     }
 
     public void changeNpMode(long discordId, EnumSet<NPMode> modes) {
@@ -2910,6 +2908,24 @@ public class ChuuService implements EveryNoiseService {
         }
     }
 
+
+    public EnumSet<WKMode> getWkModes(long discordId) {
+        try (Connection connection = dataSource.getConnection()) {
+            long rawModes = userGuildDao.getWKRaw(connection, discordId);
+            return WKMode.getNPMode(rawModes);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    public void changeWkMode(long discordId, EnumSet<WKMode> modes) {
+
+        try (Connection connection = dataSource.getConnection()) {
+            userGuildDao.setWkRaw(connection, discordId, WKMode.getRaw(modes.toArray(WKMode[]::new)));
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
 
     public void changeChartMode(long discordId, EnumSet<ChartOptions> modes) {
         try (Connection connection = dataSource.getConnection()) {

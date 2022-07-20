@@ -50,11 +50,11 @@ public class LocalWhoKnowsAlbumCommand extends WhoKnowsBaseCommand<ArtistAlbumPa
     }
 
     @Override
-    WrapperReturnNowPlaying generateWrapper(ArtistAlbumParameters ap, WhoKnowsMode whoKnowsMode) throws LastFmException {
+    WrapperReturnNowPlaying generateWrapper(ArtistAlbumParameters ap, WhoKnowsDisplayMode whoKnowsDisplayMode) throws LastFmException {
         ScrobbledArtist sA = new ArtistValidator(db, lastFM, ap.getE()).validate(ap.getArtist(), !ap.isNoredirect());
         ap.setScrobbledArtist(sA);
         ScrobbledArtist who = ap.getScrobbledArtist();
-        WhoKnowsMode effectiveMode = getEffectiveMode(ap.getLastFMData().getWhoKnowsMode(), ap);
+        WhoKnowsDisplayMode effectiveMode = getEffectiveMode(ap.getLastFMData().getWhoKnowsMode(), ap);
         Album album = CommandUtil.albumvalidate(db, ap
                 .getScrobbledArtist(), lastFM, ap.getAlbum());
         long albumId = album.id();
@@ -121,7 +121,7 @@ public class LocalWhoKnowsAlbumCommand extends WhoKnowsBaseCommand<ArtistAlbumPa
         return first.map(rnp -> new Rank<>(rnp, finalRank));
     }
 
-    protected WrapperReturnNowPlaying generateInnerWrapper(ArtistAlbumParameters ap, WhoKnowsMode effectiveMode, long albumId) {
+    protected WrapperReturnNowPlaying generateInnerWrapper(ArtistAlbumParameters ap, WhoKnowsDisplayMode effectiveMode, long albumId) {
         return this.db.getWhoKnowsAlbums(Integer.MAX_VALUE, albumId, ap.getE().getGuild().getIdLong());
     }
 

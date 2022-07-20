@@ -235,7 +235,7 @@ public class NPModeBuilder {
                                             String.format("%s's is on a 🔥 of %d %s", userName, combo.artistCount(), CommandUtil.singlePlural(combo.artistCount(), "play", "plays"));
                                 }
                             } catch (LastFmException exception) {
-                                exception.printStackTrace();
+                                Chuu.getLogger().info(e.getMessage(), e);
                             }
                         }
                     })));

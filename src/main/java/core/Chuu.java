@@ -23,7 +23,6 @@ import core.music.utils.ScrobbleProcesser;
 import core.otherlisteners.*;
 import core.services.*;
 import core.services.validators.AlbumFinder;
-import core.util.ChuuVirtualPool;
 import core.util.botlists.BotListPoster;
 import dao.*;
 import dao.entities.Callback;
@@ -45,11 +44,8 @@ import net.dv8tion.jda.api.requests.restaction.CommandListUpdateAction;
 import net.dv8tion.jda.api.requests.restaction.MessageAction;
 import net.dv8tion.jda.api.sharding.DefaultShardManagerBuilder;
 import net.dv8tion.jda.api.sharding.ShardManager;
-import net.dv8tion.jda.api.sharding.ThreadPoolProvider;
 import net.dv8tion.jda.api.utils.ChunkingFilter;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
-import okhttp3.Dispatcher;
-import okhttp3.OkHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,13 +54,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.LongAdder;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @SuppressWarnings("UnstableApiUsage")
@@ -169,9 +163,6 @@ public class Chuu {
         EvalCommand evalCommand = new EvalCommand(db);
         monitoringService = new ChuuService(new MonitoringDatasource());
         AtomicInteger counter = new AtomicInteger(0);
-        Function<String, ThreadPoolProvider<ExecutorService>> executorBuilder = (str) -> (shard) -> Executors.newThreadPerTaskExecutor(Thread.ofVirtual()
-                .uncaughtExceptionHandler((t, e) -> logger.warn(e.getMessage(), e)).
-                name("JDA-" + shard + "-" + str, 0).factory());
 
         DefaultShardManagerBuilder builder = DefaultShardManagerBuilder.
                 create(getIntents())
@@ -202,14 +193,7 @@ public class Chuu {
                 })
                 .setLargeThreshold(50)
                 .setToken(properties.getProperty("DISCORD_TOKEN"))
-                .setEventPoolProvider(executorBuilder.apply("Event"))
-                .setCallbackPoolProvider(executorBuilder.apply("Callback"))
-                .setHttpClientBuilder(new OkHttpClient.Builder()
-                        .dispatcher(new Dispatcher(ChuuVirtualPool.of("OkHttp")))
-                        .readTimeout(20, TimeUnit.SECONDS)
-                        .writeTimeout(30, TimeUnit.SECONDS))
                 .setAutoReconnect(true)
-                .setThreadFactory(Thread.ofVirtual().uncaughtExceptionHandler((t, e) -> logger.warn(e.getMessage(), e)).name("JDA-Main-", 0).factory())
                 .setEventManagerProvider(a -> customManager)
                 .addEventListeners(evalCommand)
                 .setShardsTotal(-1)
@@ -315,11 +299,11 @@ public class Chuu {
             return result.getAllClasses().stream()
                     .filter(x -> x.isStandardClass() && !x.isAbstract())
                     .filter(x -> !x.getSimpleName().equals(HelpCommand.class.getSimpleName())
-                            && !x.getSimpleName().equals(AdministrativeCommand.class.getSimpleName())
-                            && !x.getSimpleName().equals(PrefixCommand.class.getSimpleName())
-                            && !x.getSimpleName().equals(TagWithYearCommand.class.getSimpleName())
-                            && !x.getSimpleName().equals(EvalCommand.class.getSimpleName())
-                            && !x.getSimpleName().equals(FeaturedCommand.class.getSimpleName()))
+                                 && !x.getSimpleName().equals(AdministrativeCommand.class.getSimpleName())
+                                 && !x.getSimpleName().equals(PrefixCommand.class.getSimpleName())
+                                 && !x.getSimpleName().equals(TagWithYearCommand.class.getSimpleName())
+                                 && !x.getSimpleName().equals(EvalCommand.class.getSimpleName())
+                                 && !x.getSimpleName().equals(FeaturedCommand.class.getSimpleName()))
                     .filter(x -> x.extendsSuperclass("core.commands.abstracts.MyCommand")).map(x -> {
                         try {
                             return (MyCommand<?>) x.loadClass().getConstructor(ServiceView.class).newInstance(db);

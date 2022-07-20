@@ -2,6 +2,7 @@ package core.commands.whoknows;
 
 import core.commands.Context;
 import core.commands.utils.CommandUtil;
+import core.imagerenderer.ExetricWKMaker;
 import core.imagerenderer.WhoKnowsMaker;
 import core.parsers.MultipleArtistsParser;
 import core.parsers.Parser;
@@ -27,15 +28,21 @@ public class MultipleWhoKnowsCommand extends WhoKnowsBaseCommand<MultiArtistPara
     BufferedImage doImage(MultiArtistParameters ap, WrapperReturnNowPlaying wrapperReturnNowPlaying) {
         Context e = ap.getE();
         BufferedImage logo = null;
-        String title;
+        ImageTitle title;
         if (e.isFromGuild()) {
             logo = CommandUtil.getLogo(db, e);
-            title = e.getGuild().getName();
+            title = new ImageTitle(e.getGuild().getName(), e.getGuild().getIconUrl());
         } else {
-            title = e.getJDA().getSelfUser().getName();
+            title = new ImageTitle(e.getJDA().getSelfUser().getName(), e.getJDA().getSelfUser().getAvatarUrl());
         }
-        handleWkMode(ap, wrapperReturnNowPlaying, WhoKnowsMode.IMAGE);
-        BufferedImage image = WhoKnowsMaker.generateWhoKnows(wrapperReturnNowPlaying, EnumSet.allOf(WKMode.class), title, logo, ap.getE().getAuthor().getIdLong());
+        handleWkMode(ap, wrapperReturnNowPlaying, WhoKnowsDisplayMode.IMAGE);
+        LastFMData data = obtainLastFmData(ap);
+        BufferedImage image;
+        if (data.getWkModes().contains(WKMode.BETA)) {
+            image = ExetricWKMaker.generateWhoKnows(wrapperReturnNowPlaying, title.title(), title.logo(), logo);
+        } else {
+            image = WhoKnowsMaker.generateWhoKnows(wrapperReturnNowPlaying, title.title(), logo);
+        }
         sendImage(image, e);
 
         return logo;
@@ -52,8 +59,8 @@ public class MultipleWhoKnowsCommand extends WhoKnowsBaseCommand<MultiArtistPara
     }
 
     @Override
-    WrapperReturnNowPlaying generateWrapper(MultiArtistParameters params, WhoKnowsMode whoKnowsMode) {
-        int i = whoKnowsMode.equals(WhoKnowsMode.IMAGE) ? 10 : Integer.MAX_VALUE;
+    WrapperReturnNowPlaying generateWrapper(MultiArtistParameters params, WhoKnowsDisplayMode whoKnowsDisplayMode) {
+        int i = whoKnowsDisplayMode.equals(WhoKnowsDisplayMode.IMAGE) ? 10 : Integer.MAX_VALUE;
         List<WrapperReturnNowPlaying> whoKnowsArtistSet = db.getWhoKnowsArtistSet(params.getArtists(), params.getE().getGuild().getIdLong(), i, null);
         if (whoKnowsArtistSet.isEmpty()) {
             sendMessageQueue(params.getE(), "No one knows " + CommandUtil.escapeMarkdown(join(params.getArtists())));

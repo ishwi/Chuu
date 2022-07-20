@@ -240,7 +240,7 @@ public class TrackDistributor {
             color = color.darker().darker();
 
         //I like transparency
-        g.setColor(GraphicUtils.makeMoreTransparent(color, 0.7f));
+        g.setColor(GraphicUtils.setAlpha(color, 0.7f));
 
         int startingPoint = starttingY;
         StringFitter.FontMetadata[] metadatas = trackList.stream().map(t -> trackFitter.getFontMetadata(g, t.getName())).toArray(StringFitter.FontMetadata[]::new);
@@ -297,7 +297,7 @@ public class TrackDistributor {
             color = color.darker().darker();
 
         //I like transparency
-        g.setColor(GraphicUtils.makeMoreTransparent(color, 0.7f));
+        g.setColor(GraphicUtils.setAlpha(color, 0.7f));
         StringFitter.FontMetadata[] metadatas = trackList.stream().map(t -> trackFitter.getFontMetadata(g, t.getName())).toArray(StringFitter.FontMetadata[]::new);
         int startingPoint = yStart;
         OptionalInt max = Arrays.stream(metadatas).mapToInt(t -> (int) t.bounds().getWidth())

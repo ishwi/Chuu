@@ -116,18 +116,18 @@ public class UserConfigCommand extends ConcurrentCommand<UserConfigParameters> {
                     sendMessageQueue(e, "Chart mode set to: **" + WordUtils.capitalizeFully(chartMode.toString()) + "**");
                 }
                 break;
-            case WHOKNOWS_MODE:
-                WhoKnowsMode whoKnowsMode;
+            case WHOKNOWS_DISPLAY_MODE:
+                WhoKnowsDisplayMode whoKnowsDisplayMode;
                 if (cleansing) {
-                    whoKnowsMode = WhoKnowsMode.IMAGE;
+                    whoKnowsDisplayMode = WhoKnowsDisplayMode.IMAGE;
                 } else {
-                    whoKnowsMode = WhoKnowsMode.valueOf(value.replace("-", "_").toUpperCase());
+                    whoKnowsDisplayMode = WhoKnowsDisplayMode.valueOf(value.replace("-", "_").toUpperCase());
                 }
-                db.setWhoknowsMode(e.getAuthor().getIdLong(), whoKnowsMode);
+                db.setWhoknowsMode(e.getAuthor().getIdLong(), whoKnowsDisplayMode);
                 if (cleansing) {
                     sendMessageQueue(e, "Now your who knows are back to the default");
                 } else {
-                    sendMessageQueue(e, "Who Knows mode set to: **" + WordUtils.capitalizeFully(whoKnowsMode.toString()) + "**");
+                    sendMessageQueue(e, "Who Knows mode set to: **" + WordUtils.capitalizeFully(whoKnowsDisplayMode.toString()) + "**");
                 }
                 break;
             case REMAINING_MODE:
@@ -278,6 +278,21 @@ public class UserConfigCommand extends ConcurrentCommand<UserConfigParameters> {
                 sendMessageQueue(e, String.format("Successfully changed to the following %s: %s", CommandUtil.singlePlural(chartOpts.size(), "chart options", "chart options"), strModes));
                 break;
             case TIMEZONE:
+                break;
+            case WK_MODE:
+                if (value.matches("(clear|list|add|remove|help).*")) {
+                    sendMessageQueue(e, "To use one of those settings please use the `" + e.getPrefix() + "npc` command instead.");
+                    return;
+                }
+                EnumSet<WKMode> wkmodes = WKModeSetterCommand.mapper.apply(value);
+                if (wkmodes.isEmpty()) {
+                    sendMessageQueue(e, "Couldn't parse any mode. Please to get more info use `" + e.getPrefix() + "npc help`");
+                    return;
+                }
+
+                db.changeWkMode(e.getAuthor().getIdLong(), wkmodes);
+                strModes = WKMode.getListedName(wkmodes);
+                sendMessageQueue(e, String.format("Successfully changed to the following %s: %s", CommandUtil.singlePlural(wkmodes.size(), "mode", "modes"), strModes));
                 break;
         }
     }

@@ -254,11 +254,33 @@ public class GraphicUtils {
     }
 
     static Color getFontColorBackground(BufferedImage canvas) {
-        int a = canvas.getRGB(0, 0);
+        int a = canvas.getRGB(5, 5);
         return new Color(a);
     }
 
-    public static Color makeMoreTransparent(Color fontColor, float percentage) {
+    static Color[] sampleBackground(BufferedImage canvas) {
+        return new Color[]{new Color(canvas.getRGB(0, 0)),
+                new Color(canvas.getRGB(0, canvas.getHeight() - 1)),
+                new Color(canvas.getRGB(canvas.getWidth() - 1, 0)),
+                new Color(canvas.getRGB(canvas.getWidth() - 1, canvas.getHeight() - 1)),
+                new Color(canvas.getRGB(canvas.getWidth() / 2 - 1, canvas.getHeight() / 2 - 1))
+        };
+    }
+
+    static Color mergeColor(Color... colors) {
+        float r = 0;
+        float g = 0;
+        float b = 0;
+        for (Color color : colors) {
+            float[] chan = color.getColorComponents(null);
+            r += chan[0];
+            g += chan[1];
+            b += chan[2];
+        }
+        return new Color(r / colors.length, g / colors.length, b / colors.length);
+    }
+
+    public static Color setAlpha(Color fontColor, float percentage) {
         float[] rgb2 = new float[3];
         fontColor.getRGBColorComponents(rgb2);
         return new Color(rgb2[0], rgb2[1], rgb2[2], percentage);
@@ -268,14 +290,14 @@ public class GraphicUtils {
     static Color getReadableColorBackgroundForFont(Color fontColor) {
         float[] rgb2 = new float[3];
         fontColor.getRGBColorComponents(rgb2);
-        Color colorB1 = new Color(rgb2[0], rgb2[1], rgb2[2], 0.7f);
-        return colorB1.darker().darker();
+        Color colorB1 = new Color(rgb2[0], rgb2[1], rgb2[2], 0.8f);
+        return colorB1.darker().darker().darker();
     }
 
     static Color getSurfaceColor(Color fontColor) {
         float[] rgb2 = new float[3];
         fontColor.getRGBColorComponents(rgb2);
-        return new Color(rgb2[0], rgb2[1], rgb2[2], 0.5f).darker();
+        return new Color(rgb2[0], rgb2[1], rgb2[2], 0.5f).brighter();
     }
 
     static BufferedImage getImageFromUrl(String urlImage, @Nullable BufferedImage replacement) {
@@ -352,7 +374,7 @@ public class GraphicUtils {
             int playPos = x + width - (rowHeight + stringWidth);
             int playEnd = playPos + stringWidth;
             g.drawString(plays, x + width - (rowHeight + metrics.stringWidth(plays)), yCounter + (margin - metrics
-                    .getAscent() / 2));
+                                                                                                                   .getAscent() / 2));
             g.drawImage(lastFmLogo, playEnd + 9, (int) (yCounter - metrics.getAscent() * 0.85), null);
             yCounter += rowHeight;
 
@@ -371,13 +393,69 @@ public class GraphicUtils {
     public static Color getBetter(Color... color) {
         double accum = 0;
         for (Color col : color) {
+            float[] colorComponents = col.getColorComponents(null);
+
             accum += 0.2126 * col.getRed() + 0.7152 * col.getGreen() + 0.0722 * col.getBlue();
         }
         return (accum / color.length) < 128 ? Color.WHITE : Color.BLACK;
 
     }
 
+    private static double sRGBtoLin(double chann) {
+        if (chann <= 0.04045) {
+            return chann / 12.92;
+        } else {
+            return Math.pow((chann + 0.055) / 1.055, 2.4);
+        }
+    }
+
+    private static double luminance(double r, double g, double b) {
+        return 0.2126 * sRGBtoLin(r) + 0.7152 * sRGBtoLin(g) + 0.0722 * sRGBtoLin(b);
+    }
+
+    public static double perceivedLightness(double y) {
+        if (y <= 216 / 24389.) {
+            return y * (24389. / 27);
+        } else {
+            return Math.pow(y, 1 / 3.) * 116 - 16;
+        }
+    }
+
+    public static double contrast(Color fore, Color back) {
+        float[] rgbComponents = fore.getRGBComponents(null);
+        double r = rgbComponents[0];
+        double g = rgbComponents[1];
+        double b = rgbComponents[2];
+
+
+        double l0 = perceivedLightness(luminance(r, g, b));
+
+        rgbComponents = back.getRGBComponents(null);
+        r = rgbComponents[0];
+        g = rgbComponents[1];
+        b = rgbComponents[2];
+        double l1 = perceivedLightness(luminance(r, g, b));
+        return (l0 + 0.05) / (l1 + 0.05);
+    }
+
+    public static Color getBetterSO(Color... color) {
+        double accum = 0;
+        for (Color col : color) {
+            float[] rgbComponents = col.getRGBComponents(null);
+            double r = rgbComponents[0];
+            double g = rgbComponents[1];
+            double b = rgbComponents[2];
+            accum += perceivedLightness(luminance(r, g, b));
+        }
+        return (accum / color.length) <= 50 ? Color.WHITE : Color.BLACK;
+
+    }
+
     static void drawStringNicely(Graphics2D g, String string, int x, int y, BufferedImage bufferedImage) {
+        drawStringNicely(g, string, x, y, bufferedImage, null);
+    }
+
+    static void drawStringNicely(Graphics2D g, String string, int x, int y, BufferedImage bufferedImage, Float transparency) {
 
         Color temp = g.getColor();
         int length = g.getFontMetrics().stringWidth(string);
@@ -387,7 +465,11 @@ public class GraphicUtils {
                     , y));
             Color col2 = new Color(bufferedImage.getRGB(Math.max(0, Math.min(bufferedImage.getWidth() - 5, x + length / 2)), y));
             Color col3 = new Color(bufferedImage.getRGB(Math.max(0, Math.min(bufferedImage.getWidth() - 5, x + length)), y));
-            g.setColor(getBetter(col1, col2, col3));
+            Color better = getBetter(col1, col2, col3);
+            if (transparency != null) {
+                better = GraphicUtils.setAlpha(better, transparency);
+            }
+            g.setColor(better);
         } catch (ArrayIndexOutOfBoundsException debugger) {
             Chuu.getLogger().warn(x + " " + y + " " + " " + length + " " + bufferedImage.getWidth() + " " + bufferedImage.getHeight());
             Chuu.getLogger().warn(debugger.getMessage(), debugger);

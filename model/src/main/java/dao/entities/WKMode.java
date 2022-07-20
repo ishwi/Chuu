@@ -10,9 +10,8 @@ import java.util.stream.Collectors;
 
 public enum WKMode {
     NORMAL(0),
-    RANK(1),
-    SCROBBLES(2),
-    LISTENERS(3),
+    OWN_RANK(1),
+    BETA(2),
     UNKNOWN(-1);
 
     private final long raw;
@@ -71,9 +70,8 @@ public enum WKMode {
     public String getHelpMessage() {
         return switch (this) {
             case NORMAL -> "The normal np behaviour.";
-            case RANK -> "Your position if you are not included in the top 10";
-            case SCROBBLES -> "Sum of scrobbles";
-            case LISTENERS -> "Count of listeners";
+            case OWN_RANK -> "Include your ranking even if you are not in the frontpage";
+            case BETA -> "Experimental visualization for the wk";
             case UNKNOWN -> throw new IllegalStateException("Unexpected value: " + this);
         };
 

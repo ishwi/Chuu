@@ -41,23 +41,23 @@ public class GlobalWhoKnowsCommand extends GlobalBaseWhoKnowCommand<ArtistParame
     }
 
     @Override
-    WhoKnowsMode getWhoknowsMode(ArtistParameters params) {
+    WhoKnowsDisplayMode getWhoknowsMode(ArtistParameters params) {
         return getEffectiveMode(params.getLastFMData().getWhoKnowsMode(), params);
     }
 
     @Override
-    WrapperReturnNowPlaying generateWrapper(ArtistParameters params, WhoKnowsMode whoKnowsMode) throws LastFmException {
+    WrapperReturnNowPlaying generateWrapper(ArtistParameters params, WhoKnowsDisplayMode whoKnowsDisplayMode) throws LastFmException {
         ScrobbledArtist sA = new ArtistValidator(db, lastFM, params.getE()).validate(params.getArtist(), !params.isNoredirect());
         params.setScrobbledArtist(sA);
         Context e = params.getE();
         long artistId = sA.getArtistId();
-        WhoKnowsMode effectiveMode = getEffectiveMode(params.getLastFMData().getWhoKnowsMode(), params);
+        WhoKnowsDisplayMode effectiveMode = getEffectiveMode(params.getLastFMData().getWhoKnowsMode(), params);
 
         boolean b = CommandUtil.showBottedAccounts(params.getLastFMData(), params, db);
 
         long author = params.getE().getAuthor().getIdLong();
         WrapperReturnNowPlaying wrapperReturnNowPlaying =
-                effectiveMode.equals(WhoKnowsMode.IMAGE) ? this.db.globalWhoKnows(artistId, b, author, hidePrivate(params)) : this.db.globalWhoKnows(artistId, Integer.MAX_VALUE, b, author, hidePrivate(params));
+                effectiveMode.equals(WhoKnowsDisplayMode.IMAGE) ? this.db.globalWhoKnows(artistId, b, author, hidePrivate(params)) : this.db.globalWhoKnows(artistId, Integer.MAX_VALUE, b, author, hidePrivate(params));
         if (wrapperReturnNowPlaying.getRows() == 0) {
             sendMessageQueue(params.getE(), "No one knows " + CommandUtil.escapeMarkdown(sA.getArtist()));
             return null;

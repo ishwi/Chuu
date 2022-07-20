@@ -37,6 +37,7 @@ import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
 import java.awt.image.BufferedImage;
 import java.time.Instant;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
@@ -47,6 +48,7 @@ public abstract class MyCommand<T extends CommandParameters> implements EventLis
     protected final Parser<T> parser;
     private final CommandCategory category;
     private final boolean isLongRunningCommand;
+    private final EnumSet<Permission> requiredPerms;
     public boolean respondInPrivate = true;
     public boolean ephemeral = false;
     public boolean canAnswerFast = false;
@@ -58,15 +60,19 @@ public abstract class MyCommand<T extends CommandParameters> implements EventLis
         this.db = serviceview.getView(isLongRunningCommand);
         this.parser = initParser();
         this.category = initCategory();
+        this.requiredPerms = initRequiredPerms();
     }
 
     protected MyCommand(ServiceView serviceview) {
         this(serviceview, false);
-
     }
 
     private static void logCommand(ChuuService service, Context e, MyCommand<?> command, long exectTime, boolean success, boolean isNormalCommand) {
         service.logCommand(e.getAuthor().getIdLong(), e.isFromGuild() ? e.getGuild().getIdLong() : null, command.getName(), exectTime, Instant.now(), success, isNormalCommand);
+    }
+
+    protected EnumSet<Permission> initRequiredPerms() {
+        return EnumSet.noneOf(Permission.class);
     }
 
     protected abstract CommandCategory initCategory();

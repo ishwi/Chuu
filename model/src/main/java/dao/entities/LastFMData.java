@@ -8,7 +8,7 @@ public class LastFMData {
 
     private final boolean privateUpdate;
     private final boolean imageNotify;
-    private final WhoKnowsMode whoKnowsMode;
+    private final WhoKnowsDisplayMode whoKnowsDisplayMode;
     private final ChartMode ChartMode;
     private final RemainingImagesMode remainingImagesMode;
     private final int defaultX;
@@ -24,19 +24,20 @@ public class LastFMData {
     private final boolean ownTags;
     private final int artistThreshold;
     private final EnumSet<ChartOptions> chartOptions;
+    private final EnumSet<WKMode> wkModes;
     private Long discordId;
     private String name;
     private long guildID;
     private Role role;
     private String session;
 
-    public LastFMData(String name, Long discordId, long guildID, boolean privateUpdate, boolean imageNotify, WhoKnowsMode whoKnowsMode, dao.entities.ChartMode chartMode, RemainingImagesMode remainingImagesMode, int defaultX, int defaultY, PrivacyMode privacyMode, boolean ratingNotify, boolean privateLastfmId, boolean showBotted, TimeZone timeZone, String token, String session, boolean scrobbling, EmbedColor embedColor, boolean ownTags, int artistThreshold, EnumSet<ChartOptions> chartOptions) {
+    public LastFMData(String name, Long discordId, long guildID, boolean privateUpdate, boolean imageNotify, WhoKnowsDisplayMode whoKnowsDisplayMode, dao.entities.ChartMode chartMode, RemainingImagesMode remainingImagesMode, int defaultX, int defaultY, PrivacyMode privacyMode, boolean ratingNotify, boolean privateLastfmId, boolean showBotted, TimeZone timeZone, String token, String session, boolean scrobbling, EmbedColor embedColor, boolean ownTags, int artistThreshold, EnumSet<ChartOptions> chartOptions, EnumSet<WKMode> wkModes) {
         this.discordId = discordId;
         this.name = name;
         this.guildID = guildID;
         this.privateUpdate = privateUpdate;
         this.imageNotify = imageNotify;
-        this.whoKnowsMode = whoKnowsMode;
+        this.whoKnowsDisplayMode = whoKnowsDisplayMode;
         ChartMode = chartMode;
         this.remainingImagesMode = remainingImagesMode;
         this.defaultX = defaultX;
@@ -53,15 +54,16 @@ public class LastFMData {
         this.ownTags = ownTags;
         this.artistThreshold = artistThreshold;
         this.chartOptions = chartOptions;
+        this.wkModes = wkModes;
     }
 
-    public LastFMData(String lastFmID, long resDiscordID, Role role, boolean privateUpdate, boolean notifyImage, WhoKnowsMode whoKnowsMode, dao.entities.ChartMode chartMode, RemainingImagesMode remainingImagesMode, int defaultX, int defaultY, PrivacyMode privacyMode, boolean ratingNotify, boolean privateLastfmId, boolean showBotted, TimeZone timeZone, String token, String session, boolean scrobbling, EmbedColor embedColor, boolean ownTags, int artistThreshold, EnumSet<ChartOptions> chartOptions) {
+    public LastFMData(String lastFmID, long resDiscordID, Role role, boolean privateUpdate, boolean notifyImage, WhoKnowsDisplayMode whoKnowsDisplayMode, dao.entities.ChartMode chartMode, RemainingImagesMode remainingImagesMode, int defaultX, int defaultY, PrivacyMode privacyMode, boolean ratingNotify, boolean privateLastfmId, boolean showBotted, TimeZone timeZone, String token, String session, boolean scrobbling, EmbedColor embedColor, boolean ownTags, int artistThreshold, EnumSet<ChartOptions> chartOptions, EnumSet<WKMode> wkModes) {
         this.name = lastFmID;
         this.discordId = resDiscordID;
         this.role = role;
         this.privateUpdate = privateUpdate;
         this.imageNotify = notifyImage;
-        this.whoKnowsMode = whoKnowsMode;
+        this.whoKnowsDisplayMode = whoKnowsDisplayMode;
         ChartMode = chartMode;
         this.remainingImagesMode = remainingImagesMode;
         this.defaultX = defaultX;
@@ -78,17 +80,16 @@ public class LastFMData {
         this.ownTags = ownTags;
         this.artistThreshold = artistThreshold;
         this.chartOptions = chartOptions;
-
-
+        this.wkModes = wkModes;
     }
 
     public static LastFMData ofUserWrapper(UsersWrapper usersWrapper) {
-        return new LastFMData(usersWrapper.getLastFMName(), usersWrapper.getDiscordID(), usersWrapper.getRole(), false, false, WhoKnowsMode.IMAGE, dao.entities.ChartMode.IMAGE, RemainingImagesMode.IMAGE, 5, 5, PrivacyMode.NORMAL, false, false, true, usersWrapper.getTimeZone(), null, null, true, EmbedColor.defaultColor(), false, 0, ChartOptions.defaultMode());
+        return new LastFMData(usersWrapper.getLastFMName(), usersWrapper.getDiscordID(), usersWrapper.getRole(), false, false, WhoKnowsDisplayMode.IMAGE, dao.entities.ChartMode.IMAGE, RemainingImagesMode.IMAGE, 5, 5, PrivacyMode.NORMAL, false, false, true, usersWrapper.getTimeZone(), null, null, true, EmbedColor.defaultColor(), false, 0, ChartOptions.defaultMode(), EnumSet.noneOf(WKMode.class));
 
     }
 
     public static LastFMData ofDefault() {
-        return new LastFMData("chuubot", -1L, Role.USER, false, false, WhoKnowsMode.IMAGE, dao.entities.ChartMode.IMAGE, RemainingImagesMode.IMAGE, 5, 5, PrivacyMode.NORMAL, false, false, true, TimeZone.getDefault(), null, null, true, EmbedColor.defaultColor(), false, 0, ChartOptions.defaultMode());
+        return new LastFMData("chuubot", -1L, Role.USER, false, false, WhoKnowsDisplayMode.IMAGE, dao.entities.ChartMode.IMAGE, RemainingImagesMode.IMAGE, 5, 5, PrivacyMode.NORMAL, false, false, true, TimeZone.getDefault(), null, null, true, EmbedColor.defaultColor(), false, 0, ChartOptions.defaultMode(), EnumSet.noneOf(WKMode.class));
 
     }
 
@@ -97,7 +98,7 @@ public class LastFMData {
     }
 
     public static LastFMData ofUser(@Nonnull String user, long id) {
-        return new LastFMData(user, id, Role.USER, false, false, WhoKnowsMode.IMAGE, dao.entities.ChartMode.IMAGE, RemainingImagesMode.IMAGE, 5, 5, PrivacyMode.NORMAL, false, false, true, TimeZone.getDefault(), null, null, true, EmbedColor.defaultColor(), false, 0, ChartOptions.defaultMode());
+        return new LastFMData(user, id, Role.USER, false, false, WhoKnowsDisplayMode.IMAGE, dao.entities.ChartMode.IMAGE, RemainingImagesMode.IMAGE, 5, 5, PrivacyMode.NORMAL, false, false, true, TimeZone.getDefault(), null, null, true, EmbedColor.defaultColor(), false, 0, ChartOptions.defaultMode(), EnumSet.noneOf(WKMode.class));
     }
 
     public EmbedColor getEmbedColor() {
@@ -146,8 +147,8 @@ public class LastFMData {
         return imageNotify;
     }
 
-    public WhoKnowsMode getWhoKnowsMode() {
-        return whoKnowsMode;
+    public WhoKnowsDisplayMode getWhoKnowsMode() {
+        return whoKnowsDisplayMode;
     }
 
     public dao.entities.ChartMode getChartMode() {
@@ -174,13 +175,6 @@ public class LastFMData {
         return ratingNotify;
     }
 
-    public String getEffectiveLastFmName() {
-        if (isPrivateUpdate()) {
-            return "chuubot";
-        }
-        return getName();
-    }
-
     public boolean isPrivateLastfmId() {
         return privateLastfmId;
     }
@@ -205,7 +199,6 @@ public class LastFMData {
         this.session = session;
     }
 
-
     public boolean isScrobbling() {
         return scrobbling;
     }
@@ -220,5 +213,9 @@ public class LastFMData {
 
     public EnumSet<ChartOptions> getChartOptions() {
         return chartOptions;
+    }
+
+    public EnumSet<WKMode> getWkModes() {
+        return wkModes;
     }
 }

@@ -22,7 +22,7 @@ public enum UserConfigType {
     CHART_MODE("chart"),
     NOTIFY_IMAGE("image-notify"),
     PRIVATE_UPDATE("private-update"),
-    WHOKNOWS_MODE("whoknows"),
+    WHOKNOWS_DISPLAY_MODE("whoknows-display"),
     REMAINING_MODE("rest"),
     CHART_SIZE("size"),
     PRIVACY_MODE("privacy"),
@@ -35,7 +35,9 @@ public enum UserConfigType {
     OWN_TAGS("own-tags"),
     ARTIST_THRESHOLD("artist-threshold"),
     CHART_OPTIONS("chart-options"),
-    TIMEZONE("timezone");
+    TIMEZONE("timezone"),
+
+    WK_MODE("wk-mode");
 
     static final Pattern bool = Pattern.compile("(True|False)", Pattern.CASE_INSENSITIVE);
     static final Pattern chartMode = Pattern.compile("(Image|Image-info|Image-Aside|Image-aside-info|Pie|List|Clear)", Pattern.CASE_INSENSITIVE);
@@ -43,8 +45,11 @@ public enum UserConfigType {
     static final Pattern chartOptions = Pattern.compile("((--|—|~~)? ?(no([\\-_ ])?titles|plays|Clear)[ |&,]*)+", Pattern.CASE_INSENSITIVE);
     static final Pattern privacyMode = Pattern.compile("(Normal|Tag|Last-name|Discord-Name)", Pattern.CASE_INSENSITIVE);
     static final Pattern npMode = Pattern.compile("((" +
-            EnumSet.allOf(NPMode.class).stream().filter(x -> !x.equals(NPMode.UNKNOWN)).map(NPMode::toString).collect(Collectors.joining("|")) +
-            "|clear|list|add|remove|help|)[ |&,]*)+", Pattern.CASE_INSENSITIVE);
+                                                  EnumSet.allOf(NPMode.class).stream().filter(x -> !x.equals(NPMode.UNKNOWN)).map(NPMode::toString).collect(Collectors.joining("|")) +
+                                                  "|clear|list|add|remove|help|)[ |&,]*)+", Pattern.CASE_INSENSITIVE);
+    static final Pattern wkImageMode = Pattern.compile("((" +
+                                                       EnumSet.allOf(WKMode.class).stream().filter(x -> !x.equals(WKMode.UNKNOWN)).map(WKMode::toString).collect(Collectors.joining("|")) +
+                                                       "|clear|list|add|remove|help|)[ |&,]*)+", Pattern.CASE_INSENSITIVE);
     static final Predicate<String> stringPredicate = (x) ->
     {
         try {
@@ -100,7 +105,7 @@ public enum UserConfigType {
                                         chartMode = lastFMData.getChartMode().toString();
                                     }
                                     return String.format("**%s** ➜ %s", key, chartMode);
-                                case WHOKNOWS_MODE:
+                                case WHOKNOWS_DISPLAY_MODE:
                                     String whoknowsmode;
                                     if (lastFMData == null || lastFMData.getWhoKnowsMode() == null) {
                                         whoknowsmode = "NOT SET";
@@ -193,59 +198,75 @@ public enum UserConfigType {
     public Predicate<String> getParser() {
         return switch (this) {
             case CHART_MODE -> chartMode.asMatchPredicate();
-            case REMAINING_MODE, WHOKNOWS_MODE -> whoknowsMode.asMatchPredicate();
+            case REMAINING_MODE, WHOKNOWS_DISPLAY_MODE -> whoknowsMode.asMatchPredicate();
             case PRIVACY_MODE -> privacyMode.asMatchPredicate();
-            case PRIVATE_UPDATE, NOTIFY_IMAGE, NOTIFY_RATING, PRIVATE_LASTFM, SHOW_BOTTED, SCROBBLING, OWN_TAGS -> bool.asMatchPredicate();
+            case PRIVATE_UPDATE, NOTIFY_IMAGE, NOTIFY_RATING, PRIVATE_LASTFM, SHOW_BOTTED, SCROBBLING, OWN_TAGS ->
+                    bool.asMatchPredicate();
             case CHART_SIZE -> ChartParserAux.chartSizePattern.asMatchPredicate();
             case NP -> npMode.asMatchPredicate();
             case COLOR -> GuildConfigType.colorMode.asMatchPredicate();
             case ARTIST_THRESHOLD -> GuildConfigType.number.asMatchPredicate();
             case CHART_OPTIONS -> chartOptions.asMatchPredicate();
             case TIMEZONE -> stringPredicate;
+            case WK_MODE -> wkImageMode.asMatchPredicate();
         };
     }
 
     public String getExplanation() {
         return switch (this) {
-            case PRIVATE_UPDATE -> "If you want others users to be able to update your account with a ping and the update command (true for making it private, false for it to be public)";
-            case NOTIFY_IMAGE -> "Whether you will get notified or not when a submitted image gets accepted (true = notify, false = don't)";
+            case PRIVATE_UPDATE ->
+                    "If you want others users to be able to update your account with a ping and the update command (true for making it private, false for it to be public)";
+            case NOTIFY_IMAGE ->
+                    "Whether you will get notified or not when a submitted image gets accepted (true = notify, false = don't)";
             case CHART_MODE -> {
                 String line = EnumSet.allOf(ChartMode.class).stream().map(x -> "\n\t\t\t**" + WordUtils.capitalizeFully(x.toString()) + "**: " + x.getDescription()).collect(Collectors.joining(""));
                 line += "\n\t\t\t**Clear**: Sets the default mode";
                 yield "Set the mode for all charts. " +
-                        "Keep in mind that if a server has a set value that will be prioritized.\n" +
-                        "\t\tThe possible values for the chart mode are the following:" + line;
+                      "Keep in mind that if a server has a set value that will be prioritized.\n" +
+                      "\t\tThe possible values for the chart mode are the following:" + line;
             }
-            case WHOKNOWS_MODE -> {
-                String line = EnumSet.allOf(WhoKnowsMode.class).stream().map(x -> "\n\t\t\t**" + WordUtils.capitalizeFully(x.toString()) + "**: " + x.getDescription()).collect(Collectors.joining(""));
+            case WHOKNOWS_DISPLAY_MODE -> {
+                String line = EnumSet.allOf(WhoKnowsDisplayMode.class).stream().map(x -> "\n\t\t\t**" + WordUtils.capitalizeFully(x.toString()) + "**: " + x.getDescription()).collect(Collectors.joining(""));
                 line += "\n\t\t\t**Clear**: Sets the default mode";
                 yield "Set the mode for all charts. " +
-                        "Keep in mind that if a server has a set value that will be prioritized.\n" +
-                        "\t\tThe possible values for the who knows mode are the following:" + line;
+                      "Keep in mind that if a server has a set value that will be prioritized.\n" +
+                      "\t\tThe possible values for the who knows mode are the following:" + line;
             }
             case REMAINING_MODE -> {
                 String line = EnumSet.allOf(RemainingImagesMode.class).stream().map(x -> "\n\t\t\t**" + WordUtils.capitalizeFully(x.toString()) + "**: " + x.getDescription()).collect(Collectors.joining(""));
                 line += "\n\t\t\t**Clear**:| Sets the default mode";
                 yield "Set the mode for the rest of the commands. " +
-                        "Keep in mind that if a server has a set value that will be prioritized.\n" +
-                        "\t\tThe possible values for the rest of the commands are the following:" + line;
+                      "Keep in mind that if a server has a set value that will be prioritized.\n" +
+                      "\t\tThe possible values for the rest of the commands are the following:" + line;
             }
-            case CHART_SIZE -> "Change the default chart size for chart command when you dont specify directly the size";
-            case PRIVACY_MODE -> "Sets how will you appear in the global leaderboard, changing this means users from other servers might be able to contact you directly";
-            case NOTIFY_RATING -> "Whether you will get notified or not when a url you have submitted to the random command gets rated by someone else (true = notify, false = don't)";
-            case PRIVATE_LASTFM -> "Setting this to true will mean that your last.fm name will stay private and will not be shared with anyone. (This is different from privacy settings since it affects commands within a server and not cross server)";
-            case SHOW_BOTTED -> "Setting this to false will mean that you wont have to include --nobotted in the global commands to exclude accounts flagged as bots)";
-            case NP -> "Setting this will alter the appearance of your np commands. You can select as many as you want from the following list and mix them up:\n" + NPMode.getListedName(EnumSet.allOf(NPMode.class));
-            case SCROBBLING -> "Setting this to false will mean that whatever you play with the bot on a voice channel won't scrooble";
+            case CHART_SIZE ->
+                    "Change the default chart size for chart command when you dont specify directly the size";
+            case PRIVACY_MODE ->
+                    "Sets how will you appear in the global leaderboard, changing this means users from other servers might be able to contact you directly";
+            case NOTIFY_RATING ->
+                    "Whether you will get notified or not when a url you have submitted to the random command gets rated by someone else (true = notify, false = don't)";
+            case PRIVATE_LASTFM ->
+                    "Setting this to true will mean that your last.fm name will stay private and will not be shared with anyone. (This is different from privacy settings since it affects commands within a server and not cross server)";
+            case SHOW_BOTTED ->
+                    "Setting this to false will mean that you wont have to include --nobotted in the global commands to exclude accounts flagged as bots)";
+            case NP ->
+                    "Setting this will alter the appearance of your np commands. You can select as many as you want from the following list and mix them up:\n" + NPMode.getListedName(EnumSet.allOf(NPMode.class));
+            case SCROBBLING ->
+                    "Setting this to false will mean that whatever you play with the bot on a voice channel won't scrooble";
             case COLOR -> {
                 String line = EnumSet.allOf(EmbedColor.EmbedColorType.class).stream().map(x -> "\n\t\t\t**" + WordUtils.capitalizeFully(x.toString()) + "**: " + x.getDescription()).collect(Collectors.joining(""));
                 yield "Set the color for your embeds.\n" +
-                        "\t\tThe possible values for the embed colour are the following:" + line;
+                      "\t\tThe possible values for the embed colour are the following:" + line;
             }
-            case OWN_TAGS -> "Setting this to true will mean that for the np command your own tags will be prioritized. (Need also to authorize the bot with `login`)";
-            case ARTIST_THRESHOLD -> "Changes the minimun number of plays required for an album to show on the artist command";
-            case CHART_OPTIONS -> "Specify some chart options that will apply as default for all your charts. Right now only --plays and --notitles";
+            case OWN_TAGS ->
+                    "Setting this to true will mean that for the np command your own tags will be prioritized. (Need also to authorize the bot with `login`)";
+            case ARTIST_THRESHOLD ->
+                    "Changes the minimun number of plays required for an album to show on the artist command";
+            case CHART_OPTIONS ->
+                    "Specify some chart options that will apply as default for all your charts. Right now only --plays and --notitles";
             case TIMEZONE -> "TIMEZONE ";
+            case WK_MODE ->
+                    "Sets the wkmode when you are using the image mode; You can select as many as you want from the following list and mix them up:" + WKMode.getListedName(EnumSet.allOf(WKMode.class));
         };
     }
 }

@@ -8,13 +8,14 @@ import dao.entities.*;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.entities.User;
 
+import java.util.EnumSet;
 import java.util.Optional;
 import java.util.TimeZone;
 import java.util.function.Function;
 
 public abstract class DaoParser<T extends CommandParameters> extends Parser<T> {
-    private static final QuadFunction<Context, ChartMode, WhoKnowsMode, RemainingImagesMode, LastFMData> DEFAULT_DATA = (e, c, w, r) ->
-            new LastFMData(null, e.getAuthor().getIdLong(), e.isFromGuild() ? e.getGuild().getIdLong() : 693124899220226178L, false, false, w, c, r, ChartableParser.DEFAULT_X, ChartableParser.DEFAULT_Y, PrivacyMode.NORMAL, true, false, true, TimeZone.getDefault(), null, null, true, EmbedColor.defaultColor(), false, 0, ChartOptions.defaultMode());
+    private static final QuadFunction<Context, ChartMode, WhoKnowsDisplayMode, RemainingImagesMode, LastFMData> DEFAULT_DATA = (e, c, w, r) ->
+            new LastFMData(null, e.getAuthor().getIdLong(), e.isFromGuild() ? e.getGuild().getIdLong() : 693124899220226178L, false, false, w, c, r, ChartableParser.DEFAULT_X, ChartableParser.DEFAULT_Y, PrivacyMode.NORMAL, true, false, true, TimeZone.getDefault(), null, null, true, EmbedColor.defaultColor(), false, 0, ChartOptions.defaultMode(), EnumSet.of(WKMode.NORMAL));
     final ChuuService dao;
     private boolean expensiveSearch = false;
     private boolean allowUnaothorizedUsers = false;
@@ -41,17 +42,17 @@ public abstract class DaoParser<T extends CommandParameters> extends Parser<T> {
             }
         } catch (InstanceNotFoundException exception) {
             if (allowUnaothorizedUsers) {
-                WhoKnowsMode whoKnowsMode = WhoKnowsMode.IMAGE;
+                WhoKnowsDisplayMode whoKnowsDisplayMode = WhoKnowsDisplayMode.IMAGE;
                 ChartMode chartMode = ChartMode.IMAGE;
                 RemainingImagesMode remainingImagesMode = RemainingImagesMode.IMAGE;
 
                 if (event.isFromGuild()) {
                     GuildProperties guildProperties = this.dao.getGuildProperties(event.getGuild().getIdLong());
-                    whoKnowsMode = guildProperties.whoKnowsMode() != null ? guildProperties.whoKnowsMode() : whoKnowsMode;
+                    whoKnowsDisplayMode = guildProperties.whoKnowsDisplayMode() != null ? guildProperties.whoKnowsDisplayMode() : whoKnowsDisplayMode;
                     chartMode = guildProperties.chartMode() != null ? guildProperties.chartMode() : chartMode;
                     remainingImagesMode = guildProperties.remainingImagesMode() != null ? guildProperties.remainingImagesMode() : remainingImagesMode;
                 }
-                return DEFAULT_DATA.apply(event, chartMode, whoKnowsMode, remainingImagesMode);
+                return DEFAULT_DATA.apply(event, chartMode, whoKnowsDisplayMode, remainingImagesMode);
             }
             throw exception;
         }

@@ -168,7 +168,7 @@ public class LoginCommand extends ConcurrentCommand<CommandParameters> {
                         scheduledExecutor.shutdown();
                         consume.accept(new ChuuEmbedBuilder(e).setTitle(":white_check_mark: Successfully logged in!").setColor(Color.green));
                     } catch (LastFmException instanceNotFoundException) {
-                        instanceNotFoundException.printStackTrace();
+                        //
                     }
 
                 }, 6, 5, TimeUnit.SECONDS);

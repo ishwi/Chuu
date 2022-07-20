@@ -261,9 +261,9 @@ public class InteractionBuilder {
 
     private static int countCommand(SlashCommandData commandData) {
         return commandData.getName().length() +
-                commandData.getDescription().length() +
-                countOptions(commandData.getOptions()) +
-                commandData.getSubcommands().stream().mapToInt(InteractionBuilder::countSubcommand).sum();
+               commandData.getDescription().length() +
+               countOptions(commandData.getOptions()) +
+               commandData.getSubcommands().stream().mapToInt(InteractionBuilder::countSubcommand).sum();
 
     }
 

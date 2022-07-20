@@ -249,7 +249,7 @@ class ThreadQueue implements Runnable {
         int gradientHeight = calculateHeight(chartLines, map);
         int oneLine = gradientHeight / chartLines.size();
         if (image != null) {
-            GradientPaint gp1 = new GradientPaint(0, gradientHeight + oneLine, GraphicUtils.makeMoreTransparent(Color.BLACK, 0.0f), 0, 0, GraphicUtils.makeMoreTransparent(Color.BLACK, 0.6f), false);
+            GradientPaint gp1 = new GradientPaint(0, gradientHeight + oneLine, GraphicUtils.setAlpha(Color.BLACK, 0.0f), 0, 0, GraphicUtils.setAlpha(Color.BLACK, 0.6f), false);
             g.setPaint(gp1);
             g.fillRect(0, 0, image.getWidth(), gradientHeight + oneLine);
         }

@@ -166,7 +166,7 @@ public class BandInfoCommand extends ConcurrentCommand<ArtistParameters> {
         } catch (IOException ignored) {
         }
         GraphicUtils.doChart(g, 10, 740 - rows * 25, 300, 25, rows, np, color, GraphicUtils.
-                        makeMoreTransparent(Color.BLACK, 0.05f),
+                        setAlpha(Color.BLACK, 0.05f),
                 lastFmLogo, true, new Font("Noto Sans CJK JP Light", Font.PLAIN, 18));
         g.drawImage(logo, 1000 - 85, 750 - 85, null);
         g.dispose();

@@ -22,7 +22,7 @@ public class BarChartMaker {
         BufferedImage bufferedImage = new BufferedImage(1200, 600, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g = bufferedImage.createGraphics();
         GraphicUtils.setQuality(g);
-        Color color = GraphicUtils.makeMoreTransparent(Color.BLACK, 0.0f);
+        Color color = GraphicUtils.setAlpha(Color.BLACK, 0.0f);
         CategoryChart chart = new CategoryChartBuilder()
                 .theme(Styler.ChartTheme.GGPlot2)
                 .xAxisTitle("Date").yAxisTitle("Scrobble Count")

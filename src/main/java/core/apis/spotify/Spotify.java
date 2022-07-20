@@ -120,7 +120,7 @@ public class Spotify {
                     return null;
                 return Pair.of(x, trackPaging.getItems()[0]);
             } catch (ParseException | SpotifyWebApiException | IOException e) {
-                e.printStackTrace();
+                Chuu.getLogger().info(e.getMessage(), e);
                 return null;
             }
         }).filter(Objects::nonNull).toList();
@@ -136,7 +136,7 @@ public class Spotify {
                 return Optional.of(new dao.entities.Album(-1, -1, z.getAlbum().getName(), image, null, null, z.getAlbum().getId()));
             });
         } catch (ParseException | SpotifyWebApiException | IOException e) {
-            e.printStackTrace();
+            Chuu.getLogger().info(e.getMessage(), e);
             return Optional.empty();
         }
     }

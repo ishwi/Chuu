@@ -1,5 +1,6 @@
 package core.apis.last.queues;
 
+import core.Chuu;
 import core.apis.discogs.DiscogsApi;
 import core.apis.last.entities.chartentities.TrackDurationChart;
 import core.apis.last.entities.chartentities.UrlCapsule;
@@ -37,7 +38,7 @@ public class TrackQueue extends ArtistQueue {
             try {
                 return x.get();
             } catch (InterruptedException | ExecutionException e) {
-                e.printStackTrace();
+                Chuu.getLogger().info(e.getMessage(), e);
                 return null;
             }
         }).filter(Objects::nonNull).toList();

@@ -47,18 +47,18 @@ public record FriendCommandLoader(WhoKnowsCommand whoKnowsCommand,
     private static WhoKnowsCommand initFriendsWhoknows(ServiceView dao) {
         return new WhoKnowsCommand(dao) {
             @Override
-            protected WrapperReturnNowPlaying generateWrapper(ArtistParameters params, WhoKnowsMode whoKnowsMode) throws LastFmException {
+            protected WrapperReturnNowPlaying generateWrapper(ArtistParameters params, WhoKnowsDisplayMode whoKnowsDisplayMode) throws LastFmException {
                 ScrobbledArtist sA = new ArtistValidator(db, lastFM, params.getE()).validate(params.getArtist(), !params.isNoredirect());
                 params.setScrobbledArtist(sA);
                 long author = params.getLastFMData().getDiscordId();
-                int limit = whoKnowsMode.equals(WhoKnowsMode.IMAGE) ? 10 : Integer.MAX_VALUE;
+                int limit = whoKnowsDisplayMode.equals(WhoKnowsDisplayMode.IMAGE) ? 10 : Integer.MAX_VALUE;
                 return db.friendsWhoKnows(sA.getArtistId(), author, limit);
             }
 
             @Override
-            protected String getImageTitle(Context e, ArtistParameters params) {
+            protected ImageTitle getImageTitle(Context e, ArtistParameters params) {
                 DiscordUserDisplay ui = CommandUtil.getUserInfoUnescaped(e, params.getLastFMData().getDiscordId());
-                return "%s's friendlist".formatted(ui.username());
+                return new ImageTitle("%s's friendlist".formatted(ui.username()), ui.urlImage());
             }
 
             @Override
@@ -71,17 +71,17 @@ public record FriendCommandLoader(WhoKnowsCommand whoKnowsCommand,
 
     private static LocalWhoKnowsSongCommand initFriendsWhoknowsSong(ServiceView dao) {
         return new LocalWhoKnowsSongCommand(dao) {
-            protected WrapperReturnNowPlaying generateInnerWrapper(ArtistAlbumParameters ap, WhoKnowsMode effectiveMode, long trackId) {
+            protected WrapperReturnNowPlaying generateInnerWrapper(ArtistAlbumParameters ap, WhoKnowsDisplayMode effectiveMode, long trackId) {
                 long discordId = ap.getLastFMData().getDiscordId();
-                return effectiveMode.equals(WhoKnowsMode.IMAGE) ?
+                return effectiveMode.equals(WhoKnowsDisplayMode.IMAGE) ?
                         this.db.friendsWhoKnowsSong(trackId, discordId, 10) :
                         this.db.friendsWhoKnowsSong(trackId, discordId, Integer.MAX_VALUE);
             }
 
             @Override
-            protected String getImageTitle(Context e, ArtistAlbumParameters params) {
+            protected ImageTitle getImageTitle(Context e, ArtistAlbumParameters params) {
                 DiscordUserDisplay ui = CommandUtil.getUserInfoUnescaped(e, params.getLastFMData().getDiscordId());
-                return "%s's friendlist".formatted(ui.username());
+                return new ImageTitle("%s's friendlist".formatted(ui.username()), ui.urlImage());
             }
 
             @Override
@@ -95,18 +95,18 @@ public record FriendCommandLoader(WhoKnowsCommand whoKnowsCommand,
     private static LocalWhoKnowsAlbumCommand initFriendsWhoknowsAlbum(ServiceView dao) {
         return new LocalWhoKnowsAlbumCommand(dao) {
 
-            protected WrapperReturnNowPlaying generateInnerWrapper(ArtistAlbumParameters ap, WhoKnowsMode effectiveMode, long albumId) {
+            protected WrapperReturnNowPlaying generateInnerWrapper(ArtistAlbumParameters ap, WhoKnowsDisplayMode effectiveMode, long albumId) {
 
                 long disc = ap.getLastFMData().getDiscordId();
-                return effectiveMode.equals(WhoKnowsMode.IMAGE) ?
+                return effectiveMode.equals(WhoKnowsDisplayMode.IMAGE) ?
                         this.db.friendsWhoKnowsAlbum(albumId, disc, 10) :
                         this.db.friendsWhoKnowsAlbum(albumId, disc, Integer.MAX_VALUE);
             }
 
             @Override
-            protected String getImageTitle(Context e, ArtistAlbumParameters params) {
+            protected ImageTitle getImageTitle(Context e, ArtistAlbumParameters params) {
                 DiscordUserDisplay ui = CommandUtil.getUserInfoUnescaped(e, params.getLastFMData().getDiscordId());
-                return "%s's friendlist".formatted(ui.username());
+                return new ImageTitle("%s's friendlist".formatted(ui.username()), ui.urlImage());
             }
 
             @Override

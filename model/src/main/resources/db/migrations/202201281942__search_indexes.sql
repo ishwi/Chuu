@@ -65,10 +65,10 @@ BEGIN
             WHERE id BETWEEN batch_start_id and batch_end_id
               and artist.play_ranking = -1;
 
-            SET batch_start_id = batch_start_id + batch_size;
-            SET batch_end_id = batch_end_id + batch_size;
-            SET loop_counter = loop_counter + 1;
-        END WHILE;
+SET batch_start_id = batch_start_id + batch_size;
+SET batch_end_id = batch_end_id + batch_size;
+SET loop_counter = loop_counter + 1;
+END WHILE;
 
 
 END$$

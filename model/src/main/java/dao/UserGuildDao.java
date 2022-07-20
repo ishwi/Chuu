@@ -104,6 +104,10 @@ interface UserGuildDao {
 
     void serverUnblock(Connection connection, long discordId, long guildId);
 
+    long getWKRaw(Connection connection, long discordId);
+
+    void setWkRaw(Connection connection, long discordId, long raw);
+
     long getNPRaw(Connection connection, long discordId);
 
     void setNpRaw(Connection connection, long discordId, long raw);

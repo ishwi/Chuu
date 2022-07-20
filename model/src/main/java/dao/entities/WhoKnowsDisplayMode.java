@@ -1,12 +1,12 @@
 package dao.entities;
 
-public enum WhoKnowsMode {
+public enum WhoKnowsDisplayMode {
 
     IMAGE("Using the standard image format"), LIST("Shows it on a embed"), PIE("Shows using a pie chart");
 
     private final String description;
 
-    WhoKnowsMode(String s) {
+    WhoKnowsDisplayMode(String s) {
         description = s;
     }
 

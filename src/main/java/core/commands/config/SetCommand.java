@@ -22,10 +22,7 @@ import javax.annotation.Nonnull;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.TimeZone;
+import java.util.*;
 
 public class SetCommand extends ConcurrentCommand<WordParameter> {
     public SetCommand(ServiceView dao) {
@@ -85,7 +82,7 @@ public class SetCommand extends ConcurrentCommand<WordParameter> {
         }
 
         String repeatedMessage = "That username is already registered. If you own the account pls use: **" + e.getPrefix() + "login**\n" +
-                "Any doubt you might have please contact the bot developers on the support server";
+                                 "Any doubt you might have please contact the bot developers on the support server";
         boolean repeated;
         try {
             LastFMData byLastfmName = db.findByLastfmName(lastFmName);
@@ -148,7 +145,7 @@ public class SetCommand extends ConcurrentCommand<WordParameter> {
                 queue(t -> e.getChannel().
                         sendTyping().
                         queue());
-        LastFMData lastFMData = new LastFMData(lastFmName, userId, Role.USER, false, true, WhoKnowsMode.IMAGE, ChartMode.IMAGE, RemainingImagesMode.IMAGE, ChartableParser.DEFAULT_X, ChartableParser.DEFAULT_Y, PrivacyMode.NORMAL, true, false, true, TimeZone.getDefault(), null, null, true, EmbedColor.defaultColor(), false, 0, ChartOptions.defaultMode());
+        LastFMData lastFMData = new LastFMData(lastFmName, userId, Role.USER, false, true, WhoKnowsDisplayMode.IMAGE, ChartMode.IMAGE, RemainingImagesMode.IMAGE, ChartableParser.DEFAULT_X, ChartableParser.DEFAULT_Y, PrivacyMode.NORMAL, true, false, true, TimeZone.getDefault(), null, null, true, EmbedColor.defaultColor(), false, 0, ChartOptions.defaultMode(), EnumSet.of(WKMode.NORMAL));
         lastFMData.setGuildID(guildID);
 
         db.insertNewUser(lastFMData);

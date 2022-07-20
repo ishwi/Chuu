@@ -29,6 +29,7 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.hooks.EventListener;
 import net.dv8tion.jda.api.hooks.IEventManager;
+import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
 import net.dv8tion.jda.api.interactions.commands.CommandInteraction;
 import net.dv8tion.jda.internal.JDAImpl;
 
@@ -62,6 +63,9 @@ public class CustomInterfacedEventManager implements IEventManager {
 
     private void handleReaction(@Nonnull GenericEvent event) {
         assert event instanceof MessageReactionAddEvent || event instanceof ButtonInteractionEvent || event instanceof SelectMenuInteractionEvent;
+        if (event instanceof IReplyCallback i) {
+            i.deferReply().queue();
+        }
         long channelId = switch (event) {
             case MessageReactionAddEvent e3 -> e3.getChannel().getIdLong();
             case ButtonInteractionEvent e3 -> Optional.of(e3.getChannel()).map(Channel::getIdLong).orElse(0L);

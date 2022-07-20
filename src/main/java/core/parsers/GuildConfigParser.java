@@ -132,9 +132,9 @@ public class GuildConfigParser extends DaoParser<GuildConfigParams> implements G
                     mode.addChoices(clear);
                     data.addOptions(mode);
                 }
-                case WHOKNOWS_MODE -> {
+                case WHOKNOWS_DISPLAY_MODE -> {
                     OptionData mode = new OptionData(OptionType.STRING, "whoknows-mode", StringUtils.abbreviate(guildConfigType.getExplanation(), 100), true);
-                    for (WhoKnowsMode value : WhoKnowsMode.values()) {
+                    for (WhoKnowsDisplayMode value : WhoKnowsDisplayMode.values()) {
                         mode.addChoice(WordUtils.capitalizeFully(value.toString()), value.name());
                     }
                     mode.addChoices(clear);

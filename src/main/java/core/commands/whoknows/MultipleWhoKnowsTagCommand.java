@@ -3,6 +3,7 @@ package core.commands.whoknows;
 import core.commands.Context;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
+import core.imagerenderer.ExetricWKMaker;
 import core.imagerenderer.ThumbsMaker;
 import core.imagerenderer.WhoKnowsMaker;
 import core.parsers.MultipleGenresParser;
@@ -16,7 +17,6 @@ import org.jsoup.internal.StringUtil;
 
 import javax.annotation.Nonnull;
 import java.awt.image.BufferedImage;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -36,15 +36,15 @@ public class MultipleWhoKnowsTagCommand extends WhoKnowsBaseCommand<MultipleGenr
     }
 
     @Override
-    WhoKnowsMode getWhoknowsMode(MultipleGenresParameters params) {
+    WhoKnowsDisplayMode getWhoknowsMode(MultipleGenresParameters params) {
         LastFMData lastFMData = params.getLastFMData();
         if (lastFMData == null) {
             try {
                 if (params.getE().isFromGuild())
                     return db.computeLastFmData(params.getE().getAuthor().getIdLong(), params.getE().getGuild().getIdLong()).getWhoKnowsMode();
-                return WhoKnowsMode.IMAGE;
+                return WhoKnowsDisplayMode.IMAGE;
             } catch (InstanceNotFoundException exception) {
-                return WhoKnowsMode.IMAGE;
+                return WhoKnowsDisplayMode.IMAGE;
             }
         } else {
             return lastFMData.getWhoKnowsMode();
@@ -56,18 +56,25 @@ public class MultipleWhoKnowsTagCommand extends WhoKnowsBaseCommand<MultipleGenr
         Context e = ap.getE();
 
         BufferedImage logo = null;
-        String title;
+        ImageTitle title;
         if (e.isFromGuild()) {
             logo = CommandUtil.getLogo(db, e);
-            title = e.getGuild().getName();
+            title = new ImageTitle(e.getGuild().getName(), e.getGuild().getIconUrl());
         } else {
-            title = e.getJDA().getSelfUser().getName();
+            title = new ImageTitle(e.getJDA().getSelfUser().getName(), e.getJDA().getSelfUser().getAvatarUrl());
         }
-        handleWkMode(ap, wrapperReturnNowPlaying, WhoKnowsMode.IMAGE);
+        handleWkMode(ap, wrapperReturnNowPlaying, WhoKnowsDisplayMode.IMAGE);
         List<String> urls = db.getTopInTag(ap.getGenres(), e.getGuild().getIdLong(), 100, ap.getMode()).stream().map(ScrobbledArtist::getUrl).filter(not(StringUtil::isBlank)).toList();
         BufferedImage thumb = ThumbsMaker.generate(urls);
 
-        BufferedImage image = WhoKnowsMaker.generateWhoKnows(wrapperReturnNowPlaying, EnumSet.allOf(WKMode.class), title, logo, ap.getE().getAuthor().getIdLong(), thumb);
+
+        LastFMData data = obtainLastFmData(ap);
+        BufferedImage image;
+        if (data.getWkModes().contains(WKMode.BETA)) {
+            image = ExetricWKMaker.generateWhoKnows(wrapperReturnNowPlaying, title.title(), title.logo(), logo, thumb);
+        } else {
+            image = WhoKnowsMaker.generateWhoKnows(wrapperReturnNowPlaying, title.title(), logo, thumb);
+        }
         sendImage(image, e);
         return logo;
     }
@@ -93,7 +100,7 @@ public class MultipleWhoKnowsTagCommand extends WhoKnowsBaseCommand<MultipleGenr
     }
 
     @Override
-    WrapperReturnNowPlaying generateWrapper(MultipleGenresParameters params, WhoKnowsMode whoKnowsMode) {
+    WrapperReturnNowPlaying generateWrapper(MultipleGenresParameters params, WhoKnowsDisplayMode whoKnowsDisplayMode) {
         Context e = params.getE();
         SearchMode mode = params.getMode();
 //        CompletableFuture<Optional<ScrobbledArtist>> completableFuture = CompletableFuture.supplyAsync(() -> db.getTopInTag(params.getGenres(), e.getGuild().getIdLong(), mode));

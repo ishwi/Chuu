@@ -53,7 +53,7 @@ public class LoveMaker {
             int yImageStarter = Y_MARGIN + (IMAGE_SIZE - second.getHeight()) / 2;
             g.drawImage(second, xImageStarter, yImageStarter, null);
         }
-        g.setColor(GraphicUtils.makeMoreTransparent(Color.GRAY, 0.7f));
+        g.setColor(GraphicUtils.setAlpha(Color.GRAY, 0.7f));
 
         g.fillRect(X_MARGIN + IMAGE_MARGIN + IMAGE_SIZE, Y_MARGIN + (IMAGE_SIZE / 2), BAR_SIZE, (IMAGE_SIZE / 2));
         if (affinity.getAffinity() > 0.75f) {
@@ -66,7 +66,7 @@ public class LoveMaker {
             g.setColor(Color.GREEN);
         }
 
-        g.setColor(GraphicUtils.makeMoreTransparent(g.getColor(), 0.7f));
+        g.setColor(GraphicUtils.setAlpha(g.getColor(), 0.7f));
         g.fillRect(X_MARGIN + IMAGE_MARGIN + IMAGE_SIZE, Y_MARGIN + (IMAGE_SIZE / 2), (int) (Math.min(affinity.getAffinity(), 1f) * (BAR_SIZE)), (IMAGE_SIZE / 2));
         g.setColor(Color.BLACK);
         g.drawRect(X_MARGIN + IMAGE_MARGIN + IMAGE_SIZE, Y_MARGIN + (IMAGE_SIZE / 2), BAR_SIZE, (IMAGE_SIZE / 2) - 1);

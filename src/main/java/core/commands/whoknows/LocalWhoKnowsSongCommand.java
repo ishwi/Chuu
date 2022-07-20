@@ -35,13 +35,13 @@ public class LocalWhoKnowsSongCommand extends LocalWhoKnowsAlbumCommand {
     }
 
     @Override
-    WrapperReturnNowPlaying generateWrapper(ArtistAlbumParameters ap, WhoKnowsMode whoKnowsMode) throws LastFmException {
+    WrapperReturnNowPlaying generateWrapper(ArtistAlbumParameters ap, WhoKnowsDisplayMode whoKnowsDisplayMode) throws LastFmException {
         ScrobbledArtist sA = new ArtistValidator(db, lastFM, ap.getE()).validate(ap.getArtist(), !ap.isNoredirect());
         ap.setScrobbledArtist(sA);
         String artist = sA.getArtist();
 
         ScrobbledArtist who = ap.getScrobbledArtist();
-        WhoKnowsMode effectiveMode = getEffectiveMode(ap.getLastFMData().getWhoKnowsMode(), ap);
+        WhoKnowsDisplayMode effectiveMode = getEffectiveMode(ap.getLastFMData().getWhoKnowsMode(), ap);
         ScrobbledTrack sT = new TrackValidator(db, lastFM).validate(who.getArtistId(), who.getArtist(), ap.getAlbum());
         String track = sT.getName();
         long trackId = sT.getTrackId();
@@ -89,7 +89,7 @@ public class LocalWhoKnowsSongCommand extends LocalWhoKnowsAlbumCommand {
     }
 
     @Override
-    protected WrapperReturnNowPlaying generateInnerWrapper(ArtistAlbumParameters ap, WhoKnowsMode effectiveMode, long trackId) {
+    protected WrapperReturnNowPlaying generateInnerWrapper(ArtistAlbumParameters ap, WhoKnowsDisplayMode effectiveMode, long trackId) {
         return this.db.getWhoKnowsTrack(Integer.MAX_VALUE, trackId, ap.getE().getGuild().getIdLong());
     }
 

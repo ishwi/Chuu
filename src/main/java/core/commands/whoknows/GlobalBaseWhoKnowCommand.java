@@ -6,6 +6,7 @@ import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandUtil;
 import core.commands.utils.PrivacyUtils;
 import core.imagerenderer.ChartQuality;
+import core.imagerenderer.ExetricWKMaker;
 import core.imagerenderer.WhoKnowsMaker;
 import core.parsers.params.CommandParameters;
 import core.parsers.utils.OptionalEntity;
@@ -16,7 +17,6 @@ import net.dv8tion.jda.api.EmbedBuilder;
 
 import java.awt.image.BufferedImage;
 import java.text.MessageFormat;
-import java.util.EnumSet;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -36,12 +36,20 @@ public abstract class GlobalBaseWhoKnowCommand<T extends CommandParameters> exte
         Context e = ap.getE();
 
         BufferedImage logo = null;
-        String title = e.getJDA().getSelfUser().getName();
+        ImageTitle title = new ImageTitle(e.getJDA().getSelfUser().getName(), e.getJDA().getSelfUser().getAvatarUrl());
         if (e.isFromGuild()) {
             logo = CommandUtil.getLogo(db, e);
         }
-        handleWkMode(ap, wrapperReturnNowPlaying, WhoKnowsMode.IMAGE);
-        BufferedImage image = WhoKnowsMaker.generateWhoKnows(wrapperReturnNowPlaying, EnumSet.allOf(WKMode.class), title, logo, e.getAuthor().getIdLong());
+
+        handleWkMode(ap, wrapperReturnNowPlaying, WhoKnowsDisplayMode.IMAGE);
+        LastFMData data = obtainLastFmData(ap);
+        BufferedImage image;
+        if (data.getWkModes().contains(WKMode.BETA)) {
+            image = ExetricWKMaker.generateWhoKnows(wrapperReturnNowPlaying, title.title(), title.logo(), logo);
+        } else {
+            image = WhoKnowsMaker.generateWhoKnows(wrapperReturnNowPlaying, title.title(), logo);
+        }
+
         if (obtainLastFmData(ap).getPrivacyMode() == PrivacyMode.NORMAL && CommandUtil.rand.nextFloat() >= 0.95f) {
             char prefix = e.getPrefix();
             DiscordUserDisplay uInfo = CommandUtil.getUserInfoUnescaped(e, e.getAuthor().getIdLong());
@@ -57,7 +65,7 @@ public abstract class GlobalBaseWhoKnowCommand<T extends CommandParameters> exte
     }
 
     @Override
-    public void generateWhoKnows(WrapperReturnNowPlaying wrapperReturnNowPlaying, T ap, long author, WhoKnowsMode effectiveMode) {
+    public void generateWhoKnows(WrapperReturnNowPlaying wrapperReturnNowPlaying, T ap, long author, WhoKnowsDisplayMode effectiveMode) {
         Set<Long> showableUsers;
         if (ap.getE().isFromGuild()) {
             showableUsers = db.getAll(ap.getE().getGuild().getIdLong()).stream().map(UsersWrapper::getDiscordID).collect(Collectors.toSet());
@@ -75,10 +83,10 @@ public abstract class GlobalBaseWhoKnowCommand<T extends CommandParameters> exte
                             x.setDiscordName(privacy.discordName());
                             x.setLastFMId(privacy.lastfmName());
                             return x.getIndex() + 1 + ". " +
-                                    "**[" + privacy.discordName() + "](" +
-                                    PrivacyUtils.getUrlTitle(x) +
-                                    ")** - " +
-                                    x.getPlayNumber() + " plays\n";
+                                   "**[" + privacy.discordName() + "](" +
+                                   PrivacyUtils.getUrlTitle(x) +
+                                   ")** - " +
+                                   x.getPlayNumber() + " plays\n";
                         })
                 );
         switch (effectiveMode) {
@@ -91,7 +99,7 @@ public abstract class GlobalBaseWhoKnowCommand<T extends CommandParameters> exte
     public PrivacyUtils.PrivateString mapPrivacy(ReturnNowPlaying x, PrivacyUtils.PrivateString privateString, T ap, PrivacyMode privacyMode, Set<Long> ids) {
         LastFMData lastFMData = obtainLastFmData(ap);
         if (lastFMData.getRole() == Role.ADMIN && (privacyMode == PrivacyMode.NORMAL || privacyMode == PrivacyMode.STRICT) &&
-                (!ap.getE().isFromGuild() || ap.getE().getChannel().getIdLong() == Chuu.channel2Id)) {
+            (!ap.getE().isFromGuild() || ap.getE().getChannel().getIdLong() == Chuu.channel2Id)) {
             return new PrivacyUtils.PrivateString("Private: " + x.getLastFMId(), x.getLastFMId());
         }
         return privateString;

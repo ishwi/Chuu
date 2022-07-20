@@ -43,7 +43,7 @@ public class WhoKnowsAlbumCommand extends WhoKnowsBaseCommand<ArtistAlbumParamet
 
 
     @Override
-    WrapperReturnNowPlaying generateWrapper(ArtistAlbumParameters ap, WhoKnowsMode whoKnowsMode) throws LastFmException {
+    WrapperReturnNowPlaying generateWrapper(ArtistAlbumParameters ap, WhoKnowsDisplayMode whoKnowsDisplayMode) throws LastFmException {
         ScrobbledArtist sA = new ArtistValidator(db, lastFM, ap.getE()).validate(ap.getArtist(), !ap.isNoredirect());
         ap.setScrobbledArtist(sA);
         Context e = ap.getE();
@@ -84,8 +84,8 @@ public class WhoKnowsAlbumCommand extends WhoKnowsBaseCommand<ArtistAlbumParamet
         List<Map.Entry<UsersWrapper, Integer>> userCounts = new ArrayList<>(userMapPlays.entrySet());
         userCounts.sort(Map.Entry.comparingByValue(Comparator.reverseOrder()));
 
-        WhoKnowsMode effectiveMode = WhoKnowsCommand.getEffectiveMode(ap.getLastFMData().getWhoKnowsMode(), ap);
-        List<ReturnNowPlaying> list2 = userCounts.stream().sequential().limit(effectiveMode.equals(WhoKnowsMode.IMAGE) ? 10 : Integer.MAX_VALUE).map(t -> {
+        WhoKnowsDisplayMode effectiveMode = WhoKnowsCommand.getEffectiveMode(ap.getLastFMData().getWhoKnowsMode(), ap);
+        List<ReturnNowPlaying> list2 = userCounts.stream().sequential().limit(effectiveMode.equals(WhoKnowsDisplayMode.IMAGE) ? 10 : Integer.MAX_VALUE).map(t -> {
             long id2 = t.getKey().getDiscordID();
             ReturnNowPlaying np = new ReturnNowPlayingAlbum(id2, t.getKey().getLastFMName(), correctedArtist, t.getValue(), correctedAlbum);
             np.setDiscordName(CommandUtil.getUserInfoUnescaped(e, id2).username());

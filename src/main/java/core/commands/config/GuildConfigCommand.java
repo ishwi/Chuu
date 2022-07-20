@@ -109,18 +109,18 @@ public class GuildConfigCommand extends ConcurrentCommand<GuildConfigParams> {
                 String str = embedColor == null ? "Default" : embedColor.toDisplayString();
                 sendMessageQueue(e, "Guild color mode set to: **" + WordUtils.capitalizeFully(str) + "**");
             }
-            case WHOKNOWS_MODE -> {
-                WhoKnowsMode whoKnowsMode;
+            case WHOKNOWS_DISPLAY_MODE -> {
+                WhoKnowsDisplayMode whoKnowsDisplayMode;
                 if (cleansing) {
-                    whoKnowsMode = null;
+                    whoKnowsDisplayMode = null;
                 } else {
-                    whoKnowsMode = WhoKnowsMode.valueOf(value.replace("-", "_").toUpperCase());
+                    whoKnowsDisplayMode = WhoKnowsDisplayMode.valueOf(value.replace("-", "_").toUpperCase());
                 }
-                db.setServerWhoknowMode(guildId, whoKnowsMode);
+                db.setServerWhoknowMode(guildId, whoKnowsDisplayMode);
                 if (cleansing) {
                     sendMessageQueue(e, "Now your who knows are back to the default");
                 } else {
-                    sendMessageQueue(e, "Who Knows mode set to: **" + WordUtils.capitalizeFully(whoKnowsMode.toString()) + "**");
+                    sendMessageQueue(e, "Who Knows mode set to: **" + WordUtils.capitalizeFully(whoKnowsDisplayMode.toString()) + "**");
                 }
             }
             case REMAINING_MODE -> {
