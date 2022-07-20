@@ -21,8 +21,6 @@ public final class LongExecutorChuuDatasource implements CommonDatasource {
         config.setTransactionIsolation("TRANSACTION_READ_UNCOMMITTED");
         config.setMaximumPoolSize(20);
         config.setConnectionTimeout(15000);
-        config.setThreadFactory(Thread.ofVirtual().name("Long-Chuu", 0)
-                .uncaughtExceptionHandler((t, e) -> log.warn(e.getMessage(), e)).factory());
         config.setConnectionInitSql("set @@sql_mode='NO_ZERO_DATE';");
         config.setDriverClassName("org.mariadb.jdbc.Driver");
         config.setPoolName("Long-Pool-Chuu");

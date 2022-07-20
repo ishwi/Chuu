@@ -24,7 +24,10 @@ import core.otherlisteners.*;
 import core.services.*;
 import core.services.validators.AlbumFinder;
 import core.util.botlists.BotListPoster;
-import dao.*;
+import dao.ChuuDatasource;
+import dao.ChuuService;
+import dao.LongExecutorChuuDatasource;
+import dao.ServiceView;
 import dao.entities.Callback;
 import dao.entities.Metrics;
 import dao.entities.UsersWrapper;
@@ -161,7 +164,7 @@ public class Chuu {
 
         customManager = new CustomInterfacedEventManager(0);
         EvalCommand evalCommand = new EvalCommand(db);
-        monitoringService = new ChuuService(new MonitoringDatasource());
+//        monitoringService = new ChuuService(new MonitoringDatasource());
         AtomicInteger counter = new AtomicInteger(0);
 
         DefaultShardManagerBuilder builder = DefaultShardManagerBuilder.
@@ -172,20 +175,7 @@ public class Chuu {
                 .setAudioSendFactory(new NativeAudioSendFactory()).setBulkDeleteSplittingEnabled(false)
                 .setMemberCachePolicy(member -> {
                     try {
-                        ShardManager shard = member.getJDA().getShardManager();
-                        if (shard != null && member.getJDA().getUserById(member.getId()) != null && shard.getUserById(member.getIdLong()) != null) {
-                            return true;
-                        }
-                        if (knownIds.contains(member.getIdLong())) {
-                            return true;
-                        } else {
-                            cacheMetric.increment();
-                            boolean b = monitoringService.existsUser(member.getIdLong());
-                            if (b) {
-                                knownIds.add(member.getIdLong());
-                            }
-                            return b;
-                        }
+                        return knownIds.contains(member.getIdLong());
                     } catch (Exception e) {
                         getLogger().info("Timeout on member caching | Member {} | Guild {} ", member.getUser().getAsTag(), member.getGuild().getName(), e);
                         return false;
