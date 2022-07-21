@@ -14,7 +14,7 @@ import core.parsers.GenreChartParser;
 import core.parsers.params.ChartableGenreParameters;
 import core.parsers.utils.CustomTimeFrame;
 import core.parsers.utils.Optionals;
-import dao.ServiceView;
+import core.util.ServiceView;
 import dao.entities.*;
 import net.dv8tion.jda.api.EmbedBuilder;
 import org.knowm.xchart.PieChart;

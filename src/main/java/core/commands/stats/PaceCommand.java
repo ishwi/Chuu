@@ -10,7 +10,7 @@ import core.parsers.Parser;
 import core.parsers.params.NaturalTimeParams;
 import core.parsers.params.NumberParameters;
 import core.services.UserInfoService;
-import dao.ServiceView;
+import core.util.ServiceView;
 import dao.entities.LastFMData;
 import dao.entities.NaturalTimeFrameEnum;
 import dao.entities.UserInfo;

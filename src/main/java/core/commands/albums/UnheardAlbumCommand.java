@@ -15,7 +15,7 @@ import core.parsers.params.ArtistParameters;
 import core.parsers.params.NumberParameters;
 import core.parsers.utils.OptionalEntity;
 import core.services.validators.ArtistValidator;
-import dao.ServiceView;
+import core.util.ServiceView;
 import dao.entities.DiscordUserDisplay;
 import dao.entities.ScrobbledArtist;
 import dao.entities.UnheardCount;

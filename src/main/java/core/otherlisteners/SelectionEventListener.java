@@ -22,7 +22,7 @@ public class SelectionEventListener extends ReactionListener {
     private EmbedBuilder currentEmbedBuilder;
 
     public SelectionEventListener(EmbedBuilder who, Message message, boolean allowOtherUsers, long activeSeconds, BiFunction<EmbedBuilder, List<ActionRow>, SelectionResponse> getLastMessage, long whom, Context context, SelectionAction action) {
-        super(who, message, activeSeconds);
+        super(who, message);
         this.allowOtherUsers = allowOtherUsers;
         this.getLastMessage = getLastMessage;
         this.whom = whom;

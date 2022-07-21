@@ -11,7 +11,7 @@ import core.imagerenderer.WhoKnowsMaker;
 import core.parsers.params.CommandParameters;
 import core.parsers.utils.OptionalEntity;
 import core.parsers.utils.Optionals;
-import dao.ServiceView;
+import core.util.ServiceView;
 import dao.entities.*;
 import net.dv8tion.jda.api.EmbedBuilder;
 

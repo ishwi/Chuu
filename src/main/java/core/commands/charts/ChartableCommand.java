@@ -20,7 +20,7 @@ import core.otherlisteners.util.PaginatorBuilder;
 import core.parsers.ChartableParser;
 import core.parsers.DaoParser;
 import core.parsers.params.ChartParameters;
-import dao.ServiceView;
+import core.util.ServiceView;
 import dao.entities.ChartMode;
 import dao.entities.CountWrapper;
 import dao.entities.DiscordUserDisplay;
@@ -33,7 +33,6 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.CompletableFuture;
 
 public abstract class ChartableCommand<T extends ChartParameters> extends ConcurrentCommand<T> {
     public final IPieableList<UrlCapsule, ChartParameters> pie;
@@ -141,16 +140,17 @@ public abstract class ChartableCommand<T extends ChartParameters> extends Concur
             queue.forEach(t -> t.setUrl(Chuu.getCoverService().getCover(t.getArtistName(), t.getAlbumName(), t.getUrl(), e)));
             if (CommandUtil.rand.nextFloat() >= 0.7f && first instanceof AlbumChart) {
                 List<UrlCapsule> items = new ArrayList<>(queue);
-                CompletableFuture.runAsync(() -> items.stream()
+                Thread.startVirtualThread(() -> items.stream()
                         .filter(t -> t.getUrl() != null && !t.getUrl().isBlank())
                         .map(t -> (AlbumChart) t)
                         .forEach(z -> {
                             try {
                                 ScrobbledAlbum scrobbledAlbum = CommandUtil.validateAlbum(db, z.getArtistName(), z.getAlbumName(), lastFM, null, null, false, false);
+                                ;
                                 db.updateAlbumImage(scrobbledAlbum.getAlbumId(), z.getUrl());
                             } catch (LastFmException ignored) {
                             }
-                        }), executor);
+                        }));
             }
         }
 

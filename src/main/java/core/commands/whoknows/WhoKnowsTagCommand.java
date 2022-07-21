@@ -9,7 +9,7 @@ import core.imagerenderer.WhoKnowsMaker;
 import core.parsers.GenreParser;
 import core.parsers.Parser;
 import core.parsers.params.GenreParameters;
-import dao.ServiceView;
+import core.util.ServiceView;
 import dao.entities.*;
 import org.jsoup.internal.StringUtil;
 

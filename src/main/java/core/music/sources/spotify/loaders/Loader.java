@@ -26,12 +26,14 @@ import se.michaelthelin.spotify.SpotifyApi;
 
 import javax.annotation.Nullable;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public abstract class Loader {
 
     protected final YoutubeAudioSourceManager youtubeAudioSourceManager;
+    private final ExecutorService of = ChuuVirtualPool.of("Spotify-Loader");
 
     protected Loader(YoutubeAudioSourceManager youtubeAudioSourceManager) {
         this.youtubeAudioSourceManager = youtubeAudioSourceManager;
@@ -47,7 +49,7 @@ public abstract class Loader {
     public abstract AudioItem load(AudioPlayerManager manager, SpotifyApi spotifyApi, Matcher matcher);
 
     public CompletableFuture<AudioItem> queueYoutubeSearch(AudioPlayerManager manager, String identifier) {
-        return CompletableFuture.supplyAsync(() -> youtubeAudioSourceManager.loadItem(manager, new AudioReference(identifier, null)), ChuuVirtualPool.of("Spotify-Loader"));
+        return CompletableFuture.supplyAsync(() -> youtubeAudioSourceManager.loadItem(manager, new AudioReference(identifier, null)), of);
     }
 
     protected void check(boolean condition, String message) {

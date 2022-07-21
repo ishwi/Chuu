@@ -3,7 +3,7 @@ package core.commands.crowns;
 import core.commands.utils.CommandCategory;
 import core.parsers.params.ArtistParameters;
 import core.parsers.params.NumberParameters;
-import dao.ServiceView;
+import core.util.ServiceView;
 import dao.entities.ScrobbledArtist;
 import dao.entities.TrackPlays;
 import dao.entities.UniqueWrapper;

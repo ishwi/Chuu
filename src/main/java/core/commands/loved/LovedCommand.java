@@ -11,7 +11,7 @@ import core.otherlisteners.util.PaginatorBuilder;
 import core.parsers.OnlyUsernameParser;
 import core.parsers.Parser;
 import core.parsers.params.ChuuDataParams;
-import dao.ServiceView;
+import core.util.ServiceView;
 import dao.entities.CountWrapper;
 import dao.entities.DiscordUserDisplay;
 import dao.entities.ScrobbledTrack;
@@ -23,7 +23,6 @@ import javax.annotation.Nonnull;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 
 public class LovedCommand extends ConcurrentCommand<ChuuDataParams> {
     public LovedCommand(ServiceView dao) {
@@ -76,7 +75,8 @@ public class LovedCommand extends ConcurrentCommand<ChuuDataParams> {
                 .unnumered().build().queue();
 
 
-        CompletableFuture.runAsync(() -> db.updateLovedSongs(params.getLastFMData().getName(), wrapper.getResult().stream().map(w -> new ScrobbledTrack(w.getArtist(), w.getName(), 0, true, 0, null, null, null)).toList()));
+        Thread.startVirtualThread(() -> db.updateLovedSongs(params.getLastFMData().getName(), wrapper.getResult().stream().map(w -> new ScrobbledTrack(w.getArtist(), w.getName(), 0, true, 0, null, null, null)).toList()));
+        ;
 
     }
 }

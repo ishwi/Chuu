@@ -13,7 +13,7 @@ import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
 import core.parsers.params.NumberParameters;
 import core.parsers.utils.Optionals;
-import dao.ServiceView;
+import core.util.ServiceView;
 import dao.entities.GlobalStreakEntities;
 import dao.entities.UsersWrapper;
 import dao.utils.LinkUtils;

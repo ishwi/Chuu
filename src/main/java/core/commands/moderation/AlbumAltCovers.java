@@ -14,7 +14,7 @@ import core.parsers.ArtistAlbumParser;
 import core.parsers.Parser;
 import core.parsers.params.ArtistAlbumParameters;
 import core.services.validators.AlbumValidator;
-import dao.ServiceView;
+import core.util.ServiceView;
 import dao.entities.ScrobbledAlbum;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
@@ -114,6 +114,6 @@ public class AlbumAltCovers extends ConcurrentCommand<ArtistAlbumParameters> {
                     return covers.get(counter.get());
                 },
                 builder.apply(e.getJDA(), covers.size())
-                , new ChuuEmbedBuilder(e).setTitle("%s - %s".formatted(params.getArtist(), params.getAlbum())), e, e.getAuthor().getIdLong(), actionMap, true, true);
+                , new ChuuEmbedBuilder(e).setTitle("%s - %s".formatted(params.getArtist(), params.getAlbum())), e, e.getAuthor().getIdLong(), actionMap, true, true, e.getChannel().getIdLong());
     }
 }

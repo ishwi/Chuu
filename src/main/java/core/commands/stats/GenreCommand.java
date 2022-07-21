@@ -20,7 +20,7 @@ import core.parsers.utils.OptionalEntity;
 import core.parsers.utils.Optionals;
 import core.services.tags.TagAlbumService;
 import core.services.tags.TagArtistService;
-import dao.ServiceView;
+import core.util.ServiceView;
 import dao.entities.*;
 import dao.musicbrainz.MusicBrainzService;
 import dao.musicbrainz.MusicBrainzServiceSingleton;

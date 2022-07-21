@@ -3,7 +3,7 @@ package core.commands.abstracts;
 import core.commands.Context;
 import core.imagerenderer.GraphicUtils;
 import core.parsers.params.CommandParameters;
-import dao.ServiceView;
+import core.util.ServiceView;
 import org.knowm.xchart.PieChart;
 
 import javax.annotation.Nonnull;

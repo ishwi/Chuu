@@ -6,7 +6,7 @@ import core.commands.utils.CommandCategory;
 import core.parsers.Parser;
 import core.parsers.TimezoneParser;
 import core.parsers.params.TimezoneParams;
-import dao.ServiceView;
+import core.util.ServiceView;
 
 import javax.annotation.Nonnull;
 import java.time.Instant;

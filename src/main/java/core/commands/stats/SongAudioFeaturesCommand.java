@@ -15,7 +15,7 @@ import core.parsers.params.ArtistAlbumParameters;
 import core.services.SpotifyTrackService;
 import core.services.validators.ArtistValidator;
 import core.services.validators.TrackValidator;
-import dao.ServiceView;
+import core.util.ServiceView;
 import dao.entities.DiscordUserDisplay;
 import dao.entities.LastFMData;
 import dao.entities.ScrobbledArtist;
@@ -29,7 +29,6 @@ import javax.annotation.Nonnull;
 import java.text.DecimalFormat;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.CompletableFuture;
 
 public class SongAudioFeaturesCommand extends ConcurrentCommand<ArtistAlbumParameters> {
     private final Spotify spotify;
@@ -85,7 +84,7 @@ public class SongAudioFeaturesCommand extends ConcurrentCommand<ArtistAlbumParam
         }
         Track value = pairs.get(0).getValue();
         List<AudioFeatures> audioFeatures = spotify.getAudioFeatures(Set.of(value.getId()));
-        CompletableFuture.runAsync(() -> {
+        Thread.startVirtualThread(() -> {
             var audioFeaturesStream = audioFeatures.stream().map(t ->
                     new dao.entities.AudioFeatures(t.getAcousticness(), t.getAnalysisUrl(), t.getDanceability(), t.getDurationMs(), t.getEnergy(), t.getId(), t.getInstrumentalness(), t.getKey(), t.getLiveness(), t.getLoudness(), t.getSpeechiness(), t.getTempo(), t.getTimeSignature(), t.getTrackHref(), t.getUri(), t.getValence())).toList();
             db.insertAudioFeatures(audioFeaturesStream);

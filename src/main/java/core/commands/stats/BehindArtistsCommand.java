@@ -11,7 +11,7 @@ import core.parsers.Parser;
 import core.parsers.TwoUsersParser;
 import core.parsers.params.NumberParameters;
 import core.parsers.params.TwoUsersParamaters;
-import dao.ServiceView;
+import core.util.ServiceView;
 import dao.entities.DiscordUserDisplay;
 import dao.entities.StolenCrownWrapper;
 import net.dv8tion.jda.api.EmbedBuilder;

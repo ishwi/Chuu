@@ -9,7 +9,7 @@ import core.parsers.OnlyChartSizeParser;
 import core.parsers.params.ChartSizeParameters;
 import core.parsers.utils.OptionalEntity;
 import core.parsers.utils.Optionals;
-import dao.ServiceView;
+import core.util.ServiceView;
 import dao.entities.ChartMode;
 import dao.entities.CountWrapper;
 import dao.entities.ResultWrapper;

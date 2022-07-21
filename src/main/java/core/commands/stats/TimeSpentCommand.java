@@ -8,7 +8,7 @@ import core.exceptions.LastFmException;
 import core.parsers.Parser;
 import core.parsers.TimerFrameParser;
 import core.parsers.params.TimeFrameParameters;
-import dao.ServiceView;
+import core.util.ServiceView;
 import dao.entities.SecondsTimeFrameCount;
 import dao.entities.TimeFrameEnum;
 

@@ -13,7 +13,7 @@ import core.otherlisteners.util.PaginatorBuilder;
 import core.parsers.Parser;
 import core.parsers.UserStringParser;
 import core.parsers.params.UserStringParameters;
-import dao.ServiceView;
+import core.util.ServiceView;
 import dao.everynoise.NoiseGenreReleases;
 import dao.everynoise.Release;
 import dao.exceptions.InstanceNotFoundException;

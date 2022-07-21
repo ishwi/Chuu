@@ -44,8 +44,8 @@ public class ButtonValidator<T> extends ReactionListener {
     private T currentElement;
 
 
-    public ButtonValidator(UnaryOperator<EmbedBuilder> getLastMessage, Supplier<T> elementFetcher, BiFunction<T, EmbedBuilder, EmbedBuilder> fillBuilder, EmbedBuilder who, Context context, long discordId, Map<String, Reaction<T, ButtonInteractionEvent, ButtonResult>> actionMap, List<ActionRow> actionRows, boolean allowOtherUsers, boolean renderInSameElement, int timeout) {
-        super(who, null, 30, context.getJDA());
+    public ButtonValidator(UnaryOperator<EmbedBuilder> getLastMessage, Supplier<T> elementFetcher, BiFunction<T, EmbedBuilder, EmbedBuilder> fillBuilder, EmbedBuilder who, Context context, long discordId, Map<String, Reaction<T, ButtonInteractionEvent, ButtonResult>> actionMap, List<ActionRow> actionRows, boolean allowOtherUsers, boolean renderInSameElement, long channelId) {
+        super(who, null, 30, context.getJDA(), channelId);
         this.getLastMessage = getLastMessage;
         this.elementFetcher = elementFetcher;
         this.fillBuilder = fillBuilder;
@@ -57,11 +57,6 @@ public class ButtonValidator<T> extends ReactionListener {
         this.renderInSameElement = renderInSameElement;
 
         init();
-    }
-
-
-    public ButtonValidator(UnaryOperator<EmbedBuilder> getLastMessage, Supplier<T> elementFetcher, BiFunction<T, EmbedBuilder, EmbedBuilder> fillBuilder, EmbedBuilder who, Context context, long discordId, Map<String, Reaction<T, ButtonInteractionEvent, ButtonResult>> actionMap, List<ActionRow> actionRows, boolean allowOtherUsers, boolean renderInSameElement) {
-        this(getLastMessage, elementFetcher, fillBuilder, who, context, discordId, actionMap, actionRows, allowOtherUsers, renderInSameElement, 30);
     }
 
     @org.jetbrains.annotations.NotNull
@@ -195,7 +190,9 @@ public class ButtonValidator<T> extends ReactionListener {
 
     @Override
     public void onButtonClickedEvent(@Nonnull ButtonInteractionEvent event) {
-        event.deferEdit().queue();
+        if (!event.isAcknowledged()) {
+            event.deferEdit().queue();
+        }
         Reaction<T, ButtonInteractionEvent, ButtonResult> action = this.actionMap.get(event.getComponentId());
         if (action == null) return;
         ButtonResult apply = action.release(currentElement, event);

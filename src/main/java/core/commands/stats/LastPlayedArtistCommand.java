@@ -10,7 +10,7 @@ import core.parsers.Parser;
 import core.parsers.params.ArtistParameters;
 import core.parsers.utils.OptionalEntity;
 import core.services.validators.ArtistValidator;
-import dao.ServiceView;
+import core.util.ServiceView;
 import dao.entities.LastFMData;
 import dao.entities.ScrobbledArtist;
 import net.dv8tion.jda.api.utils.TimeFormat;

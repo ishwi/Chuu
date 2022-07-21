@@ -13,7 +13,7 @@ import core.parsers.Parser;
 import core.parsers.SetParser;
 import core.parsers.params.WordParameter;
 import core.parsers.utils.CustomTimeFrame;
-import dao.ServiceView;
+import core.util.ServiceView;
 import dao.entities.*;
 import dao.exceptions.DuplicateInstanceException;
 import dao.exceptions.InstanceNotFoundException;

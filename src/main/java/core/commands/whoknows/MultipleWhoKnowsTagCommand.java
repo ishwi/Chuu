@@ -9,7 +9,7 @@ import core.imagerenderer.WhoKnowsMaker;
 import core.parsers.MultipleGenresParser;
 import core.parsers.Parser;
 import core.parsers.params.MultipleGenresParameters;
-import dao.ServiceView;
+import core.util.ServiceView;
 import dao.entities.*;
 import dao.exceptions.InstanceNotFoundException;
 import org.apache.commons.text.WordUtils;

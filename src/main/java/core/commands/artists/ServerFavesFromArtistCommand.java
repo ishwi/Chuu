@@ -12,7 +12,7 @@ import core.parsers.Parser;
 import core.parsers.params.ArtistParameters;
 import core.parsers.params.ChuuDataParams;
 import core.services.validators.ArtistValidator;
-import dao.ServiceView;
+import core.util.ServiceView;
 import dao.entities.AlbumUserPlays;
 import dao.entities.ScrobbledArtist;
 

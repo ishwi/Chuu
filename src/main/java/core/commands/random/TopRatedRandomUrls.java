@@ -9,7 +9,7 @@ import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
 import core.parsers.utils.OptionalEntity;
 import core.parsers.utils.Optionals;
-import dao.ServiceView;
+import core.util.ServiceView;
 import dao.entities.DiscordUserDisplay;
 import dao.entities.ScoredAlbumRatings;
 

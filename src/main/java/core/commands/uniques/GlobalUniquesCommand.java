@@ -1,7 +1,7 @@
 package core.commands.uniques;
 
 import core.commands.utils.CommandCategory;
-import dao.ServiceView;
+import core.util.ServiceView;
 import dao.entities.ArtistPlays;
 import dao.entities.UniqueWrapper;
 

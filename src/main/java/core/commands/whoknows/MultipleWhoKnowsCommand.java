@@ -7,7 +7,7 @@ import core.imagerenderer.WhoKnowsMaker;
 import core.parsers.MultipleArtistsParser;
 import core.parsers.Parser;
 import core.parsers.params.MultiArtistParameters;
-import dao.ServiceView;
+import core.util.ServiceView;
 import dao.entities.*;
 
 import java.awt.image.BufferedImage;

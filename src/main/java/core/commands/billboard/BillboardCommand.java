@@ -19,7 +19,7 @@ import core.parsers.params.NumberParameters;
 import core.parsers.utils.OptionalEntity;
 import core.parsers.utils.Optionals;
 import core.services.BillboardHoarder;
-import dao.ServiceView;
+import core.util.ServiceView;
 import dao.entities.*;
 import dao.exceptions.InstanceNotFoundException;
 import dao.utils.LinkUtils;

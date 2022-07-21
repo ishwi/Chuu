@@ -18,7 +18,7 @@ import core.parsers.params.NumberParameters;
 import core.parsers.utils.CustomTimeFrame;
 import core.services.UserInfoService;
 import core.services.validators.ArtistValidator;
-import dao.ServiceView;
+import core.util.ServiceView;
 import dao.entities.LastFMData;
 import dao.entities.ScrobbledArtist;
 import dao.entities.TimeFrameEnum;

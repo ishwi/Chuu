@@ -10,7 +10,7 @@ import core.parsers.ArtistUrlParser;
 import core.parsers.Parser;
 import core.parsers.params.ArtistUrlParameters;
 import core.services.validators.ArtistValidator;
-import dao.ServiceView;
+import core.util.ServiceView;
 import dao.entities.LastFMData;
 import dao.entities.Role;
 import dao.entities.ScrobbledArtist;

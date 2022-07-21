@@ -12,7 +12,7 @@ import core.parsers.Parser;
 import core.parsers.params.ArtistAlbumParameters;
 import core.services.validators.AlbumValidator;
 import core.services.validators.ArtistValidator;
-import dao.ServiceView;
+import core.util.ServiceView;
 import dao.entities.FullAlbumEntityExtended;
 import dao.entities.Rating;
 import dao.entities.ScrobbledAlbum;

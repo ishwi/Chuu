@@ -18,7 +18,7 @@ import core.parsers.params.TimeFrameParameters;
 import core.parsers.utils.CustomTimeFrame;
 import core.parsers.utils.Optionals;
 import core.scheduledtasks.ArtistMbidUpdater;
-import dao.ServiceView;
+import core.util.ServiceView;
 import dao.entities.*;
 import dao.musicbrainz.MusicBrainzService;
 import dao.musicbrainz.MusicBrainzServiceSingleton;

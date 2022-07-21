@@ -12,7 +12,7 @@ import core.otherlisteners.util.PaginatorBuilder;
 import core.parsers.Parser;
 import core.parsers.QueryParser;
 import core.parsers.params.WordParameter;
-import dao.ServiceView;
+import core.util.ServiceView;
 import dao.entities.DiscordUserDisplay;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.EmbedBuilder;

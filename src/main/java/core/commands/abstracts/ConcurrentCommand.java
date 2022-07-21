@@ -3,7 +3,7 @@ package core.commands.abstracts;
 import core.commands.Context;
 import core.parsers.params.CommandParameters;
 import core.util.ChuuVirtualPool;
-import dao.ServiceView;
+import core.util.ServiceView;
 
 import java.util.concurrent.ExecutorService;
 

@@ -9,7 +9,7 @@ import core.otherlisteners.util.ConfirmatorItem;
 import core.parsers.NoOpParser;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
-import dao.ServiceView;
+import core.util.ServiceView;
 import dao.entities.DiscordUserDisplay;
 import dao.entities.LastFMData;
 import dao.exceptions.InstanceNotFoundException;
@@ -24,7 +24,7 @@ import java.util.List;
 
 public class UnsetCommand extends ConcurrentCommand<CommandParameters> {
     public UnsetCommand(ServiceView dao) {
-        super(dao);
+        super(dao, true);
         this.ephemeral = true;
     }
 

@@ -17,7 +17,7 @@ import core.parsers.utils.Optionals;
 import core.services.tracklist.TracklistService;
 import core.services.tracklist.UserTrackListService;
 import core.services.validators.AlbumValidator;
-import dao.ServiceView;
+import core.util.ServiceView;
 import dao.entities.FullAlbumEntity;
 import dao.entities.ScrobbledAlbum;
 import dao.entities.ScrobbledArtist;

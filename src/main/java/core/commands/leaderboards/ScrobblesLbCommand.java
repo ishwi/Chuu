@@ -7,7 +7,7 @@ import core.commands.utils.CommandUtil;
 import core.parsers.NoOpParser;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
-import dao.ServiceView;
+import core.util.ServiceView;
 import dao.entities.LbEntry;
 import net.dv8tion.jda.api.EmbedBuilder;
 

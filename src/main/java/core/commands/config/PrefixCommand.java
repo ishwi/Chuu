@@ -8,7 +8,7 @@ import core.parsers.Parser;
 import core.parsers.PrefixParser;
 import core.parsers.params.CharacterParameters;
 import core.services.PrefixService;
-import dao.ServiceView;
+import core.util.ServiceView;
 
 import javax.annotation.Nonnull;
 import java.util.Collections;

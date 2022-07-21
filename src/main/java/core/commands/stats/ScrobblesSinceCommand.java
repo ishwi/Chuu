@@ -8,7 +8,7 @@ import core.exceptions.LastFmException;
 import core.parsers.DateParser;
 import core.parsers.Parser;
 import core.parsers.params.DateParameters;
-import dao.ServiceView;
+import core.util.ServiceView;
 import dao.entities.LastFMData;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.utils.TimeFormat;

@@ -1,7 +1,7 @@
 package core.commands.uniques;
 
 import core.commands.utils.CommandCategory;
-import dao.ServiceView;
+import core.util.ServiceView;
 import dao.entities.TrackPlays;
 import dao.entities.UniqueWrapper;
 

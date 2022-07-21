@@ -8,7 +8,7 @@ import core.commands.utils.CommandCategory;
 import core.parsers.Parser;
 import core.parsers.RateLimitParser;
 import core.parsers.params.RateLimitParams;
-import dao.ServiceView;
+import core.util.ServiceView;
 import dao.entities.LastFMData;
 import dao.entities.Role;
 import dao.exceptions.InstanceNotFoundException;

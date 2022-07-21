@@ -11,7 +11,7 @@ import core.imagerenderer.TasteRenderer;
 import core.otherlisteners.util.PaginatorBuilder;
 import core.parsers.params.CommandParameters;
 import core.services.UserInfoService;
-import dao.ServiceView;
+import core.util.ServiceView;
 import dao.entities.*;
 import dao.exceptions.InstanceNotFoundException;
 import dao.utils.LinkUtils;

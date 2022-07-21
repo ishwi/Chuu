@@ -9,7 +9,7 @@ import core.otherlisteners.util.PaginatorBuilder;
 import core.parsers.Parser;
 import core.parsers.RYMRatingParser;
 import core.parsers.params.RYMRatingParams;
-import dao.ServiceView;
+import core.util.ServiceView;
 import dao.entities.DiscordUserDisplay;
 import dao.entities.RymStats;
 import dao.entities.ScoredAlbumRatings;

@@ -23,11 +23,12 @@ import core.music.utils.ScrobbleProcesser;
 import core.otherlisteners.*;
 import core.services.*;
 import core.services.validators.AlbumFinder;
+import core.util.ServiceView;
 import core.util.botlists.BotListPoster;
 import dao.ChuuDatasource;
 import dao.ChuuService;
 import dao.LongExecutorChuuDatasource;
-import dao.ServiceView;
+import dao.UpdateDatasource;
 import dao.entities.Callback;
 import dao.entities.Metrics;
 import dao.entities.UsersWrapper;
@@ -94,7 +95,6 @@ public class Chuu {
     private static ScrobbleEventManager scrobbleEventManager;
     private static ScrobbleProcesser scrobbleProcesser;
     private static ScheduledService scheduledService;
-    private static ChuuService monitoringService;
 
     public static String getLastFmId(String lastfmId) {
         if (privateLastFms.contains(lastfmId)) {
@@ -123,7 +123,7 @@ public class Chuu {
         channel2Id = Long.parseLong(channel2);
         chuuSess = properties.getProperty("LASTFM_BOT_SESSION_KEY");
         ipv6Block = properties.getProperty("IPV6_BLOCK");
-        db = new ServiceView(new ChuuService(new ChuuDatasource()), new ChuuService(new LongExecutorChuuDatasource()));
+        db = new ServiceView(new ChuuService(new ChuuDatasource()), new ChuuService(new LongExecutorChuuDatasource()), new ChuuService(new UpdateDatasource()));
         ChuuService service = db.normalService();
         prefixService = new PrefixService(service);
 
@@ -164,7 +164,6 @@ public class Chuu {
 
         customManager = new CustomInterfacedEventManager(0);
         EvalCommand evalCommand = new EvalCommand(db);
-//        monitoringService = new ChuuService(new MonitoringDatasource());
         AtomicInteger counter = new AtomicInteger(0);
 
         DefaultShardManagerBuilder builder = DefaultShardManagerBuilder.

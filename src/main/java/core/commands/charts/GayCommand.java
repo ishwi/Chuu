@@ -14,7 +14,7 @@ import core.imagerenderer.GraphicUtils;
 import core.parsers.ChartableParser;
 import core.parsers.GayParser;
 import core.parsers.params.GayParams;
-import dao.ServiceView;
+import core.util.ServiceView;
 import dao.entities.CountWrapper;
 import dao.entities.DiscordUserDisplay;
 import dao.entities.GayType;

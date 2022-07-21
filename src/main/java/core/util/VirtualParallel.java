@@ -11,6 +11,8 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.Supplier;
 
 
@@ -102,15 +104,21 @@ public class VirtualParallel {
         }
     }
 
-    private static final class ExecuteAllIgnoreErrors<T> extends CustomPools<T> {
+    public static final class ExecuteAllIgnoreErrors<T> extends CustomPools<T> {
         private final AtomicInteger forkCount = new AtomicInteger(0);
         private final AtomicInteger preJoinCount = new AtomicInteger(0);
 
         private final AtomicBoolean isInCollection = new AtomicBoolean(false);
-
+        private final Lock readLock;
+        private final Lock writeLock;
         private final List<T> results = new ArrayList<>();
-
         private final AtomicInteger failCounter = new AtomicInteger(0);
+
+        {
+            var lock = new ReentrantReadWriteLock();
+            readLock = lock.readLock();
+            writeLock = lock.writeLock();
+        }
 
         public ExecuteAllIgnoreErrors() {
         }
@@ -132,7 +140,12 @@ public class VirtualParallel {
         protected void handleComplete(Future<T> future) {
             var state = future.state();
             if (state == Future.State.SUCCESS) {
-                results.add(future.resultNow());
+                writeLock.lock();
+                try {
+                    results.add(future.resultNow());
+                } finally {
+                    writeLock.unlock();
+                }
             } else if (state == Future.State.FAILED) {
                 failCounter.incrementAndGet();
             }
@@ -148,7 +161,12 @@ public class VirtualParallel {
 
         //
         public List<T> results() {
-            return results.stream().filter(Objects::nonNull).toList();
+            readLock.lock();
+            try {
+                return results.stream().filter(Objects::nonNull).toList();
+            } finally {
+                readLock.unlock();
+            }
         }
 
     }

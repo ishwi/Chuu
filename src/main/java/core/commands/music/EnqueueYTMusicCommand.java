@@ -25,7 +25,7 @@ import core.music.utils.TrackContext;
 import core.parsers.MusicInputParser;
 import core.parsers.Parser;
 import core.parsers.params.WordParameter;
-import dao.ServiceView;
+import core.util.ServiceView;
 
 import javax.annotation.Nonnull;
 import java.util.List;

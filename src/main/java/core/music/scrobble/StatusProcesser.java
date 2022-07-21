@@ -7,8 +7,8 @@ import core.apis.last.ConcurrentLastFM;
 import core.apis.last.LastFMFactory;
 import core.apis.last.entities.Scrobble;
 import core.exceptions.LastFmException;
-import core.services.ChuuRunnable;
 import core.util.ChuuVirtualPool;
+import core.util.VirtualParallel;
 import dao.ChuuService;
 import dao.entities.LastFMData;
 import net.dv8tion.jda.api.entities.ISnowflake;
@@ -17,9 +17,7 @@ import javax.annotation.Nonnull;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -29,8 +27,8 @@ public class StatusProcesser {
             .expireAfterAccess(60, TimeUnit.MINUTES).build();
     private static final Cache<Identifier, ScrobbleStatus> overriden = Caffeine.newBuilder()
             .expireAfterAccess(60, TimeUnit.MINUTES).maximumSize(500L).build();
-    private final ConcurrentLastFM lastFM = LastFMFactory.getNewInstance();
     private static final Executor scrobbleRequester = ChuuVirtualPool.of("Scrobbler-Manager");
+    private final ConcurrentLastFM lastFM = LastFMFactory.getNewInstance();
     private final ChuuService db;
 
     public StatusProcesser(ChuuService db) {
@@ -106,19 +104,24 @@ public class StatusProcesser {
         }
 
 
-        CompletableFuture.allOf(scrobbleableUsers.stream().map(z -> (ChuuRunnable) () -> lastFM.flagNP(z.getSession(), scrobble))
-                .map(r -> CompletableFuture.runAsync(r, scrobbleRequester)).toArray(CompletableFuture[]::new)).handle(
-                (unused, throwable) -> {
-                    if (throwable != null) {
-                        Chuu.getLogger().debug("Error flagging np", throwable);
-                    }
+        try (var scope = new VirtualParallel.ExecuteAllIgnoreErrors<Void>()) {
+            for (LastFMData z : scrobbleableUsers) {
+                scope.fork(() -> {
+                    lastFM.flagNP(z.getSession(), scrobble);
                     return null;
                 });
+            }
+            if (Chuu.chuuSess != null) {
+                scope.fork(() -> {
+                    lastFM.flagNP(Chuu.chuuSess, scrobble);
+                    return null;
+                });
+            }
+            scope.join();
 
-        Optional.ofNullable(Chuu.chuuSess)
-                .ifPresent(sess -> CompletableFuture.runAsync(
-                        (ChuuRunnable) () -> lastFM.flagNP(sess, scrobble)
-                        , scrobbleRequester));
+        } catch (InterruptedException e) {
+            Chuu.getLogger().debug("Error flagging np", e);
+        }
 
         status.callback().accept(status, scrobbleableUsers);
     }
@@ -163,19 +166,26 @@ public class StatusProcesser {
         } else {
             scrobble = status.scrobble().scrobble();
         }
-        CompletableFuture.allOf(scrobbleableUsers.stream().map(z -> (ChuuRunnable) () -> lastFM.scrobble(z.getSession(), scrobble, moment))
-                .map(r -> CompletableFuture.runAsync(r, scrobbleRequester)).toArray(CompletableFuture[]::new)).handle(
-                (unused, throwable) -> {
-                    if (throwable != null) {
-                        Chuu.getLogger().debug("Error submitting scrobble", throwable);
-                    }
+
+        try (var scope = new VirtualParallel.ExecuteAllIgnoreErrors<Void>()) {
+            for (LastFMData z : scrobbleableUsers) {
+                scope.fork(() -> {
+                    lastFM.scrobble(z.getSession(), scrobble, moment);
                     return null;
                 });
+            }
+            if (Chuu.chuuSess != null) {
+                scope.fork(() -> {
+                    lastFM.scrobble(Chuu.chuuSess, scrobble, moment);
+                    return null;
+                });
+            }
+            scope.join();
 
-        Optional.ofNullable(Chuu.chuuSess)
-                .ifPresent(sess -> CompletableFuture.runAsync(
-                        (ChuuRunnable) () -> lastFM.scrobble(sess, scrobble, moment)
-                        , scrobbleRequester));
+        } catch (InterruptedException e) {
+            Chuu.getLogger().debug("Error flagging np", e);
+        }
+
 
         status.callback().accept(status, scrobbleableUsers);
     }

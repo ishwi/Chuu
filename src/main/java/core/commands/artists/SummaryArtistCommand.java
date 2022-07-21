@@ -12,7 +12,7 @@ import core.parsers.params.ArtistParameters;
 import core.services.tags.TagArtistService;
 import core.services.tags.TagCleaner;
 import core.services.validators.ArtistValidator;
-import dao.ServiceView;
+import core.util.ServiceView;
 import dao.entities.*;
 import dao.musicbrainz.MusicBrainzService;
 import dao.musicbrainz.MusicBrainzServiceSingleton;

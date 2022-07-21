@@ -10,7 +10,7 @@ import core.otherlisteners.util.PaginatorBuilder;
 import core.parsers.Parser;
 import core.parsers.UserStringParser;
 import core.parsers.params.UserStringParameters;
-import dao.ServiceView;
+import core.util.ServiceView;
 import dao.everynoise.NoiseGenre;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.EmbedBuilder;

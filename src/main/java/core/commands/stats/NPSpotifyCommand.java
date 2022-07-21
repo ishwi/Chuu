@@ -6,7 +6,7 @@ import core.commands.Context;
 import core.commands.abstracts.NpCommand;
 import core.commands.utils.CommandUtil;
 import core.parsers.params.NowPlayingParameters;
-import dao.ServiceView;
+import core.util.ServiceView;
 import dao.entities.LastFMData;
 import dao.entities.NowPlayingArtist;
 import net.dv8tion.jda.api.MessageBuilder;

@@ -23,23 +23,25 @@ public abstract class ReactionListener implements EventListener {
     private static final String DMS_MES = "Can't clear reactions on dms, please manually remove the reaction\n";
     public final EmbedBuilder who;
     public final JDA jda;
+    public final long channelId;
     private final long activeSeconds;
     public Message message;
 
     public ReactionListener(EmbedBuilder who, Message message) {
-        this(who, message, 30);
+        this(who, message, 30, message.getJDA(), message.getChannel().getIdLong());
     }
 
-    public ReactionListener(EmbedBuilder who, Message message, long activeSeconds, JDA jda) {
+    public ReactionListener(EmbedBuilder who, Message message, long activeSeconds, JDA jda, long channelId) {
         this.who = who;
         this.message = message;
         this.activeSeconds = activeSeconds;
         this.jda = jda;
+        this.channelId = channelId;
         register();
     }
 
-    public ReactionListener(EmbedBuilder who, Message message, long activeSeconds) {
-        this(who, message, activeSeconds, message.getJDA());
+    public ReactionListener(EmbedBuilder who, Message message, long activeSeconds, long channelId) {
+        this(who, message, activeSeconds, message.getJDA(), channelId);
 
     }
 

@@ -15,7 +15,6 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.UnaryOperator;
@@ -38,7 +37,7 @@ public class Confirmator extends ReactionListener {
     }
 
     public Confirmator(EmbedBuilder who, Context context, Message message, long author, List<ConfirmatorItem> items, UnaryOperator<EmbedBuilder> timeoutCallback, boolean runLastEmbed, long seconds) {
-        super(who, message, seconds);
+        super(who, message);
         this.context = context;
         this.author = author;
         this.timeoutCallback = timeoutCallback;
@@ -93,12 +92,14 @@ public class Confirmator extends ReactionListener {
 
     @Override
     public void onButtonClickedEvent(@Nonnull ButtonInteractionEvent event) {
-        event.deferEdit().queue();
+        if (!event.isAcknowledged()) {
+            event.deferEdit().queue();
+        }
         ConfirmatorItem item = this.idMap.get(event.getComponentId());
         if (item != null) {
             wasThisCalled.set(true);
             this.didConfirm.set(item.reaction());
-            CompletableFuture.runAsync(() -> item.callback().accept(this.message));
+            Thread.startVirtualThread(() -> item.callback().accept(this.message));
             unregister();
         }
     }

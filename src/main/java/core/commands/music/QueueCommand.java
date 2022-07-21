@@ -30,7 +30,7 @@ import core.otherlisteners.util.PaginatorBuilder;
 import core.parsers.NoOpParser;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
-import dao.ServiceView;
+import core.util.ServiceView;
 import jdk.incubator.concurrent.StructuredTaskScope;
 import net.dv8tion.jda.api.EmbedBuilder;
 

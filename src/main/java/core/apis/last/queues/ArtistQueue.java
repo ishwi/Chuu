@@ -17,6 +17,7 @@ import java.util.Collection;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import static core.apis.last.queues.TrackGroupAlbumQueue.defaultTrackImage;
@@ -24,6 +25,7 @@ import static core.apis.last.queues.TrackGroupAlbumQueue.defaultTrackImage;
 public class ArtistQueue extends LinkedBlockingQueue<UrlCapsule> {
     @Serial
     private static final long serialVersionUID = 1L;
+    private static final ExecutorService artist = ChuuVirtualPool.of("Capsule-Fetcher");
     protected final transient LinkedBlockingQueue<CompletableFuture<UrlCapsule>> wrapper;
     private final transient ChuuService dao;
     private final transient DiscogsApi discogsApi;
@@ -58,7 +60,7 @@ public class ArtistQueue extends LinkedBlockingQueue<UrlCapsule> {
                 getUrl(item);
             }
             return item;
-        }, ChuuVirtualPool.of("Capsule-Fetcher")).toCompletableFuture();
+        }, artist).toCompletableFuture();
         return wrapper.offer(future);
 
     }

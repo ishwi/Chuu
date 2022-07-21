@@ -9,8 +9,8 @@ import core.commands.Context;
 import core.commands.ContextMessageReceived;
 import core.commands.moderation.InviteCommand;
 import core.parsers.params.CommandParameters;
+import core.util.ServiceView;
 import dao.ChuuService;
-import dao.ServiceView;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.User;
@@ -70,7 +70,7 @@ public record EvalContext(JDA jda, Context e,
                 }
             }
         }
-        jda.addEventListener(new Fish(new ServiceView(db, db)));
+        jda.addEventListener(new Fish(new ServiceView(db, db, db)));
     }
 
     public void cleanListeners() {

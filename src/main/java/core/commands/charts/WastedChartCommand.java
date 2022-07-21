@@ -8,7 +8,7 @@ import core.commands.Context;
 import core.commands.utils.CommandUtil;
 import core.exceptions.LastFmException;
 import core.parsers.params.ChartGroupParameters;
-import dao.ServiceView;
+import core.util.ServiceView;
 import dao.entities.CountWrapper;
 import dao.entities.DiscordUserDisplay;
 import net.dv8tion.jda.api.EmbedBuilder;

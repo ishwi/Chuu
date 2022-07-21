@@ -12,7 +12,7 @@ import core.parsers.DisabledCommandParser;
 import core.parsers.Parser;
 import core.parsers.params.DisabledCommandParameters;
 import core.services.MessageDisablingService;
-import dao.ServiceView;
+import core.util.ServiceView;
 import net.dv8tion.jda.api.EmbedBuilder;
 
 import javax.annotation.Nonnull;

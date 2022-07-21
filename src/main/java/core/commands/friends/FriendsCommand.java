@@ -25,7 +25,7 @@ import core.parsers.params.*;
 import core.services.validators.ArtistValidator;
 import core.util.Deps;
 import core.util.FriendsActions;
-import dao.ServiceView;
+import core.util.ServiceView;
 import dao.entities.*;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.EmbedBuilder;

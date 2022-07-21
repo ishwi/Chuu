@@ -11,7 +11,7 @@ import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
 import core.parsers.params.MultipleGenresParameters;
 import core.parsers.utils.Optionals;
-import dao.ServiceView;
+import core.util.ServiceView;
 import dao.entities.ScrobbledArtist;
 import dao.entities.SearchMode;
 import net.dv8tion.jda.api.EmbedBuilder;

@@ -29,7 +29,6 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.hooks.EventListener;
 import net.dv8tion.jda.api.hooks.IEventManager;
-import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
 import net.dv8tion.jda.api.interactions.commands.CommandInteraction;
 import net.dv8tion.jda.internal.JDAImpl;
 
@@ -51,7 +50,7 @@ public class CustomInterfacedEventManager implements IEventManager {
     private final Map<String, MyCommand<? extends CommandParameters>> commandListeners = new HashMap<>();
     private final Map<Long, ChannelConstantListener> channelConstantListeners = new HashMap<>();
     private final Set<ConstantListener> constantListeners = new HashSet<>();
-    private final Map<ReactionListener, ScheduledFuture<?>> reactionaries = new ConcurrentHashMap<>();
+    private final Map<Long, Map<ReactionListener, ScheduledFuture<?>>> reactionaries = new ConcurrentHashMap<>();
     private final Map<String, MyCommand<? extends CommandParameters>> slashVariants = new HashMap<>();
     public boolean isReady;
     private VoiceListener voiceListener;
@@ -63,9 +62,6 @@ public class CustomInterfacedEventManager implements IEventManager {
 
     private void handleReaction(@Nonnull GenericEvent event) {
         assert event instanceof MessageReactionAddEvent || event instanceof ButtonInteractionEvent || event instanceof SelectMenuInteractionEvent;
-        if (event instanceof IReplyCallback i) {
-            i.deferReply().queue();
-        }
         long channelId = switch (event) {
             case MessageReactionAddEvent e3 -> e3.getChannel().getIdLong();
             case ButtonInteractionEvent e3 -> Optional.of(e3.getChannel()).map(Channel::getIdLong).orElse(0L);
@@ -77,12 +73,15 @@ public class CustomInterfacedEventManager implements IEventManager {
             c.onEvent(event);
             return;
         }
+        Map<ReactionListener, ScheduledFuture<?>> channelReactionaries = reactionaries.getOrDefault(channelId, Collections.emptyMap());
+        for (ReactionListener listener : channelReactionaries.keySet()) {
+            listener.onEvent(event);
+        }
+
         for (ConstantListener constantListener : constantListeners) {
             constantListener.onEvent(event);
         }
-        for (ReactionListener listener : reactionaries.keySet()) {
-            listener.onEvent(event);
-        }
+
 
     }
 
@@ -109,10 +108,18 @@ public class CustomInterfacedEventManager implements IEventManager {
         }
         if (listener instanceof ReactionListener reactionListener) {
             ScheduledFuture<?> schedule = Chuu.getScheduledService().addSchedule((() -> {
-                reactionaries.remove(reactionListener);
+                Map<ReactionListener, ScheduledFuture<?>> prev = reactionaries.get(reactionListener.channelId);
+                if (prev != null) {
+                    prev.remove(reactionListener);
+                }
                 reactionListener.dispose();
             }), reactionListener.getActiveSeconds(), TimeUnit.SECONDS);
-            reactionaries.put(reactionListener, schedule);
+            Map<ReactionListener, ScheduledFuture<?>> map = new WeakHashMap<>();
+            map.put(reactionListener, schedule);
+            reactionaries.merge(reactionListener.channelId, map, (m1, m2) -> {
+                m1.putAll(m2);
+                return m1;
+            });
         } else if (listener instanceof ConstantListener cl) {
             if (listener instanceof ChannelConstantListener ccl) {
                 channelConstantListeners.put(ccl.getChannelId(), ccl);
@@ -136,11 +143,18 @@ public class CustomInterfacedEventManager implements IEventManager {
                 }
             }
             case ReactionListener reactionListener -> {
-                ScheduledFuture<?> scheduledFuture = this.reactionaries.remove(reactionListener);
-                if (scheduledFuture != null) {
-                    scheduledFuture.cancel(true);
-                    reactionListener.dispose();
+                Map<ReactionListener, ScheduledFuture<?>> prev = this.reactionaries.get(reactionListener.channelId);
+                if (prev != null) {
+                    ScheduledFuture<?> scheduledFuture = prev.remove(reactionListener);
+                    if (prev.isEmpty()) {
+                        this.reactionaries.remove(reactionListener.channelId);
+                    }
+                    if (scheduledFuture != null) {
+                        scheduledFuture.cancel(true);
+                        reactionListener.dispose();
+                    }
                 }
+
             }
             case AwaitReady a -> otherListeners.remove(a);
             case ChannelConstantListener ccl -> channelConstantListeners.remove(ccl.getChannelId(), ccl);
@@ -173,8 +187,7 @@ public class CustomInterfacedEventManager implements IEventManager {
                 }
                 case MessageReactionAddEvent react ->
                         reactionExecutor.submit((ChuuRunnable) () -> this.handleReaction(react));
-                case ButtonInteractionEvent button ->
-                        reactionExecutor.submit((ChuuRunnable) () -> this.handleReaction(button));
+                case ButtonInteractionEvent button -> this.handleReaction(button);
                 case SelectMenuInteractionEvent selected ->
                         reactionExecutor.submit((ChuuRunnable) () -> this.handleReaction(selected));
 
@@ -200,6 +213,10 @@ public class CustomInterfacedEventManager implements IEventManager {
             return;
         }
         MyCommand<? extends CommandParameters> myCommand = parseCommand(sce);
+        if (myCommand == null) {
+            Chuu.getLogger().warn("Not found command {} ", sce.getCommandPath());
+            return;
+        }
         ContextSlashReceived ctx = new ContextSlashReceived(sce);
         if (!Chuu.getMessageDisablingService().isMessageAllowed(myCommand, ctx)) {
             if (Chuu.getMessageDisablingService().doResponse(ctx))
@@ -263,7 +280,7 @@ public class CustomInterfacedEventManager implements IEventManager {
         if (mes.isFromGuild() && contentRaw.charAt(0) != correspondingPrefix) {
             if (mes.getMessage().getMentions().isMentioned(mes.getJDA().getSelfUser(),
                     Message.MentionType.USER)
-                    && mes.getMessage().getType() != MessageType.INLINE_REPLY) {
+                && mes.getMessage().getType() != MessageType.INLINE_REPLY) {
                 if (mes.getMessage().getContentRaw().contains("prefix")) {
                     mes.getChannel().sendMessage("My prefix is: `" + correspondingPrefix + "`").queue();
                 }
@@ -302,10 +319,14 @@ public class CustomInterfacedEventManager implements IEventManager {
     }
 
     public void refreshReactionay(ReactionListener reactionListener, long seconds) {
-        ScheduledFuture<?> scheduledFuture = this.reactionaries.get(reactionListener);
+        Map<ReactionListener, ScheduledFuture<?>> channelReactionaires = this.reactionaries.get(reactionListener.channelId);
+        ScheduledFuture<?> scheduledFuture = channelReactionaires.get(reactionListener);
         if (scheduledFuture != null && scheduledFuture.cancel(false)) {
-            this.reactionaries.put(reactionListener, Chuu.getScheduledService().addSchedule((() -> {
-                reactionaries.remove(reactionListener);
+            channelReactionaires.put(reactionListener, Chuu.getScheduledService().addSchedule((() -> {
+                channelReactionaires.remove(reactionListener);
+                if (channelReactionaires.isEmpty()) {
+                    this.reactionaries.remove(reactionListener.channelId);
+                }
                 otherListeners.remove(reactionListener);
                 reactionListener.dispose();
             }), seconds, TimeUnit.SECONDS));

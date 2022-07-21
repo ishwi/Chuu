@@ -12,7 +12,7 @@ import core.commands.Context;
 import core.commands.utils.CommandUtil;
 import core.exceptions.LastFmException;
 import core.parsers.params.ChartParameters;
-import dao.ServiceView;
+import core.util.ServiceView;
 import dao.entities.CountWrapper;
 import dao.entities.DiscordUserDisplay;
 

@@ -38,8 +38,8 @@ public class ReactValidator<T> extends ReactionListener {
     private T currentElement;
 
     public ReactValidator(UnaryOperator<EmbedBuilder> getLastMessage, Supplier<T> elementFetcher, BiFunction<T, EmbedBuilder, EmbedBuilder> fillBuilder, EmbedBuilder who, Context context, long discordId,
-                          Map<String, Reaction<T, MessageReactionAddEvent, ReactionResult>> actionMap, boolean allowOtherUsers, boolean renderInSameElement) {
-        super(who, null, 30, context.getJDA());
+                          Map<String, Reaction<T, MessageReactionAddEvent, ReactionResult>> actionMap, boolean allowOtherUsers, boolean renderInSameElement, long channelId) {
+        super(who, null, 30, context.getJDA(), channelId);
         this.getLastMessage = getLastMessage;
         this.elementFetcher = elementFetcher;
         this.fillBuilder = fillBuilder;
@@ -181,7 +181,7 @@ public class ReactValidator<T> extends ReactionListener {
             return false;
         }
         return !(event.getMessageIdLong() != message.getIdLong() || (!this.allowOtherUsers && event.getUserIdLong() != whom) ||
-                event.getUserIdLong() == event.getJDA().getSelfUser().getIdLong());
+                 event.getUserIdLong() == event.getJDA().getSelfUser().getIdLong());
     }
 
     @Override

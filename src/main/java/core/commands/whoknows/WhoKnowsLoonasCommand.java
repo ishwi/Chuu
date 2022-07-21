@@ -11,7 +11,7 @@ import core.otherlisteners.util.PaginatorBuilder;
 import core.parsers.LOOONAParser;
 import core.parsers.Parser;
 import core.parsers.params.LOONAParameters;
-import dao.ServiceView;
+import core.util.ServiceView;
 import dao.entities.*;
 import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;

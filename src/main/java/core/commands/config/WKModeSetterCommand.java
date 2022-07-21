@@ -10,7 +10,7 @@ import core.otherlisteners.util.PaginatorBuilder;
 import core.parsers.EnumListParser;
 import core.parsers.Parser;
 import core.parsers.params.EnumListParameters;
-import dao.ServiceView;
+import core.util.ServiceView;
 import dao.entities.WKMode;
 import net.dv8tion.jda.api.EmbedBuilder;
 

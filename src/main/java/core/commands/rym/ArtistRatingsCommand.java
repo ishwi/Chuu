@@ -11,7 +11,7 @@ import core.parsers.ArtistParser;
 import core.parsers.Parser;
 import core.parsers.params.ArtistParameters;
 import core.services.validators.ArtistValidator;
-import dao.ServiceView;
+import core.util.ServiceView;
 import dao.entities.AlbumRatings;
 import dao.entities.Rating;
 import dao.entities.ScrobbledArtist;

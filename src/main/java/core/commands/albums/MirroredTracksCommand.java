@@ -11,7 +11,7 @@ import core.parsers.params.ArtistAlbumParameters;
 import core.services.UserInfoService;
 import core.services.tracklist.UserTrackListService;
 import core.services.validators.AlbumValidator;
-import dao.ServiceView;
+import core.util.ServiceView;
 import dao.entities.*;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.entities.User;

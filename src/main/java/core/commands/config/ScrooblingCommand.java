@@ -8,7 +8,7 @@ import core.parsers.OnlyUsernameParser;
 import core.parsers.Parser;
 import core.parsers.params.ChuuDataParams;
 import core.parsers.utils.OptionalEntity;
-import dao.ServiceView;
+import core.util.ServiceView;
 import dao.entities.LastFMData;
 
 import javax.annotation.Nonnull;

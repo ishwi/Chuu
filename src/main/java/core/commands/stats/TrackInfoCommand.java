@@ -13,7 +13,7 @@ import core.parsers.params.ArtistAlbumParameters;
 import core.services.tags.TagCleaner;
 import core.services.tags.TrackTagService;
 import core.services.validators.TrackValidator;
-import dao.ServiceView;
+import core.util.ServiceView;
 import dao.entities.LastFMData;
 import dao.entities.ScrobbledArtist;
 import dao.entities.ScrobbledTrack;

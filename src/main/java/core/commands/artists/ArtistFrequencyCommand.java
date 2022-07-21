@@ -10,7 +10,7 @@ import core.otherlisteners.util.PaginatorBuilder;
 import core.parsers.NoOpParser;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
-import dao.ServiceView;
+import core.util.ServiceView;
 import dao.entities.ArtistPlays;
 import dao.entities.ResultWrapper;
 import dao.utils.LinkUtils;

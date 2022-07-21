@@ -3,7 +3,7 @@ package core.commands.abstracts;
 import core.commands.Context;
 import core.imagerenderer.util.pie.PieableListResultWrapper;
 import core.parsers.params.CommandParameters;
-import dao.ServiceView;
+import core.util.ServiceView;
 import dao.entities.ResultWrapper;
 import org.knowm.xchart.PieChart;
 

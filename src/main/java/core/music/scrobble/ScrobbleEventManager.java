@@ -22,7 +22,7 @@ public class ScrobbleEventManager {
     }
 
     private final class ScrobbleLoop implements Runnable {
-        private final ThreadFactory tf = Thread.ofVirtual().name("ScrobbleProcessor", 0).factory();
+        private final ThreadFactory tf = Thread.ofVirtual().name("ScrobbleProcessor", 0).uncaughtExceptionHandler((t, e) -> Chuu.getLogger().warn(e.getMessage(), e)).factory();
 
         @Override
         public void run() {

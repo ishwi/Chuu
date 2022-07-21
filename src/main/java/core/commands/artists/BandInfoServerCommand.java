@@ -6,7 +6,7 @@ import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.imagerenderer.BandRendered;
 import core.parsers.params.ArtistParameters;
-import dao.ServiceView;
+import core.util.ServiceView;
 import dao.entities.AlbumUserPlays;
 import dao.entities.ArtistAlbums;
 import dao.entities.ScrobbledArtist;

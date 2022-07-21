@@ -5,7 +5,7 @@ import core.commands.Context;
 import core.commands.utils.CommandCategory;
 import core.exceptions.LastFmException;
 import core.parsers.params.ArtistAlbumParameters;
-import dao.ServiceView;
+import core.util.ServiceView;
 import dao.entities.ScrobbledArtist;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.requests.RestAction;

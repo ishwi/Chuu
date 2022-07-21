@@ -9,7 +9,7 @@ import core.exceptions.LastFmException;
 import core.parsers.OnlyUsernameParser;
 import core.parsers.Parser;
 import core.parsers.params.ChuuDataParams;
-import dao.ServiceView;
+import core.util.ServiceView;
 import dao.entities.LastFMData;
 import dao.entities.SecondsTimeFrameCount;
 import dao.entities.TimeFrameEnum;

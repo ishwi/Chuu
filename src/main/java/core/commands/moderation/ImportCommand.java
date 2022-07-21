@@ -14,7 +14,7 @@ import core.parsers.FileParser;
 import core.parsers.Parser;
 import core.parsers.params.UrlParameters;
 import core.parsers.utils.CustomTimeFrame;
-import dao.ServiceView;
+import core.util.ServiceView;
 import dao.entities.*;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;

@@ -14,7 +14,7 @@ import core.parsers.AffinityParser;
 import core.parsers.Parser;
 import core.parsers.params.AffinityParameters;
 import core.services.UserInfoService;
-import dao.ServiceView;
+import core.util.ServiceView;
 import dao.entities.Affinity;
 import dao.entities.DiscordUserDisplay;
 import dao.entities.LastFMData;

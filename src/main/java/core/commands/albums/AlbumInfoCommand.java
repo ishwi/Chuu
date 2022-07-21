@@ -9,7 +9,7 @@ import core.exceptions.LastFmException;
 import core.parsers.params.ArtistAlbumParameters;
 import core.services.tags.TagAlbumService;
 import core.services.tags.TagCleaner;
-import dao.ServiceView;
+import core.util.ServiceView;
 import dao.entities.*;
 import dao.musicbrainz.MusicBrainzService;
 import dao.musicbrainz.MusicBrainzServiceSingleton;

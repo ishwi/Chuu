@@ -6,7 +6,7 @@ import core.parsers.Parser;
 import core.parsers.params.ChuuDataParams;
 import core.parsers.params.NumberParameters;
 import core.parsers.utils.Optionals;
-import dao.ServiceView;
+import core.util.ServiceView;
 import dao.entities.ArtistPlays;
 import dao.entities.UniqueWrapper;
 

@@ -29,7 +29,7 @@ import core.parsers.HelpParser;
 import core.parsers.Parser;
 import core.parsers.params.WordParameter;
 import core.parsers.utils.OptionalEntity;
-import dao.ServiceView;
+import core.util.ServiceView;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Message;

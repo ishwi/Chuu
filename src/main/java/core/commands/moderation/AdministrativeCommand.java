@@ -7,7 +7,7 @@ import core.commands.utils.CommandCategory;
 import core.parsers.Parser;
 import core.parsers.UrlParser;
 import core.parsers.params.UrlParameters;
-import dao.ServiceView;
+import core.util.ServiceView;
 import org.imgscalr.Scalr;
 
 import javax.annotation.Nonnull;

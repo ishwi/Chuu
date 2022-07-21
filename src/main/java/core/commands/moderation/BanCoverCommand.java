@@ -10,7 +10,7 @@ import core.parsers.Parser;
 import core.parsers.params.ArtistAlbumUrlParameters;
 import core.services.CoverService;
 import core.services.validators.AlbumValidator;
-import dao.ServiceView;
+import core.util.ServiceView;
 import dao.entities.CoverItem;
 import dao.entities.LastFMData;
 import dao.entities.Role;

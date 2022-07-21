@@ -24,7 +24,7 @@ import core.music.utils.RepeatOption;
 import core.parsers.EnumParser;
 import core.parsers.Parser;
 import core.parsers.params.EnumParameters;
-import dao.ServiceView;
+import core.util.ServiceView;
 
 import javax.annotation.Nonnull;
 import java.util.List;

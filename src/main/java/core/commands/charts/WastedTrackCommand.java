@@ -14,7 +14,7 @@ import core.exceptions.LastFmException;
 import core.parsers.ChartGroupParser;
 import core.parsers.ChartableParser;
 import core.parsers.params.ChartGroupParameters;
-import dao.ServiceView;
+import core.util.ServiceView;
 import dao.entities.CountWrapper;
 import dao.entities.DiscordUserDisplay;
 import dao.entities.TimeFrameEnum;

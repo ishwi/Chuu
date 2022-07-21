@@ -7,7 +7,7 @@ import core.parsers.Parser;
 import core.parsers.UserModerationParser;
 import core.parsers.params.ChuuDataParams;
 import core.parsers.utils.OptionalEntity;
-import dao.ServiceView;
+import core.util.ServiceView;
 import dao.entities.LastFMData;
 import dao.entities.Role;
 import dao.exceptions.InstanceNotFoundException;

@@ -19,7 +19,7 @@ import core.parsers.params.ArtistAlbumParameters;
 import core.parsers.params.ArtistParameters;
 import core.parsers.params.ChartSizeParameters;
 import core.services.validators.ArtistValidator;
-import dao.ServiceView;
+import core.util.ServiceView;
 import dao.entities.*;
 import net.dv8tion.jda.api.EmbedBuilder;
 import org.knowm.xchart.PieChart;

@@ -8,13 +8,12 @@ import core.parsers.NpParser;
 import core.parsers.Parser;
 import core.parsers.params.NowPlayingParameters;
 import core.services.validators.TrackValidator;
-import dao.ServiceView;
+import core.util.ServiceView;
 import dao.entities.LastFMData;
 import dao.entities.NowPlayingArtist;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.Nonnull;
-import java.util.concurrent.CompletableFuture;
 
 public abstract class NpCommand extends ConcurrentCommand<NowPlayingParameters> {
 
@@ -37,7 +36,7 @@ public abstract class NpCommand extends ConcurrentCommand<NowPlayingParameters> 
     public void onCommand(Context e, @Nonnull NowPlayingParameters params) {
         NowPlayingArtist np = params.getNowPlayingArtist();
         doSomethingWithArtist(np, e, params.getLastFMData().getDiscordId(), params.getLastFMData(), params);
-        CompletableFuture.runAsync(() -> {
+        Thread.startVirtualThread(() -> {
             if (!StringUtils.isBlank(np.url())) {
                 try {
                     long trackId = new TrackValidator(db, lastFM).validate(np.artistName(), np.songName()).getTrackId();
@@ -45,9 +44,8 @@ public abstract class NpCommand extends ConcurrentCommand<NowPlayingParameters> 
                 } catch (LastFmException instanceNotFoundException) {
                     Chuu.getLogger().warn(instanceNotFoundException.getMessage(), instanceNotFoundException);
                 }
-                    }
-                }
-        );
+            }
+        });
 
     }
 

@@ -8,7 +8,7 @@ import core.parsers.GenreParser;
 import core.parsers.Parser;
 import core.parsers.params.GenreParameters;
 import core.parsers.utils.Optionals;
-import dao.ServiceView;
+import core.util.ServiceView;
 import dao.entities.ScrobbledArtist;
 
 import javax.annotation.Nonnull;

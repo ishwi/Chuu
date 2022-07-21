@@ -16,7 +16,7 @@ import core.parsers.params.CommandParameters;
 import core.parsers.params.NumberParameters;
 import core.parsers.utils.Optionals;
 import core.services.MbidFetcher;
-import dao.ServiceView;
+import core.util.ServiceView;
 import dao.entities.ArtistInfo;
 import dao.entities.Country;
 import dao.entities.RemainingImagesMode;

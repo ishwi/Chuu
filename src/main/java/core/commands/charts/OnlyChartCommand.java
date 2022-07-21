@@ -5,7 +5,7 @@ import core.commands.Context;
 import core.exceptions.LastFmException;
 import core.imagerenderer.util.pie.IPieableList;
 import core.parsers.params.ChartParameters;
-import dao.ServiceView;
+import core.util.ServiceView;
 import dao.entities.CountWrapper;
 import org.knowm.xchart.PieChart;
 

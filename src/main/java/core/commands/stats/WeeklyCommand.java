@@ -11,7 +11,7 @@ import core.parsers.OnlyUsernameParser;
 import core.parsers.Parser;
 import core.parsers.params.ChuuDataParams;
 import core.parsers.utils.Optionals;
-import dao.ServiceView;
+import core.util.ServiceView;
 import dao.entities.*;
 import net.dv8tion.jda.api.EmbedBuilder;
 import org.apache.commons.collections4.MultiValuedMap;

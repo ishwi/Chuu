@@ -17,7 +17,7 @@ import core.services.tags.TagStorer;
 import core.services.validators.AlbumValidator;
 import core.services.validators.ArtistValidator;
 import core.services.validators.TrackValidator;
-import dao.ServiceView;
+import core.util.ServiceView;
 import dao.entities.*;
 import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;

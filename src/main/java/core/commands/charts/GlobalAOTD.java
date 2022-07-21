@@ -9,7 +9,7 @@ import core.commands.utils.PieDoer;
 import core.parsers.ChartDecadeParser;
 import core.parsers.ChartableParser;
 import core.parsers.params.ChartYearRangeParameters;
-import dao.ServiceView;
+import core.util.ServiceView;
 import dao.entities.CountWrapper;
 import dao.entities.ResultWrapper;
 import dao.entities.ScrobbledAlbum;

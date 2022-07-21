@@ -7,7 +7,7 @@ import core.exceptions.LastFmException;
 import core.parsers.ChartDecadeParser;
 import core.parsers.ChartableParser;
 import core.parsers.params.ChartYearRangeParameters;
-import dao.ServiceView;
+import core.util.ServiceView;
 import dao.entities.*;
 import dao.musicbrainz.MusicBrainzService;
 import dao.musicbrainz.MusicBrainzServiceSingleton;

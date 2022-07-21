@@ -1,7 +1,7 @@
 package core.commands.billboard;
 
 import core.commands.Context;
-import dao.ServiceView;
+import core.util.ServiceView;
 import dao.entities.BillboardEntity;
 
 import java.util.List;

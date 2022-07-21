@@ -10,7 +10,7 @@ import core.parsers.NoOpParser;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
 import core.services.ScheduledService;
-import dao.ServiceView;
+import core.util.ServiceView;
 import dao.entities.PresenceInfo;
 import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;

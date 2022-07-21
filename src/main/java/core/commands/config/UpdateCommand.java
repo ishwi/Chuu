@@ -13,7 +13,7 @@ import core.parsers.utils.CustomTimeFrame;
 import core.parsers.utils.OptionalEntity;
 import core.services.UpdaterHoarder;
 import core.services.UpdaterService;
-import dao.ServiceView;
+import core.util.ServiceView;
 import dao.entities.*;
 import dao.exceptions.InstanceNotFoundException;
 
@@ -22,14 +22,16 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class UpdateCommand extends ConcurrentCommand<ChuuDataParams> {
 
 
     public final AtomicInteger maxConcurrency = new AtomicInteger(5);
+    private final ReentrantLock reentrantLock = new ReentrantLock();
 
     public UpdateCommand(ServiceView dao) {
-        super(dao);
+        super(dao, true);
         ephemeral = true;
         order = 6;
     }
@@ -75,11 +77,14 @@ public class UpdateCommand extends ConcurrentCommand<ChuuDataParams> {
                 return;
             }
             if (force) {
-                synchronized (this) {
+                reentrantLock.lock();
+                try {
                     if (maxConcurrency.decrementAndGet() == 0) {
                         sendMessageQueue(e, "There are a lot of people executing this type of update, try again later :(");
                         maxConcurrency.incrementAndGet();
                     }
+                } finally {
+                    reentrantLock.unlock();
                 }
                 try {
                     List<ScrobbledArtist> artistData = lastFM.getAllArtists(lastFMData, CustomTimeFrame.ofTimeFrameEnum(TimeFrameEnum.ALL));
@@ -92,9 +97,7 @@ public class UpdateCommand extends ConcurrentCommand<ChuuDataParams> {
                     db.updateUserTimeStamp(lastFmName, lastFM.getLastScrobbleUTS(lastFMData), null);
                     sendMessageQueue(e, "Successfully force updated %s info!".formatted(userString));
                 } finally {
-                    synchronized (this) {
-                        maxConcurrency.incrementAndGet();
-                    }
+                    maxConcurrency.incrementAndGet();
                 }
             } else {
                 UpdaterUserWrapper userUpdateStatus = db.getUserUpdateStatus(lastFMData.getDiscordId());
@@ -108,7 +111,6 @@ public class UpdateCommand extends ConcurrentCommand<ChuuDataParams> {
                     db.updateUserTimeStamp(userUpdateStatus.getLastFMName(), userUpdateStatus.getTimestamp(),
                             (int) (Instant.now().getEpochSecond() + 4000));
                     int timestamp = userUpdateStatus.getTimestamp();
-                    Instant instant = Instant.ofEpochSecond(timestamp);
                     long epochSecond = Instant.now().getEpochSecond();
                     String s = Duration.ofSeconds(epochSecond - timestamp).toString()
                             .substring(2)

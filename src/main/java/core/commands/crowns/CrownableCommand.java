@@ -13,7 +13,7 @@ import core.parsers.params.ChuuDataParams;
 import core.parsers.params.NumberParameters;
 import core.parsers.utils.OptionalEntity;
 import core.parsers.utils.Optionals;
-import dao.ServiceView;
+import core.util.ServiceView;
 import dao.entities.CrownableArtist;
 import dao.entities.DiscordUserDisplay;
 import dao.utils.LinkUtils;

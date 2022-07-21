@@ -6,7 +6,7 @@ import core.commands.utils.CommandUtil;
 import core.commands.utils.PrivacyUtils;
 import core.otherlisteners.util.PaginatorBuilder;
 import core.parsers.params.CommandParameters;
-import dao.ServiceView;
+import core.util.ServiceView;
 import dao.entities.LbEntry;
 import net.dv8tion.jda.api.EmbedBuilder;
 import org.apache.commons.collections4.ListUtils;

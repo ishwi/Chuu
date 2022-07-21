@@ -13,7 +13,7 @@ import core.otherlisteners.Reactions;
 import core.parsers.NoOpParser;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
-import dao.ServiceView;
+import core.util.ServiceView;
 import dao.entities.AliasEntity;
 import dao.entities.LastFMData;
 import dao.entities.Role;
@@ -119,7 +119,7 @@ public class AliasReviewCommand extends ConcurrentCommand<CommandParameters> {
                     embedBuilder1 -> embedBuilder.setTitle("No more  Aliases to Review").clearFields(),
                     db::getNextInAliasQueue,
                     builder
-                    , embedBuilder, e, e.getAuthor().getIdLong(), actionMap, false, false);
+                    , embedBuilder, e, e.getAuthor().getIdLong(), actionMap, false, false, e.getChannel().getIdLong());
         } catch (Exception ex) {
             Chuu.getLogger().warn(ex.getMessage());
         } finally {

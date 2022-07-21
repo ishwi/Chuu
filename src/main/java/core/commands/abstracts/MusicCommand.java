@@ -6,7 +6,7 @@ import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.music.MusicManager;
 import core.parsers.params.CommandParameters;
-import dao.ServiceView;
+import core.util.ServiceView;
 import net.dv8tion.jda.api.entities.GuildVoiceState;
 
 import java.util.function.Function;

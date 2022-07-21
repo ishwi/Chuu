@@ -9,7 +9,7 @@ import core.otherlisteners.util.PaginatorBuilder;
 import core.parsers.NoOpParser;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
-import dao.ServiceView;
+import core.util.ServiceView;
 import dao.entities.RymStats;
 import dao.entities.ScoredAlbumRatings;
 import net.dv8tion.jda.api.EmbedBuilder;

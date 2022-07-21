@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -54,11 +55,13 @@ public abstract class GroupingQueue extends ArtistQueue {
                     urlCapsule.setPos(i);
                     return i < requested;
                 }).toList();
-        collected.forEach(t -> wrapper.offer(CompletableFuture.supplyAsync(() ->
-        {
-            getUrl(t);
-            return t;
-        }, ChuuVirtualPool.of("Set-Up-Grouping"))));
+        try (ExecutorService pool = ChuuVirtualPool.of("Set-Up-Grouping")) {
+            collected.forEach(t -> wrapper.offer(CompletableFuture.supplyAsync(() ->
+            {
+                getUrl(t);
+                return t;
+            }, pool)));
+        }
         this.ready = true;
         this.count = collected.size();
         return collected;

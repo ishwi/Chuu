@@ -6,7 +6,7 @@ import core.commands.utils.CommandCategory;
 import core.parsers.NoOpParser;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
-import dao.ServiceView;
+import core.util.ServiceView;
 
 import javax.annotation.Nonnull;
 import java.util.List;

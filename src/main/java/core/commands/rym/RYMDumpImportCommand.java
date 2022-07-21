@@ -6,7 +6,7 @@ import core.commands.utils.CommandCategory;
 import core.parsers.Parser;
 import core.parsers.UrlParser;
 import core.parsers.params.UrlParameters;
-import dao.ServiceView;
+import core.util.ServiceView;
 import dao.entities.RYMImportRating;
 import dao.exceptions.InstanceNotFoundException;
 import org.apache.commons.csv.CSVFormat;
@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -62,6 +63,7 @@ public class RYMDumpImportCommand extends ConcurrentCommand<UrlParameters> {
             return null;
         }
     };
+    private final ReentrantLock reentrantLock = new ReentrantLock();
 
     public RYMDumpImportCommand(ServiceView dao) {
         super(dao);
@@ -115,12 +117,15 @@ public class RYMDumpImportCommand extends ConcurrentCommand<UrlParameters> {
         }
         try {
             try {
-                synchronized (usersInProcess) {
+                reentrantLock.lock();
+                try {
                     if (usersInProcess.contains(e.getAuthor().getIdLong())) {
                         sendMessageQueue(e, "Your previous import command is still being processed");
                         return;
                     }
                     usersInProcess.add(e.getAuthor().getIdLong());
+                } finally {
+                    reentrantLock.unlock();
                 }
 
                 URL url1 = new URL(url);
@@ -172,8 +177,8 @@ public class RYMDumpImportCommand extends ConcurrentCommand<UrlParameters> {
     @Override
     public String getUsageInstructions() {
         return getAliases().get(0) + " rym_import_file \n" + " " +
-                "In order to import your data you need to actively download your rym data and then link it to the bot uploading the plain .txt file while using this command." +
-                "The file can be exported and the bottom of your profile page on rym clicking on the button ***EXPORT YOUR DATA*** or ***EXPORT WITH REVIEWS***";
+               "In order to import your data you need to actively download your rym data and then link it to the bot uploading the plain .txt file while using this command." +
+               "The file can be exported and the bottom of your profile page on rym clicking on the button ***EXPORT YOUR DATA*** or ***EXPORT WITH REVIEWS***";
 
     }
 }

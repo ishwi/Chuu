@@ -14,7 +14,7 @@ import core.parsers.Parser;
 import core.parsers.RecommendationParser;
 import core.parsers.params.RecommendationsParams;
 import core.parsers.utils.CustomTimeFrame;
-import dao.ServiceView;
+import core.util.ServiceView;
 import dao.entities.*;
 import dao.exceptions.InstanceNotFoundException;
 import dao.musicbrainz.MusicBrainzService;

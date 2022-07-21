@@ -14,7 +14,7 @@ import core.parsers.params.ArtistAlbumParameters;
 import core.parsers.utils.Optionals;
 import core.services.validators.AlbumValidator;
 import core.services.validators.ArtistValidator;
-import dao.ServiceView;
+import core.util.ServiceView;
 import dao.entities.GlobalCrown;
 import dao.entities.ScrobbledAlbum;
 import dao.entities.ScrobbledArtist;

@@ -41,11 +41,14 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.Random;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
 import java.util.function.Supplier;
 
 public class CommandUtil {
 
     public static final Random rand = new Random();
+    private static final ExecutorService logSupply = ChuuVirtualPool.of("Log-Supplier");
+
 
     private CommandUtil() {
     }
@@ -454,10 +457,20 @@ public class CommandUtil {
     }
 
     public static <T> CompletableFuture<T> supplyLog(Supplier<T> supplier) {
-        return CompletableFuture.supplyAsync(supplier, ChuuVirtualPool.of("Log-Supplier")).whenComplete((u, ex) -> {
+        return CompletableFuture.supplyAsync(supplier, logSupply).whenComplete((u, ex) -> {
             if (ex != null) {
                 Chuu.getLogger().warn(ex.getMessage(), ex);
             }
         });
     }
+
+    public static CompletableFuture<Void> runLog(Runnable supplier) {
+        return CompletableFuture.runAsync(supplier, logSupply).whenComplete((u, ex) -> {
+            if (ex != null) {
+                Chuu.getLogger().warn(ex.getMessage(), ex);
+            }
+        });
+    }
+
+
 }

@@ -9,7 +9,7 @@ import core.parsers.Parser;
 import core.parsers.TimerFrameParser;
 import core.parsers.params.TimeFrameParameters;
 import core.parsers.utils.CustomTimeFrame;
-import dao.ServiceView;
+import core.util.ServiceView;
 import dao.entities.ScoredAlbumRatings;
 import dao.entities.ScrobbledArtist;
 import dao.entities.TimeFrameEnum;

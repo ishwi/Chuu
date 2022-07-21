@@ -9,7 +9,7 @@ import core.parsers.Parser;
 import core.parsers.RandomAlbumParser;
 import core.parsers.params.NumberParameters;
 import core.parsers.params.RandomUrlParameters;
-import dao.ServiceView;
+import core.util.ServiceView;
 import dao.entities.LastFMData;
 import dao.entities.PrivacyMode;
 import dao.entities.RandomUrlEntity;

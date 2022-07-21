@@ -6,13 +6,16 @@ import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.exceptions.LastFmException;
-import core.otherlisteners.*;
+import core.otherlisteners.ButtonResult;
+import core.otherlisteners.ButtonValidator;
+import core.otherlisteners.Reaction;
+import core.otherlisteners.ReactionaryResult;
 import core.parsers.ArtistParser;
 import core.parsers.Parser;
 import core.parsers.params.ArtistParameters;
 import core.services.ColorService;
 import core.services.validators.ArtistValidator;
-import dao.ServiceView;
+import core.util.ServiceView;
 import dao.entities.*;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -22,8 +25,6 @@ import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.Event;
 import net.dv8tion.jda.api.events.interaction.GenericInteractionCreateEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
-import net.dv8tion.jda.api.events.message.react.GenericMessageReactionEvent;
-import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.ItemComponent;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
@@ -155,19 +156,10 @@ public class VotingCommand extends ConcurrentCommand<ArtistParameters> {
                 finisher,
                 fetcher,
                 builder.apply(e.getJDA(), size, counter)
-                , embedBuilder, e, e.getAuthor().getIdLong(), result.map, result.rows, true, true);
+                , embedBuilder, e, e.getAuthor().getIdLong(), result.map, result.rows, true, true, e.getChannel().getIdLong());
 
     }
 
-
-    private Map<String, Reaction<VotingEntity, MessageReactionAddEvent, ReactionResult>> processReactionActions(Context e, List<VotingEntity> allArtistImages, LastFMData lastFMData, AtomicInteger counter, AtomicInteger size) {
-        return generateActions(e,
-                GenericMessageReactionEvent::getUser,
-                () -> () -> false,
-                (MessageReactionAddEvent r, Boolean t) -> ReactValidator.leftMove(allArtistImages.size(), counter, r, t),
-                (MessageReactionAddEvent r, Boolean t) -> ReactValidator.rightMove(allArtistImages.size(), counter, r, t),
-                allArtistImages, lastFMData, counter, size);
-    }
 
     private Result processButtonActions(Context e, List<VotingEntity> allArtistImages, LastFMData lastFMData, AtomicInteger counter, AtomicInteger size) {
         ActionRow of = ActionRow.of(Button.primary(DOWN_VOTE, Emoji.fromUnicode(DOWN_VOTE)),

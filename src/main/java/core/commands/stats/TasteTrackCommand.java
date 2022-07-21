@@ -4,7 +4,7 @@ import core.commands.utils.CommandCategory;
 import core.exceptions.LastFmException;
 import core.parsers.params.ArtistParameters;
 import core.services.validators.ArtistValidator;
-import dao.ServiceView;
+import core.util.ServiceView;
 import dao.entities.LastFMData;
 import dao.entities.ResultWrapper;
 import dao.entities.ScrobbledArtist;

@@ -15,7 +15,7 @@ import core.parsers.Parser;
 import core.parsers.params.ChuuDataParams;
 import core.parsers.utils.Optionals;
 import core.services.UserInfoService;
-import dao.ServiceView;
+import core.util.ServiceView;
 import dao.entities.CommandStats;
 import dao.entities.ProfileEntity;
 import dao.entities.UserInfo;

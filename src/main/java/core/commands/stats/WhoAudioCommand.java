@@ -9,7 +9,7 @@ import core.parsers.EnumParser;
 import core.parsers.Parser;
 import core.parsers.params.EnumParameters;
 import core.parsers.utils.OptionalEntity;
-import dao.ServiceView;
+import core.util.ServiceView;
 import dao.entities.AudioStats;
 import dao.entities.LbEntry;
 import dao.utils.Order;

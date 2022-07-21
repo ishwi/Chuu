@@ -13,7 +13,7 @@ import core.parsers.NoOpParser;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
 import core.services.ColorService;
-import dao.ServiceView;
+import core.util.ServiceView;
 import dao.entities.LastFMData;
 import dao.entities.ReportEntity;
 import dao.entities.Role;
@@ -34,7 +34,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiFunction;
@@ -136,7 +135,7 @@ public class ReportReviewCommand extends ConcurrentCommand<CommandParameters> {
             actionMap.put(STRIKE, (a, r) -> {
                 statBan.getAndIncrement();
                 navigationCounter.incrementAndGet();
-                CompletableFuture.runAsync(() -> {
+                Thread.startVirtualThread(() -> {
                     boolean banned = db.strikeExisting(a);
                     if (banned) {
                         TextChannel textChannelById = Chuu.getShardManager().getTextChannelById(Chuu.channel2Id);
@@ -177,7 +176,7 @@ public class ReportReviewCommand extends ConcurrentCommand<CommandParameters> {
                     },
                     () -> db.getNextReport(maxId, skippedIds),
                     builder.apply(e.getJDA(), totalReports, navigationCounter::get)
-                    , embedBuilder, e, e.getAuthor().getIdLong(), actionMap, List.of(of), false, true, 120);
+                    , embedBuilder, e, e.getAuthor().getIdLong(), actionMap, List.of(of), false, true, e.getChannel().getIdLong());
         } catch (Throwable ex) {
             Chuu.getLogger().warn(ex.getMessage(), ex);
         } finally {

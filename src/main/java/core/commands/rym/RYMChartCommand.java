@@ -10,7 +10,7 @@ import core.parsers.ChartableParser;
 import core.parsers.OnlyChartSizeParser;
 import core.parsers.params.ChartSizeParameters;
 import core.parsers.utils.OptionalEntity;
-import dao.ServiceView;
+import core.util.ServiceView;
 import dao.entities.CountWrapper;
 import dao.entities.DiscordUserDisplay;
 import dao.entities.ScoredAlbumRatings;

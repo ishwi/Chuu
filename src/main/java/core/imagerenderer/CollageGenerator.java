@@ -13,6 +13,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class CollageGenerator {
     public static BufferedImage generateCollageThreaded(int x, int y, BlockingQueue<Pair<BufferedImage, Integer>> queue, ChartQuality chartQuality) {
@@ -37,8 +38,9 @@ public class CollageGenerator {
         ExecutorService es = core.apis.ExecutorsSingleton.getInstance();
 
         List<Callable<Object>> calls = new ArrayList<>();
+        ReentrantLock lock = new ReentrantLock();
         for (int i = 0; i < 2; i++) {
-            calls.add(Executors.callable(new CollageQueue(g, x, y, max, false, false, queue)));
+            calls.add(Executors.callable(new CollageQueue(g, x, y, max, false, false, queue, lock)));
         }
         try {
             es.invokeAll(calls);

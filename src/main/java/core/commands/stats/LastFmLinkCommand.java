@@ -8,7 +8,7 @@ import core.commands.utils.CommandUtil;
 import core.parsers.OnlyUsernameParser;
 import core.parsers.Parser;
 import core.parsers.params.ChuuDataParams;
-import dao.ServiceView;
+import core.util.ServiceView;
 import dao.entities.DiscordUserDisplay;
 
 import javax.annotation.Nonnull;

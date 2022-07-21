@@ -14,7 +14,7 @@ import core.parsers.params.ChartParameters;
 import core.parsers.params.TwoUsersTimeframeParamaters;
 import core.parsers.utils.CustomTimeFrame;
 import core.parsers.utils.Optionals;
-import dao.ServiceView;
+import core.util.ServiceView;
 import dao.entities.*;
 import org.apache.commons.lang3.tuple.Pair;
 

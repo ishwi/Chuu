@@ -9,7 +9,7 @@ import core.commands.utils.CommandUtil;
 import core.parsers.OnlyUsernameParser;
 import core.parsers.Parser;
 import core.parsers.params.ChuuDataParams;
-import dao.ServiceView;
+import core.util.ServiceView;
 import dao.entities.LbEntry;
 import dao.entities.ObscurityEntry;
 import dao.entities.ObscurityStats;

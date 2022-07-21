@@ -12,7 +12,7 @@ import core.parsers.Parser;
 import core.parsers.params.ChuuDataParams;
 import core.parsers.params.NumberParameters;
 import core.parsers.utils.OptionalEntity;
-import dao.ServiceView;
+import core.util.ServiceView;
 import dao.entities.Affinity;
 import dao.entities.LastFMData;
 import dao.entities.PrivacyMode;

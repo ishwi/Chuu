@@ -5,7 +5,7 @@ import core.commands.utils.CommandUtil;
 import core.parsers.ChartParser;
 import core.parsers.ChartableParser;
 import core.parsers.params.ChartParameters;
-import dao.ServiceView;
+import core.util.ServiceView;
 import dao.entities.DiscordUserDisplay;
 import net.dv8tion.jda.api.EmbedBuilder;
 import org.knowm.xchart.PieChart;

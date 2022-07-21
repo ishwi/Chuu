@@ -16,6 +16,7 @@ import java.util.OptionalInt;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 
 
@@ -29,16 +30,18 @@ class ThreadQueue implements Runnable {
     private final boolean asideMode;
     private final StringFitter titleFitter;
     private final StringFitter subTitleFitter;
+    private final ReentrantLock reentrantLock;
     int START_FONT_SIZE = 24;
     int lowerLimitStringSize = 14;
     int imageSize = 300;
 
-    ThreadQueue(BlockingQueue<UrlCapsule> queue, Graphics2D g, int x, int y, AtomicInteger iterations, boolean makeSmaller, boolean asideMode) {
+    ThreadQueue(BlockingQueue<UrlCapsule> queue, Graphics2D g, int x, int y, AtomicInteger iterations, boolean makeSmaller, boolean asideMode, ReentrantLock reentrantLock) {
         this.queue = queue;
         this.g = g;
         this.y = y;
         this.x = x;
         this.iterations = iterations;
+        this.reentrantLock = reentrantLock;
         this.asideMode = asideMode;
         if (makeSmaller) {
             this.imageSize = 150;
@@ -98,20 +101,26 @@ class ThreadQueue implements Runnable {
 
 
     public void handleInvalidImage(UrlCapsule capsule, int x, int y) {
-        synchronized (g) {
+        reentrantLock.lock();
+        try {
             Color temp = g.getColor();
             g.setColor(Color.WHITE);
             g.fillRect(x * imageSize, y * imageSize, imageSize, imageSize);
             g.setColor(temp);
+        } finally {
+            reentrantLock.unlock();
         }
         if (asideMode) {
             drawNeverEndingCharts(capsule, y, x, imageSize);
         } else {
-            synchronized (g) {
+            reentrantLock.lock();
+            try {
                 Color temp = g.getColor();
                 g.setColor(Color.BLACK);
                 drawNames(capsule, y, x, g, null);
                 g.setColor(temp);
+            } finally {
+                reentrantLock.unlock();
             }
         }
     }

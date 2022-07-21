@@ -20,7 +20,7 @@ import core.otherlisteners.util.PaginatorBuilder;
 import core.parsers.DaoParser;
 import core.parsers.params.CommandParameters;
 import core.parsers.utils.Optionals;
-import dao.ServiceView;
+import core.util.ServiceView;
 import dao.entities.*;
 import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;

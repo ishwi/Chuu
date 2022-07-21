@@ -13,6 +13,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class CollageMaker {
     private static final int DEFAULT_SIZE = 300;
@@ -65,8 +66,9 @@ public class CollageMaker {
         ExecutorService es = GraphicUtils.GRAPHIC_EXECUTOR;
         List<Callable<Object>> calls = new ArrayList<>();
         int bound = Math.min(15, size);
+        ReentrantLock lock = new ReentrantLock();
         for (int i = 0; i < bound; i++) {
-            calls.add(Executors.callable(new ThreadQueue(queue, g, x, y, max, imageSize == 150, asideMode)));
+            calls.add(Executors.callable(new ThreadQueue(queue, g, x, y, max, imageSize == 150, asideMode, lock)));
         }
         try {
             es.invokeAll(calls);

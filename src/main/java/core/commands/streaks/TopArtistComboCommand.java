@@ -16,7 +16,7 @@ import core.parsers.params.NumberParameters;
 import core.parsers.utils.OptionalEntity;
 import core.parsers.utils.Optionals;
 import core.services.validators.ArtistValidator;
-import dao.ServiceView;
+import core.util.ServiceView;
 import dao.entities.*;
 import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;

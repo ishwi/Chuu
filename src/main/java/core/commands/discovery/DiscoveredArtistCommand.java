@@ -13,7 +13,7 @@ import core.parsers.ChartableParser;
 import core.parsers.params.ChartParameters;
 import core.parsers.utils.OptionalEntity;
 import core.parsers.utils.Optionals;
-import dao.ServiceView;
+import core.util.ServiceView;
 import dao.entities.CountWrapper;
 import dao.entities.DiscordUserDisplay;
 import dao.entities.ScrobbledArtist;

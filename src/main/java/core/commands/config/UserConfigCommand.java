@@ -14,7 +14,7 @@ import core.parsers.exceptions.InvalidChartValuesException;
 import core.parsers.params.UserConfigParameters;
 import core.parsers.params.UserConfigType;
 import core.services.ColorService;
-import dao.ServiceView;
+import core.util.ServiceView;
 import dao.entities.*;
 import dao.exceptions.InstanceNotFoundException;
 import org.apache.commons.text.WordUtils;

@@ -4,7 +4,7 @@ import core.commands.Context;
 import core.commands.utils.CommandCategory;
 import core.parsers.params.CommandParameters;
 import core.parsers.params.NumberParameters;
-import dao.ServiceView;
+import core.util.ServiceView;
 import dao.entities.BillboardEntity;
 import dao.entities.Week;
 

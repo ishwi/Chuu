@@ -7,7 +7,7 @@ import core.parsers.EmojeParser;
 import core.parsers.Parser;
 import core.parsers.params.EmotiParameters;
 import core.parsers.utils.OptionalEntity;
-import dao.ServiceView;
+import core.util.ServiceView;
 import net.dv8tion.jda.api.Permission;
 
 import javax.annotation.Nonnull;

@@ -184,54 +184,52 @@ public class ExetricWKMaker {
         g.setColor(backgroundColor);
         g.fillRect(x, y, width, height);
 
-        int itemSize = height / maxRows;
-        FontMetrics metrics;
+        long itemSize = Math.round((double) height / maxRows);
         Font numberFont = NORMAL_FONT.deriveFont(22f).deriveFont(Font.BOLD);
-        g.setFont(numberFont);
-        metrics = g.getFontMetrics();
         g.setFont(font);
         float initialSize = 24f;
-        int userWidth = (int) (width * 0.7);
 
-        if (!wrapperReturnNowPlaying.getReturnNowPlayings().isEmpty()) {
-            ReturnNowPlaying first = wrapperReturnNowPlaying.getReturnNowPlayings().get(0);
-            String plays = String.valueOf(first.getPlayNumber());
-            int stringWidth = metrics.stringWidth(plays);
-            userWidth = width - stringWidth - (15 + x + POS_M + 45);
-        }
-        StringFitter userMetadata = new StringFitterBuilder(initialSize, (int) (width * 0.70)).setBaseFont(g.getFont()).setMinSize(14).build();
         List<ReturnNowPlaying> nowPlayingArtistList = wrapperReturnNowPlaying.getReturnNowPlayings();
+        StringFitter userMetadata = new StringFitterBuilder(initialSize, width).setBaseFont(g.getFont()).setMinSize(14).build();
 
         for (int i = 0; i < nowPlayingArtistList.size() || i < maxRows; i++) {
             g.setColor(GraphicUtils.getBetterSO(backgroundColor));
             if (i < nowPlayingArtistList.size()) {
+
+
                 ReturnNowPlaying rnp = nowPlayingArtistList.get(i);
                 String name = rnp.getDiscordName();
                 long index = rnp.getIndex();
 
+                Font prev = g.getFont();
+
+                g.setFont(numberFont);
+                FontMetrics metrics = g.getFontMetrics();
+                String plays = String.valueOf(rnp.getPlayNumber());
+                int stringWidth = metrics.stringWidth(plays);
+                int userWidth = width - stringWidth - (15 + POS_M + 45);
+                g.setFont(prev);
                 g.setColor(GraphicUtils.setAlpha(g.getColor(), 1));
-                StringFitter.FontMetadata fontMetadata = userMetadata.getFontMetadata(g, name);
+
+                StringFitter.FontMetadata fontMetadata = userMetadata.getFontMetadata(g, name, userWidth);
                 LineMetrics lm = fontMetadata.maxFont().getLineMetrics(fontMetadata.atrribute().getIterator(), 0, name.length(), g.getFontRenderContext());
                 float mHeights = lm.getAscent() - lm.getDescent() - lm.getLeading();
-                int baseLine = (int) (y + ((itemSize / 2) + mHeights / 2));
+                int baseLine = (int) (y + (((itemSize - 3) / 2) + mHeights / 2));
 
                 g.drawString(fontMetadata.atrribute().getIterator(), x + POS_M + 45, baseLine);
-                g.setFont(numberFont);
 
+                g.setFont(numberFont);
                 g.setColor(GraphicUtils.setAlpha(g.getColor(), 0.9f));
                 if (doNumber) {
                     String strNumber = String.valueOf((phase + index + 1));
                     g.drawString(strNumber, x + POS_M, baseLine);
                 }
-                metrics = g.getFontMetrics();
-                String plays = String.valueOf(rnp.getPlayNumber());
-                int stringWidth = metrics.stringWidth(plays);
                 int playPos = x + width - (stringWidth + POS_M);
                 g.drawString(plays, playPos, baseLine);
             }
             if (i < maxRows - 1) {
                 g.setColor(borderColour);
-                g.fillRect(x, y + itemSize + 1, width, 3);
+                g.fillRect(x, (int) (y + itemSize - 3), width, 3);
                 y += itemSize;
             }
         }

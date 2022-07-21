@@ -9,7 +9,7 @@ import core.exceptions.LastFmException;
 import core.parsers.Parser;
 import core.parsers.TwoArtistsParser;
 import core.parsers.params.TwoArtistParams;
-import dao.ServiceView;
+import core.util.ServiceView;
 import dao.entities.ArtistSummary;
 import dao.entities.LastFMData;
 import dao.entities.Role;

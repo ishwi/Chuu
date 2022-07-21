@@ -11,7 +11,7 @@ import core.otherlisteners.util.PaginatorBuilder;
 import core.parsers.Parser;
 import core.parsers.RandomAlbumParser;
 import core.parsers.params.RandomUrlParameters;
-import dao.ServiceView;
+import core.util.ServiceView;
 import dao.entities.*;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.EmbedBuilder;

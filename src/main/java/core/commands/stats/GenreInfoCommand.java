@@ -8,7 +8,7 @@ import core.exceptions.LastFmException;
 import core.parsers.GenreParser;
 import core.parsers.Parser;
 import core.parsers.params.GenreParameters;
-import dao.ServiceView;
+import core.util.ServiceView;
 import dao.entities.GenreInfo;
 import dao.entities.NowPlayingArtist;
 import net.dv8tion.jda.api.EmbedBuilder;

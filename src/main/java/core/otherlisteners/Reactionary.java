@@ -31,7 +31,7 @@ public class Reactionary<T> extends ReactionListener {
 
 
     public Reactionary(List<T> list, Message messageToReact, int pageSize, EmbedBuilder who, boolean numberedEntries, boolean pagingIndicator, long seconds, Function<T, String> mapper, Function<Integer, String> extraText, Function<List<T>, ActionRow> extraRow) {
-        super(who, messageToReact, seconds);
+        super(who, messageToReact);
         this.list = list;
         this.pageSize = pageSize;
         this.numberedEntries = numberedEntries;

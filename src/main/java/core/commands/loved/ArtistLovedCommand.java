@@ -12,7 +12,7 @@ import core.parsers.ArtistParser;
 import core.parsers.Parser;
 import core.parsers.params.ArtistParameters;
 import core.services.validators.ArtistValidator;
-import dao.ServiceView;
+import core.util.ServiceView;
 import dao.entities.*;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -21,7 +21,6 @@ import javax.annotation.Nonnull;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 
 public class ArtistLovedCommand extends ConcurrentCommand<ArtistParameters> {
     public ArtistLovedCommand(ServiceView dao) {
@@ -84,7 +83,8 @@ public class ArtistLovedCommand extends ConcurrentCommand<ArtistParameters> {
                 .mapper(t -> "**[%s](%s)** - %s\n".formatted(t.getName(), PrivacyUtils.getLastFmArtistTrackUserUrl(t.getArtist(), t.getName(), userName), CommandUtil.getDateTimestampt(Instant.ofEpochSecond(t.getUtc()))))
                 .unnumered().build().queue();
 
-        CompletableFuture.runAsync(() -> db.updateLovedSongs(params.getLastFMData().getName(), wrapper.getResult().stream().map(w -> new ScrobbledTrack(w.getArtist(), w.getName(), 0, true, 0, null, null, null)).toList()));
+        Thread.startVirtualThread(() -> db.updateLovedSongs(params.getLastFMData().getName(), wrapper.getResult().stream().map(w -> new ScrobbledTrack(w.getArtist(), w.getName(), 0, true, 0, null, null, null)).toList()));
+        ;
 
     }
 }

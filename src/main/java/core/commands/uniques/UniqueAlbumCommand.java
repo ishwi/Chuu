@@ -10,7 +10,7 @@ import core.otherlisteners.util.PaginatorBuilder;
 import core.parsers.OnlyUsernameParser;
 import core.parsers.Parser;
 import core.parsers.params.ChuuDataParams;
-import dao.ServiceView;
+import core.util.ServiceView;
 import dao.entities.AlbumPlays;
 import dao.entities.DiscordUserDisplay;
 import dao.entities.UniqueWrapper;

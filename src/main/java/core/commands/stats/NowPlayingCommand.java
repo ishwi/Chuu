@@ -9,7 +9,7 @@ import core.exceptions.LastFmException;
 import core.parsers.params.NowPlayingParameters;
 import core.services.NPModeBuilder;
 import core.services.validators.ArtistValidator;
-import dao.ServiceView;
+import core.util.ServiceView;
 import dao.entities.*;
 import dao.exceptions.InstanceNotFoundException;
 import dao.musicbrainz.MusicBrainzService;

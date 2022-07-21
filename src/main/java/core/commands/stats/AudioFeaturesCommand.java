@@ -12,7 +12,7 @@ import core.parsers.OnlyUsernameParser;
 import core.parsers.Parser;
 import core.parsers.params.ChuuDataParams;
 import core.services.SpotifyTrackService;
-import dao.ServiceView;
+import core.util.ServiceView;
 import dao.entities.DiscordUserDisplay;
 import dao.entities.LastFMData;
 import dao.entities.ScrobbledTrack;
@@ -62,7 +62,7 @@ public class AudioFeaturesCommand extends ConcurrentCommand<ChuuDataParams> {
     public void onCommand(Context e, @Nonnull ChuuDataParams params) {
         LastFMData lastFMData = params.getLastFMData();
 
-        CompletableFuture<Void> cF = CompletableFuture.runAsync(() -> {
+        CompletableFuture<Void> cF = CommandUtil.runLog(() -> {
             SpotifyTrackService spotifyTrackService = new SpotifyTrackService(db, lastFMData.getName());
             List<ScrobbledTrack> tracksWithId = spotifyTrackService.getTrackWithNoSpotifyId();
             List<AudioFeatures> audioFeatures = spotify.getAudioFeatures(tracksWithId.stream().map(ScrobbledTrack::getSpotifyId).collect(Collectors.toSet()));

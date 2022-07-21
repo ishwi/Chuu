@@ -3,7 +3,7 @@ package core.commands.abstracts;
 import core.commands.Context;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
-import dao.ServiceView;
+import core.util.ServiceView;
 
 import javax.annotation.Nonnull;
 import java.util.List;

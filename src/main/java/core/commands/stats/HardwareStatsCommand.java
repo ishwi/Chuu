@@ -8,8 +8,8 @@ import core.commands.utils.CommandCategory;
 import core.parsers.NoOpParser;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
+import core.util.ServiceView;
 import dao.BotStats;
-import dao.ServiceView;
 import net.dv8tion.jda.api.EmbedBuilder;
 
 import javax.annotation.Nonnull;

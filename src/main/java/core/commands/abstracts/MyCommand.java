@@ -16,8 +16,8 @@ import core.imagerenderer.ChartQuality;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
 import core.services.HeavyCommandRateLimiter;
+import core.util.ServiceView;
 import dao.ChuuService;
-import dao.ServiceView;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
@@ -48,7 +48,6 @@ public abstract class MyCommand<T extends CommandParameters> implements EventLis
     protected final Parser<T> parser;
     private final CommandCategory category;
     private final boolean isLongRunningCommand;
-    private final EnumSet<Permission> requiredPerms;
     public boolean respondInPrivate = true;
     public boolean ephemeral = false;
     public boolean canAnswerFast = false;
@@ -57,10 +56,9 @@ public abstract class MyCommand<T extends CommandParameters> implements EventLis
     protected MyCommand(ServiceView serviceview, boolean isLongRunningCommand) {
         this.isLongRunningCommand = isLongRunningCommand;
         lastFM = LastFMFactory.getNewInstance();
-        this.db = serviceview.getView(isLongRunningCommand);
+        this.db = serviceview.getView(isLongRunningCommand, this);
         this.parser = initParser();
         this.category = initCategory();
-        this.requiredPerms = initRequiredPerms();
     }
 
     protected MyCommand(ServiceView serviceview) {

@@ -15,7 +15,7 @@ import core.parsers.params.GuildConfigParams;
 import core.parsers.params.GuildConfigType;
 import core.services.ColorService;
 import core.services.VoiceAnnounceService;
-import dao.ServiceView;
+import core.util.ServiceView;
 import dao.entities.*;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.Permission;

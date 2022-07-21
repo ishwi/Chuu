@@ -24,7 +24,7 @@ import core.music.MusicManager;
 import core.parsers.MinutesParser;
 import core.parsers.Parser;
 import core.parsers.params.MinutesParameters;
-import dao.ServiceView;
+import core.util.ServiceView;
 
 import javax.annotation.Nonnull;
 import java.util.List;

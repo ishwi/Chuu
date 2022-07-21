@@ -14,7 +14,7 @@ import core.parsers.Parser;
 import core.parsers.params.ChuuDataParams;
 import core.parsers.utils.Optionals;
 import core.services.validators.ArtistValidator;
-import dao.ServiceView;
+import core.util.ServiceView;
 import dao.entities.DiscordUserDisplay;
 import dao.entities.LastFMData;
 import dao.entities.ScrobbledArtist;
@@ -28,7 +28,6 @@ import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 
 /**
  * Credits: to lfmwhoknows bot owner for the idea
@@ -93,7 +92,8 @@ public class StreakCommand extends ConcurrentCommand<ChuuDataParams> {
                 combo.setStreakStart(Instant.EPOCH.plus(1, ChronoUnit.DAYS));
             }
             Long fId = albumId;
-            CompletableFuture.runAsync(() -> db.insertCombo(combo, discordID, sA.getArtistId(), fId));
+            Thread.startVirtualThread(() -> db.insertCombo(combo, discordID, sA.getArtistId(), fId));
+            ;
         }
 
 

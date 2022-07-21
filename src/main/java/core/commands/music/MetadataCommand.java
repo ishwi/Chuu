@@ -10,7 +10,7 @@ import core.music.MusicManager;
 import core.parsers.NoOpParser;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
-import dao.ServiceView;
+import core.util.ServiceView;
 import dao.entities.Metadata;
 import net.dv8tion.jda.api.entities.Message;
 

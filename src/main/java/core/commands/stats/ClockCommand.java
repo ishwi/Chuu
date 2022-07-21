@@ -10,7 +10,7 @@ import core.parsers.params.ChuuDataParams;
 import core.parsers.utils.OptionalEntity;
 import core.services.BillboardHoarder;
 import core.services.ClockService;
-import dao.ServiceView;
+import core.util.ServiceView;
 import dao.entities.PreBillboardUserDataTimestamped;
 import dao.entities.UpdaterUserWrapper;
 import dao.entities.Week;

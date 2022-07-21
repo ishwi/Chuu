@@ -13,7 +13,7 @@ import core.parsers.Parser;
 import core.parsers.params.ArtistTimeFrameParameters;
 import core.parsers.params.CommandParameters;
 import core.services.validators.ArtistValidator;
-import dao.ServiceView;
+import core.util.ServiceView;
 import dao.entities.*;
 import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;

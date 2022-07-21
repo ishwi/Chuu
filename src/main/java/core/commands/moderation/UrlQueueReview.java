@@ -13,8 +13,8 @@ import core.parsers.NoOpParser;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
 import core.parsers.utils.OptionalEntity;
+import core.util.ServiceView;
 import dao.ImageQueue;
-import dao.ServiceView;
 import dao.entities.LastFMData;
 import dao.entities.Role;
 import dao.exceptions.InstanceNotFoundException;
@@ -30,7 +30,6 @@ import net.dv8tion.jda.api.interactions.components.buttons.Button;
 
 import javax.annotation.Nonnull;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiFunction;
 import java.util.function.Supplier;
@@ -126,7 +125,7 @@ public class UrlQueueReview extends ConcurrentCommand<CommandParameters> {
 
             statAccepeted.getAndIncrement();
             navigationCounter.incrementAndGet();
-            CompletableFuture.runAsync(() -> {
+            Thread.startVirtualThread(() -> {
                 long id = db.acceptImageQueue(a.queuedId(), a.url(), a.artistId(), a.uploader());
                 if (a.guildId() != null) {
                     db.insertServerCustomUrl(id, a.guildId(), a.artistId());
@@ -138,7 +137,7 @@ public class UrlQueueReview extends ConcurrentCommand<CommandParameters> {
                         if (lastFMData1.isImageNotify()) {
                             r.getJDA().retrieveUserById(a.uploader(), false).flatMap(User::openPrivateChannel).queue(x ->
                                     x.sendMessage("Your image for " + a.artistName() + " has been approved:\n" +
-                                            "You can disable this automated message with the config command.\n" + a.url()).queue());
+                                                  "You can disable this automated message with the config command.\n" + a.url()).queue());
                         }
                     } catch (InstanceNotFoundException ignored) {
                         // Do nothing
@@ -150,7 +149,7 @@ public class UrlQueueReview extends ConcurrentCommand<CommandParameters> {
 
         actionMap.put(STRIKE, (a, r) -> {
             strikesMap.merge(a.uploader(), 1, Integer::sum);
-            CompletableFuture.runAsync(() -> {
+            Thread.startVirtualThread(() -> {
                 boolean banned = db.strikeQueue(a.queuedId(), a);
                 if (banned) {
                     TextChannel textChannelById = Chuu.getShardManager().getTextChannelById(Chuu.channel2Id);
@@ -200,7 +199,7 @@ public class UrlQueueReview extends ConcurrentCommand<CommandParameters> {
                 },
                 queue::poll,
                 builder.apply(e.getJDA(), totalImages, navigationCounter::get, strikesMap, rejectedMap, approvedMap)
-                , embedBuilder, e, e.getAuthor().getIdLong(), actionMap, List.of(of), false, true, 120);
+                , embedBuilder, e, e.getAuthor().getIdLong(), actionMap, List.of(of), false, true, e.getChannel().getIdLong());
 
     }
 

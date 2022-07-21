@@ -14,7 +14,7 @@ import core.parsers.GenreChartParser;
 import core.parsers.params.ChartableGenreParameters;
 import core.parsers.utils.CustomTimeFrame;
 import core.services.tags.TagAlbumService;
-import dao.ServiceView;
+import core.util.ServiceView;
 import dao.entities.*;
 import dao.musicbrainz.MusicBrainzService;
 import dao.musicbrainz.MusicBrainzServiceSingleton;

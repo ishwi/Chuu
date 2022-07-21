@@ -11,7 +11,7 @@ import core.parsers.NoOpParser;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
 import core.services.CoverService;
-import dao.ServiceView;
+import core.util.ServiceView;
 import dao.entities.CoverItem;
 import net.dv8tion.jda.api.EmbedBuilder;
 

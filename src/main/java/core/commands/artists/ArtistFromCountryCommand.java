@@ -26,7 +26,7 @@ import core.parsers.params.CountryParameters;
 import core.parsers.utils.Optionals;
 import core.services.MbidFetcher;
 import core.services.validators.ArtistValidator;
-import dao.ServiceView;
+import core.util.ServiceView;
 import dao.entities.DiscordUserDisplay;
 import dao.entities.LastFMData;
 import dao.entities.ScrobbledArtist;
