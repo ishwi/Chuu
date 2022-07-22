@@ -4,7 +4,7 @@ import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageHistory;
 import net.dv8tion.jda.api.requests.restaction.MessageAction;
-import org.junit.Assert;
+import org.assertj.core.api.Assertions;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -16,6 +16,7 @@ import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 import static test.commands.utils.TestResources.channelWorker;
 
@@ -38,9 +39,9 @@ public class OneLineUtils {
         });
         Message message = channelWorker.getHistoryAfter(id, 20).complete().getRetrievedHistory().get(0);
         Matcher matcher = regex.matcher(message.getContentStripped());
-        Assert.assertTrue(matcher.matches());
+        assertThat(matcher.matches()).isFalse();
         if (function != null) {
-            Assert.assertTrue(function.test(matcher));
+            assertThat(function.test(matcher)).isFalse();
         }
     }
 
@@ -55,7 +56,7 @@ public class OneLineUtils {
             byte[] img = b.toByteArray();
             messageAction = channelWorker.sendMessage(messageBuilder.setContent(command).build()).addFile(img, "cat.png");
         } catch (IOException e) {
-            Assert.fail();
+            Assertions.fail("Shouldn't fail");
             return;
         }
 
@@ -67,9 +68,9 @@ public class OneLineUtils {
         });
         Message message = channelWorker.getHistoryAfter(id, 20).complete().getRetrievedHistory().get(0);
         Matcher matcher = regex.matcher(message.getContentStripped());
-        Assert.assertTrue(matcher.matches());
+        assertThat(matcher.matches()).isFalse();
         if (function != null) {
-            Assert.assertTrue(function.test(matcher));
+            assertThat(function.test(matcher)).isFalse();
         }
     }
 }

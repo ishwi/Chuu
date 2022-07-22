@@ -14,7 +14,7 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public final record ContextMessageReceived(MessageReceivedEvent e) implements Context {
+public record ContextMessageReceived(MessageReceivedEvent e) implements Context {
     @Override
     public User getAuthor() {
         return e.getAuthor();

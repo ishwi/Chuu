@@ -14,19 +14,22 @@ import org.graphwalker.core.model.Edge;
 import org.graphwalker.core.model.Guard;
 import org.graphwalker.core.model.Model;
 import org.graphwalker.core.model.Vertex;
-import org.junit.*;
-import org.junit.rules.TestRule;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import test.commands.utils.TestResources;
 
 import java.util.ArrayDeque;
 import java.util.Queue;
 import java.util.Random;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
+@ExtendWith(TestResources.class)
 public class RandomStateTest extends ExecutionContext implements RandomState {
 
 
-    @ClassRule
-    public static final TestRule res = TestResources.INSTANCE;
     private static final String[] validAndInvalidUrls = new String[]{
             "https://open.spotify.com/album/3DcOkGnGL9cZgq9G1R75HE?si=ZxAlBG36TMK0rR5FZDtl9w",
             "https://open.spotify.com/album/1uhwfCCEWi4q8Yzv9QBJ0w?si=pU_tTcm9R5CJT7m2HrWFiA",
@@ -74,8 +77,8 @@ public class RandomStateTest extends ExecutionContext implements RandomState {
         return (isUrlUnique);
     }
 
-    @Before
-    @After
+    @BeforeEach
+    @AfterEach
     public void setUp() {
         TestResources.dao.truncateRandomPool();
     }
@@ -145,12 +148,12 @@ public class RandomStateTest extends ExecutionContext implements RandomState {
 
     @Override
     public void v_EmptyPool() {
-        Assert.assertEquals(TestResources.dao.randomCount(null), 0);
+        assertThat(0).isEqualTo(TestResources.dao.randomCount(null));
     }
 
     @Override
     public void v_ProcessingFirstMessage() {
-        Assert.assertEquals(1, formatQueue.size());
+        assertThat(formatQueue).hasSize(1);
         String peek = formatQueue.peek();
 
         RandomAlbumParser randomAlbumParser = new RandomAlbumParser(null);
@@ -168,7 +171,7 @@ public class RandomStateTest extends ExecutionContext implements RandomState {
 
     @Override
     public void v_NonEmptyPool() {
-        Assert.assertEquals(TestResources.dao.randomCount(null), additions);
+        assertThat(additions).isEqualTo(TestResources.dao.randomCount(null));
     }
 
     @Override
@@ -178,7 +181,7 @@ public class RandomStateTest extends ExecutionContext implements RandomState {
 
     @Override
     public void v_CheckingRepeated() {
-        Assert.assertEquals(repeatedQueue.size(), 1);
+        assertThat(1).isEqualTo(repeatedQueue.size());
         String peek = repeatedQueue.peek();
         isUrlUnique = !TestResources.dao.randomUrlExists(peek);
     }
@@ -186,7 +189,7 @@ public class RandomStateTest extends ExecutionContext implements RandomState {
     @Override
     public void e_InvalidFormat() {
         formatQueue.poll();
-        Assert.assertFalse(isMessageValid);
+        assertThat(isMessageValid).isFalse();
 
     }
 
@@ -203,7 +206,7 @@ public class RandomStateTest extends ExecutionContext implements RandomState {
     public void e_addUrlFromUnique() {
         String url = repeatedQueue.poll();
         RandomUrlEntity e = new RandomUrlEntity(url, TestResources.developerId);
-        Assert.assertTrue(TestResources.dao.addToRandomPool(e));
+        assertThat(TestResources.dao.addToRandomPool(e)).isTrue();
         additions++;
     }
 
@@ -211,7 +214,7 @@ public class RandomStateTest extends ExecutionContext implements RandomState {
     public void e_addUrlFromValid() {
         String url = formatQueue.poll();
         RandomUrlEntity e = new RandomUrlEntity(url, 1L);
-        Assert.assertTrue(TestResources.dao.addToRandomPool(e));
+        assertThat(TestResources.dao.addToRandomPool(e)).isTrue();
         additions++;
     }
 
@@ -224,7 +227,7 @@ public class RandomStateTest extends ExecutionContext implements RandomState {
     @Override
     public void e_RepeatedUrl() {
         repeatedQueue.poll();
-        Assert.assertFalse(isUrlUnique);
+        assertThat(isUrlUnique).isFalse();
     }
 
     @Override

@@ -2,22 +2,19 @@ package test.commands.parsers;
 
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageHistory;
-import org.junit.Assert;
-import org.junit.ClassRule;
-import org.junit.rules.TestRule;
+import org.junit.jupiter.api.extension.ExtendWith;
 import test.commands.utils.TestResources;
 
 import java.time.Year;
 import java.time.temporal.ChronoUnit;
 import java.util.concurrent.TimeUnit;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 import static test.commands.utils.TestResources.*;
 
+@ExtendWith(TestResources.class)
 public class NullReturnParsersTest {
-    @ClassRule
-    public static final TestRule res = TestResources.INSTANCE;
-
     public static void artistSongParser(String command) {
         artistAlbumParser(command);
     }
@@ -39,7 +36,7 @@ public class NullReturnParsersTest {
 
     private static void assertEqualsErrorMessage(String expected, Message message) {
         String reallyExpected = "Error on " + testerJDA.getSelfUser().getName() + "'s request:\n" + expected;
-        Assert.assertEquals(reallyExpected, message.getContentStripped());
+        assertThat(message.getContentStripped()).isEqualTo(reallyExpected);
     }
 
     public static void artistTimeFrameParser(String command) {
@@ -179,7 +176,7 @@ public class NullReturnParsersTest {
         });
         Message message = channelWorker.getHistoryAfter(id, 20).complete().getRetrievedHistory().get(0);
         assertEqualsErrorMessage("You need to add the escape character \"\\\\\" in the \"-\" that appear on the album or artist.\n" +
-                " \tFor example: Artist - Alb\\\\-um", message);
+                                 " \tFor example: Artist - Alb\\\\-um", message);
 
 
     }

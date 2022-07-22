@@ -57,7 +57,7 @@ Then you should set all those properties in the
 file [all.properties](https://github.com/ishwi/chuu/blob/master/src/main/resources/all.properties)
 
 In MariaDB you should first create a database within MariaDB, and then inside that database run first
-the [following SQL script](https://github.com/ishwi/chuu/blob/master/model/src/main/resources/db/MariaBaseline.sql), and
+the [following SQL script](https://github.com/ishwi/chuu/blob/master/model/src/main/resources/db/1.sql), and
 then all the sql scripts
 under [migrations](https://github.com/ishwi/chuu/blob/master/model/src/main/resources/db/migrations) sequentially
 

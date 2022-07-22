@@ -100,7 +100,7 @@ public class AlbumInfoCommand extends AlbumPlaysCommand {
                 .setThumbnail(artist.getUrl());
         e.sendMessage(embedBuilder.build()).queue();
         if (!tags.isEmpty()) {
-            executor.submit(new TagAlbumService(db, lastFM, tags, new AlbumInfo(albumSummary.getMbid(), albumSummary.getAlbum(), albumSummary.getArtist())));
+            CommandUtil.runLog(new TagAlbumService(db, lastFM, tags, new AlbumInfo(albumSummary.getMbid(), albumSummary.getAlbum(), albumSummary.getArtist())));
 
         }
     }

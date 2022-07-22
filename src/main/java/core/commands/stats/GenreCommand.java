@@ -78,7 +78,7 @@ public class GenreCommand extends ConcurrentCommand<NumberParameters<TimeFramePa
         Map<Integer, String> map = new HashMap<>(2);
         map.put(LIMIT_ERROR, "The number introduced must be between 1 and a big number");
         String s = "You can also introduce a number to vary the number of genres shown in the pie," +
-                "defaults to 10";
+                   "defaults to 10";
 
         TimerFrameParser timerFrameParser = new TimerFrameParser(db, TimeFrameEnum.ALL);
         timerFrameParser.addOptional(new OptionalEntity("albums", "use albums"));
@@ -152,7 +152,7 @@ public class GenreCommand extends ConcurrentCommand<NumberParameters<TimeFramePa
                 List<ArtistInfo> mbidArtists = artistInfos.stream().filter(u -> u.getMbid() != null && !u.getMbid().isEmpty())
                         .toList();
                 Map<Genre, List<ArtistInfo>> genreListMap = musicBrainz.genreCountByartist(mbidArtists);
-                executor.submit(new TagArtistService(db, lastFM, genreListMap));
+                CommandUtil.runLog(new TagArtistService(db, lastFM, genreListMap));
                 map = Stream.concat(map.entrySet().stream(), genreListMap.entrySet().stream().map(t -> Map.entry(t.getKey(), t.getValue().size())))
                         .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, Integer::sum));
             }
@@ -178,7 +178,7 @@ public class GenreCommand extends ConcurrentCommand<NumberParameters<TimeFramePa
             }
             if (mb || !lastfm) {
                 Map<Genre, List<AlbumInfo>> genreListMap = musicBrainz.genreCount(albumMbids);
-                executor.submit(new TagAlbumService(db, lastFM, genreListMap));
+                CommandUtil.runLog(new TagAlbumService(db, lastFM, genreListMap));
                 map = genreListMap.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, x -> x.getValue().size()));
             }
 

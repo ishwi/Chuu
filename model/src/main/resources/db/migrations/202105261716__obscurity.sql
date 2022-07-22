@@ -2,9 +2,10 @@
 --changeset ish:noise
 CREATE TABLE obscurity
 (
-    id        bigint PRIMARY KEY AUTO_INCREMENT NOT NULL,
-    lastfm_id varchar(45) CHARACTER SET ascii UNIQUE NOT NULL REFERENCES `user` (lastfm_id) ON UPDATE CASCADE ON DELETE CASCADE,
-    score     double             NOT NULL
+    id        bigint PRIMARY KEY AUTO_INCREMENT      NOT NULL,
+    lastfm_id varchar(45) CHARACTER SET ascii UNIQUE NOT NULL,
+    score     double                                 NOT NULL,
+    CONSTRAINT `obscurity_user_lastfm_id` FOREIGN KEY (`lastfm_id`) REFERENCES `user` (`lastfm_id`) ON DELETE CASCADE ON UPDATE CASCADE
 
 );
 

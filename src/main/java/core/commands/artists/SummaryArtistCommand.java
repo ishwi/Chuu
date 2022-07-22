@@ -97,9 +97,9 @@ public class SummaryArtistCommand extends ConcurrentCommand<ArtistParameters> {
                     addField(String.format("%s's stats", CommandUtil.escapeMarkdown(e.getGuild().getName())), serverStats.toString(), true);
         }
         String lastFMStats = String.format("**%d** listeners%n", summary.listeners()) +
-                String.format("**%d** plays%n", summary.playcount());
+                             String.format("**%d** plays%n", summary.playcount());
         String globalStats = String.format("**%d** listeners%n", globalArtistFrequencies) +
-                String.format("**%d** plays%n", globalArtistPlays);
+                             String.format("**%d** plays%n", globalArtistPlays);
         embedBuilder
                 .addField(String.format("%s's stats", CommandUtil.escapeMarkdown(e.getJDA().getSelfUser().getName())), globalStats, true)
                 .addField("Last.FM stats", lastFMStats, true)
@@ -123,7 +123,7 @@ public class SummaryArtistCommand extends ConcurrentCommand<ArtistParameters> {
 
         e.sendMessage(embedBuilder.build()).queue();
         if (!tags.isEmpty()) {
-            executor.submit(new TagArtistService(db, lastFM, tags, new ArtistInfo(sA.getUrl(), summary.artistname(), summary.mbid())));
+            CommandUtil.runLog(new TagArtistService(db, lastFM, tags, new ArtistInfo(sA.getUrl(), summary.artistname(), summary.mbid())));
         }
     }
 }

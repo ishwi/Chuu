@@ -6,8 +6,8 @@ import core.apis.last.ConcurrentLastFM;
 import core.apis.last.LastFMFactory;
 import core.apis.spotify.Spotify;
 import core.apis.spotify.SpotifySingleton;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import test.commands.parsers.NullReturnParsersTest;
 import test.commands.utils.*;
 
@@ -37,7 +37,7 @@ public class GlobalArtistCommand extends CommandTest {
         return "!global";
     }
 
-    @Before
+    @BeforeEach
     public void setUp() {
         ConcurrentLastFM newInstance = LastFMFactory.getNewInstance();
         DiscogsApi discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();

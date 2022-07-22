@@ -5,9 +5,8 @@ import core.commands.charts.AlbumChartCommand;
 import core.commands.config.HelpCommand;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageHistory;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import test.commands.utils.CommandTest;
 import test.commands.utils.TestResources;
 
@@ -18,16 +17,17 @@ import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 
 public class HelpCommandTest extends CommandTest {
     private static HelpCommand helpCommand;
 
-    @BeforeClass
+    @BeforeAll
     public static void init() {
         Optional<Object> first = TestResources.ogJDA.getEventManager().getRegisteredListeners().stream()
                 .filter(x -> x instanceof HelpCommand).findFirst();
-        Assert.assertTrue(first.isPresent());
+        assertThat(first.isPresent()).isTrue();
         helpCommand = (HelpCommand) first.get();
     }
 
@@ -60,7 +60,7 @@ public class HelpCommandTest extends CommandTest {
         });
         Message message = TestResources.channelWorker.getHistoryAfter(id, 20).complete().getRetrievedHistory().get(0);
         String s = "The provided command '**" + nonExistingCommand + "**' does not exist. Use " + "!help to list all commands.";
-        Assert.assertEquals(s, message.getContentRaw());
+        assertThat(message.getContentRaw()).isEqualTo(s);
 
     }
 
@@ -97,13 +97,13 @@ public class HelpCommandTest extends CommandTest {
         strings1.addAll(split2);
 
         for (String s : strings1) {
-            Assert.assertTrue(s.matches("!(\\w+) - .*"));
+            assertThat(s.matches("!(\\w+) - .*")).isTrue();
         }
 
         long count = TestResources.ogJDA.getEventManager().getRegisteredListeners().stream().filter(x -> x instanceof MyCommand)
                 .count();
-        Assert.assertEquals(count, strings1.size());
-        Assert.assertEquals(split[0], "The following commands are supported by the bot");
+        assertThat(strings1.size()).isEqualTo(count);
+        assertThat("The following commands are supported by the bot").isEqualTo(split[0]);
     }
 
     @Test
@@ -125,10 +125,10 @@ public class HelpCommandTest extends CommandTest {
                 id = message.getIdLong();
                 String collect = "!" + String.join(", !", command.getAliases());
                 String expected = "Name: " + command.getName() + "\n"
-                        + "Description: " + command.getDescription() + "\n"
-                        + "Alliases: " + collect + "\n"
-                        + "Usage: !" + command.getUsageInstructions().replaceAll("\\*", "").trim();
-                Assert.assertEquals(expected, message.getContentStripped().replaceAll("\\*", "").trim());
+                                  + "Description: " + command.getDescription() + "\n"
+                                  + "Alliases: " + collect + "\n"
+                                  + "Usage: !" + command.getUsageInstructions().replaceAll("\\*", "").trim();
+                assertThat(message.getContentStripped().replaceAll("\\*", "").trim()).isEqualTo(expected);
 
             }
         }
@@ -150,7 +150,7 @@ public class HelpCommandTest extends CommandTest {
         });
         MessageHistory complete = TestResources.channelWorker.getHistoryAfter(id, 20).complete();
         Message message = complete.getRetrievedHistory().get(0);
-        Assert.assertTrue(responsePattern.matcher(message.getContentStripped()).matches());
+        assertThat(responsePattern.matcher(message.getContentStripped()).matches()).isTrue();
     }
 
     @Test
@@ -158,7 +158,7 @@ public class HelpCommandTest extends CommandTest {
         //Cannot send private meessage between bots :(
         Optional<AlbumChartCommand> chartCommand = TestResources.ogJDA.getRegisteredListeners().stream()
                 .filter(x -> x instanceof AlbumChartCommand).map(x -> (AlbumChartCommand) x).findFirst();
-        Assert.assertTrue(chartCommand.isPresent());
+        assertThat(chartCommand.isPresent()).isTrue();
         AlbumChartCommand command = chartCommand.get();
         long id = TestResources.channelWorker.sendMessage(COMMAND_ALIAS + " chart").complete().getIdLong();
         await().atMost(45, TimeUnit.SECONDS).until(() ->
@@ -171,10 +171,10 @@ public class HelpCommandTest extends CommandTest {
         String collect = "!" + String.join(", !", command.getAliases());
 
         String expected = "Name: " + command.getName() + "\n"
-                + "Description: " + command.getDescription() + "\n"
-                + "Alliases: " + collect + "\n"
-                + "Usage: !" + command.getUsageInstructions().replaceAll("\\*", "").trim();
-        Assert.assertEquals(expected, message.getContentStripped().replaceAll("\\*", "").trim());
+                          + "Description: " + command.getDescription() + "\n"
+                          + "Alliases: " + collect + "\n"
+                          + "Usage: !" + command.getUsageInstructions().replaceAll("\\*", "").trim();
+        assertThat(message.getContentStripped().replaceAll("\\*", "").trim()).isEqualTo(expected);
     }
 
 

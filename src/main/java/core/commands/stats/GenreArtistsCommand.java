@@ -1,11 +1,13 @@
 package core.commands.stats;
 
+import core.apis.discogs.DiscogsApi;
 import core.apis.discogs.DiscogsSingleton;
 import core.apis.last.entities.chartentities.ArtistChart;
 import core.apis.last.entities.chartentities.ChartUtil;
 import core.apis.last.entities.chartentities.TopEntity;
 import core.apis.last.entities.chartentities.UrlCapsule;
 import core.apis.last.queues.ArtistQueue;
+import core.apis.spotify.Spotify;
 import core.apis.spotify.SpotifySingleton;
 import core.commands.Context;
 import core.commands.charts.ChartableCommand;
@@ -32,10 +34,14 @@ import java.util.stream.Collectors;
 
 public class GenreArtistsCommand extends ChartableCommand<ChartableGenreParameters> {
     private final MusicBrainzService mb;
+    private final DiscogsApi discogsApi;
+    private final Spotify spotify;
 
     public GenreArtistsCommand(ServiceView dao) {
         super(dao);
         mb = MusicBrainzServiceSingleton.getInstance();
+        this.discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
+        this.spotify = SpotifySingleton.getInstance();
     }
 
     @Override
@@ -123,10 +129,9 @@ public class GenreArtistsCommand extends ChartableCommand<ChartableGenreParamete
                     .peek(x -> x.setPos(ranker.getAndIncrement()))
                     .limit((long) params.getX() * params.getY())
                     .collect(Collectors.toCollection(LinkedBlockingQueue::new));
-            outerQueue = new ArtistQueue(db, DiscogsSingleton.getInstanceUsingDoubleLocking(), SpotifySingleton.getInstance());
+            outerQueue = new ArtistQueue(db, discogsApi, spotify);
             outerQueue.addAll(tempQueue);
-            executor.submit(
-                    new TagArtistService(db, lastFM, tempQueue.stream().map(x -> new ArtistInfo(null, x.getArtistName(), x.getMbid())).collect(Collectors.toList()), genre));
+            CommandUtil.runLog(new TagArtistService(db, lastFM, tempQueue.stream().map(x -> new ArtistInfo(null, x.getArtistName(), x.getMbid())).collect(Collectors.toList()), genre));
 
         }
         return new CountWrapper<>(outerQueue.size(), outerQueue);

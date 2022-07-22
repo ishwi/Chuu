@@ -1,8 +1,8 @@
 package test.commands;
 
 import net.dv8tion.jda.api.entities.Member;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import test.commands.parsers.NullReturnParsersTest;
 import test.commands.utils.CommandTest;
 import test.commands.utils.EmbedWithFieldsUtils;
@@ -16,7 +16,7 @@ import java.util.regex.Pattern;
 public class RecentCommandTest extends CommandTest {
     private static Pattern titlePattern;
 
-    @BeforeClass
+    @BeforeAll
     public static void init() {
         titlePattern = Pattern.compile("(.*)'s last 5 tracks");
 

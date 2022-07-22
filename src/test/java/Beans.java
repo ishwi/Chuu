@@ -7,7 +7,7 @@ import com.openpojo.validation.ValidatorBuilder;
 import com.openpojo.validation.test.impl.GetterTester;
 import com.openpojo.validation.test.impl.SetterTester;
 import dao.entities.LbEntry;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 

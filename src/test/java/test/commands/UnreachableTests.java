@@ -4,23 +4,21 @@ import core.apis.last.exceptions.AlbumException;
 import core.apis.last.exceptions.ExceptionEntity;
 import core.commands.stats.NPSpotifyCommand;
 import core.parsers.NoOpParser;
-import core.parsers.PrefixParser;
-import core.parsers.UrlParser;
 import core.parsers.utils.OptionalEntity;
 import dao.entities.NowPlayingArtist;
-import org.junit.Assert;
-import org.junit.ClassRule;
-import org.junit.Test;
-import org.junit.rules.TestRule;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import test.commands.utils.TestResources;
 
 import java.util.Optional;
 
-public class UnreachableTests {
-    @ClassRule
-    public static final TestRule res = TestResources.INSTANCE;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-    @Test(expected = NullPointerException.class)
+@ExtendWith(TestResources.class)
+public class UnreachableTests {
+
+    @Test()
     public void spotifyNpSearch() {
         Optional<NPSpotifyCommand> any = TestResources.ogJDA.getRegisteredListeners().stream()
                 .filter(x -> x instanceof NPSpotifyCommand).map(x -> (NPSpotifyCommand) x).findAny();
@@ -29,23 +27,22 @@ public class UnreachableTests {
         NowPlayingArtist nowPlayingArtist = new NowPlayingArtist("doesnt exist asdasdaad", "", true, "doesnt existasdasdaad", "doesntasdasdaad exists", "", "pepito", true);
 
         //This will crash but it increase coverage :D
-        npSpotifyCommand.doSomethingWithArtist(nowPlayingArtist, null, -1L, null, null);
+        assertThatThrownBy(() -> npSpotifyCommand.doSomethingWithArtist(nowPlayingArtist, null, -1L, null, null)).isInstanceOf(NullPointerException.class);
 
     }
 
-    @Test(expected = UnsupportedOperationException.class)
+    @Test()
     public void noOpParserParsing() {
         NoOpParser noOpParser = NoOpParser.INSTANCE;
-        noOpParser.parseLogic(null, null);
+        assertThatThrownBy(() -> noOpParser.parseLogic(null, null)).isInstanceOf(UnsupportedOperationException.class);
     }
 
     @Test
     public void OptionalEntityEquals() {
         OptionalEntity optionalEntity = new OptionalEntity("test", "testdef");
-        Assert.assertEquals(optionalEntity, optionalEntity);
-        Assert.assertNotEquals(optionalEntity, optionalEntity.getDescription());
-        Assert.assertNotEquals(null, optionalEntity);
-        Assert.assertNotEquals(this, optionalEntity);
+        assertThat(optionalEntity).isEqualTo(optionalEntity);
+        assertThat(optionalEntity).isNotEqualTo(optionalEntity.getDescription());
+        assertThat(optionalEntity).isNotNull();
     }
 
 
@@ -53,12 +50,11 @@ public class UnreachableTests {
     public void gettersSettersExeption() {
         AlbumException exceptionEntity = new AlbumException("artist", "album");
         ExceptionEntity exceptionEntity1 = new ExceptionEntity("username");
-        Assert.assertEquals(exceptionEntity.getArtist(), "artist");
-        Assert.assertEquals(exceptionEntity.getAlbum(), "album");
-        Assert.assertEquals(exceptionEntity1.getUserName(), "username");
+        assertThat(exceptionEntity.getArtist()).isEqualTo("artist");
+        assertThat(exceptionEntity.getArtist()).isEqualTo("artist");
+        assertThat(exceptionEntity.getAlbum()).isEqualTo("album");
+        assertThat(exceptionEntity.getUserName()).isEqualTo("username");
 
-        UrlParser urlParser = new UrlParser();
-        PrefixParser prefixParser = new PrefixParser();
     }
 
 

@@ -1,6 +1,6 @@
 package test.commands;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import test.commands.utils.CommandTest;
 import test.commands.utils.ImageUtils;
 

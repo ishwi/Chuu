@@ -1,7 +1,7 @@
 package test.commands;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import test.commands.parsers.NullReturnParsersTest;
 import test.commands.utils.CommandTest;
 import test.commands.utils.EmbedWithFieldsUtils;
@@ -15,7 +15,7 @@ import java.util.regex.Pattern;
 public class ArtistSummaryCommandTest extends CommandTest {
     private static Pattern titlePattern;
 
-    @BeforeClass
+    @BeforeAll
     public static void init() {
         titlePattern = Pattern.compile("Information about (.*)");
 

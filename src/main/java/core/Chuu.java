@@ -114,22 +114,24 @@ public class Chuu {
         return gatewayIntents;
     }
 
-    public static void setupBot(boolean doDbCleanUp, boolean installGlobalCommands, boolean startRightAway, boolean notMain) {
+    public static Properties initFields() {
         logger = LoggerFactory.getLogger(Chuu.class);
         Properties properties = readToken();
         String channel = properties.getProperty("MODERATION_CHANNEL_ID");
         String channel2 = properties.getProperty("MODERATION_CHANNEL_2_ID");
-        channelId = Long.parseLong(channel);
-        channel2Id = Long.parseLong(channel2);
+        if (channel != null) {
+            channelId = Long.parseLong(channel);
+        }
+        if (channel2 != null) {
+            channel2Id = Long.parseLong(channel2);
+        }
         chuuSess = properties.getProperty("LASTFM_BOT_SESSION_KEY");
         ipv6Block = properties.getProperty("IPV6_BLOCK");
         db = new ServiceView(new ChuuService(new ChuuDatasource()), new ChuuService(new LongExecutorChuuDatasource()), new ChuuService(new UpdateDatasource()));
         ChuuService service = db.normalService();
         prefixService = new PrefixService(service);
-
         ColorService.init(service);
         coverService = new CoverService(service);
-
         DiscogsSingleton.init(properties.getProperty("DC_SC"), properties.getProperty("DC_KY"));
         SpotifySingleton.init(properties.getProperty("client_ID"), properties.getProperty("client_Secret"));
         scrobbleEventManager = new ScrobbleEventManager(new StatusProcesser(service));
@@ -137,6 +139,16 @@ public class Chuu {
         playerManager = new ExtendedAudioPlayerManager(scrobbleEventManager, scrobbleProcesser);
         playerRegistry = new PlayerRegistry(playerManager);
         scheduledService = new ScheduledService(Executors.newScheduledThreadPool(6), db.normalService());
+        ratelimited = service.getRateLimited().entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, y -> RateLimiter.create(y.getValue())));
+        MessageAction.setDefaultMentions(EnumSet.noneOf(Message.MentionType.class));
+        MessageAction.setDefaultMentionRepliedUser(false);
+        return properties;
+
+    }
+
+    public static void setupBot(boolean doDbCleanUp, boolean installGlobalCommands, boolean startRightAway, boolean notMain) {
+        Properties properties = initFields();
+        ChuuService service = db.normalService();
         List<Long> ids = db.longService().getAllALL().stream().map(UsersWrapper::getDiscordID).toList();
         knownIds.addAll(ids);
         if (!notMain) {
@@ -154,9 +166,6 @@ public class Chuu {
             cacheMetric.reset();
             logger.info("Made {} db requests in the last 5 minutes", c);
         }, 2, 5, TimeUnit.MINUTES);
-
-
-        ratelimited = service.getRateLimited().entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, y -> RateLimiter.create(y.getValue())));
 
 
         MessageAction.setDefaultMentions(EnumSet.noneOf(Message.MentionType.class));
@@ -351,6 +360,7 @@ public class Chuu {
     public static ChuuService getDb() {
         return db.normalService();
     }
+
 
     public static MessageDeletionService getMessageDeletionService() {
         return messageDeletionService;

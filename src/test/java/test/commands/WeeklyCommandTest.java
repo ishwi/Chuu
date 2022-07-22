@@ -1,7 +1,6 @@
 package test.commands;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import test.commands.parsers.NullReturnParsersTest;
 import test.commands.utils.CommandTest;
 import test.commands.utils.EmbedUtils;
@@ -11,6 +10,8 @@ import java.util.List;
 import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class WeeklyCommandTest extends CommandTest {
     @Override
@@ -33,7 +34,7 @@ public class WeeklyCommandTest extends CommandTest {
         Predicate<Matcher> descriptionMatcher = matcher -> {
             List<String> daysOfWeek = Arrays
                     .asList("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday");
-            Assert.assertTrue(daysOfWeek.contains(matcher.group(1)));
+            assertThat(daysOfWeek.contains(matcher.group(1))).isTrue();
 
             long dayInNumber = Long.parseLong(matcher.group(2));
             long monthInNumber = Long.parseLong(matcher.group(3));

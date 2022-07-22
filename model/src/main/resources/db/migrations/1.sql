@@ -1,7 +1,5 @@
-/*!40014 SET FOREIGN_KEY_CHECKS = 0 */;
-
-/*!40101 SET @saved_cs_client = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+--liquibase formatted sql
+--changeset ish:custom_images
 CREATE TABLE IF NOT EXISTS `user`
 (
     `lastfm_id`         varchar(45) CHARACTER SET ascii                                     NOT NULL,
@@ -162,24 +160,6 @@ CREATE TABLE `week`
   DEFAULT CHARSET = utf8mb4;
 
 
-DELIMITER $$
-
-CREATE PROCEDURE insert_weeks()
-BEGIN
-    SET @t_current = date(curdate() - INTERVAL weekday(curdate()) DAY);
-    SET @t_end = DATE_ADD(date(curdate() - INTERVAL weekday(curdate()) DAY), INTERVAL 5 YEAR);
-    WHILE(@t_current < @t_end)
-        DO
-            INSERT INTO week(week_start) VALUES (@t_current);
-            SET @t_current = DATE_ADD(@t_current, INTERVAL 7 DAY);
-        END WHILE;
-END;
-$$
-DELIMITER ;
-
-
-CALL insert_weeks();
-
 /* break*/
 
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -272,100 +252,7 @@ CREATE TABLE IF NOT EXISTS `alt_url`
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
-/*!50003 SET @saved_cs_client = @@character_set_client */;
-/*!50003 SET @saved_cs_results = @@character_set_results */;
-/*!50003 SET @saved_col_connection = @@collation_connection */;
-/*!50003 SET character_set_client = utf8mb4 */;
-/*!50003 SET character_set_results = utf8mb4 */;
-/*!50003 SET collation_connection = utf8mb4_unicode_ci */;
-/*!50003 SET @saved_sql_mode = @@sql_mode */;
-/*!50003 SET sql_mode = 'STRICT_TRANS_TABLES,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */;
-DELIMITER ;;
-/*!50003 CREATE TRIGGER IF NOT EXISTS alt_url_insert
-    AFTER INSERT
-    ON alt_url
-    FOR EACH ROW
-BEGIN
-    IF ((SELECT url FROM artist WHERE id = new.artist_id) IS NULL) OR
-       (new.score > (SELECT MAX(alt_url.score) FROM alt_url WHERE artist_id = new.artist_id))
-    THEN
-        UPDATE artist SET url = new.url WHERE id = new.artist_id;
-    END IF;
-END */;;
-DELIMITER ;
-/*!50003 SET sql_mode = @saved_sql_mode */;
-/*!50003 SET character_set_client = @saved_cs_client */;
-/*!50003 SET character_set_results = @saved_cs_results */;
-/*!50003 SET collation_connection = @saved_col_connection */;
-/*!50003 SET @saved_cs_client = @@character_set_client */;
-/*!50003 SET @saved_cs_results = @@character_set_results */;
-/*!50003 SET @saved_col_connection = @@collation_connection */;
-/*!50003 SET character_set_client = utf8mb4 */;
-/*!50003 SET character_set_results = utf8mb4 */;
-/*!50003 SET collation_connection = utf8mb4_unicode_ci */;
-/*!50003 SET @saved_sql_mode = @@sql_mode */;
-/*!50003 SET sql_mode = 'STRICT_TRANS_TABLES,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */;
-DELIMITER ;;
-/*!50003 CREATE TRIGGER IF NOT EXISTS alt_url_update
-    AFTER UPDATE
-    ON alt_url
-    FOR EACH ROW
-BEGIN
-    DECLARE current_score int;
-    DECLARE current_url varchar(400);
 
-    SET current_score = (SELECT
-                             MAX(a.score)
-                         FROM
-                             alt_url a
-                         WHERE
-                             a.artist_id = new.artist_id);
-    SET current_url = (SELECT
-                           a.url
-                       FROM
-                           alt_url a
-                       WHERE
-                           a.artist_id = new.artist_id
-                       ORDER BY score DESC
-                       LIMIT 1);
-    IF ((SELECT url FROM artist b WHERE b.id = new.artist_id) = new.url) AND (new.score < current_score) THEN
-        UPDATE artist SET url = current_url WHERE id = new.artist_id;
-    ELSEIF (new.score >= current_score) THEN
-        UPDATE artist SET url = new.url WHERE id = new.artist_id;
-    END IF;
-END */;;
-DELIMITER ;
-/*!50003 SET sql_mode = @saved_sql_mode */;
-/*!50003 SET character_set_client = @saved_cs_client */;
-/*!50003 SET character_set_results = @saved_cs_results */;
-/*!50003 SET collation_connection = @saved_col_connection */;
-/*!50003 SET @saved_cs_client = @@character_set_client */;
-/*!50003 SET @saved_cs_results = @@character_set_results */;
-/*!50003 SET @saved_col_connection = @@collation_connection */;
-/*!50003 SET character_set_client = utf8mb4 */;
-/*!50003 SET character_set_results = utf8mb4 */;
-/*!50003 SET collation_connection = utf8mb4_unicode_ci */;
-/*!50003 SET @saved_sql_mode = @@sql_mode */;
-/*!50003 SET sql_mode = '' */;
-DELIMITER ;;
-/*!50003 CREATE TRIGGER IF NOT EXISTS alt_url_delete
-    AFTER DELETE
-    ON alt_url
-    FOR EACH ROW
-BEGIN
-    IF (old.url = (SELECT url FROM artist WHERE id = old.artist_id)) THEN
-        UPDATE artist
-        SET
-            url = (SELECT url FROM alt_url WHERE alt_url.artist_id = old.artist_id ORDER BY alt_url.score DESC LIMIT 1)
-        WHERE
-            id = old.artist_id;
-    END IF;
-END */;;
-DELIMITER ;
-/*!50003 SET sql_mode = @saved_sql_mode */;
-/*!50003 SET character_set_client = @saved_cs_client */;
-/*!50003 SET character_set_results = @saved_cs_results */;
-/*!50003 SET collation_connection = @saved_col_connection */;
 /*!40101 SET @saved_cs_client = @@character_set_client */;
 /*!40101 SET character_set_client = utf8mb4 */;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -883,85 +770,7 @@ CREATE TABLE `vote`
     CONSTRAINT `vote_fk_user` FOREIGN KEY (`discord_id`) REFERENCES `user` (`discord_id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
-/*!40101 SET character_set_client = @saved_cs_client */;
-/*!50003 SET @saved_cs_client = @@character_set_client */;
-/*!50003 SET @saved_cs_results = @@character_set_results */;
-/*!50003 SET @saved_col_connection = @@collation_connection */;
-/*!50003 SET character_set_client = utf8mb4 */;
-/*!50003 SET character_set_results = utf8mb4 */;
-/*!50003 SET collation_connection = utf8mb4_unicode_ci */;
-/*!50003 SET @saved_sql_mode = @@sql_mode */;
-/*!50003 SET sql_mode = 'STRICT_TRANS_TABLES,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */;
-DELIMITER ;;
-/*!50003 CREATE TRIGGER vote_add
-    AFTER INSERT
-    ON vote
-    FOR EACH ROW
-BEGIN
-    UPDATE alt_url SET score = score + IF(new.ispositive, 1, -1) WHERE id = new.alt_id;
-END */;;
-DELIMITER ;
-/*!50003 SET sql_mode = @saved_sql_mode */;
-/*!50003 SET character_set_client = @saved_cs_client */;
-/*!50003 SET character_set_results = @saved_cs_results */;
-/*!50003 SET collation_connection = @saved_col_connection */;
-/*!50003 SET @saved_cs_client = @@character_set_client */;
-/*!50003 SET @saved_cs_results = @@character_set_results */;
-/*!50003 SET @saved_col_connection = @@collation_connection */;
-/*!50003 SET character_set_client = utf8mb4 */;
-/*!50003 SET character_set_results = utf8mb4 */;
-/*!50003 SET collation_connection = utf8mb4_unicode_ci */;
-/*!50003 SET @saved_sql_mode = @@sql_mode */;
-/*!50003 SET sql_mode = 'STRICT_TRANS_TABLES,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */;
-DELIMITER ;;
-/*!50003 CREATE TRIGGER vote_update
-    AFTER UPDATE
-    ON vote
-    FOR EACH ROW
-BEGIN
-    SET @new_value = 0;
-    IF (old.ispositive AND NOT new.ispositive) THEN
-        SET @new_value = -2;
-    ELSEIF (NOT old.ispositive AND new.ispositive) THEN
-        SET @new_value = 2;
-    END IF;
-    IF (@new_value != 0) THEN
-        UPDATE alt_url SET score = score + @new_value WHERE id = new.alt_id;
-    END IF;
-END */;;
-DELIMITER ;
-/*!50003 SET sql_mode = @saved_sql_mode */;
-/*!50003 SET character_set_client = @saved_cs_client */;
-/*!50003 SET character_set_results = @saved_cs_results */;
-/*!50003 SET collation_connection = @saved_col_connection */;
-/*!50003 SET @saved_cs_client = @@character_set_client */;
-/*!50003 SET @saved_cs_results = @@character_set_results */;
-/*!50003 SET @saved_col_connection = @@collation_connection */;
-/*!50003 SET character_set_client = utf8mb4 */;
-/*!50003 SET character_set_results = utf8mb4 */;
-/*!50003 SET collation_connection = utf8mb4_unicode_ci */;
-/*!50003 SET @saved_sql_mode = @@sql_mode */;
-/*!50003 SET sql_mode = 'STRICT_TRANS_TABLES,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */;
-DELIMITER ;;
-/*!50003 CREATE TRIGGER vote_delete
-    AFTER DELETE
-    ON vote
-    FOR EACH ROW
-BEGIN
-    SET @new_value = 0;
-    IF (old.ispositive) THEN
-        SET @new_value = -1;
-    ELSE
-        SET @new_value = 1;
-    END IF;
-    UPDATE alt_url SET score = score + @new_value WHERE id = old.alt_id;
 
-END */;;
-DELIMITER ;
-/*!50003 SET sql_mode = @saved_sql_mode */;
-/*!50003 SET character_set_client = @saved_cs_client */;
-/*!50003 SET character_set_results = @saved_cs_results */;
-/*!50003 SET collation_connection = @saved_col_connection */;
 
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client = @@character_set_client */;
@@ -1205,522 +1014,7 @@ CREATE TABLE `weekly_billboard_scrobbles`
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_unicode_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-DELIMITER ;;
-CREATE FUNCTION `streak_billboard_album_listeners`(bill_id bigint(20)) RETURNS int(11)
-    DETERMINISTIC
-    RETURN
-        (WITH
-             RECURSIVE
-             cte (week_id, artist_id, guild_id, album_name) AS
-                 (SELECT
-                      week_id,
-                      artist_id,
-                      guild_id,
-                      album_name
-                  FROM
-                      weekly_billboard_album_listeners
-                  WHERE
-                      id = bill_id
-                  UNION ALL
-                  SELECT
-                      b.week_id,
-                      b.artist_id,
-                      b.guild_id,
-                      b.album_name
-                  FROM
-                      cte t
-                          JOIN weekly_billboard_album_listeners b ON b.week_id = t.week_id - 1
-                          AND t.artist_id = b.artist_id
-                          AND t.guild_id = b.guild_id
-                          AND t.album_name = b.album_name)
-         SELECT
-             COUNT(*)
-         FROM
-             cte) ;;
-DELIMITER ;
-/*!50003 SET sql_mode = @saved_sql_mode */;
-/*!50003 SET character_set_client = @saved_cs_client */;
-/*!50003 SET character_set_results = @saved_cs_results */;
-/*!50003 SET collation_connection = @saved_col_connection */;
-/*!50003 DROP FUNCTION IF EXISTS `streak_billboard_album_scrobbles` */;
-/*!50003 SET @saved_cs_client = @@character_set_client */;
-/*!50003 SET @saved_cs_results = @@character_set_results */;
-/*!50003 SET @saved_col_connection = @@collation_connection */;
-/*!50003 SET character_set_client = utf8mb4 */;
-/*!50003 SET character_set_results = utf8mb4 */;
-/*!50003 SET collation_connection = utf8mb4_unicode_ci */;
-/*!50003 SET @saved_sql_mode = @@sql_mode */;
-/*!50003 SET sql_mode = 'STRICT_TRANS_TABLES,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */;
-DELIMITER ;;
-CREATE FUNCTION `streak_billboard_album_scrobbles`(bill_id bigint(20)) RETURNS int(11)
-    DETERMINISTIC
-    RETURN
-        (WITH
-             RECURSIVE
-             cte (week_id, artist_id, guild_id, album_name) AS
-                 (SELECT
-                      week_id,
-                      artist_id,
-                      guild_id,
-                      album_name
-                  FROM
-                      weekly_billboard_album_scrobbles
-                  WHERE
-                      id = bill_id
-                  UNION ALL
-                  SELECT
-                      b.week_id,
-                      b.artist_id,
-                      b.guild_id,
-                      b.album_name
-                  FROM
-                      cte t
-                          JOIN weekly_billboard_album_scrobbles b ON b.week_id = t.week_id - 1
-                          AND t.artist_id = b.artist_id
-                          AND t.guild_id = b.guild_id
-                          AND t.album_name = b.album_name)
-         SELECT
-             COUNT(*)
-         FROM
-             cte) ;;
-DELIMITER ;
-/*!50003 SET sql_mode = @saved_sql_mode */;
-/*!50003 SET character_set_client = @saved_cs_client */;
-/*!50003 SET character_set_results = @saved_cs_results */;
-/*!50003 SET collation_connection = @saved_col_connection */;
-/*!50003 DROP FUNCTION IF EXISTS `streak_billboard_artist` */;
-/*!50003 SET @saved_cs_client = @@character_set_client */;
-/*!50003 SET @saved_cs_results = @@character_set_results */;
-/*!50003 SET @saved_col_connection = @@collation_connection */;
-/*!50003 SET character_set_client = utf8mb4 */;
-/*!50003 SET character_set_results = utf8mb4 */;
-/*!50003 SET collation_connection = utf8mb4_unicode_ci */;
-/*!50003 SET @saved_sql_mode = @@sql_mode */;
-/*!50003 SET sql_mode = 'STRICT_TRANS_TABLES,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */;
-DELIMITER ;;
-CREATE FUNCTION `streak_billboard_artist`(bill_id bigint(20)) RETURNS int(11)
-    DETERMINISTIC
-    RETURN
-        (WITH
-             RECURSIVE
-             cte (week_id, artist_id, guild_id) AS
-                 (SELECT
-                      week_id,
-                      artist_id,
-                      guild_id
-                  FROM
-                      weekly_billboard_artist_listeners
-                  WHERE
-                      id = bill_id
-                  UNION ALL
-                  SELECT
-                      b.week_id,
-                      b.artist_id,
-                      b.guild_id
-                  FROM
-                      cte t
-                          JOIN weekly_billboard_artist_listeners b ON b.week_id = t.week_id - 1
-                          AND t.artist_id = b.artist_id
-                          AND t.guild_id = b.guild_id)
-         SELECT
-             COUNT(*)
-         FROM
-             cte) ;;
-DELIMITER ;
-/*!50003 SET sql_mode = @saved_sql_mode */;
-/*!50003 SET character_set_client = @saved_cs_client */;
-/*!50003 SET character_set_results = @saved_cs_results */;
-/*!50003 SET collation_connection = @saved_col_connection */;
-/*!50003 DROP FUNCTION IF EXISTS `streak_billboard_artist_scrobbles` */;
-/*!50003 SET @saved_cs_client = @@character_set_client */;
-/*!50003 SET @saved_cs_results = @@character_set_results */;
-/*!50003 SET @saved_col_connection = @@collation_connection */;
-/*!50003 SET character_set_client = utf8mb4 */;
-/*!50003 SET character_set_results = utf8mb4 */;
-/*!50003 SET collation_connection = utf8mb4_unicode_ci */;
-/*!50003 SET @saved_sql_mode = @@sql_mode */;
-/*!50003 SET sql_mode = 'STRICT_TRANS_TABLES,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */;
-DELIMITER ;;
-CREATE FUNCTION `streak_billboard_artist_scrobbles`(bill_id bigint(20)) RETURNS int(11)
-    DETERMINISTIC
-    RETURN
-        (WITH
-             RECURSIVE
-             cte (week_id, artist_id, guild_id) AS
-                 (SELECT
-                      week_id,
-                      artist_id,
-                      guild_id
-                  FROM
-                      weekly_billboard_artist_scrobbles
-                  WHERE
-                      id = bill_id
-                  UNION ALL
-                  SELECT
-                      b.week_id,
-                      b.artist_id,
-                      b.guild_id
-                  FROM
-                      cte t
-                          JOIN weekly_billboard_artist_scrobbles b ON b.week_id = t.week_id - 1
-                          AND t.artist_id = b.artist_id
-                          AND t.guild_id = b.guild_id)
-         SELECT
-             COUNT(*)
-         FROM
-             cte) ;;
-DELIMITER ;
-/*!50003 SET sql_mode = @saved_sql_mode */;
-/*!50003 SET character_set_client = @saved_cs_client */;
-/*!50003 SET character_set_results = @saved_cs_results */;
-/*!50003 SET collation_connection = @saved_col_connection */;
-/*!50003 DROP FUNCTION IF EXISTS `streak_billboard_global_track_scrobbles` */;
-/*!50003 SET @saved_cs_client = @@character_set_client */;
-/*!50003 SET @saved_cs_results = @@character_set_results */;
-/*!50003 SET @saved_col_connection = @@collation_connection */;
-/*!50003 SET character_set_client = utf8mb4 */;
-/*!50003 SET character_set_results = utf8mb4 */;
-/*!50003 SET collation_connection = utf8mb4_unicode_ci */;
-/*!50003 SET @saved_sql_mode = @@sql_mode */;
-/*!50003 SET sql_mode = 'STRICT_TRANS_TABLES,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */;
-DELIMITER ;;
-CREATE FUNCTION `streak_billboard_global_track_scrobbles`(bill_id bigint(20)) RETURNS int(11)
-    DETERMINISTIC
-    RETURN
-        (WITH
-             RECURSIVE
-             cte (week_id, artist_id, track_name) AS
-                 (SELECT
-                      week_id,
-                      artist_id,
-                      track_name
-                  FROM
-                      weekly_billboard_global_scrobbles
-                  WHERE
-                      id = bill_id
-                  UNION ALL
-                  SELECT
-                      b.week_id,
-                      b.artist_id,
-                      b.track_name
-                  FROM
-                      cte t
-                          JOIN weekly_billboard_global_scrobbles b ON b.week_id = t.week_id - 1
-                          AND t.artist_id = b.artist_id
-                          AND t.track_name = b.track_name)
-         SELECT
-             COUNT(*)
-         FROM
-             cte) ;;
-DELIMITER ;
-/*!50003 SET sql_mode = @saved_sql_mode */;
-/*!50003 SET character_set_client = @saved_cs_client */;
-/*!50003 SET character_set_results = @saved_cs_results */;
-/*!50003 SET collation_connection = @saved_col_connection */;
-/*!50003 DROP FUNCTION IF EXISTS `streak_billboard_track` */;
-/*!50003 SET @saved_cs_client = @@character_set_client */;
-/*!50003 SET @saved_cs_results = @@character_set_results */;
-/*!50003 SET @saved_col_connection = @@collation_connection */;
-/*!50003 SET character_set_client = utf8mb4 */;
-/*!50003 SET character_set_results = utf8mb4 */;
-/*!50003 SET collation_connection = utf8mb4_unicode_ci */;
-/*!50003 SET @saved_sql_mode = @@sql_mode */;
-/*!50003 SET sql_mode = 'STRICT_TRANS_TABLES,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */;
-DELIMITER ;;
-CREATE FUNCTION `streak_billboard_track`(bill_id bigint(20)) RETURNS int(11)
-    DETERMINISTIC
-    RETURN
-        (WITH
-             RECURSIVE
-             cte (week_id, artist_id, guild_id, track_name) AS
-                 (SELECT
-                      week_id,
-                      artist_id,
-                      guild_id,
-                      track_name
-                  FROM
-                      weekly_billboard_listeners
-                  WHERE
-                      id = bill_id
-                  UNION ALL
-                  SELECT
-                      b.week_id,
-                      b.artist_id,
-                      b.guild_id,
-                      b.track_name
-                  FROM
-                      cte t
-                          JOIN weekly_billboard_listeners b ON b.week_id = t.week_id - 1
-                          AND t.artist_id = b.artist_id
-                          AND t.guild_id = b.guild_id
-                          AND t.track_name = b.track_name)
-         SELECT
-             COUNT(*)
-         FROM
-             cte) ;;
-DELIMITER ;
-/*!50003 SET sql_mode = @saved_sql_mode */;
-/*!50003 SET character_set_client = @saved_cs_client */;
-/*!50003 SET character_set_results = @saved_cs_results */;
-/*!50003 SET collation_connection = @saved_col_connection */;
-/*!50003 DROP FUNCTION IF EXISTS `streak_billboard_track_scrobbles` */;
-/*!50003 SET @saved_cs_client = @@character_set_client */;
-/*!50003 SET @saved_cs_results = @@character_set_results */;
-/*!50003 SET @saved_col_connection = @@collation_connection */;
-/*!50003 SET character_set_client = utf8mb4 */;
-/*!50003 SET character_set_results = utf8mb4 */;
-/*!50003 SET collation_connection = utf8mb4_unicode_ci */;
-/*!50003 SET @saved_sql_mode = @@sql_mode */;
-/*!50003 SET sql_mode = 'STRICT_TRANS_TABLES,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */;
-DELIMITER ;;
-CREATE FUNCTION `streak_billboard_track_scrobbles`(bill_id bigint(20)) RETURNS int(11)
-    DETERMINISTIC
-    RETURN
-        (WITH
-             RECURSIVE
-             cte (week_id, artist_id, guild_id, track_name) AS
-                 (SELECT
-                      week_id,
-                      artist_id,
-                      guild_id,
-                      track_name
-                  FROM
-                      weekly_billboard_scrobbles
-                  WHERE
-                      id = bill_id
-                  UNION ALL
-                  SELECT
-                      b.week_id,
-                      b.artist_id,
-                      b.guild_id,
-                      b.track_name
-                  FROM
-                      cte t
-                          JOIN weekly_billboard_scrobbles b ON b.week_id = t.week_id - 1
-                          AND t.artist_id = b.artist_id
-                          AND t.guild_id = b.guild_id
-                          AND t.track_name = b.track_name)
-         SELECT
-             COUNT(*)
-         FROM
-             cte) ;;
-DELIMITER ;
-/*!50003 SET sql_mode = @saved_sql_mode */;
-/*!50003 SET character_set_client = @saved_cs_client */;
-/*!50003 SET character_set_results = @saved_cs_results */;
-/*!50003 SET collation_connection = @saved_col_connection */;
-/*!50003 DROP FUNCTION IF EXISTS `streak_global_billboard_album_listeners` */;
-/*!50003 SET @saved_cs_client = @@character_set_client */;
-/*!50003 SET @saved_cs_results = @@character_set_results */;
-/*!50003 SET @saved_col_connection = @@collation_connection */;
-/*!50003 SET character_set_client = utf8mb4 */;
-/*!50003 SET character_set_results = utf8mb4 */;
-/*!50003 SET collation_connection = utf8mb4_unicode_ci */;
-/*!50003 SET @saved_sql_mode = @@sql_mode */;
-/*!50003 SET sql_mode = 'STRICT_TRANS_TABLES,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */;
-DELIMITER ;;
-CREATE FUNCTION `streak_global_billboard_album_listeners`(bill_id bigint(20)) RETURNS int(11)
-    DETERMINISTIC
-    RETURN
-        (WITH
-             RECURSIVE
-             cte (week_id, artist_id, album_name) AS
-                 (SELECT
-                      week_id,
-                      artist_id,
-                      album_name
-                  FROM
-                      weekly_billboard_album_global_listeners
-                  WHERE
-                      id = bill_id
-                  UNION ALL
-                  SELECT
-                      b.week_id,
-                      b.artist_id,
-                      b.album_name
-                  FROM
-                      cte t
-                          JOIN weekly_billboard_album_global_listeners b ON b.week_id = t.week_id - 1
-                          AND t.artist_id = b.artist_id
-                          AND t.album_name = b.album_name)
-         SELECT
-             COUNT(*)
-         FROM
-             cte) ;;
-DELIMITER ;
-/*!50003 SET sql_mode = @saved_sql_mode */;
-/*!50003 SET character_set_client = @saved_cs_client */;
-/*!50003 SET character_set_results = @saved_cs_results */;
-/*!50003 SET collation_connection = @saved_col_connection */;
-/*!50003 DROP FUNCTION IF EXISTS `streak_global_billboard_album_scrobbles` */;
-/*!50003 SET @saved_cs_client = @@character_set_client */;
-/*!50003 SET @saved_cs_results = @@character_set_results */;
-/*!50003 SET @saved_col_connection = @@collation_connection */;
-/*!50003 SET character_set_client = utf8mb4 */;
-/*!50003 SET character_set_results = utf8mb4 */;
-/*!50003 SET collation_connection = utf8mb4_unicode_ci */;
-/*!50003 SET @saved_sql_mode = @@sql_mode */;
-/*!50003 SET sql_mode = 'STRICT_TRANS_TABLES,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */;
-DELIMITER ;;
-CREATE FUNCTION `streak_global_billboard_album_scrobbles`(bill_id bigint(20)) RETURNS int(11)
-    DETERMINISTIC
-    RETURN
-        (WITH
-             RECURSIVE
-             cte (week_id, artist_id, album_name) AS
-                 (SELECT
-                      week_id,
-                      artist_id,
-                      album_name
-                  FROM
-                      weekly_billboard_album_global_scrobbles
-                  WHERE
-                      id = bill_id
-                  UNION ALL
-                  SELECT
-                      b.week_id,
-                      b.artist_id,
-                      b.album_name
-                  FROM
-                      cte t
-                          JOIN weekly_billboard_album_global_scrobbles b ON b.week_id = t.week_id - 1
-                          AND t.artist_id = b.artist_id
-                          AND t.album_name = b.album_name)
-         SELECT
-             COUNT(*)
-         FROM
-             cte) ;;
-DELIMITER ;
-/*!50003 SET sql_mode = @saved_sql_mode */;
-/*!50003 SET character_set_client = @saved_cs_client */;
-/*!50003 SET character_set_results = @saved_cs_results */;
-/*!50003 SET collation_connection = @saved_col_connection */;
-/*!50003 DROP FUNCTION IF EXISTS `streak_global_billboard_artist` */;
-/*!50003 SET @saved_cs_client = @@character_set_client */;
-/*!50003 SET @saved_cs_results = @@character_set_results */;
-/*!50003 SET @saved_col_connection = @@collation_connection */;
-/*!50003 SET character_set_client = utf8mb4 */;
-/*!50003 SET character_set_results = utf8mb4 */;
-/*!50003 SET collation_connection = utf8mb4_unicode_ci */;
-/*!50003 SET @saved_sql_mode = @@sql_mode */;
-/*!50003 SET sql_mode = 'STRICT_TRANS_TABLES,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */;
-DELIMITER ;;
-CREATE FUNCTION `streak_global_billboard_artist`(bill_id bigint(20)) RETURNS int(11)
-    DETERMINISTIC
-    RETURN
-        (WITH
-             RECURSIVE
-             cte (week_id, artist_id) AS
-                 (SELECT
-                      week_id,
-                      artist_id
-                  FROM
-                      weekly_billboard_artist_global_listeners
-                  WHERE
-                      id = bill_id
-                  UNION ALL
-                  SELECT
-                      b.week_id,
-                      b.artist_id
-                  FROM
-                      cte t
-                          JOIN weekly_billboard_artist_global_listeners b ON b.week_id = t.week_id - 1
-                          AND t.artist_id = b.artist_id)
-         SELECT
-             COUNT(*)
-         FROM
-             cte) ;;
-DELIMITER ;
-/*!50003 SET sql_mode = @saved_sql_mode */;
-/*!50003 SET character_set_client = @saved_cs_client */;
-/*!50003 SET character_set_results = @saved_cs_results */;
-/*!50003 SET collation_connection = @saved_col_connection */;
-/*!50003 DROP FUNCTION IF EXISTS `streak_global_billboard_artist_scrobbles` */;
-/*!50003 SET @saved_cs_client = @@character_set_client */;
-/*!50003 SET @saved_cs_results = @@character_set_results */;
-/*!50003 SET @saved_col_connection = @@collation_connection */;
-/*!50003 SET character_set_client = utf8mb4 */;
-/*!50003 SET character_set_results = utf8mb4 */;
-/*!50003 SET collation_connection = utf8mb4_unicode_ci */;
-/*!50003 SET @saved_sql_mode = @@sql_mode */;
-/*!50003 SET sql_mode = 'STRICT_TRANS_TABLES,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */;
-DELIMITER ;;
-CREATE FUNCTION `streak_global_billboard_artist_scrobbles`(bill_id bigint(20)) RETURNS int(11)
-    DETERMINISTIC
-    RETURN
-        (WITH
-             RECURSIVE
-             cte (week_id, artist_id) AS
-                 (SELECT
-                      week_id,
-                      artist_id
-                  FROM
-                      weekly_billboard_artist_global_scrobbles
-                  WHERE
-                      id = bill_id
-                  UNION ALL
-                  SELECT
-                      b.week_id,
-                      b.artist_id
-                  FROM
-                      cte t
-                          JOIN weekly_billboard_artist_global_scrobbles b ON b.week_id = t.week_id - 1
-                          AND t.artist_id = b.artist_id
-                 )
-         SELECT
-             COUNT(*)
-         FROM
-             cte) ;;
-DELIMITER ;
-/*!50003 SET sql_mode = @saved_sql_mode */;
-/*!50003 SET character_set_client = @saved_cs_client */;
-/*!50003 SET character_set_results = @saved_cs_results */;
-/*!50003 SET collation_connection = @saved_col_connection */;
-/*!50003 DROP FUNCTION IF EXISTS `streak_global_billboard_track` */;
-/*!50003 SET @saved_cs_client = @@character_set_client */;
-/*!50003 SET @saved_cs_results = @@character_set_results */;
-/*!50003 SET @saved_col_connection = @@collation_connection */;
-/*!50003 SET character_set_client = utf8mb4 */;
-/*!50003 SET character_set_results = utf8mb4 */;
-/*!50003 SET collation_connection = utf8mb4_unicode_ci */;
-/*!50003 SET @saved_sql_mode = @@sql_mode */;
-/*!50003 SET sql_mode = 'STRICT_TRANS_TABLES,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */;
-DELIMITER ;;
-CREATE FUNCTION `streak_global_billboard_track`(bill_id bigint(20)) RETURNS int(11)
-    DETERMINISTIC
-    RETURN
-        (WITH
-             RECURSIVE
-             cte (week_id, artist_id, track_name) AS
-                 (SELECT
-                      week_id,
-                      artist_id,
-                      track_name
-                  FROM
-                      weekly_billboard_global_listeners
-                  WHERE
-                      id = bill_id
-                  UNION ALL
-                  SELECT
-                      b.week_id,
-                      b.artist_id,
-                      b.track_name
-                  FROM
-                      cte t
-                          JOIN weekly_billboard_global_listeners b ON b.week_id = t.week_id - 1
-                          AND t.artist_id = b.artist_id
-                          AND t.track_name = b.track_name)
-         SELECT
-             COUNT(*)
-         FROM
-             cte) ;;
-DELIMITER ;
-/*!50003 SET sql_mode = @saved_sql_mode */;
-/*!50003 SET character_set_client = @saved_cs_client */;
-/*!50003 SET character_set_results = @saved_cs_results */;
-/*!50003 SET collation_connection = @saved_col_connection */;
-/*!40103 SET TIME_ZONE = "+00:00" */;
+
 
 -- /*!40101 SET CHARACTER_SET_CLIENT = @OLD_CHARACTER_SET_CLIENT */;
 -- /*!40101 SET CHARACTER_SET_RESULTS = @OLD_CHARACTER_SET_RESULTS */;
@@ -1728,3 +1022,353 @@ DELIMITER ;
 -- /*!40111 SET SQL_NOTES = @OLD_SQL_NOTES */;
 
 -- Dump completed on 2021-01-25 22:40:27
+
+--changeset aaa endDelimiter:/
+--ignoreLines:1
+DELIMITER /
+CREATE FUNCTION `streak_billboard_album_listeners`(bill_id bigint(20)) RETURNS int(11)
+    DETERMINISTIC
+    RETURN
+            (WITH
+                 RECURSIVE cte (week_id, artist_id, guild_id, album_name) AS
+                               (SELECT week_id,
+                                       artist_id,
+                                       guild_id,
+                                       album_name
+                                FROM weekly_billboard_album_listeners
+                                WHERE id = bill_id
+                                UNION ALL
+                                SELECT b.week_id,
+                                       b.artist_id,
+                                       b.guild_id,
+                                       b.album_name
+                                FROM cte t
+                                         JOIN weekly_billboard_album_listeners b ON b.week_id = t.week_id - 1
+                                    AND t.artist_id = b.artist_id
+                                    AND t.guild_id = b.guild_id
+                                    AND t.album_name = b.album_name)
+             SELECT COUNT(*)
+             FROM cte) /
+CREATE FUNCTION `streak_billboard_album_scrobbles`(bill_id bigint(20)) RETURNS int(11)
+    DETERMINISTIC
+    RETURN
+            (WITH
+                 RECURSIVE cte (week_id, artist_id, guild_id, album_name) AS
+                               (SELECT week_id,
+                                       artist_id,
+                                       guild_id,
+                                       album_name
+                                FROM weekly_billboard_album_scrobbles
+                                WHERE id = bill_id
+                                UNION ALL
+                                SELECT b.week_id,
+                                       b.artist_id,
+                                       b.guild_id,
+                                       b.album_name
+                                FROM cte t
+                                         JOIN weekly_billboard_album_scrobbles b ON b.week_id = t.week_id - 1
+                                    AND t.artist_id = b.artist_id
+                                    AND t.guild_id = b.guild_id
+                                    AND t.album_name = b.album_name)
+             SELECT COUNT(*)
+             FROM cte) /
+CREATE FUNCTION `streak_billboard_artist`(bill_id bigint(20)) RETURNS int(11)
+    DETERMINISTIC
+    RETURN
+            (WITH
+                 RECURSIVE cte (week_id, artist_id, guild_id) AS
+                               (SELECT week_id,
+                                       artist_id,
+                                       guild_id
+                                FROM weekly_billboard_artist_listeners
+                                WHERE id = bill_id
+                                UNION ALL
+                                SELECT b.week_id,
+                                       b.artist_id,
+                                       b.guild_id
+                                FROM cte t
+                                         JOIN weekly_billboard_artist_listeners b ON b.week_id = t.week_id - 1
+                                    AND t.artist_id = b.artist_id
+                                    AND t.guild_id = b.guild_id)
+             SELECT COUNT(*)
+             FROM cte) /
+CREATE FUNCTION `streak_billboard_artist_scrobbles`(bill_id bigint(20)) RETURNS int(11)
+    DETERMINISTIC
+    RETURN
+            (WITH
+                 RECURSIVE cte (week_id, artist_id, guild_id) AS
+                               (SELECT week_id,
+                                       artist_id,
+                                       guild_id
+                                FROM weekly_billboard_artist_scrobbles
+                                WHERE id = bill_id
+                                UNION ALL
+                                SELECT b.week_id,
+                                       b.artist_id,
+                                       b.guild_id
+                                FROM cte t
+                                         JOIN weekly_billboard_artist_scrobbles b ON b.week_id = t.week_id - 1
+                                    AND t.artist_id = b.artist_id
+                                    AND t.guild_id = b.guild_id)
+             SELECT COUNT(*)
+             FROM cte) /
+CREATE FUNCTION `streak_billboard_global_track_scrobbles`(bill_id bigint(20)) RETURNS int(11)
+    DETERMINISTIC
+    RETURN
+            (WITH
+                 RECURSIVE cte (week_id, artist_id, track_name) AS
+                               (SELECT week_id,
+                                       artist_id,
+                                       track_name
+                                FROM weekly_billboard_global_scrobbles
+                                WHERE id = bill_id
+                                UNION ALL
+                                SELECT b.week_id,
+                                       b.artist_id,
+                                       b.track_name
+                                FROM cte t
+                                         JOIN weekly_billboard_global_scrobbles b ON b.week_id = t.week_id - 1
+                                    AND t.artist_id = b.artist_id
+                                    AND t.track_name = b.track_name)
+             SELECT COUNT(*)
+             FROM cte) /
+CREATE FUNCTION `streak_billboard_track`(bill_id bigint(20)) RETURNS int(11)
+    DETERMINISTIC
+    RETURN
+            (WITH
+                 RECURSIVE cte (week_id, artist_id, guild_id, track_name) AS
+                               (SELECT week_id,
+                                       artist_id,
+                                       guild_id,
+                                       track_name
+                                FROM weekly_billboard_listeners
+                                WHERE id = bill_id
+                                UNION ALL
+                                SELECT b.week_id,
+                                       b.artist_id,
+                                       b.guild_id,
+                                       b.track_name
+                                FROM cte t
+                                         JOIN weekly_billboard_listeners b ON b.week_id = t.week_id - 1
+                                    AND t.artist_id = b.artist_id
+                                    AND t.guild_id = b.guild_id
+                                    AND t.track_name = b.track_name)
+             SELECT COUNT(*)
+             FROM cte) /
+CREATE FUNCTION `streak_billboard_track_scrobbles`(bill_id bigint(20)) RETURNS int(11)
+    DETERMINISTIC
+    RETURN
+            (WITH
+                 RECURSIVE cte (week_id, artist_id, guild_id, track_name) AS
+                               (SELECT week_id,
+                                       artist_id,
+                                       guild_id,
+                                       track_name
+                                FROM weekly_billboard_scrobbles
+                                WHERE id = bill_id
+                                UNION ALL
+                                SELECT b.week_id,
+                                       b.artist_id,
+                                       b.guild_id,
+                                       b.track_name
+                                FROM cte t
+                                         JOIN weekly_billboard_scrobbles b ON b.week_id = t.week_id - 1
+                                    AND t.artist_id = b.artist_id
+                                    AND t.guild_id = b.guild_id
+                                    AND t.track_name = b.track_name)
+             SELECT COUNT(*)
+             FROM cte) /
+CREATE FUNCTION `streak_global_billboard_album_listeners`(bill_id bigint(20)) RETURNS int(11)
+    DETERMINISTIC
+    RETURN
+            (WITH
+                 RECURSIVE cte (week_id, artist_id, album_name) AS
+                               (SELECT week_id,
+                                       artist_id,
+                                       album_name
+                                FROM weekly_billboard_album_global_listeners
+                                WHERE id = bill_id
+                                UNION ALL
+                                SELECT b.week_id,
+                                       b.artist_id,
+                                       b.album_name
+                                FROM cte t
+                                         JOIN weekly_billboard_album_global_listeners b ON b.week_id = t.week_id - 1
+                                    AND t.artist_id = b.artist_id
+                                    AND t.album_name = b.album_name)
+             SELECT COUNT(*)
+             FROM cte) /
+CREATE FUNCTION `streak_global_billboard_album_scrobbles`(bill_id bigint(20)) RETURNS int(11)
+    DETERMINISTIC
+    RETURN
+            (WITH
+                 RECURSIVE cte (week_id, artist_id, album_name) AS
+                               (SELECT week_id,
+                                       artist_id,
+                                       album_name
+                                FROM weekly_billboard_album_global_scrobbles
+                                WHERE id = bill_id
+                                UNION ALL
+                                SELECT b.week_id,
+                                       b.artist_id,
+                                       b.album_name
+                                FROM cte t
+                                         JOIN weekly_billboard_album_global_scrobbles b ON b.week_id = t.week_id - 1
+                                    AND t.artist_id = b.artist_id
+                                    AND t.album_name = b.album_name)
+             SELECT COUNT(*)
+             FROM cte) /
+CREATE FUNCTION `streak_global_billboard_artist`(bill_id bigint(20)) RETURNS int(11)
+    DETERMINISTIC
+    RETURN
+            (WITH
+                 RECURSIVE cte (week_id, artist_id) AS
+                               (SELECT week_id,
+                                       artist_id
+                                FROM weekly_billboard_artist_global_listeners
+                                WHERE id = bill_id
+                                UNION ALL
+                                SELECT b.week_id,
+                                       b.artist_id
+                                FROM cte t
+                                         JOIN weekly_billboard_artist_global_listeners b ON b.week_id = t.week_id - 1
+                                    AND t.artist_id = b.artist_id)
+             SELECT COUNT(*)
+             FROM cte) /
+CREATE FUNCTION `streak_global_billboard_artist_scrobbles`(bill_id bigint(20)) RETURNS int(11)
+    DETERMINISTIC
+    RETURN
+            (WITH
+                 RECURSIVE cte (week_id, artist_id) AS
+                               (SELECT week_id,
+                                       artist_id
+                                FROM weekly_billboard_artist_global_scrobbles
+                                WHERE id = bill_id
+                                UNION ALL
+                                SELECT b.week_id,
+                                       b.artist_id
+                                FROM cte t
+                                         JOIN weekly_billboard_artist_global_scrobbles b ON b.week_id = t.week_id - 1
+                                    AND t.artist_id = b.artist_id)
+             SELECT COUNT(*)
+             FROM cte) /
+CREATE FUNCTION `streak_global_billboard_track`(bill_id bigint(20)) RETURNS int(11)
+    DETERMINISTIC
+    RETURN
+            (WITH
+                 RECURSIVE cte (week_id, artist_id, track_name) AS
+                               (SELECT week_id,
+                                       artist_id,
+                                       track_name
+                                FROM weekly_billboard_global_listeners
+                                WHERE id = bill_id
+                                UNION ALL
+                                SELECT b.week_id,
+                                       b.artist_id,
+                                       b.track_name
+                                FROM cte t
+                                         JOIN weekly_billboard_global_listeners b ON b.week_id = t.week_id - 1
+                                    AND t.artist_id = b.artist_id
+                                    AND t.track_name = b.track_name)
+             SELECT COUNT(*)
+             FROM cte) /
+
+CREATE TRIGGER IF NOT EXISTS alt_url_delete
+    AFTER DELETE
+    ON alt_url
+    FOR EACH ROW
+BEGIN
+    IF (old.url = (SELECT url FROM artist WHERE id = old.artist_id)) THEN
+        UPDATE artist
+        SET url = (SELECT url FROM alt_url WHERE alt_url.artist_id = old.artist_id ORDER BY alt_url.score DESC LIMIT 1)
+        WHERE id = old.artist_id;
+    END IF;
+END /
+
+CREATE TRIGGER vote_add
+    AFTER INSERT
+    ON vote
+    FOR EACH ROW
+BEGIN
+    UPDATE alt_url SET score = score + IF(new.ispositive, 1, -1) WHERE id = new.alt_id;
+END /
+CREATE TRIGGER vote_update
+    AFTER UPDATE
+    ON vote
+    FOR EACH ROW
+BEGIN
+    SET @new_value = 0;
+    IF (old.ispositive AND NOT new.ispositive) THEN
+        SET @new_value = -2;
+    ELSEIF (NOT old.ispositive AND new.ispositive) THEN
+        SET @new_value = 2;
+    END IF;
+    IF (@new_value != 0) THEN
+        UPDATE alt_url SET score = score + @new_value WHERE id = new.alt_id;
+    END IF;
+END /
+CREATE TRIGGER vote_delete
+    AFTER DELETE
+    ON vote
+    FOR EACH ROW
+BEGIN
+    SET @new_value = 0;
+    IF (old.ispositive) THEN
+        SET @new_value = -1;
+    ELSE
+        SET @new_value = 1;
+    END IF;
+    UPDATE alt_url SET score = score + @new_value WHERE id = old.alt_id;
+
+END /
+
+
+CREATE PROCEDURE insert_weeks()
+BEGIN
+    SET @t_current = date(curdate() - INTERVAL weekday(curdate()) DAY);
+    SET @t_end = DATE_ADD(date(curdate() - INTERVAL weekday(curdate()) DAY), INTERVAL 5 YEAR);
+    WHILE(@t_current < @t_end)
+        DO
+            INSERT INTO week(week_start) VALUES (@t_current);
+            SET @t_current = DATE_ADD(@t_current, INTERVAL 7 DAY);
+        END WHILE;
+END /
+
+
+
+CALL insert_weeks() /
+
+
+/*!50003 CREATE TRIGGER IF NOT EXISTS alt_url_insert
+    AFTER INSERT
+    ON alt_url
+    FOR EACH ROW
+BEGIN
+    IF ((SELECT url FROM artist WHERE id = new.artist_id) IS NULL) OR
+       (new.score > (SELECT MAX(alt_url.score) FROM alt_url WHERE artist_id = new.artist_id))
+    THEN
+        UPDATE artist SET url = new.url WHERE id = new.artist_id;
+    END IF;
+END *//
+/*!50003 CREATE TRIGGER IF NOT EXISTS alt_url_update
+    AFTER UPDATE
+    ON alt_url
+    FOR EACH ROW
+BEGIN
+    DECLARE current_score int;
+    DECLARE current_url varchar(400);
+
+    SET current_score = (SELECT MAX(a.score)
+                         FROM alt_url a
+                         WHERE a.artist_id = new.artist_id);
+    SET current_url = (SELECT a.url
+                       FROM alt_url a
+                       WHERE a.artist_id = new.artist_id
+                       ORDER BY score DESC
+                       LIMIT 1);
+    IF ((SELECT url FROM artist b WHERE b.id = new.artist_id) = new.url) AND (new.score < current_score) THEN
+        UPDATE artist SET url = current_url WHERE id = new.artist_id;
+    ELSEIF (new.score >= current_score) THEN
+        UPDATE artist SET url = new.url WHERE id = new.artist_id;
+    END IF;
+END *//

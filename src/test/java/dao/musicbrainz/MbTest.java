@@ -7,7 +7,7 @@ import dao.entities.AlbumInfo;
 import dao.entities.FullAlbumEntity;
 import dao.entities.Genre;
 import dao.entities.LastFMData;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.time.Year;
 import java.util.ArrayList;

@@ -4,7 +4,6 @@ import dao.entities.TriFunction;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.MessageHistory;
-import org.junit.Assert;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,6 +12,7 @@ import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 
 public class EmbedTester {
@@ -33,7 +33,7 @@ public class EmbedTester {
         if (string != null) {
             if (regex != null) {
                 Matcher matcher = regex.matcher(string);
-                Assert.assertTrue(matcher.matches());
+                assertThat(matcher.matches()).isTrue();
                 if (matcherPredicate != null) {
                     return matcherPredicate.test(matcher);
                 }
@@ -80,9 +80,9 @@ public class EmbedTester {
             MessageEmbed messageEmbed = message.getEmbeds().get(0);
             MessageEmbed.Footer footer = messageEmbed.getFooter();
 
-            Assert.assertTrue(internalFunction
-                    .apply(footer == null ? null : footer.getText(), footerPatern, footerMatch));
-            Assert.assertTrue(internalFunction.apply(messageEmbed.getTitle(), titlePattern, titleMatch));
+            assertThat(internalFunction
+                    .apply(footer == null ? null : footer.getText(), footerPatern, footerMatch)).isTrue();
+            assertThat(internalFunction.apply(messageEmbed.getTitle(), titlePattern, titleMatch)).isTrue();
 
             String description = messageEmbed.getDescription();
 
@@ -90,15 +90,15 @@ public class EmbedTester {
                 description = description.replaceAll("\\*", "");
                 String[] split = description.split("\n");
                 for (String s : split) {
-                    Assert.assertTrue(internalFunction.apply(s, descriptionPattern, descriptionMatch));
+                    assertThat(internalFunction.apply(s, descriptionPattern, descriptionMatch)).isTrue();
                 }
             }
 
             if (hasThumbnail) {
                 if (messageEmbed.getThumbnail() == null) {
-                    Assert.assertNull(thumbnailUrl);
+                    assertThat(thumbnailUrl).isNull();
                 } else {
-                    Assert.assertEquals(messageEmbed.getThumbnail().getUrl(), thumbnailUrl);
+                    assertThat(messageEmbed.getThumbnail().getUrl()).isEqualTo(thumbnailUrl);
                 }
             }
             if (fieldRowMatcher != null) {
@@ -117,12 +117,12 @@ public class EmbedTester {
                         }
                     }
                 }
-                Assert.assertEquals(0, fields.size());
-                Assert.assertEquals(0, localFieldRowMatcher.size());
+                assertThat(fields).hasSize(0);
+                assertThat(localFieldRowMatcher).hasSize(0);
             }
 
         } else {
-            Assert.assertTrue(internalFunction.apply(message.getContentStripped(), noEmbbed, noEmbbedMatcher));
+            assertThat(internalFunction.apply(message.getContentStripped(), noEmbbed, noEmbbedMatcher)).isTrue();
         }
 
 

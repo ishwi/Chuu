@@ -1,6 +1,5 @@
 package core.parsers;
 
-import core.apis.ExecutorsSingleton;
 import core.apis.last.ConcurrentLastFM;
 import core.commands.Context;
 import core.exceptions.LastFmException;
@@ -8,6 +7,7 @@ import core.parsers.params.MultipleGenresParameters;
 import core.parsers.utils.OptionalEntity;
 import core.services.NPService;
 import core.services.tags.TagStorer;
+import core.util.ChuuVirtualPool;
 import dao.ChuuService;
 import dao.entities.LastFMData;
 import dao.entities.NowPlayingArtist;
@@ -20,14 +20,12 @@ import java.util.concurrent.ExecutorService;
 
 public class MultipleGenresParser extends MultiStringParser<MultipleGenresParameters> {
     private final ConcurrentLastFM lastFM;
-    private final ExecutorService executor;
+    private final ExecutorService executor = ChuuVirtualPool.of("genre-parser");
 
 
     public MultipleGenresParser(ChuuService dao, ConcurrentLastFM lastFM, OptionalEntity... opts) {
         super(dao, "genre", "genres", opts);
         this.lastFM = lastFM;
-        executor = ExecutorsSingleton.getInstance();
-
     }
 
     @Override
@@ -44,7 +42,7 @@ public class MultipleGenresParser extends MultiStringParser<MultipleGenresParame
         List<String> tags = new TagStorer(dao, lastFM, executor, nowPlayingInfo).findTags();
         if (tags.isEmpty()) {
             sendError("Was not able to find any tags on your now playing song/album/artist: "
-                            + String.format("%s - %s | %s", nowPlayingInfo.artistName(), nowPlayingInfo.songName(), nowPlayingInfo.albumName())
+                      + String.format("%s - %s | %s", nowPlayingInfo.artistName(), nowPlayingInfo.songName(), nowPlayingInfo.albumName())
                     , e);
             return null;
         }

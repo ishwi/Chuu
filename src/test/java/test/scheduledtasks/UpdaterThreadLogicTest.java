@@ -5,9 +5,9 @@ import core.apis.last.ConcurrentLastFM;
 import core.apis.spotify.Spotify;
 import dao.ChuuService;
 import dao.MbizDatasource;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -20,7 +20,7 @@ public class UpdaterThreadLogicTest {
     private ConcurrentLastFM lastFM;
     private MbizDatasource dataSource;
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         dao.removeUserCompletely(1L);
         try (Connection connection = dataSource.getConnection()) {
@@ -33,7 +33,7 @@ public class UpdaterThreadLogicTest {
 
     }
 
-    @Before
+    @BeforeEach
     public void setUp() {
 
     }

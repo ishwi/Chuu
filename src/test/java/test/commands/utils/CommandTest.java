@@ -1,11 +1,10 @@
 package test.commands.utils;
 
-import org.junit.ClassRule;
-import org.junit.rules.TestRule;
+import org.junit.jupiter.api.extension.ExtendWith;
 
+@ExtendWith(TestResources.class)
 public abstract class CommandTest {
-    @ClassRule
-    public static final TestRule res = TestResources.INSTANCE;
+
     public final String COMMAND_ALIAS;
 
     public CommandTest() {

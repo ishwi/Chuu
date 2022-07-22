@@ -56,7 +56,14 @@ dependencies {
 //    implementation group: 'mysql', name: 'mysql-connector-java', version: '8.0.25'
 
     testImplementation 'org.mockito:mockito-core:4.6.1'
-    testImplementation('org.junit.jupiter:junit-jupiter:5.9.0-M1')
+    testImplementation 'org.assertj:assertj-core:3.23.1'
+    // https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-engine
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.8.2'
+
+    testImplementation "org.testcontainers:testcontainers:1.17.3"
+    testImplementation "org.testcontainers:junit-jupiter:1.17.3"
+    testImplementation "org.testcontainers:mariadb:1.17.3"
+
 // https://mvnrepository.com/artifact/org.mariadb.jdbc/mariadb-java-client
     liquibaseRuntime 'org.mariadb.jdbc:mariadb-java-client:3.0.6'
 
@@ -95,6 +102,7 @@ compileTestJava {
     options.compilerArgs += ["-Xlint:deprecation", "--enable-preview"]
 
 }
+
 
 test {
     useJUnitPlatform()

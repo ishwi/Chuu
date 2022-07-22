@@ -2,8 +2,7 @@ package test.commands;
 
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageHistory;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import test.commands.parsers.NullReturnParsersTest;
 import test.commands.utils.CommandTest;
 import test.commands.utils.TestResources;
@@ -14,6 +13,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 import static test.commands.utils.TestResources.channelWorker;
 
@@ -65,6 +65,6 @@ public class SetCommandTest extends CommandTest {
         List<Message> retrievedHistory = new ArrayList<>(channelWorker.getHistoryAfter(id, 20).complete()
                 .getRetrievedHistory());
         retrievedHistory.removeIf(x -> messages.contains(x.getContentStripped()));
-        Assert.assertTrue(retrievedHistory.isEmpty());
+        assertThat(retrievedHistory.isEmpty()).isTrue();
     }
 }

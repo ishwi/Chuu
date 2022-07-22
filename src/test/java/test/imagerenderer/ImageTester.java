@@ -10,8 +10,8 @@ import core.commands.utils.CommandUtil;
 import core.exceptions.LastFmException;
 import dao.ChuuService;
 import dao.entities.*;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -41,7 +41,7 @@ public class ImageTester {
     private final Map<String, Long> dbIdMap = new HashMap<>();
     TemporalField weekOfYear = WeekFields.of(Locale.getDefault()).weekOfYear();
 
-    @BeforeClass
+    @BeforeAll
     public static void beforeClass() throws Exception {
         Properties properties = readToken();
         service = new ChuuService(null);

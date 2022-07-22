@@ -97,7 +97,7 @@ public class GenreAlbumsCommands extends ChartableCommand<ChartableGenreParamete
             ArrayList<UrlCapsule> c = new ArrayList<>(queue);
             albums = c.stream()
                     .filter(x -> x.getMbid() != null
-                            && !x.getMbid().isBlank()
+                                 && !x.getMbid().isBlank()
                     )
                     .map(x -> new AlbumInfo(x.getMbid()))
                     .filter(o -> !albumInfos.contains(o))
@@ -111,8 +111,8 @@ public class GenreAlbumsCommands extends ChartableCommand<ChartableGenreParamete
                     .limit((long) params.getX() * params.getY())
                     .collect(Collectors.toCollection(LinkedBlockingQueue::new));
 
-            executor.submit(
-                    new TagAlbumService(db, lastFM, outerQueue.stream().map(x -> new AlbumInfo(x.getMbid(), x.getAlbumName(), x.getArtistName())).toList(), genre));
+            CommandUtil.runLog((
+                    new TagAlbumService(db, lastFM, outerQueue.stream().map(x -> new AlbumInfo(x.getMbid(), x.getAlbumName(), x.getArtistName())).toList(), genre)));
         }
         return new CountWrapper<>(ranker.get(), outerQueue);
     }

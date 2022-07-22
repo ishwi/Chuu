@@ -26,6 +26,11 @@ repositories {
 
 }
 
+test {
+    useJUnitPlatform()
+    testLogging.showStandardStreams = true
+
+}
 
 apply plugin: 'java'
 apply plugin: 'idea'
@@ -120,15 +125,27 @@ dependencies {
 
 // https://mvnrepository.com/artifact/com.pholser/junit-quickcheck-core
     //a
-    testImplementation group: 'com.pholser', name: 'junit-quickcheck-core', version: '1.0'
+//    testImplementation group: 'com.pholser', name: 'junit-quickcheck-core', version: '1.0'
     testImplementation 'org.mockito:mockito-core:4.6.1'
-    testImplementation group: 'junit', name: 'junit', version: '4.13.2'
+// https://mvnrepository.com/artifact/org.assertj/assertj-core
+    testImplementation 'org.assertj:assertj-core:3.23.1'
+    // https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-engine
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.8.2'
+
+    testImplementation "org.testcontainers:testcontainers:1.17.3"
+    testImplementation "org.testcontainers:junit-jupiter:1.17.3"
+    testImplementation "org.testcontainers:mariadb:1.17.3"
+    testImplementation 'org.mariadb.jdbc:mariadb-java-client:3.0.6'
+    testImplementation 'org.liquibase:liquibase-core:4.11.0'
+    testImplementation group: 'org.yaml', name: 'snakeyaml', version: '1.30'
+
 
     testImplementation group: 'org.openjdk.jmh', name: 'jmh-core', version: '1.35'
     testAnnotationProcessor group: 'org.openjdk.jmh', name: 'jmh-generator-annprocess', version: '1.35'
 
 
 }
+
 
 tasks.withType(JavaCompile).configureEach {
     options.fork = true

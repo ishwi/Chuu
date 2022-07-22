@@ -2,14 +2,14 @@ package test.commands;
 
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageHistory;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import test.commands.parsers.NullReturnParsersTest;
 import test.commands.utils.CommandTest;
 import test.commands.utils.TestResources;
 
 import java.util.concurrent.TimeUnit;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 
 public class LogoCommandTest extends CommandTest {
@@ -37,7 +37,7 @@ public class LogoCommandTest extends CommandTest {
             return complete.getRetrievedHistory().size() == 1;
         });
         Message message = TestResources.channelWorker.getHistoryAfter(id, 20).complete().getRetrievedHistory().get(0);
-        Assert.assertEquals(message.getContentStripped(), "Logo updated");
+        assertThat("Logo updated").isEqualTo(message.getContentStripped());
     }
 
     @Test
@@ -49,7 +49,7 @@ public class LogoCommandTest extends CommandTest {
             return complete.getRetrievedHistory().size() == 1;
         });
         Message message = TestResources.channelWorker.getHistoryAfter(id, 20).complete().getRetrievedHistory().get(0);
-        Assert.assertEquals(message.getContentStripped(), "Removed logo from the server");
+        assertThat("Removed logo from the server").isEqualTo(message.getContentStripped());
     }
 
     @Test
@@ -61,8 +61,7 @@ public class LogoCommandTest extends CommandTest {
             return complete.getRetrievedHistory().size() == 1;
         });
         Message message = TestResources.channelWorker.getHistoryAfter(id, 20).complete().getRetrievedHistory().get(0);
-        Assert.assertEquals(message.getContentStripped(), "Error on TesterBot's request:\n" +
-                "Invalid url");
+        assertThat(message.getContentStripped()).isEqualTo("Error on TesterBot's request:\nInvalid url");
     }
 
     @Test
@@ -76,7 +75,7 @@ public class LogoCommandTest extends CommandTest {
             return complete.getRetrievedHistory().size() == 1;
         });
         Message message = TestResources.channelWorker.getHistoryAfter(id, 20).complete().getRetrievedHistory().get(0);
-        Assert.assertEquals(message.getContentStripped(), "Couldn't get an Image from link supplied");
+        assertThat("Couldn't get an Image from link supplied").isEqualTo(message.getContentStripped());
     }
 
 

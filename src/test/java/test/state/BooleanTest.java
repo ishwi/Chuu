@@ -1,7 +1,7 @@
 package test.state;
 
 import dao.entities.TriFunction;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Random;
 

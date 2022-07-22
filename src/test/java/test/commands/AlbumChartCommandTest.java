@@ -1,12 +1,15 @@
 package test.commands;
 
-import org.junit.Test;
+import core.commands.Context;
+import net.dv8tion.jda.api.events.GenericEvent;
+import org.junit.jupiter.api.Test;
+import test.commands.parsers.MessageGenerator;
 import test.commands.parsers.NullReturnParsersTest;
 import test.commands.utils.CommandTest;
 import test.commands.utils.ImageUtils;
-import test.commands.utils.OneLineUtils;
+import test.commands.utils.TestResources;
 
-import java.util.regex.Pattern;
+import java.util.concurrent.TimeUnit;
 
 public class AlbumChartCommandTest extends CommandTest {
 
@@ -35,15 +38,27 @@ public class AlbumChartCommandTest extends CommandTest {
         // 0x1 -> invalid
         // 1x0 -> invalid
         // MAX_INT x MAX_INT -> Valid but can take a bit of time
+        MessageGenerator.Tuple build = new MessageGenerator(COMMAND_ALIAS + " a 1x1").build();
+        Context result = build.result();
+        GenericEvent event = build.result().getEvent();
+        Thread.startVirtualThread(() -> {
+            try {
+                Object poll = build.receiver().poll(10, TimeUnit.SECONDS);
+                assert poll != null;
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        });
+        TestResources.callEvent(event);
 
 
-        ImageUtils.testImage(COMMAND_ALIAS + " a 1x1", 300, 300, ".png");
-        Pattern errorPattern = Pattern.compile("Error on (?:.*)'s request:\n" +
-                "0 is not a valid value for a chart!");
-
-        OneLineUtils.testCommands(COMMAND_ALIAS + " a 0x0", errorPattern);
-        OneLineUtils.testCommands(COMMAND_ALIAS + " a 0x1", errorPattern);
-        OneLineUtils.testCommands(COMMAND_ALIAS + " a 1x0", errorPattern);
+//        ImageUtils.testImage(COMMAND_ALIAS + " a 1x1", 300, 300, ".png");
+//        Pattern errorPattern = Pattern.compile("Error on (?:.*)'s request:\n" +
+//                                               "0 is not a valid value for a chart!");
+//
+//        OneLineUtils.testCommands(COMMAND_ALIAS + " a 0x0", errorPattern);
+//        OneLineUtils.testCommands(COMMAND_ALIAS + " a 0x1", errorPattern);
+//        OneLineUtils.testCommands(COMMAND_ALIAS + " a 1x0", errorPattern);
 
     }
 

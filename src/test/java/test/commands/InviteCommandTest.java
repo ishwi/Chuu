@@ -2,7 +2,7 @@ package test.commands;
 
 import core.Chuu;
 import dao.exceptions.ChuuServiceException;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import test.commands.utils.CommandTest;
 import test.commands.utils.OneLineUtils;
 

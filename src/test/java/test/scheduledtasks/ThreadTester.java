@@ -7,33 +7,30 @@ import dao.entities.ScrobbledArtist;
 import dao.entities.UpdaterStatus;
 import dao.entities.UpdaterUserWrapper;
 import dao.exceptions.InstanceNotFoundException;
-import org.junit.Assert;
-import org.junit.ClassRule;
-import org.junit.Test;
-import org.junit.rules.TestRule;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import test.commands.utils.TestResources;
 
 import java.util.Collections;
 import java.util.Set;
 
-public class ThreadTester {
-    @ClassRule
-    public static final TestRule res = TestResources.INSTANCE;
+import static org.assertj.core.api.Assertions.assertThat;
 
+@ExtendWith(TestResources.class)
+public class ThreadTester {
     @Test
     public void testIncremental() {
 
         UpdaterUserWrapper lessUpdated = TestResources.dao.getLessUpdated();
-        int timestampControl = lessUpdated.getTimestampControl();
         UpdaterThread updaterThread = new UpdaterThread(TestResources.dao, true);
         updaterThread.run();
         UpdaterUserWrapper lessUpdated2 = TestResources.dao.getLessUpdated();
         if (lessUpdated2.getLastFMName().equals(lessUpdated.getLastFMName())) {
-            Assert.assertTrue(lessUpdated2.getTimestampControl() > lessUpdated.getTimestampControl());
+            assertThat(lessUpdated2.getTimestampControl() > lessUpdated.getTimestampControl()).isFalse();
         } else {
             updaterThread.run();
             lessUpdated2 = TestResources.dao.getLessUpdated();
-            Assert.assertEquals(lessUpdated2.getLastFMName(), lessUpdated.getLastFMName());
+            assertThat(lessUpdated2.getLastFMName()).isEqualTo(lessUpdated.getLastFMName());
         }
 
 
@@ -53,8 +50,8 @@ public class ThreadTester {
 
         updaterThread.run();
         //After we run the thread the things that are not in last.fm should have dissapeared
-        Assert.assertEquals(0, TestResources.dao
-                .getArtistPlays(-1L, lessUpdated.getLastFMName()));
+        assertThat(TestResources.dao
+                .getArtistPlays(-1L, lessUpdated.getLastFMName())).isEqualTo(0);
 
     }
 
@@ -65,7 +62,7 @@ public class ThreadTester {
         imageUpdaterThread.run();
         for (ScrobbledArtist nullUrl : nullUrls) {
             UpdaterStatus updaterStatus = TestResources.dao.getUpdaterStatusByName(nullUrl.getArtist());
-            Assert.assertTrue(updaterStatus.getArtistUrl().equals("") || updaterStatus.getArtistUrl() != null);
+            assertThat(updaterStatus.getArtistUrl().equals("") || updaterStatus.getArtistUrl() != null).isFalse();
 
         }
     }
@@ -77,7 +74,7 @@ public class ThreadTester {
         spotifyUpdaterThread.run();
         for (ScrobbledArtist nullUrl : nullUrls) {
             UpdaterStatus updaterStatus = TestResources.dao.getUpdaterStatusByName(nullUrl.getArtist());
-            Assert.assertTrue(updaterStatus.getArtistUrl().equals("") || updaterStatus.getArtistUrl() != null);
+            assertThat(updaterStatus.getArtistUrl().equals("") || updaterStatus.getArtistUrl() != null).isFalse();
 
         }
     }

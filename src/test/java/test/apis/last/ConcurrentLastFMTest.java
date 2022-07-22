@@ -6,47 +6,37 @@ import core.exceptions.LastFMNoPlaysException;
 import core.exceptions.LastFMServiceException;
 import core.exceptions.LastFmEntityNotFoundException;
 import core.exceptions.LastFmException;
-import dao.entities.*;
-import org.junit.Assert;
-import org.junit.Test;
+import dao.entities.ArtistAlbums;
+import dao.entities.LastFMData;
+import dao.entities.TimeFrameEnum;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import java.time.Instant;
-import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.*;
 
 public class ConcurrentLastFMTest {
+    private static ConcurrentLastFM lastFM;
     private final String nonPlaysOnUser = "test3";
+
+    @BeforeAll
+    public static void init() {
+        lastFM = LastFMFactory.getNewInstance();
+    }
 
     @Test
     public void getAlbumsFromArtist() throws LastFmException {
-        ConcurrentLastFM lastFM = LastFMFactory.getNewInstance();
 
         try {
             ArtistAlbums artistAlbums = lastFM.getAlbumsFromArtist("cher", 10);
-            assertTrue("cher".equalsIgnoreCase(artistAlbums.getArtist()));
-            assertEquals(10, artistAlbums.getAlbumList().size());
+            assertThat("cher".equalsIgnoreCase(artistAlbums.getArtist())).isTrue();
+            assertThat(artistAlbums.getAlbumList()).hasSize(10);
 
             artistAlbums = lastFM.getAlbumsFromArtist("cherr", 10);
-            assertTrue("cher".equalsIgnoreCase(artistAlbums.getArtist()));
-            assertEquals(10, artistAlbums.getAlbumList().size());
+            assertThat("cher".equalsIgnoreCase(artistAlbums.getArtist())).isTrue();
+            assertThat(artistAlbums.getAlbumList()).hasSize(10);
 
-
-        } catch (LastFMServiceException ignored) {
-        }
-
-
-    }
-
-    @Test(expected = LastFmEntityNotFoundException.class)
-    public void EntityNotFound() throws LastFmException {
-        ConcurrentLastFM lastFM = LastFMFactory.getNewInstance();
-
-        try {
-            SecondsTimeFrameCount secondsTimeFrameCount = lastFM.getMinutesWastedOnMusic(LastFMData.ofUser("a8zm219xm1-09cu-"), TimeFrameEnum.WEEK);
-            int seconds = secondsTimeFrameCount.getSeconds();
-            int count = secondsTimeFrameCount.getCount();
 
         } catch (LastFMServiceException ignored) {
         }
@@ -55,97 +45,88 @@ public class ConcurrentLastFMTest {
     }
 
     @Test
-    public void getSeconds() throws LastFmException {
-        ConcurrentLastFM lastFM = LastFMFactory.getNewInstance();
+    public void EntityNotFound() {
+        assertThatThrownBy(() -> lastFM.getMinutesWastedOnMusic(LastFMData.ofUser("a8zm219xm1-09cu-"), TimeFrameEnum.WEEK))
+                .isInstanceOf(LastFmEntityNotFoundException.class);
 
-        try {
-            SecondsTimeFrameCount secondsTimeFrameCount = lastFM.getMinutesWastedOnMusic(LastFMData.ofUser("lukyfan"), TimeFrameEnum.WEEK);
-            int seconds = secondsTimeFrameCount.getSeconds();
-            int count = secondsTimeFrameCount.getCount();
 
-        } catch (LastFMServiceException ignored) {
-        }
+    }
+
+    @Test
+    public void getSeconds() {
+        assertThatCode(() -> lastFM.getMinutesWastedOnMusic(LastFMData.ofUser("lukyfan"), TimeFrameEnum.WEEK)).doesNotThrowAnyException();
 
 
     }
 
     @Test
     public void getTopArtistTracks() {
-        ConcurrentLastFM lastFM = LastFMFactory.getNewInstance();
-
-        try {
-            List<Track> secondsTimeFrameCount = lastFM.getTopArtistTracks(LastFMData.ofUser("lukyfan"), "Northlane", TimeFrameEnum.WEEK, "Northlane");
-
-        } catch (LastFmException ignored) {
-        }
+        assertThatCode(() -> lastFM.getTopArtistTracks(LastFMData.ofUser("lukyfan"), "Northlane", TimeFrameEnum.WEEK, "Northlane")).doesNotThrowAnyException();
     }
 
-    @Test(expected = LastFMNoPlaysException.class)
-    public void getIncrementalNonPLaysUser() throws LastFmException {
-        ConcurrentLastFM lastFM = LastFMFactory.getNewInstance();
-        lastFM.getWeeklyBillboard(LastFMData.ofUser(nonPlaysOnUser), 0, Integer.MAX_VALUE);
-    }
-
-    @Test(expected = LastFmEntityNotFoundException.class)
-    public void getIncrementalNonExistingUser() throws LastFmException {
-        ConcurrentLastFM lastFM = LastFMFactory.getNewInstance();
-        lastFM.getWeeklyBillboard(LastFMData.ofUser("iausdhiaushdnbiuasnbdiuasnbdiua"), 0, Integer.MAX_VALUE);
+    @Test()
+    public void getIncrementalNonPLaysUser() {
+        LastFMData user = LastFMData.ofUser(nonPlaysOnUser);
+        assertThatThrownBy(() -> lastFM.getWeeklyBillboard(user, 0, Integer.MAX_VALUE)).isInstanceOf(LastFMNoPlaysException.class);
 
     }
 
-    @Test(expected = LastFMNoPlaysException.class)
-    public void empty() throws LastFmException {
-        ConcurrentLastFM lastFM = LastFMFactory.getNewInstance();
-        var ishwaracoello = lastFM
-                .getWeeklyBillboard(LastFMData.ofUser("ishwaracoello"), (int) (Instant.now().getEpochSecond() + 4000), Integer.MAX_VALUE);
+    @Test()
+    public void getIncrementalNonExistingUser() {
+        LastFMData user = LastFMData.ofUser("iausdhiaushdnbiuasnbdiuasnbdiua");
+        assertThatThrownBy(() -> lastFM.getWeeklyBillboard(user, 0, Integer.MAX_VALUE)).isInstanceOf(LastFmEntityNotFoundException.class);
+
+    }
+
+    @Test()
+    public void empty() {
+        LastFMData user = LastFMData.ofUser("ishwaracoello");
+        assertThatThrownBy(() -> lastFM
+                .getWeeklyBillboard(user, (int) (Instant.now().getEpochSecond() + 4000), Integer.MAX_VALUE)).isInstanceOf(LastFMNoPlaysException.class);
     }
 
     //Will fail if I stop listening to music for 11 days
     @Test
     public void nonempty() throws LastFmException {
-        ConcurrentLastFM lastFM = LastFMFactory.getNewInstance();
         var ishwaracoello = lastFM
                 .getWeeklyBillboard(LastFMData.ofUser("ishwaracoello"), (int) (Instant.now().getEpochSecond() - 1000000), Integer.MAX_VALUE);
-        Assert.assertFalse(ishwaracoello.isEmpty());
+        assertThat(ishwaracoello.isEmpty()).isFalse();
     }
 
     @Test
     public void notExistingArtist() throws LastFmException {
-
-        ConcurrentLastFM lastFM = LastFMFactory.getNewInstance();
-        assertEquals(lastFM.getCorrection("aiusdhbniaubnscinabsiuc"), "aiusdhbniaubnscinabsiuc");
+        assertThat("aiusdhbniaubnscinabsiuc").isEqualTo(lastFM.getCorrection("aiusdhbniaubnscinabsiuc"));
 
     }
 
-    @Test(expected = LastFMNoPlaysException.class)
-    public void noPlaysExceptions5() throws LastFmException {
-        ConcurrentLastFM lastFM = LastFMFactory.getNewInstance();
-        lastFM.getListTopTrack(LastFMData.ofUser(nonPlaysOnUser), TimeFrameEnum.WEEK);
+    @Test
+    public void noPlaysExceptions5() {
+        LastFMData user = LastFMData.ofUser(nonPlaysOnUser);
+        assertThatThrownBy(() -> lastFM.getListTopTrack(user, TimeFrameEnum.WEEK)).isInstanceOf(LastFMNoPlaysException.class);
     }
 
-    @Test(expected = LastFMNoPlaysException.class)
-    public void noPlaysExceptions4() throws LastFmException {
-        ConcurrentLastFM lastFM = LastFMFactory.getNewInstance();
-        lastFM.getNowPlayingInfo(LastFMData.ofUser(nonPlaysOnUser));
+    @Test()
+    public void noPlaysExceptions4() {
+        LastFMData user = LastFMData.ofUser(nonPlaysOnUser);
+        assertThatThrownBy(() -> lastFM.getNowPlayingInfo(user)).isInstanceOf(LastFMNoPlaysException.class);
     }
 
-    @Test(expected = LastFMNoPlaysException.class)
-    public void noPlaysExceptions3() throws LastFmException {
-        ConcurrentLastFM lastFM = LastFMFactory.getNewInstance();
-        lastFM.getTracksAndTimestamps(LastFMData.ofUser(nonPlaysOnUser), (int) Instant.now().getEpochSecond(), (int) Instant.now()
-                .getEpochSecond() + 3);
+    @Test()
+    public void noPlaysExceptions3() {
+        LastFMData user = LastFMData.ofUser(nonPlaysOnUser);
+
+        assertThatThrownBy(() -> lastFM.getTracksAndTimestamps(user, (int) Instant.now().getEpochSecond(), (int) Instant.now()
+                .getEpochSecond() + 3)).isInstanceOf(LastFMNoPlaysException.class);
+
+
     }
 
-    @Test(expected = LastFMNoPlaysException.class)
-    public void noPlaysExceptions2() throws LastFmException {
-        ConcurrentLastFM lastFM = LastFMFactory.getNewInstance();
-        lastFM.getMinutesWastedOnMusicDaily(LastFMData.ofUser(nonPlaysOnUser), null, (int) Instant.now().getEpochSecond());
-    }
+    @Test()
+    public void noPlaysExceptions2() {
+        LastFMData user = LastFMData.ofUser(nonPlaysOnUser);
+        assertThatThrownBy(() -> lastFM.getMinutesWastedOnMusicDaily(user,
+                null, (int) Instant.now().getEpochSecond())).isInstanceOf(LastFMNoPlaysException.class);
 
-    @Test(expected = LastFMNoPlaysException.class)
-    public void noPlaysExceptions1() throws LastFmException {
-        ConcurrentLastFM lastFM = LastFMFactory.getNewInstance();
-        //lastFM.getChart(nonPlaysOnUser, TimeFrameEnum.WEEK.toApiFormat(), 1, 1, true, null);
     }
 
 

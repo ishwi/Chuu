@@ -1,8 +1,8 @@
 import dao.entities.TriConsumer;
 import dao.utils.SQLUtils;
 import org.apache.commons.collections4.Bag;
-import org.junit.Test;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.IntStream;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -51,9 +52,9 @@ public class BatchTest {
 
         SQLUtils.doBatches(mock, base, strings, mapPage, bindPerRow, additionalQuery);
 
-        Assertions.assertEquals(4, settedCount.get());
+        assertThat(settedCount.get()).isEqualTo(4);
         for (int i = 1; i <= 4; i++) {
-            Assertions.assertEquals(1, objects.getCount(i));
+            assertThat(objects.getCount(i)).isEqualTo(1);
         }
     }
 
@@ -85,9 +86,9 @@ public class BatchTest {
 
         SQLUtils.doBatches(mock, base, strings, mapPage, bindPerRow, additionalQuery);
 
-        Assertions.assertEquals(100 * 4, settedCount.get());
+        assertThat(settedCount.get()).isEqualTo(100 * 4);
         for (int i = 1; i <= 100; i++) {
-            Assertions.assertEquals(1, objects.getCount(i));
+            assertThat(objects.getCount(i)).isEqualTo(1);
         }
     }
 
@@ -119,9 +120,9 @@ public class BatchTest {
 
         SQLUtils.doBatches(mock, base, strings, mapPage, bindPerRow, additionalQuery);
 
-        Assertions.assertEquals(10922 * 4, settedCount.get());
+        assertThat(settedCount.get()).isEqualTo(10922 * 4);
         for (int i = 1; i <= 10922; i++) {
-            Assertions.assertEquals(1, objects.getCount(i));
+            assertThat(objects.getCount(i)).isEqualTo(1);
         }
     }
 
@@ -153,14 +154,14 @@ public class BatchTest {
 
         SQLUtils.doBatches(mock, base, strings, mapPage, bindPerRow, additionalQuery);
 
-        Assertions.assertEquals(10923 * 4, settedCount.get());
-        Assertions.assertEquals(2, objects.getCount(1));
-        Assertions.assertEquals(2, objects.getCount(2));
-        Assertions.assertEquals(2, objects.getCount(3));
-        Assertions.assertEquals(2, objects.getCount(4));
+        assertThat(settedCount.get()).isEqualTo(10923 * 4);
+        assertThat(objects.getCount(1)).isEqualTo(2);
+        assertThat(objects.getCount(2)).isEqualTo(2);
+        assertThat(objects.getCount(3)).isEqualTo(2);
+        assertThat(objects.getCount(4)).isEqualTo(2);
 
         for (int i = 5; i <= 10923; i++) {
-            Assertions.assertEquals(1, objects.getCount(i));
+            assertThat(objects.getCount(i)).isEqualTo(1);
         }
     }
 
@@ -192,13 +193,13 @@ public class BatchTest {
 
         SQLUtils.doBatches(mock, base, strings, mapPage, bindPerRow, additionalQuery);
 
-        Assertions.assertEquals(65538 * 4, settedCount.get());
+        assertThat(settedCount.get()).isEqualTo(65538 * 4);
         for (int i = 1; i <= 24; i++) {
-            Assertions.assertEquals(7, objects.getCount(i));
+            assertThat(objects.getCount(i)).isEqualTo(7);
         }
 
         for (int i = 25; i <= 10922 * 4; i++) {
-            Assertions.assertEquals(6, objects.getCount(i));
+            assertThat(objects.getCount(i)).isEqualTo(6);
         }
     }
 
@@ -230,15 +231,15 @@ public class BatchTest {
 
         SQLUtils.doBatches(mock, base, strings, mapPage, bindPerRow, additionalQuery);
 
-        Assertions.assertEquals(SIZE * 4, settedCount.get());
+        assertThat(settedCount.get()).isEqualTo(SIZE * 4);
         int batchSize = 10922;
         int batches = 2;
         for (int i = 1; i <= (19381 - 10922) * 4; i++) {
-            Assertions.assertEquals(2, objects.getCount(i));
+            assertThat(objects.getCount(i)).isEqualTo(2);
         }
 
         for (int i = ((19381 - 10922) * 4) + 1; i <= 10922 * 4; i++) {
-            Assertions.assertEquals(1, objects.getCount(i));
+            assertThat(objects.getCount(i)).isEqualTo(1);
         }
     }
 }

@@ -35,7 +35,7 @@ public class CollageGenerator {
         GraphicUtils.setQuality(g);
 
         AtomicInteger max = new AtomicInteger(queue.size());
-        ExecutorService es = core.apis.ExecutorsSingleton.getInstance();
+        ExecutorService es = GraphicUtils.GRAPHIC_EXECUTOR;
 
         List<Callable<Object>> calls = new ArrayList<>();
         ReentrantLock lock = new ReentrantLock();

@@ -1,6 +1,5 @@
 package core.commands.stats;
 
-import core.apis.ExecutorsSingleton;
 import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.ChuuEmbedBuilder;
@@ -70,7 +69,7 @@ public class GlobalCommandsIssuedCommand extends ConcurrentCommand<ChuuDataParam
     public void onCommand(Context e, @Nonnull ChuuDataParams params) throws LastFmException, InstanceNotFoundException {
 
         long idLong = params.getLastFMData().getDiscordId();
-        CompletableFuture<Optional<Rank<PrivacyUserCount>>> rankOpt = CompletableFuture.supplyAsync(() -> db.getUserPosition(idLong), ExecutorsSingleton.getInstance());
+        CompletableFuture<Optional<Rank<PrivacyUserCount>>> rankOpt = CommandUtil.supplyLog((() -> db.getUserPosition(idLong)));
         List<PrivacyUserCount> globalCommandLb = db.getGlobalCommandLb(e.getGuild().getIdLong());
         Optional<PrivacyUserCount> first = Optional.empty();
         int j = 0;
@@ -118,8 +117,8 @@ public class GlobalCommandsIssuedCommand extends ConcurrentCommand<ChuuDataParam
         Function<PrivacyUserCount, String> mapper = (userListened) -> {
             PrivacyUtils.PrivateString pbStr = PrivacyUtils.getPublicString(userListened.privacyMode(), userListened.discordId(), userListened.lastfmId(), atomicInteger, e, set);
             return ". [" + pbStr.discordName() + "]" +
-                    "(" + PrivacyUtils.getLastFmUser(pbStr.lastfmName()) + ")" +
-                    ": " + userListened.count() + " " + CommandUtil.singlePlural(userListened.count(), "command", "commands") + "\n";
+                   "(" + PrivacyUtils.getLastFmUser(pbStr.lastfmName()) + ")" +
+                   ": " + userListened.count() + " " + CommandUtil.singlePlural(userListened.count(), "command", "commands") + "\n";
         };
 
         new PaginatorBuilder<>(e, embedBuilder, globalCommandLb).memoized(mapper).build().queue();

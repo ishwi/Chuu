@@ -17,6 +17,7 @@ import core.services.tags.TagStorer;
 import core.services.validators.AlbumValidator;
 import core.services.validators.ArtistValidator;
 import core.services.validators.TrackValidator;
+import core.util.ChuuVirtualPool;
 import core.util.ServiceView;
 import dao.entities.*;
 import dao.utils.LinkUtils;
@@ -25,12 +26,15 @@ import org.apache.commons.collections4.Bag;
 
 import javax.annotation.Nonnull;
 import java.util.*;
+import java.util.concurrent.ExecutorService;
 import java.util.stream.Collectors;
 
 /**
  * Credits: to flushed_emoji bot owner for the idea. Aka stolen completely
  */
 public class TagStreakCommand extends ConcurrentCommand<ChuuDataParams> {
+
+    private final ExecutorService executor = ChuuVirtualPool.of("Tag-streaks");
 
     public TagStreakCommand(ServiceView dao) {
         super(dao);
@@ -127,7 +131,7 @@ public class TagStreakCommand extends ConcurrentCommand<ChuuDataParams> {
         List<String> tags = tagCombo.stream().map(t -> new StringFrequency(t.getName(), tagCombo.getCount(t))).filter(t -> t.freq() > 1)
                 .sorted(Comparator.comparingInt(StringFrequency::freq).reversed())
                 .map(z -> "**[%s](%s)**: ".formatted(z.key(), LinkUtils.getLastFmTagUrl(z.key())) +
-                        z.freq() + (z.freq() >= 2000 ? "+" : "") + " consecutive plays\n").toList();
+                          z.freq() + (z.freq() >= 2000 ? "+" : "") + " consecutive plays\n").toList();
 
 
         DiscordUserDisplay userInformation = CommandUtil.getUserInfoEscaped(e, discordID);

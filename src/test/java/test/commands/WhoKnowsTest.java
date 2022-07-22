@@ -2,7 +2,7 @@ package test.commands;
 
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageHistory;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import test.commands.parsers.NullReturnParsersTest;
 import test.commands.utils.CommandTest;
 import test.commands.utils.EmbedUtils;
@@ -12,8 +12,8 @@ import test.commands.utils.TestResources;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
-import static org.junit.Assert.assertEquals;
 
 public class WhoKnowsTest extends CommandTest {
     @Override
@@ -52,7 +52,7 @@ public class WhoKnowsTest extends CommandTest {
             return complete.getRetrievedHistory().size() == 1;
         });
         Message message = TestResources.channelWorker.getHistoryAfter(id, 20).complete().getRetrievedHistory().get(0);
-        assertEquals("No one knows NOT A KNOWN ARTIST BTW", message.getContentStripped());
+        assertThat(message.getContentStripped()).isEqualTo("No one knows NOT A KNOWN ARTIST BTW");
     }
 
 }

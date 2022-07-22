@@ -2,8 +2,7 @@ package test.commands;
 
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageHistory;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import test.commands.parsers.NullReturnParsersTest;
 import test.commands.utils.CommandTest;
 import test.commands.utils.ImageUtils;
@@ -13,9 +12,8 @@ import test.commands.utils.TestResources;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 public class WhoKnowsAlbumCommandTest extends CommandTest {
     @Override
@@ -46,7 +44,7 @@ public class WhoKnowsAlbumCommandTest extends CommandTest {
             return complete.getRetrievedHistory().size() == 1;
         });
         Message message = TestResources.channelWorker.getHistoryAfter(id, 20).complete().getRetrievedHistory().get(0);
-        assertEquals("No one knows NOT A KNOWN - ARTIST BTW", message.getContentStripped());
+        assertThat(message.getContentStripped()).isEqualTo("No one knows NOT A KNOWN - ARTIST BTW");
     }
 
 
@@ -83,12 +81,12 @@ public class WhoKnowsAlbumCommandTest extends CommandTest {
         Message message = TestResources.channelWorker.getHistoryAfter(id, 20).complete().getRetrievedHistory().get(0);
         if (message.getAttachments().isEmpty()) {
             Pattern compile = Pattern.compile("No one knows (.*)");
-            Assert.assertTrue(compile.matcher(message.getContentStripped()).matches());
+            assertThat(compile.matcher(message.getContentStripped()).matches()).isTrue();
         } else {
             Message.Attachment attachment = message.getAttachments().get(0);
-            assertEquals(500, attachment.getHeight());
-            assertEquals(800, attachment.getWidth());
-            assertTrue(attachment.getFileName().endsWith(".png"));
+            assertThat(attachment.getHeight()).isEqualTo(500);
+            assertThat(attachment.getWidth()).isEqualTo(800);
+            assertThat(attachment.getFileName().endsWith(".png")).isTrue();
         }
     }
 

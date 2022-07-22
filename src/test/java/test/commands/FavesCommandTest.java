@@ -9,7 +9,7 @@ import core.apis.spotify.SpotifySingleton;
 import core.exceptions.LastFmException;
 import dao.entities.LastFMData;
 import dao.entities.NowPlayingArtist;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import test.commands.parsers.NullReturnParsersTest;
 import test.commands.utils.CommandTest;
 import test.commands.utils.EmbedUtils;

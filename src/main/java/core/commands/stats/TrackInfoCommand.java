@@ -102,7 +102,7 @@ public class TrackInfoCommand extends AlbumPlaysCommand {
 
                 queue();
         if (!tags.isEmpty()) {
-            executor.submit(new TrackTagService(db, lastFM, tags, new TrackInfo(trackInfo.getArtist(), null, trackInfo.getName(), null)));
+            CommandUtil.runLog(new TrackTagService(db, lastFM, tags, new TrackInfo(trackInfo.getArtist(), null, trackInfo.getName(), null)));
         }
     }
 }

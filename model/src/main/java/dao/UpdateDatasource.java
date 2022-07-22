@@ -23,7 +23,6 @@ public final class UpdateDatasource implements CommonDatasource {
         config.setMinimumIdle(0);
         config.setIdleTimeout(30000);
         config.setConnectionTimeout(100000);
-        config.setDriverClassName("org.mariadb.jdbc.Driver");
         config.setPoolName("Update-Pool-Chuu");
         config.addDataSourceProperty("connectionCollation", "utf8mb4_unicode_ci");
         this.ds = new HikariDataSource(config);

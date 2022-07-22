@@ -1,7 +1,7 @@
 package test.commands;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import test.commands.utils.CommandTest;
 import test.commands.utils.EmbedWithFieldsUtils;
 import test.commands.utils.FieldRowMatcher;
@@ -14,7 +14,7 @@ import java.util.regex.Pattern;
 public class FeaturedTestCommand extends CommandTest {
     private static Pattern titlePattern;
 
-    @BeforeClass
+    @BeforeAll
     public static void init() {
         titlePattern = Pattern.compile("(.*)'s Featured Artist:");
 
@@ -39,8 +39,8 @@ public class FeaturedTestCommand extends CommandTest {
         fieldRowMatchers.add(new FieldRowMatcher("User:", Pattern.compile("(.*)"),
                 matcher ->
                         matcher.group(1).equalsIgnoreCase("Chuu") || TestResources.channelWorker.getGuild().getMembers()
-                                .stream()
-                                .filter(x -> x.getUser().getName().equals(matcher.group(1))).count() == 1));
+                                                                             .stream()
+                                                                             .filter(x -> x.getUser().getName().equals(matcher.group(1))).count() == 1));
 
         fieldRowMatchers.add(FieldRowMatcher.numberFieldFromRange("Total Artist Plays:", 1));
 

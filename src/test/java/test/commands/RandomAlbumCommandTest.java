@@ -1,7 +1,7 @@
 package test.commands;
 
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 import test.commands.parsers.NullReturnParsersTest;
 import test.commands.utils.CommandTest;
 import test.commands.utils.OneLineUtils;
@@ -52,7 +52,7 @@ public class RandomAlbumCommandTest extends CommandTest {
 
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
         TestResources.dao.truncateRandomPool();
     }

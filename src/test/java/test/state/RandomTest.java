@@ -2,7 +2,7 @@ package test.state;
 
 import dao.ChuuService;
 import dao.entities.RandomUrlEntity;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Comparator;
 import java.util.HashMap;
@@ -32,8 +32,7 @@ public class RandomTest {
         for (int i = 0; i < 10; i++) {
             System.out.println();
         }
-        List<Map.Entry<Long, Long>> collect = test.entrySet().stream().filter(x -> x.getKey() != null).collect(Collectors.groupingBy(x -> x.getKey().discordId(), Collectors.counting())).entrySet().stream().sorted(Comparator.comparingLong(y -> -y.getValue()))
-                .collect(Collectors.toList());
+        List<Map.Entry<Long, Long>> collect = test.entrySet().stream().filter(x -> x.getKey() != null).collect(Collectors.groupingBy(x -> x.getKey().discordId(), Collectors.counting())).entrySet().stream().sorted(Comparator.comparingLong(y -> -y.getValue())).toList();
         collect.forEach(((key) -> {
             System.out.println(key.getKey() + " -  " + key.getValue());
             System.out.flush();

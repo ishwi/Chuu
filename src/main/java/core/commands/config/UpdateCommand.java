@@ -31,7 +31,7 @@ public class UpdateCommand extends ConcurrentCommand<ChuuDataParams> {
     private final ReentrantLock reentrantLock = new ReentrantLock();
 
     public UpdateCommand(ServiceView dao) {
-        super(dao, true);
+        super(dao, false);
         ephemeral = true;
         order = 6;
     }

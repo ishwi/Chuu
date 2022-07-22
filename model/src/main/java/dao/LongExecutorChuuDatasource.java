@@ -22,7 +22,6 @@ public final class LongExecutorChuuDatasource implements CommonDatasource {
         config.setMaximumPoolSize(20);
         config.setConnectionTimeout(15000);
         config.setConnectionInitSql("set @@sql_mode='NO_ZERO_DATE';");
-        config.setDriverClassName("org.mariadb.jdbc.Driver");
         config.setPoolName("Long-Pool-Chuu");
         config.addDataSourceProperty("connectionCollation", "utf8mb4_unicode_ci");
         this.ds = new HikariDataSource(config);

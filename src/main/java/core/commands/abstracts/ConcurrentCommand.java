@@ -1,15 +1,12 @@
 package core.commands.abstracts;
 
+import core.apis.ExecutorsSingleton;
 import core.commands.Context;
 import core.parsers.params.CommandParameters;
-import core.util.ChuuVirtualPool;
 import core.util.ServiceView;
-
-import java.util.concurrent.ExecutorService;
 
 
 public abstract class ConcurrentCommand<T extends CommandParameters> extends MyCommand<T> {
-    public static final ExecutorService executor = ChuuVirtualPool.of("Commands");
 
 
     public ConcurrentCommand(ServiceView dao, boolean isLongRunningCommand) {
@@ -23,6 +20,6 @@ public abstract class ConcurrentCommand<T extends CommandParameters> extends MyC
 
     @Override
     protected void measureTime(Context e) {
-        executor.execute(() -> super.measureTime(e));
+        ExecutorsSingleton.getInstance().execute(() -> super.measureTime(e));
     }
 }

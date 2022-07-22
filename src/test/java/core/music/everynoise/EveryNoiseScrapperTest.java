@@ -7,7 +7,7 @@ import dao.everynoise.ReleaseWithGenres;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.net.URLEncoder;
@@ -19,7 +19,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
+
 
 public class EveryNoiseScrapperTest {
     @Test
@@ -50,9 +51,9 @@ public class EveryNoiseScrapperTest {
         String artist = b.html();
         String release = i.html();
         String href = i.parent().attr("uri");
-        assertEquals(artist, "Eddie Boyd");
-        assertEquals(release, "Rare Oldies Jazz: Eddy Boyd");
-        assertEquals(href, "spotify:album:0PfYDFGbbrD8DyPys7g9U6");
+        assertThat(artist).isEqualTo("Eddie Boyd");
+        assertThat("Rare Oldies Jazz: Eddy Boyd").isEqualTo(release);
+        assertThat("spotify:album:0PfYDFGbbrD8DyPys7g9U6").isEqualTo(href);
 
     }
 
