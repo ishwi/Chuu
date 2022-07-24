@@ -7,6 +7,7 @@ import core.Chuu;
 import core.apis.last.ConcurrentLastFM;
 import core.commands.Context;
 import core.commands.ContextMessageReceived;
+import core.commands.abstracts.ConcurrentCommand;
 import core.commands.moderation.InviteCommand;
 import core.parsers.params.CommandParameters;
 import core.util.ServiceView;
@@ -19,6 +20,8 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import java.util.function.Consumer;
+
+import static core.commands.abstracts.ConcurrentCommand.threadStats;
 
 public record EvalContext(JDA jda, Context e,
                           User owner, Guild guild,
@@ -55,6 +58,15 @@ public record EvalContext(JDA jda, Context e,
         var newLevel = Level.toLevel(level);
         rootLogger.setLevel(newLevel);
         sendMessage("Typing status set to " + newLevel);
+    }
+
+
+    public void t() {
+        ChuuEmbedBuilder embed = new ChuuEmbedBuilder(e);
+        for (ConcurrentCommand.ThreadStats threadStat : threadStats) {
+            embed.addField(threadStat.command(), threadStat.toString().substring(0, 1023), false);
+        }
+        this.e.sendEmbed(embed).queue();
     }
 
     public void createAnonymousCommand(Consumer<ContextMessageReceived> mes) {
