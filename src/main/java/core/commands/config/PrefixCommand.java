@@ -14,6 +14,9 @@ import javax.annotation.Nonnull;
 import java.util.Collections;
 import java.util.List;
 
+import static core.translations.Messages.PREFIX_COMMAND_SUCCESS;
+import static core.translations.TranslationManager.m;
+
 public class PrefixCommand extends ConcurrentCommand<CharacterParameters> {
     public PrefixCommand(ServiceView dao) {
         super(dao);
@@ -48,8 +51,7 @@ public class PrefixCommand extends ConcurrentCommand<CharacterParameters> {
         db.addGuildPrefix(e.getGuild().getIdLong(), newPrefix);
         PrefixService prefixService = Chuu.prefixService;
         prefixService.addGuildPrefix(e.getGuild().getIdLong(), newPrefix);
-
-        sendMessageQueue(e, newPrefix + " is the new server prefix");
+        sendMessageQueue(e, m(PREFIX_COMMAND_SUCCESS, ';'));
     }
 
     @Override
