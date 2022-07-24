@@ -15,14 +15,14 @@ import java.util.List;
 
 public class ExetricWKMaker {
     public static final int IMG_SIZE = 464;
+    public static final int WIDTH_RANK_CONTAINER = 60;
+    public static final Color gradientColor = Color.decode("#121212");
     private static final int X_MAX = 800;
     private static final int Y_MAX = 464;
     private static final Font NORMAL_FONT = new Font("Noto Sans Display SemiBold", Font.PLAIN, 26);
-    private static final StringFitter artistFitter = new StringFitterBuilder(34, IMG_SIZE - 30).setStep(1).setBaseFont(NORMAL_FONT).setMinSize(14f).build();
+    private static final StringFitter artistFitter = new StringFitterBuilder(34, IMG_SIZE - 30).setStep(1).setBaseFont(NORMAL_FONT).setMinSize(22f).build();
     private static final Font DESC_FONT = new Font("Noto Sans CJK JP Light", Font.BOLD, 26);
-
     private static final StringFitter serverFitter = new StringFitterBuilder(26, X_MAX).setStep(1).setBaseFont(DESC_FONT.deriveFont(Font.BOLD)).setMinSize(12f).build();
-
     private static final String FIRST_LINE = "Who knows";
 
     private ExetricWKMaker() {
@@ -41,7 +41,6 @@ public class ExetricWKMaker {
         artist = wrapperReturnNowPlaying.getArtist().toUpperCase();
         FontMetrics metrics;
 
-        int yCounter = 0;
         Graphics2D g = canvas.createGraphics();
         GraphicUtils.setQuality(g);
 
@@ -87,14 +86,13 @@ public class ExetricWKMaker {
         g.drawImage(cover, 0, 0, null);
         g.setComposite(composite);
 
-        Color[] sample = GraphicUtils.sampleBackground(cover);
-        Color whiteOrBlack = GraphicUtils.getBetterSO(sample);
-        Color canvasColor = GraphicUtils.mergeColor(sample);
+        Color canvasColor = GraphicUtils.sampleBackground(cover);
+        Color whiteOrBlack = GraphicUtils.getBetter(canvasColor);
 
         Color bordercolor = GraphicUtils.setAlpha(canvasColor.darker().darker().darker(), 0.8f); // DARker
         Color backgroundColor = GraphicUtils.setAlpha(canvasColor.brighter(), 0.5f); // Lighter
 
-        if (whiteOrBlack != Color.BLACK) {
+        if (whiteOrBlack == Color.WHITE) {
             // Border not visible
             if (GraphicUtils.contrast(bordercolor, backgroundColor) <= 2.) {
                 bordercolor = GraphicUtils.setAlpha(canvasColor.brighter().brighter(), 0.8f);
@@ -115,7 +113,7 @@ public class ExetricWKMaker {
 
         cover.flush();
         if (doGradient) {
-            Color gp = Color.decode("#121212");
+            Color gp = gradientColor;
             GradientPaint gp1 = new GradientPaint(0, 200 + 10, GraphicUtils.setAlpha(gp, 0.0f), 0, 0, GraphicUtils.setAlpha(gp, 0.7f), false);
             g.setPaint(gp1);
             g.fillRect(0, 0, IMG_SIZE, 210);
@@ -126,13 +124,15 @@ public class ExetricWKMaker {
         GraphicUtils.drawStringNicely(g, FIRST_LINE, 30, 40, canvas, 0.5f);
         StringFitter.FontMetadata fontMetadata = artistFitter.getFontMetadata(g, artist);
         metrics = g.getFontMetrics(fontMetadata.maxFont());
-        yCounter = 50;
+
+        int yCounter = 50;
         yCounter += metrics.getAscent() - metrics.getDescent() - metrics.getLeading();
-        GraphicUtils.drawStringNicely(g, fontMetadata, 30, yCounter, canvas);
+
+        GraphicUtils.drawStringNicelyLayout(g, fontMetadata, 30, yCounter, canvas, IMG_SIZE - 30);
 
 
         StringFitter.FontMetadata serverMetadata = serverFitter.getFontMetadata(g, populationName);
-        GraphicUtils.drawStringNicely(g, serverMetadata, 86, Y_MAX - 39, canvas);
+        GraphicUtils.drawStringNicelyLayout(g, serverMetadata, 86, Y_MAX - 39, canvas, IMG_SIZE - 86);
 
 
         BufferedImage logoCover;
@@ -167,7 +167,7 @@ public class ExetricWKMaker {
         if (logo != null) g.drawImage(logo, IMG_SIZE - logo.getWidth() - 15, Y_MAX - 15 - logo.getHeight(), null);
         g.setComposite(AlphaComposite.SrcOver);
 
-        doChart(g, IMG_SIZE + 3, 0, X_MAX - IMG_SIZE - 3, Y_MAX, 10, wrapperReturnNowPlaying, backgroundColor, bordercolor, null, true, DESC_FONT, 0);
+        doChart(g, IMG_SIZE + 3, 0, X_MAX - IMG_SIZE - 3, Y_MAX, 10, wrapperReturnNowPlaying, backgroundColor, bordercolor, true, DESC_FONT, 0);
         g.setColor(bordercolor);
         g.setBackground(bordercolor);
         g.setPaint(bordercolor);
@@ -179,8 +179,8 @@ public class ExetricWKMaker {
         return canvas;
     }
 
-    public static void doChart(Graphics2D g, int x, int y, int width, int height, int maxRows, WrapperReturnNowPlaying wrapperReturnNowPlaying, Color backgroundColor, Color borderColour, BufferedImage lastFmLogo, boolean doNumber, Font font, int phase) {
-        int POS_M = 28;
+    public static void doChart(Graphics2D g, int x, int y, int width, int height, int maxRows, WrapperReturnNowPlaying wrapperReturnNowPlaying, Color backgroundColor, Color borderColour, boolean doNumber, Font font, int phase) {
+        int POS_M = 14;
         g.setColor(backgroundColor);
         g.fillRect(x, y, width, height);
 
@@ -193,7 +193,7 @@ public class ExetricWKMaker {
         StringFitter userMetadata = new StringFitterBuilder(initialSize, width).setBaseFont(g.getFont()).setMinSize(14).build();
 
         for (int i = 0; i < nowPlayingArtistList.size() || i < maxRows; i++) {
-            g.setColor(GraphicUtils.getBetterSO(backgroundColor));
+            g.setColor(GraphicUtils.getBetter(backgroundColor));
             if (i < nowPlayingArtistList.size()) {
 
 
@@ -205,26 +205,31 @@ public class ExetricWKMaker {
 
                 g.setFont(numberFont);
                 FontMetrics metrics = g.getFontMetrics();
+
                 String plays = String.valueOf(rnp.getPlayNumber());
                 int stringWidth = metrics.stringWidth(plays);
-                int userWidth = width - stringWidth - (15 + POS_M + 45);
+
+
+                int userWidth = width - stringWidth - WIDTH_RANK_CONTAINER - POS_M;
                 g.setFont(prev);
                 g.setColor(GraphicUtils.setAlpha(g.getColor(), 1));
 
                 StringFitter.FontMetadata fontMetadata = userMetadata.getFontMetadata(g, name, userWidth);
                 LineMetrics lm = fontMetadata.maxFont().getLineMetrics(fontMetadata.atrribute().getIterator(), 0, name.length(), g.getFontRenderContext());
+
                 float mHeights = lm.getAscent() - lm.getDescent() - lm.getLeading();
                 int baseLine = (int) (y + (((itemSize - 3) / 2) + mHeights / 2));
 
-                g.drawString(fontMetadata.atrribute().getIterator(), x + POS_M + 45, baseLine);
+                g.drawString(fontMetadata.atrribute().getIterator(), x + WIDTH_RANK_CONTAINER, baseLine);
 
                 g.setFont(numberFont);
                 g.setColor(GraphicUtils.setAlpha(g.getColor(), 0.9f));
                 if (doNumber) {
                     String strNumber = String.valueOf((phase + index + 1));
-                    g.drawString(strNumber, x + POS_M, baseLine);
+                    int rankWidth = metrics.stringWidth(strNumber);
+                    g.drawString(strNumber, x + ((WIDTH_RANK_CONTAINER - rankWidth) / 2), baseLine);
                 }
-                int playPos = x + width - (stringWidth + POS_M);
+                int playPos = x + width - POS_M - (stringWidth);
                 g.drawString(plays, playPos, baseLine);
             }
             if (i < maxRows - 1) {

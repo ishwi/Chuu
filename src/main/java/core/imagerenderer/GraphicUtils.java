@@ -3,6 +3,7 @@ package core.imagerenderer;
 import core.Chuu;
 import core.commands.Context;
 import core.imagerenderer.stealing.blur.GaussianFilter;
+import core.imagerenderer.stealing.colorpicker.ColorThiefCustom;
 import core.imagerenderer.util.CIELab;
 import core.imagerenderer.util.D;
 import core.imagerenderer.util.fitter.StringFitter;
@@ -11,12 +12,15 @@ import core.util.ChuuVirtualPool;
 import dao.entities.ReturnNowPlaying;
 import dao.entities.WrapperReturnNowPlaying;
 import net.dv8tion.jda.api.entities.Message;
+import org.apache.commons.lang3.tuple.Pair;
 import org.imgscalr.Scalr;
 
 import javax.annotation.Nullable;
 import javax.imageio.ImageIO;
 import java.awt.*;
+import java.awt.font.LineBreakMeasurer;
 import java.awt.font.TextAttribute;
+import java.awt.font.TextLayout;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -182,7 +186,7 @@ public class GraphicUtils {
         Font maxFont = startFont;
 
 
-        List<StringFitter.StringAtrributes> temp = new ArrayList<>();
+        List<StringFitter.StringAttributes> temp = new ArrayList<>();
         if (i != 0) {
             result.addAttribute(TextAttribute.FONT, startFont.deriveFont(fontStyle, size), 0, length);
             maxSize = i;
@@ -195,14 +199,14 @@ public class GraphicUtils {
                 // We didnt have a main font.
                 if ((j != 0) && i == 0) {
                     maxSize = j;
-                    temp.add(new StringFitter.StringAtrributes(value, 0, length));
+                    temp.add(new StringFitter.StringAttributes(value, 0, length));
                     if (j == -1) {
                         i = j;
                         maxFont = value;
                         break;
                     }
                 } else if (j == -1) {
-                    temp.add(new StringFitter.StringAtrributes(value, i, length));
+                    temp.add(new StringFitter.StringAttributes(value, i, length));
                     maxFont = value;
                     break;
                 } else if (j != 0) {
@@ -210,7 +214,7 @@ public class GraphicUtils {
                         maxSize = j;
                         maxFont = value;
                     }
-                    temp.add(new StringFitter.StringAtrributes(value, i, i + j));
+                    temp.add(new StringFitter.StringAttributes(value, i, i + j));
                     i += j;
                 }
             }
@@ -220,7 +224,7 @@ public class GraphicUtils {
             sizeFont -= 2;
         }
         g.getFontMetrics(maxFont).getStringBounds(test, g);
-        for (StringFitter.StringAtrributes t : temp) {
+        for (StringFitter.StringAttributes t : temp) {
             result.addAttribute(TextAttribute.FONT, t.font().deriveFont(fontStyle, sizeFont), t.begginging(), t.end());
         }
         Rectangle2D bounds = g.getFontMetrics(maxFont).getStringBounds(test, g);
@@ -258,13 +262,20 @@ public class GraphicUtils {
         return new Color(a);
     }
 
-    static Color[] sampleBackground(BufferedImage canvas) {
-        return new Color[]{new Color(canvas.getRGB(0, 0)),
-                new Color(canvas.getRGB(0, canvas.getHeight() - 1)),
-                new Color(canvas.getRGB(canvas.getWidth() - 1, 0)),
-                new Color(canvas.getRGB(canvas.getWidth() - 1, canvas.getHeight() - 1)),
-                new Color(canvas.getRGB(canvas.getWidth() / 2 - 1, canvas.getHeight() / 2 - 1))
-        };
+    static Color sampleBackground(BufferedImage canvas) {
+        Pair<List<Color>, Color> palette = ColorThiefCustom.getPalette(canvas, 5, 10, false);
+        List<Color> left = palette.getLeft();
+        Color dominant = palette.getRight();
+        List<Color> colors = new ArrayList<>();
+        if (left != null) {
+            colors.addAll(left);
+        }
+        if (dominant != null) {
+            colors.add(dominant);
+        }
+        return mergeColor(colors.toArray(Color[]::new));
+
+
     }
 
     static Color mergeColor(Color... colors) {
@@ -393,11 +404,13 @@ public class GraphicUtils {
     public static Color getBetter(Color... color) {
         double accum = 0;
         for (Color col : color) {
-            float[] colorComponents = col.getColorComponents(null);
-
-            accum += 0.2126 * col.getRed() + 0.7152 * col.getGreen() + 0.0722 * col.getBlue();
+            float[] rgbComponents = col.getRGBComponents(null);
+            double r = rgbComponents[0];
+            double g = rgbComponents[1];
+            double b = rgbComponents[2];
+            accum += perceivedLightness(luminance(r, g, b));
         }
-        return (accum / color.length) < 128 ? Color.WHITE : Color.BLACK;
+        return (accum / color.length) <= 50 ? Color.WHITE : Color.BLACK;
 
     }
 
@@ -438,18 +451,6 @@ public class GraphicUtils {
         return (l0 + 0.05) / (l1 + 0.05);
     }
 
-    public static Color getBetterSO(Color... color) {
-        double accum = 0;
-        for (Color col : color) {
-            float[] rgbComponents = col.getRGBComponents(null);
-            double r = rgbComponents[0];
-            double g = rgbComponents[1];
-            double b = rgbComponents[2];
-            accum += perceivedLightness(luminance(r, g, b));
-        }
-        return (accum / color.length) <= 50 ? Color.WHITE : Color.BLACK;
-
-    }
 
     static void drawStringNicely(Graphics2D g, String string, int x, int y, BufferedImage bufferedImage) {
         drawStringNicely(g, string, x, y, bufferedImage, null);
@@ -482,6 +483,29 @@ public class GraphicUtils {
     static void drawStringNicely(Graphics2D g, StringFitter.FontMetadata fontMetadata, int x, int y, BufferedImage bufferedImage) {
 
         Color temp = g.getColor();
+        setColorNicely(g, fontMetadata, x, y, bufferedImage);
+        g.drawString(fontMetadata.atrribute().getIterator(), x, y);
+        g.setColor(temp);
+
+    }
+
+    static void drawStringNicelyLayout(Graphics2D g, StringFitter.FontMetadata fontMetadata, int x, int y, BufferedImage bufferedImage, int width) {
+
+        Color temp = g.getColor();
+        setColorNicely(g, fontMetadata, x, y, bufferedImage);
+        AttributedString atrribute = fontMetadata.atrribute();
+        int endIndex = atrribute.getIterator().getEndIndex();
+        LineBreakMeasurer measurer = new LineBreakMeasurer(atrribute.getIterator(), g.getFontRenderContext());
+        while (measurer.getPosition() < endIndex) {
+            TextLayout textLayout = measurer.nextLayout(width);
+            textLayout.draw(g, x, y);
+            y += textLayout.getAscent() - textLayout.getDescent() - textLayout.getLeading() + 10;
+        }
+        g.setColor(temp);
+
+    }
+
+    private static void setColorNicely(Graphics2D g, StringFitter.FontMetadata fontMetadata, int x, int y, BufferedImage bufferedImage) {
         int length = (int) fontMetadata.bounds().getWidth();
         try {
             Color col1 = new Color(bufferedImage.getRGB(
@@ -490,13 +514,10 @@ public class GraphicUtils {
             Color col2 = new Color(bufferedImage.getRGB(Math.max(0, Math.min(bufferedImage.getWidth() - 5, x + length / 2)), y));
             Color col3 = new Color(bufferedImage.getRGB(Math.max(0, Math.min(bufferedImage.getWidth() - 5, x + length)), y));
             g.setColor(getBetter(col1, col2, col3));
-        } catch (ArrayIndexOutOfBoundsException debugger) {
-            Chuu.getLogger().warn(x + " " + y + " " + " " + length + " " + bufferedImage.getWidth() + " " + bufferedImage.getHeight());
-            Chuu.getLogger().warn(debugger.getMessage(), debugger);
+        } catch (ArrayIndexOutOfBoundsException e) {
+            Chuu.getLogger().warn("%d %d %d %d %d".formatted(x, y, length, bufferedImage.getWidth(), bufferedImage.getHeight()));
+            Chuu.getLogger().warn(e.getMessage(), e);
         }
-        g.drawString(fontMetadata.atrribute().getIterator(), x, y);
-        g.setColor(temp);
-
     }
 
     static void drawStringChartly(Graphics2D g, StringFitter.FontMetadata string, int x, int y) {
