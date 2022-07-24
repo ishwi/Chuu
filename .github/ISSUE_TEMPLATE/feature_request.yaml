@@ -2,7 +2,7 @@ name: Feature request
 description: File a feature request
 title: "[REQ]: "
 labels: ["enhancement"]
-assignees:
+# assignees:
   # - ishwi # uncomment to auto-assign
 body:
   - type: markdown

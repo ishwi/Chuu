@@ -2,7 +2,7 @@ name: Bug report
 description: File a bug report
 title: "[BUG]: "
 labels: ["bug"]
-assignees:
+# assignees:
   # - ishwi # uncomment to auto-assign
 body:
   - type: markdown
