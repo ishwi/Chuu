@@ -142,6 +142,8 @@ public class Chuu {
         ratelimited = service.getRateLimited().entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, y -> RateLimiter.create(y.getValue())));
         MessageAction.setDefaultMentions(EnumSet.noneOf(Message.MentionType.class));
         MessageAction.setDefaultMentionRepliedUser(false);
+        initPrivateLastfms(db.normalService());
+        messageDeletionService = new MessageDeletionService(db.normalService().getServersWithDeletableMessages());
         return properties;
 
     }
@@ -223,8 +225,7 @@ public class Chuu {
                 doTyping = true;
 
             }
-            initPrivateLastfms(db.normalService());
-            messageDeletionService = new MessageDeletionService(db.normalService().getServersWithDeletableMessages());
+
             shardManager = builder.build();
             if (startRightAway) {
                 shardManager.getShards().stream().findFirst().ifPresent(z -> {

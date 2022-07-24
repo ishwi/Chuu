@@ -35,9 +35,6 @@ services:
     env_file:
       - .env
     volumes:
-      - type: bind
-        source: ./model/src/main/resources/db/MariaBaseline.sql
-        target: /docker-entrypoint-initdb.d/0.sql
       - ./model/src/main/resources/db/migrations/:/docker-entrypoint-initdb.d
       - lastfm:/var/lib/mysql
     ports:

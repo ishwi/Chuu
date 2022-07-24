@@ -10,22 +10,50 @@ import net.dv8tion.jda.api.requests.restaction.AuditableRestAction;
 import net.dv8tion.jda.api.requests.restaction.MessageAction;
 import net.dv8tion.jda.internal.JDAImpl;
 import net.dv8tion.jda.internal.entities.GuildImpl;
+import net.dv8tion.jda.internal.requests.CompletedRestAction;
+import net.dv8tion.jda.internal.requests.restaction.MessageActionImpl;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
+import java.util.function.Consumer;
 
 public class MockedMessageChannel implements MessageChannel, GuildMessageChannel {
-    private JDAImpl jda;
-    private GuildImpl guild;
 
-    public MockedMessageChannel(JDAImpl jda) {
+    private final EventEmitter eventEmitter;
+    private final JDAImpl jda;
+    private final GuildImpl guild;
+
+    public MockedMessageChannel(
+            EventEmitter eventEmitter, JDAImpl jda,
+            GuildImpl guild) {
+        this.eventEmitter = eventEmitter;
         this.jda = jda;
-        guild = new GuildImpl(jda, -1);
+        this.guild = guild;
     }
+
 
     @Override
     public long getIdLong() {
         return -1;
+    }
+
+    @NotNull
+    @Override
+    public RestAction<Void> sendTyping() {
+        eventEmitter.publishEvent(new EventEmitter.SendedTyping());
+        return new CompletedRestAction<>(jda, null);
+    }
+
+    @NotNull
+    @Override
+    public MessageAction sendMessage(@NotNull CharSequence text) {
+        eventEmitter.publishEvent(new EventEmitter.SendText(text));
+        return new MessageActionImpl(jda, null, this) {
+            @Override
+            public void queue(Consumer<? super Message> success, Consumer<? super Throwable> failure) {
+                // DO NOTHING
+            }
+        };
     }
 
     @NotNull

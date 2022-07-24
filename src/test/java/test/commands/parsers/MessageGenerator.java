@@ -1,57 +1,79 @@
 package test.commands.parsers;
 
-import core.commands.Context;
-import core.commands.ContextMessageReceived;
-import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.*;
+import net.dv8tion.jda.api.entities.sticker.StickerSnowflake;
+import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.requests.restaction.MessageAction;
 import net.dv8tion.jda.api.utils.AttachmentOption;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
+import net.dv8tion.jda.api.utils.data.DataArray;
 import net.dv8tion.jda.internal.JDAImpl;
-import net.dv8tion.jda.internal.entities.UserImpl;
+import net.dv8tion.jda.internal.entities.GuildImpl;
+import net.dv8tion.jda.internal.entities.MemberImpl;
+import net.dv8tion.jda.internal.entities.MessageMentionsImpl;
+import net.dv8tion.jda.internal.entities.mentions.AbstractMentions;
 import net.dv8tion.jda.internal.requests.restaction.MessageActionImpl;
+import net.dv8tion.jda.internal.utils.config.AuthorizationConfig;
+import org.apache.commons.collections4.map.ReferenceIdentityMap;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.mockito.Mockito;
+import test.commands.parsers.factories.Factory;
+import test.commands.parsers.factories.FactoryDeps;
 
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.EnumSet;
-import java.util.Objects;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
 
 public class MessageGenerator {
 
-    private final BlockingQueue<Object> sender;
+    private final EventEmitter publisher;
     private final JDAImpl jda;
     private final Message message;
+    private final GuildImpl guild;
     private final MessageReceivedEvent event;
+    private User user;
+    private Factory factory;
 
     public MessageGenerator(String content) {
+        this(content, Factory.def());
+    }
+
+    public MessageGenerator(String content, Factory factory) {
+        this.factory = factory;
         jda = mockJDA();
-        message = mockMessage(jda, content);
-        event = mockMessageReceivedEvent(jda, message, content);
-        sender = new ArrayBlockingQueue<>(10);
+
+        FactoryDeps t = new FactoryDeps(jda, null);
+        user = factory.userFn().apply(t);
+        t = new FactoryDeps(jda, user);
+        guild = factory.guildFn().apply(t);
+
+        message = mockMessage(content);
+        publisher = new EventEmitter(new HashMap<>(), new HashMap<>(), new ReferenceIdentityMap<>(), new AtomicInteger(0));
+        event = mockMessageReceivedEvent(content);
     }
 
     private static JDAImpl mockJDA() {
-        return Mockito.mock(JDAImpl.class, invocation ->
-                switch (invocation.getMethod().getName()) {
-                    case "getCacheFlags" -> EnumSet.noneOf(CacheFlag.class);
-                    default -> null;
-                }
-        );
+        return new JDAImpl(new AuthorizationConfig("false-token"), null, null, null) {
+
+        };
+
+
     }
 
 
-    public Tuple build() {
-        return new Tuple(sender, new ContextMessageReceived(event));
+    public GenericEvent event() {
+        return event;
     }
 
-    private MessageReceivedEvent mockMessageReceivedEvent(JDAImpl jda, Message message, String content) {
+    public EventEmitter publisher() {
+        return publisher;
+    }
+
+    private MessageReceivedEvent mockMessageReceivedEvent(String content) {
         MessageChannel chann = mockChannel();
         return new MessageReceivedEvent(jda, 0, message) {
             @NotNull
@@ -66,15 +88,16 @@ public class MessageGenerator {
                 return getGuildChannel().getGuild();
             }
 
+            @Nullable
+            @Override
+            public Member getMember() {
+                return new MemberImpl(guild, user);
+            }
+
             @NotNull
             @Override
             public User getAuthor() {
-                return new UserImpl(0, jda) {
-                    @Override
-                    public boolean isBot() {
-                        return false;
-                    }
-                };
+                return user;
             }
 
             @NotNull
@@ -90,35 +113,44 @@ public class MessageGenerator {
         };
     }
 
-    private Message mockMessage(JDA jda, String content) {
+    private Message mockMessage(String content) {
+        AbstractMentions abstractMentions = new MessageMentionsImpl(jda, guild, content, false, DataArray.empty(), DataArray.empty());
         return Mockito.mock(Message.class, invocation ->
                 switch (invocation.getMethod().getName()) {
                     case "getmentionedmembers", "getmentionedusers" -> new ArrayList<>();
                     case "getContentRaw" -> content;
                     case "getCacheFlags" -> EnumSet.noneOf(CacheFlag.class);
+                    case "getMentions" -> abstractMentions;
                     default -> null;
                 });
     }
 
     private MessageChannel mockChannel() {
-        return new MockedMessageChannel(jda) {
+        return new MockedMessageChannel(publisher, jda, guild) {
+
+            @Override
+            public @NotNull MessageAction sendStickers(@NotNull Collection<? extends StickerSnowflake> stickers) {
+                return super.sendStickers(stickers);
+            }
+
             @NotNull
             @Override
             public MessageAction sendFile(@NotNull InputStream data, @NotNull String fileName, @NotNull AttachmentOption... options) {
                 return new MessageActionImpl(jda, null, this) {
                     @Override
                     public void queue(Consumer<? super Message> success, Consumer<? super Throwable> failure) {
-                        sender.add(data);
+                        publisher.publishEvent(new EventEmitter.SendImage(data, fileName));
                     }
                 };
             }
 
+            @Override
+            public @NotNull ChannelType getType() {
+                return ChannelType.TEXT;
+            }
         };
     }
 
-    public record Tuple(BlockingQueue<Object> receiver, Context result) {
-
-    }
 
 }
 

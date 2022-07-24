@@ -54,7 +54,7 @@ compileTestJava {
 
 }
 test {
-    jvmArgs '--enable-preview'
+    jvmArgs += ['--enable-preview', '--add-modules', 'jdk.incubator.concurrent']
 
 }
 compileJava.options.encoding = 'UTF-8'

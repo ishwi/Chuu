@@ -1,33 +1,27 @@
-package test.commands;
+package core.commands.albums;
 
+import core.commands.charts.AlbumChartCommand;
+import core.parsers.params.ChartParameters;
+import core.util.ServiceView;
 import org.junit.jupiter.api.Test;
-import test.commands.parsers.NullReturnParsersTest;
 import test.commands.parsers.TestAssertion;
-import test.commands.utils.CommandTest;
-import test.commands.utils.ImageUtils;
 import test.commands.utils.ImageUtils2;
+import test.commands.utils.MyCommandTest;
 import test.runner.AssertionRunner;
 
 import java.util.List;
 
-public class AlbumChartCommandTest extends CommandTest {
+class AlbumChartCommandTest extends MyCommandTest<ChartParameters, AlbumChartCommand> {
 
     @Override
-    public String giveCommandName() {
-        return "!chart";
+    protected AlbumChartCommand getCommand(ServiceView dao) {
+        return new AlbumChartCommand(dao);
     }
-
-    @Test
-    @Override
-    public void nullParserReturned() {
-        NullReturnParsersTest.chartParser(COMMAND_ALIAS);
-    }
-
 
     @Test
     public void ChartNormalTest() {
 
-        AssertionRunner.fromMessage(COMMAND_ALIAS + " a 1x1 ")
+        AssertionRunner.fromCommand(command, "a 1x1")
                 .assertion(List.of(
                         TestAssertion.typing(),
                         TestAssertion.image(
@@ -40,7 +34,7 @@ public class AlbumChartCommandTest extends CommandTest {
     @Test
     public void ChartBigTest() {
 
-        AssertionRunner.fromMessage(COMMAND_ALIAS + " a 20x11")
+        AssertionRunner.fromCommand(command, "a 20x11")
                 .assertion(
                         List.of(
                                 TestAssertion.typing(),
@@ -49,17 +43,4 @@ public class AlbumChartCommandTest extends CommandTest {
                                         "Then I should receive a 900x1500 jpg image"
                                 )));
     }
-
-    @Test
-    public void ChartOptionalsTest() {
-        ImageUtils.testImage(COMMAND_ALIAS + " a 1x1 --notitles --plays", 300, 300, ".png");
-    }
-
-    @Test
-    public void ChartBigWithWarningTest() {
-        ImageUtils
-                .testImageWithPreWarning(COMMAND_ALIAS + " a 101x1", "Going to take a while", true, 300, 300 * 101, ".png", ".jpg");
-    }
-
-
 }

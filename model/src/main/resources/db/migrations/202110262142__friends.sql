@@ -1,5 +1,5 @@
---liquibase formatted sql
---changeset ish:friends
+-- liquibase formatted sql
+-- changeset ish:friends
 create table friends
 (
     `id`         bigint(20) NOT NULL PRIMARY KEY AUTO_INCREMENT,
@@ -9,5 +9,4 @@ create table friends
     status       enum ('PENDING_FIRST','PENDING_SECOND','ACCEPTED'),
     UNIQUE (first_user, second_user)
 );
---
-rollback drop table friends;
+-- rollback drop table friends;

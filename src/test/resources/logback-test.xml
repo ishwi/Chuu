@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <timestamp key="startTimestamp" datePattern="yyyyMMddHHmmssSSS"/>
+    <appender name="File"
+              class="ch.qos.logback.core.FileAppender">
+        <!--              class="ch.qos.logback.core.rolling.RollingFileAppender">-->
+        <encoder>-->
+            <Pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg \(%file:%line\)%n</Pattern>
+        </encoder>
+        <file>Chuu-${startTimestamp}.log</file>
+    </appender>
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg )%n</pattern>
+        </encoder>
+    </appender>
+    <root level="INFO">
+        <appender-ref ref="File"/>
+        <appender-ref ref="STDOUT"/>
+
+    </root>
+</configuration>
+

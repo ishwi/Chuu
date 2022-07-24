@@ -1,5 +1,5 @@
---liquibase formatted sql
---changeset ish:noise
+-- liquibase formatted sql
+-- changeset ish:noise
 CREATE TABLE obscurity
 (
     id        bigint PRIMARY KEY AUTO_INCREMENT      NOT NULL,
@@ -14,6 +14,6 @@ ALTER TABLE guild
 
 ALTER TABLE user
     ALTER show_botted SET DEFAULT FALSE;
---rollback drop table obscurity;
---rollback alter table guild drop column set_on_join;
---rollback alter table user alter show_botted set default false;
+-- rollback drop table obscurity;
+-- rollback alter table guild drop column set_on_join;
+-- rollback alter table user alter show_botted set default false;
