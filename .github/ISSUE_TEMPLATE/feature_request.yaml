@@ -1,0 +1,33 @@
+name: Feature request
+description: File a feature request
+title: "[REQ]: "
+labels: ["enhancement"]
+assignees:
+  # - ishwi # uncomment to auto-assign
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for filing a feature request! Requests like these help improve the codebase and promote a better experience for all users.
+  - type: textarea
+    id: description
+    attributes:
+      label: Describe the feature
+      description: Describe clearly and in detail the feature you would like to see implemented
+      placeholder: |
+        ex. A command that lets me take over the world
+    validations:
+      required: true
+  - type: textarea
+    id: more_details
+    attributes:
+      label: More details?
+      description: Should we know about anything else?
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Code of Conduct
+      description: By submitting this issue, you agree to follow the [Code of Conduct](https://github.com/ishwi/Chuu/blob/master/CODE_OF_CONDUCT.md)
+      options:
+        - label: I agree to follow this project's Code of Conduct
+          required: true
