@@ -1,0 +1,52 @@
+name: Bug report
+description: File a bug report
+title: "[BUG]: "
+labels: ["bug"]
+# assignees:
+  # - ishwi # uncomment to auto-assign
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for filing a bug report! Reports like these help improve the codebase and promote a better experience for all users.
+  - type: textarea
+    id: description
+    attributes:
+      label: Describe the bug
+      description: Describe in full detail how the bug happened, what happened, and what you were doing when it happened
+      placeholder: |
+        ex. !aff command fails on a certain user ...
+        1. Executed !aff on some user
+        2. Command shows weird output
+        3. Same thing every time
+    validations:
+      required: true
+  - type: dropdown
+    id: version
+    attributes:
+      label: Version
+      description: Which version or method were you using to access this bot?
+      options:
+        - Public Discord bot (Default)
+        - Self-hosted instance
+        - Other
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant log output (if applicable)
+      description: If self-hosted, please paste log output from your console here
+      render: java
+  - type: textarea
+    id: more_details
+    attributes:
+      label: More details?
+      description: Should we know about anything else?
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Code of Conduct
+      description: By submitting this issue, you agree to follow the [Code of Conduct](https://github.com/ishwi/Chuu/blob/master/CODE_OF_CONDUCT.md)
+      options:
+        - label: I agree to follow this project's Code of Conduct
+          required: true
+    
