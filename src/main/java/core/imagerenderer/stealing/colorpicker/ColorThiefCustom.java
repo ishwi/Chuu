@@ -51,6 +51,15 @@ public class ColorThiefCustom {
         return Pair.of(color, palette.getRight());
     }
 
+    public static Color getDominantColor(BufferedImage sourceImage, int quality, boolean ignoreWhite) {
+        Pair<int[][], Color> returnValue = switch (sourceImage.getType()) {
+            case BufferedImage.TYPE_3BYTE_BGR, BufferedImage.TYPE_4BYTE_ABGR ->
+                    getPixelsFast(sourceImage, quality, ignoreWhite);
+            default -> getPixelsSlow(sourceImage, quality, ignoreWhite);
+        };
+        return returnValue.getRight();
+    }
+
     public static Pair<int[][], Color> getPalette(BufferedImage sourceImage, int colorCount) {
         Pair<MMCQ.CMap, Color> cmap = getColorMap(sourceImage, colorCount);
         if (cmap.getKey() == null) {
@@ -109,7 +118,8 @@ public class ColorThiefCustom {
         }
 
         Pair<int[][], Color> returnValue = switch (sourceImage.getType()) {
-            case BufferedImage.TYPE_3BYTE_BGR, BufferedImage.TYPE_4BYTE_ABGR -> getPixelsFast(sourceImage, quality, ignoreWhite);
+            case BufferedImage.TYPE_3BYTE_BGR, BufferedImage.TYPE_4BYTE_ABGR ->
+                    getPixelsFast(sourceImage, quality, ignoreWhite);
             default -> getPixelsSlow(sourceImage, quality, ignoreWhite);
         };
 
@@ -137,7 +147,7 @@ public class ColorThiefCustom {
         if (expectedDataLength != pixels.length) {
             throw new IllegalArgumentException(
                     "(expectedDataLength = " + expectedDataLength + ") != (pixels.length = "
-                            + pixels.length + ")");
+                    + pixels.length + ")");
         }
 
         // Store the RGB values in an array format suitable for quantize function
@@ -150,7 +160,7 @@ public class ColorThiefCustom {
         int[][] pixelArray = new int[numRegardedPixels][];
         int offset, r, g, b, a;
         long sumr = 0, sumg = 0, sumb = 0;
-
+        int count = 0;
         // Do the switch outside of the loop, that's much faster
         switch (type) {
             case BufferedImage.TYPE_3BYTE_BGR:
@@ -160,13 +170,14 @@ public class ColorThiefCustom {
                     g = pixels[offset + 1] & 0xFF;
                     r = pixels[offset + 2] & 0xFF;
 
-                    sumr += r;
-                    sumg += g;
-                    sumb += b;
+
 
                     // If pixel is not white
                     if (!(ignoreWhite && r > 250 && g > 250 && b > 250)) {
                         pixelArray[numUsedPixels] = new int[]{r, g, b};
+                        sumr += r;
+                        sumg += g;
+                        sumb += b;
                         numUsedPixels++;
                     }
                 }
@@ -180,13 +191,14 @@ public class ColorThiefCustom {
                     g = pixels[offset + 2] & 0xFF;
                     r = pixels[offset + 3] & 0xFF;
 
-                    sumr += r;
-                    sumg += g;
-                    sumb += b;
+
 
                     // If pixel is mostly opaque and not white
                     if (a >= 125 && !(ignoreWhite && r > 250 && g > 250 && b > 250)) {
                         pixelArray[numUsedPixels] = new int[]{r, g, b};
+                        sumr += r;
+                        sumg += g;
+                        sumb += b;
                         numUsedPixels++;
                     }
                 }
@@ -195,9 +207,11 @@ public class ColorThiefCustom {
             default:
                 throw new IllegalArgumentException("Unhandled type: " + type);
         }
-
+        if (pixelCount == 0) {
+            return Pair.of(Arrays.copyOfRange(pixelArray, 0, numUsedPixels), Color.WHITE);
+        }
         // Remove unused pixels from the array
-        Color averageColor = new Color((int) sumr / pixelCount, (int) sumg / pixelCount, (int) sumb / pixelCount);
+        Color averageColor = new Color((int) sumr / numUsedPixels, (int) sumg / numUsedPixels, (int) sumb / numUsedPixels);
         return Pair.of(Arrays.copyOfRange(pixelArray, 0, numUsedPixels), averageColor);
     }
 
@@ -239,16 +253,17 @@ public class ColorThiefCustom {
             g = (rgb >> 8) & 0xFF;
             b = (rgb) & 0xFF;
 
-            sumr += r;
-            sumg += g;
-            sumb += b;
 
             if (!(ignoreWhite && r > 250 && g > 250 && b > 250)) {
                 res[numUsedPixels] = new int[]{r, g, b};
+                sumr += r;
+                sumg += g;
+                sumb += b;
+
                 numUsedPixels++;
             }
         }
-        Color averageColor = new Color((int) sumr / pixelCount, (int) sumg / pixelCount, (int) sumb / pixelCount);
+        Color averageColor = new Color((int) sumr / numUsedPixels, (int) sumg / numUsedPixels, (int) sumb / numUsedPixels);
         return Pair.of(Arrays.copyOfRange(res, 0, numUsedPixels), averageColor);
     }
 }

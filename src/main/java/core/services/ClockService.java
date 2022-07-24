@@ -49,8 +49,8 @@ public class ClockService {
                         case BY_DAY -> byDay(x);
                     }, HashMap::new, Collectors.toList()));
 
-            List<BufferedImage> images = VirtualParallel.runIO(dayToData.entrySet().stream().sorted(Map.Entry.comparingByKey()).toList(),
-                    (Map.Entry<Integer, List<PreBillboardUserDataTimestamped>> t) -> {
+            List<ImageAndDay> imagesAndDays = VirtualParallel.runIO(dayToData.entrySet().stream().toList(),
+                    t -> {
                         Integer key = t.getKey();
                         List<PreBillboardUserDataTimestamped> value = t.getValue();
 
@@ -66,13 +66,14 @@ public class ClockService {
                             Graphics2D g = read.createGraphics();
                             GraphicUtils.setQuality(g);
                             g.dispose();
-                            return read;
+                            return new ImageAndDay(read, key);
 
                         } catch (IOException e) {
                             throw new RuntimeException(e);
                         }
                     }
             );
+            List<BufferedImage> images = imagesAndDays.stream().sorted(Comparator.comparingInt(ImageAndDay::day)).map(ImageAndDay::image).toList();
             GifSequenceWriter.saveGif(output, images, 0, 300);
 
 
@@ -99,5 +100,9 @@ public class ClockService {
 
     public enum ClockMode {
         BY_WEEK, BY_DAY
+    }
+
+    record ImageAndDay(BufferedImage image, Integer day) {
+
     }
 }

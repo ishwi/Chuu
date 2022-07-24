@@ -22,6 +22,7 @@ import core.services.tracklist.GlobalTracklistService;
 import core.services.tracklist.TracklistService;
 import core.services.validators.AlbumValidator;
 import core.util.ServiceView;
+import dao.entities.LastFMData;
 import dao.entities.Role;
 import dao.entities.ScrobbledAlbum;
 import dao.entities.Track;
@@ -99,17 +100,24 @@ public class TrackListRefreshCommand extends ConcurrentCommand<ArtistAlbumParame
         }
         EmbedBuilder eb = generateEmbed(e, artist, album, cover, trackList);
 
-        UnaryOperator<EmbedBuilder> timeOut = who -> who.setColor(CommandUtil.pastelColor()).clear().setTitle(String.format("Didn't change the tracklist for **%s** - **%s** using **%s**", artist, album, service))
+        UnaryOperator<EmbedBuilder> timeOut = who -> who.setColor(CommandUtil.pastelColor())
+                .clear()
+                .setTitle(String.format("Didn't change the tracklist for **%s** - **%s** using **%s**", artist, album, service))
                 .setColor(Color.RED);
 
         List<ConfirmatorItem> confirms = List.of(
-                new ConfirmatorItem(Reactions.ACCEPT, who -> who.clear().setColor(CommandUtil.pastelColor()).setTitle(String.format("Changed the tracklist for **%s** - **%s** using **%s**", artist, album, service)),
-                        (z) -> {
+                new ConfirmatorItem(Reactions.ACCEPT,
+                        who -> who.clear()
+                                .setColor(CommandUtil.pastelColor())
+                                .setTitle(String.format("Changed the tracklist for **%s** - **%s** using **%s**", artist, album, service)),
+                        message -> {
                             db.deleteTracklist(albumId);
                             db.storeTrackList(albumId, artistId, new HashSet<>(trackList));
                         }),
-                new ConfirmatorItem(Reactions.REJECT, timeOut, (z) -> {
-                }));
+                new ConfirmatorItem(Reactions.REJECT,
+                        timeOut,
+                        z -> {
+                        }));
 
         ActionRow of = ActionRow.of(ButtonUtils.danger("Cancel"), ButtonUtils.primary("Save tracklist"));
         return new ConfirmatorResult(List.of(of), message -> new Confirmator(eb, e, message, e.getAuthor().getIdLong(), confirms, timeOut, true, 60), eb);
@@ -153,8 +161,11 @@ public class TrackListRefreshCommand extends ConcurrentCommand<ArtistAlbumParame
 
     @Override
     public void onCommand(Context e, @NotNull ArtistAlbumParameters params) throws LastFmException, InstanceNotFoundException {
+        long author = e.getAuthor().getIdLong();
 
-        if (params.getLastFMData().getRole() != Role.ADMIN) {
+        LastFMData data = db.findLastFMData(author);
+
+        if (data.getRole() != Role.ADMIN) {
             sendMessage(e, "Only bot admins can use this command!").queue();
             return;
         }
@@ -184,7 +195,7 @@ public class TrackListRefreshCommand extends ConcurrentCommand<ArtistAlbumParame
         } else if (params.hasOptional("lastfm")) {
             doSend(() -> {
                 try {
-                    return tracklistService.getLastFmTracklist(params.getLastFMData(), artist, album).getTrackList();
+                    return tracklistService.getLastFmTracklist(data, artist, album).getTrackList();
                 } catch (LastFmException ex) {
                     return Collections.emptyList();
                 }
