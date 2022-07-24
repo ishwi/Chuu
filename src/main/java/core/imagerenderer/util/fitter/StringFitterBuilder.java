@@ -3,12 +3,13 @@ package core.imagerenderer.util.fitter;
 import core.imagerenderer.GraphicUtils;
 
 import java.awt.*;
+import java.util.Arrays;
 
 public class StringFitterBuilder {
 
 
     private Font baseFont = GraphicUtils.NORMAL_FONT;
-    private Font[] fallbacks = GraphicUtils.palletes;
+    private Font[] fallbacks = Arrays.copyOf(GraphicUtils.palletes, GraphicUtils.palletes.length);
     private StringFitter.FitStrategy fitStrategy = StringFitter.FitStrategy.WIDTH;
     private float startingSize;
 
