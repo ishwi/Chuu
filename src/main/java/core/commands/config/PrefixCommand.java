@@ -51,7 +51,7 @@ public class PrefixCommand extends ConcurrentCommand<CharacterParameters> {
         db.addGuildPrefix(e.getGuild().getIdLong(), newPrefix);
         PrefixService prefixService = Chuu.prefixService;
         prefixService.addGuildPrefix(e.getGuild().getIdLong(), newPrefix);
-        sendMessageQueue(e, m(PREFIX_COMMAND_SUCCESS, ';'));
+        sendMessageQueue(e, m(PREFIX_COMMAND_SUCCESS, newPrefix));
     }
 
     @Override
