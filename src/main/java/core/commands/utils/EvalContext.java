@@ -62,11 +62,7 @@ public record EvalContext(JDA jda, Context e,
 
 
     public void t() {
-        ChuuEmbedBuilder embed = new ChuuEmbedBuilder(e);
-        for (ConcurrentCommand.ThreadStats threadStat : threadStats) {
-            embed.addField(threadStat.command(), threadStat.toString().substring(0, 1023), false);
-        }
-        this.e.sendEmbed(embed).queue();
+        this.e.sendFile(org.apache.commons.io.IOUtils.toInputStream(threadStats.stream().map(ConcurrentCommand.ThreadStats::toString).collect(java.util.stream.Collectors.joining("\n\n"))), "a", "a").queue();
     }
 
     public void createAnonymousCommand(Consumer<ContextMessageReceived> mes) {

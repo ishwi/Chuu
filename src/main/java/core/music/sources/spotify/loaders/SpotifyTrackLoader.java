@@ -22,6 +22,7 @@ import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioSourceManager
 import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioItem;
 import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
+import com.sedmelluq.discord.lavaplayer.track.AudioReference;
 import core.music.sources.spotify.SpotifyAudioSourceManager;
 import dao.exceptions.ChuuServiceException;
 import org.apache.hc.core5.http.ParseException;
@@ -70,12 +71,13 @@ public class SpotifyTrackLoader extends Loader {
         AlbumSimplified album = execute.getAlbum();
         String name = album.getName();
         String url = Arrays.stream(album.getImages()).max(Comparator.comparingInt((Image x) -> x.getHeight() * x.getWidth())).map(Image::getUrl).orElse(null);
-        AudioItem ai = doYoutubeSearch(manager, "ytmsearch:" + song + " " + artist);
+        AudioItem ai = doYoutubeSearch(manager, "ytsearch:" + song + " " + artist);
         if (ai instanceof AudioPlaylist ap) {
             return new SpotifyAudioTrack((YoutubeAudioTrack) ap.getTracks().get(0), artist, name, song, url, this.sourceManager);
-        } else {
+        } else if (ai != AudioReference.NO_TRACK) {
             return new SpotifyAudioTrack((YoutubeAudioTrack) ai, artist, name, song, url, this.sourceManager);
         }
+        return ai;
     }
 
 }

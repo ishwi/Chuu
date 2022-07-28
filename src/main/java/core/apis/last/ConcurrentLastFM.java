@@ -46,14 +46,13 @@ import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -164,7 +163,8 @@ public class ConcurrentLastFM {//implements LastFMService {
         while (true) {
             try {
                 Chuu.incrementMetric();
-                HttpResponse<InputStream> send = client.send(method, HttpResponse.BodyHandlers.ofInputStream());
+                CompletableFuture<HttpResponse<InputStream>> cf = client.sendAsync(method, HttpResponse.BodyHandlers.ofInputStream());
+                HttpResponse<InputStream> send = cf.get(5, TimeUnit.SECONDS);
                 int responseCode = send.statusCode();
                 parseHttpCode(responseCode);
                 JSONObject jsonObject;
@@ -193,6 +193,8 @@ public class ConcurrentLastFM {//implements LastFMService {
                     Chuu.getLogger().warn("LAST.FM Internal Error");
                 }
                 Chuu.getLogger().warn(e.getMessage(), e);
+            } catch (ExecutionException | TimeoutException e) {
+                throw new RuntimeException(e);
             }
             if (++counter == 2) {
                 throw new LastFMConnectionException("500");
@@ -220,6 +222,7 @@ public class ConcurrentLastFM {//implements LastFMService {
     private HttpRequest createMethod(String url) {
         return HttpRequest.newBuilder()
                 .GET()
+                .timeout(Duration.ofSeconds(5))
                 .uri(URI.create(url))
                 .setHeader("User-Agent", "discordBot/ishwi6@gmail.com") // add request header
                 .build();
@@ -1896,7 +1899,9 @@ public class ConcurrentLastFM {//implements LastFMService {
         while (true) {
             try {
                 Chuu.incrementMetric();
-                HttpResponse<InputStream> send = client.send(method, HttpResponse.BodyHandlers.ofInputStream());
+
+                CompletableFuture<HttpResponse<InputStream>> cf = client.sendAsync(method, HttpResponse.BodyHandlers.ofInputStream());
+                HttpResponse<InputStream> send = cf.get(5, TimeUnit.SECONDS);
                 int responseCode = send.statusCode();
                 parseHttpCode(responseCode);
                 JSONObject jsonObject;
@@ -1919,7 +1924,12 @@ public class ConcurrentLastFM {//implements LastFMService {
                 }
 
                 return jsonObject;
-            } catch (InterruptedException | IOException | LastFMServiceException e) {
+            } catch (InterruptedException e) {
+                Chuu.getLogger().warn(e.getMessage(), e);
+                if (Thread.interrupted()) {
+                    throw new ChuuServiceException(e);
+                }
+            } catch (IOException | LastFMServiceException | ExecutionException | TimeoutException e) {
                 if (e instanceof LastFMServiceException) {
                     Chuu.getLogger().warn(method.uri().toString());
                     Chuu.getLogger().warn("LAST.FM Internal Error");

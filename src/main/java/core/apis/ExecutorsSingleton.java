@@ -3,8 +3,8 @@ package core.apis;
 import core.util.ChuuRejector;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -32,7 +32,7 @@ public class ExecutorsSingleton {
                 50,
                 30,
                 TimeUnit.SECONDS,
-                new SynchronousQueue<>(),
+                new ArrayBlockingQueue<>(1000),
                 r -> new Thread(r, "Chuu-executor-" + counter.getAndIncrement()),
                 new ChuuRejector("Command-Pool")
         );

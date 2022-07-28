@@ -40,6 +40,7 @@ import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 public class QueueCommand extends MusicCommand<CommandParameters> {
     public QueueCommand(ServiceView dao) {
@@ -105,8 +106,8 @@ public class QueueCommand extends MusicCommand<CommandParameters> {
 
         if (manager.getRadio() != null) {
             String b = "Currently streaming music from radio station " + manager.getRadio().getSource().getName() +
-                    ", requested by <@" + manager.getRadio().requester() +
-                    ">. When the queue is empty, random tracks from the station will be added.";
+                       ", requested by <@" + manager.getRadio().requester() +
+                       ">. When the queue is empty, random tracks from the station will be added.";
             eb.addField("Radio", b, false);
         }
 
@@ -136,12 +137,13 @@ public class QueueCommand extends MusicCommand<CommandParameters> {
 
 
         try (var scope = new StructuredTaskScope.ShutdownOnFailure()) {
-            List<Future<DecodedAndCoded>> items = queue.stream().map(decoding -> scope.fork(() ->
-            {
-                AudioTrack track = Chuu.playerManager.decodeAudioTrack(decoding);
-                TrackScrobble cf = manager.getTrackScrobble(track).join();
-                return new DecodedAndCoded(track, cf);
-            })).toList();
+            List<Future<DecodedAndCoded>> items = queue.stream().map(decoding ->
+                    scope.fork(() ->
+                    {
+                        AudioTrack track = Chuu.playerManager.decodeAudioTrack(decoding);
+                        TrackScrobble cf = manager.getTrackScrobble(track).get(10, TimeUnit.SECONDS);
+                        return new DecodedAndCoded(track, cf);
+                    })).toList();
             Future<DecodedAndCoded> last = scope.fork(() -> new DecodedAndCoded(manager.getCurrentTrack(), manager.getTrackScrobble().join()));
             scope.join();
 

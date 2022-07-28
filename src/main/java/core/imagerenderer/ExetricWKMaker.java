@@ -192,7 +192,7 @@ public class ExetricWKMaker {
         List<ReturnNowPlaying> nowPlayingArtistList = wrapperReturnNowPlaying.getReturnNowPlayings();
         StringFitter userMetadata = new StringFitterBuilder(initialSize, width).setBaseFont(g.getFont()).setMinSize(14).build();
 
-        for (int i = 0; i < nowPlayingArtistList.size() || i < maxRows; i++) {
+        for (int i = 0; i < maxRows; i++) {
             g.setColor(GraphicUtils.getBetter(backgroundColor));
             if (i < nowPlayingArtistList.size()) {
 

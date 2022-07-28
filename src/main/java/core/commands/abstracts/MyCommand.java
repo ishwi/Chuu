@@ -170,10 +170,14 @@ public abstract class MyCommand<T extends CommandParameters> implements EventLis
     public abstract String getName();
 
     protected void measureTime(Context e) {
-        long startTime = System.nanoTime();
-        boolean sucess = handleCommand(e);
-        long timeElapsed = System.nanoTime() - startTime;
-        logCommand(db, e, this, timeElapsed, sucess, e instanceof ContextMessageReceived);
+        try {
+            long startTime = System.nanoTime();
+            boolean sucess = handleCommand(e);
+            long timeElapsed = System.nanoTime() - startTime;
+            logCommand(db, e, this, timeElapsed, sucess, e instanceof ContextMessageReceived);
+        } catch (Exception ex) {
+            Chuu.getLogger().warn(ex.getMessage(), ex);
+        }
     }
 
 

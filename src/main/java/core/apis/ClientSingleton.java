@@ -1,9 +1,8 @@
 package core.apis;
 
 
-import core.util.ChuuVirtualPool;
-
 import java.net.http.HttpClient;
+import java.time.Duration;
 
 public class ClientSingleton {
 
@@ -18,12 +17,11 @@ public class ClientSingleton {
     }
 
 
-
     private static final class InstanceHolder {
 
         private static final HttpClient instance = HttpClient.newBuilder()
-                .executor(ChuuVirtualPool.of("Api-Executor"))
                 .priority(1) //HTTP/2 priority
+                .connectTimeout(Duration.ofSeconds(5))
                 .version(HttpClient.Version.HTTP_2)
                 .build();
 

@@ -21,8 +21,8 @@ public final class UpdateDatasource implements CommonDatasource {
         config.setTransactionIsolation("TRANSACTION_READ_UNCOMMITTED");
         config.setMaximumPoolSize(10);
         config.setMinimumIdle(0);
-        config.setIdleTimeout(30000);
-        config.setConnectionTimeout(100000);
+        config.setConnectionTimeout(5000);
+        config.setValidationTimeout(250);
         config.setPoolName("Update-Pool-Chuu");
         config.addDataSourceProperty("connectionCollation", "utf8mb4_unicode_ci");
         this.ds = new HikariDataSource(config);
