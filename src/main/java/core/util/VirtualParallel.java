@@ -30,7 +30,6 @@ public class VirtualParallel {
             scoper = ExecuteAllIgnoreErrors::new;
         } else {
             scoper = () -> new ExecuteSome<>(limit);
-            ;
         }
         try (var scope = scoper.get()) {
 
@@ -64,14 +63,12 @@ public class VirtualParallel {
     }
 
     private static final class ExecuteSome<T> extends CustomPools<T> {
-        private static final String LOG_PREFIX = "TRACER CustomStructuredTaskScope ";
 
         private final AtomicInteger successCounter = new AtomicInteger(0);
-        private final AtomicBoolean hasReachedThreshold = new AtomicBoolean(false);
         private final List<T> results = new ArrayList<>();
         // sanity check:
         private final AtomicInteger failCounter = new AtomicInteger(0);
-        private long numTasksForSuccess = 0;
+        private final long numTasksForSuccess;
 
         public ExecuteSome(long numTasksForSuccess) {
             this.numTasksForSuccess = numTasksForSuccess;

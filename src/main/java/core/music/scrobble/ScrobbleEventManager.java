@@ -10,11 +10,15 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class ScrobbleEventManager {
     private static final BlockingQueue<ScrobbleStatus> queue = new ArrayBlockingQueue<>(100);
     private static final AtomicBoolean doLoop = new AtomicBoolean(true);
-    private final StatusProcesser processer;
+    private final StatusProcessor processor;
 
-    public ScrobbleEventManager(StatusProcesser statusProcesser) {
-        processer = statusProcesser;
-        Thread.ofVirtual().name("Scrobble Manager").start(new ScrobbleLoop());
+    public ScrobbleEventManager(StatusProcessor statusProcessor) {
+        processor = statusProcessor;
+        Thread.ofVirtual().name("Scrobble Manager")
+                .allowSetThreadLocals(false)
+                .inheritInheritableThreadLocals(false)
+                .uncaughtExceptionHandler((t, e) -> Chuu.getLogger().warn(e.getMessage(), e))
+                .start(new ScrobbleLoop());
     }
 
     public void submitEvent(ScrobbleStatus status) {
@@ -22,7 +26,10 @@ public class ScrobbleEventManager {
     }
 
     private final class ScrobbleLoop implements Runnable {
-        private final ThreadFactory tf = Thread.ofVirtual().name("ScrobbleProcessor", 0).uncaughtExceptionHandler((t, e) -> Chuu.getLogger().warn(e.getMessage(), e)).factory();
+        private final ThreadFactory tf = Thread.ofVirtual().name("ScrobbleProcessor", 0)
+                .allowSetThreadLocals(false)
+                .inheritInheritableThreadLocals(false)
+                .uncaughtExceptionHandler((t, e) -> Chuu.getLogger().warn(e.getMessage(), e)).factory();
 
         @Override
         public void run() {
@@ -32,7 +39,7 @@ public class ScrobbleEventManager {
                     ScrobbleStatus take = queue.take();
                     tf.newThread(() -> {
                                 try {
-                                    processer.process(take);
+                                    processor.process(take);
                                 } catch (Exception e) {
                                     throw new RuntimeException(e);
                                 }

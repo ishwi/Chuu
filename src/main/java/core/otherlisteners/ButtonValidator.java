@@ -44,8 +44,11 @@ public class ButtonValidator<T> extends ReactionListener {
     private T currentElement;
 
 
-    public ButtonValidator(UnaryOperator<EmbedBuilder> getLastMessage, Supplier<T> elementFetcher, BiFunction<T, EmbedBuilder, EmbedBuilder> fillBuilder, EmbedBuilder who, Context context, long discordId, Map<String, Reaction<T, ButtonInteractionEvent, ButtonResult>> actionMap, List<ActionRow> actionRows, boolean allowOtherUsers, boolean renderInSameElement, long channelId) {
-        super(who, null, 30, context.getJDA(), channelId);
+    public ButtonValidator(UnaryOperator<EmbedBuilder> getLastMessage, Supplier<T> elementFetcher, BiFunction<T, EmbedBuilder, EmbedBuilder> fillBuilder, EmbedBuilder who, Context context,
+                           long discordId, Map<String, Reaction<T, ButtonInteractionEvent, ButtonResult>> actionMap, List<ActionRow> actionRows, boolean allowOtherUsers, boolean renderInSameElement, long channelId,
+                           long activeSeconds
+    ) {
+        super(who, null, activeSeconds, context.getJDA(), channelId);
         this.getLastMessage = getLastMessage;
         this.elementFetcher = elementFetcher;
         this.fillBuilder = fillBuilder;
@@ -152,9 +155,7 @@ public class ButtonValidator<T> extends ReactionListener {
         if (messageAction == null) {
             return;
         }
-        messageAction.queue(z -> {
-            this.message = z;
-        });
+        messageAction.queue(z -> this.message = z);
     }
 
     @Override

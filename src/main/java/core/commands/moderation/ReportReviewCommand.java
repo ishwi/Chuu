@@ -7,7 +7,7 @@ import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.otherlisteners.ButtonResult;
-import core.otherlisteners.ButtonValidator;
+import core.otherlisteners.ButtonValidatorBuilder;
 import core.otherlisteners.Reaction;
 import core.parsers.NoOpParser;
 import core.parsers.Parser;
@@ -155,8 +155,7 @@ public class ReportReviewCommand extends ConcurrentCommand<CommandParameters> {
                     Button.danger(STRIKE, "Strike").withEmoji(Emoji.fromUnicode(STRIKE))
             );
 
-            new ButtonValidator<>(
-                    finalEmbed -> {
+            new ButtonValidatorBuilder<ReportEntity>().setGetLastMessage(finalEmbed -> {
                         int reportCount = db.getReportCount();
                         String description = (navigationCounter.get() == 0) ? null : String.format("You have seen %d %s and decided to delete %d %s and to ignore %d", navigationCounter.get(), CommandUtil.singlePlural(navigationCounter.get(), "image", "images"), statBan.get(), CommandUtil.singlePlural(statBan.get(), "image", "images"), statIgnore.get());
                         String title;
@@ -173,10 +172,20 @@ public class ReportReviewCommand extends ConcurrentCommand<CommandParameters> {
                                 .setDescription(description)
                                 .setFooter(String.format("There are %d %s left to review", reportCount, CommandUtil.singlePlural(reportCount, "image", "images")))
                                 .setColor(ColorService.computeColor(e));
-                    },
-                    () -> db.getNextReport(maxId, skippedIds),
-                    builder.apply(e.getJDA(), totalReports, navigationCounter::get)
-                    , embedBuilder, e, e.getAuthor().getIdLong(), actionMap, List.of(of), false, true, e.getChannel().getIdLong());
+                    })
+                    .setElementFetcher(() -> db.getNextReport(maxId, skippedIds))
+                    .setFillBuilder(builder.apply(e.getJDA(), totalReports, navigationCounter::get))
+                    .setWho(embedBuilder)
+                    .setContext(e)
+                    .setDiscordId(e.getAuthor().getIdLong())
+                    .setActionMap(actionMap)
+                    .setActionRows(List.of(of))
+                    .setAllowOtherUsers(false)
+                    .setRenderInSameElement(true)
+                    .setChannelId(e.getChannel().getIdLong())
+                    .setActiveSeconds(90)
+                    .queue();
+
         } catch (Throwable ex) {
             Chuu.getLogger().warn(ex.getMessage(), ex);
         } finally {

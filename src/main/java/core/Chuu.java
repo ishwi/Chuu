@@ -18,7 +18,7 @@ import core.music.ExtendedAudioPlayerManager;
 import core.music.PlayerRegistry;
 import core.music.listeners.VoiceListener;
 import core.music.scrobble.ScrobbleEventManager;
-import core.music.scrobble.StatusProcesser;
+import core.music.scrobble.StatusProcessor;
 import core.music.utils.ScrobbleProcesser;
 import core.otherlisteners.*;
 import core.services.*;
@@ -134,7 +134,7 @@ public class Chuu {
         coverService = new CoverService(service);
         DiscogsSingleton.init(properties.getProperty("DC_SC"), properties.getProperty("DC_KY"));
         SpotifySingleton.init(properties.getProperty("client_ID"), properties.getProperty("client_Secret"));
-        scrobbleEventManager = new ScrobbleEventManager(new StatusProcesser(service));
+        scrobbleEventManager = new ScrobbleEventManager(new StatusProcessor(service));
         scrobbleProcesser = new ScrobbleProcesser(new AlbumFinder(service, LastFMFactory.getNewInstance()));
         playerManager = new ExtendedAudioPlayerManager(scrobbleEventManager, scrobbleProcesser);
         playerRegistry = new PlayerRegistry(playerManager);

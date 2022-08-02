@@ -6,8 +6,6 @@ import core.Chuu;
 import core.apis.last.ConcurrentLastFM;
 import core.apis.last.LastFMFactory;
 import core.apis.last.entities.Scrobble;
-import core.exceptions.LastFmException;
-import core.util.ChuuVirtualPool;
 import core.util.VirtualParallel;
 import dao.ChuuService;
 import dao.entities.LastFMData;
@@ -18,20 +16,18 @@ import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-public class StatusProcesser {
+public class StatusProcessor {
     private static final Cache<Identifier, ScrobbleStatus> statuses = Caffeine.newBuilder()
             .expireAfterAccess(60, TimeUnit.MINUTES).build();
-    private static final Cache<Identifier, ScrobbleStatus> overriden = Caffeine.newBuilder()
+    private static final Cache<Identifier, ScrobbleStatus> overridden = Caffeine.newBuilder()
             .expireAfterAccess(60, TimeUnit.MINUTES).maximumSize(500L).build();
-    private static final Executor scrobbleRequester = ChuuVirtualPool.of("Scrobbler-Manager");
     private final ConcurrentLastFM lastFM = LastFMFactory.getNewInstance();
     private final ChuuService db;
 
-    public StatusProcesser(ChuuService db) {
+    public StatusProcessor(ChuuService db) {
         this.db = db;
     }
 
@@ -50,7 +46,7 @@ public class StatusProcesser {
         }
     }
 
-    private void processChapterChange(ScrobbleStatus next) throws LastFmException {
+    private void processChapterChange(ScrobbleStatus next) {
         processEnd(next);
         processStart(next);
     }
@@ -65,9 +61,9 @@ public class StatusProcesser {
         return null;
     }
 
-    private ScrobbleStatus evictOverriden(ScrobbleStatus next) {
+    private ScrobbleStatus evictOverridden(ScrobbleStatus next) {
         Identifier key = genId(next);
-        ScrobbleStatus status = overriden.getIfPresent(key);
+        ScrobbleStatus status = overridden.getIfPresent(key);
         if (status != null) {
             statuses.invalidate(key);
             return status;
@@ -75,7 +71,7 @@ public class StatusProcesser {
         return null;
     }
 
-    private void processMetadataChange(ScrobbleStatus next) throws LastFmException {
+    private void processMetadataChange(ScrobbleStatus next) {
         ScrobbleStatus previous = evict(next);
         if (previous == null) {
             Chuu.getLogger().info("Something went wrong metadata, didnt exists previous");
@@ -92,7 +88,7 @@ public class StatusProcesser {
     private void processStart(ScrobbleStatus status) {
         ScrobbleStatus previous = statuses.get(genId(status), (k) -> status);
         if (previous != null) {
-            overriden.put(genId(previous), previous);
+            overridden.put(genId(previous), previous);
         }
         Set<LastFMData> scrobbleableUsers = getUsers(status);
 
@@ -138,7 +134,7 @@ public class StatusProcesser {
     private void processEnd(ScrobbleStatus status) {
         ScrobbleStatus first = evict(status);
         if (first == null) {
-            first = evictOverriden(status);
+            first = evictOverridden(status);
             if (first == null) {
                 Chuu.getLogger().warn("Was not able to remove scrobble {}", status);
 //                return;

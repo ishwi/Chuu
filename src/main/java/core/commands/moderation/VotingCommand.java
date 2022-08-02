@@ -6,10 +6,7 @@ import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.exceptions.LastFmException;
-import core.otherlisteners.ButtonResult;
-import core.otherlisteners.ButtonValidator;
-import core.otherlisteners.Reaction;
-import core.otherlisteners.ReactionaryResult;
+import core.otherlisteners.*;
 import core.parsers.ArtistParser;
 import core.parsers.Parser;
 import core.parsers.params.ArtistParameters;
@@ -152,11 +149,19 @@ public class VotingCommand extends ConcurrentCommand<ArtistParameters> {
             return allArtistImages.get(counter.get());
         };
         var result = processButtonActions(e, allArtistImages, lastFMData, counter, size);
-        new ButtonValidator<>(
-                finisher,
-                fetcher,
-                builder.apply(e.getJDA(), size, counter)
-                , embedBuilder, e, e.getAuthor().getIdLong(), result.map, result.rows, true, true, e.getChannel().getIdLong());
+        new ButtonValidatorBuilder<VotingEntity>()
+                .setGetLastMessage(finisher)
+                .setElementFetcher(fetcher)
+                .setFillBuilder(builder.apply(e.getJDA(), size, counter))
+                .setWho(embedBuilder)
+                .setContext(e)
+                .setDiscordId(e.getAuthor().getIdLong())
+                .setActionMap(result.map)
+                .setActionRows(result.rows)
+                .setAllowOtherUsers(true)
+                .setRenderInSameElement(true)
+                .setChannelId(e.getChannel().getIdLong())
+                .queue();
 
     }
 

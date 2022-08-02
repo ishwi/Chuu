@@ -3,6 +3,7 @@ package core.commands.abstracts;
 import core.Chuu;
 import core.commands.Context;
 import core.commands.utils.CommandCategory;
+import core.commands.utils.CommandUtil;
 import core.exceptions.LastFmException;
 import core.parsers.NpParser;
 import core.parsers.Parser;
@@ -36,7 +37,7 @@ public abstract class NpCommand extends ConcurrentCommand<NowPlayingParameters> 
     public void onCommand(Context e, @Nonnull NowPlayingParameters params) {
         NowPlayingArtist np = params.getNowPlayingArtist();
         doSomethingWithArtist(np, e, params.getLastFMData().getDiscordId(), params.getLastFMData(), params);
-        Thread.startVirtualThread(() -> {
+        CommandUtil.runLog(() -> {
             if (!StringUtils.isBlank(np.url())) {
                 try {
                     long trackId = new TrackValidator(db, lastFM).validate(np.artistName(), np.songName()).getTrackId();

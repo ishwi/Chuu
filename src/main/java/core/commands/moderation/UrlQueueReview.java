@@ -7,8 +7,9 @@ import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.otherlisteners.ButtonResult;
-import core.otherlisteners.ButtonValidator;
+import core.otherlisteners.ButtonValidatorBuilder;
 import core.otherlisteners.Reaction;
+import core.otherlisteners.util.Response;
 import core.parsers.NoOpParser;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
@@ -29,10 +30,14 @@ import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 
 import javax.annotation.Nonnull;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiFunction;
 import java.util.function.Supplier;
+import java.util.function.UnaryOperator;
 
 import static core.otherlisteners.Reactions.*;
 
@@ -107,25 +112,59 @@ public class UrlQueueReview extends ConcurrentCommand<CommandParameters> {
         Map<Long, Integer> approvedMap = new HashMap<>();
         Queue<ImageQueue> queue = new ArrayDeque<>(db.getNextQueue(params.hasOptional("new")));
         AtomicInteger totalImages = new AtomicInteger(queue.size());
+
+
+        ActionRow mainRow = ActionRow.of(
+                Button.danger(DELETE, "Deny").withEmoji(Emoji.fromUnicode(DELETE)),
+                Button.primary(ACCEPT, "Accept").withEmoji(Emoji.fromUnicode(ACCEPT)),
+                Button.secondary(RIGHT_ARROW, "Skip").withEmoji(Emoji.fromUnicode(RIGHT_ARROW)),
+                Button.danger(STRIKE, "Strike").withEmoji(Emoji.fromUnicode(STRIKE))
+        );
+
+        AtomicReference<ImageQueue> previousItem = new AtomicReference<>(queue.peek());
+
+
+        Supplier<ActionRow> reverseSearchRow = () -> {
+            ImageQueue peek = previousItem.get();
+            if (peek != null) {
+                String encoded = URLEncoder.encode(peek.url(), StandardCharsets.UTF_8);
+                return ActionRow.of(
+                        Button.link("https://yandex.com/images/search?rpt=imageview&url=" + encoded, "Yandex"),
+                        Button.link("https://www.google.com/searchbyimage?&image_url=" + encoded, "Google")
+                );
+
+            }
+            return null;
+        };
+
+
+        ButtonResult buttonResponse = () -> {
+            ActionRow secondRow = reverseSearchRow.get();
+            if (secondRow != null) {
+                return new ButtonResult.Result(false, List.of(mainRow, secondRow));
+            }
+            return Response.def;
+        };
+
         HashMap<String, Reaction<ImageQueue, ButtonInteractionEvent, ButtonResult>> actionMap = new LinkedHashMap<>();
         actionMap.put(DELETE, (q, r) -> {
             rejectedMap.merge(q.uploader(), 1, Integer::sum);
             db.rejectQueuedImage(q.queuedId(), q);
             statDeclined.getAndIncrement();
             navigationCounter.incrementAndGet();
-            return ButtonResult.defaultResponse;
-
+            return buttonResponse;
         });
+
         actionMap.put(RIGHT_ARROW, (a, r) -> {
             navigationCounter.incrementAndGet();
-            return ButtonResult.defaultResponse;
+            return buttonResponse;
         });
         actionMap.put(ACCEPT, (a, r) -> {
             approvedMap.merge(a.uploader(), 1, Integer::sum);
 
             statAccepeted.getAndIncrement();
             navigationCounter.incrementAndGet();
-            Thread.startVirtualThread(() -> {
+            CommandUtil.runLog(() -> {
                 long id = db.acceptImageQueue(a.queuedId(), a.url(), a.artistId(), a.uploader());
                 if (a.guildId() != null) {
                     db.insertServerCustomUrl(id, a.guildId(), a.artistId());
@@ -144,18 +183,19 @@ public class UrlQueueReview extends ConcurrentCommand<CommandParameters> {
                     }
                 }
             });
-            return ButtonResult.defaultResponse;
+            return buttonResponse;
         });
 
         actionMap.put(STRIKE, (a, r) -> {
             strikesMap.merge(a.uploader(), 1, Integer::sum);
-            Thread.startVirtualThread(() -> {
+            CommandUtil.runLog(() -> {
                 boolean banned = db.strikeQueue(a.queuedId(), a);
                 if (banned) {
-                    TextChannel textChannelById = Chuu.getShardManager().getTextChannelById(Chuu.channel2Id);
                     db.removeQueuedPictures(a.uploader());
                     queue.removeIf(qI -> qI.uploader() == a.uploader());
                     totalImages.set(queue.size());
+
+                    TextChannel textChannelById = Chuu.getShardManager().getTextChannelById(Chuu.channel2Id);
                     if (textChannelById != null)
                         textChannelById.sendMessageEmbeds(new ChuuEmbedBuilder(e).setTitle("Banned user for adding pics")
                                 .setDescription("User: **%s**\n".formatted(User.fromId(a.uploader()).getAsMention())).build()).queue();
@@ -163,43 +203,61 @@ public class UrlQueueReview extends ConcurrentCommand<CommandParameters> {
             });
             statDeclined.getAndIncrement();
             navigationCounter.incrementAndGet();
-            return ButtonResult.defaultResponse;
+            return buttonResponse;
         });
 
-        ActionRow of = ActionRow.of(
-                Button.danger(DELETE, "Deny").withEmoji(Emoji.fromUnicode(DELETE)),
-                Button.primary(ACCEPT, "Accept").withEmoji(Emoji.fromUnicode(ACCEPT)),
-                Button.secondary(RIGHT_ARROW, "Skip").withEmoji(Emoji.fromUnicode(RIGHT_ARROW)),
-                Button.danger(STRIKE, "Strike").withEmoji(Emoji.fromUnicode(STRIKE))
-        );
-        new ButtonValidator<>(
-                finalEmbed -> {
-                    int reportCount = db.getQueueUrlCount();
-                    String description = (navigationCounter.get() == 0) ? null :
-                            String.format("You have seen %d %s and decided to reject %d %s and to accept %d",
-                                    navigationCounter.get(),
-                                    CommandUtil.singlePlural(navigationCounter.get(), "image", "images"),
-                                    statDeclined.get(),
-                                    CommandUtil.singlePlural(statDeclined.get(), "image", "images"),
-                                    statAccepeted.get());
-                    String title;
-                    if (navigationCounter.get() == 0) {
-                        title = "There are no images in the queue";
-                    } else if (navigationCounter.get() == totalImages.get()) {
-                        title = "There are no more images in the queue";
-                    } else {
-                        title = "Timed Out";
-                    }
-                    return finalEmbed.setTitle(title)
-                            .setImage(null)
-                            .clearFields()
-                            .setDescription(description)
-                            .setFooter(String.format("There are %d %s left to review", reportCount, CommandUtil.singlePlural(reportCount, "image", "images")))
-                            .setColor(CommandUtil.pastelColor());
-                },
-                queue::poll,
-                builder.apply(e.getJDA(), totalImages, navigationCounter::get, strikesMap, rejectedMap, approvedMap)
-                , embedBuilder, e, e.getAuthor().getIdLong(), actionMap, List.of(of), false, true, e.getChannel().getIdLong());
+
+        List<ActionRow> initialList;
+
+        ActionRow secondRow = reverseSearchRow.get();
+        if (secondRow != null) {
+            initialList = List.of(mainRow, secondRow);
+        } else {
+            initialList = List.of(mainRow);
+        }
+
+        UnaryOperator<EmbedBuilder> finishingView = prev -> {
+            int reportCount = db.getQueueUrlCount();
+            String description = (navigationCounter.get() == 0) ? null :
+                    String.format("You have seen %d %s and decided to reject %d %s and to accept %d",
+                            navigationCounter.get(),
+                            CommandUtil.singlePlural(navigationCounter.get(), "image", "images"),
+                            statDeclined.get(),
+                            CommandUtil.singlePlural(statDeclined.get(), "image", "images"),
+                            statAccepeted.get());
+            String title;
+            if (navigationCounter.get() == 0) {
+                title = "There are no images in the queue";
+            } else if (navigationCounter.get() == totalImages.get()) {
+                title = "There are no more images in the queue";
+            } else {
+                title = "Timed out";
+            }
+            return prev.setTitle(title)
+                    .setImage(null)
+                    .clearFields()
+                    .setDescription(description)
+                    .setFooter(String.format("There are %d %s left to review", reportCount, CommandUtil.singlePlural(reportCount, "image", "images")))
+                    .setColor(CommandUtil.pastelColor());
+        };
+
+        new ButtonValidatorBuilder<ImageQueue>()
+                .setGetLastMessage(finishingView)
+                .setElementFetcher(() -> {
+                    ImageQueue nextInQ = queue.poll();
+                    previousItem.set(nextInQ);
+                    return nextInQ;
+                }).setFillBuilder(builder.apply(e.getJDA(), totalImages, navigationCounter::get, strikesMap, rejectedMap, approvedMap))
+                .setWho(embedBuilder)
+                .setContext(e)
+                .setDiscordId(e.getAuthor().getIdLong())
+                .setActionMap(actionMap)
+                .setActionRows(initialList)
+                .setAllowOtherUsers(false)
+                .setRenderInSameElement(true)
+                .setChannelId(e.getChannel().getIdLong())
+                .setActiveSeconds(90)
+                .queue();
 
     }
 
