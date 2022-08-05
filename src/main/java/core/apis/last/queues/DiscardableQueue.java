@@ -1,11 +1,14 @@
 package core.apis.last.queues;
 
-import core.Chuu;
 import core.apis.last.entities.chartentities.UrlCapsule;
-import core.imagerenderer.GraphicUtils;
+import core.commands.utils.CommandUtil;
+import core.util.VirtualParallel;
+import dao.exceptions.ChuuServiceException;
 import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Objects;
@@ -14,7 +17,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 
 public class DiscardableQueue<T extends UrlCapsule> implements BlockingQueue<UrlCapsule> {
-    protected final LinkedBlockingQueue<CompletableFuture<?>> taskQueue;
+    protected final LinkedBlockingQueue<CompletableFuture<T>> taskQueue;
     final boolean needsImages;
     private final int maxNumberOfElements;
     private final LinkedBlockingQueue<UrlCapsule> innerQueue;
@@ -39,24 +42,19 @@ public class DiscardableQueue<T extends UrlCapsule> implements BlockingQueue<Url
 
     @Override
     public boolean offer(@Nonnull UrlCapsule item) {
-        CompletableFuture<?> future = CompletableFuture.supplyAsync(() -> {
+        CompletableFuture<T> future = CommandUtil.supplyLog(() -> {
             if (innerQueue.size() < maxNumberOfElements) {
 
                 T entity = factoryFunction.apply(item);
                 if (!discard.test(entity)) {
                     innerQueue.add(entity);
-                } else {
-                    cleanUp(entity);
                 }
+                return entity;
 
             }
-            return 0;
-        }, GraphicUtils.GRAPHIC_EXECUTOR).toCompletableFuture();
+            return null;
+        });
         return taskQueue.offer(future);
-    }
-
-    private void cleanUp(T entity) {
-        //
     }
 
 
@@ -67,16 +65,17 @@ public class DiscardableQueue<T extends UrlCapsule> implements BlockingQueue<Url
             throw new IllegalArgumentException();
         if (maxElements <= 0)
             return 0;
-        int counter = 0;
-        for (CompletableFuture<?> urlCapsuleCompletableFuture : taskQueue) {
-            try {
-                urlCapsuleCompletableFuture.get();
-            } catch (InterruptedException | ExecutionException e) {
-                Chuu.getLogger().warn("Future stopped", e);
+        try (var scope = new VirtualParallel.ExecuteAllIgnoreErrors<>()) {
+            for (CompletableFuture<?> urlCapsuleCompletableFuture : taskQueue) {
+                scope.fork(urlCapsuleCompletableFuture::get);
             }
+            scope.joinUntil(Instant.now().plus(10, ChronoUnit.SECONDS));
+        } catch (InterruptedException | TimeoutException e) {
+            throw new ChuuServiceException(e);
         }
         innerQueue.drainTo(c);
-        return counter;
+
+        return 0;
     }
 
     @Override

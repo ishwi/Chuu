@@ -2,13 +2,14 @@ package core.imagerenderer;
 
 import core.Chuu;
 import core.commands.Context;
+import core.commands.utils.CommandUtil;
 import core.imagerenderer.stealing.blur.GaussianFilter;
 import core.imagerenderer.stealing.colorpicker.ColorThiefCustom;
 import core.imagerenderer.util.CIELab;
 import core.imagerenderer.util.D;
 import core.imagerenderer.util.fitter.StringFitter;
 import core.imagerenderer.util.fitter.StringFitterBuilder;
-import core.util.ChuuVirtualPool;
+import core.services.ChuuRunnable;
 import dao.entities.ReturnNowPlaying;
 import dao.entities.WrapperReturnNowPlaying;
 import net.dv8tion.jda.api.entities.Message;
@@ -19,27 +20,28 @@ import javax.annotation.Nullable;
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.font.LineBreakMeasurer;
-import java.awt.font.TextAttribute;
 import java.awt.font.TextLayout;
-import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
-import java.io.File;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.AttributedString;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import java.util.Random;
-import java.util.concurrent.ExecutorService;
+import java.util.stream.Stream;
 
 public class GraphicUtils {
-    public static final ExecutorService GRAPHIC_EXECUTOR = ChuuVirtualPool.of("Graphic-Pool-");
     public static final BufferedImage noArtistImage;
     public static final Font NORMAL_FONT = new Font("Noto Sans", Font.PLAIN, 14);
     static final Random ran = new Random();
-    static final File CacheDirectory;
+    static final Path CACHE_DIRECTORY;
     static final Font EMOJI_FONT_BACKUP = new Font("Segoe UI Emoji", Font.PLAIN, 14);
     static final Font NAMARE_FONT = new Font("Nirmala UI semilight", Font.PLAIN, 14);
     static final Font HEBREW_FONT = new Font("Heebo Light", Font.PLAIN, 14);
@@ -51,7 +53,8 @@ public class GraphicUtils {
     private static final Font KOREAN_FONT = new Font("Malgun Gothic", Font.PLAIN, 14);
     private static final Font EMOJI_FONT = new Font("Symbola", Font.PLAIN, 14);
     public static final Font[] palletes = new Font[]{JAPANESE_FIRST, JAPANESE_FONT, KOREAN_FONT, EMOJI_FONT, EMOJI_FONT_BACKUP, HEBREW_FONT, NAMARE_FONT, ARABIC_FONT, THAI_FONT};
-    private static final File walpepes;
+    private static final Path wallpaperDir;
+    public static List<Path> wallpapers;
 
     static {
 
@@ -65,9 +68,12 @@ public class GraphicUtils {
             properties.load(in);
             String cache_folder = properties.getProperty("CACHE_FOLDER");
             String path = properties.getProperty("WALLPAPER_FOLDER");
-            walpepes = new File(path);
-            CacheDirectory = new File(cache_folder);
-            assert CacheDirectory.isDirectory();
+            wallpaperDir = Paths.get(path);
+            try (Stream<Path> list = Files.list(wallpaperDir)) {
+                wallpapers = list.filter(f -> !Files.isDirectory(f)).toList();
+            }
+            CACHE_DIRECTORY = Paths.get(cache_folder);
+            if (!Files.isDirectory(CACHE_DIRECTORY)) throw new AssertionError();
             noArtistImage = ImageIO.read(in2);
         } catch (IOException e) {
             throw new IllegalStateException("/images/noArtistImage.png should exists under resources!!");
@@ -77,19 +83,12 @@ public class GraphicUtils {
     private GraphicUtils() {
     }
 
-    public static Color slightlydarker(Color color) {
-        return slightlydarker(color, 0.85);
-    }
 
-    public static Color slightlydarker(Color color, double factor) {
+    public static Color slightlyDarker(Color color, double factor) {
         return new Color(Math.max((int) (color.getRed() * factor), 0),
                 Math.max((int) (color.getGreen() * factor), 0),
                 Math.max((int) (color.getBlue() * factor), 0),
                 color.getAlpha());
-    }
-
-    public static Color slightlybrighter(Color color) {
-        return slightlybrighter(color, 0.85);
     }
 
     private static int clamp(int input) {
@@ -176,69 +175,10 @@ public class GraphicUtils {
     }
 
 
-    public static StringFitter.FontMetadata getFont(Graphics2D g, String test, Font startFont, float size, int maxWidth, int minFontSize, int fontStyle, Font... fonts) {
-        AttributedString result = new AttributedString(test);
-        int length = test.length();
-        int i = startFont.canDisplayUpTo(test);
-
-        // Can display at least a character
-        int maxSize = 0;
-        Font maxFont = startFont;
-
-
-        List<StringFitter.StringAttributes> temp = new ArrayList<>();
-        if (i != 0) {
-            result.addAttribute(TextAttribute.FONT, startFont.deriveFont(fontStyle, size), 0, length);
-            maxSize = i;
-        }
-        // Couldnt display the whole string
-        if (i != -1) {
-            for (Font value : fonts) {
-                String continued = test.substring(i);
-                int j = value.canDisplayUpTo(continued);
-                // We didnt have a main font.
-                if ((j != 0) && i == 0) {
-                    maxSize = j;
-                    temp.add(new StringFitter.StringAttributes(value, 0, length));
-                    if (j == -1) {
-                        i = j;
-                        maxFont = value;
-                        break;
-                    }
-                } else if (j == -1) {
-                    temp.add(new StringFitter.StringAttributes(value, i, length));
-                    maxFont = value;
-                    break;
-                } else if (j != 0) {
-                    if (j > maxSize) {
-                        maxSize = j;
-                        maxFont = value;
-                    }
-                    temp.add(new StringFitter.StringAttributes(value, i, i + j));
-                    i += j;
-                }
-            }
-        }
-        float sizeFont = size;
-        while (g.getFontMetrics(maxFont.deriveFont(sizeFont)).stringWidth(test) > maxWidth && sizeFont > minFontSize) {
-            sizeFont -= 2;
-        }
-        g.getFontMetrics(maxFont).getStringBounds(test, g);
-        for (StringFitter.StringAttributes t : temp) {
-            result.addAttribute(TextAttribute.FONT, t.font().deriveFont(fontStyle, sizeFont), t.begginging(), t.end());
-        }
-        Rectangle2D bounds = g.getFontMetrics(maxFont).getStringBounds(test, g);
-        if (i == 0) {
-            result.addAttribute(TextAttribute.FONT, startFont.deriveFont(fontStyle, sizeFont), 0, length);
-        }
-        return new StringFitter.FontMetadata(result, bounds, maxFont.deriveFont(fontStyle, sizeFont));
-    }
-
-
     public static void drawImageInCorner(String urlImage, Graphics2D g) {
         BufferedImage read = GraphicUtils.getImage(urlImage);
         if (read != null) {
-            BufferedImage image = Scalr.resize(read, 100, 100);
+            BufferedImage image = GraphicUtils.resizeOrCrop(read, 100);
             g.drawImage(image, 10, 750 - 110, null);
         }
 
@@ -532,25 +472,30 @@ public class GraphicUtils {
     public static void initRandomImageBlurredBackground(final Graphics2D g, final int SIZE_X, final int SIZE_Y) {
         BufferedImage bim;
 
-        Properties properties = new Properties();
-        File[] files = walpepes.listFiles();
+        List<Path> files = wallpapers;
+        if (ran.nextFloat() > 0.9995) {
+            try (Stream<Path> list = Files.list(wallpaperDir)) {
+                wallpapers = list.filter(f -> !Files.isDirectory(f)).toList();
+            } catch (IOException e) {
+                // Do nothing
+            }
+        }
         if (files == null) {
             return;
         }
-        File file;
-        do {
-            file = files[GraphicUtils.ran.nextInt(files.length)];
-        } while (file.isDirectory());
+
         try {
-            BufferedImage temp = ImageIO.read(file);
+            int i = GraphicUtils.ran.nextInt(files.size());
+            Path file = files.get(i);
+            BufferedImage temp = ImageIO.read(new BufferedInputStream(Files.newInputStream(file)));
             if (temp != null) {
                 bim = cropImage(temp, SIZE_X, SIZE_Y);
                 temp.flush();
                 g.drawImage(bim, new GaussianFilter(75), 0, 0);
                 bim.flush();
             }
-        } catch (IOException e) {
-            Chuu.getLogger().info("Error reading file {} ", file.getName());
+        } catch (Exception e) {
+            Chuu.getLogger().warn(e.getMessage(), e);
         }
 
     }
@@ -578,10 +523,10 @@ public class GraphicUtils {
         }
         String path = url.replaceAll("[\\\\/:;?<>\"|*]", "_");
         path = path.substring(0, Math.min(path.length(), 150));
-        File file = new File(CacheDirectory, path);
-        if (file.exists()) {
-            try {
-                return ImageIO.read(file);
+        Path file = CACHE_DIRECTORY.resolve(path);
+        if (Files.exists(file)) {
+            try (var is = new BufferedInputStream(Files.newInputStream(file))) {
+                return ImageIO.read(is);
             } catch (IOException e) {
                 Chuu.getLogger().warn("Error reading image {}", file, e);
                 return downloadImage(url, file);
@@ -591,12 +536,15 @@ public class GraphicUtils {
         }
     }
 
-    private static BufferedImage downloadImage(String url, File file) {
-        try {
-            URL uri = new URL(url);
-            BufferedImage read = ImageIO.read(uri);
+    private static BufferedImage downloadImage(String url, Path file) {
+        try (var is = new BufferedInputStream(new URL(url).openStream())) {
+            BufferedImage read = ImageIO.read(is);
             if (read != null) {
-                ImageIO.write(read, "png", file);
+                CommandUtil.runLog((ChuuRunnable) () -> {
+                    try (var output = new BufferedOutputStream(Files.newOutputStream(file))) {
+                        ImageIO.write(read, "png", output);
+                    }
+                });
             }
             return read;
         } catch (IOException | ArrayIndexOutOfBoundsException ex) {
@@ -645,5 +593,32 @@ public class GraphicUtils {
         return chartQuality;
     }
 
+    static BufferedImage resizeOrCrop(BufferedImage backgroundImage, int size) {
+        int cropStartX = 0;
+        int cropStartY = 0;
+        int h = backgroundImage.getHeight();
+        int w = backgroundImage.getWidth();
+        BufferedImage cover;
+        if (w != h) {
+            int constraint = Math.min(h, w);
+            if (h > size || w > size) {
+                if (h == constraint) {
+                    cropStartX = (w - h) / 2;
+                }
+                if (w == constraint) {
+                    cropStartY = (h - w) / 2;
+                }
+                BufferedImage cropped = Scalr.crop(backgroundImage, cropStartX, cropStartY, constraint, constraint, Scalr.OP_ANTIALIAS);
+                cover = Scalr.resize(cropped, Scalr.Method.QUALITY, Scalr.Mode.AUTOMATIC, size, Scalr.OP_ANTIALIAS);
+                cropped.flush();
+
+            } else {
+                cover = Scalr.resize(backgroundImage, Scalr.Method.QUALITY, Scalr.Mode.AUTOMATIC, size, Scalr.OP_ANTIALIAS);
+            }
+        } else {
+            cover = Scalr.resize(backgroundImage, Scalr.Method.QUALITY, Scalr.Mode.AUTOMATIC, size, Scalr.OP_ANTIALIAS);
+        }
+        return cover;
+    }
 }
 

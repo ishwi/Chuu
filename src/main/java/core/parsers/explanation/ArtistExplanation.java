@@ -6,6 +6,7 @@ import core.parsers.explanation.util.Explanation;
 import core.parsers.explanation.util.ExplanationLineTypeAutocomplete;
 import core.parsers.explanation.util.Interactible;
 import dao.ChuuService;
+import dao.entities.ScrobbledArtist;
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.Command;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
@@ -26,7 +27,11 @@ public class ArtistExplanation implements Explanation {
 
         ChuuService db = Chuu.getDb();
         if (StringUtils.isBlank(search)) {
-            return db.getAllUserArtist(e.getUser().getIdLong(), 25).stream().map(x -> Autocompletable.of(x.getArtist())).toList();
+            List<ScrobbledArtist> allUserArtist = db.getAllUserArtist(e.getUser().getIdLong(), 25);
+            if (allUserArtist.isEmpty()) {
+                return db.searchArtists(search, 25).stream().map(Autocompletable::of).toList();
+            }
+            return allUserArtist.stream().map(x -> Autocompletable.of(x.getArtist())).toList();
         }
         return db.searchArtists(search, 25).stream().map(Autocompletable::of).toList();
     }

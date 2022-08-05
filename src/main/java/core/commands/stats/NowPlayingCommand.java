@@ -11,6 +11,7 @@ import core.services.NPModeBuilder;
 import core.services.validators.ArtistValidator;
 import core.util.ServiceView;
 import dao.entities.*;
+import dao.exceptions.ChuuServiceException;
 import dao.exceptions.InstanceNotFoundException;
 import dao.musicbrainz.MusicBrainzService;
 import dao.musicbrainz.MusicBrainzServiceSingleton;
@@ -27,6 +28,8 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.LongAdder;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -93,9 +96,11 @@ public class NowPlayingCommand extends NpCommand implements UserCommandMarker {
 
 
         try {
-            completableFutures.get();
+            completableFutures.get(10, TimeUnit.SECONDS);
         } catch (InterruptedException | ExecutionException ignored) {
 
+        } catch (TimeoutException ex) {
+            throw new ChuuServiceException(ex);
         }
         LongAdder counter = new LongAdder();
 

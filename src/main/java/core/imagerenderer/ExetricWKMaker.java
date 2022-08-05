@@ -5,7 +5,6 @@ import core.imagerenderer.util.fitter.StringFitter;
 import core.imagerenderer.util.fitter.StringFitterBuilder;
 import dao.entities.ReturnNowPlaying;
 import dao.entities.WrapperReturnNowPlaying;
-import org.imgscalr.Scalr;
 
 import java.awt.*;
 import java.awt.font.LineMetrics;
@@ -14,9 +13,9 @@ import java.awt.image.BufferedImage;
 import java.util.List;
 
 public class ExetricWKMaker {
-    public static final int IMG_SIZE = 464;
-    public static final int WIDTH_RANK_CONTAINER = 60;
-    public static final Color gradientColor = Color.decode("#121212");
+    private static final int IMG_SIZE = 464;
+    private static final int WIDTH_RANK_CONTAINER = 60;
+    private static final Color gradientColor = Color.decode("#121212");
     private static final int X_MAX = 800;
     private static final int Y_MAX = 464;
     private static final Font NORMAL_FONT = new Font("Noto Sans Display SemiBold", Font.PLAIN, 26);
@@ -53,30 +52,7 @@ public class ExetricWKMaker {
         }
 
 
-        int cropStartX = 0;
-        int cropStartY = 0;
-        int h = backgroundImage.getHeight();
-        int w = backgroundImage.getWidth();
-        BufferedImage cover;
-        if (w != h) {
-            int constraint = Math.min(h, w);
-            if (h > IMG_SIZE || w > IMG_SIZE) {
-                if (h == constraint) {
-                    cropStartX = (w - h) / 2;
-                }
-                if (w == constraint) {
-                    cropStartY = (h - w) / 2;
-                }
-                BufferedImage cropped = Scalr.crop(backgroundImage, cropStartX, cropStartY, constraint, constraint, Scalr.OP_ANTIALIAS);
-                cover = Scalr.resize(cropped, Scalr.Method.QUALITY, Scalr.Mode.AUTOMATIC, IMG_SIZE, Scalr.OP_ANTIALIAS);
-                cropped.flush();
-
-            } else {
-                cover = Scalr.resize(backgroundImage, Scalr.Method.QUALITY, Scalr.Mode.AUTOMATIC, IMG_SIZE, Scalr.OP_ANTIALIAS);
-            }
-        } else {
-            cover = Scalr.resize(backgroundImage, Scalr.Method.QUALITY, Scalr.Mode.AUTOMATIC, IMG_SIZE, Scalr.OP_ANTIALIAS);
-        }
+        BufferedImage cover = GraphicUtils.resizeOrCrop(backgroundImage, IMG_SIZE);
         backgroundImage.flush();
         Composite composite = g.getComposite();
         g.setComposite(AlphaComposite.Src);

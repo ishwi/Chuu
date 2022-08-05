@@ -20,7 +20,7 @@ public class MonochromeColourer extends PieColourer {
         baseColour = colors.get(CommandUtil.rand.nextInt(colors.size()));
         chosenTheme = RandomPalette.getBetterPie(baseColour);
         fontColor = GraphicUtils.getBetter(chosenTheme.getBackgroundColor());
-        transformer = GraphicUtils.getBetter(baseColour).equals(Color.black) ? GraphicUtils::slightlydarker : GraphicUtils::slightlybrighter;
+        transformer = GraphicUtils.getBetter(baseColour).equals(Color.black) ? GraphicUtils::slightlyDarker : GraphicUtils::slightlybrighter;
 
     }
 

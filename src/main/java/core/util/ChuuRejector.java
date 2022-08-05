@@ -19,7 +19,7 @@ public class ChuuRejector implements RejectedExecutionHandler {
 
     @Override
     public void rejectedExecution(Runnable r, ThreadPoolExecutor e) {
-        Chuu.getLogger().info("Rejected thread: Calling on virtual pool: {} currently active ", exceedingTasks);
+        Chuu.getLogger().info("Rejected thread: Calling on virtual pool: {} currently active | {}", exceedingTasks, e);
         throw new RejectedExecutionException();
     }
 }

@@ -22,17 +22,25 @@ public class CollageQueue extends ThreadQueue {
     @Override
     public void run() {
         while (iterations.getAndDecrement() > 0) {
-
             try {
                 Pair<BufferedImage, Integer> take = bufferedImages.take();
-                BufferedImage image = take.getLeft();
-                int pos = take.getRight();
-                int y = (pos / this.x);
-                int x = pos % this.x;
-                handleImage(image, x, y);
+                run0(take);
             } catch (Exception e) {
                 Chuu.getLogger().warn(e.getMessage(), e);
             }
+
+        }
+    }
+
+    public void run0(Pair<BufferedImage, Integer> take) {
+        try {
+            BufferedImage image = take.getLeft();
+            int pos = take.getRight();
+            int y = (pos / this.x);
+            int x = pos % this.x;
+            handleImage(image, x, y);
+        } catch (Exception e) {
+            Chuu.getLogger().warn(e.getMessage(), e);
         }
     }
 

@@ -6,7 +6,6 @@ import dao.entities.ResultWrapper;
 import dao.entities.UserArtistComparison;
 import dao.entities.UserInfo;
 import org.apache.commons.lang3.tuple.Pair;
-import org.imgscalr.Scalr;
 
 import javax.annotation.Nullable;
 import java.awt.*;
@@ -190,7 +189,7 @@ public class TasteRenderer {
 
             int countBStart = X_MAX - 100 - widthB;
             if (thumbnail) {
-                BufferedImage resized = Scalr.resize(GraphicUtils.getImageFromUrl(item.getUrl(), GraphicUtils.noArtistImage), Scalr.Method.ULTRA_QUALITY, Scalr.Mode.AUTOMATIC, 30, 30, Scalr.OP_ANTIALIAS);
+                BufferedImage resized = GraphicUtils.resizeOrCrop(GraphicUtils.getImageFromUrl(item.getUrl(), GraphicUtils.noArtistImage), 30);
                 g.drawImage(resized, 35, y - resized.getHeight() / 2 - 5, 30, 30, null);
                 g.drawImage(resized, X_MAX - 35 - 30, y - resized.getHeight() / 2 - 5, 30, 30, null);
 

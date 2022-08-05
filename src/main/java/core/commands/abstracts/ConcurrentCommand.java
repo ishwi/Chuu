@@ -8,12 +8,14 @@ import core.util.ServiceView;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
 import java.util.stream.Collectors;
 
 
 public abstract class ConcurrentCommand<T extends CommandParameters> extends MyCommand<T> {
 
-    public static Set<ThreadStats> threadStats = new LinkedHashSet<>();
+    public static final Set<ThreadStats> threadStats = new LinkedHashSet<>();
+    public static final ExecutorService ex = ExecutorsSingleton.getInstance();
 
     public ConcurrentCommand(ServiceView dao, boolean isLongRunningCommand) {
         super(dao, isLongRunningCommand);
@@ -26,7 +28,7 @@ public abstract class ConcurrentCommand<T extends CommandParameters> extends MyC
 
     @Override
     protected void measureTime(Context e) {
-        ExecutorsSingleton.getInstance().execute(() -> {
+        ex.execute(() -> {
             ThreadStats stats = new ThreadStats(Thread.currentThread(), this.getAliases().get(0), e.toLog());
             try {
                 threadStats.add(stats);

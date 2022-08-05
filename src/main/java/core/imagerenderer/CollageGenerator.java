@@ -2,16 +2,15 @@ package core.imagerenderer;
 
 import core.Chuu;
 import dao.exceptions.ChuuServiceException;
+import jdk.incubator.concurrent.StructuredTaskScope;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.util.ArrayList;
-import java.util.List;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -31,25 +30,28 @@ public class CollageGenerator {
         }
 
         result = new BufferedImage(x * 800, y * 500, imageType);
+
         Graphics2D g = result.createGraphics();
         GraphicUtils.setQuality(g);
 
         AtomicInteger max = new AtomicInteger(queue.size());
-        ExecutorService es = GraphicUtils.GRAPHIC_EXECUTOR;
-
-        List<Callable<Object>> calls = new ArrayList<>();
         ReentrantLock lock = new ReentrantLock();
-        for (int i = 0; i < 2; i++) {
-            calls.add(Executors.callable(new CollageQueue(g, x, y, max, false, false, queue, lock)));
-        }
-        try {
-            es.invokeAll(calls);
-        } catch (InterruptedException e) {
+
+        CollageQueue cq = new CollageQueue(g, x, y, max, false, false, queue, lock);
+        try (var scope = new StructuredTaskScope<>()) {
+            queue.forEach(ca ->
+                    scope.fork(() -> {
+                        cq.run0(ca);
+                        return null;
+                    }));
+            scope.joinUntil(Instant.now().plus(3, ChronoUnit.MINUTES));
+        } catch (TimeoutException | InterruptedException e) {
             Chuu.getLogger().warn(e.getMessage(), e);
             throw new ChuuServiceException(e);
         }
 
         g.dispose();
+
         return result;
     }
 }

@@ -6,19 +6,22 @@ import core.apis.last.entities.chartentities.UrlCapsule;
 import core.apis.spotify.Spotify;
 import core.commands.utils.CommandUtil;
 import core.util.ChuuVirtualPool;
+import core.util.VirtualParallel;
 import dao.ChuuService;
 import dao.entities.ScrobbledArtist;
 import dao.entities.UpdaterStatus;
+import dao.exceptions.ChuuServiceException;
 import dao.exceptions.InstanceNotFoundException;
 
 import javax.annotation.Nonnull;
 import java.io.Serial;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.Objects;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.*;
+import java.util.function.Consumer;
 
 import static core.apis.last.queues.TrackGroupAlbumQueue.defaultTrackImage;
 
@@ -99,19 +102,29 @@ public class ArtistQueue extends LinkedBlockingQueue<UrlCapsule> {
             throw new IllegalArgumentException();
         if (maxElements <= 0)
             return 0;
-        int counter = 0;
-        for (CompletableFuture<UrlCapsule> urlCapsuleCompletableFuture : wrapper) {
-            if (counter == maxElements) {
-                break;
-            }
-            try {
-                c.add(urlCapsuleCompletableFuture.get());
+        int prevSize = c.size();
+        processInner(c::add, maxElements);
 
-                counter++;
-            } catch (InterruptedException | ExecutionException e) {
-                Chuu.getLogger().warn("Future stopped", e);
+        return c.size() - prevSize;
+    }
+
+    private void processInner(Consumer<? super UrlCapsule> consumer, int maxElements) {
+        try (var scope = new VirtualParallel.ExecuteAllIgnoreErrors<UrlCapsule>()) {
+            for (CompletableFuture<UrlCapsule> urlCapsuleCompletableFuture : wrapper) {
+                scope.fork(urlCapsuleCompletableFuture::get);
             }
+            scope.joinUntil(Instant.now().plus(10, ChronoUnit.SECONDS));
+            scope.results().stream()
+                    .sorted(Comparator.comparingInt(UrlCapsule::getPos))
+                    .limit(maxElements)
+                    .forEachOrdered(consumer);
+        } catch (InterruptedException | TimeoutException e) {
+            throw new ChuuServiceException(e);
         }
-        return counter;
+    }
+
+    @Override
+    public void forEach(Consumer<? super UrlCapsule> action) {
+        processInner(action, Integer.MAX_VALUE);
     }
 }

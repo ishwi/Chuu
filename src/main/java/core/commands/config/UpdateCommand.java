@@ -1,6 +1,8 @@
 package core.commands.config;
 
+import core.Chuu;
 import core.commands.Context;
+import core.commands.ContextMessageReceived;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
@@ -13,6 +15,7 @@ import core.parsers.utils.CustomTimeFrame;
 import core.parsers.utils.OptionalEntity;
 import core.services.UpdaterHoarder;
 import core.services.UpdaterService;
+import core.util.ChuuVirtualPool;
 import core.util.ServiceView;
 import dao.entities.*;
 import dao.exceptions.InstanceNotFoundException;
@@ -21,6 +24,7 @@ import javax.annotation.Nonnull;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -30,10 +34,32 @@ public class UpdateCommand extends ConcurrentCommand<ChuuDataParams> {
     public final AtomicInteger maxConcurrency = new AtomicInteger(5);
     private final ReentrantLock reentrantLock = new ReentrantLock();
 
+    private final ExecutorService virtualPool = ChuuVirtualPool.of("update-command");
+
     public UpdateCommand(ServiceView dao) {
         super(dao, false);
         ephemeral = true;
         order = 6;
+    }
+
+    @Override
+    protected void measureTime(Context e) {
+        virtualPool.submit(() -> {
+            ThreadStats stats = new ThreadStats(Thread.currentThread(), this.getAliases().get(0), e.toLog());
+            try {
+                threadStats.add(stats);
+                try {
+                    long startTime = System.nanoTime();
+                    boolean sucess = handleCommand(e);
+                    long timeElapsed = System.nanoTime() - startTime;
+                    logCommand(db, e, this, timeElapsed, sucess, e instanceof ContextMessageReceived);
+                } catch (Exception ex) {
+                    Chuu.getLogger().warn(ex.getMessage(), ex);
+                }
+            } finally {
+                threadStats.remove(stats);
+            }
+        });
     }
 
     @Override

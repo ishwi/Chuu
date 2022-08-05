@@ -19,8 +19,10 @@ import core.util.VirtualParallel;
 import dao.entities.LastFMData;
 import dao.entities.NowPlayingArtist;
 import net.dv8tion.jda.api.EmbedBuilder;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
@@ -39,13 +41,13 @@ public class PlayingCommand extends ConcurrentCommand<CommandParameters> {
         this.respondInPrivate = false;
         controlAccess = CacheBuilder.newBuilder().concurrencyLevel(2).expireAfterWrite(12, TimeUnit.HOURS).build(
                 new CacheLoader<>() {
-                    public LocalDateTime load(@org.jetbrains.annotations.NotNull Long guild) {
+                    public @NotNull LocalDateTime load(@org.jetbrains.annotations.NotNull Long guild) {
                         return LocalDateTime.now().plus(12, ChronoUnit.HOURS);
                     }
                 });
         serverControlAccess = CacheBuilder.newBuilder().concurrencyLevel(2).expireAfterWrite(1, TimeUnit.MINUTES).build(
                 new CacheLoader<>() {
-                    public LocalDateTime load(@org.jetbrains.annotations.NotNull Long guild) {
+                    public @NotNull LocalDateTime load(@org.jetbrains.annotations.NotNull Long guild) {
                         return LocalDateTime.now().plus(1, ChronoUnit.MINUTES);
                     }
                 });
@@ -54,21 +56,20 @@ public class PlayingCommand extends ConcurrentCommand<CommandParameters> {
     public static List<String> obtainNps(ConcurrentLastFM lastFM, Context e, boolean showFresh, List<LastFMData> users) {
         int size = users.size();
         AtomicInteger counter = new AtomicInteger();
-        List<SortPair> items = new ArrayList<>(VirtualParallel.runIO(users, u -> {
-                    if (size > 20) {
-                        int i = CommandUtil.rand.nextInt(((size / 100) + 1) * counter.incrementAndGet() * 4);
-                        Thread.sleep(i);
-                    }
-                    NowPlayingArtist np = lastFM.getNowPlayingInfo(u);
-                    if ((showFresh && !np.current())) {
-                        return null;
-                    }
-                    String username = CommandUtil.getUserInfoEscaped(e, u.getDiscordId()).username();
-                    String started = !showFresh && np.current() ? "#" : "+";
-                    return new SortPair("%s [%s](%s): %s".formatted(started, username, CommandUtil.getLastFmUser(u.getName()),
-                            CommandUtil.escapeMarkdown("%s - %s | %s\n".formatted(np.artistName(), np.songName(), np.albumName()))), np);
-                }
-        ));
+        List<SortPair> items = VirtualParallel.runIO(users, u -> {
+            if (size > 20) {
+                int i = CommandUtil.rand.nextInt(((size / 100) + 1) * counter.incrementAndGet() * 4);
+                Thread.sleep(i);
+            }
+            NowPlayingArtist np = lastFM.getNowPlayingInfo(u);
+            if ((showFresh && !np.current())) {
+                return null;
+            }
+            String username = CommandUtil.getUserInfoEscaped(e, u.getDiscordId()).username();
+            String started = !showFresh && np.current() ? "#" : "+";
+            return new SortPair("%s [%s](%s): %s".formatted(started, username, CommandUtil.getLastFmUser(u.getName()),
+                    CommandUtil.escapeMarkdown("%s - %s | %s\n".formatted(np.artistName(), np.songName(), np.albumName()))), np);
+        }, Instant.now().plus(10, ChronoUnit.MINUTES));
         Map<String, List<SortPair>> collect = items.stream().collect(Collectors.groupingBy(sortPair -> sortPair.artist().artistName().toLowerCase(Locale.ROOT), LinkedHashMap::new, Collectors.toList()));
         Comparator<SortPair> comparator = (a, b) -> String.CASE_INSENSITIVE_ORDER.compare(a.artist.songName(), b.artist.songName());
         Comparator<SortPair> c = comparator.thenComparing(Comparator.nullsLast(Comparator.comparing(a -> a.artist.albumName(), String.CASE_INSENSITIVE_ORDER)))
@@ -90,7 +91,7 @@ public class PlayingCommand extends ConcurrentCommand<CommandParameters> {
         long hours = now.until(cooldown, ChronoUnit.HOURS);
         now = now.plus(hours, ChronoUnit.HOURS);
         long minutes = now.until(cooldown, ChronoUnit.MINUTES);
-        String hstr = hours <= 0 ? "" : "%d %s and ".formatted(hours, CommandUtil.singlePlural(hours, "hour", "hours"));
+        String hStr = hours <= 0 ? "" : "%d %s and ".formatted(hours, CommandUtil.singlePlural(hours, "hour", "hours"));
         String mStr;
         if (minutes <= 0 && hours <= 0) {
             long seconds = now.until(cooldown, ChronoUnit.SECONDS);
@@ -98,7 +99,7 @@ public class PlayingCommand extends ConcurrentCommand<CommandParameters> {
         } else {
             mStr = "%d %s".formatted(minutes, CommandUtil.singlePlural(minutes, "minute", "minutes"));
         }
-        e.sendMessage("%s (usable in %s%s)".formatted(s, hstr, mStr)).queue();
+        e.sendMessage("%s (usable in %s%s)".formatted(s, hStr, mStr)).queue();
     }
 
     @Override
@@ -128,9 +129,9 @@ public class PlayingCommand extends ConcurrentCommand<CommandParameters> {
         boolean showFresh = !params.hasOptional("recent");
 
         List<LastFMData> users = db.getAllData(e.getGuild().getIdLong());
-        long unaothorized = users.stream().filter(t -> t.getSession() == null).count();
+        long unauthorized = users.stream().filter(t -> t.getSession() == null).count();
         LocalDateTime cooldown;
-        if (unaothorized > 66 || (users.size() - unaothorized > 150)) {
+        if (unauthorized > 66 || (users.size() - unauthorized > 150)) {
             LocalDateTime ifPresent = controlAccess.getIfPresent(e.getGuild().getIdLong());
             if (ifPresent != null) {
                 format(e, ifPresent, "This server has too many users, so the playing command can only be executed twice per day ");
@@ -147,7 +148,7 @@ public class PlayingCommand extends ConcurrentCommand<CommandParameters> {
         EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e).setThumbnail(e.getGuild().getIconUrl())
                 .setTitle(
                         (showFresh ? "What is being played now in " : "What was being played in ")
-                                + CommandUtil.escapeMarkdown(e.getGuild().getName()));
+                        + CommandUtil.escapeMarkdown(e.getGuild().getName()));
 
         List<String> result = obtainNps(lastFM, e, showFresh, users);
         if (result.isEmpty()) {
@@ -164,7 +165,8 @@ public class PlayingCommand extends ConcurrentCommand<CommandParameters> {
             a.append(string);
         }
 
-        new PaginatorBuilder<>(e, embedBuilder, result).pageSize(pageSize).unnumered().withIndicator().build().queue();
+        new PaginatorBuilder<>(e, embedBuilder, result).pageSize(pageSize).unnumered().withIndicator().build()
+                .queue();
 
 
     }
@@ -172,9 +174,6 @@ public class PlayingCommand extends ConcurrentCommand<CommandParameters> {
     @Override
     public String getName() {
         return "Playing";
-    }
-
-    private record ApiPair(LastFMData user, Optional<NowPlayingArtist> artist) {
     }
 
     private record SortPair(String output, NowPlayingArtist artist) {

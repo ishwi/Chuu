@@ -168,7 +168,7 @@ public class HotMaker {
 
             BufferedImage imageFromUrl = GraphicUtils.getImageFromUrl(hot.getUrl(), GraphicUtils.noArtistImage);
 
-            imageFromUrl = Scalr.resize(imageFromUrl, Scalr.Method.QUALITY, Scalr.Mode.FIT_EXACT, BOX_SIZE, Scalr.OP_ANTIALIAS);
+            imageFromUrl = GraphicUtils.resizeOrCrop(imageFromUrl, BOX_SIZE);
             g.drawLine(X_MAX - imageFromUrl.getWidth() - 2, yCounter, X_MAX - imageFromUrl.getWidth() - 2, yCounter + BOX_SIZE);
 
             g.drawImage(imageFromUrl, X_MAX - imageFromUrl.getWidth() - 1, yCounter + 1, null);

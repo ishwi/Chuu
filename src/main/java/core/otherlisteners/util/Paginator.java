@@ -62,7 +62,7 @@ public record Paginator<T>(Context e, EmbedBuilder eb, List<T> items, int pageSi
         } else {
             combinedConsumer = paginatorConsumer().andThen(consumer);
         }
-        if (this.items.size() < pageSize) {
+        if (this.items.size() <= pageSize) {
             creator.apply(e, eb).queue(consumer);
         } else {
             creatorWithButtons.apply(e, eb).queue(combinedConsumer);

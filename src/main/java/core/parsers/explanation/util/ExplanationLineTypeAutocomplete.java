@@ -7,10 +7,9 @@ import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
-import java.util.function.Function;
 
 public record ExplanationLineTypeAutocomplete(String header, String usage, OptionType type,
-                                              Function<CommandAutoCompleteInteractionEvent, List<Command.Choice>> autocomplete) implements Interactible, Autocompletable {
+                                              Autocompletable autocomplete) implements Interactible, Autocompletable {
 
     @Override
     public List<OptionData> options() {
@@ -18,7 +17,7 @@ public record ExplanationLineTypeAutocomplete(String header, String usage, Optio
     }
 
     public List<Command.Choice> autocomplete(CommandAutoCompleteInteractionEvent currentInput) {
-        return autocomplete.apply(currentInput);
+        return autocomplete.autocomplete(currentInput);
     }
 
 }

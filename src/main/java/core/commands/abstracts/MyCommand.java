@@ -65,8 +65,9 @@ public abstract class MyCommand<T extends CommandParameters> implements EventLis
         this(serviceview, false);
     }
 
-    private static void logCommand(ChuuService service, Context e, MyCommand<?> command, long exectTime, boolean success, boolean isNormalCommand) {
-        service.logCommand(e.getAuthor().getIdLong(), e.isFromGuild() ? e.getGuild().getIdLong() : null, command.getName(), exectTime, Instant.now(), success, isNormalCommand);
+    protected static void logCommand(ChuuService service, Context e, MyCommand<?> command, long exectTime, boolean success, boolean isNormalCommand) {
+        CommandUtil.runLog(
+                () -> service.logCommand(e.getAuthor().getIdLong(), e.isFromGuild() ? e.getGuild().getIdLong() : null, command.getName(), exectTime, Instant.now(), success, isNormalCommand));
     }
 
     protected EnumSet<Permission> initRequiredPerms() {

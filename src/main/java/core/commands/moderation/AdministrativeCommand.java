@@ -13,8 +13,8 @@ import org.imgscalr.Scalr;
 import javax.annotation.Nonnull;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
+import java.io.BufferedInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URL;
 import java.util.Collections;
 import java.util.List;
@@ -35,9 +35,6 @@ public class AdministrativeCommand extends ConcurrentCommand<UrlParameters> {
     public Parser<UrlParameters> initParser() {
         return new UrlParser();
     }
-
-
-
 
 
     @Override
@@ -63,7 +60,7 @@ public class AdministrativeCommand extends ConcurrentCommand<UrlParameters> {
             sendMessageQueue(e, "Removed logo from the server");
         } else {
 
-            try (InputStream in = new URL(url).openStream()) {
+            try (var in = new BufferedInputStream(new URL(url).openStream())) {
                 BufferedImage image = ImageIO.read(in);
                 if (image == null) {
                     sendMessageQueue(e, "Couldn't get an image from the supplied link");

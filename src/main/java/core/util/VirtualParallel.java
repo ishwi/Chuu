@@ -4,11 +4,16 @@ import core.Chuu;
 import dao.exceptions.ChuuServiceException;
 import jdk.incubator.concurrent.StructuredTaskScope;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Lock;
@@ -21,10 +26,18 @@ public class VirtualParallel {
     }
 
     public static <T, J> List<T> runIO(List<J> items, CheckedFunction<J, T> IOMapper) {
-        return runIO(items, -1L, IOMapper);
+        return runIO(items, IOMapper, Instant.now().plus(1, ChronoUnit.MINUTES));
+    }
+
+    public static <T, J> List<T> runIO(List<J> items, CheckedFunction<J, T> IOMapper, Instant timeout) {
+        return runIO(items, -1L, IOMapper, timeout);
     }
 
     public static <T, J> List<T> runIO(List<J> items, long limit, CheckedFunction<J, T> IOMapper) {
+        return runIO(items, limit, IOMapper, Instant.now().plus(1, ChronoUnit.MINUTES));
+    }
+
+    public static <T, J> List<T> runIO(List<J> items, long limit, CheckedFunction<J, T> IOMapper, Instant timeout) {
         Supplier<CustomPools<T>> scoper;
         if (limit <= 0) {
             scoper = ExecuteAllIgnoreErrors::new;
@@ -47,9 +60,13 @@ public class VirtualParallel {
                     }
                 }
             }
-            scope.join();
+            if (timeout != null) {
+                scope.joinUntil(timeout);
+            } else {
+                scope.join();
+            }
             return scope.results();
-        } catch (InterruptedException e) {
+        } catch (InterruptedException | TimeoutException e) {
             throw new ChuuServiceException(e);
         }
     }
@@ -108,7 +125,7 @@ public class VirtualParallel {
         private final AtomicBoolean isInCollection = new AtomicBoolean(false);
         private final Lock readLock;
         private final Lock writeLock;
-        private final List<T> results = new ArrayList<>();
+        private final Collection<T> results = new ConcurrentLinkedDeque<>();
         private final AtomicInteger failCounter = new AtomicInteger(0);
 
         {
@@ -128,6 +145,12 @@ public class VirtualParallel {
         }
 
         @Override
+        public StructuredTaskScope<T> joinUntil(Instant deadline) throws InterruptedException, TimeoutException {
+            isInCollection.compareAndSet(false, true);
+            return super.joinUntil(deadline);
+        }
+
+        @Override
         public StructuredTaskScope<T> join() throws InterruptedException {
             isInCollection.compareAndSet(false, true);
             return super.join();
@@ -139,7 +162,10 @@ public class VirtualParallel {
             if (state == Future.State.SUCCESS) {
                 writeLock.lock();
                 try {
-                    results.add(future.resultNow());
+                    T e = future.resultNow();
+                    if (e != null) {
+                        results.add(e);
+                    }
                 } finally {
                     writeLock.unlock();
                 }

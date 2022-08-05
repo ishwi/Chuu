@@ -5,7 +5,7 @@ import com.github.natanbc.javaeval.CompilationResult;
 import com.github.natanbc.javaeval.JavaEvaluator;
 import core.commands.Context;
 import core.commands.ContextMessageReceived;
-import core.commands.abstracts.ConcurrentCommand;
+import core.commands.abstracts.MyCommand;
 import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.EvalClassLoader;
@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-public class EvalCommand extends ConcurrentCommand<CommandParameters> {
+public class EvalCommand extends MyCommand<CommandParameters> {
     private static final String JAVA_EVAL_IMPORTS = """
             package core.commands;
                         
@@ -96,15 +96,15 @@ public class EvalCommand extends ConcurrentCommand<CommandParameters> {
 
         EvalContext evalContext = new EvalContext(e.getJDA(), e, e.getAuthor(), e.isFromGuild() ? e.getGuild() : null, null, db, lastFM);
         String source = JAVA_EVAL_IMPORTS + "\n" + imports + "\n" +
-                "public class Eval {\n" +
-                "   public static Object run(EvalContext ctx) throws Throwable {\n" +
-                "       try {\n" +
-                "           return null;\n" +
-                "       } finally {\n" +
-                "           " + (code + ";").replaceAll(";{2,}", ";") + "\n" +
-                "       }\n" +
-                "   }\n" +
-                "}";
+                        "public class Eval {\n" +
+                        "   public static Object run(EvalContext ctx) throws Throwable {\n" +
+                        "       try {\n" +
+                        "           return null;\n" +
+                        "       } finally {\n" +
+                        "           " + (code + ";").replaceAll(";{2,}", ";") + "\n" +
+                        "       }\n" +
+                        "   }\n" +
+                        "}";
         try {
             JavaEvaluator javaEvaluator = new JavaEvaluator();
             CompilationResult r = javaEvaluator.compile()

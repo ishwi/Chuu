@@ -30,8 +30,8 @@ import javax.annotation.Nullable;
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.io.BufferedInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
@@ -89,7 +89,8 @@ public class CommandUtil {
 
 
     public static BufferedImage getLogo(ChuuService dao, Context e) {
-        try (InputStream stream = dao.findLogo(e.getGuild().getIdLong())) {
+        try (var is = dao.findLogo(e.getGuild().getIdLong());
+             var stream = is == null ? null : new BufferedInputStream(is)) {
             if (stream != null)
                 return ImageIO.read(stream);
         } catch (IOException ex) {

@@ -164,7 +164,7 @@ public class ConcurrentLastFM {//implements LastFMService {
             try {
                 Chuu.incrementMetric();
                 CompletableFuture<HttpResponse<InputStream>> cf = client.sendAsync(method, HttpResponse.BodyHandlers.ofInputStream());
-                HttpResponse<InputStream> send = cf.get(5, TimeUnit.SECONDS);
+                HttpResponse<InputStream> send = cf.get(15, TimeUnit.SECONDS);
                 int responseCode = send.statusCode();
                 parseHttpCode(responseCode);
                 JSONObject jsonObject;
