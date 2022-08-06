@@ -126,16 +126,8 @@ public class BandInfoCommand extends ConcurrentCommand<ArtistParameters> {
                 scope.fork(() -> new WK(db.globalWhoKnows(who.getArtistId(), 5, false, e.getAuthor().getIdLong(), false)));
             }
             scope.fork(() -> new AP(db.getArtistPlays(who.getArtistId(), lfmName)));
-            scope.fork(() -> {
-                while (true) {
-                    if (Thread.currentThread().isInterrupted()) {
-                        Chuu.getLogger().info("Interrupted");
-                        break;
-                    }
-                }
-                return new AP(db.getArtistPlays(who.getArtistId(), lfmName));
-            });
-            scope.joinUntil(Instant.now().plus(10, ChronoUnit.SECONDS));
+            scope.fork(() -> new AP(db.getArtistPlays(who.getArtistId(), lfmName)));
+            scope.joinUntil(Instant.now().plus(15, ChronoUnit.SECONDS));
 
             BandResult sr = scope.result();
             doDisplay(sr, ap);

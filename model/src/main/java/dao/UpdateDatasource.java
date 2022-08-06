@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.time.Duration;
 
 public final class UpdateDatasource implements CommonDatasource {
 
@@ -22,7 +23,9 @@ public final class UpdateDatasource implements CommonDatasource {
         config.setMaximumPoolSize(10);
         config.setMinimumIdle(0);
         config.setConnectionTimeout(5000);
-        config.setValidationTimeout(250);
+        config.setIdleTimeout(Duration.ofMinutes(2).toMillis());
+        config.setMaxLifetime(Duration.ofMinutes(10).toMillis());
+        config.setValidationTimeout(1000);
         config.setPoolName("Update-Pool-Chuu");
         config.addDataSourceProperty("connectionCollation", "utf8mb4_unicode_ci");
         this.ds = new HikariDataSource(config);
