@@ -83,6 +83,10 @@ public class VirtualParallel {
     }
 
     private static sealed abstract class CustomPools<T> extends StructuredTaskScope<T> {
+        public CustomPools() {
+            super("Custom-pool", r -> new Thread(r, "Custom-pool"));
+        }
+
         abstract List<T> results();
     }
 
@@ -138,6 +142,7 @@ public class VirtualParallel {
         }
 
         public ExecuteAllIgnoreErrors() {
+            super();
         }
 
         @Override

@@ -39,7 +39,7 @@ public class CollageGenerator {
         ReentrantLock lock = new ReentrantLock();
 
         CollageQueue cq = new CollageQueue(g, x, y, max, false, false, queue, lock);
-        try (var scope = new StructuredTaskScope<>()) {
+        try (var scope = new StructuredTaskScope<>("a", r -> new Thread(r, "r"))) {
             queue.forEach(ca ->
                     scope.fork(() -> {
                         cq.run0(ca);

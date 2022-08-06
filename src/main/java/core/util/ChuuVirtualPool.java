@@ -22,9 +22,7 @@ public class ChuuVirtualPool {
 
 
     public static ExecutorService of(String poolName) {
-        return Executors.newThreadPerTaskExecutor(Thread.ofVirtual().uncaughtExceptionHandler((t, e) -> log.warn(e.getMessage(), e))
-                .inheritInheritableThreadLocals(false)
-                .name(poolName + "-Virtual-", 0).factory());
+        return Executors.newFixedThreadPool(2);
     }
 
 

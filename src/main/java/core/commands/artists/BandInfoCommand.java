@@ -248,6 +248,10 @@ public class BandInfoCommand extends ConcurrentCommand<ArtistParameters> {
         private volatile AP ap;
         private volatile Throwable ex;
 
+        public BandScope() {
+            super("bs", r -> new Thread(r, "aa"));
+        }
+
         @Override
         protected void handleComplete(Future<BandStructure> future) {
             switch (future.state()) {

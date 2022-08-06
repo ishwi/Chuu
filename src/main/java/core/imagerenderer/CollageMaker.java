@@ -66,7 +66,7 @@ public class CollageMaker {
         ReentrantLock lock = new ReentrantLock();
 
         ThreadQueue tq = new ThreadQueue(queue, g, x, y, max, imageSize == 150, asideMode, lock);
-        try (var scope = new StructuredTaskScope<>()) {
+        try (var scope = new StructuredTaskScope<>("a", (r) -> new Thread(r, "ThreadPool"))) {
             queue.forEach(ca ->
                     scope.fork(() -> {
                         tq.run0(ca);
