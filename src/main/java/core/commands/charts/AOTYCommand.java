@@ -132,11 +132,11 @@ public class AOTYCommand extends ChartableCommand<ChartYearParameters> {
             return handleTimedChart(param, nonEmptyMbid, emptyMbid, queue);
         }
         List<AlbumInfo> foundByYear = mb.listOfYearReleases(nonEmptyMbid, year);
-        Thread.startVirtualThread(() -> db.insertAlbumsOfYear(foundByYear, year));
+        CommandUtil.runLog(() -> db.insertAlbumsOfYear(foundByYear, year));
 
         albumsMbizMatchingYear.addAll(foundByYear);
         List<AlbumInfo> mbFoundBYName = mb.findArtistByRelease(emptyMbid, year);
-        Thread.startVirtualThread(() -> db.insertAlbumsOfYear(mbFoundBYName, year));
+        CommandUtil.runLog(() -> db.insertAlbumsOfYear(mbFoundBYName, year));
         ;
         //CompletableFuture.supplyAsync( x -> dao.insertAlbum(x))
         emptyMbid.removeAll(mbFoundBYName);

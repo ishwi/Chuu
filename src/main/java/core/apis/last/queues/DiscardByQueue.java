@@ -5,6 +5,7 @@ import core.apis.last.entities.chartentities.PreComputedChartEntity;
 import core.apis.last.entities.chartentities.UrlCapsule;
 import core.apis.spotify.Spotify;
 import core.commands.utils.CommandUtil;
+import core.util.VirtualParallel;
 import dao.ChuuService;
 import dao.entities.ScrobbledArtist;
 import dao.entities.TriFunction;
@@ -37,13 +38,18 @@ public class DiscardByQueue extends DiscardableQueue<PreComputedChartEntity> {
     }
 
     private static void getUrl(@Nonnull UrlCapsule item, ChuuService dao, DiscogsApi discogsApi, Spotify spotifyApi) {
+        fetchArtistURL(item, dao, discogsApi, spotifyApi);
+    }
+
+    static void fetchArtistURL(@Nonnull UrlCapsule item, ChuuService db, DiscogsApi discogsApi, Spotify spotifyApi) {
         try {
-            UpdaterStatus updaterStatusByName = dao.getUpdaterStatusByName(item.getArtistName());
+            UpdaterStatus updaterStatusByName = db.getUpdaterStatusByName(item.getArtistName());
+            VirtualParallel.handleInterrupt();
             String url = updaterStatusByName.getArtistUrl();
             if (url == null) {
                 ScrobbledArtist scrobbledArtist = new ScrobbledArtist(item.getArtistName(), item.getPlays(), item.getUrl());
                 scrobbledArtist.setArtistId(updaterStatusByName.getArtistId());
-                url = CommandUtil.updateUrl(discogsApi, scrobbledArtist, dao, spotifyApi);
+                url = CommandUtil.updateUrl(discogsApi, scrobbledArtist, db, spotifyApi);
             }
             item.setUrl(url);
         } catch (InstanceNotFoundException e) {

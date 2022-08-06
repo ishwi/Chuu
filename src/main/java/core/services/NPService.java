@@ -34,7 +34,7 @@ public class NPService {
             return new NPUpdate(lastFM.getNowPlayingInfo(user), CompletableFuture.completedFuture(Collections.emptyList()));
         }
 
-        NPUpdate npWithUpdate = lastFM.getNPWithUpdate(user, wrapper.getTimestamp(), true);
+        NPUpdate npWithUpdate = lastFM.getNPWithUpdate(user, wrapper.getTimestamp());
         boolean removeFlag = true;
         try {
             if (!UpdaterService.lockAndContinue(wrapper.getLastFMName())) {

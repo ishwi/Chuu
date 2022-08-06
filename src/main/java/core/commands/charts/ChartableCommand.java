@@ -141,7 +141,7 @@ public abstract class ChartableCommand<T extends ChartParameters> extends Concur
             queue.forEach(t -> t.setUrl(Chuu.getCoverService().getCover(t.getArtistName(), t.getAlbumName(), t.getUrl(), e)));
             if (CommandUtil.rand.nextFloat() >= 0.7f && first instanceof AlbumChart) {
                 List<UrlCapsule> items = new ArrayList<>(queue);
-                Thread.startVirtualThread(() -> items.stream()
+                CommandUtil.runLog(() -> items.stream()
                         .filter(t -> t.getUrl() != null && !t.getUrl().isBlank())
                         .map(t -> (AlbumChart) t)
                         .forEach(z -> {

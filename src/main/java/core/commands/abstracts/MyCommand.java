@@ -236,7 +236,9 @@ public abstract class MyCommand<T extends CommandParameters> implements EventLis
                 return false;
             }
             if (ex instanceof InsufficientPermissionException ipe) {
-                parser.sendError("Couldn't execute the command because im missing the permission: **" + ipe.getPermission().getName() + "**", e);
+                if (ipe.getPermission() != Permission.MESSAGE_SEND) {
+                    parser.sendError("Couldn't execute the command because im missing the permission: **" + ipe.getPermission().getName() + "**", e);
+                }
                 return false;
             }
             parser.sendError("Internal Chuu Error", e);

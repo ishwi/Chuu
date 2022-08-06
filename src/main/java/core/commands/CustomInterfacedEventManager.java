@@ -320,16 +320,18 @@ public class CustomInterfacedEventManager implements IEventManager {
 
     public void refreshReactionay(ReactionListener reactionListener, long seconds) {
         Map<ReactionListener, ScheduledFuture<?>> channelReactionaires = this.reactionaries.get(reactionListener.channelId);
-        ScheduledFuture<?> scheduledFuture = channelReactionaires.get(reactionListener);
-        if (scheduledFuture != null && scheduledFuture.cancel(false)) {
-            channelReactionaires.put(reactionListener, Chuu.getScheduledService().addSchedule((() -> {
-                channelReactionaires.remove(reactionListener);
-                if (channelReactionaires.isEmpty()) {
-                    this.reactionaries.remove(reactionListener.channelId);
-                }
-                otherListeners.remove(reactionListener);
-                reactionListener.dispose();
-            }), seconds, TimeUnit.SECONDS));
+        if (channelReactionaires != null) {
+            ScheduledFuture<?> scheduledFuture = channelReactionaires.get(reactionListener);
+            if (scheduledFuture != null && scheduledFuture.cancel(false)) {
+                channelReactionaires.put(reactionListener, Chuu.getScheduledService().addSchedule((() -> {
+                    channelReactionaires.remove(reactionListener);
+                    if (channelReactionaires.isEmpty()) {
+                        this.reactionaries.remove(reactionListener.channelId);
+                    }
+                    otherListeners.remove(reactionListener);
+                    reactionListener.dispose();
+                }), seconds, TimeUnit.SECONDS));
+            }
         }
     }
 

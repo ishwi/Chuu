@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
-public record ScrobbleProcesser(AlbumFinder albumFinder) {
+public record ScrabbleProcessor(AlbumFinder albumFinder) {
     public static final Cache<String, TrackScrobble> processed = Caffeine.newBuilder()
             .maximumSize(500).build();
 
@@ -31,7 +31,7 @@ public record ScrobbleProcesser(AlbumFinder albumFinder) {
         return processed.get(song.getIdentifier(), (s) -> newScrobble(metadata, song));
     }
 
-    public TrackScrobble setMetadata(@Nonnull Metadata metadata, @Nonnull AudioTrack song, UUID previous, long current, long total) {
+    public TrackScrobble setMetadata(@Nonnull Metadata metadata, @Nonnull AudioTrack song, long current, long total) {
         TrackScrobble prev = processed.getIfPresent(song.getIdentifier());
         assert prev != null;
 
@@ -66,7 +66,7 @@ public record ScrobbleProcesser(AlbumFinder albumFinder) {
                         cyat.processInfo();
                         inn = inn.fromAudioTrack(cyat.getInfo());
                     } catch (Exception e) {
-                        Chuu.getLogger().warn("Error processando song que no estaba procesada {}", cyat, e);
+                        Chuu.getLogger().warn("Error processing song that was not yet processed {}", cyat, e);
                     }
                 }
             }
@@ -74,18 +74,14 @@ public record ScrobbleProcesser(AlbumFinder albumFinder) {
             inn = inn.withFilter();
         }
         if (inn.artist() != null && inn.song() != null && StringUtils.isBlank(inn.album())) {
-            inn = processAlbum(inn, song);
+            inn = processAlbum(inn);
         }
         return new TrackScrobble(inn
                 .withMetadata(metadata), song.getIdentifier());
     }
 
-    public void cleanScrobble(AudioTrack song) {
-        processed.invalidate(song.getIdentifier());
-    }
 
-
-    public InnerScrobble processAlbum(InnerScrobble innerScrobble, AudioTrack song) {
+    public InnerScrobble processAlbum(InnerScrobble innerScrobble) {
         try (var scope = new StructuredTaskScope.ShutdownOnSuccess<Album>()) {
             scope.fork(() -> albumFinder.find(innerScrobble.artist(), innerScrobble.song()).orElseThrow());
             scope.fork(() -> albumFinder.findSpotify(innerScrobble.artist(), innerScrobble.song()).orElseThrow());

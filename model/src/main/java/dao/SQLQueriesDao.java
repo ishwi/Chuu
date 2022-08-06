@@ -125,7 +125,7 @@ interface SQLQueriesDao {
 
     List<LbEntry<Integer>> getScrobblesLeaderboard(Connection connection, long guildId);
 
-    List<CrownableArtist> getCrownable(Connection connection, Long discordId, Long guildId, boolean skipCrowns, boolean onlySecond, int crownDistance);
+    List<CrownableArtist> getCrownable(Connection connection, String lastfmId, Long guildId, boolean skipCrowns, boolean onlySecond, int crownDistance);
 
     Map<Long, Float> getRateLimited(Connection connection);
 

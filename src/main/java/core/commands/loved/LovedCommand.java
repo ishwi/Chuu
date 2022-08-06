@@ -75,7 +75,7 @@ public class LovedCommand extends ConcurrentCommand<ChuuDataParams> {
                 .unnumered().build().queue();
 
 
-        Thread.startVirtualThread(() -> db.updateLovedSongs(params.getLastFMData().getName(), wrapper.getResult().stream().map(w -> new ScrobbledTrack(w.getArtist(), w.getName(), 0, true, 0, null, null, null)).toList()));
+        CommandUtil.runLog(() -> db.updateLovedSongs(params.getLastFMData().getName(), wrapper.getResult().stream().map(w -> new ScrobbledTrack(w.getArtist(), w.getName(), 0, true, 0, null, null, null)).toList()));
         ;
 
     }

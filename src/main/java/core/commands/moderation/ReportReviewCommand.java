@@ -135,7 +135,7 @@ public class ReportReviewCommand extends ConcurrentCommand<CommandParameters> {
             actionMap.put(STRIKE, (a, r) -> {
                 statBan.getAndIncrement();
                 navigationCounter.incrementAndGet();
-                Thread.startVirtualThread(() -> {
+                CommandUtil.runLog(() -> {
                     boolean banned = db.strikeExisting(a);
                     if (banned) {
                         TextChannel textChannelById = Chuu.getShardManager().getTextChannelById(Chuu.channel2Id);

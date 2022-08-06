@@ -83,7 +83,7 @@ public class ArtistLovedCommand extends ConcurrentCommand<ArtistParameters> {
                 .mapper(t -> "**[%s](%s)** - %s\n".formatted(t.getName(), PrivacyUtils.getLastFmArtistTrackUserUrl(t.getArtist(), t.getName(), userName), CommandUtil.getDateTimestampt(Instant.ofEpochSecond(t.getUtc()))))
                 .unnumered().build().queue();
 
-        Thread.startVirtualThread(() -> db.updateLovedSongs(params.getLastFMData().getName(), wrapper.getResult().stream().map(w -> new ScrobbledTrack(w.getArtist(), w.getName(), 0, true, 0, null, null, null)).toList()));
+        CommandUtil.runLog(() -> db.updateLovedSongs(params.getLastFMData().getName(), wrapper.getResult().stream().map(w -> new ScrobbledTrack(w.getArtist(), w.getName(), 0, true, 0, null, null, null)).toList()));
         ;
 
     }

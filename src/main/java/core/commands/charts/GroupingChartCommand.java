@@ -19,6 +19,7 @@ import dao.entities.TimeFrameEnum;
 
 import javax.annotation.Nonnull;
 import java.util.List;
+import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
 public abstract class GroupingChartCommand extends ChartableCommand<ChartGroupParameters> {
@@ -59,7 +60,11 @@ public abstract class GroupingChartCommand extends ChartableCommand<ChartGroupPa
         }
         switch (effectiveMode) {
             case LIST -> doList(urlCapsules, params, countWrapper.getRows());
-            case IMAGE_INFO, IMAGE -> doImage(queue, params.getX(), params.getY(), params, countWrapper.getRows());
+            case IMAGE_INFO, IMAGE -> {
+                ArrayBlockingQueue<UrlCapsule> abq = new ArrayBlockingQueue<>(urlCapsules.size());
+                abq.addAll(urlCapsules);
+                doImage(abq, params.getX(), params.getY(), params, countWrapper.getRows());
+            }
             case PIE -> doPie(this.pie.doPie(params, urlCapsules), params, countWrapper.getRows());
         }
     }

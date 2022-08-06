@@ -5,6 +5,7 @@ import core.apis.last.entities.chartentities.PreComputedChartEntity;
 import core.apis.last.entities.chartentities.UrlCapsule;
 import core.imagerenderer.util.fitter.StringFitter;
 import core.imagerenderer.util.fitter.StringFitterBuilder;
+import core.util.VirtualParallel;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -90,9 +91,11 @@ class ThreadQueue implements Runnable {
     }
 
     final void drawImage(BufferedImage image, UrlCapsule capsule, int x, int y) {
+        VirtualParallel.handleInterrupt();
         BufferedImage croppedImage = GraphicUtils.resizeOrCrop(image, imageSize);
         drawImage(croppedImage, capsule);
         g.drawImage(croppedImage, x * imageSize, y * imageSize, null);
+        VirtualParallel.handleInterrupt();
     }
 
 
@@ -105,6 +108,7 @@ class ThreadQueue implements Runnable {
             g.setColor(temp);
         } finally {
             reentrantLock.unlock();
+            VirtualParallel.handleInterrupt();
         }
         if (asideMode) {
             drawNeverEndingCharts(capsule, y, x, imageSize);
@@ -117,6 +121,7 @@ class ThreadQueue implements Runnable {
                 g.setColor(temp);
             } finally {
                 reentrantLock.unlock();
+                VirtualParallel.handleInterrupt();
             }
         }
     }
@@ -177,6 +182,7 @@ class ThreadQueue implements Runnable {
             } catch (Exception e) {
                 Chuu.getLogger().warn(e.getMessage(), e);
             }
+            VirtualParallel.handleInterrupt();
         }
 
 

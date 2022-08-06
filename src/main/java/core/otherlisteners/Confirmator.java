@@ -99,7 +99,7 @@ public class Confirmator extends ReactionListener {
         if (item != null) {
             wasThisCalled.set(true);
             this.didConfirm.set(item.reaction());
-            Thread.startVirtualThread(() -> item.callback().accept(this.message));
+            CommandUtil.runLog(() -> item.callback().accept(this.message));
             unregister();
         }
     }

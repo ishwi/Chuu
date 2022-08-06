@@ -56,7 +56,7 @@ public class MusicManager extends AudioEventAdapter implements AudioSendHandler 
     private final ExtendedAudioPlayerManager manager;
     private final VoiceAnnounceService voiceAnnounceService;
     private final ScrobblerEventListener listener;
-    private final ScrobbleProcesser scrobbleProcesser;
+    private final ScrabbleProcessor scrabbleProcessor;
     private final long guildId;
     private final AudioPlayer player;
     private final Deque<String> queue = new ArrayDeque<>();
@@ -91,7 +91,7 @@ public class MusicManager extends AudioEventAdapter implements AudioSendHandler 
         this.player = player;
         this.manager = manager;
         this.voiceAnnounceService = voiceAnnounceService;
-        this.scrobbleProcesser = Chuu.getScrobbleProcesser();
+        this.scrabbleProcessor = Chuu.getScrobbleProcesser();
         this.player.addListener(this);
         this.player.setVolume(100);
         listener = new ScrobblerEventListener(this);
@@ -529,7 +529,7 @@ public class MusicManager extends AudioEventAdapter implements AudioSendHandler 
     }
 
     public CompletableFuture<TrackScrobble> getTrackScrobble() {
-        return CommandUtil.supplyLog(() -> scrobbleProcesser.processScrobble(null, getLastValidTrack())).thenApply(z -> {
+        return CommandUtil.supplyLog(() -> scrabbleProcessor.processScrobble(null, getLastValidTrack())).thenApply(z -> {
             this.scrobble = z.scrobble();
             this.breakpoints = z.processeds().stream().skip(1).dropWhile(l -> l.msStart() < player.getPlayingTrack().getPosition()).map(Processed::msStart).collect(Collectors.toCollection(ArrayList::new));
             return z;
@@ -540,7 +540,7 @@ public class MusicManager extends AudioEventAdapter implements AudioSendHandler 
         if (anyTrack == player.getPlayingTrack()) {
             return getTrackScrobble();
         }
-        return CommandUtil.supplyLog(() -> scrobbleProcesser.processScrobble(null, anyTrack)).thenApply(z -> {
+        return CommandUtil.supplyLog(() -> scrabbleProcessor.processScrobble(null, anyTrack)).thenApply(z -> {
             this.scrobble = z.scrobble();
             this.breakpoints = z.processeds().stream().skip(1).dropWhile(l -> l.msStart() < anyTrack.getPosition()).map(Processed::msStart).collect(Collectors.toCollection(ArrayList::new));
             return z;
@@ -552,10 +552,10 @@ public class MusicManager extends AudioEventAdapter implements AudioSendHandler 
             long remaining = currentTrack.getDuration() - currentTrack.getPosition();
             TrackScrobble newInfo;
             if (z.processeds().size() > 1) {
-                newInfo = this.scrobbleProcesser.setMetadata(metadata, currentTrack, z.uuid(), currentTrack.getPosition(), currentTrack.getDuration());
+                newInfo = this.scrabbleProcessor.setMetadata(metadata, currentTrack, currentTrack.getPosition(), currentTrack.getDuration());
                 this.scrobble = newInfo.scrobble();
             } else {
-                newInfo = this.scrobbleProcesser.setMetadata(metadata, currentTrack, z.uuid());
+                newInfo = this.scrabbleProcessor.setMetadata(metadata, currentTrack, z.uuid());
             }
             this.listener.signalMetadataChange(newInfo);
 

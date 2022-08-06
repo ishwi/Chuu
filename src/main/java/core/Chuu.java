@@ -19,7 +19,7 @@ import core.music.PlayerRegistry;
 import core.music.listeners.VoiceListener;
 import core.music.scrobble.ScrobbleEventManager;
 import core.music.scrobble.StatusProcessor;
-import core.music.utils.ScrobbleProcesser;
+import core.music.utils.ScrabbleProcessor;
 import core.otherlisteners.*;
 import core.services.*;
 import core.services.validators.AlbumFinder;
@@ -93,7 +93,7 @@ public class Chuu {
     private static MessageDeletionService messageDeletionService;
     private static MessageDisablingService messageDisablingService = new MessageDisablingService();
     private static ScrobbleEventManager scrobbleEventManager;
-    private static ScrobbleProcesser scrobbleProcesser;
+    private static ScrabbleProcessor scrabbleProcessor;
     private static ScheduledService scheduledService;
 
     public static String getLastFmId(String lastfmId) {
@@ -135,8 +135,8 @@ public class Chuu {
         DiscogsSingleton.init(properties.getProperty("DC_SC"), properties.getProperty("DC_KY"));
         SpotifySingleton.init(properties.getProperty("client_ID"), properties.getProperty("client_Secret"));
         scrobbleEventManager = new ScrobbleEventManager(new StatusProcessor(service));
-        scrobbleProcesser = new ScrobbleProcesser(new AlbumFinder(service, LastFMFactory.getNewInstance()));
-        playerManager = new ExtendedAudioPlayerManager(scrobbleEventManager, scrobbleProcesser);
+        scrabbleProcessor = new ScrabbleProcessor(new AlbumFinder(service, LastFMFactory.getNewInstance()));
+        playerManager = new ExtendedAudioPlayerManager(scrobbleEventManager, scrabbleProcessor);
         playerRegistry = new PlayerRegistry(playerManager);
         scheduledService = new ScheduledService(Executors.newScheduledThreadPool(6), db.normalService());
         ratelimited = service.getRateLimited().entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, y -> RateLimiter.create(y.getValue())));
@@ -380,8 +380,8 @@ public class Chuu {
         return scrobbleEventManager;
     }
 
-    public static ScrobbleProcesser getScrobbleProcesser() {
-        return scrobbleProcesser;
+    public static ScrabbleProcessor getScrobbleProcesser() {
+        return scrabbleProcessor;
     }
 
     public static CoverService getCoverService() {

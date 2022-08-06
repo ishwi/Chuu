@@ -45,7 +45,7 @@ import core.music.scrobble.ScrobbleEventManager;
 import core.music.sources.attachments.DiscordAttachmentAudioSourceManager;
 import core.music.sources.bandcamp.CustomBandcampAudioSourceManager;
 import core.music.sources.spotify.SpotifyAudioSourceManager;
-import core.music.utils.ScrobbleProcesser;
+import core.music.utils.ScrabbleProcessor;
 import core.music.utils.TrackContext;
 import core.music.utils.YoutubeSearchManagerSingleton;
 import org.json.JSONArray;
@@ -58,7 +58,7 @@ import java.util.*;
 public class ExtendedAudioPlayerManager extends DefaultAudioPlayerManager {
 
 
-    public ExtendedAudioPlayerManager(ScrobbleEventManager scrobbleManager, ScrobbleProcesser scrobbleProcesser) {
+    public ExtendedAudioPlayerManager(ScrobbleEventManager scrobbleManager, ScrabbleProcessor scrabbleProcessor) {
         super();
         AudioConfiguration configuration = getConfiguration();
         configuration.setFilterHotSwapEnabled(true);

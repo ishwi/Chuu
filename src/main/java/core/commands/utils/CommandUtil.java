@@ -12,6 +12,7 @@ import core.parsers.params.CommandParameters;
 import core.services.ColorService;
 import core.services.validators.ArtistValidator;
 import core.util.ChuuVirtualPool;
+import core.util.VirtualParallel;
 import dao.ChuuService;
 import dao.entities.*;
 import dao.exceptions.InstanceNotFoundException;
@@ -103,17 +104,22 @@ public class CommandUtil {
         String newUrl = null;
         try {
             newUrl = discogsApi.findArtistImage(scrobbledArtist.getArtist());
+            VirtualParallel.handleInterrupt();
             if (!newUrl.isEmpty()) {
                 dao.upsertUrl(newUrl, scrobbledArtist.getArtistId());
+                VirtualParallel.handleInterrupt();
             } else {
                 Pair<String, String> urlAndId = spotify.getUrlAndId(scrobbledArtist.getArtist());
+                VirtualParallel.handleInterrupt();
                 newUrl = urlAndId.getLeft();
                 if (newUrl.isBlank()) {
                     scrobbledArtist.setUrl("");
                     scrobbledArtist.setUpdateBit(false);
                     dao.upsertArtistSad(scrobbledArtist);
+                    VirtualParallel.handleInterrupt();
                 } else {
                     dao.upsertSpotify(newUrl, scrobbledArtist.getArtistId(), urlAndId.getRight());
+                    VirtualParallel.handleInterrupt();
                 }
             }
         } catch (DiscogsServiceException ignored) {
@@ -278,9 +284,11 @@ public class CommandUtil {
             if (whoD == null) {
                 if (isFromServer) {
                     whoD = g.retrieveMemberById(discordID).onErrorFlatMap((t) -> new CompletedRestAction<>(g.getJDA(), null, null)).complete();
+                    VirtualParallel.handleInterrupt();
                 }
                 if (whoD == null) {
                     user = core.Chuu.getShardManager().retrieveUserById(discordID).complete();
+                    VirtualParallel.handleInterrupt();
                     username = user.getName();
                 } else {
                     user = whoD.getUser();
@@ -292,6 +300,7 @@ public class CommandUtil {
             }
         } else {
             user = core.Chuu.getShardManager().retrieveUserById(discordID).complete();
+            VirtualParallel.handleInterrupt();
             username = user.getName();
 
         }

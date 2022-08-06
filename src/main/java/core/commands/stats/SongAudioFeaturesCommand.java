@@ -84,7 +84,7 @@ public class SongAudioFeaturesCommand extends ConcurrentCommand<ArtistAlbumParam
         }
         Track value = pairs.get(0).getValue();
         List<AudioFeatures> audioFeatures = spotify.getAudioFeatures(Set.of(value.getId()));
-        Thread.startVirtualThread(() -> {
+        CommandUtil.runLog(() -> {
             var audioFeaturesStream = audioFeatures.stream().map(t ->
                     new dao.entities.AudioFeatures(t.getAcousticness(), t.getAnalysisUrl(), t.getDanceability(), t.getDurationMs(), t.getEnergy(), t.getId(), t.getInstrumentalness(), t.getKey(), t.getLiveness(), t.getLoudness(), t.getSpeechiness(), t.getTempo(), t.getTimeSignature(), t.getTrackHref(), t.getUri(), t.getValence())).toList();
             db.insertAudioFeatures(audioFeaturesStream);

@@ -762,17 +762,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
     @Override
     public void setUserProperty(Connection connection, long discordId, String property, String value) {
         String queryString = "UPDATE  user SET  " + property + " = ? WHERE discord_id = ? ";
-        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
-
-            /* Fill "preparedStatement". */
-            int i = 1;
-            preparedStatement.setString(i++, value);
-            preparedStatement.setLong(i, discordId);
-            preparedStatement.executeUpdate();
-
-        } catch (SQLException e) {
-            throw new ChuuServiceException(e);
-        }
+        SQLUtils.updateStringLong(connection, discordId, value, queryString);
     }
 
     @Override
@@ -811,17 +801,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
     @Override
     public void setGuildProperty(Connection connection, long guildId, String property, String value) {
         String queryString = "UPDATE  guild SET  " + property + " = ? WHERE guild_id = ? ";
-        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
-
-            /* Fill "preparedStatement". */
-            int i = 1;
-            preparedStatement.setString(i++, value);
-            preparedStatement.setLong(i, guildId);
-            preparedStatement.executeUpdate();
-
-        } catch (SQLException e) {
-            throw new ChuuServiceException(e);
-        }
+        SQLUtils.updateStringLong(connection, guildId, value, queryString);
 
     }
 

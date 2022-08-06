@@ -71,6 +71,13 @@ public class VirtualParallel {
         }
     }
 
+    public static void handleInterrupt() {
+        if (Thread.currentThread().isInterrupted()) {
+            Chuu.getLogger().warn("Thread interrupted", new Exception());
+            throw new ChuuServiceException(new InterruptedException());
+        }
+    }
+
     public interface CheckedFunction<J, T> {
         T apply(J item) throws Exception;
     }

@@ -8,6 +8,7 @@ import jdk.incubator.concurrent.StructuredTaskScope;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
@@ -91,5 +92,16 @@ public class SQLUtils {
             throw new ChuuServiceException(e);
         }
 
+    }
+
+    public static void updateStringLong(Connection connection, long id, String str, String query) {
+        try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+            int i = 1;
+            preparedStatement.setString(i++, str);
+            preparedStatement.setLong(i, id);
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
     }
 }

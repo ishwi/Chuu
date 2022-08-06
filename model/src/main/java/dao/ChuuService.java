@@ -1693,10 +1693,10 @@ public class ChuuService implements EveryNoiseService {
         }
     }
 
-    public List<CrownableArtist> getCrownable(Long discordId, Long guildId, boolean skipCrownws, boolean onlySecond, int crownDistance) {
+    public List<CrownableArtist> getCrownable(String lastfmId, Long guildId, boolean skipCrownws, boolean onlySecond, int crownDistance) {
         try (Connection connection = dataSource.getConnection()) {
             connection.setReadOnly(true);
-            return queriesDao.getCrownable(connection, discordId, guildId, skipCrownws, onlySecond, crownDistance);
+            return queriesDao.getCrownable(connection, lastfmId, guildId, skipCrownws, onlySecond, crownDistance);
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }
@@ -2741,6 +2741,7 @@ public class ChuuService implements EveryNoiseService {
     public void updateMbids(List<ScrobbledArtist> artistData) {
 
         try (Connection connection = dataSource.getConnection()) {
+            updaterDao.fillIds(connection, artistData);
             updaterDao.updateMbids(connection, artistData);
         } catch (SQLException e) {
             throw new ChuuServiceException(e);

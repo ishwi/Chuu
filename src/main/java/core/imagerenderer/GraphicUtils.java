@@ -12,6 +12,7 @@ import core.imagerenderer.util.fitter.StringFitterBuilder;
 import core.services.ChuuRunnable;
 import dao.entities.ReturnNowPlaying;
 import dao.entities.WrapperReturnNowPlaying;
+import dao.exceptions.ChuuServiceException;
 import net.dv8tion.jda.api.entities.Message;
 import org.apache.commons.lang3.tuple.Pair;
 import org.imgscalr.Scalr;
@@ -530,7 +531,14 @@ public class GraphicUtils {
             } catch (IOException e) {
                 Chuu.getLogger().warn("Error reading image {}", file, e);
                 return downloadImage(url, file);
+            } catch (Exception e) {
+                Chuu.getLogger().warn("Error reading image {}", file, e);
+                if (Thread.interrupted()) {
+                    throw new ChuuServiceException(e);
+                }
+                return downloadImage(url, file);
             }
+
         } else {
             return downloadImage(url, file);
         }

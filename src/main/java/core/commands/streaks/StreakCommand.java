@@ -92,7 +92,7 @@ public class StreakCommand extends ConcurrentCommand<ChuuDataParams> {
                 combo.setStreakStart(Instant.EPOCH.plus(1, ChronoUnit.DAYS));
             }
             Long fId = albumId;
-            Thread.startVirtualThread(() -> db.insertCombo(combo, discordID, sA.getArtistId(), fId));
+            CommandUtil.runLog(() -> db.insertCombo(combo, discordID, sA.getArtistId(), fId));
             ;
         }
 

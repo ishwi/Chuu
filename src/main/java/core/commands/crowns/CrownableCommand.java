@@ -60,7 +60,7 @@ public class CrownableCommand extends ListCommand<CrownableArtist, NumberParamet
         Long guildId = params.getE().isFromGuild() ? outerParams.hasOptional("server") ? params.getE().getGuild().getIdLong() : null : null;
         boolean onlySecond = outerParams.hasOptional("secondonly");
         int crownDistance = Math.toIntExact(outerParams.getExtraParam());
-        return db.getCrownable(params.getLastFMData().getDiscordId(), guildId, crownDistance != Integer.MAX_VALUE || outerParams.hasOptional("nofirst"), onlySecond, crownDistance);
+        return db.getCrownable(params.getLastFMData().getName(), guildId, crownDistance != Integer.MAX_VALUE || outerParams.hasOptional("nofirst"), onlySecond, crownDistance);
     }
 
     @Override

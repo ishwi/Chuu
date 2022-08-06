@@ -662,92 +662,93 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
     }
 
     @Override
-    public List<CrownableArtist> getCrownable(Connection connection, Long discordId, Long guildId, boolean skipCrowns, boolean onlySecond, int crownDistance) {
+    public List<CrownableArtist> getCrownable(Connection connection, String lastfmId, Long guildId, boolean skipCrowns, boolean onlySecond, int crownDistance) {
         List<CrownableArtist> list = new ArrayList<>();
-        String guildQuery;
+        @Language("MariaDB") String sql;
         if (guildId != null) {
-            guildQuery = """
-                    SELECT *\s
-                    FROM   (SELECT temp_2.name                                    AS name,\s
-                                   temp_2.artist_id                               AS artist,\s
-                                   temp_2.playnumber                              AS plays,\s
-                                   MAX(inn.playnumber)                            AS maxplays,\s
-                                   (SELECT COUNT(*)\s
-                                    FROM   scrobbled_artist b\s
-                                           JOIN user d\s
-                                             ON b.lastfm_id = d.lastfm_id\s
-                                           JOIN user_guild c\s
-                                             ON d.discord_id = c.discord_id\s
-                                    WHERE  c.guild_id = ?\s
-                                           AND artist_id = temp_2.artist_id\s
-                                           AND temp_2.playnumber <= b.playnumber) RANK,\s
-                                   COUNT(*)                                       AS total\s
-                            FROM   (SELECT b.*\s
-                                    FROM   scrobbled_artist b\s
-                                           JOIN `user` d\s
-                                             ON b.lastfm_id = d.lastfm_id\s
-                                           JOIN user_guild c\s
-                                             ON d.discord_id = c.discord_id\s
-                                    WHERE  c.guild_id = ?) inn\s
-                                   JOIN (SELECT artist_id,\s
-                                                inn_c.name AS NAME,\s
-                                                playnumber\s
-                                         FROM   scrobbled_artist inn_a\s
-                                                JOIN artist inn_c\s
-                                                  ON inn_a.artist_id = inn_c.id\s
-                                                JOIN `user` inn_b\s
-                                                  ON inn_a.lastfm_id = inn_b.lastfm_id\s
-                                                JOIN user_guild c\s
-                                                  ON inn_b.discord_id = c.discord_id\s
-                                         WHERE  c.guild_id = ?\s
-                                                AND inn_b.discord_id = ?) temp_2\s
-                                     ON temp_2.artist_id = inn.artist_id\s
-                            GROUP  BY temp_2.artist_id\s
-                            ORDER  BY temp_2.playnumber DESC) main\s
-                    WHERE(? AND rank = 2 OR ((NOT ?) AND
-                                            ? AND rank != 1 OR\s
-                                            NOT ? AND NOT ?)) AND (maxplays - plays < ?) LIMIT  500\s""";
+
+            sql = """
+                    with guild_user as (select lastfm_id
+                                                                     from user_guild ug
+                                                                              join user u on ug.discord_id = u.discord_id
+                                                                     where ug.guild_id = ?),
+                                                 
+                                                      user_scrobbles as (SELECT artist_id,
+                                                                                playnumber
+                                                                         FROM scrobbled_artist s_a
+                                                                         where s_a.lastfm_id = ?),
+                                                      all_users as (select all_users.artist_id,
+                                                                           all_users.playnumber,
+                                                                           all_users.lastfm_id
+                                                                    from scrobbled_artist all_users
+                                                                    where lastfm_id in (select lastfm_id from guild_user)),
+                                                      ranks as (select a.artist_id,
+                                                                       count(*)                                                    as total,
+                                                                       count(IF(us_2.playnumber <= a.playnumber = false, null, 0)) as ranks,
+                                                                       max(a.playnumber)                                           as maxplays
+                                                                from all_users a
+                                                                         join user_scrobbles us_2 on a.artist_id = us_2.artist_id
+                                                 
+                                                                group by a.artist_id)
+                                                 SELECT *
+                                                 FROM (SELECT us.artist_id  AS artist,
+                                                   us.playnumber AS plays,
+                                                   r.*,
+                                                   b.name as name
+                                                       from user_scrobbles us
+                                                                join ranks r on us.artist_id = r.artist_id
+                                                                join artist b on us.artist_id = b.id
+                                                                ) main
+                                                                where 1 = 1 
+                                                               """;
         } else {
-            guildQuery = """
-                    SELECT * FROM (SELECT temp_2.name AS name, temp_2.artist_id AS artist ,\s
-                           temp_2.playnumber AS plays,\s
-                           MAX(inn.playnumber) AS maxplays,\s
-                           (SELECT COUNT(*)\s
-                            FROM   scrobbled_artist b\s
-                            WHERE  artist_id = temp_2.artist_id\s
-                                   AND temp_2.playnumber <= b.playnumber) AS RANK, COUNT(*) AS total
-                    FROM   scrobbled_artist inn\s
-                           JOIN (SELECT artist_id,inn_c.name AS NAME,
-                                        playnumber\s
-                                 FROM   scrobbled_artist inn_a\s
-                                          JOIN artist inn_c ON inn_a.artist_id = inn_c.id                    \s
-                                           JOIN `user` inn_b\s
-                                          ON inn_a.lastfm_id = inn_b.lastfm_id\s
-                                 WHERE  inn_b.discord_id = ?) temp_2\s
-                             ON temp_2.artist_id = inn.artist_id\s
-                    GROUP  BY temp_2.artist_id\s
-                    ORDER  BY temp_2.playnumber DESC\s
-                    ) main  WHERE (? AND rank = 2 OR ((NOT ?) AND
-                                            ? AND rank != 1 OR\s
-                                            NOT ? AND NOT ?))  AND (maxplays - plays < ?)  LIMIT 500;""";
+            sql = """
+                    with user_scrobbles as (SELECT artist_id,
+                                                                     playnumber
+                                                              FROM scrobbled_artist s_a
+                                                              where s_a.lastfm_id = ?),
+                                           ranks as (select a.artist_id,
+                                                            count(*)                                                 as total,
+                                                            count(IF(b.playnumber <= a.playnumber = false, null, 0)) as ranks,
+                                                            max(a.playnumber)                                        as maxplays
+                                                     from scrobbled_artist a
+                                                              join user_scrobbles b on a.artist_id = b.artist_id
+                                                     group by a.artist_id)
+                                      SELECT *
+                                      FROM (SELECT us.artist_id  AS artist,
+                                                   us.playnumber AS plays,
+                                                   r.*,
+                                                   b.name as name
+                                            from user_scrobbles us
+                                                     join artist b on us.artist_id = b.id
+                                                     join ranks r on us.artist_id = r.artist_id
+                                            ) main
+                                            where 1 = 1
+                    """;
+
         }
 
+        if (skipCrowns) {
+            sql += " and ranks != 1 ";
+        }
+        if (onlySecond) {
+            sql += " and ranks = 2 ";
+        }
+        if (crownDistance != Integer.MAX_VALUE) {
+            sql += " and maxplays - plays < ? ";
+        }
+        sql += "ORDER BY plays DESC LIMIT 500";
 
-        int count = 0;
+
         int i = 1;
-        try (PreparedStatement preparedStatement1 = connection.prepareStatement(guildQuery)) {
+        try (PreparedStatement preparedStatement1 = connection.prepareStatement(sql)) {
             if (guildId != null) {
                 preparedStatement1.setLong(i++, guildId);
-                preparedStatement1.setLong(i++, guildId);
-                preparedStatement1.setLong(i++, guildId);
             }
-            preparedStatement1.setLong(i++, discordId);
-            preparedStatement1.setBoolean(i++, onlySecond);
-            preparedStatement1.setBoolean(i++, onlySecond);
-            preparedStatement1.setBoolean(i++, skipCrowns);
-            preparedStatement1.setBoolean(i++, onlySecond);
-            preparedStatement1.setBoolean(i++, skipCrowns);
-            preparedStatement1.setInt(i, crownDistance);
+            preparedStatement1.setString(i++, lastfmId);
+            if (crownDistance != Integer.MAX_VALUE) {
+                preparedStatement1.setInt(i, crownDistance);
+            }
 
 
             ResultSet resultSet1 = preparedStatement1.executeQuery();
@@ -756,9 +757,9 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
                 String artist = resultSet1.getString("name");
 
                 int plays = resultSet1.getInt("plays");
-                int rank = resultSet1.getInt("rank");
+                int rank = resultSet1.getInt("ranks");
                 int total = resultSet1.getInt("total");
-                int maxPlays = resultSet1.getInt("maxPlays");
+                int maxPlays = resultSet1.getInt("maxplays");
 
                 CrownableArtist who = new CrownableArtist(artist, plays, maxPlays, rank, total);
                 list.add(who);
@@ -1656,24 +1657,23 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
     @Override
     public List<String> searchArtist(Connection connection, String inputTerm, int limit) {
         List<String> results = new ArrayList<>();
-        String queryString = """
-                select distinct name
-                     from (SELECT name as name, 2 as ranking, play_ranking as numeric_ranking
-                     
-                           from artist
-                           where  name like ?
-                           union
-                           (
-                           select coalesce ((select name from artist where name = ?), ?) as name, 1 as ranking, 0 as numeric_ranking)
-                           order by ranking asc, numeric_ranking desc
-                          ) main
-                     
-                     limit ?""";
+        @Language("MariaDB") String queryString =
+                """
+                        select distinct name
+                        from ((SELECT name as name, 2 as ranking, play_ranking as numeric_ranking
+                              from artist
+                              where name like ?
+                              limit ?)
+                              
+                              union
+                              (select coalesce((select name from artist where name = ?), ?) as name, 1 as ranking, 0 as numeric_ranking)
+                              order by ranking, numeric_ranking desc) main
+                        """;
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
-            preparedStatement.setString(1, "" + inputTerm + "%");
-            preparedStatement.setString(2, inputTerm);
+            preparedStatement.setString(1, "" + inputTerm.replaceAll("%", "") + "%");
+            preparedStatement.setInt(2, limit - 1);
             preparedStatement.setString(3, inputTerm);
-            preparedStatement.setInt(4, limit);
+            preparedStatement.setString(4, inputTerm);
 
             /* Execute query. */
             ResultSet resultSet = preparedStatement.executeQuery();
@@ -1690,26 +1690,26 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
     @Override
     public List<String> searchAlbumsForArtist(Connection connection, long artistId, String inputTerm, int limit) {
         List<String> results = new ArrayList<>();
-        String queryString = """
+        @Language("MariaDB") String queryString = """
                 select distinct name
-                     from (SELECT album_name as name, 2 as ranking
-                     
+                     from ((SELECT album_name as name, 2 as ranking
                            from album
-                           where  album_name like ? and artist_id = ? 
+                           where  album_name like ? and artist_id = ?
+                           limit ?
+                           )
                            union
                            (
                            select coalesce ((select album_name from album where album_name = ? and artist_id = ? ), ?) as name, 1 as ranking)
                            order by ranking asc
                           ) main
-                     
-                     limit ?""";
+                """;
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
-            preparedStatement.setString(1, "" + inputTerm + "%");
+            preparedStatement.setString(1, "" + inputTerm.replaceAll("%", "") + "%");
             preparedStatement.setLong(2, artistId);
-            preparedStatement.setString(3, inputTerm);
-            preparedStatement.setLong(4, artistId);
-            preparedStatement.setString(5, inputTerm);
-            preparedStatement.setInt(6, limit);
+            preparedStatement.setInt(3, limit - 1);
+            preparedStatement.setString(4, inputTerm);
+            preparedStatement.setLong(5, artistId);
+            preparedStatement.setString(6, inputTerm);
 
             /* Execute query. */
             ResultSet resultSet = preparedStatement.executeQuery();
@@ -1725,26 +1725,25 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
     @Override
     public List<String> searchTracksForArtist(Connection connection, long artistId, String inputTerm, int limit) {
         List<String> results = new ArrayList<>();
-        String queryString = """
+        @Language("MariaDB") String queryString = """
                 select distinct name
-                     from (SELECT track_name as name, 2 as ranking
-                     
+                     from ((SELECT track_name as name, 2 as ranking
                            from track
-                           where  track_name like ? and artist_id = ? 
+                           where  track_name like ? and artist_id = ?
+                           limit ?
+                           )
                            union
-                           (
-                           select coalesce ((select track_name from track where track_name = ? and artist_id = ? ), ?) as name, 1 as ranking)
-                           order by ranking asc
+                           (select coalesce ((select track_name from track where track_name = ? and artist_id = ? ), ?) as name, 1 as ranking)
+                           order by ranking
                           ) main
-                     
-                     limit ?""";
+                """;
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
-            preparedStatement.setString(1, "" + inputTerm + "%");
-            preparedStatement.setLong(2, artistId);
-            preparedStatement.setString(3, inputTerm);
-            preparedStatement.setLong(4, artistId);
-            preparedStatement.setString(5, inputTerm);
-            preparedStatement.setInt(6, limit);
+            preparedStatement.setString(1, "" + inputTerm.replaceAll("%", "") + "%");
+            preparedStatement.setInt(2, limit - 1);
+            preparedStatement.setLong(3, artistId);
+            preparedStatement.setString(4, inputTerm);
+            preparedStatement.setLong(5, artistId);
+            preparedStatement.setString(6, inputTerm);
 
             /* Execute query. */
             ResultSet resultSet = preparedStatement.executeQuery();
@@ -1762,22 +1761,23 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
         List<String> results = new ArrayList<>();
         String queryString = """
                 select distinct name
-                     from (SELECT track_name as name, 2 as ranking
+                     from ((SELECT track_name as name, 2 as ranking
                      
                            from track
-                           where  track_name like ? 
+                           where  track_name like ?
+                           limit ?)
                            union
                            (
                            select coalesce ((select track_name from track where track_name = ? limit 1), ?) as name, 1 as ranking)
-                           order by ranking asc
+                           order by ranking
                           ) main
                      
-                     limit ?""";
+                """;
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
-            preparedStatement.setString(1, "" + inputTerm + "%");
-            preparedStatement.setString(2, inputTerm);
+            preparedStatement.setString(1, "" + inputTerm.replaceAll("%", "") + "%");
+            preparedStatement.setInt(2, limit - 1);
             preparedStatement.setString(3, inputTerm);
-            preparedStatement.setInt(4, limit);
+            preparedStatement.setString(4, inputTerm);
 
             /* Execute query. */
             ResultSet resultSet = preparedStatement.executeQuery();
@@ -1793,24 +1793,25 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
     @Override
     public List<String> searchAlbums(Connection connection, String inputTerm, int limit) {
         List<String> results = new ArrayList<>();
-        String queryString = """
+        @Language("MariaDB") String queryString = """
                 select distinct name
-                     from (SELECT album_name as name, 2 as ranking
+                     from ((SELECT album_name as name, 2 as ranking
                      
                            from album
-                           where  album_name like ? 
+                           where  album_name like ?
+                           limit ?)
                            union
                            (
                            select coalesce ((select album_name from album where album_name = ? limit 1), ?) as name, 1 as ranking)
-                           order by ranking asc
+                           order by ranking
                           ) main
                      
-                     limit ?""";
+                """;
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
-            preparedStatement.setString(1, "" + inputTerm + "%");
-            preparedStatement.setString(2, inputTerm);
+            preparedStatement.setString(1, "" + inputTerm.replaceAll("%", "") + "%");
+            preparedStatement.setInt(2, limit - 1);
             preparedStatement.setString(3, inputTerm);
-            preparedStatement.setInt(4, limit);
+            preparedStatement.setString(4, inputTerm);
 
             /* Execute query. */
             ResultSet resultSet = preparedStatement.executeQuery();

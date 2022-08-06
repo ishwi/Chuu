@@ -5,13 +5,9 @@ import core.apis.discogs.DiscogsApi;
 import core.apis.last.entities.chartentities.UrlCapsule;
 import core.apis.spotify.Spotify;
 import core.commands.utils.CommandUtil;
-import core.util.ChuuVirtualPool;
 import core.util.VirtualParallel;
 import dao.ChuuService;
-import dao.entities.ScrobbledArtist;
-import dao.entities.UpdaterStatus;
 import dao.exceptions.ChuuServiceException;
-import dao.exceptions.InstanceNotFoundException;
 
 import javax.annotation.Nonnull;
 import java.io.Serial;
@@ -20,7 +16,10 @@ import java.time.temporal.ChronoUnit;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Objects;
-import java.util.concurrent.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
 
 import static core.apis.last.queues.TrackGroupAlbumQueue.defaultTrackImage;
@@ -28,7 +27,6 @@ import static core.apis.last.queues.TrackGroupAlbumQueue.defaultTrackImage;
 public class ArtistQueue extends LinkedBlockingQueue<UrlCapsule> {
     @Serial
     private static final long serialVersionUID = 1L;
-    private static final ExecutorService artist = ChuuVirtualPool.of("Capsule-Fetcher");
     protected final transient LinkedBlockingQueue<CompletableFuture<UrlCapsule>> wrapper;
     private final transient ChuuService dao;
     private final transient DiscogsApi discogsApi;
@@ -55,7 +53,7 @@ public class ArtistQueue extends LinkedBlockingQueue<UrlCapsule> {
 
     @Override
     public boolean offer(@Nonnull UrlCapsule item) {
-        CompletableFuture<UrlCapsule> future = CompletableFuture.supplyAsync(() -> {
+        CompletableFuture<UrlCapsule> future = CommandUtil.supplyLog(() -> {
             if (needsImages) {
                 if ((item.getUrl() != null && item.getUrl().isBlank()) || (item.getUrl() != null && item.getUrl().equalsIgnoreCase(defaultTrackImage))) {
                     item.setUrl(null);
@@ -63,24 +61,13 @@ public class ArtistQueue extends LinkedBlockingQueue<UrlCapsule> {
                 getUrl(item);
             }
             return item;
-        }, artist).toCompletableFuture();
+        }).toCompletableFuture();
         return wrapper.offer(future);
 
     }
 
     public void getUrl(@Nonnull UrlCapsule item) {
-        try {
-            UpdaterStatus updaterStatusByName = dao.getUpdaterStatusByName(item.getArtistName());
-            String url = updaterStatusByName.getArtistUrl();
-            if (url == null) {
-                ScrobbledArtist scrobbledArtist = new ScrobbledArtist(item.getArtistName(), item.getPlays(), item.getUrl());
-                scrobbledArtist.setArtistId(updaterStatusByName.getArtistId());
-                url = CommandUtil.updateUrl(discogsApi, scrobbledArtist, dao, spotifyApi);
-            }
-            item.setUrl(url);
-        } catch (InstanceNotFoundException e) {
-            //What can we do
-        }
+        DiscardByQueue.fetchArtistURL(item, dao, discogsApi, spotifyApi);
     }
 
 
