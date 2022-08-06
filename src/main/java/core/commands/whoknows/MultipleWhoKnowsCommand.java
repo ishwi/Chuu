@@ -71,7 +71,7 @@ public class MultipleWhoKnowsCommand extends WhoKnowsBaseCommand<MultiArtistPara
         Map<String, ReturnNowPlaying> stringReturnNowPlayingMap = WhoKnowsLoonasCommand.groupByUser(whoKnowsArtistSet);
         WrapperReturnNowPlaying wrapperReturnNowPlaying = new WrapperReturnNowPlaying(
                 stringReturnNowPlayingMap.
-                        values().stream().sorted(Comparator.comparingInt(ReturnNowPlaying::getPlayNumber).reversed())
+                        values().stream().sorted(Comparator.comparingLong(ReturnNowPlaying::getPlayNumber).reversed())
                         .toList(),
                 0, first.getUrl(), ""
         );

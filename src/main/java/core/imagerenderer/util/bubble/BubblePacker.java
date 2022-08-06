@@ -231,7 +231,7 @@ public record BubblePacker(List<StringFrequency> frequencies, Supplier<Color> co
         if (node.isEmpty()) {
             return null;
         }
-        int max = node.stream().mapToInt(StringFrequency::freq).max().orElse(1);
+        long max = node.stream().mapToLong(StringFrequency::freq).max().orElse(1);
         Bubble firstBubble = null;
         Bubble lastinsertednode = null;
         for (StringFrequency circle : node) {

@@ -76,15 +76,15 @@ public class BandInfoServerCommand extends BandInfoCommand {
             return;
         }
         long plays = db.getServerArtistPlays(ap.getE().getGuild().getIdLong(), who.getArtistId());
-        doImage(ap, np, ai, Math.toIntExact(plays), logo, threshold);
+        doImage(ap, np, ai, Math.toIntExact(plays), threshold);
     }
 
 
     @Override
-    protected void doImage(ArtistParameters ap, WrapperReturnNowPlaying np, ArtistAlbums ai, int plays, BufferedImage logo, long threshold) {
+    protected void doImage(ArtistParameters ap, WrapperReturnNowPlaying np, ArtistAlbums ai, long plays, long threshold) {
         np.setIndexes();
         BufferedImage returnedImage = BandRendered
-                .makeBandImage(np, ai, plays, logo, ap.getE().getGuild().getName(), threshold);
+                .makeBandImage(np, ai, plays, ap.getE().getGuild().getName(), threshold);
         sendImage(returnedImage, ap.getE());
     }
 

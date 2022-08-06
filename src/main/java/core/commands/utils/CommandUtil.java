@@ -90,12 +90,14 @@ public class CommandUtil {
 
 
     public static BufferedImage getLogo(ChuuService dao, Context e) {
-        try (var is = dao.findLogo(e.getGuild().getIdLong());
-             var stream = is == null ? null : new BufferedInputStream(is)) {
-            if (stream != null)
-                return ImageIO.read(stream);
-        } catch (IOException ex) {
-            return null;
+        if (e.isFromGuild()) {
+            try (var is = dao.findLogo(e.getGuild().getIdLong());
+                 var stream = is == null ? null : new BufferedInputStream(is)) {
+                if (stream != null)
+                    return ImageIO.read(stream);
+            } catch (IOException ex) {
+                return null;
+            }
         }
         return null;
     }

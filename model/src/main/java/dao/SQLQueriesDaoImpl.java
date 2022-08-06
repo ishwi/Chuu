@@ -741,25 +741,25 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
 
 
         int i = 1;
-        try (PreparedStatement preparedStatement1 = connection.prepareStatement(sql)) {
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
             if (guildId != null) {
-                preparedStatement1.setLong(i++, guildId);
+                ps.setLong(i++, guildId);
             }
-            preparedStatement1.setString(i++, lastfmId);
+            ps.setString(i++, lastfmId);
             if (crownDistance != Integer.MAX_VALUE) {
-                preparedStatement1.setInt(i, crownDistance);
+                ps.setInt(i, crownDistance);
             }
 
 
-            ResultSet resultSet1 = preparedStatement1.executeQuery();
+            ResultSet rs = ps.executeQuery();
 
-            while (resultSet1.next()) {
-                String artist = resultSet1.getString("name");
+            while (rs.next()) {
+                String artist = rs.getString("name");
 
-                int plays = resultSet1.getInt("plays");
-                int rank = resultSet1.getInt("ranks");
-                int total = resultSet1.getInt("total");
-                int maxPlays = resultSet1.getInt("maxplays");
+                int plays = rs.getInt("plays");
+                int rank = rs.getInt("ranks");
+                int total = rs.getInt("total");
+                int maxPlays = rs.getInt("maxplays");
 
                 CrownableArtist who = new CrownableArtist(artist, plays, maxPlays, rank, total);
                 list.add(who);
@@ -1286,34 +1286,35 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
         List<ScrobbledArtist> list = new ArrayList<>();
         int count = 0;
         int i = 1;
-        try (PreparedStatement preparedStatement1 = connection.prepareStatement(normalQuery)) {
+        try (PreparedStatement psQ = connection.prepareStatement(normalQuery)) {
             if (guildID != null)
-                preparedStatement1.setLong(i++, guildID);
+                psQ.setLong(i++, guildID);
 
-            preparedStatement1.setInt(i, limit);
+            psQ.setInt(i, limit);
 
-            ResultSet resultSet1 = preparedStatement1.executeQuery();
+            ResultSet rsQ = psQ.executeQuery();
 
-            while (resultSet1.next()) {
-                String artist = resultSet1.getString("name");
-                String url = resultSet1.getString("url");
+            while (rsQ.next()) {
+                String artist = rsQ.getString("name");
+                String url = rsQ.getString("url");
 
-                int plays = resultSet1.getInt("orden");
+                int plays = rsQ.getInt("orden");
                 ScrobbledArtist who = new ScrobbledArtist(artist, plays, url);
                 list.add(who);
             }
             if (doCount) {
-
-                PreparedStatement preparedStatement = connection.prepareStatement(countQuery);
+                if (guildID == null) {
+                    countQuery = "SELECT table_rows FROM  information_schema.tables WHERE tables.table_schema = 'lastfm' AND table_name = 'scrobbled_album'";
+                }
+                PreparedStatement psC = connection.prepareStatement(countQuery);
                 i = 1;
                 if (guildID != null)
-                    preparedStatement.setLong(i, guildID);
+                    psC.setLong(i, guildID);
 
-                ResultSet resultSet = preparedStatement.executeQuery();
-                if (resultSet.next()) {
-                    count = resultSet.getInt(1);
+                ResultSet rsC = psC.executeQuery();
+                if (rsC.next()) {
+                    count = rsC.getInt(1);
                 }
-
 
             }
         } catch (SQLException e) {
@@ -3671,9 +3672,8 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
                                                     })),
                                     result -> result.values().stream().filter(Objects::nonNull)
 
-                                            .sorted(Comparator.comparingInt
-                                                    ((WrapperReturnNowPlaying t) ->
-                                                            t.getReturnNowPlayings().stream().mapToInt(ReturnNowPlaying::getPlayNumber).sum()).reversed())
+                                            .sorted(Comparator.comparingLong(
+                                                    (WrapperReturnNowPlaying t) -> t.getReturnNowPlayings().stream().mapToLong(ReturnNowPlaying::getPlayNumber).sum()).reversed())
                                             .limit(limit)
                                             .toList()));
 

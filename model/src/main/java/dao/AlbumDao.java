@@ -25,7 +25,7 @@ public interface AlbumDao {
 
     void addSrobbledAlbums(Connection con, List<ScrobbledAlbum> scrobbledAlbums);
 
-    List<AlbumUserPlays> getUserTopArtistAlbums(Connection connection, long discord_id, long artistId, int limit);
+    List<AlbumUserPlays> getUserTopArtistAlbums(Connection connection, String lastfmId, long artistId, int limit);
 
     List<AlbumUserPlays> getServerTopArtistAlbums(Connection connection, long guildId, long artistId, int limit);
 

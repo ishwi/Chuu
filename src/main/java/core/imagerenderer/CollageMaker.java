@@ -2,6 +2,7 @@ package core.imagerenderer;
 
 import core.Chuu;
 import core.apis.last.entities.chartentities.UrlCapsule;
+import core.util.VirtualParallel;
 import dao.exceptions.ChuuServiceException;
 import jdk.incubator.concurrent.StructuredTaskScope;
 
@@ -71,8 +72,9 @@ public class CollageMaker {
                         tq.run0(ca);
                         return null;
                     }));
-            scope.joinUntil(Instant.now().plus(3, ChronoUnit.MINUTES));
+            scope.joinUntil(Instant.now().plus(1, ChronoUnit.MINUTES));
         } catch (TimeoutException | InterruptedException e) {
+            VirtualParallel.handleInterrupt();
             Chuu.getLogger().warn(e.getMessage(), e);
             throw new ChuuServiceException(e);
         }

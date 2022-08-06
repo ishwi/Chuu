@@ -67,7 +67,7 @@ public class LocalWhoKnowsSongCommand extends LocalWhoKnowsAlbumCommand {
                     wrapperReturnNowPlaying.setRows(wrapperReturnNowPlaying.getRows() + 1);
 
                 }
-                wrapperReturnNowPlaying.getReturnNowPlayings().sort(Comparator.comparingInt(ReturnNowPlaying::getPlayNumber).reversed());
+                wrapperReturnNowPlaying.getReturnNowPlayings().sort(Comparator.comparingLong(ReturnNowPlaying::getPlayNumber).reversed());
             }
         } catch (LastFmException exception) {
             //Ignored

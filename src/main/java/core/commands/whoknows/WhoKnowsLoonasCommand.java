@@ -13,7 +13,6 @@ import core.parsers.Parser;
 import core.parsers.params.LOONAParameters;
 import core.util.ServiceView;
 import dao.entities.*;
-import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import org.apache.commons.collections4.MultiValuedMap;
 import org.apache.commons.collections4.multimap.HashSetValuedHashMap;
@@ -180,14 +179,14 @@ public class WhoKnowsLoonasCommand extends WhoKnowsBaseCommand<LOONAParameters> 
                                     .collect(Collectors.groupingBy(x -> reverseLookUp.get(x.getArtist()), () -> new EnumMap<>(LOONA.class), Collectors.toList()));
                             whoKnowsArtistSet = groupedByType.entrySet().stream()
 
-                                    .sorted(Comparator.comparingInt((Map.Entry<LOONA, List<ReturnNowPlaying>> t) -> t.getValue().stream().mapToInt(ReturnNowPlaying::getPlayNumber).sum()).reversed())
+                                    .sorted(Comparator.comparingLong((Map.Entry<LOONA, List<ReturnNowPlaying>> t) -> t.getValue().stream().mapToLong(ReturnNowPlaying::getPlayNumber).sum()).reversed())
                                     .map(x ->
                                     {
                                         String representative = LOONA.getRepresentative(x.getKey());
                                         String artistUrl = db.getArtistUrl(representative);
                                         WrapperReturnNowPlaying wrapperReturnNowPlaying = new WrapperReturnNowPlaying(x.getValue(), x.getValue().size(), artistUrl, representative);
                                         Map<String, ReturnNowPlaying> userToPlays = groupByUser(List.of(wrapperReturnNowPlaying));
-                                        return new WrapperReturnNowPlaying(userToPlays.values().stream().sorted(Comparator.comparingInt(ReturnNowPlaying::getPlayNumber).reversed()).toList(), userToPlays.size(), artistUrl, representative);
+                                        return new WrapperReturnNowPlaying(userToPlays.values().stream().sorted(Comparator.comparingLong(ReturnNowPlaying::getPlayNumber).reversed()).toList(), userToPlays.size(), artistUrl, representative);
                                     })
                                     .toList();
                             switch (params.getTargetedType()) {
@@ -210,14 +209,14 @@ public class WhoKnowsLoonasCommand extends WhoKnowsBaseCommand<LOONAParameters> 
                                     .collect(Collectors.groupingBy(x -> reverseLookUp.get(x.getArtist()).getType(), () -> new EnumMap<>(LOONA.Type.class), Collectors.toList()));
                             whoKnowsArtistSet = groupedByType.entrySet().stream()
 
-                                    .sorted(Comparator.comparingInt((Map.Entry<LOONA.Type, List<ReturnNowPlaying>> t) -> t.getValue().stream().mapToInt(ReturnNowPlaying::getPlayNumber).sum()).reversed())
+                                    .sorted(Comparator.comparingLong((Map.Entry<LOONA.Type, List<ReturnNowPlaying>> t) -> t.getValue().stream().mapToLong(ReturnNowPlaying::getPlayNumber).sum()).reversed())
                                     .map(x ->
                                     {
                                         String representative = LOONA.getRepresentative(x.getKey());
                                         String artistUrl = db.getArtistUrl(representative);
                                         WrapperReturnNowPlaying wrapperReturnNowPlaying = new WrapperReturnNowPlaying(x.getValue(), x.getValue().size(), artistUrl, representative);
                                         Map<String, ReturnNowPlaying> userToPlays = groupByUser(List.of(wrapperReturnNowPlaying));
-                                        return new WrapperReturnNowPlaying(userToPlays.values().stream().sorted(Comparator.comparingInt(ReturnNowPlaying::getPlayNumber).reversed()).toList(), userToPlays.size(), artistUrl, representative);
+                                        return new WrapperReturnNowPlaying(userToPlays.values().stream().sorted(Comparator.comparingLong(ReturnNowPlaying::getPlayNumber).reversed()).toList(), userToPlays.size(), artistUrl, representative);
                                     })
                                     .toList();
                             xSize = 2;
@@ -342,7 +341,7 @@ public class WhoKnowsLoonasCommand extends WhoKnowsBaseCommand<LOONAParameters> 
             }
             default -> throw new IllegalStateException("Unexpected value: " + parse.getSubCommand());
         }
-        return new WrapperReturnNowPlaying(userToPlays.values().stream().sorted(Comparator.comparingInt(ReturnNowPlaying::getPlayNumber).reversed()).toList(), 0, represenentativeUrl, representativeArtist);
+        return new WrapperReturnNowPlaying(userToPlays.values().stream().sorted(Comparator.comparingLong(ReturnNowPlaying::getPlayNumber).reversed()).toList(), 0, represenentativeUrl, representativeArtist);
     }
 
     @Override
@@ -436,12 +435,4 @@ public class WhoKnowsLoonasCommand extends WhoKnowsBaseCommand<LOONAParameters> 
         return null;
     }
 
-    public String countString(ReturnNowPlaying returnNowPlaying) {
-        return ". " +
-               "[" + CommandUtil.escapeMarkdown(returnNowPlaying.getArtist()) + "](" +
-               LinkUtils
-                       .getLastFmArtistUrl(returnNowPlaying.getArtist()) +
-               ") - " +
-               returnNowPlaying.getPlayNumber() + " listeners\n";
-    }
 }

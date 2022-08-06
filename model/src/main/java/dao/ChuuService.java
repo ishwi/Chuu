@@ -1058,7 +1058,7 @@ public class ChuuService implements EveryNoiseService {
         }
     }
 
-    public void insertAlbumCrown(long artistId, String album, long discordID, long guildId, int plays) {
+    public void insertAlbumCrown(long artistId, String album, long discordID, long guildId, long plays) {
         try (Connection connection = dataSource.getConnection()) {
             updaterDao.insertAlbumCrown(connection, artistId, album, discordID, guildId, plays);
         } catch (SQLException e) {
@@ -2351,9 +2351,9 @@ public class ChuuService implements EveryNoiseService {
     }
 
 
-    public List<AlbumUserPlays> getUserTopArtistAlbums(int limit, long artistId, long discord_id) {
+    public List<AlbumUserPlays> getUserTopArtistAlbums(int limit, long artistId, String lastfmId) {
         try (Connection connection = dataSource.getConnection()) {
-            return albumDao.getUserTopArtistAlbums(connection, discord_id, artistId, limit);
+            return albumDao.getUserTopArtistAlbums(connection, lastfmId, artistId, limit);
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }

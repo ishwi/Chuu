@@ -26,15 +26,7 @@ public class PieableListTrack extends OptionalPie implements IPieableList<Track,
         IPieableList.fillListedSeries(chart,
                 (x) -> x.getName() + " - " + x.getPlays() + CommandUtil.singlePlural(x.getPlays(), " play", " plays"),
                 Track::getPlays,
-                x -> {
-                    if (acceptedCount.get() < 15 || (counter.get() < breakpoint && acceptedCount.get() < 20)) {
-                        counter.addAndGet(x.getPlays());
-                        acceptedCount.incrementAndGet();
-                        return true;
-                    } else {
-                        return false;
-                    }
-                }, data);
+                data);
         return chart;
     }
 

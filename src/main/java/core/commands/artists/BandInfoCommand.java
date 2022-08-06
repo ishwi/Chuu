@@ -16,10 +16,13 @@ import core.parsers.ArtistParser;
 import core.parsers.Parser;
 import core.parsers.params.ArtistParameters;
 import core.parsers.utils.Optionals;
+import core.services.CoverService;
 import core.services.validators.ArtistValidator;
 import core.util.ServiceView;
 import dao.entities.*;
+import dao.exceptions.ChuuServiceException;
 import dao.utils.LinkUtils;
+import jdk.incubator.concurrent.StructuredTaskScope;
 import net.dv8tion.jda.api.EmbedBuilder;
 import org.imgscalr.Scalr;
 import org.knowm.xchart.PieChart;
@@ -30,8 +33,13 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class BandInfoCommand extends ConcurrentCommand<ArtistParameters> {
     private final PieableListBand pie;
@@ -44,6 +52,39 @@ public class BandInfoCommand extends ConcurrentCommand<ArtistParameters> {
 
     }
 
+    protected <T extends ArtistParameters> void doDisplay(BandResult sr, T ap) {
+        List<AlbumUserPlays> userTopArtistAlbums = sr.up().plays();
+        long plays = sr.ap().artistPlays();
+        WrapperReturnNowPlaying np = sr.wk().wr();
+
+
+        boolean list = ap.hasOptional("list");
+        boolean pie = ap.hasOptional("pie");
+        ScrobbledArtist who = ap.getScrobbledArtist();
+        Context e = ap.getE();
+        long threshold = ap.getLastFMData().getArtistThreshold();
+
+        ArtistAlbums ai = new ArtistAlbums(who.getArtist(), userTopArtistAlbums);
+        CoverService cs = Chuu.getCoverService();
+        for (AlbumUserPlays t : userTopArtistAlbums) {
+            t.setAlbumUrl(cs.getCover(t.getArtist(), t.getAlbum(), t.getAlbumUrl(), e));
+        }
+
+        if (list) {
+            doList(ap, ai);
+            return;
+        }
+
+        for (ReturnNowPlaying element : np.getReturnNowPlayings()) {
+            element.setDiscordName(CommandUtil.getUserInfoUnescaped(e, element.getDiscordId()).username());
+        }
+        BufferedImage logo = CommandUtil.getLogo(db, e);
+        if (pie) {
+            doPie(ap, np, ai, logo);
+            return;
+        }
+        doImage(ap, np, ai, plays, threshold);
+    }
 
     @Override
     protected CommandCategory initCategory() {
@@ -68,60 +109,48 @@ public class BandInfoCommand extends ConcurrentCommand<ArtistParameters> {
         return Arrays.asList("artist", "a");
     }
 
-
     protected void bandLogic(ArtistParameters ap) {
 
-        long idLong = ap.getLastFMData().getDiscordId();
-        final String username = ap.getLastFMData().getName();
-        long threshold = ap.getLastFMData().getArtistThreshold();
-
-        boolean b = ap.hasOptional("list");
-        boolean b1 = ap.hasOptional("pie");
-        int limit = b || b1 ? Integer.MAX_VALUE : 9;
-        ScrobbledArtist who = ap.getScrobbledArtist();
-        List<AlbumUserPlays> userTopArtistAlbums = db.getUserTopArtistAlbums(limit, who.getArtistId(), idLong);
+        final String lfmName = ap.getLastFMData().getName();
         Context e = ap.getE();
+        ScrobbledArtist who = ap.getScrobbledArtist();
 
-        ArtistAlbums ai = new ArtistAlbums(who.getArtist(), userTopArtistAlbums);
-        userTopArtistAlbums.forEach(t -> t.setAlbumUrl(Chuu.getCoverService().
+        int limit = ap.hasOptional("list") || ap.hasOptional("pie") ? Integer.MAX_VALUE : 9;
 
-                getCover(t.getArtist(), t.
 
-                        getAlbum(), t.
+        try (var scope = new BandScope()) {
+            scope.fork(() -> new Albums(db.getUserTopArtistAlbums(limit, who.getArtistId(), lfmName)));
+            if (e.isFromGuild()) {
+                scope.fork(() -> new WK(db.whoKnows(who.getArtistId(), e.getGuild().getIdLong(), 5)));
+            } else {
+                scope.fork(() -> new WK(db.globalWhoKnows(who.getArtistId(), 5, false, e.getAuthor().getIdLong(), false)));
+            }
+            scope.fork(() -> new AP(db.getArtistPlays(who.getArtistId(), lfmName)));
+            scope.fork(() -> {
+                while (true) {
+                    if (Thread.currentThread().isInterrupted()) {
+                        Chuu.getLogger().info("Interrupted");
+                        break;
+                    }
+                }
+                return new AP(db.getArtistPlays(who.getArtistId(), lfmName));
+            });
+            scope.joinUntil(Instant.now().plus(10, ChronoUnit.SECONDS));
 
-                        getAlbumUrl(), e)));
+            BandResult sr = scope.result();
+            doDisplay(sr, ap);
 
-        if (b || !e.isFromGuild()) {
-            doList(ap, ai);
-            return;
+        } catch (StructuredNotHandledException | InterruptedException | TimeoutException ex) {
+            throw new ChuuServiceException(ex);
         }
-
-        WrapperReturnNowPlaying np = db.whoKnows(who.getArtistId(), e.getGuild().getIdLong(), 5);
-        np.getReturnNowPlayings().
-
-                forEach(element ->
-                        element.setDiscordName(CommandUtil.getUserInfoUnescaped(e, element.getDiscordId()).
-
-                                username())
-                );
-        BufferedImage logo = CommandUtil.getLogo(db, e);
-        if (b1) {
-            doPie(ap, np, ai, logo);
-            return;
-        }
-
-        int plays = db.getArtistPlays(who.getArtistId(), username);
-
-        doImage(ap, np, ai, plays, logo, threshold);
 
 
     }
 
-
-    protected void doImage(ArtistParameters ap, WrapperReturnNowPlaying np, ArtistAlbums ai, int plays, BufferedImage logo, long threshold) {
+    protected void doImage(ArtistParameters ap, WrapperReturnNowPlaying np, ArtistAlbums ai, long plays, long threshold) {
         np.setIndexes();
         BufferedImage returnedImage = BandRendered
-                .makeBandImage(np, ai, plays, logo, CommandUtil.getUserInfoUnescaped(ap.getE(), ap.getLastFMData().getDiscordId()).username(), threshold);
+                .makeBandImage(np, ai, plays, CommandUtil.getUserInfoUnescaped(ap.getE(), ap.getLastFMData().getDiscordId()).username(), threshold);
         sendImage(returnedImage, ap.getE());
     }
 
@@ -183,6 +212,82 @@ public class BandInfoCommand extends ConcurrentCommand<ArtistParameters> {
         ScrobbledArtist sA = new ArtistValidator(db, lastFM, e).validate(params.getArtist(), !params.isNoredirect());
         params.setScrobbledArtist(sA);
         bandLogic(params);
+    }
+
+    public sealed interface BandStructure {
+
+    }
+
+    public record Albums(List<AlbumUserPlays> plays) implements BandStructure {
+    }
+
+    public record WK(WrapperReturnNowPlaying wr) implements BandStructure {
+    }
+
+    public record AP(long artistPlays) implements BandStructure {
+    }
+
+    public static class StructuredNotHandledException extends Exception {
+        public StructuredNotHandledException(Throwable ex) {
+            super(ex);
+        }
+
+        public StructuredNotHandledException() {
+
+        }
+    }
+
+    public record BandResult(WK wk, Albums up, AP ap) {
+
+    }
+
+    public static class BandScope extends StructuredTaskScope<BandStructure> {
+        private final AtomicBoolean finished = new AtomicBoolean(false);
+        private volatile Albums p;
+        private volatile WK wk;
+        private volatile AP ap;
+        private volatile Throwable ex;
+
+        @Override
+        protected void handleComplete(Future<BandStructure> future) {
+            switch (future.state()) {
+                case RUNNING -> {
+                }
+                case SUCCESS -> {
+                    switch (future.resultNow()) {
+                        case Albums u -> p = u;
+                        case WK w -> this.wk = w;
+                        case AP a -> this.ap = a;
+                    }
+                }
+                case FAILED -> ex = future.exceptionNow();
+                case CANCELLED -> throw new ChuuServiceException(ex);
+            }
+        }
+
+        @Override
+        public StructuredTaskScope<BandStructure> join() throws InterruptedException {
+            finished.set(true);
+            return super.join();
+        }
+
+        @Override
+        public StructuredTaskScope<BandStructure> joinUntil(Instant deadline) throws InterruptedException, TimeoutException {
+            finished.set(true);
+            return super.joinUntil(deadline);
+        }
+
+        public BandResult result() throws StructuredNotHandledException {
+            if (!finished.get() || p == null || wk == null || ap == null || ex != null) {
+                if (ex != null) {
+                    throw new StructuredNotHandledException(ex);
+                } else {
+                    throw new StructuredNotHandledException();
+                }
+
+            }
+            return new BandResult(wk, p, ap);
+        }
     }
 
 

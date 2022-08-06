@@ -94,14 +94,15 @@ class ThreadQueue implements Runnable {
         VirtualParallel.handleInterrupt();
         BufferedImage croppedImage = GraphicUtils.resizeOrCrop(image, imageSize);
         drawImage(croppedImage, capsule);
+        VirtualParallel.handleInterrupt();
         g.drawImage(croppedImage, x * imageSize, y * imageSize, null);
         VirtualParallel.handleInterrupt();
     }
 
 
     public void handleInvalidImage(UrlCapsule capsule, int x, int y) {
-        reentrantLock.lock();
         try {
+            reentrantLock.lock();
             Color temp = g.getColor();
             g.setColor(Color.WHITE);
             g.fillRect(x * imageSize, y * imageSize, imageSize, imageSize);
@@ -113,8 +114,8 @@ class ThreadQueue implements Runnable {
         if (asideMode) {
             drawNeverEndingCharts(capsule, y, x, imageSize);
         } else {
-            reentrantLock.lock();
             try {
+                reentrantLock.lock();
                 Color temp = g.getColor();
                 g.setColor(Color.BLACK);
                 drawNames(capsule, y, x, g, null);

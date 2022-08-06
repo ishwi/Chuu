@@ -1,4 +1,4 @@
 package core.imagerenderer.util.bubble;
 
-public record StringFrequency(String key, int freq) {
+public record StringFrequency(String key, long freq) {
 }

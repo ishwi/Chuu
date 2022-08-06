@@ -28,15 +28,7 @@ public class PieableListChart extends OptionalPie implements IPieableList<UrlCap
         IPieableList.fillListedSeries(chart,
                 x -> x.getLines().stream().map(ChartLine::getLine).collect(Collectors.joining(" - ")),
                 UrlCapsule::getChartValue,
-                x -> {
-                    if (x.getPos() < 10 || (counter.get() < breakpoint && acceptedCount.get() < 15)) {
-                        counter.addAndGet(x.getChartValue());
-                        acceptedCount.incrementAndGet();
-                        return true;
-                    } else {
-                        return false;
-                    }
-                }, data);
+                data);
 
         return chart;
     }

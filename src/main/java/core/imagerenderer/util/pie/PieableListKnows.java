@@ -18,22 +18,14 @@ public class PieableListKnows<T extends CommandParameters> extends OptionalPie i
 
     @Override
     public PieChart fillPie(PieChart chart, T params, List<ReturnNowPlaying> data) {
-        int total = data.stream().mapToInt(ReturnNowPlaying::getPlayNumber).sum();
+        long total = data.stream().mapToLong(ReturnNowPlaying::getPlayNumber).sum();
         int breakpoint = (int) (0.75 * total);
         AtomicInteger counter = new AtomicInteger(0);
         AtomicInteger acceptedCount = new AtomicInteger(0);
         IPieableList.fillListedSeries(chart,
                 ReturnNowPlaying::getDiscordName,
                 ReturnNowPlaying::getPlayNumber,
-                x -> {
-                    if (acceptedCount.get() < 10 || (counter.get() < breakpoint && acceptedCount.get() < 15)) {
-                        counter.addAndGet(x.getPlayNumber());
-                        acceptedCount.incrementAndGet();
-                        return true;
-                    } else {
-                        return false;
-                    }
-                }, data);
+                data);
         return chart;
     }
 

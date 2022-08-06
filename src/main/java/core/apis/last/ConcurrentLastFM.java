@@ -1341,8 +1341,10 @@ public class ConcurrentLastFM {//implements LastFMService {
 
     public NPService.NPUpdate getNPWithUpdate(LastFMData user, int from) throws
             LastFmException {
-        String url = BASE + GET_ALL + user.getName() + apiKey + ENDING + "&extended=1" + "&from=" + (from);
-        AtomicInteger page = new AtomicInteger(0);
+
+        String url = BASE + GET_ALL + user.getName() + apiKey + ENDING + "&extended=1" + "&from=" + (from - 1);
+        // -1 To always include last scrobble, even if we are not playing anything. We have to make sure to not include those in the batch for update
+        AtomicInteger page = new AtomicInteger(1);
         AtomicInteger totalPages = new AtomicInteger(1);
         CustomTimeFrame timeFrameEnum = new CustomTimeFrame(TimeFrameEnum.ALL);
         JSONObject methodObj = doMethod(url, new ExceptionEntity(user.getName()), user);
@@ -1363,7 +1365,7 @@ public class ConcurrentLastFM {//implements LastFMService {
         totalPages.set(attrObj.getInt("totalPages"));
         // Since we are asking with from >= now it should always include one scrobble at least. The last one
         if (arr.length() == 0) {
-            // Just to make sure its not a bug :)
+            // This now should never happen.
             Chuu.getLogger().warn("NP is empty for: {} from: {}", user.getName(), from);
             return new NPService.NPUpdate(getNowPlayingInfo(user), CompletableFuture.completedFuture(Collections.emptyList()));
         }
@@ -1386,13 +1388,12 @@ public class ConcurrentLastFM {//implements LastFMService {
             }
             try {
                 if (page.get() == 1) {
-                    handleList(obj, list, true, from);
-                    page.incrementAndGet();
+                    handleList(obj, list, from);
                 }
                 while (page.get() < totalPages.get()) {
                     String pag = url + "&page=" + page.incrementAndGet();
                     JSONObject innerObj = initGetRecentTracks(user, pag, timeFrameEnum);
-                    handleList(innerObj, list, false, from);
+                    handleList(innerObj, list, from);
                 }
                 return list;
             } catch (Exception e) {
@@ -1402,15 +1403,13 @@ public class ConcurrentLastFM {//implements LastFMService {
         return new NPService.NPUpdate(new NowPlayingArtist(artistName, mbid, np, albumName, songName, imageUrl, user.getName(), loved), refetchNps);
     }
 
-    private void handleList(JSONObject obj, List<TrackWithArtistId> list, boolean skipFirst, int from) {
+    private void handleList(JSONObject obj, List<TrackWithArtistId> list, int from) {
         JSONArray arr = obj.getJSONArray("track");
         for (int i = 0; i < arr.length(); i++) {
             JSONObject trackObj = arr.getJSONObject(i);
             if (trackObj.has("@attr"))
                 continue;
-            if (i == arr.length() - 1 && skipFirst) {
-                continue;
-            }
+
             int utc = trackObj.getJSONObject("date").getInt("uts");
             //
             if (utc <= from) {

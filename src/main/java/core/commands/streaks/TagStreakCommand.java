@@ -129,7 +129,7 @@ public class TagStreakCommand extends ConcurrentCommand<ChuuDataParams> {
         }
 
         List<String> tags = tagCombo.stream().map(t -> new StringFrequency(t.getName(), tagCombo.getCount(t))).filter(t -> t.freq() > 1)
-                .sorted(Comparator.comparingInt(StringFrequency::freq).reversed())
+                .sorted(Comparator.comparingLong(StringFrequency::freq).reversed())
                 .map(z -> "**[%s](%s)**: ".formatted(z.key(), LinkUtils.getLastFmTagUrl(z.key())) +
                           z.freq() + (z.freq() >= 2000 ? "+" : "") + " consecutive plays\n").toList();
 

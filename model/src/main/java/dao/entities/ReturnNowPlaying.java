@@ -7,12 +7,12 @@ public class ReturnNowPlaying {
     private long discordId;
     private String discordName;
     private String lastFMId;
-    private int playNumber;
+    private long playNumber;
     private String memoized;
     private Supplier<String> generateString;
     private long index;
 
-    public ReturnNowPlaying(long discordId, String lastFMId, String artist, int playNumber) {
+    public ReturnNowPlaying(long discordId, String lastFMId, String artist, long playNumber) {
         this.discordId = discordId;
         this.lastFMId = lastFMId;
         this.artist = artist;
@@ -58,11 +58,11 @@ public class ReturnNowPlaying {
         this.lastFMId = lastFMId;
     }
 
-    public int getPlayNumber() {
+    public long getPlayNumber() {
         return playNumber;
     }
 
-    public void setPlayNumber(int playNumber) {
+    public void setPlayNumber(long playNumber) {
         this.playNumber = playNumber;
     }
 

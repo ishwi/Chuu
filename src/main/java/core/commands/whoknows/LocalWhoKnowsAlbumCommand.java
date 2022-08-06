@@ -80,7 +80,7 @@ public class LocalWhoKnowsAlbumCommand extends WhoKnowsBaseCommand<ArtistAlbumPa
                     wrapperReturnNowPlaying.setRows(wrapperReturnNowPlaying.getRows() + 1);
 
                 }
-                wrapperReturnNowPlaying.getReturnNowPlayings().sort(Comparator.comparingInt(ReturnNowPlaying::getPlayNumber).reversed());
+                wrapperReturnNowPlaying.getReturnNowPlayings().sort(Comparator.comparingLong(ReturnNowPlaying::getPlayNumber).reversed());
             }
         } catch (LastFmException exception) {
             //Ignored

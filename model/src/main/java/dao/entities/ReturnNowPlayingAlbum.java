@@ -7,7 +7,7 @@ public class ReturnNowPlayingAlbum extends ReturnNowPlaying {
         this(other.getDiscordId(), other.getLastFMId(), other.getArtist(), other.getPlayNumber(), album);
     }
 
-    public ReturnNowPlayingAlbum(long discordId, String lastFMId, String artist, int playNumber, String album) {
+    public ReturnNowPlayingAlbum(long discordId, String lastFMId, String artist, long playNumber, String album) {
         super(discordId, lastFMId, artist, playNumber);
         this.album = album;
     }

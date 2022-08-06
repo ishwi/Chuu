@@ -100,22 +100,18 @@ public class VirtualParallel {
 
         @Override
         protected void handleComplete(Future<T> future) {
-            try {
-                var state = future.state();
-                if (state == Future.State.SUCCESS) {
+            switch (future.state()) {
+                case SUCCESS -> {
                     int numSuccess = successCounter.incrementAndGet();
                     if (numSuccess <= numTasksForSuccess) {
                         results.add(future.resultNow());
                     }
-
                     if (numSuccess == numTasksForSuccess) {
                         shutdown();
                     }
-                } else if (state == Future.State.FAILED) {
-                    failCounter.incrementAndGet();
                 }
-            } catch (Exception ex) {
-                Chuu.getLogger().warn(ex.getMessage(), ex);
+                case FAILED -> failCounter.incrementAndGet();
+                case CANCELLED -> throw new ChuuServiceException(new InterruptedException());
             }
         }
 
@@ -166,18 +162,22 @@ public class VirtualParallel {
         @Override
         protected void handleComplete(Future<T> future) {
             var state = future.state();
-            if (state == Future.State.SUCCESS) {
-                writeLock.lock();
-                try {
-                    T e = future.resultNow();
-                    if (e != null) {
-                        results.add(e);
-                    }
-                } finally {
-                    writeLock.unlock();
+            switch (state) {
+                case RUNNING -> {
                 }
-            } else if (state == Future.State.FAILED) {
-                failCounter.incrementAndGet();
+                case SUCCESS -> {
+                    writeLock.lock();
+                    try {
+                        T e = future.resultNow();
+                        if (e != null) {
+                            results.add(e);
+                        }
+                    } finally {
+                        writeLock.unlock();
+                    }
+                }
+                case FAILED -> failCounter.incrementAndGet();
+                case CANCELLED -> throw new ChuuServiceException(new InterruptedException());
             }
             if (isInCollection.get()) {
                 int i = forkCount.decrementAndGet();

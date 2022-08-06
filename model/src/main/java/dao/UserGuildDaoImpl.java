@@ -30,7 +30,6 @@ public class UserGuildDaoImpl implements UserGuildDao {
                              + " (guild_id) " + " VALUES (?) ";
 
         try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {
-
             /* Fill "preparedStatement". */
             preparedStatement.setLong(1, guildId);
             /* Execute query. */

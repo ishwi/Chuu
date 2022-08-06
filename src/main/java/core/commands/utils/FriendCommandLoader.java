@@ -1,6 +1,5 @@
 package core.commands.utils;
 
-import core.Chuu;
 import core.apis.last.entities.chartentities.AlbumChart;
 import core.apis.last.entities.chartentities.ArtistChart;
 import core.apis.last.entities.chartentities.TrackChart;
@@ -21,14 +20,16 @@ import core.parsers.params.ChartSizeParameters;
 import core.services.validators.ArtistValidator;
 import core.util.ServiceView;
 import dao.entities.*;
+import dao.exceptions.ChuuServiceException;
 import net.dv8tion.jda.api.EmbedBuilder;
 import org.knowm.xchart.PieChart;
 
-import java.awt.image.BufferedImage;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Comparator;
-import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -247,33 +248,22 @@ public record FriendCommandLoader(WhoKnowsCommand whoKnowsCommand,
         return new BandInfoServerCommand(dao) {
             @Override
             protected void bandLogic(ArtistParameters ap) {
-                boolean b = ap.hasOptional("list");
-                boolean b1 = ap.hasOptional("pie");
-                int limit = b || b1 ? Integer.MAX_VALUE : 9;
+
+                int limit = ap.hasOptional("list") || ap.hasOptional("pie") ? Integer.MAX_VALUE : 9;
                 ScrobbledArtist who = ap.getScrobbledArtist();
-                long threshold = ap.getLastFMData().getArtistThreshold();
                 long author = ap.getLastFMData().getDiscordId();
-                List<AlbumUserPlays> userTopArtistAlbums = db.friendsArtistAlbums(limit, who.getArtistId(), author);
-                Context e = ap.getE();
-                userTopArtistAlbums.forEach(t -> t.setAlbumUrl(Chuu.getCoverService().getCover(t.getArtist(), t.getAlbum(), t.getAlbumUrl(), e)));
 
-                ArtistAlbums ai = new ArtistAlbums(who.getArtist(), userTopArtistAlbums);
+                try (var scope = new BandScope()) {
+                    scope.fork(() -> new Albums(db.friendsArtistAlbums(limit, who.getArtistId(), author)));
+                    scope.fork(() -> new WK(db.friendsWhoKnows(who.getArtistId(), author, 5)));
+                    scope.fork(() -> new AP(db.friendsServerArtistPlays(author, who.getArtistId())));
 
-                if (b) {
-                    doList(ap, ai);
-                    return;
+                    scope.joinUntil(Instant.now().plus(10, ChronoUnit.SECONDS));
+                    BandResult sr = scope.result();
+                    doDisplay(sr, ap);
+                } catch (StructuredNotHandledException | InterruptedException | TimeoutException ex) {
+                    throw new ChuuServiceException(ex);
                 }
-                WrapperReturnNowPlaying np = db.friendsWhoKnows(who.getArtistId(), author, 5);
-                np.getReturnNowPlayings().forEach(element ->
-                        element.setDiscordName(CommandUtil.getUserInfoUnescaped(e, element.getDiscordId()).username())
-                );
-                BufferedImage logo = CommandUtil.getLogo(db, e);
-                if (b1) {
-                    doPie(ap, np, ai, logo);
-                    return;
-                }
-                long plays = db.friendsServerArtistPlays(author, who.getArtistId());
-                doImage(ap, np, ai, Math.toIntExact(plays), logo, threshold);
             }
 
             @Override

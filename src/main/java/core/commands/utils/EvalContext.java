@@ -62,7 +62,8 @@ public record EvalContext(JDA jda, Context e,
 
 
     public void t() {
-        this.e.sendFile(org.apache.commons.io.IOUtils.toInputStream(threadStats.stream().map(ConcurrentCommand.ThreadStats::toString).collect(java.util.stream.Collectors.joining("\n\n"))), "a", "a").queue();
+        this.e.sendFile(org.apache.commons.io.IOUtils.toInputStream(threadStats.stream().map(ConcurrentCommand.ThreadStats::toString)
+                .collect(java.util.stream.Collectors.joining("\n\n"))), "a", "a").queue();
     }
 
     public void createAnonymousCommand(Consumer<ContextMessageReceived> mes) {

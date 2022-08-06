@@ -37,7 +37,7 @@ public class BandRendered {
 
     }
 
-    public static BufferedImage makeBandImage(WrapperReturnNowPlaying wrapperReturnNowPlaying, ArtistAlbums ai, int plays, BufferedImage logo, String user, long threshold) {
+    public static BufferedImage makeBandImage(WrapperReturnNowPlaying wrapperReturnNowPlaying, ArtistAlbums ai, long plays, String user, long threshold) {
         BufferedImage canvas = new BufferedImage(X_MAX, Y_MAX, BufferedImage.TYPE_INT_RGB);
         BufferedImage lastFmLogo;
         BufferedImage artistReplacement;
@@ -96,7 +96,6 @@ public class BandRendered {
         int imageSize = albumsImages.size() > 4 ? 210 : 300;
         int size = albumsImages.size();
         for (BufferedImage albumsImage : albumsImages) {
-            int posX;
 
             Point point = drawImage(count++, size);
             g.drawImage(albumsImage, point.x, point.y, imageSize, imageSize, null);
@@ -106,7 +105,6 @@ public class BandRendered {
             String play = Integer.toString(albumUserPlays.getPlays());
 
             Font ogFont = g.getFont();
-            float sizeFont = ogFont.getSize();
 
             StringFitter.FontMetadata albumFont = fitter
                     .getFontMetadata(g, album, imageSize);

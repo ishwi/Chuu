@@ -1,20 +1,22 @@
 package core.commands.artists;
 
-import core.Chuu;
 import core.commands.Context;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.imagerenderer.BandRendered;
 import core.parsers.params.ArtistParameters;
 import core.util.ServiceView;
-import dao.entities.AlbumUserPlays;
 import dao.entities.ArtistAlbums;
 import dao.entities.ScrobbledArtist;
 import dao.entities.WrapperReturnNowPlaying;
+import dao.exceptions.ChuuServiceException;
 import net.dv8tion.jda.api.EmbedBuilder;
 
 import java.awt.image.BufferedImage;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.concurrent.TimeoutException;
 
 public class BandInfoGlobalCommand extends BandInfoCommand {
     public BandInfoGlobalCommand(ServiceView dao) {
@@ -53,37 +55,30 @@ public class BandInfoGlobalCommand extends BandInfoCommand {
         boolean b1 = ap.hasOptional("pie");
         int limit = b || b1 ? Integer.MAX_VALUE : 9;
         ScrobbledArtist who = ap.getScrobbledArtist();
-        List<AlbumUserPlays> userTopArtistAlbums = db.getGlobalTopArtistAlbums(limit, who.getArtistId());
         Context e = ap.getE();
-        long threshold = ap.getLastFMData().getArtistThreshold();
 
-        userTopArtistAlbums.forEach(t -> t.setAlbumUrl(Chuu.getCoverService().getCover(t.getArtist(), t.getAlbum(), t.getAlbumUrl(), e)));
-
-
-        ArtistAlbums ai = new ArtistAlbums(who.getArtist(), userTopArtistAlbums);
-
-        if (b || !e.isFromGuild()) {
-            doList(ap, ai);
-            return;
+        try (var scope = new BandScope()) {
+            scope.fork(() -> new Albums(db.getGlobalTopArtistAlbums(limit, who.getArtistId())));
+            if (e.isFromGuild()) {
+                scope.fork(() -> new WK(db.whoKnows(who.getArtistId(), e.getGuild().getIdLong(), 5)));
+            } else {
+                scope.fork(() -> new WK(db.globalWhoKnows(who.getArtistId(), 5, false, e.getAuthor().getIdLong(), false)));
+            }
+            scope.fork(() -> new AP(db.getGlobalArtistPlays(who.getArtistId())));
+            scope.joinUntil(Instant.now().plus(10, ChronoUnit.SECONDS));
+            BandResult sr = scope.result();
+            doDisplay(sr, ap);
+        } catch (StructuredNotHandledException | InterruptedException | TimeoutException ex) {
+            throw new ChuuServiceException(ex);
         }
-        WrapperReturnNowPlaying np = db.whoKnows(who.getArtistId(), e.getGuild().getIdLong(), 5);
-        np.getReturnNowPlayings().forEach(element ->
-                element.setDiscordName(CommandUtil.getUserInfoUnescaped(e, element.getDiscordId()).username())
-        );
-        BufferedImage logo = CommandUtil.getLogo(db, e);
-        if (b1) {
-            doPie(ap, np, ai, logo);
-            return;
-        }
-        long plays = db.getGlobalArtistPlays(who.getArtistId());
-        doImage(ap, np, ai, Math.toIntExact(plays), logo, threshold);
     }
 
     @Override
-    protected void doImage(ArtistParameters ap, WrapperReturnNowPlaying np, ArtistAlbums ai, int plays, BufferedImage logo, long threshold) {
+    protected void doImage(ArtistParameters ap, WrapperReturnNowPlaying np, ArtistAlbums ai,
+                           long plays, long threshold) {
         np.setIndexes();
         BufferedImage returnedImage = BandRendered
-                .makeBandImage(np, ai, plays, logo, ap.getE().getJDA().getSelfUser().getName(), threshold);
+                .makeBandImage(np, ai, plays, ap.getE().getJDA().getSelfUser().getName(), threshold);
         sendImage(returnedImage, ap.getE());
     }
 

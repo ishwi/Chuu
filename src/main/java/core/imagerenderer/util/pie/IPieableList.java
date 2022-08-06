@@ -9,12 +9,13 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.ToIntFunction;
+import java.util.function.ToLongFunction;
 
 public interface IPieableList<T, Y extends CommandParameters> extends IPieable<List<T>, Y>, IBubbleable<List<T>, Y> {
 
 
-    static <T> Map<Boolean, Map<String, Integer>> getListedData(List<T> data, Function<T, String> keyMapping, ToIntFunction<T> valueMapping, Predicate<T> partitioner) {
-        Map<Boolean, Map<String, Integer>> parted = new HashMap<>(2);
+    static <T> Map<Boolean, Map<String, Long>> getListedData(List<T> data, Function<T, String> keyMapping, ToLongFunction<T> valueMapping) {
+        Map<Boolean, Map<String, Long>> parted = new HashMap<>(2);
         parted.put(true, new HashMap<>());
         parted.put(false, new HashMap<>());
         var entries = parted.get(true);
@@ -28,18 +29,18 @@ public interface IPieableList<T, Y extends CommandParameters> extends IPieable<L
             } else {
                 values.add(newTitles);
             }
-            entries.put(newTitles, valueMapping.applyAsInt(x));
+            entries.put(newTitles, valueMapping.applyAsLong(x));
         });
-        int sum = data.stream().skip(12).mapToInt(valueMapping).sum();
+        long sum = data.stream().skip(12).mapToLong(valueMapping).sum();
         others.put("Others​", sum);
         return parted;
     }
 
-    static <T> void fillListedSeries(PieChart pieChart, Function<T, String> keyMapping, ToIntFunction<T> valueMapping, Predicate<T> partitioner, List<T> data) {
-        Map<Boolean, Map<String, Integer>> parted = getListedData(data, keyMapping, valueMapping, partitioner);
+    static <T> void fillListedSeries(PieChart pieChart, Function<T, String> keyMapping, ToLongFunction<T> valueMapping, List<T> data) {
+        Map<Boolean, Map<String, Long>> parted = getListedData(data, keyMapping, valueMapping);
         AtomicInteger counter = new AtomicInteger(1);
-        Map<String, Integer> entries = parted.get(true);
-        int sum = parted.get(false).values().stream().mapToInt(i -> i).sum();
+        Map<String, Long> entries = parted.get(true);
+        long sum = parted.get(false).values().stream().mapToLong(i -> i).sum();
         entries.entrySet().stream().sorted((x, y) -> y.getValue().compareTo(x.getValue()))
                 .forEachOrdered(entry -> {
                     int i = counter.incrementAndGet();

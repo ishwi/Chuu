@@ -10,6 +10,7 @@ import core.imagerenderer.util.D;
 import core.imagerenderer.util.fitter.StringFitter;
 import core.imagerenderer.util.fitter.StringFitterBuilder;
 import core.services.ChuuRunnable;
+import core.util.VirtualParallel;
 import dao.entities.ReturnNowPlaying;
 import dao.entities.WrapperReturnNowPlaying;
 import dao.exceptions.ChuuServiceException;
@@ -526,7 +527,9 @@ public class GraphicUtils {
         path = path.substring(0, Math.min(path.length(), 150));
         Path file = CACHE_DIRECTORY.resolve(path);
         if (Files.exists(file)) {
+            VirtualParallel.handleInterrupt();
             try (var is = new BufferedInputStream(Files.newInputStream(file))) {
+                VirtualParallel.handleInterrupt();
                 return ImageIO.read(is);
             } catch (IOException e) {
                 Chuu.getLogger().warn("Error reading image {}", file, e);
@@ -546,6 +549,7 @@ public class GraphicUtils {
 
     private static BufferedImage downloadImage(String url, Path file) {
         try (var is = new BufferedInputStream(new URL(url).openStream())) {
+            VirtualParallel.handleInterrupt();
             BufferedImage read = ImageIO.read(is);
             if (read != null) {
                 CommandUtil.runLog((ChuuRunnable) () -> {
@@ -557,6 +561,7 @@ public class GraphicUtils {
             return read;
         } catch (IOException | ArrayIndexOutOfBoundsException ex) {
             Chuu.getLogger().warn("Error downloading image {}", url, ex);
+            VirtualParallel.handleInterrupt();
             return null;
         }
     }
@@ -576,6 +581,7 @@ public class GraphicUtils {
         g.setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY);
         g.setRenderingHint(RenderingHints.KEY_COLOR_RENDERING, RenderingHints.VALUE_COLOR_RENDER_QUALITY);
         g.setRenderingHint(RenderingHints.KEY_DITHERING, RenderingHints.VALUE_DITHER_ENABLE);
+        VirtualParallel.handleInterrupt();
     }
 
     public static ChartQuality getQuality(int chartSize, Context e) {
@@ -626,6 +632,7 @@ public class GraphicUtils {
         } else {
             cover = Scalr.resize(backgroundImage, Scalr.Method.QUALITY, Scalr.Mode.AUTOMATIC, size, Scalr.OP_ANTIALIAS);
         }
+        VirtualParallel.handleInterrupt();
         return cover;
     }
 }

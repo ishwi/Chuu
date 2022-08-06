@@ -26,15 +26,7 @@ public class PieableListBand extends OptionalPie implements IPieableList<AlbumUs
         IPieableList.fillListedSeries(chart,
                 x -> x.getArtist() + " - " + x.getAlbum(),
                 AlbumUserPlays::getPlays,
-                x -> {
-                    if (acceptedCount.get() < 10 || (counter.get() < breakpoint && acceptedCount.get() < 15)) {
-                        counter.addAndGet(x.getPlays());
-                        acceptedCount.incrementAndGet();
-                        return true;
-                    } else {
-                        return false;
-                    }
-                }, data);
+                data);
         return chart;
     }
 

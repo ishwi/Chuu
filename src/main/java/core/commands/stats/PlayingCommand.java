@@ -60,6 +60,7 @@ public class PlayingCommand extends ConcurrentCommand<CommandParameters> {
             if (size > 20) {
                 int i = CommandUtil.rand.nextInt(((size / 100) + 1) * counter.incrementAndGet() * 4);
                 Thread.sleep(i);
+                VirtualParallel.handleInterrupt();
             }
             NowPlayingArtist np = lastFM.getNowPlayingInfo(u);
             if ((showFresh && !np.current())) {

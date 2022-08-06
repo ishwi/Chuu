@@ -563,7 +563,7 @@ public class UpdaterDaoImpl extends BaseDAO implements UpdaterDao {
     @Override
     public void insertAlbumCrown(Connection connection, long artistId, String album, long discordID,
                                  long guildId,
-                                 int plays) {
+                                 long plays) {
         String queryString = """
                 INSERT INTO album_crowns
                 (artist_id,
@@ -587,9 +587,9 @@ public class UpdaterDaoImpl extends BaseDAO implements UpdaterDao {
             preparedStatement.setLong(i++, artistId);
             preparedStatement.setLong(i++, discordID);
             preparedStatement.setString(i++, album);
-            preparedStatement.setInt(i++, plays);
+            preparedStatement.setLong(i++, plays);
             preparedStatement.setLong(i++, guildId);
-            preparedStatement.setInt(i++, plays);
+            preparedStatement.setLong(i++, plays);
             preparedStatement.setLong(i, discordID);
 
 
