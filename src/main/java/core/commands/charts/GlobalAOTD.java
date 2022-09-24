@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
 public class GlobalAOTD extends ChartableCommand<ChartYearRangeParameters> {
 
     public GlobalAOTD(ServiceView dao) {
-        super(dao);
+        super(dao, true);
         respondInPrivate = true;
 
     }

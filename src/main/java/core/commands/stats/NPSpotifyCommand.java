@@ -9,7 +9,6 @@ import core.parsers.params.NowPlayingParameters;
 import core.util.ServiceView;
 import dao.entities.LastFMData;
 import dao.entities.NowPlayingArtist;
-import net.dv8tion.jda.api.MessageBuilder;
 
 import java.util.Arrays;
 import java.util.List;
@@ -26,7 +25,6 @@ public class NPSpotifyCommand extends NpCommand {
 
     @Override
     public void doSomethingWithArtist(NowPlayingArtist nowPlayingArtist, Context e, long discordId, LastFMData user, NowPlayingParameters parameters) {
-        MessageBuilder messageBuilder = new MessageBuilder();
         String uri = spotify
                 .searchItems(nowPlayingArtist.songName(), nowPlayingArtist.artistName(), nowPlayingArtist
                         .albumName());

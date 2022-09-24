@@ -15,7 +15,6 @@
  */
 package core.commands.config;
 
-import com.google.common.collect.Lists;
 import core.Chuu;
 import core.apis.lyrics.TextSplitter;
 import core.commands.Context;
@@ -31,17 +30,18 @@ import core.parsers.params.WordParameter;
 import core.parsers.utils.OptionalEntity;
 import core.util.ServiceView;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.SelfUser;
+import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.ItemComponent;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.selections.SelectMenu;
 import net.dv8tion.jda.api.interactions.components.selections.SelectOption;
 import net.dv8tion.jda.api.requests.RestAction;
+import net.dv8tion.jda.api.utils.messages.MessageCreateData;
+import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.WordUtils;
 import org.jetbrains.annotations.NotNull;
@@ -57,14 +57,13 @@ public class HelpCommand extends ConcurrentCommand<WordParameter> {
     private static final String NO_NAME = "No name provided for this command. Sorry!";
     private static final String NO_DESCRIPTION = "No description has been provided for this command. Sorry!";
     private static final String NO_USAGE = "No usage instructions have been provided for this command. Sorry!";
-
+    private static final String CUSTOM_ALL = "custom_all";
     private final TreeMap<CommandCategory, SortedSet<MyCommand<?>>> categoryMap;
     private final Comparator<MyCommand<?>> myCommandComparator = (c1, c2) -> {
         String s = c1.getAliases().get(0);
         String s1 = c2.getAliases().get(0);
         return s.compareToIgnoreCase(s1);
     };
-    private static final String CUSTOM_ALL = "custom_all";
 
 
     public HelpCommand(ServiceView dao) {
@@ -128,10 +127,8 @@ public class HelpCommand extends ConcurrentCommand<WordParameter> {
         Character prefix = e.getPrefix();
         if (params.hasOptional("all")) {
 
-            e.sendMessage(new MessageBuilder()
-                            .append(e.getAuthor())
-                            .append(": Help information was sent as a private message.")
-                            .build(), e.getAuthor())
+            e.sendMessage(MessageCreateData.fromContent("%s: Help information was sent as a private message.".formatted(e.getAuthor()))
+                            , e.getAuthor())
                     .flatMap(z -> e.getAuthor().openPrivateChannel())
                     .queue(privateChannel -> sendPrivate(privateChannel, e));
             return;
@@ -176,7 +173,7 @@ public class HelpCommand extends ConcurrentCommand<WordParameter> {
         List<ActionRow> commandRow = buildMenuCommand(eb, e.getPrefix(), CommandCategory.STARTING, null);
 
         String footer = ("%shelp --complete for the full help message%n" +
-                "%shelp --all for a dm with more info%n").formatted(e.getPrefix(), e.getPrefix());
+                         "%shelp --all for a dm with more info%n").formatted(e.getPrefix(), e.getPrefix());
         eb.setFooter(footer);
 
         List<ActionRow> rows = Stream.concat(Stream.of(category), commandRow.stream()).toList();
@@ -275,7 +272,7 @@ public class HelpCommand extends ConcurrentCommand<WordParameter> {
     private List<ActionRow> buildMenuCommand(EmbedBuilder eb, char prefix, CommandCategory commandCategory, @Nullable MyCommand<?> active) {
         SortedSet<MyCommand<?>> commandList = categoryMap.get(commandCategory);
         buildCategory(eb, prefix, commandCategory, commandList);
-        List<List<MyCommand<?>>> commandsPartitions = Lists.partition(new ArrayList<>(commandList), 25);
+        List<List<MyCommand<?>>> commandsPartitions = ListUtils.partition(new ArrayList<>(commandList), 25);
 
         AtomicInteger ranker = new AtomicInteger(0);
 
@@ -313,9 +310,7 @@ public class HelpCommand extends ConcurrentCommand<WordParameter> {
 
             for (MyCommand<?> c : commandList) {
                 if (s.length() > 1800) {
-                    messageActions.add(channel.sendMessage(new MessageBuilder()
-                            .append(s.toString())
-                            .build()));
+                    messageActions.add(channel.sendMessage(MessageCreateData.fromContent(s.toString())));
                     s = new StringBuilder();
                 }
                 String description = c.getDescription();
@@ -326,9 +321,7 @@ public class HelpCommand extends ConcurrentCommand<WordParameter> {
             }
         }
 
-        messageActions.add(channel.sendMessage(new MessageBuilder()
-                .append(s.toString())
-                .build()));
+        messageActions.add(channel.sendMessage(MessageCreateData.fromContent(s.toString())));
 
         RestAction.allOf(messageActions).queue();
     }
@@ -358,10 +351,10 @@ public class HelpCommand extends ConcurrentCommand<WordParameter> {
                 String realUsageInstructions = help.usage;
                 List<String> pagees = TextSplitter.split(realUsageInstructions, 1500);
                 e.sendMessage("**Name:** " + help.name + "\n" +
-                        "**Description:** " + help.description + "\n" +
-                        "**Aliases:** " + help.aliases + "\n" +
-                        "**Usage:** " +
-                        prefix + pagees.get(0)).queue(x -> {
+                              "**Description:** " + help.description + "\n" +
+                              "**Aliases:** " + help.aliases + "\n" +
+                              "**Usage:** " +
+                              prefix + pagees.get(0)).queue(x -> {
                     for (int i = 1; i < pagees.size(); i++) {
                         e.sendMessage(EmbedBuilder.ZERO_WIDTH_SPACE + pagees.get(i)).queue();
                     }
@@ -370,7 +363,7 @@ public class HelpCommand extends ConcurrentCommand<WordParameter> {
             }
         }
         e.sendMessage("The provided command '**" + command +
-                "**' does not exist. Use " + prefix + "help to list all commands.").queue();
+                      "**' does not exist. Use " + prefix + "help to list all commands.").queue();
     }
 
     private record SpecificCommandHelp(String name, String description, String aliases, String usage) {

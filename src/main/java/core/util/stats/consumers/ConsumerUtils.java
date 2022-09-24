@@ -3,7 +3,10 @@ package core.util.stats.consumers;
 import core.commands.utils.CommandUtil;
 import core.util.stats.StatsCtx;
 import core.util.stats.generator.GeneratorUtils;
-import dao.entities.*;
+import dao.entities.CountWrapper;
+import dao.entities.ScrobbledAlbum;
+import dao.entities.ScrobbledArtist;
+import dao.entities.ScrobbledTrack;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.WordUtils;
@@ -33,19 +36,16 @@ public class ConsumerUtils {
 
     public static String artist(CountWrapper<List<ScrobbledArtist>> artists, StatsCtx ctx) {
         int count = artists.getRows();
-        UserInfo uInfo = ctx.userInfo();
         return "**Artists**: %d _(%s scrobbles/artist)_".formatted(count, oneDec.format(ctx.totalPlays() / (float) count));
     }
 
     public static String albums(CountWrapper<List<ScrobbledAlbum>> albums, StatsCtx ctx) {
         int count = albums.getRows();
-        UserInfo uInfo = ctx.userInfo();
         return "**Albums**: %d _(%s scrobbles/album)_".formatted(count, oneDec.format(ctx.totalPlays() / (float) count));
     }
 
     public static String songs(CountWrapper<List<ScrobbledTrack>> songs, StatsCtx ctx) {
         int count = songs.getRows();
-        UserInfo uInfo = ctx.userInfo();
         return "**Songs**: %d _(%s scrobbles/songs)_".formatted(count, oneDec.format(ctx.totalPlays() / (float) count));
     }
 
@@ -58,7 +58,7 @@ public class ConsumerUtils {
         return "**%s with %s %d %s**: %s".formatted(entity.format(), operation.phrase(), queried, CommandUtil.singlePlural(queried, "scrobble", "scrobbles"), count);
     }
 
-    public static String sumtop(CountWrapper<List<ScrobbledArtist>> artists, StatsCtx ctx) {
+    public static String sumTop(CountWrapper<List<ScrobbledArtist>> artists, StatsCtx ctx) {
         int limit = Optional.ofNullable(ctx.count()).orElse(10);
 
         int playCount = ctx.totalPlays();
@@ -101,7 +101,6 @@ public class ConsumerUtils {
 
     public static String breadth(GeneratorUtils.AllCached cached, StatsCtx ctx) {
         CountWrapper<List<ScrobbledArtist>> a = cached.a();
-        int scrobbles = ctx.totalPlays();
         float sumTop = sumTop(10, a);
         long hIndex = HIndex(a);
         long top50 = topPercentage(a, ctx, 50);
@@ -142,11 +141,10 @@ public class ConsumerUtils {
         );
     }
 
-    public static String averages(GeneratorUtils.AllCached cached, StatsCtx ctx) {
+    public static String averages(GeneratorUtils.AllCached cached) {
         int alSize = cached.al().getRows();
         int trSize = cached.tr().getRows();
         int aSize = cached.a().getRows();
-        DecimalFormat format = new DecimalFormat("#.##");
 
         return """
                 Albums per artist: %s
@@ -161,7 +159,7 @@ public class ConsumerUtils {
     public static <T extends ScrobbledArtist> String percentage(CountWrapper<List<T>> list, StatsCtx ctx, Entity entity) {
         int per = Optional.ofNullable(ctx.count()).orElse(10);
         long numberToReach = topPercentage(list, ctx, per);
-        return "**# of %s to equal %s%% of scrobbles**: %d".formatted(per, entity.format().toLowerCase(Locale.ROOT), numberToReach);
+        return "**# of %s to equal %s%% of scrobbles**: %d".formatted(entity.format().toLowerCase(Locale.ROOT), per, numberToReach);
     }
 
 
@@ -265,7 +263,7 @@ public class ConsumerUtils {
 
     @SuppressWarnings("unchecked")
 
-    public static <T extends ScrobbledArtist> String concreteRank(GeneratorUtils.Np<T> genNp, StatsCtx ctx, Entity artist) {
+    public static <T extends ScrobbledArtist> String concreteRank(GeneratorUtils.Np<T> genNp, Entity artist) {
         CountWrapper<List<T>> cw = genNp.entities();
         List<T> entities = cw.getResult();
         ScrobbledTrack np = genNp.np();
@@ -343,8 +341,10 @@ public class ConsumerUtils {
 
         public String fromNp(ScrobbledTrack np) {
             return switch (this) {
-                case ALBUM -> "**%s** by **%s**".formatted(mapNull(WordUtils.capitalize(np.getAlbum()), WordUtils.capitalize(np.getName())), WordUtils.capitalize(np.getArtist()));
-                case TRACK -> "**%s** by **%s**".formatted(mapNull(WordUtils.capitalize(np.getName())), WordUtils.capitalize(np.getArtist()));
+                case ALBUM ->
+                        "**%s** by **%s**".formatted(mapNull(WordUtils.capitalize(np.getAlbum()), WordUtils.capitalize(np.getName())), WordUtils.capitalize(np.getArtist()));
+                case TRACK ->
+                        "**%s** by **%s**".formatted(mapNull(WordUtils.capitalize(np.getName())), WordUtils.capitalize(np.getArtist()));
                 case ARTIST -> "**%s**".formatted(WordUtils.capitalize(np.getArtist()));
             };
         }

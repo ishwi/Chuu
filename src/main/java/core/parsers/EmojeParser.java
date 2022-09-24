@@ -1,6 +1,5 @@
 package core.parsers;
 
-import com.google.common.collect.ImmutableSortedSet;
 import com.vdurmont.emoji.EmojiParser;
 import core.Chuu;
 import core.commands.Context;
@@ -87,14 +86,12 @@ public class EmojeParser extends Parser<EmotiParameters> {
         }
 
 
-        SortedSet<EmotiParameters.Emotable<?>> emotables = ImmutableSortedSet.copyOf(Comparator.comparingInt(EmotiParameters.Emotable::position), new HashSet<>(emotable));
+        SortedSet<EmotiParameters.Emotable<?>> emotables = Collections.unmodifiableSortedSet(new TreeSet<>(emotable));
         if (emotables.size() > 6) {
             sendError("Can't add more than 6 emotes!", e);
             return null;
         }
-        return new
-
-                EmotiParameters(e, emotables);
+        return new EmotiParameters(e, emotables);
     }
 
     @Override

@@ -1,6 +1,5 @@
 package core.parsers;
 
-import com.google.common.collect.Lists;
 import core.commands.Context;
 import core.commands.InteracionReceived;
 import core.commands.abstracts.MyCommand;
@@ -22,6 +21,7 @@ import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
+import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.text.WordUtils;
 
 import java.util.*;
@@ -64,7 +64,7 @@ public class EnumListParser<T extends Enum<T>> extends DaoParser<EnumListParamet
 
 
         EnumSet<T> ts = EnumSet.complementOf(excluded);
-        List<List<T>> partition = Lists.partition(new ArrayList<>(ts), 25);
+        List<List<T>> partition = ListUtils.partition(new ArrayList<>(ts), 25);
         int size = partition.size();
         List<OptionData> options = new ArrayList<>();
         for (int i = 0, partitionSize = partition.size(); i < partitionSize; i++) {
@@ -127,7 +127,7 @@ public class EnumListParser<T extends Enum<T>> extends DaoParser<EnumListParamet
     private EnumListParameters<T> parseSlash(InteracionReceived<? extends CommandInteraction> ctx, CommandInteraction e, User user, boolean isAdding, boolean isRemoving, boolean isHelp) {
 
         EnumSet<T> ts = EnumSet.complementOf(excluded);
-        List<List<T>> partition = Lists.partition(new ArrayList<>(ts), 25);
+        List<List<T>> partition = CommandUtil.partition(new ArrayList<>(ts), 25);
         int size = partition.size();
 
         EnumSet<T> building;

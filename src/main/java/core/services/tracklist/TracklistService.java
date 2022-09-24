@@ -1,6 +1,5 @@
 package core.services.tracklist;
 
-import com.google.common.collect.Multimaps;
 import core.Chuu;
 import core.apis.last.ConcurrentLastFM;
 import core.apis.last.LastFMFactory;
@@ -16,6 +15,7 @@ import dao.musicbrainz.MusicBrainzServiceSingleton;
 
 import javax.annotation.Nullable;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toCollection;
 
@@ -99,9 +99,9 @@ public abstract class TracklistService {
             fullAlbumEntity.setTrackList(trackList.stream().sorted(Comparator.comparingInt(Track::getPosition)).collect(toCollection(ArrayList::new)));
             List<Track> handler = new ArrayList<>(trackList);
 
-
-            List<Track> tracks = Multimaps.index(handler, Track::getPosition)
-                    .asMap().values().stream()
+// TODO Check
+            List<Track> tracks = handler.stream().collect(Collectors.groupingBy(Track::getPosition))
+                    .values().stream()
                     .map(value -> {
                         Optional<Track> max = value.stream().max(Comparator.comparingInt(Track::getPlays));
                         return max.orElse(null);

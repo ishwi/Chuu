@@ -82,7 +82,7 @@ public class SelectionEventListener extends ReactionListener {
 
         SelectionResponse sr = action.processEvent(context, component, event.getValues(), who, actionRows);
         this.currentEmbedBuilder = sr.embedBuilder;
-        message.editMessageEmbeds(sr.embedBuilder.build()).setActionRows(sr.rows()).queue();
+        message.editMessageEmbeds(sr.embedBuilder.build()).setComponents(sr.rows()).queue();
 
         refresh(event.getJDA());
 

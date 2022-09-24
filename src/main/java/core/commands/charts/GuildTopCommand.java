@@ -31,7 +31,7 @@ import java.util.stream.Collectors;
 public class GuildTopCommand extends ChartableCommand<ChartSizeParameters> {
 
     public GuildTopCommand(ServiceView dao) {
-        super(dao);
+        super(dao, true);
         this.respondInPrivate = false;
     }
 

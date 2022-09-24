@@ -18,7 +18,7 @@ import static core.parsers.ExtraParser.LIMIT_ERROR;
 
 public class AlbumCountLeaderboard extends LeaderboardCommand<NumberParameters<CommandParameters>, Integer> {
     public AlbumCountLeaderboard(ServiceView dao) {
-        super(dao);
+        super(dao, true);
     }
 
 

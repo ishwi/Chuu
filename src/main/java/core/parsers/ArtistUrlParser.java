@@ -46,7 +46,7 @@ public class ArtistUrlParser extends DaoParser<ArtistUrlParameters> {
         String artist = e.getOption(ArtistExplanation.NAME).getAsString();
         String url = InteractionAux.parseUrl(e);
         assert url != null;
-        if (!UrlParser.isValidURL(url)) {
+        if (UrlParser.isValidURL(url)) {
             if (tumblr.matcher(url).matches()) {
                 sendError(getErrorMessage(3), ctx);
                 return null;

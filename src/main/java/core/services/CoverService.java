@@ -5,7 +5,7 @@ import core.commands.utils.CommandUtil;
 import dao.ChuuService;
 import dao.entities.Album;
 import dao.entities.CoverItem;
-import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import org.apache.commons.collections4.ListValuedMap;
 import org.apache.commons.collections4.multimap.ArrayListValuedHashMap;
 

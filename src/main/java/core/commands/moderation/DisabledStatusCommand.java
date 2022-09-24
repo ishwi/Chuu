@@ -14,8 +14,8 @@ import core.parsers.params.CommandParameters;
 import core.services.MessageDisablingService;
 import core.util.ServiceView;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.GuildChannel;
 import net.dv8tion.jda.api.entities.ISnowflake;
+import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel;
 import org.apache.commons.collections4.MultiValuedMap;
 import org.apache.commons.lang3.tuple.Pair;
 

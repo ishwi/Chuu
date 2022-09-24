@@ -18,7 +18,7 @@ import static core.parsers.ExtraParser.LIMIT_ERROR;
 
 public class ArtistCountLeaderboard extends LeaderboardCommand<NumberParameters<CommandParameters>, Integer> {
     public ArtistCountLeaderboard(ServiceView dao) {
-        super(dao);
+        super(dao, true);
     }
 
 

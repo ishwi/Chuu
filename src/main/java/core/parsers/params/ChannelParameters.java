@@ -1,7 +1,7 @@
 package core.parsers.params;
 
 import core.commands.Context;
-import net.dv8tion.jda.api.entities.GuildChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel;
 
 public class ChannelParameters extends CommandParameters {
     private final GuildChannel guildChannel;

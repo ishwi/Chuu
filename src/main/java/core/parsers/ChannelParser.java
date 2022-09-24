@@ -9,8 +9,8 @@ import core.parsers.interactions.InteractionAux;
 import core.parsers.params.ChannelParameters;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.GuildChannel;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel;
 import net.dv8tion.jda.api.interactions.commands.CommandInteraction;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 
@@ -32,7 +32,7 @@ public class ChannelParser extends Parser<ChannelParameters> {
 
     @Override
     public ChannelParameters parseSlashLogic(InteracionReceived<? extends CommandInteraction> ctx) throws LastFmException, InstanceNotFoundException {
-        return new ChannelParameters(ctx, ctx.e().getOption("channel").getAsGuildChannel());
+        return new ChannelParameters(ctx, ctx.e().getOption("channel").getAsChannel());
     }
 
     @Override

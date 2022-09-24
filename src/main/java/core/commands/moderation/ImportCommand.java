@@ -21,6 +21,7 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.utils.FileUpload;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -241,7 +242,7 @@ public class ImportCommand extends ConcurrentCommand<UrlParameters> {
 
             e.getAuthor().openPrivateChannel().flatMap(p ->
                             complete.editMessageEmbeds(embedBuilder.setDescription(description).build()))
-                    .flatMap(x -> x.getChannel().sendFile(jsonObject.toString().getBytes(StandardCharsets.UTF_8), "errors.json"))
+                    .flatMap(x -> x.getChannel().sendFiles(FileUpload.fromData(jsonObject.toString().getBytes(StandardCharsets.UTF_8), "errors.json")))
                     .queue();
         } else {
             description.append("\n Finished with no errors");

@@ -1,6 +1,5 @@
 package core.apis.last;
 
-import com.google.common.collect.Sets;
 import core.Chuu;
 import core.apis.ClientSingleton;
 import core.apis.last.entities.*;
@@ -790,12 +789,11 @@ public class ConcurrentLastFM {//implements LastFMService {
                     nullCounts = 0;
                 }
                 if (init) {
-                    currentSet = Sets.intersection(currentSet, tags).immutableCopy();
+                    currentSet.retainAll(tags);
                     if (currentSet.isEmpty()) {
                         cont = false;
                         break;
                     }
-                    Set<Genre> finalCurrentSet = currentSet;
                     bag.addAll(currentSet);
                 } else {
                     init = true;

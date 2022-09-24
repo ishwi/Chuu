@@ -181,7 +181,8 @@ public class ParserAux {
             return sample;
         }
         if (e.isFromGuild() && e instanceof ContextMessageReceived mes) {
-            List<Member> members = mes.e().getMessage().getMentions().getMembers();
+            List<Member> members = mes.e().getMessage().getMentions().getMembers().stream().filter(w -> w.getUser().getIdLong() != e.getJDA().getSelfUser().getIdLong())
+                    .toList();
             if (!members.isEmpty()) {
                 sample = members.get(0).getUser();
                 User finalSample = sample;

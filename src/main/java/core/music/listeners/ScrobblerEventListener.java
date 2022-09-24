@@ -11,8 +11,8 @@ import core.music.scrobble.ScrobbleEventManager;
 import core.music.scrobble.ScrobbleStates;
 import core.music.scrobble.ScrobbleStatus;
 import core.music.utils.TrackScrobble;
-import net.dv8tion.jda.api.entities.AudioChannel;
 import net.dv8tion.jda.api.entities.GuildVoiceState;
+import net.dv8tion.jda.api.entities.channel.middleman.AudioChannel;
 
 import java.time.Instant;
 

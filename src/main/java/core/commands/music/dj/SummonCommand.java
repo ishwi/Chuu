@@ -25,11 +25,13 @@ import core.parsers.ChannelParser;
 import core.parsers.Parser;
 import core.parsers.params.ChannelParameters;
 import core.util.ServiceView;
-import net.dv8tion.jda.api.entities.GuildChannel;
-import net.dv8tion.jda.api.entities.VoiceChannel;
+import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel;
 
 import javax.annotation.Nonnull;
 import java.util.List;
+
+;
 
 public class SummonCommand extends MusicCommand<ChannelParameters> {
     public SummonCommand(ServiceView dao) {

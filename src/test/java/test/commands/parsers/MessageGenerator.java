@@ -1,11 +1,18 @@
 package test.commands.parsers;
 
-import net.dv8tion.jda.api.entities.*;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.channel.ChannelType;
+import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
+import net.dv8tion.jda.api.entities.channel.unions.GuildMessageChannelUnion;
+import net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion;
 import net.dv8tion.jda.api.entities.sticker.StickerSnowflake;
 import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import net.dv8tion.jda.api.requests.restaction.MessageAction;
-import net.dv8tion.jda.api.utils.AttachmentOption;
+import net.dv8tion.jda.api.requests.restaction.MessageCreateAction;
+import net.dv8tion.jda.api.utils.FileUpload;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
 import net.dv8tion.jda.api.utils.data.DataArray;
 import net.dv8tion.jda.internal.JDAImpl;
@@ -13,7 +20,7 @@ import net.dv8tion.jda.internal.entities.GuildImpl;
 import net.dv8tion.jda.internal.entities.MemberImpl;
 import net.dv8tion.jda.internal.entities.MessageMentionsImpl;
 import net.dv8tion.jda.internal.entities.mentions.AbstractMentions;
-import net.dv8tion.jda.internal.requests.restaction.MessageActionImpl;
+import net.dv8tion.jda.internal.requests.restaction.MessageCreateActionImpl;
 import net.dv8tion.jda.internal.utils.config.AuthorizationConfig;
 import org.apache.commons.collections4.map.ReferenceIdentityMap;
 import org.jetbrains.annotations.NotNull;
@@ -22,7 +29,6 @@ import org.mockito.Mockito;
 import test.commands.parsers.factories.Factory;
 import test.commands.parsers.factories.FactoryDeps;
 
-import java.io.InputStream;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
@@ -78,8 +84,8 @@ public class MessageGenerator {
         return new MessageReceivedEvent(jda, 0, message) {
             @NotNull
             @Override
-            public GuildMessageChannel getGuildChannel() {
-                return (GuildMessageChannel) chann;
+            public GuildMessageChannelUnion getGuildChannel() {
+                return (GuildMessageChannelUnion) chann;
             }
 
             @NotNull
@@ -100,10 +106,9 @@ public class MessageGenerator {
                 return user;
             }
 
-            @NotNull
             @Override
-            public MessageChannel getChannel() {
-                return Objects.requireNonNull(chann);
+            public MessageChannelUnion getChannel() {
+                return (MessageChannelUnion) Objects.requireNonNull(chann);
             }
 
             @Override
@@ -129,20 +134,30 @@ public class MessageGenerator {
         return new MockedMessageChannel(publisher, jda, guild) {
 
             @Override
-            public @NotNull MessageAction sendStickers(@NotNull Collection<? extends StickerSnowflake> stickers) {
+            public @NotNull MessageCreateAction sendStickers(@NotNull StickerSnowflake... stickers) {
                 return super.sendStickers(stickers);
             }
 
+
             @NotNull
             @Override
-            public MessageAction sendFile(@NotNull InputStream data, @NotNull String fileName, @NotNull AttachmentOption... options) {
-                return new MessageActionImpl(jda, null, this) {
+            public MessageCreateAction sendFiles(@NotNull FileUpload... files) {
+                List<MessageCreateAction> actions = new ArrayList<>();
+                for (FileUpload file : files) {
+                    actions.add(new MessageCreateActionImpl(this));
+                }
+                return new MessageCreateActionImpl(this) {
                     @Override
                     public void queue(Consumer<? super Message> success, Consumer<? super Throwable> failure) {
-                        publisher.publishEvent(new EventEmitter.SendImage(data, fileName));
+                        for (FileUpload file : files) {
+                            publisher.publishEvent(new EventEmitter.SendImage(file.getData(), file.getName()));
+
+                        }
                     }
-                };
+                }.addFiles(files);
+
             }
+
 
             @Override
             public @NotNull ChannelType getType() {

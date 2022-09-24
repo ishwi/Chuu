@@ -13,6 +13,7 @@ import core.parsers.params.CommandParameters;
 import core.util.ServiceView;
 import dao.entities.UsersWrapper;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.utils.FileUpload;
 
 import javax.annotation.Nonnull;
 import java.io.ByteArrayOutputStream;
@@ -69,8 +70,9 @@ public class UserExportCommand extends ConcurrentCommand<CommandParameters> {
         try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
             new ObjectMapper().writer(new DefaultPrettyPrinter()).writeValue(baos, all);
             e.getAuthor().openPrivateChannel().flatMap(
-                            x -> x.sendFile(baos.toByteArray(),
-                                    "users_" + e.getGuild().getName() + LocalDateTime.now().atOffset(ZoneOffset.UTC).format(DateTimeFormatter.ISO_ZONED_DATE_TIME) + ".json"))
+                            x -> x.sendFiles(FileUpload.fromData(
+                                    baos.toByteArray(),
+                                    "users_%s%s.json".formatted(e.getGuild().getName(), LocalDateTime.now().atOffset(ZoneOffset.UTC).format(DateTimeFormatter.ISO_ZONED_DATE_TIME)))))
                     .queue();
         } catch (IOException ex) {
             Chuu.getLogger().warn(ex.getMessage(), ex);

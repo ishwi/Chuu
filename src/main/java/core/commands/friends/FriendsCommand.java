@@ -1,8 +1,7 @@
 package core.commands.friends;
 
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
+import com.github.benmanes.caffeine.cache.Caffeine;
+import com.github.benmanes.caffeine.cache.LoadingCache;
 import core.commands.Context;
 import core.commands.ContextMessageReceived;
 import core.commands.artists.BandInfoCommand;
@@ -29,10 +28,10 @@ import core.util.ServiceView;
 import dao.entities.*;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.SelfUser;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.utils.TimeFormat;
+import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
 import org.apache.commons.text.WordUtils;
 
 import java.time.LocalDateTime;
@@ -71,18 +70,10 @@ public class FriendsCommand extends ParentCommmand<FriendsActions> {
         topAlbumsCommand = loader.guildTopAlbumsCommand();
         topTracksCommand = loader.guildTopTracksCommand();
         bandInfoCommand = loader.bandInfoCommand();
-        controlAccess = CacheBuilder.newBuilder().concurrencyLevel(2).expireAfterWrite(12, TimeUnit.HOURS).build(
-                new CacheLoader<>() {
-                    public LocalDateTime load(@org.jetbrains.annotations.NotNull Long guild) {
-                        return LocalDateTime.now().plus(12, ChronoUnit.HOURS);
-                    }
-                });
-        serverControlAccess = CacheBuilder.newBuilder().concurrencyLevel(2).expireAfterWrite(5, TimeUnit.MINUTES).build(
-                new CacheLoader<>() {
-                    public LocalDateTime load(@org.jetbrains.annotations.NotNull Long guild) {
-                        return LocalDateTime.now().plus(5, ChronoUnit.MINUTES);
-                    }
-                });
+        controlAccess = Caffeine.newBuilder().expireAfterWrite(12, TimeUnit.HOURS).build(
+                guild -> LocalDateTime.now().plus(12, ChronoUnit.HOURS));
+        serverControlAccess = Caffeine.newBuilder().expireAfterWrite(5, TimeUnit.MINUTES).build(
+                guild -> LocalDateTime.now().plus(5, ChronoUnit.MINUTES));
     }
 
     @Override
@@ -350,7 +341,7 @@ public class FriendsCommand extends ParentCommmand<FriendsActions> {
                 sendMessageQueue(e, "You and %s were already friends!".formatted(userInfoEscaped.username()));
             } else {
                 if ((usersSorted.first() == author && status == Friend.FriendStatus.PENDING_SECOND)
-                        || (usersSorted.second() == author && status == Friend.FriendStatus.PENDING_FIRST)) {
+                    || (usersSorted.second() == author && status == Friend.FriendStatus.PENDING_FIRST)) {
                     sendMessageQueue(e, "%s is yet to accept your friend request".formatted(userInfoEscaped.username()));
                 } else {
                     if (db.acceptRequest(usersSorted.first(), usersSorted.second())) {
@@ -380,9 +371,9 @@ public class FriendsCommand extends ParentCommmand<FriendsActions> {
                 EmbedBuilder eb = new ChuuEmbedBuilder(e)
                         .setAuthor("Friend Request from %s".formatted(yourself.username()), PrivacyUtils.getLastFmUser(authorData.getName()), yourself.urlImage())
                         .setDescription(("**Account:** %s (%s)%n" +
-                                "**Last.fm:** [%s](%s)%n".formatted(authorData.getName(), PrivacyUtils.getLastFmUser(authorData.getName())) +
-                                "%s").formatted(e.getAuthor().getAsMention(), e.getAuthor().getAsTag(), finalArtists));
-                MessageBuilder messageBuilder = new MessageBuilder(eb.build()).setActionRows(
+                                         "**Last.fm:** [%s](%s)%n".formatted(authorData.getName(), PrivacyUtils.getLastFmUser(authorData.getName())) +
+                                         "%s").formatted(e.getAuthor().getAsMention(), e.getAuthor().getAsTag(), finalArtists));
+                var messageBuilder = new MessageCreateBuilder().setEmbeds(eb.build()).addComponents(
                         ActionRow.of(ButtonUtils.declineFriendRequest(author), ButtonUtils.acceptFriendRequest(author)));
                 return privateChannel.sendMessage(messageBuilder.build());
             }).queue(message -> sendMessageQueue(e, "Sent a friend request to %s".formatted(userInfoEscaped.username())),

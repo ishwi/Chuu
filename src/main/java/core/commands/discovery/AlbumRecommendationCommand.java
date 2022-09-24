@@ -32,7 +32,7 @@ public class AlbumRecommendationCommand extends ConcurrentCommand<Recommendation
     private final Spotify spotify;
 
     public AlbumRecommendationCommand(ServiceView dao) {
-        super(dao);
+        super(dao, true);
         this.mb = MusicBrainzServiceSingleton.getInstance();
         spotify = SpotifySingleton.getInstance();
     }

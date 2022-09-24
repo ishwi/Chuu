@@ -1,6 +1,5 @@
 package core.commands.config;
 
-import com.google.common.collect.Sets;
 import core.Chuu;
 import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
@@ -10,7 +9,6 @@ import core.exceptions.LastFmException;
 import core.parsers.ChannelParser;
 import core.parsers.GuildConfigParser;
 import core.parsers.Parser;
-import core.parsers.ParserAux;
 import core.parsers.params.GuildConfigParams;
 import core.parsers.params.GuildConfigType;
 import core.services.ColorService;
@@ -19,8 +17,8 @@ import core.util.ServiceView;
 import dao.entities.*;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.ChannelType;
-import net.dv8tion.jda.api.entities.GuildChannel;
+import net.dv8tion.jda.api.entities.channel.ChannelType;
+import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel;
 import org.apache.commons.text.WordUtils;
 
 import javax.annotation.Nonnull;
@@ -201,7 +199,8 @@ public class GuildConfigCommand extends ConcurrentCommand<GuildConfigParams> {
                 } else {
                     db.setServerNPModes(guildId, modes);
                     String strModes = NPMode.getListedName(modes);
-                    if (Sets.difference(modes, EnumSet.of(NPMode.UNKNOWN)).isEmpty()) {
+
+                    if (modes.contains(NPMode.UNKNOWN) && modes.size() == 1 || modes.isEmpty()) {
                         sendMessageQueue(e, "Successfully cleared the server config");
                     } else {
                         sendMessageQueue(e, String.format("Successfully changed the server config to the following %s: %s", CommandUtil.singlePlural(modes.size(), "mode", "modes"), strModes));
@@ -221,7 +220,6 @@ public class GuildConfigCommand extends ConcurrentCommand<GuildConfigParams> {
                 } else {
 
 
-                    Optional<ParserAux.Snowflake> snowflake = ParserAux.parseSnowflake(value);
 
                     Optional<GuildChannel> guildChannel = ChannelParser.parseChannel(value, e.getGuild());
                     if (guildChannel.isEmpty()) {

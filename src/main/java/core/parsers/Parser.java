@@ -1,5 +1,6 @@
 package core.parsers;
 
+import core.Chuu;
 import core.commands.*;
 import core.commands.utils.CommandUtil;
 import core.exceptions.LastFmException;
@@ -26,6 +27,7 @@ public abstract class Parser<T extends CommandParameters> {
     final Map<Integer, String> errorMessages = new HashMap<>(10);
     final Map<String, OptionalEntity> optAliases = new HashMap<>();
     private final Set<OptionalEntity> opts = new LinkedHashSet<>();
+    private String regex;
 
 
     Parser() {
@@ -88,7 +90,7 @@ public abstract class Parser<T extends CommandParameters> {
     public T parse(Context e) throws LastFmException, InstanceNotFoundException {
         if (e instanceof ContextMessageReceived mes) {
             return parseMessage(mes);
-        } else if (e instanceof InteracionReceived sce) {
+        } else if (e instanceof InteracionReceived<?> sce) {
             if (e instanceof ContextSlashReceived csr) {
                 return parseSlash(csr);
             } else if (e instanceof ContextUserCommandReceived cucr) {
@@ -141,7 +143,12 @@ public abstract class Parser<T extends CommandParameters> {
 
     public String[] getSubMessage(Context context) {
         if (context instanceof ContextMessageReceived mes) {
-            return getSubMessage(mes.e().getMessage().getContentRaw());
+            if (mes.isPingPrefix()) {
+                return getSubMessage(Chuu.PING_REGEX.matcher(mes.e().getMessage().getContentRaw()).replaceAll(""));
+            } else {
+                return getSubMessage(mes.e().getMessage().getContentRaw());
+
+            }
         } else {
 
             throw new IllegalStateException();

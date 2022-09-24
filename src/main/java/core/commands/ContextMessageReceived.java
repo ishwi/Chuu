@@ -3,18 +3,23 @@ package core.commands;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.*;
+import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.requests.RestAction;
-import net.dv8tion.jda.api.requests.restaction.MessageAction;
+import net.dv8tion.jda.api.requests.restaction.MessageCreateAction;
+import net.dv8tion.jda.api.requests.restaction.MessageEditAction;
+import net.dv8tion.jda.api.utils.FileUpload;
+import net.dv8tion.jda.api.utils.messages.MessageCreateData;
+import net.dv8tion.jda.api.utils.messages.MessageEditData;
 
 import javax.annotation.Nullable;
 import java.io.InputStream;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public record ContextMessageReceived(MessageReceivedEvent e) implements Context {
+public record ContextMessageReceived(MessageReceivedEvent e, boolean isPingPrefix) implements Context {
     @Override
     public User getAuthor() {
         return e.getAuthor();
@@ -52,7 +57,7 @@ public record ContextMessageReceived(MessageReceivedEvent e) implements Context 
 
     @Override
     public char getPrefix() {
-        return e.getMessage().getContentRaw().charAt(0);
+        return isPingPrefix() ? '@' : e.getMessage().getContentRaw().charAt(0);
     }
 
     @Override
@@ -73,7 +78,7 @@ public record ContextMessageReceived(MessageReceivedEvent e) implements Context 
 
     @Override
     public List<User> getMentionedUsers() {
-        return e.getMessage().getMentions().getUsers();
+        return e.getMessage().getMentions().getUsers().stream().filter(e -> e.getIdLong() != e.getJDA().getSelfUser().getIdLong()).toList();
     }
 
     @Override
@@ -89,32 +94,33 @@ public record ContextMessageReceived(MessageReceivedEvent e) implements Context 
 
     @Override
     public RestAction<Message> sendMessage(MessageEmbed embed, List<ActionRow> rows) {
-        return e.getChannel().sendMessageEmbeds(embed).setActionRows(rows);
+        return e.getChannel().sendMessageEmbeds(embed).setComponents(rows);
     }
 
     @Override
-    public RestAction<Message> editMessage(@Nullable Message message, MessageEmbed embed, @Nullable List<ActionRow> rows) {
+    public MessageEditAction editMessage(@Nullable Message message, MessageEmbed embed, @Nullable List<ActionRow> rows) {
         assert message != null;
-        MessageAction action;
+        MessageEditAction action;
         if (embed != null) {
             action = message.editMessageEmbeds(embed);
         } else {
-            action = message.editMessage(message);
+            action = message.editMessage(MessageEditData.fromMessage(message));
         }
         if (rows != null) {
-            action = action.setActionRows(rows);
+            action = action.setComponents(rows);
         }
+
         return action;
     }
 
     @Override
-    public RestAction<Message> sendMessage(Message message, User toMention) {
+    public RestAction<Message> sendMessage(MessageCreateData message, User toMention) {
         return e.getChannel().sendMessage(message).mentionUsers(toMention.getId());
     }
 
     @Override
     public void doSendImage(byte[] img, String format, EmbedBuilder embedBuilder) {
-        MessageAction messageAction = e.getChannel().sendFile(img, "cat." + format);
+        MessageCreateAction messageAction = e.getChannel().sendMessage(MessageCreateData.fromFiles(FileUpload.fromData(img, "cat." + format)));
         if (embedBuilder != null) {
             messageAction = messageAction.setEmbeds(embedBuilder.build());
         }
@@ -122,7 +128,10 @@ public record ContextMessageReceived(MessageReceivedEvent e) implements Context 
     }
 
     @Override
-    public MessageAction sendFile(InputStream inputStream, String s, String title) {
-        return e.getChannel().sendFile(inputStream, s).append(title);
+    public RestAction<Message> sendFile(InputStream inputStream, String s, String title) {
+        MessageCreateData messageCreateData = MessageCreateData.fromFiles(FileUpload.fromData(inputStream, s));
+        return e.getChannel().sendMessage(messageCreateData).setContent(title);
     }
+
+
 }

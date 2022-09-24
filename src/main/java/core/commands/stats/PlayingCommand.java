@@ -1,8 +1,7 @@
 package core.commands.stats;
 
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
+import com.github.benmanes.caffeine.cache.Caffeine;
+import com.github.benmanes.caffeine.cache.LoadingCache;
 import core.apis.last.ConcurrentLastFM;
 import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
@@ -19,7 +18,6 @@ import core.util.VirtualParallel;
 import dao.entities.LastFMData;
 import dao.entities.NowPlayingArtist;
 import net.dv8tion.jda.api.EmbedBuilder;
-import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import java.time.Instant;
@@ -39,18 +37,11 @@ public class PlayingCommand extends ConcurrentCommand<CommandParameters> {
         super(dao);
 
         this.respondInPrivate = false;
-        controlAccess = CacheBuilder.newBuilder().concurrencyLevel(2).expireAfterWrite(12, TimeUnit.HOURS).build(
-                new CacheLoader<>() {
-                    public @NotNull LocalDateTime load(@org.jetbrains.annotations.NotNull Long guild) {
-                        return LocalDateTime.now().plus(12, ChronoUnit.HOURS);
-                    }
-                });
-        serverControlAccess = CacheBuilder.newBuilder().concurrencyLevel(2).expireAfterWrite(1, TimeUnit.MINUTES).build(
-                new CacheLoader<>() {
-                    public @NotNull LocalDateTime load(@org.jetbrains.annotations.NotNull Long guild) {
-                        return LocalDateTime.now().plus(1, ChronoUnit.MINUTES);
-                    }
-                });
+        controlAccess = Caffeine.newBuilder().expireAfterWrite(12, TimeUnit.HOURS).build(
+                guild -> LocalDateTime.now().plus(12, ChronoUnit.HOURS));
+
+        serverControlAccess = Caffeine.newBuilder().expireAfterWrite(1, TimeUnit.MINUTES).build(
+                guild -> LocalDateTime.now().plus(1, ChronoUnit.MINUTES));
     }
 
     public static List<String> obtainNps(ConcurrentLastFM lastFM, Context e, boolean showFresh, List<LastFMData> users) {

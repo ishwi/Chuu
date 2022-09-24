@@ -3,7 +3,7 @@ package core.commands.utils;
 import core.Chuu;
 import core.commands.Context;
 import core.parsers.params.EmotiParameters;
-import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.emoji.CustomEmoji;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.entities.emoji.RichCustomEmoji;

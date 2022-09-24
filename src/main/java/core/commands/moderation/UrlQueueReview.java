@@ -22,8 +22,8 @@ import dao.exceptions.InstanceNotFoundException;
 import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
-import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
@@ -168,13 +168,13 @@ public class UrlQueueReview extends ConcurrentCommand<CommandParameters> {
                 long id = db.acceptImageQueue(a.queuedId(), a.url(), a.artistId(), a.uploader());
                 if (a.guildId() != null) {
                     db.insertServerCustomUrl(id, a.guildId(), a.artistId());
-                    r.getJDA().retrieveUserById(a.uploader(), false).flatMap(User::openPrivateChannel).queue(x ->
+                    r.getJDA().retrieveUserById(a.uploader()).flatMap(User::openPrivateChannel).queue(x ->
                             x.sendMessage("Your image for " + a.artistName() + " has been approved and has been set as the default image on your server.").queue());
                 } else {
                     try {
                         LastFMData lastFMData1 = db.findLastFMData(a.uploader());
                         if (lastFMData1.isImageNotify()) {
-                            r.getJDA().retrieveUserById(a.uploader(), false).flatMap(User::openPrivateChannel).queue(x ->
+                            r.getJDA().retrieveUserById(a.uploader()).flatMap(User::openPrivateChannel).queue(x ->
                                     x.sendMessage("Your image for " + a.artistName() + " has been approved:\n" +
                                                   "You can disable this automated message with the config command.\n" + a.url()).queue());
                         }

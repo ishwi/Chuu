@@ -1,9 +1,9 @@
 package core.services;
 
-import com.google.common.collect.Lists;
 import core.util.VirtualParallel;
 import dao.ChuuService;
 import dao.musicbrainz.MusicBrainzService;
+import org.apache.commons.collections4.ListUtils;
 
 import java.util.Collection;
 import java.util.Comparator;
@@ -16,14 +16,14 @@ public record MbidFetcher(ChuuService db, MusicBrainzService mb) {
 
     public <W, Y> List<Y> doFetch(Supplier<List<W>> supplier, Function<List<W>, List<Y>> mapper, Comparator<Y> sort) {
         List<W> userArtists = supplier.get();
-        List<List<W>> partition = Lists.partition(userArtists, 25000);
+        List<List<W>> partition = ListUtils.partition(userArtists, 25000);
         return VirtualParallel.runIO(partition, mapper::apply)
                 .stream().flatMap(Collection::stream).sorted(sort).toList();
     }
 
     public <W, Y> Y doFetch(Supplier<List<W>> supplier, Function<List<W>, Y> mapper, Y identity, BinaryOperator<Y> reducer) {
         List<W> userArtists = supplier.get();
-        List<List<W>> partition = Lists.partition(userArtists, 25000);
+        List<List<W>> partition = ListUtils.partition(userArtists, 25000);
         return VirtualParallel.runIO(partition, mapper::apply)
                 .stream().reduce(identity, reducer);
     }

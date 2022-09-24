@@ -6,8 +6,8 @@ import core.commands.utils.CommandUtil;
 import dao.ChuuService;
 import dao.entities.DiscordUserDisplay;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
+import net.dv8tion.jda.api.utils.messages.MessageEditData;
 
 import java.awt.*;
 
@@ -30,14 +30,14 @@ public record FriendRequester(ChuuService db) implements ConstantListener {
             case ButtonUtils.FRIEND_REQUEST_ACCEPT -> {
                 DiscordUserDisplay ui = CommandUtil.getUserInfoUnescaped(requesterId);
                 if (!db.acceptRequest(author, requesterId)) {
-                    e.getMessage().editMessage(new MessageBuilder(new ChuuEmbedBuilder(false)
-                            .setAuthor("There was an issue accepting %s's request!".formatted(ui.username()), null, ui.urlImage()).build()
-                    ).build()).queue();
+                    e.getMessage().editMessage(MessageEditData.fromEmbeds(
+                            new ChuuEmbedBuilder(false).setAuthor("There was an issue accepting %s's request!".formatted(ui.username()), null, ui.urlImage()).build()
+                    )).queue();
                     return;
                 }
-                e.getMessage().editMessage(new MessageBuilder(new ChuuEmbedBuilder(false)
+                e.getMessage().editMessage(MessageEditData.fromEmbeds(new ChuuEmbedBuilder(false)
                                 .setAuthor("Accepted %s's friend request!".formatted(ui.username()), null, ui.urlImage()).build()
-                        ).build()).flatMap(message -> message.getJDA().openPrivateChannelById(requesterId))
+                        )).flatMap(message -> message.getJDA().openPrivateChannelById(requesterId))
                         .flatMap(privateChannel -> {
                             final DiscordUserDisplay authorUi = CommandUtil.getUserInfoUnescaped(author);
                             return privateChannel.sendMessageEmbeds(new ChuuEmbedBuilder(false)
@@ -47,9 +47,9 @@ public record FriendRequester(ChuuService db) implements ConstantListener {
             case ButtonUtils.FRIEND_REQUEST_REJECT -> {
                 db.rejectRequest(author, requesterId);
                 DiscordUserDisplay ui = CommandUtil.getUserInfoUnescaped(requesterId);
-                e.getMessage().editMessage(new MessageBuilder(new EmbedBuilder().setColor(Color.RED)
+                e.getMessage().editMessage(MessageEditData.fromEmbeds(new EmbedBuilder().setColor(Color.RED)
                         .setAuthor("Rejected %s's friend request!".formatted(ui.username()), null, ui.urlImage()).build()
-                ).build()).queue();
+                )).queue();
             }
         }
     }

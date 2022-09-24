@@ -26,7 +26,6 @@ import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.UserContextInteractionEvent;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.exceptions.ErrorResponseException;
 import net.dv8tion.jda.api.exceptions.InsufficientPermissionException;
 import net.dv8tion.jda.api.hooks.EventListener;
@@ -96,7 +95,6 @@ public abstract class MyCommand<T extends CommandParameters> implements EventLis
 
     @Override
     public void onEvent(@org.jetbrains.annotations.NotNull GenericEvent event) {
-        onMessageReceived(((MessageReceivedEvent) event));
     }
 
     public void onSlashCommandReceived(@Nonnull SlashCommandInteractionEvent event) {
@@ -131,16 +129,15 @@ public abstract class MyCommand<T extends CommandParameters> implements EventLis
     }
 
     /**
-     * @param e Because we are using the {@link core.commands.CustomInterfacedEventManager CustomInterfacedEventManager} we know that this is the only OnMessageReceived event handled so we can skip the cheks
+     * @param ctx Because we are using the {@link core.commands.CustomInterfacedEventManager CustomInterfacedEventManager} we know that this is the only OnMessageReceived event handled so we can skip the cheks
      */
-    public void onMessageReceived(MessageReceivedEvent e) {
-        ContextMessageReceived ctx = new ContextMessageReceived(e);
+    public void onMessageReceived(ContextMessageReceived ctx) {
         if (Chuu.doTyping) {
-            e.getChannel().sendTyping().queue(unused -> {
+            ctx.getChannel().sendTyping().queue(unused -> {
             }, throwable -> {
             });
         }
-        if (!e.isFromGuild() && !respondInPrivate) {
+        if (!ctx.isFromGuild() && !respondInPrivate) {
             sendMessageQueue(ctx, "This command only works in a server");
             return;
         }
@@ -222,7 +219,7 @@ public abstract class MyCommand<T extends CommandParameters> implements EventLis
 
             MessageEmbed build = new ChuuEmbedBuilder(e).setDescription(s).build();
             if (e instanceof ContextMessageReceived mes) {
-                mes.e().getChannel().sendMessageEmbeds(build).reference(mes.e().getMessage()).queue();
+                mes.e().getChannel().sendMessageEmbeds(build).setMessageReference(mes.e().getMessage()).queue();
 
             } else {
                 e.sendMessage(build).queue();

@@ -104,7 +104,7 @@ public class RandomLinkRatingCommand extends ConcurrentCommand<NumberParameters<
                     default -> throw new IllegalStateException("Unexpected value: " + privacyMode);
                 }
                 String finalS = s;
-                e.getJDA().retrieveUserById(lastFMData.getDiscordId(), false).flatMap(User::openPrivateChannel).flatMap(x -> x.sendMessage(finalS + " has rated your random url " + url + " with a **" + rating + "**\nYou can disable this automated message with the config command")).queue();
+                e.getJDA().retrieveUserById(lastFMData.getDiscordId()).flatMap(User::openPrivateChannel).flatMap(x -> x.sendMessage(finalS + " has rated your random url " + url + " with a **" + rating + "**\nYou can disable this automated message with the config command")).queue();
             }
 
         } catch (

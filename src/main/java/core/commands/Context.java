@@ -5,9 +5,12 @@ import dao.exceptions.ChuuServiceException;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.*;
+import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.requests.RestAction;
+import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 import org.apache.commons.io.FileUtils;
 
 import javax.annotation.CheckReturnValue;
@@ -79,7 +82,7 @@ public sealed interface Context permits ContextMessageReceived, ContextSlashRece
     RestAction<Message> editMessage(@Nullable Message message, @Nullable MessageEmbed embed, @Nullable List<ActionRow> rows);
 
     @CheckReturnValue
-    RestAction<Message> sendMessage(Message message, User toMention);
+    RestAction<Message> sendMessage(MessageCreateData message, User toMention);
 
     void doSendImage(byte[] img, String format, @Nullable EmbedBuilder embedBuilder);
 

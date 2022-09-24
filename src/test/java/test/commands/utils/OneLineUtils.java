@@ -1,9 +1,10 @@
 package test.commands.utils;
 
-import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageHistory;
-import net.dv8tion.jda.api.requests.restaction.MessageAction;
+import net.dv8tion.jda.api.requests.restaction.MessageCreateAction;
+import net.dv8tion.jda.api.utils.FileUpload;
+import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
 import org.assertj.core.api.Assertions;
 
 import javax.imageio.ImageIO;
@@ -46,15 +47,15 @@ public class OneLineUtils {
     }
 
     public static void embedLink(String command, String imageUrl, Pattern regex, Predicate<Matcher> function, int timeout) {
-        MessageAction messageAction;
+        MessageCreateAction messageAction;
         try {
-            MessageBuilder messageBuilder = new MessageBuilder();
+            var messageBuilder = new MessageCreateBuilder();
             URL url = new URL(imageUrl);
             BufferedImage file = ImageIO.read(url);
             ByteArrayOutputStream b = new ByteArrayOutputStream();
             ImageIO.write(file, "png", b);
             byte[] img = b.toByteArray();
-            messageAction = channelWorker.sendMessage(messageBuilder.setContent(command).build()).addFile(img, "cat.png");
+            messageAction = channelWorker.sendMessage(messageBuilder.setContent(command).addFiles(FileUpload.fromData(img, "cat.png")).build());
         } catch (IOException e) {
             Assertions.fail("Shouldn't fail");
             return;

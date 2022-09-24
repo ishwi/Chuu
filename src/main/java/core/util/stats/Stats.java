@@ -34,7 +34,7 @@ public enum Stats {
     ALBUMS(GeneratorUtils.albL(ConsumerUtils::albums)),
     SONGS(GeneratorUtils.tL(ConsumerUtils::songs), AllMode.LINE_BREAK, "track"),
 
-    AVERAGES(GeneratorUtils.all(ConsumerUtils::averages), AllMode.LINE_BREAK, "lpa", "tpa", "tpl", "avg"),
+    AVERAGES(GeneratorUtils.all((cached, ctx) -> ConsumerUtils.averages(cached)), AllMode.LINE_BREAK, "lpa", "tpa", "tpl", "avg"),
     SCROBBLE_AVERAGES(GeneratorUtils.all(ConsumerUtils::scrobbleAverages), AllMode.LINE_BREAK, "spl", "spt", "spa", "savg"),
 
     H_INDEX(GeneratorUtils.aL((a, b) -> "**H-Index**: " + ConsumerUtils.HIndex(a)), "hi", "hind"),
@@ -45,7 +45,7 @@ public enum Stats {
     ALBUM_PERCENTAGE(GeneratorUtils.albL((list, ctx) -> ConsumerUtils.percentage(list, ctx, ConsumerUtils.Entity.ALBUM)), AllMode.DONT, "slper", "salbpct", "salbper"),
     SONG_PERCENTAGE(GeneratorUtils.albL((list, ctx) -> ConsumerUtils.percentage(list, ctx, ConsumerUtils.Entity.TRACK)), AllMode.DONT, "ssper", "sspct", "stper", "stpct"),
     TOP(GeneratorUtils.aL(ConsumerUtils::top)),
-    SUM_TOP(GeneratorUtils.aL(ConsumerUtils::sumtop), AllMode.LINE_BREAK, "sum"),
+    SUM_TOP(GeneratorUtils.aL(ConsumerUtils::sumTop), AllMode.LINE_BREAK, "sum"),
 
     BREAKDOWNS(GeneratorUtils.aL((artists, entity) -> ConsumerUtils.breakdowns(artists, ConsumerUtils.Entity.ARTIST, entity)), AllMode.LINE_BREAK, "bk", "break", "point"),
     BREAKDOWNS_ALBUMS(GeneratorUtils.albL((artists, entity) -> ConsumerUtils.breakdowns(artists, ConsumerUtils.Entity.ALBUM, entity)), EnumSet.of(AllMode.LINE_BREAK, AllMode.DONT), "abk", "abreak", "apoint"),
@@ -70,9 +70,9 @@ public enum Stats {
     ALBUM_PERCENT(GeneratorUtils.npAlbum((a, b) -> ConsumerUtils.concretePercentage(a, b, ConsumerUtils.Entity.ALBUM)), AllMode.DONT, "lper", "albper", "alper", "lpct", "albpct", "alpct"),
     TRACK_PERCENT(GeneratorUtils.npSong((a, b) -> ConsumerUtils.concretePercentage(a, b, ConsumerUtils.Entity.TRACK)), AllMode.DONT, "sper", "tper", "spct", "tpct"),
 
-    ARTIST_RANK(GeneratorUtils.npArtist((a, b) -> ConsumerUtils.concreteRank(a, b, ConsumerUtils.Entity.ARTIST)), AllMode.DONT, "rank", "arank"),
-    ALBUM_RANK(GeneratorUtils.npAlbum((a, b) -> ConsumerUtils.concreteRank(a, b, ConsumerUtils.Entity.ALBUM)), AllMode.DONT, "albrank", "alrank", "lrank"),
-    SONG_RANK(GeneratorUtils.npSong((a, b) -> ConsumerUtils.concreteRank(a, b, ConsumerUtils.Entity.TRACK)), AllMode.DONT, "trank", "srank"),
+    ARTIST_RANK(GeneratorUtils.npArtist((a, b) -> ConsumerUtils.concreteRank(a, ConsumerUtils.Entity.ARTIST)), AllMode.DONT, "rank", "arank"),
+    ALBUM_RANK(GeneratorUtils.npAlbum((a, b) -> ConsumerUtils.concreteRank(a, ConsumerUtils.Entity.ALBUM)), AllMode.DONT, "albrank", "alrank", "lrank"),
+    SONG_RANK(GeneratorUtils.npSong((a, b) -> ConsumerUtils.concreteRank(a, ConsumerUtils.Entity.TRACK)), AllMode.DONT, "trank", "srank"),
 
 
     ARTIST_AT(GeneratorUtils.aL((a, b) -> ConsumerUtils.entityAt(a, b, ConsumerUtils.Entity.ARTIST)), AllMode.DONT, "aa", "a@"),

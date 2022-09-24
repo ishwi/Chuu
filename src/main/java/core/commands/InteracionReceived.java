@@ -3,14 +3,15 @@ package core.commands;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.*;
+import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.interactions.commands.CommandInteraction;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.requests.RestAction;
-import net.dv8tion.jda.api.requests.restaction.WebhookMessageAction;
-import net.dv8tion.jda.api.requests.restaction.WebhookMessageUpdateAction;
+import net.dv8tion.jda.api.utils.FileUpload;
+import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 
 import javax.annotation.Nullable;
 import java.io.InputStream;
@@ -101,14 +102,14 @@ public sealed abstract class InteracionReceived<T extends CommandInteraction> im
 
     @Override
     public RestAction<Message> sendMessage(MessageEmbed embed, List<ActionRow> rows) {
-        return e.getHook().sendMessageEmbeds(embed).addActionRows(rows);
+        return e.getHook().sendMessageEmbeds(embed).setComponents(rows);
     }
 
     @Override
     public RestAction<Message> editMessage(Message ignored, @Nullable MessageEmbed embed, @Nullable List<ActionRow> rows) {
-        WebhookMessageUpdateAction<Message> action;
+        RestAction<Message> action;
         if (embed != null) {
-            action = e.getHook().editMessageEmbedsById("@original", embed).setActionRows(rows);
+            action = e.getHook().editMessageEmbedsById("@original", embed).setComponents(rows);
         } else {
             action = e.getHook().editOriginalComponents(rows);
         }
@@ -116,13 +117,13 @@ public sealed abstract class InteracionReceived<T extends CommandInteraction> im
     }
 
     @Override
-    public RestAction<Message> sendMessage(Message message, User toMention) {
+    public RestAction<Message> sendMessage(MessageCreateData message, User toMention) {
         return e.getHook().sendMessage(message).mention(toMention);
     }
 
     @Override
     public void doSendImage(byte[] img, String format, @Nullable EmbedBuilder embedBuilder) {
-        WebhookMessageAction<Message> interactionWebhookAction = e.getHook().sendFile(img, "cat." + format);
+        var interactionWebhookAction = e.getHook().sendFiles(FileUpload.fromData(img, "cat." + format));
         if (embedBuilder != null) {
             interactionWebhookAction = interactionWebhookAction.addEmbeds(embedBuilder.build());
         }
@@ -131,6 +132,6 @@ public sealed abstract class InteracionReceived<T extends CommandInteraction> im
 
     @Override
     public RestAction<Message> sendFile(InputStream inputStream, String s, String title) {
-        return e.getHook().sendFile(inputStream, s).setContent(title);
+        return e.getHook().sendFiles(FileUpload.fromData(inputStream, s)).setContent(title);
     }
 }

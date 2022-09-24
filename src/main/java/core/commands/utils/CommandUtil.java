@@ -40,10 +40,14 @@ import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class CommandUtil {
 
@@ -485,4 +489,7 @@ public class CommandUtil {
     }
 
 
+    public static <T extends Enum<T>> List<List<T>> partition(List<T> ts, int i) {
+        return new ArrayList<>(IntStream.range(0, ts.size()).boxed().collect(Collectors.groupingBy(index -> index / i, Collectors.mapping(ts::get, Collectors.toList()))).values());
+    }
 }

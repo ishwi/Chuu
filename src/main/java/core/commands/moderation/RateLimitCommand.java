@@ -1,6 +1,5 @@
 package core.commands.moderation;
 
-import com.google.common.util.concurrent.RateLimiter;
 import core.Chuu;
 import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
@@ -12,6 +11,7 @@ import core.util.ServiceView;
 import dao.entities.LastFMData;
 import dao.entities.Role;
 import dao.exceptions.InstanceNotFoundException;
+import io.github.bucket4j.Bucket;
 
 import javax.annotation.Nonnull;
 import java.util.List;
@@ -60,12 +60,12 @@ public class RateLimitCommand extends ConcurrentCommand<RateLimitParams> {
             return;
         }
 
-        Map<Long, RateLimiter> ratelimited = Chuu.getRatelimited();
+        Map<Long, Bucket> ratelimited = Chuu.getRatelimited();
         long discordId = params.getDiscordId();
         e.getJDA().retrieveUserById(discordId).queue(x -> handleUser(e, params, ratelimited, discordId), throwable -> sendMessageQueue(e, "Couldn't find any user with id " + discordId));
     }
 
-    private void handleUser(Context e, RateLimitParams params, Map<Long, RateLimiter> ratelimited, long discordId) {
+    private void handleUser(Context e, RateLimitParams params, Map<Long, Bucket> ratelimited, long discordId) {
         if (params.isDeleting()) {
             ratelimited.remove(discordId);
             db.removeRateLimit(discordId);
@@ -73,10 +73,10 @@ public class RateLimitCommand extends ConcurrentCommand<RateLimitParams> {
             return;
         }
         Float rateLimit = params.getRateLimit();
-        RateLimiter rateLimiter = ratelimited.get(discordId);
-        RateLimiter newRateLimiter = rateLimit == null ? (rateLimiter == null ? RateLimiter.create(0.1) : rateLimiter) : RateLimiter.create(rateLimit);
-        ratelimited.put(discordId, newRateLimiter);
-        db.addRateLimit(discordId, (float) newRateLimiter.getRate());
+        Bucket rateLimiter = ratelimited.get(discordId);
+//        Bucket newRateLimiter = rateLimit == null ? (rateLimiter == null ? Bu : rateLimiter) : RateLimiter.create(rateLimit);
+//        ratelimited.put(discordId, newRateLimiter);
+//        db.addRateLimit(discordId, (float) newRateLimiter.getRate());
         sendMessageQueue(e, "Successfully added a rate limit to user " + discordId);
     }
 }

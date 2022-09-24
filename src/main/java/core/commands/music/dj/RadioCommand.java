@@ -14,9 +14,9 @@ import core.parsers.params.EnumParameters;
 import core.util.ServiceView;
 import core.util.StringUtils;
 import dao.everynoise.NoiseGenre;
-import net.dv8tion.jda.api.entities.AudioChannel;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.entities.channel.middleman.AudioChannel;
 import net.dv8tion.jda.api.requests.RestAction;
 import org.apache.commons.text.WordUtils;
 

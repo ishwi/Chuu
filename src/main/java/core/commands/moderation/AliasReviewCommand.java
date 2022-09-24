@@ -91,7 +91,7 @@ public class AliasReviewCommand extends ConcurrentCommand<CommandParameters> {
                 try {
                     db.addAlias(aliasEntity.getAlias(), aliasEntity.getArtistId());
                     db.deleteAliasById(aliasEntity.getId());
-                    r.getJDA().retrieveUserById(aliasEntity.getDiscorId(), false)
+                    r.getJDA().retrieveUserById(aliasEntity.getDiscorId())
                             .queue(user -> user.openPrivateChannel()
                                     .flatMap(privateChannel -> privateChannel.sendMessage("Your alias: " + aliasEntity.getAlias() + " has been approved!"))
                                     .queue(), throwable -> Chuu.getLogger().warn(throwable.getMessage(), throwable));

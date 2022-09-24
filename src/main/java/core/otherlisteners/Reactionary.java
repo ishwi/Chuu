@@ -2,12 +2,12 @@ package core.otherlisteners;
 
 import core.commands.utils.ButtonUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.SelectMenuInteractionEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
+import net.dv8tion.jda.api.utils.messages.MessageEditData;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
@@ -80,7 +80,7 @@ public class Reactionary<T> extends ReactionListener {
             }
             who.setDescription(a);
         }
-        message.editMessageEmbeds(who.build()).setActionRows(Collections.emptyList()).queue();
+        message.editMessageEmbeds(who.build()).setComponents(Collections.emptyList()).queue();
     }
 
     @Override
@@ -161,7 +161,7 @@ public class Reactionary<T> extends ReactionListener {
                 rows = List.of(actionRow, extraRow);
             }
         }
-        message.editMessage(new MessageBuilder().setEmbeds(who.build()).setActionRows(rows).build()).queue();
+        message.editMessage(MessageEditData.fromEmbeds(who.build())).setComponents(rows).queue();
     }
 
     @Override

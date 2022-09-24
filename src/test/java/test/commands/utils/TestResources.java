@@ -15,8 +15,8 @@ import liquibase.database.DatabaseFactory;
 import liquibase.database.jvm.JdbcConnection;
 import liquibase.resource.ClassLoaderResourceAccessor;
 import net.dv8tion.jda.api.JDA;
-import net.dv8tion.jda.api.entities.BaseGuildMessageChannel;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.events.GenericEvent;
 import org.junit.jupiter.api.extension.BeforeAllCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
@@ -32,7 +32,7 @@ public class TestResources implements BeforeAllCallback {
     public static ChuuService dao;
     public static JDA testerJDA;
     public static JDA ogJDA;
-    public static BaseGuildMessageChannel channelWorker;
+    public static TextChannel channelWorker;
     public static long channelId;
     public static boolean setUp = false;
     public static long developerId;
@@ -96,7 +96,7 @@ public class TestResources implements BeforeAllCallback {
         init();
     }
 
-    private void deleteAllMessage(BaseGuildMessageChannel channel) {
+    private void deleteAllMessage(TextChannel channel) {
         List<Message> messages = channel.getHistory().retrievePast(50).complete();
         OffsetDateTime twoWeeksAgo = OffsetDateTime.now().minus(2, ChronoUnit.WEEKS);
 
@@ -114,7 +114,7 @@ public class TestResources implements BeforeAllCallback {
         if (!setUp) {
             ChuuDatasource chuuDatasource = new ChuuDatasource();
             dao = new ChuuService(chuuDatasource);
-            manager = new CustomInterfacedEventManager(0);
+            manager = new CustomInterfacedEventManager();
             ServiceView db = new ServiceView(dao, dao, dao);
             Chuu.initFields();
             Chuu.addAll(db, manager::register);

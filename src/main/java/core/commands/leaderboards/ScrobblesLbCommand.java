@@ -15,7 +15,7 @@ import java.util.List;
 
 public class ScrobblesLbCommand extends LeaderboardCommand<CommandParameters, Integer> {
     public ScrobblesLbCommand(ServiceView dao) {
-        super(dao);
+        super(dao, true);
     }
 
 

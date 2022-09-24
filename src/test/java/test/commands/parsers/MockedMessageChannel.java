@@ -1,17 +1,25 @@
 package test.commands.parsers;
 
 import net.dv8tion.jda.api.JDA;
-import net.dv8tion.jda.api.entities.*;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.channel.ChannelType;
+import net.dv8tion.jda.api.entities.channel.attribute.IPermissionContainer;
+import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.entities.sticker.StickerSnowflake;
 import net.dv8tion.jda.api.managers.channel.ChannelManager;
 import net.dv8tion.jda.api.requests.RestAction;
 import net.dv8tion.jda.api.requests.restaction.AuditableRestAction;
-import net.dv8tion.jda.api.requests.restaction.MessageAction;
+import net.dv8tion.jda.api.requests.restaction.MessageCreateAction;
 import net.dv8tion.jda.internal.JDAImpl;
 import net.dv8tion.jda.internal.entities.GuildImpl;
 import net.dv8tion.jda.internal.requests.CompletedRestAction;
-import net.dv8tion.jda.internal.requests.restaction.MessageActionImpl;
+import net.dv8tion.jda.internal.requests.restaction.MessageCreateActionImpl;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
@@ -46,9 +54,9 @@ public class MockedMessageChannel implements MessageChannel, GuildMessageChannel
 
     @NotNull
     @Override
-    public MessageAction sendMessage(@NotNull CharSequence text) {
+    public MessageCreateAction sendMessage(@NotNull CharSequence text) {
         eventEmitter.publishEvent(new EventEmitter.SendText(text));
-        return new MessageActionImpl(jda, null, this) {
+        return new MessageCreateActionImpl(this) {
             @Override
             public void queue(Consumer<? super Message> success, Consumer<? super Throwable> failure) {
                 // DO NOTHING
@@ -139,8 +147,8 @@ public class MockedMessageChannel implements MessageChannel, GuildMessageChannel
 
     @NotNull
     @Override
-    public MessageAction sendStickers(@NotNull Collection<? extends StickerSnowflake> stickers) {
-        return null;
+    public MessageCreateAction sendStickers(@NotNull StickerSnowflake... stickers) {
+        return GuildMessageChannel.super.sendStickers(stickers);
     }
 
     @Override

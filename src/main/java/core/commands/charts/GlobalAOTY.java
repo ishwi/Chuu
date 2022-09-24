@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
 public class GlobalAOTY extends ChartableCommand<ChartYearParameters> {
 
     public GlobalAOTY(ServiceView dao) {
-        super(dao);
+        super(dao, true);
     }
 
     @Override

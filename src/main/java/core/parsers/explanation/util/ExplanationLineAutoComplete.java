@@ -5,11 +5,10 @@ import net.dv8tion.jda.api.interactions.commands.Command;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
 import java.util.List;
-import java.util.function.Function;
 
 public record ExplanationLineAutoComplete(String header, String usage,
                                           List<OptionData> options,
-                                          Function<CommandAutoCompleteInteractionEvent, List<Command.Choice>> autocomplete) implements Interactible, Autocompletable {
+                                          Autocompletable autocomplete) implements Interactible, Autocompletable {
 
 
     public ExplanationLineAutoComplete {
@@ -17,6 +16,6 @@ public record ExplanationLineAutoComplete(String header, String usage,
     }
 
     public List<Command.Choice> autocomplete(CommandAutoCompleteInteractionEvent currentInput) {
-        return autocomplete.apply(currentInput);
+        return autocomplete.autocomplete(currentInput);
     }
 }

@@ -1,6 +1,5 @@
 package core;
 
-import com.google.common.util.concurrent.RateLimiter;
 import com.sedmelluq.discord.lavaplayer.jdaudp.NativeAudioSendFactory;
 import core.apis.discogs.DiscogsSingleton;
 import core.apis.last.LastFMFactory;
@@ -35,6 +34,9 @@ import dao.entities.UsersWrapper;
 import dao.exceptions.ChuuServiceException;
 import gnu.trove.set.TLongSet;
 import gnu.trove.set.hash.TLongHashSet;
+import io.github.bucket4j.Bandwidth;
+import io.github.bucket4j.Bucket;
+import io.github.bucket4j.Refill;
 import io.github.classgraph.ClassGraph;
 import io.github.classgraph.ScanResult;
 import net.dv8tion.jda.api.JDA;
@@ -45,27 +47,27 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.EventListener;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.requests.restaction.CommandListUpdateAction;
-import net.dv8tion.jda.api.requests.restaction.MessageAction;
 import net.dv8tion.jda.api.sharding.DefaultShardManagerBuilder;
 import net.dv8tion.jda.api.sharding.ShardManager;
 import net.dv8tion.jda.api.utils.ChunkingFilter;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
+import net.dv8tion.jda.api.utils.messages.MessageRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.security.auth.login.LoginException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
+import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.LongAdder;
 import java.util.function.Consumer;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-@SuppressWarnings("UnstableApiUsage")
 public class Chuu {
 
     public static final Character DEFAULT_PREFIX = '!';
@@ -85,9 +87,10 @@ public class Chuu {
     public static PrefixService prefixService;
     public static CustomInterfacedEventManager customManager;
     public static boolean doTyping = true;
+    public static Pattern PING_REGEX = Pattern.compile("");
     private static ShardManager shardManager;
     private static Logger logger;
-    private static Map<Long, RateLimiter> ratelimited;
+    private static Map<Long, Bucket> ratelimited;
     private static ServiceView db;
     private static CoverService coverService;
     private static MessageDeletionService messageDeletionService;
@@ -139,9 +142,13 @@ public class Chuu {
         playerManager = new ExtendedAudioPlayerManager(scrobbleEventManager, scrabbleProcessor);
         playerRegistry = new PlayerRegistry(playerManager);
         scheduledService = new ScheduledService(Executors.newScheduledThreadPool(6), db.normalService());
-        ratelimited = service.getRateLimited().entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, y -> RateLimiter.create(y.getValue())));
-        MessageAction.setDefaultMentions(EnumSet.noneOf(Message.MentionType.class));
-        MessageAction.setDefaultMentionRepliedUser(false);
+        ratelimited = service.getRateLimited().entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, y -> {
+            Refill refill = Refill.intervally((long) (y.getValue() * 10), Duration.ofSeconds(10));
+            Bandwidth classic = Bandwidth.classic(10, refill);
+            return Bucket.builder().addLimit(classic).build();
+        }));
+        MessageRequest.setDefaultMentions(EnumSet.noneOf(Message.MentionType.class));
+        MessageRequest.setDefaultMentionRepliedUser(false);
         initPrivateLastfms(db.normalService());
         messageDeletionService = new MessageDeletionService(db.normalService().getServersWithDeletableMessages());
         return properties;
@@ -170,10 +177,7 @@ public class Chuu {
         }, 2, 5, TimeUnit.MINUTES);
 
 
-        MessageAction.setDefaultMentions(EnumSet.noneOf(Message.MentionType.class));
-        MessageAction.setDefaultMentionRepliedUser(false);
-
-        customManager = new CustomInterfacedEventManager(0);
+        customManager = new CustomInterfacedEventManager();
         EvalCommand evalCommand = new EvalCommand(db);
         AtomicInteger counter = new AtomicInteger(0);
 
@@ -218,25 +222,21 @@ public class Chuu {
                     }
                 }));
 
-        try {
-            if (startRightAway) {
-                addAll(db, builder::addEventListeners);
-                customManager.isReady = true;
-                doTyping = true;
+        if (startRightAway) {
+            addAll(db, builder::addEventListeners);
+            customManager.isReady = true;
+            doTyping = true;
 
-            }
-
-            shardManager = builder.build();
-            if (startRightAway) {
-                shardManager.getShards().stream().findFirst().ifPresent(z -> {
-                    messageDisablingService = new MessageDisablingService(z, service);
-                    CommandListUpdateAction ignored = InteractionBuilder.setGlobalCommands(z);
-                });
-            }
-        } catch (LoginException e) {
-            Chuu.getLogger().warn(e.getMessage(), e);
-            throw new ChuuServiceException(e);
         }
+
+        shardManager = builder.build();
+        if (startRightAway) {
+            shardManager.getShards().stream().findFirst().ifPresent(z -> {
+                messageDisablingService = new MessageDisablingService(z, service);
+                CommandListUpdateAction ignored = InteractionBuilder.setGlobalCommands(z);
+            });
+        }
+
     }
 
     public static void shutDownPreviousInstance(Callback callback) {
@@ -287,7 +287,7 @@ public class Chuu {
         MyCommand<?>[] myCommands = scanListeners(help);
         Arrays.stream(myCommands).forEach(consumer);
         consumer.accept(new VoiceListener());
-        consumer.accept(new JoinLeaveListener(db.normalService(), LastFMFactory.getNewInstance()));
+        consumer.accept(new JoinLeaveListener(db.updaterService(), LastFMFactory.getNewInstance()));
         consumer.accept(new AutoCompleteListener());
         consumer.accept(new AlbumYearApproval(channelId, db.normalService()));
         consumer.accept(new FriendRequester(db.normalService()));
@@ -350,7 +350,7 @@ public class Chuu {
         Chuu.shardManager.getShards().forEach(x -> x.getPresence().setActivity(Activity.playing(artist + " | !help for help")));
     }
 
-    public static Map<Long, RateLimiter> getRatelimited() {
+    public static Map<Long, Bucket> getRatelimited() {
         return ratelimited;
     }
 

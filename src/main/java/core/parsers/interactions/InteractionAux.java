@@ -12,6 +12,7 @@ import core.parsers.utils.CustomTimeFrame;
 import core.services.NPService;
 import dao.entities.*;
 import dao.exceptions.InstanceNotFoundException;
+import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.interactions.commands.CommandInteraction;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
@@ -71,7 +72,6 @@ public class InteractionAux {
         }
     }
 
-
     public static @Nullable
     ArtistAlbum parseAlbum(CommandInteraction e, Callback errorMessage) {
         return parseCommonArtistAlbum(errorMessage, e, AlbumExplanation.NAME);
@@ -82,7 +82,7 @@ public class InteractionAux {
         List<OptionData> optionData = explanation.explanation().options();
         optionData.forEach(t -> t.setRequired(true));
         if (explanation.explanation() instanceof Autocompletable e) {
-            return () -> new ExplanationLineAutoComplete(intercepted.header(), intercepted.usage(), optionData, e::autocomplete);
+            return () -> new ExplanationLineAutoComplete(intercepted.header(), intercepted.usage(), optionData, e);
         }
         return () -> new ExplanationLine(intercepted.header(), intercepted.usage(), optionData);
     }
@@ -174,13 +174,17 @@ public class InteractionAux {
         String to = Optional.ofNullable(e.getOption("to")).map(OptionMapping::getAsString).orElse("");
         String[] message;
         if (StringUtils.isBlank(to)) {
-            message = new String[]{from};
+            message = from.split("\\s+");
         } else {
-            message = new String[]{from, "-", to};
+            message = (from + " - " + to).split("\\s+");
         }
         ChartParserAux chartParserAux = new ChartParserAux(message);
         return chartParserAux.parseCustomTimeFrame(defaulted);
 
+    }
+
+    public static Message.Attachment parseAttachment(CommandInteraction e) {
+        return Optional.ofNullable(e.getOption(AttachmentExplanation.NAME)).map(OptionMapping::getAsAttachment).orElse(null);
     }
 
     public record ArtistAlbum(String artist, String album) {

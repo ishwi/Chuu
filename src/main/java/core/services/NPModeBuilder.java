@@ -1,6 +1,5 @@
 package core.services;
 
-import com.google.common.collect.Sets;
 import com.neovisionaries.i18n.CountryCode;
 import core.Chuu;
 import core.apis.discogs.DiscogsApi;
@@ -827,5 +826,11 @@ public class NPModeBuilder {
             holder = "Private User #1";
         }
         return holder;
+    }
+
+    public static class Sets {
+        public static <T> Set<T> difference(Set<T> a, Set<T> b) {
+            return new HashSet<>();
+        }
     }
 }

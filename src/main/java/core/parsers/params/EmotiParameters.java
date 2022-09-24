@@ -4,6 +4,7 @@ import core.commands.Context;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.entities.emoji.RichCustomEmoji;
 import net.dv8tion.jda.api.entities.emoji.UnicodeEmoji;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.SortedSet;
@@ -38,7 +39,7 @@ public class EmotiParameters extends CommandParameters {
 
     }
 
-    public interface Emotable<T extends Emoji> {
+    public interface Emotable<T extends Emoji> extends Comparable<Emotable<T>> {
         static String toDisplay(String title) {
             if (title.matches("a:.*\\d+")) {
                 return "<" + title + ">";
@@ -53,6 +54,11 @@ public class EmotiParameters extends CommandParameters {
         T entity();
 
         String getContent();
+
+        @Override
+        default int compareTo(@NotNull EmotiParameters.Emotable<T> o) {
+            return Integer.compare(position(), o.position());
+        }
     }
 
     public record DiscordEmote(int position, RichCustomEmoji entity) implements Emotable<RichCustomEmoji> {

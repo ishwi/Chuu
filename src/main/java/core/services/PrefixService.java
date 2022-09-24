@@ -1,9 +1,9 @@
 package core.services;
 
-import core.commands.Context;
 import dao.ChuuService;
 import gnu.trove.map.TLongCharMap;
 import gnu.trove.map.hash.TLongCharHashMap;
+import net.dv8tion.jda.api.entities.Guild;
 
 import java.util.Map;
 
@@ -34,16 +34,13 @@ public class PrefixService {
         }
     }
 
-    public Character getCorrespondingPrefix(Context e) {
-        if (!e.isFromGuild())
+    public Character getCorrespondingPrefix(boolean isFromGuild, Guild guild) {
+        if (isFromGuild)
             return DEFAULT_PREFIX;
-        long id = e.getGuild().getIdLong();
+        long id = guild.getIdLong();
         char character = prefixMap.get(id);
         return character == prefixMap.getNoEntryValue() ? DEFAULT_PREFIX : character;
 
     }
 
-    public TLongCharMap getPrefixMap() {
-        return prefixMap;
-    }
 }

@@ -552,6 +552,7 @@ public class GraphicUtils {
             VirtualParallel.handleInterrupt();
             BufferedImage read = ImageIO.read(is);
             if (read != null) {
+
                 CommandUtil.runLog((ChuuRunnable) () -> {
                     try (var output = new BufferedOutputStream(Files.newOutputStream(file))) {
                         ImageIO.write(read, "png", output);

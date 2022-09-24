@@ -1,6 +1,5 @@
 package core.commands;
 
-import com.google.common.util.concurrent.RateLimiter;
 import core.Chuu;
 import core.commands.abstracts.MyCommand;
 import core.music.listeners.VoiceListener;
@@ -9,9 +8,10 @@ import core.parsers.params.CommandParameters;
 import core.services.ChuuRunnable;
 import core.util.ChuuVirtualPool;
 import core.util.StringUtils;
-import net.dv8tion.jda.api.entities.Channel;
+import io.github.bucket4j.Bucket;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageType;
+import net.dv8tion.jda.api.entities.channel.Channel;
 import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.ReadyEvent;
 import net.dv8tion.jda.api.events.guild.GuildJoinEvent;
@@ -41,7 +41,6 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
-@SuppressWarnings("UnstableApiUsage")
 public class CustomInterfacedEventManager implements IEventManager {
 
     private static final ExecutorService reactionExecutor = ChuuVirtualPool.of("Reaction-handle-");
@@ -57,7 +56,7 @@ public class CustomInterfacedEventManager implements IEventManager {
     private AutoCompleteListener autoCompleteListener;
     private JoinLeaveListener joinLeaveListener;
 
-    public CustomInterfacedEventManager(int a) {
+    public CustomInterfacedEventManager() {
     }
 
     private void handleReaction(@Nonnull GenericEvent event) {
@@ -175,10 +174,9 @@ public class CustomInterfacedEventManager implements IEventManager {
     public void handle(@Nonnull GenericEvent event) {
         try {
             switch (event) {
-                case CommandAutoCompleteInteractionEvent cacie ->
+                case CommandAutoCompleteInteractionEvent ignored ->
                         autocompleteExecutor.submit((ChuuRunnable) () -> autoCompleteListener.onEvent(event));
-                case MessageReceivedEvent mes ->
-                        handleMessageReceived(mes); // Delegate running in pool if its a valid message
+                case MessageReceivedEvent mes -> handleMessageReceived(mes); // Delegate running in pool if its a valid message
                 case UserContextInteractionEvent ucie -> handleUserCommand(ucie);
                 case SlashCommandInteractionEvent sce -> handleSlashCommand(sce);
                 case ReadyEvent re -> {
@@ -270,47 +268,58 @@ public class CustomInterfacedEventManager implements IEventManager {
         if (mes.getAuthor().isBot()) {
             return;
         }
-        ContextMessageReceived ctx = new ContextMessageReceived(mes);
-        Character correspondingPrefix = Chuu.prefixService.getCorrespondingPrefix(ctx);
+        Character correspondingPrefix = Chuu.prefixService.getCorrespondingPrefix(mes.isFromGuild(), mes.getGuild());
         String contentRaw = mes.getMessage().getContentRaw();
         int length = contentRaw.length();
         if ((length <= 1)) {
             return;
         }
+        boolean pingPrefix = false;
         if (mes.isFromGuild() && contentRaw.charAt(0) != correspondingPrefix) {
             if (mes.getMessage().getMentions().isMentioned(mes.getJDA().getSelfUser(),
                     Message.MentionType.USER)
                 && mes.getMessage().getType() != MessageType.INLINE_REPLY) {
                 if (mes.getMessage().getContentRaw().contains("prefix")) {
                     mes.getChannel().sendMessage("My prefix is: `" + correspondingPrefix + "`").queue();
+                } else {
+                    contentRaw = Chuu.PING_REGEX.matcher(contentRaw).replaceAll("");
+                    pingPrefix = true;
                 }
+            } else {
+                return;
             }
-            return;
         }
-        Map<Long, RateLimiter> ratelimited = Chuu.getRatelimited();
-        RateLimiter rateLimiter = ratelimited.get(mes.getAuthor().getIdLong());
+        Map<Long, Bucket> ratelimited = Chuu.getRatelimited();
+        Bucket rateLimiter = ratelimited.get(mes.getAuthor().getIdLong());
         if (rateLimiter != null) {
-            if (!rateLimiter.tryAcquire()) {
+            if (!rateLimiter.tryConsume(1)) {
                 mes.getChannel().sendMessage("You have been rate limited, try again later.").queue();
                 return;
             }
         }
-        String substring = StringUtils.WORD_SPLITTER.split(CharBuffer.wrap(contentRaw, 1, length))[0];
-        MyCommand<?> myCommand = commandListeners.get(substring.toLowerCase());
+        CharSequence substring;
+        if (pingPrefix) {
+            substring = contentRaw;
+        } else {
+            substring = CharBuffer.wrap(contentRaw, 1, length);
+        }
+        String command = StringUtils.WORD_SPLITTER.split(substring)[0];
+        MyCommand<?> myCommand = commandListeners.get(command.toLowerCase());
         if (myCommand != null) {
+            ContextMessageReceived ctx = new ContextMessageReceived(mes, pingPrefix);
             if (!Chuu.getMessageDisablingService().isMessageAllowed(myCommand, ctx)) {
                 if (Chuu.getMessageDisablingService().doResponse(ctx))
                     mes.getChannel().sendMessage("This command is disabled in this channel.").queue();
                 return;
             }
-            myCommand.onMessageReceived(mes);
+            myCommand.onMessageReceived(ctx);
         }
     }
 
     @Nonnull
     @Override
     public List<Object> getRegisteredListeners() {
-        return Stream.<Object>concat(
+        return Stream.concat(
                 commandListeners.values().stream().distinct(),
                 Stream.concat(
                         reactionaries.keySet().stream(),
