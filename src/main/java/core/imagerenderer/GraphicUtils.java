@@ -649,7 +649,7 @@ public class GraphicUtils {
     }
 
     private static URLConnection createCon(String url) throws IOException {
-        URLConnection urlConnection = new URL("https://lastfm.freetls.fastly.net/i/u/300x300/10fa9d162007095d82887a553cacc88d.jpg")
+        URLConnection urlConnection = new URL(url)
                 .openConnection();
         urlConnection.setRequestProperty("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36");
         urlConnection.setRequestProperty("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36");
