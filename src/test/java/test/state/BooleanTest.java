@@ -19,7 +19,7 @@ public class BooleanTest {
                     boolean onlySecond = i % 2 == 0;
                     boolean skipFirst = j % 2 == 0;
                     Boolean apply = booleaner.apply(k, onlySecond, skipFirst);
-                    System.out.println(String.format("Rank %d , Only Second %s , SkipFirst %s -> %s", k, onlySecond, skipFirst, apply));
+                    System.out.printf("Rank %d , Only Second %s , SkipFirst %s -> %s%n", k, onlySecond, skipFirst, apply);
                 }
             }
         }

@@ -15,9 +15,9 @@ import dao.entities.Album;
 import dao.entities.Metadata;
 import jdk.incubator.concurrent.StructuredTaskScope;
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
@@ -31,7 +31,7 @@ public record ScrabbleProcessor(AlbumFinder albumFinder) {
         return processed.get(song.getIdentifier(), (s) -> newScrobble(metadata, song));
     }
 
-    public TrackScrobble setMetadata(@Nonnull Metadata metadata, @Nonnull AudioTrack song, long current, long total) {
+    public TrackScrobble setMetadata(@NotNull Metadata metadata, @NotNull AudioTrack song, long current, long total) {
         TrackScrobble prev = processed.getIfPresent(song.getIdentifier());
         assert prev != null;
 
@@ -42,7 +42,7 @@ public record ScrabbleProcessor(AlbumFinder albumFinder) {
         return b;
     }
 
-    public TrackScrobble setMetadata(@Nonnull Metadata metadata, @Nonnull AudioTrack song, UUID previous) {
+    public TrackScrobble setMetadata(@NotNull Metadata metadata, @NotNull AudioTrack song, UUID previous) {
         TrackScrobble newMapping = newScrobble(metadata, song);
         newMapping = new TrackScrobble(newMapping.scrobble(), newMapping.processeds(), song.getIdentifier(), previous);
         processed.put(song.getIdentifier(), newMapping);

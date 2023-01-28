@@ -2,8 +2,8 @@ package dao.entities;
 
 
 import org.apache.commons.text.WordUtils;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.util.Collection;
 import java.util.EnumSet;
 import java.util.stream.Collectors;
@@ -70,7 +70,7 @@ public enum NPMode {
      * @param modes The array of modes of which to form into the raw long representation.
      * @return Unsigned long representing the provided mode.
      */
-    public static long getRaw(@Nonnull NPMode... modes) {
+    public static long getRaw(@NotNull NPMode... modes) {
         long raw = 0;
         for (NPMode perm : modes) {
             if (perm != UNKNOWN)
@@ -86,7 +86,7 @@ public enum NPMode {
      * @param modeRaw The raw {@code long} representation of modes.
      * @return Possibly-empty EnumSet of {@link  NPMode modes}.
      */
-    @Nonnull
+    @NotNull
     public static EnumSet<NPMode> getNPMode(long modeRaw) {
         if (modeRaw == 0L)
             return EnumSet.noneOf(NPMode.class);

@@ -1,6 +1,7 @@
 package dao.entities;
 
-import javax.annotation.Nonnull;
+import org.jetbrains.annotations.NotNull;
+
 import java.util.EnumSet;
 import java.util.TimeZone;
 
@@ -93,11 +94,11 @@ public class LastFMData {
 
     }
 
-    public static LastFMData ofUser(@Nonnull String user) {
+    public static LastFMData ofUser(@NotNull String user) {
         return ofUser(user, -1);
     }
 
-    public static LastFMData ofUser(@Nonnull String user, long id) {
+    public static LastFMData ofUser(@NotNull String user, long id) {
         return new LastFMData(user, id, Role.USER, false, false, WhoKnowsDisplayMode.IMAGE, dao.entities.ChartMode.IMAGE, RemainingImagesMode.IMAGE, 5, 5, PrivacyMode.NORMAL, false, false, true, TimeZone.getDefault(), null, null, true, EmbedColor.defaultColor(), false, 0, ChartOptions.defaultMode(), EnumSet.noneOf(WKMode.class));
     }
 

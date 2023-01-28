@@ -15,9 +15,8 @@ import core.util.ServiceView;
 import dao.entities.*;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.EmbedBuilder;
-import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.List;
@@ -64,11 +63,11 @@ public class RandomLinkDetailsCommand extends ConcurrentCommand<RandomUrlParamet
     }
 
     @Override
-    public void onCommand(Context e, @Nonnull RandomUrlParameters params) {
+    public void onCommand(Context e, @NotNull RandomUrlParameters params) {
 
 
         String url = params.getUrl();
-        if (StringUtils.isEmpty(url)) {
+        if (url == null || url.isBlank()) {
             RandomUrlEntity randomUrl;
             if (params.hasOptional("server") && e.isFromGuild()) {
                 randomUrl = db.getRandomUrlFromServer(e.getGuild().getIdLong(), null);

@@ -17,18 +17,21 @@ import dao.exceptions.ChuuServiceException;
 import net.dv8tion.jda.api.entities.Message;
 import org.apache.commons.lang3.tuple.Pair;
 import org.imgscalr.Scalr;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nullable;
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.font.LineBreakMeasurer;
 import java.awt.font.TextLayout;
 import java.awt.image.BufferedImage;
+import java.awt.image.ColorModel;
+import java.awt.image.WritableRaster;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.net.URLConnection;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -547,15 +550,23 @@ public class GraphicUtils {
         }
     }
 
+    public static BufferedImage deepCopy(BufferedImage bi) {
+        ColorModel cm = bi.getColorModel();
+        boolean isAlphaPremultiplied = cm.isAlphaPremultiplied();
+        WritableRaster raster = bi.copyData(bi.getRaster().createCompatibleWritableRaster());
+        return new BufferedImage(cm, raster, isAlphaPremultiplied, null);
+    }
+
     private static BufferedImage downloadImage(String url, Path file) {
-        try (var is = new BufferedInputStream(new URL(url).openStream())) {
+        try (var is = new BufferedInputStream(createCon(url).getInputStream())) {
+
             VirtualParallel.handleInterrupt();
             BufferedImage read = ImageIO.read(is);
             if (read != null) {
-
+                BufferedImage copied = deepCopy(read);
                 CommandUtil.runLog((ChuuRunnable) () -> {
                     try (var output = new BufferedOutputStream(Files.newOutputStream(file))) {
-                        ImageIO.write(read, "png", output);
+                        ImageIO.write(copied, "png", output);
                     }
                 });
             }
@@ -635,6 +646,21 @@ public class GraphicUtils {
         }
         VirtualParallel.handleInterrupt();
         return cover;
+    }
+
+    private static URLConnection createCon(String url) throws IOException {
+        URLConnection urlConnection = new URL("https://lastfm.freetls.fastly.net/i/u/300x300/10fa9d162007095d82887a553cacc88d.jpg")
+                .openConnection();
+        urlConnection.setRequestProperty("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36");
+        urlConnection.setRequestProperty("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36");
+        urlConnection.setRequestProperty("sec-ch-ua", "Not_A Brand\";v=\"99\", \"Google Chrome\";v=\"109\", \"Chromium\";v=\"109\"");
+        urlConnection.setRequestProperty("sec-ch-ua-mobile", "?0");
+        urlConnection.setRequestProperty("sec-ch-ua-platform", "\" Windows\"");
+        urlConnection.setRequestProperty("sec-fetch-dest", "document");
+        urlConnection.setRequestProperty("sec-fetch-mode", "navigate");
+        urlConnection.setRequestProperty("sec-fetch-site", "none");
+        urlConnection.setRequestProperty("sec-fetch-user", "?1");
+        return urlConnection;
     }
 }
 

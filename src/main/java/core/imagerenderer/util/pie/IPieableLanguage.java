@@ -23,7 +23,7 @@ public class IPieableLanguage extends OptionalPie implements IPieableMap<Languag
         AtomicInteger counter = new AtomicInteger(0);
         AtomicInteger acceptedCount = new AtomicInteger(0);
         fillMappedSeries(chart,
-                Language::getName,
+                Language::name,
                 Long::intValue,
                 x -> {
                     if (acceptedCount.get() < 10 || (counter.get() < breakpoint && acceptedCount.get() < 15)) {
@@ -40,6 +40,6 @@ public class IPieableLanguage extends OptionalPie implements IPieableMap<Languag
 
     @Override
     public List<StringFrequency> obtainFrequencies(Map<Language, Long> data, CommandParameters params) {
-        return data.entrySet().stream().map(t -> new StringFrequency(t.getKey().getName(), Math.toIntExact(t.getValue()))).toList();
+        return data.entrySet().stream().map(t -> new StringFrequency(t.getKey().name(), Math.toIntExact(t.getValue()))).toList();
     }
 }

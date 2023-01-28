@@ -2,7 +2,6 @@ package core.parsers;
 
 import core.commands.Context;
 import core.commands.InteracionReceived;
-import core.exceptions.LastFmException;
 import core.parsers.exceptions.InvalidChartValuesException;
 import core.parsers.interactions.InteractionAux;
 import core.parsers.params.ChartParameters;
@@ -28,7 +27,7 @@ public class ChartNormalParser extends ChartableParser<ChartParameters> {
     }
 
     @Override
-    public ChartParameters parseSlashLogic(InteracionReceived<? extends CommandInteraction> ctx) throws LastFmException, InstanceNotFoundException {
+    public ChartParameters parseSlashLogic(InteracionReceived<? extends CommandInteraction> ctx) throws InstanceNotFoundException {
         CommandInteraction e = ctx.e();
         TimeFrameEnum timeFrameEnum = InteractionAux.parseTimeFrame(e, this.defaultTFE);
         User user = InteractionAux.parseUser(e);

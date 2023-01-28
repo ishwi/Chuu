@@ -38,7 +38,7 @@ public class TestResources implements BeforeAllCallback {
     public static long developerId;
     public static String commonArtist;
     public static String testerJdaUsername;
-    private static CustomInterfacedEventManager manager;
+    public static CustomInterfacedEventManager manager;
     private final AtomicBoolean started = new AtomicBoolean();
 
     private TestResources() {
@@ -115,6 +115,7 @@ public class TestResources implements BeforeAllCallback {
             ChuuDatasource chuuDatasource = new ChuuDatasource();
             dao = new ChuuService(chuuDatasource);
             manager = new CustomInterfacedEventManager();
+            Chuu.customManager = manager;
             ServiceView db = new ServiceView(dao, dao, dao);
             Chuu.initFields();
             Chuu.addAll(db, manager::register);

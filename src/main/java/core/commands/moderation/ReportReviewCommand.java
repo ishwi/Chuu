@@ -28,8 +28,8 @@ import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -48,13 +48,13 @@ public class ReportReviewCommand extends ConcurrentCommand<CommandParameters> {
 
     private final TriFunction<JDA, Integer, Supplier<Integer>, BiFunction<ReportEntity, EmbedBuilder, EmbedBuilder>> builder = (jda, integer, pos) -> (reportEntity, embedBuilder) ->
             embedBuilder.clearFields()
-                    .addField("Author", CommandUtil.getGlobalUsername(reportEntity.getWhoGotReported()), true)
-                    .addField("#Times user got reported:", String.valueOf(reportEntity.getUserTotalReports()), true)
-                    .addField("Image score:", String.valueOf(reportEntity.getCurrentScore()), false)
-                    .addField("Number of reports on this image:", String.valueOf(reportEntity.getReportCount()), true)
-                    .addField("Artist:", String.format("[%s](%s)", CommandUtil.escapeMarkdown(reportEntity.getArtistName()), LinkUtils.getLastFmArtistUrl(reportEntity.getArtistName())), false)
+                    .addField("Author", CommandUtil.getGlobalUsername(reportEntity.whoGotReported()), true)
+                    .addField("#Times user got reported:", String.valueOf(reportEntity.userTotalReports()), true)
+                    .addField("Image score:", String.valueOf(reportEntity.currentScore()), false)
+                    .addField("Number of reports on this image:", String.valueOf(reportEntity.reportCount()), true)
+                    .addField("Artist:", String.format("[%s](%s)", CommandUtil.escapeMarkdown(reportEntity.artistName()), LinkUtils.getLastFmArtistUrl(reportEntity.artistName())), false)
                     .setFooter(String.format("%d/%d%nUse 👩🏾‍⚖️ to remove this image", pos.get() + 1, integer))
-                    .setImage(CommandUtil.noImageUrl(reportEntity.getUrl()))
+                    .setImage(CommandUtil.noImageUrl(reportEntity.url()))
                     .setColor(CommandUtil.pastelColor());
 
     public ReportReviewCommand(ServiceView dao) {
@@ -87,7 +87,7 @@ public class ReportReviewCommand extends ConcurrentCommand<CommandParameters> {
     }
 
     @Override
-    public void onCommand(Context e, @Nonnull CommandParameters params) throws InstanceNotFoundException {
+    public void onCommand(Context e, @NotNull CommandParameters params) throws InstanceNotFoundException {
         long idLong = e.getAuthor().getIdLong();
         LastFMData lastFMData = db.findLastFMData(idLong);
         if (lastFMData.getRole() != Role.ADMIN) {
@@ -108,27 +108,27 @@ public class ReportReviewCommand extends ConcurrentCommand<CommandParameters> {
         if (nextReport == null) {
             maxId = Long.MAX_VALUE;
         } else {
-            maxId = nextReport.getReportId();
+            maxId = nextReport.reportId();
         }
         Set<Long> skippedIds = new HashSet<>();
         try {
             int totalReports = db.getReportCount();
             HashMap<String, Reaction<ReportEntity, ButtonInteractionEvent, ButtonResult>> actionMap = new HashMap<>();
             actionMap.put(DELETE, (reportEntity, r) -> {
-                db.removeReportedImage(reportEntity.getImageReported(), reportEntity.getWhoGotReported(), idLong);
+                db.removeReportedImage(reportEntity.imageReported(), reportEntity.whoGotReported(), idLong);
                 statBan.getAndIncrement();
                 navigationCounter.incrementAndGet();
                 return ButtonResult.defaultResponse;
 
             });
             actionMap.put(ACCEPT, (a, r) -> {
-                db.ignoreReportedImage(a.getImageReported());
+                db.ignoreReportedImage(a.imageReported());
                 statIgnore.getAndIncrement();
                 navigationCounter.incrementAndGet();
                 return ButtonResult.defaultResponse;
             });
             actionMap.put(RIGHT_ARROW, (a, r) -> {
-                skippedIds.add(a.getImageReported());
+                skippedIds.add(a.imageReported());
                 navigationCounter.incrementAndGet();
                 return ButtonResult.defaultResponse;
             });
@@ -139,10 +139,10 @@ public class ReportReviewCommand extends ConcurrentCommand<CommandParameters> {
                     boolean banned = db.strikeExisting(a);
                     if (banned) {
                         TextChannel textChannelById = Chuu.getShardManager().getTextChannelById(Chuu.channel2Id);
-                        db.removeQueuedPictures(a.getWhoGotReported());
+                        db.removeQueuedPictures(a.whoGotReported());
                         if (textChannelById != null)
                             textChannelById.sendMessageEmbeds(new ChuuEmbedBuilder(e).setTitle("Banned user for adding pics")
-                                    .setDescription("User: **%s**\n".formatted(User.fromId(a.getWhoGotReported()).getAsMention())).build()).queue();
+                                    .setDescription("User: **%s**\n".formatted(User.fromId(a.whoGotReported()).getAsMention())).build()).queue();
                     }
                 });
                 return ButtonResult.defaultResponse;

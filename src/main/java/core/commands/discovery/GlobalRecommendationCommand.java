@@ -20,8 +20,8 @@ import dao.entities.ScrobbledArtist;
 import dao.exceptions.InstanceNotFoundException;
 import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -69,7 +69,7 @@ public class GlobalRecommendationCommand extends ConcurrentCommand<NumberParamet
     }
 
     @Override
-    public void onCommand(Context e, @Nonnull NumberParameters<ChuuDataParams> params) throws InstanceNotFoundException {
+    public void onCommand(Context e, @NotNull NumberParameters<ChuuDataParams> params) {
 
 
         long firstDiscordID;

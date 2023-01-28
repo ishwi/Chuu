@@ -32,7 +32,6 @@ public class RetriableLoader {
             @Override
             public void playlistLoaded(AudioPlaylist playlist) {
                 AudioTrack track;
-                int counter = 0;
                 if (ref != null) {
                     ref.compareAndExchange(null, playlist);
                 }
@@ -49,7 +48,7 @@ public class RetriableLoader {
                     } else {
                         track = tracks.get(0);
                     }
-                } while (previousIdentifiers.contains(track.getIdentifier()) && !tracks.isEmpty());
+                } while (previousIdentifiers.contains(track.getIdentifier()));
 
 
                 trackLoaded(track);
@@ -65,7 +64,7 @@ public class RetriableLoader {
                 if (attempts.get() >= 3) {
                     future.obtrudeException(new FriendlyException("", FriendlyException.Severity.COMMON, null));
                 } else {
-                    int i = attempts.incrementAndGet();
+                    attempts.incrementAndGet();
                     retrier.apply(context, attempts)
                             .thenAccept(future::complete);
                 }

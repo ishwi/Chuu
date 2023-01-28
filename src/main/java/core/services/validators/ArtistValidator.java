@@ -9,33 +9,16 @@ import core.commands.Context;
 import core.commands.utils.CommandUtil;
 import core.exceptions.LastFmException;
 import dao.ChuuService;
-import dao.entities.GuildProperties;
 import dao.entities.ScrobbledArtist;
 import dao.entities.UpdaterStatus;
 import dao.exceptions.InstanceNotFoundException;
-
-import java.util.function.Supplier;
 
 public record ArtistValidator(ChuuService dao, ConcurrentLastFM lastFM, Context context) {
     private static final DiscogsApi discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
     private static final Spotify spotifyApi = SpotifySingleton.getInstance();
 
     private String getUrl(long artistId, String replacement) {
-        Supplier<String> filler = () -> dao.findArtistUrlAbove(artistId, 10).orElse(replacement);
-        if (context.isFromGuild()) {
-            try {
-                long guildId = context.getGuild().getIdLong();
-                GuildProperties guildProperties = dao.getGuildProperties(guildId);
-                if (true) {
-                    // TODO Server own images
-                    return filler.get();
-//                            dao.getServerArtistUrl(artistId, guildId, 10);
-                }
-            } catch (InstanceNotFoundException e) {
-                return filler.get();
-            }
-        }
-        return filler.get();
+        return dao.findArtistUrlAbove(artistId, 10).orElse(replacement);
     }
 
     public ScrobbledArtist validate(String artist) throws LastFmException {

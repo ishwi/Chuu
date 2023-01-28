@@ -1,6 +1,6 @@
 import org.apache.commons.collections4.Bag;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Set;
@@ -62,7 +62,7 @@ class UniqueBag<T> implements Bag<T> {
 
 
     @Override
-    public boolean containsAll(@Nonnull Collection<?> c) {
+    public boolean containsAll(@NotNull Collection<?> c) {
         return c.stream().map(this::getT).collect(
                 Collectors.collectingAndThen(
                         Collectors.groupingBy(Function.identity(), Collectors.counting()),
@@ -72,13 +72,13 @@ class UniqueBag<T> implements Bag<T> {
     }
 
     @Override
-    public boolean addAll(@Nonnull Collection<? extends T> c) {
+    public boolean addAll(@NotNull Collection<? extends T> c) {
         c.forEach(this::add);
         return c.size() > 0;
     }
 
     @Override
-    public boolean removeAll(@Nonnull Collection<?> c) {
+    public boolean removeAll(@NotNull Collection<?> c) {
         int size = c.size();
         c.forEach(this::remove);
         return c.size() != size;
@@ -86,7 +86,7 @@ class UniqueBag<T> implements Bag<T> {
     }
 
     @Override
-    public boolean retainAll(@Nonnull Collection<?> c) {
+    public boolean retainAll(@NotNull Collection<?> c) {
         return this.inner.keySet().retainAll(c);
     }
 
@@ -115,21 +115,21 @@ class UniqueBag<T> implements Bag<T> {
         return inner.containsKey(getT(o));
     }
 
-    @Nonnull
+    @NotNull
     @Override
     public Iterator<T> iterator() {
         return inner.keySet().iterator();
     }
 
-    @Nonnull
+    @NotNull
     @Override
     public Object[] toArray() {
         return this.inner.keySet().toArray();
     }
 
-    @Nonnull
+    @NotNull
     @Override
-    public <T1> T1[] toArray(@Nonnull T1[] a) {
+    public <T1> T1[] toArray(@NotNull T1[] a) {
         throw new UnsupportedOperationException();
     }
 

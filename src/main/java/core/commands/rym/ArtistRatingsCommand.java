@@ -17,8 +17,8 @@ import dao.entities.Rating;
 import dao.entities.ScrobbledArtist;
 import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.Comparator;
@@ -59,13 +59,13 @@ public class ArtistRatingsCommand extends ConcurrentCommand<ArtistParameters> {
     }
 
     @Override
-    public void onCommand(Context e, @Nonnull ArtistParameters params) throws LastFmException {
+    public void onCommand(Context e, @NotNull ArtistParameters params) throws LastFmException {
 
 
         ScrobbledArtist sA = new ArtistValidator(db, lastFM, e).validate(params.getArtist(), !params.isNoredirect());
         String artist = sA.getArtist();
         List<AlbumRatings> rating = db.getArtistRatings(sA.getArtistId(), e.getGuild().getIdLong()).stream()
-                .sorted(Comparator.comparingDouble((AlbumRatings y) -> y.userRatings().stream().filter(Rating::isSameGuild).mapToLong(Rating::getRating).average().orElse(0) * y.userRatings().size()).reversed()).toList();
+                .sorted(Comparator.comparingDouble((AlbumRatings y) -> y.userRatings().stream().filter(Rating::isSameGuild).mapToLong(Rating::rating).average().orElse(0) * y.userRatings().size()).reversed()).toList();
         EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e);
 
 
@@ -84,20 +84,20 @@ public class ArtistRatingsCommand extends ConcurrentCommand<ArtistParameters> {
 
 
         Function<AlbumRatings, String> mapper = ratings -> {
-            long userScore = ratings.userRatings().stream().filter(x -> x.getDiscordId() == params.getLastFMData().getDiscordId()).mapToLong(Rating::getRating).sum();
+            long userScore = ratings.userRatings().stream().filter(x -> x.discordId() == params.getLastFMData().getDiscordId()).mapToLong(Rating::rating).sum();
             List<Rating> serverList = ratings.userRatings().stream().filter(Rating::isSameGuild).toList();
             List<Rating> globalList = ratings.userRatings();
-            OptionalDouble serverAverage = serverList.stream().mapToDouble(x -> x.getRating() / 2f).average();
-            OptionalDouble globalAverage = globalList.stream().mapToDouble(x -> x.getRating() / 2f).average();
+            OptionalDouble serverAverage = serverList.stream().mapToDouble(x -> x.rating() / 2f).average();
+            OptionalDouble globalAverage = globalList.stream().mapToDouble(x -> x.rating() / 2f).average();
             String sAverage = serverAverage.isPresent() ? average.format(serverAverage.getAsDouble()) : "~~No Ratings~~";
             String gAverage = globalAverage.isPresent() ? average.format(globalAverage.getAsDouble()) : "~~No Ratings~~";
             String userString = userScore != 0 ? formatter.format((float) userScore / 2f) : "~~Unrated~~";
             String format = String.format("Your rating: **%s** \nServer Average: **%s** | # in server **%d**\n Global Average **%s** | # in total **%d**", userString, sAverage, serverList.size(), gAverage, globalList.size());
             String s = ratings.releaseYear() != null ? " \\(" + ratings.releaseYear() + "\\)" : "";
             return ". **[" + ratings.albumName() + s +
-                    "](" + LinkUtils.getLastFmArtistAlbumUrl(artist, ratings.albumName()) +
-                    ")** - " + format +
-                    "\n\n";
+                   "](" + LinkUtils.getLastFmArtistAlbumUrl(artist, ratings.albumName()) +
+                   ")** - " + format +
+                   "\n\n";
         };
 
         new PaginatorBuilder<>(e, embedBuilder, rating).memoized(mapper).pageSize(5).build().queue();

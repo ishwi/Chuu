@@ -95,8 +95,4 @@ public class ReturnNowPlaying {
         this.generateString = generateString;
     }
 
-    @Override
-    public String toString() {
-        return super.toString();
-    }
 }

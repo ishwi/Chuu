@@ -15,8 +15,8 @@ import dao.entities.LbEntry;
 import dao.utils.Order;
 import net.dv8tion.jda.api.EmbedBuilder;
 import org.apache.commons.text.WordUtils;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Locale;
@@ -75,7 +75,7 @@ public class WhoAudioCommand extends LeaderboardCommand<EnumParameters<AudioStat
     }
 
     @Override
-    public void onCommand(Context e, @Nonnull EnumParameters<AudioStats> params) {
+    public void onCommand(Context e, @NotNull EnumParameters<AudioStats> params) {
         if (params.getElement() == null) {
             EmbedBuilder eb = new ChuuEmbedBuilder(e).setAuthor("Audio leadearboard help");
             EnumSet<AudioStats> stats = EnumSet.allOf(AudioStats.class);

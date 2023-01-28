@@ -15,8 +15,8 @@ import dao.entities.LastFMData;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.awt.*;
 import java.util.Collections;
 import java.util.List;
@@ -55,7 +55,7 @@ public class UnsetCommand extends ConcurrentCommand<CommandParameters> {
     }
 
     @Override
-    public void onCommand(Context e, @Nonnull CommandParameters params) throws InstanceNotFoundException {
+    public void onCommand(Context e, @NotNull CommandParameters params) throws InstanceNotFoundException {
         long idLong = e.getAuthor().getIdLong();
         // Check if it exists
         LastFMData data = db.findLastFMData(idLong);

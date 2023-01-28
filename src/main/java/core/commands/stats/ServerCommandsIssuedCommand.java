@@ -6,17 +6,15 @@ import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.commands.utils.PrivacyUtils;
-import core.exceptions.LastFmException;
 import core.otherlisteners.util.PaginatorBuilder;
 import core.parsers.NoOpParser;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
 import core.util.ServiceView;
 import dao.entities.UserCount;
-import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.EmbedBuilder;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.function.Function;
 
@@ -59,7 +57,7 @@ public class ServerCommandsIssuedCommand extends ConcurrentCommand<CommandParame
 
 
     @Override
-    public void onCommand(Context e, @Nonnull CommandParameters params) throws LastFmException, InstanceNotFoundException {
+    public void onCommand(Context e, @NotNull CommandParameters params) {
         List<UserCount> userCommands = db.getServerCommandsLb(e.getGuild().getIdLong());
 
         if (userCommands.isEmpty()) {
@@ -68,8 +66,8 @@ public class ServerCommandsIssuedCommand extends ConcurrentCommand<CommandParame
         }
 
         Function<UserCount, String> toMemoize = (userListened) -> ". [" + CommandUtil.getUserInfoEscaped(e, userListened.discordId()).username() + "]" +
-                "(" + PrivacyUtils.getLastFmUser(userListened.lastfmId()) + ")" +
-                ": " + userListened.count() + " " + CommandUtil.singlePlural(userListened.count(), "command", "commands") + "\n";
+                                                                  "(" + PrivacyUtils.getLastFmUser(userListened.lastfmId()) + ")" +
+                                                                  ": " + userListened.count() + " " + CommandUtil.singlePlural(userListened.count(), "command", "commands") + "\n";
 
 
         EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e)

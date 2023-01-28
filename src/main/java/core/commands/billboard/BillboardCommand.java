@@ -24,8 +24,8 @@ import dao.entities.*;
 import dao.exceptions.InstanceNotFoundException;
 import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.awt.image.BufferedImage;
 import java.sql.Date;
 import java.time.*;
@@ -60,8 +60,7 @@ public class BillboardCommand extends ConcurrentCommand<NumberParameters<Command
 
         Map<Integer, String> map = new HashMap<>(2);
         map.put(LIMIT_ERROR, "The number introduced must be between 1 and 100");
-        String s = "You can also introduce a number to vary the number of tracks shown in the image" +
-                "defaults to 5";
+        String s = "You can also introduce a number to vary the number of tracks shown in the image. Defaults to 5";
         NumberParser<CommandParameters, NoOpParser> extraParser = new NumberParser<>(NoOpParser.INSTANCE,
                 5L,
                 100L,
@@ -105,7 +104,7 @@ public class BillboardCommand extends ConcurrentCommand<NumberParameters<Command
     }
 
     @Override
-    public void onCommand(Context e, @Nonnull NumberParameters<CommandParameters> params) {
+    public void onCommand(Context e, @NotNull NumberParameters<CommandParameters> params) {
 
 
         long guildId = e.getGuild().getIdLong();

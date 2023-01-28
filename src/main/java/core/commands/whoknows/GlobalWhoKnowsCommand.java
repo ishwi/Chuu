@@ -71,13 +71,13 @@ public class GlobalWhoKnowsCommand extends GlobalBaseWhoKnowCommand<ArtistParame
         ScrobbledArtist sA = ap.getScrobbledArtist();
         boolean showBotted = CommandUtil.showBottedAccounts(ap.getLastFMData(), ap, db);
         List<GlobalCrown> globals = db.getGlobalArtistRanking(sA.getArtistId(), showBotted, ap.getLastFMData().getDiscordId());
-        Optional<GlobalCrown> yourPosition = globals.stream().filter(x -> x.getDiscordId() == ap.getLastFMData().getDiscordId()).findFirst();
+        Optional<GlobalCrown> yourPosition = globals.stream().filter(x -> x.discordId() == ap.getLastFMData().getDiscordId()).findFirst();
         return yourPosition.map(gc -> new Rank<>(
-                new GlobalReturnNowPlaying(gc.getDiscordId(),
-                        gc.getLastfmID(),
+                new GlobalReturnNowPlaying(gc.discordId(),
+                        gc.lastfmID(),
                         ap.getScrobbledArtist().getArtist(),
-                        gc.getPlaycount(),
-                        ap.getLastFMData().getPrivacyMode()), gc.getRanking() - 1));
+                        gc.playcount(),
+                        ap.getLastFMData().getPrivacyMode()), gc.ranking() - 1));
 
     }
 

@@ -20,8 +20,8 @@ import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.SelfUser;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -73,7 +73,7 @@ public class TopCombosCommand extends ConcurrentCommand<NumberParameters<Command
     }
 
     @Override
-    public void onCommand(Context e, @Nonnull NumberParameters<CommandParameters> params) {
+    public void onCommand(Context e, @NotNull NumberParameters<CommandParameters> params) {
 
         Long author = e.getAuthor().getIdLong();
 

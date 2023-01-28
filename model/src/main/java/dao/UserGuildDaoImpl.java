@@ -8,9 +8,9 @@ import org.apache.commons.collections4.MultiValuedMap;
 import org.apache.commons.collections4.multimap.ArrayListValuedHashMap;
 import org.apache.commons.collections4.multimap.HashSetValuedHashMap;
 import org.apache.commons.lang3.tuple.Pair;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nonnull;
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -312,7 +312,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
         }
     }
 
-    @Nonnull
+    @NotNull
     private List<UsersWrapper> getUsersWrappers(PreparedStatement preparedStatement) throws SQLException {
         ResultSet resultSet = preparedStatement.executeQuery();
         List<UsersWrapper> returnList = new ArrayList<>();
@@ -329,7 +329,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
         return returnList;
     }
 
-    @Nonnull
+    @NotNull
     private List<UsersWrapper> getUsersWrappersTimestamp(PreparedStatement preparedStatement) throws SQLException {
         ResultSet resultSet = preparedStatement.executeQuery();
         List<UsersWrapper> returnList = new ArrayList<>();
@@ -1842,7 +1842,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
         return lastFMData;
     }
 
-    @Nonnull
+    @NotNull
     private Set<Long> getIdList(Connection connection, String queryString) {
         Set<Long> returnSet = new HashSet<>();
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {

@@ -11,8 +11,8 @@ import core.util.ServiceView;
 import dao.entities.LastFMData;
 import dao.entities.PrivacyMode;
 import dao.exceptions.InstanceNotFoundException;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -48,7 +48,7 @@ public class PrivacySetterCommand extends ConcurrentCommand<EnumParameters<Priva
     }
 
     @Override
-    public void onCommand(Context e, @Nonnull EnumParameters<PrivacyMode> params) throws InstanceNotFoundException {
+    public void onCommand(Context e, @NotNull EnumParameters<PrivacyMode> params) throws InstanceNotFoundException {
 
 
         PrivacyMode element = params.getElement();

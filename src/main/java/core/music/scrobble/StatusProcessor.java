@@ -10,8 +10,8 @@ import core.util.VirtualParallel;
 import dao.ChuuService;
 import dao.entities.LastFMData;
 import net.dv8tion.jda.api.entities.ISnowflake;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
@@ -36,7 +36,7 @@ public class StatusProcessor {
     }
 
 
-    public void process(ScrobbleStatus next) throws Exception {
+    public void process(ScrobbleStatus next) {
         ScrobbleStates scrobbleStatus = next.scrobbleStatus();
         switch (scrobbleStatus) {
             case SCROBBLING -> processStart(next);
@@ -122,7 +122,7 @@ public class StatusProcessor {
         status.callback().accept(status, scrobbleableUsers);
     }
 
-    @Nonnull
+    @NotNull
     private Set<LastFMData> getUsers(ScrobbleStatus status) {
         var channel = status.voiceChannelSupplier().get();
         if (channel == null) return Collections.emptySet();

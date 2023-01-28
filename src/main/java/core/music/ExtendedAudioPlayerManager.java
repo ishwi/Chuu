@@ -48,10 +48,10 @@ import core.music.sources.spotify.SpotifyAudioSourceManager;
 import core.music.utils.ScrabbleProcessor;
 import core.music.utils.TrackContext;
 import core.music.utils.YoutubeSearchManagerSingleton;
+import org.jetbrains.annotations.Nullable;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import javax.annotation.Nullable;
 import java.io.*;
 import java.util.*;
 
@@ -150,7 +150,13 @@ public class ExtendedAudioPlayerManager extends DefaultAudioPlayerManager {
     }
 
     public BasicAudioPlaylist decodePlaylist(List<String> encodedTracks, String name) {
-        List<AudioTrack> decoded = encodedTracks.stream().map(this::decodeMaybeNullAudioTrack).toList();
+        List<AudioTrack> decoded = new ArrayList<>();
+        for (String encodedTrack : encodedTracks) {
+            AudioTrack audioTrack = decodeMaybeNullAudioTrack(encodedTrack);
+            if (audioTrack != null) {
+                decoded.add(audioTrack);
+            }
+        }
         return new BasicAudioPlaylist(name, decoded, decoded.get(0), false);
     }
 

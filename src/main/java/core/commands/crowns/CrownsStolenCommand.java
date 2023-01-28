@@ -14,8 +14,8 @@ import core.util.ServiceView;
 import dao.entities.DiscordUserDisplay;
 import dao.entities.StolenCrownWrapper;
 import net.dv8tion.jda.api.EmbedBuilder;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.util.Collections;
 import java.util.List;
 
@@ -60,7 +60,7 @@ public class CrownsStolenCommand extends ConcurrentCommand<NumberParameters<TwoU
     }
 
     @Override
-    public void onCommand(Context e, @Nonnull NumberParameters<TwoUsersParamaters> params) {
+    public void onCommand(Context e, @NotNull NumberParameters<TwoUsersParamaters> params) {
 
 
         TwoUsersParamaters innerParams = params.getInnerParams();
@@ -83,7 +83,7 @@ public class CrownsStolenCommand extends ConcurrentCommand<NumberParameters<TwoU
         StolenCrownWrapper resultWrapper = db
                 .getCrownsStolenBy(ogLastFmId, secondlastFmId, e.getGuild().getIdLong(), Math.toIntExact(threshold));
 
-        int rows = resultWrapper.getList().size();
+        int rows = resultWrapper.list().size();
 
         DiscordUserDisplay userInformation = CommandUtil.getUserInfoEscaped(e, ogDiscordID);
         String userName = userInformation.username();
@@ -102,9 +102,9 @@ public class CrownsStolenCommand extends ConcurrentCommand<NumberParameters<TwoU
         embedBuilder.setTitle(userName + "'s stolen crowns by " + userName2, CommandUtil
                         .getLastFmUser(ogLastFmId))
                 .setThumbnail(userUrl2)
-                .setFooter(CommandUtil.unescapedUser(userName2, resultWrapper.getQuriedId(), e) + " has stolen " + rows + " crowns!\n", null);
+                .setFooter(CommandUtil.unescapedUser(userName2, resultWrapper.quriedId(), e) + " has stolen " + rows + " crowns!\n", null);
 
-        new PaginatorBuilder<>(e, embedBuilder, resultWrapper.getList()).build().queue();
+        new PaginatorBuilder<>(e, embedBuilder, resultWrapper.list()).build().queue();
 
     }
 

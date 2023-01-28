@@ -2,13 +2,11 @@ package core.parsers;
 
 import core.commands.Context;
 import core.commands.InteracionReceived;
-import core.exceptions.LastFmException;
 import core.parsers.explanation.util.Explanation;
 import core.parsers.explanation.util.ExplanationLine;
 import core.parsers.explanation.util.ExplanationLineType;
 import core.parsers.params.EnumParameters;
 import core.util.Aliasable;
-import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.interactions.commands.CommandInteraction;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
@@ -34,12 +32,7 @@ public class EnumParser<T extends Enum<T>> extends Parser<EnumParameters<T>> {
     }
 
     @Override
-    protected void setUpErrorMessages() {
-
-    }
-
-    @Override
-    public EnumParameters<T> parseSlashLogic(InteracionReceived<? extends CommandInteraction> ctx) throws LastFmException, InstanceNotFoundException {
+    public EnumParameters<T> parseSlashLogic(InteracionReceived<? extends CommandInteraction> ctx) {
         Map<String, String> lineToValue = mapEnumToPosibilites();
         List<String> lines = lineToValue.keySet().stream().toList();
 
@@ -111,7 +104,7 @@ public class EnumParser<T extends Enum<T>> extends Parser<EnumParameters<T>> {
     @Override
     public List<Explanation> getUsages() {
         List<String> lines = EnumSet.allOf(clazz).stream().map(x -> x.name().replaceAll("_", "-").toLowerCase()).toList();
-        OptionData data = new OptionData(OptionType.STRING, "option", "One of the possible configuration values");
+        OptionData data = new OptionData(OptionType.STRING, "value", "One of the possible configuration values");
         if (!allowEmpty) {
             data.setRequired(true);
         }
@@ -119,7 +112,7 @@ public class EnumParser<T extends Enum<T>> extends Parser<EnumParameters<T>> {
             data.addChoice(line, line);
         }
 
-        Explanation option = () -> new ExplanationLine("option", "Option being one of: **" + String.join("**, **", lines) + "**", data);
+        Explanation option = () -> new ExplanationLine("value", "Option being one of: **" + String.join("**, **", lines) + "**", data);
         if (hasParams) {
             Explanation params = () -> new ExplanationLineType("parameter", "Parameter for option", OptionType.STRING);
             return List.of(option, params);

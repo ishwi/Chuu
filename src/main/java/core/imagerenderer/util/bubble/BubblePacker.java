@@ -2,7 +2,6 @@ package core.imagerenderer.util.bubble;
 
 
 import java.awt.*;
-import java.awt.image.BufferedImage;
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -115,7 +114,6 @@ public record BubblePacker(List<StringFrequency> frequencies, Supplier<Color> co
 
                 a = nearestNode;
                 b = nearestNode.next;
-                skip = false;
             }
             /* a corresponds to C_m, and b corresponds to C_n in the paper */
             place(a, b, c);
@@ -215,10 +213,6 @@ public record BubblePacker(List<StringFrequency> frequencies, Supplier<Color> co
         Bubble firstNode = toNode(frequencies);
         Bubble a = placeCircles(firstNode, bb_topright, bb_bottomleft);
         return printSVG(firstNode, a, bb_topright, bb_bottomleft);
-    }
-
-    public BufferedImage toImage() {
-        return null;
     }
 
     private Bubble map(StringFrequency circle, double max) {

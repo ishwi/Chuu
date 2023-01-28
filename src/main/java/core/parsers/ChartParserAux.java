@@ -8,8 +8,8 @@ import core.util.StringUtils;
 import dao.entities.NaturalTimeFrameEnum;
 import dao.entities.TimeFrameEnum;
 import org.apache.commons.lang3.tuple.Pair;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nullable;
 import java.awt.*;
 import java.time.Year;
 import java.util.List;

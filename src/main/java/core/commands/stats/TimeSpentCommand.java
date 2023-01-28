@@ -11,8 +11,8 @@ import core.parsers.params.TimeFrameParameters;
 import core.util.ServiceView;
 import dao.entities.SecondsTimeFrameCount;
 import dao.entities.TimeFrameEnum;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Stream;
@@ -43,7 +43,7 @@ public class TimeSpentCommand extends ConcurrentCommand<TimeFrameParameters> {
     }
 
     @Override
-    public void onCommand(Context e, @Nonnull TimeFrameParameters params) throws LastFmException {
+    public void onCommand(Context e, @NotNull TimeFrameParameters params) throws LastFmException {
 
         String username = params.getLastFMData().getName();
         long discordId = params.getLastFMData().getDiscordId();

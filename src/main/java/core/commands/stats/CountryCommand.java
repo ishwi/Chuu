@@ -24,8 +24,8 @@ import dao.musicbrainz.MusicBrainzService;
 import dao.musicbrainz.MusicBrainzServiceSingleton;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
@@ -83,7 +83,7 @@ public class CountryCommand extends ConcurrentCommand<NumberParameters<TimeFrame
     }
 
     @Override
-    public void onCommand(Context e, @Nonnull NumberParameters<TimeFrameParameters> params) throws LastFmException {
+    public void onCommand(Context e, @NotNull NumberParameters<TimeFrameParameters> params) throws LastFmException {
 
 
         Long palette = params.getExtraParam();
@@ -104,9 +104,6 @@ public class CountryCommand extends ConcurrentCommand<NumberParameters<TimeFrame
                         .filter(u -> u.getArtistMbid() != null && !u.getArtistMbid().isEmpty())
                         .map(t -> new ArtistInfo(t.getUrl(), t.getArtist(), t.getArtistMbid()))
                         .toList();
-                if (topArtists == null) {
-                    topArtists = fromDb.get();
-                }
             } else {
                 topArtists = fromDb.get();
             }

@@ -17,9 +17,9 @@ import dao.entities.DiscordUserDisplay;
 import dao.entities.LastFMData;
 import dao.entities.ScrobbledTrack;
 import net.dv8tion.jda.api.EmbedBuilder;
+import org.jetbrains.annotations.NotNull;
 import se.michaelthelin.spotify.model_objects.specification.AudioFeatures;
 
-import javax.annotation.Nonnull;
 import java.text.DecimalFormat;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -59,7 +59,7 @@ public class AudioFeaturesCommand extends ConcurrentCommand<ChuuDataParams> {
     }
 
     @Override
-    public void onCommand(Context e, @Nonnull ChuuDataParams params) {
+    public void onCommand(Context e, @NotNull ChuuDataParams params) {
         LastFMData lastFMData = params.getLastFMData();
 
         CompletableFuture<Void> cF = CommandUtil.runLog(() -> {

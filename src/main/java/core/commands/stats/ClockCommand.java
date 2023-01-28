@@ -17,8 +17,8 @@ import dao.entities.Week;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.util.Collections;
 import java.util.List;
 import java.util.TimeZone;
@@ -55,7 +55,7 @@ public class ClockCommand extends ConcurrentCommand<ChuuDataParams> {
     }
 
     @Override
-    public void onCommand(Context e, @Nonnull ChuuDataParams params) throws InstanceNotFoundException {
+    public void onCommand(Context e, @NotNull ChuuDataParams params) throws InstanceNotFoundException {
 
 
         long discordId = params.getLastFMData().getDiscordId();

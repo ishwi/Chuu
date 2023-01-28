@@ -11,9 +11,8 @@ import dao.entities.LastFMData;
 import dao.entities.RandomUrlDetails;
 import dao.entities.Role;
 import dao.exceptions.InstanceNotFoundException;
-import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.util.List;
 
 public class RandomDeleteCommand extends ConcurrentCommand<RandomUrlParameters> {
@@ -47,11 +46,11 @@ public class RandomDeleteCommand extends ConcurrentCommand<RandomUrlParameters> 
     }
 
     @Override
-    public void onCommand(Context e, @Nonnull RandomUrlParameters params) throws InstanceNotFoundException {
+    public void onCommand(Context e, @NotNull RandomUrlParameters params) throws InstanceNotFoundException {
 
 
         String url = params.getUrl();
-        if (StringUtils.isEmpty(url)) {
+        if (url == null || url.isBlank()) {
             sendMessageQueue(e, "Try to give an url to this command.");
             return;
         }

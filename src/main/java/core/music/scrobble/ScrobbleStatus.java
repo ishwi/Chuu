@@ -9,8 +9,6 @@ import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 
-;
-
 public record ScrobbleStatus(ScrobbleStates scrobbleStatus, TrackScrobble scrobble,
                              Supplier<AudioChannel> voiceChannelSupplier,
                              long guildId, Instant moment,

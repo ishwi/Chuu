@@ -14,8 +14,8 @@ import core.services.CoverService;
 import core.util.ServiceView;
 import dao.entities.CoverItem;
 import net.dv8tion.jda.api.EmbedBuilder;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -51,7 +51,7 @@ public class AltCoverListCommand extends ConcurrentCommand<CommandParameters> {
     }
 
     @Override
-    public void onCommand(Context e, @Nonnull CommandParameters params) {
+    public void onCommand(Context e, @NotNull CommandParameters params) {
         CoverService coverService = Chuu.getCoverService();
         Map<CoverItem, Integer> counts = coverService.getCounts();
 

@@ -10,8 +10,8 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.sharding.ShardManager;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hc.core5.http.ContentType;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
@@ -78,7 +78,7 @@ public class BotListPoster {
         });
     }
 
-    @Nonnull
+    @NotNull
     private BiFunction<HttpResponse<String>, Throwable, Object> handleResponse(BotLists bot) {
         return (stringHttpResponse, throwable) -> {
             if (throwable != null) {

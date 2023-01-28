@@ -19,8 +19,8 @@ import dao.entities.DiscordUserDisplay;
 import dao.entities.LastFMData;
 import dao.entities.TimeFrameEnum;
 import net.dv8tion.jda.api.EmbedBuilder;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
@@ -58,7 +58,7 @@ public class UserResumeCommand extends ConcurrentCommand<TimeFrameParameters> {
     }
 
     @Override
-    public void onCommand(Context e, @Nonnull TimeFrameParameters params) throws LastFmException {
+    public void onCommand(Context e, @NotNull TimeFrameParameters params) throws LastFmException {
 
         LastFMData name = params.getLastFMData();
         BlockingQueue<UrlCapsule> capsules = new LinkedBlockingQueue<>();

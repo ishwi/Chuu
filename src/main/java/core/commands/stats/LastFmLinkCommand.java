@@ -10,8 +10,8 @@ import core.parsers.Parser;
 import core.parsers.params.ChuuDataParams;
 import core.util.ServiceView;
 import dao.entities.DiscordUserDisplay;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.util.List;
 
 public class LastFmLinkCommand extends ConcurrentCommand<ChuuDataParams> implements UserCommandMarker {
@@ -45,7 +45,7 @@ public class LastFmLinkCommand extends ConcurrentCommand<ChuuDataParams> impleme
     }
 
     @Override
-    public void onCommand(Context e, @Nonnull ChuuDataParams params) {
+    public void onCommand(Context e, @NotNull ChuuDataParams params) {
 
 
         DiscordUserDisplay userInfoConsideringGuildOrNot = CommandUtil.getUserInfoEscaped(e, params.getLastFMData().getDiscordId());

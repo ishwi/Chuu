@@ -2,7 +2,6 @@ package core.parsers;
 
 import core.commands.Context;
 import core.commands.InteracionReceived;
-import core.exceptions.LastFmException;
 import core.parsers.explanation.PermissiveUserExplanation;
 import core.parsers.explanation.util.Explanation;
 import core.parsers.explanation.util.ExplanationLine;
@@ -36,7 +35,7 @@ public class AffinityParser extends DaoParser<AffinityParameters> {
 
 
     @Override
-    public AffinityParameters parseSlashLogic(InteracionReceived<? extends CommandInteraction> ctx) throws LastFmException, InstanceNotFoundException {
+    public AffinityParameters parseSlashLogic(InteracionReceived<? extends CommandInteraction> ctx) throws InstanceNotFoundException {
         CommandInteraction e = ctx.e();
         OptionMapping option = e.getOption("affinity-threshold");
 

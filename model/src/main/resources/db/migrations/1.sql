@@ -1023,55 +1023,57 @@ CREATE TABLE `weekly_billboard_scrobbles`
 
 -- Dump completed on 2021-01-25 22:40:27
 
---changeset aaa endDelimiter:/
+--changeset aaa endDelimiter:ñ
 --ignoreLines:1
-DELIMITER /
+DELIMITER ñ
+
 CREATE FUNCTION `streak_billboard_album_listeners`(bill_id bigint(20)) RETURNS int(11)
     DETERMINISTIC
     RETURN
-            (WITH
-                 RECURSIVE cte (week_id, artist_id, guild_id, album_name) AS
-                               (SELECT week_id,
-                                       artist_id,
-                                       guild_id,
-                                       album_name
-                                FROM weekly_billboard_album_listeners
-                                WHERE id = bill_id
-                                UNION ALL
-                                SELECT b.week_id,
-                                       b.artist_id,
-                                       b.guild_id,
-                                       b.album_name
-                                FROM cte t
-                                         JOIN weekly_billboard_album_listeners b ON b.week_id = t.week_id - 1
-                                    AND t.artist_id = b.artist_id
-                                    AND t.guild_id = b.guild_id
-                                    AND t.album_name = b.album_name)
-             SELECT COUNT(*)
-             FROM cte) /
+        (WITH
+             RECURSIVE cte (week_id, artist_id, guild_id, album_name) AS
+                           (SELECT week_id,
+                                   artist_id,
+                                   guild_id,
+                                   album_name
+                            FROM weekly_billboard_album_listeners
+                            WHERE id = bill_id
+                            UNION ALL
+                            SELECT b.week_id,
+                                   b.artist_id,
+                                   b.guild_id,
+                                   b.album_name
+                            FROM cte t
+                                     JOIN weekly_billboard_album_listeners b ON b.week_id = t.week_id - 1
+                                AND t.artist_id = b.artist_id
+                                AND t.guild_id = b.guild_id
+                                AND t.album_name = b.album_name)
+         SELECT COUNT(*)
+         FROM cte) ñ
+
 CREATE FUNCTION `streak_billboard_album_scrobbles`(bill_id bigint(20)) RETURNS int(11)
     DETERMINISTIC
     RETURN
-            (WITH
-                 RECURSIVE cte (week_id, artist_id, guild_id, album_name) AS
-                               (SELECT week_id,
-                                       artist_id,
-                                       guild_id,
-                                       album_name
-                                FROM weekly_billboard_album_scrobbles
-                                WHERE id = bill_id
-                                UNION ALL
-                                SELECT b.week_id,
-                                       b.artist_id,
-                                       b.guild_id,
-                                       b.album_name
-                                FROM cte t
-                                         JOIN weekly_billboard_album_scrobbles b ON b.week_id = t.week_id - 1
-                                    AND t.artist_id = b.artist_id
-                                    AND t.guild_id = b.guild_id
-                                    AND t.album_name = b.album_name)
-             SELECT COUNT(*)
-             FROM cte) /
+        (WITH
+             RECURSIVE cte (week_id, artist_id, guild_id, album_name) AS
+                           (SELECT week_id,
+                                   artist_id,
+                                   guild_id,
+                                   album_name
+                            FROM weekly_billboard_album_scrobbles
+                            WHERE id = bill_id
+                            UNION ALL
+                            SELECT b.week_id,
+                                   b.artist_id,
+                                   b.guild_id,
+                                   b.album_name
+                            FROM cte t
+                                     JOIN weekly_billboard_album_scrobbles b ON b.week_id = t.week_id - 1
+                                AND t.artist_id = b.artist_id
+                                AND t.guild_id = b.guild_id
+                                AND t.album_name = b.album_name)
+         SELECT COUNT(*)
+         FROM cte) ñ
 CREATE FUNCTION `streak_billboard_artist`(bill_id bigint(20)) RETURNS int(11)
     DETERMINISTIC
     RETURN
@@ -1091,7 +1093,7 @@ CREATE FUNCTION `streak_billboard_artist`(bill_id bigint(20)) RETURNS int(11)
                                     AND t.artist_id = b.artist_id
                                     AND t.guild_id = b.guild_id)
              SELECT COUNT(*)
-             FROM cte) /
+             FROM cte) ñ
 CREATE FUNCTION `streak_billboard_artist_scrobbles`(bill_id bigint(20)) RETURNS int(11)
     DETERMINISTIC
     RETURN
@@ -1111,7 +1113,7 @@ CREATE FUNCTION `streak_billboard_artist_scrobbles`(bill_id bigint(20)) RETURNS 
                                     AND t.artist_id = b.artist_id
                                     AND t.guild_id = b.guild_id)
              SELECT COUNT(*)
-             FROM cte) /
+             FROM cte) ñ
 CREATE FUNCTION `streak_billboard_global_track_scrobbles`(bill_id bigint(20)) RETURNS int(11)
     DETERMINISTIC
     RETURN
@@ -1131,7 +1133,7 @@ CREATE FUNCTION `streak_billboard_global_track_scrobbles`(bill_id bigint(20)) RE
                                     AND t.artist_id = b.artist_id
                                     AND t.track_name = b.track_name)
              SELECT COUNT(*)
-             FROM cte) /
+             FROM cte) ñ
 CREATE FUNCTION `streak_billboard_track`(bill_id bigint(20)) RETURNS int(11)
     DETERMINISTIC
     RETURN
@@ -1154,7 +1156,7 @@ CREATE FUNCTION `streak_billboard_track`(bill_id bigint(20)) RETURNS int(11)
                                     AND t.guild_id = b.guild_id
                                     AND t.track_name = b.track_name)
              SELECT COUNT(*)
-             FROM cte) /
+             FROM cte) ñ
 CREATE FUNCTION `streak_billboard_track_scrobbles`(bill_id bigint(20)) RETURNS int(11)
     DETERMINISTIC
     RETURN
@@ -1177,7 +1179,7 @@ CREATE FUNCTION `streak_billboard_track_scrobbles`(bill_id bigint(20)) RETURNS i
                                     AND t.guild_id = b.guild_id
                                     AND t.track_name = b.track_name)
              SELECT COUNT(*)
-             FROM cte) /
+             FROM cte) ñ
 CREATE FUNCTION `streak_global_billboard_album_listeners`(bill_id bigint(20)) RETURNS int(11)
     DETERMINISTIC
     RETURN
@@ -1197,7 +1199,7 @@ CREATE FUNCTION `streak_global_billboard_album_listeners`(bill_id bigint(20)) RE
                                     AND t.artist_id = b.artist_id
                                     AND t.album_name = b.album_name)
              SELECT COUNT(*)
-             FROM cte) /
+             FROM cte) ñ
 CREATE FUNCTION `streak_global_billboard_album_scrobbles`(bill_id bigint(20)) RETURNS int(11)
     DETERMINISTIC
     RETURN
@@ -1217,7 +1219,7 @@ CREATE FUNCTION `streak_global_billboard_album_scrobbles`(bill_id bigint(20)) RE
                                     AND t.artist_id = b.artist_id
                                     AND t.album_name = b.album_name)
              SELECT COUNT(*)
-             FROM cte) /
+             FROM cte) ñ
 CREATE FUNCTION `streak_global_billboard_artist`(bill_id bigint(20)) RETURNS int(11)
     DETERMINISTIC
     RETURN
@@ -1234,7 +1236,7 @@ CREATE FUNCTION `streak_global_billboard_artist`(bill_id bigint(20)) RETURNS int
                                          JOIN weekly_billboard_artist_global_listeners b ON b.week_id = t.week_id - 1
                                     AND t.artist_id = b.artist_id)
              SELECT COUNT(*)
-             FROM cte) /
+             FROM cte) ñ
 CREATE FUNCTION `streak_global_billboard_artist_scrobbles`(bill_id bigint(20)) RETURNS int(11)
     DETERMINISTIC
     RETURN
@@ -1251,7 +1253,7 @@ CREATE FUNCTION `streak_global_billboard_artist_scrobbles`(bill_id bigint(20)) R
                                          JOIN weekly_billboard_artist_global_scrobbles b ON b.week_id = t.week_id - 1
                                     AND t.artist_id = b.artist_id)
              SELECT COUNT(*)
-             FROM cte) /
+             FROM cte) ñ
 CREATE FUNCTION `streak_global_billboard_track`(bill_id bigint(20)) RETURNS int(11)
     DETERMINISTIC
     RETURN
@@ -1271,7 +1273,7 @@ CREATE FUNCTION `streak_global_billboard_track`(bill_id bigint(20)) RETURNS int(
                                     AND t.artist_id = b.artist_id
                                     AND t.track_name = b.track_name)
              SELECT COUNT(*)
-             FROM cte) /
+             FROM cte) ñ
 
 CREATE TRIGGER IF NOT EXISTS alt_url_delete
     AFTER DELETE
@@ -1283,7 +1285,7 @@ BEGIN
         SET url = (SELECT url FROM alt_url WHERE alt_url.artist_id = old.artist_id ORDER BY alt_url.score DESC LIMIT 1)
         WHERE id = old.artist_id;
     END IF;
-END /
+END ñ
 
 CREATE TRIGGER vote_add
     AFTER INSERT
@@ -1291,7 +1293,7 @@ CREATE TRIGGER vote_add
     FOR EACH ROW
 BEGIN
     UPDATE alt_url SET score = score + IF(new.ispositive, 1, -1) WHERE id = new.alt_id;
-END /
+END ñ
 CREATE TRIGGER vote_update
     AFTER UPDATE
     ON vote
@@ -1306,7 +1308,7 @@ BEGIN
     IF (@new_value != 0) THEN
         UPDATE alt_url SET score = score + @new_value WHERE id = new.alt_id;
     END IF;
-END /
+END ñ
 CREATE TRIGGER vote_delete
     AFTER DELETE
     ON vote
@@ -1320,7 +1322,7 @@ BEGIN
     END IF;
     UPDATE alt_url SET score = score + @new_value WHERE id = old.alt_id;
 
-END /
+END ñ
 
 
 CREATE PROCEDURE insert_weeks()
@@ -1332,11 +1334,11 @@ BEGIN
             INSERT INTO week(week_start) VALUES (@t_current);
             SET @t_current = DATE_ADD(@t_current, INTERVAL 7 DAY);
         END WHILE;
-END /
+END ñ
 
 
 
-CALL insert_weeks() /
+CALL insert_weeks() ñ
 
 
 /*!50003 CREATE TRIGGER IF NOT EXISTS alt_url_insert
@@ -1349,7 +1351,7 @@ BEGIN
     THEN
         UPDATE artist SET url = new.url WHERE id = new.artist_id;
     END IF;
-END *//
+END */ñ
 /*!50003 CREATE TRIGGER IF NOT EXISTS alt_url_update
     AFTER UPDATE
     ON alt_url
@@ -1371,4 +1373,4 @@ BEGIN
     ELSEIF (new.score >= current_score) THEN
         UPDATE artist SET url = new.url WHERE id = new.artist_id;
     END IF;
-END *//
+END */ñ

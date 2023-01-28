@@ -28,8 +28,8 @@ import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
 import core.parsers.params.NumberParameters;
 import core.util.ServiceView;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -71,7 +71,7 @@ public class VolumeCommand extends MusicCommand<NumberParameters<CommandParamete
     }
 
     @Override
-    public void onCommand(Context e, @Nonnull NumberParameters<CommandParameters> params) {
+    public void onCommand(Context e, @NotNull NumberParameters<CommandParameters> params) {
         Long volume = params.getExtraParam();
         MusicManager manager = getManager(e);
         int currentVolume = manager.getPlayer().getVolume();

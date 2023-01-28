@@ -7,7 +7,6 @@ import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.commands.utils.GenreDisambiguator;
-import core.exceptions.LastFmException;
 import core.otherlisteners.util.Paginator;
 import core.otherlisteners.util.PaginatorBuilder;
 import core.parsers.Parser;
@@ -16,14 +15,13 @@ import core.parsers.params.UserStringParameters;
 import core.util.ServiceView;
 import dao.everynoise.NoiseGenreReleases;
 import dao.everynoise.Release;
-import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.requests.RestAction;
 import org.apache.commons.text.WordUtils;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
@@ -66,7 +64,7 @@ public class ReleasesEveryNoiseCommand extends ConcurrentCommand<UserStringParam
     }
 
     @Override
-    public void onCommand(Context e, @Nonnull UserStringParameters params) throws LastFmException, InstanceNotFoundException {
+    public void onCommand(Context e, @NotNull UserStringParameters params) {
         String input = params.getInput();
         boolean isSearchResult = !input.isBlank();
         if (!isSearchResult) {

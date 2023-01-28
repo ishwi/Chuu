@@ -13,8 +13,8 @@ import core.util.ServiceView;
 import dao.entities.ScoredAlbumRatings;
 import dao.entities.ScrobbledArtist;
 import dao.entities.TimeFrameEnum;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.util.List;
 
 public class DiscoveredRatioCommand extends ConcurrentCommand<TimeFrameParameters> {
@@ -53,7 +53,7 @@ public class DiscoveredRatioCommand extends ConcurrentCommand<TimeFrameParameter
     }
 
     @Override
-    public void onCommand(Context e, @Nonnull TimeFrameParameters params) throws LastFmException {
+    public void onCommand(Context e, @NotNull TimeFrameParameters params) throws LastFmException {
 
 
         if (params.getTime() == TimeFrameEnum.ALL) {

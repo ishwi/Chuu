@@ -17,8 +17,8 @@ import dao.entities.DiscordUserDisplay;
 import dao.entities.GlobalCrown;
 import dao.entities.ScrobbledArtist;
 import net.dv8tion.jda.api.EmbedBuilder;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.util.List;
 
 public class GlobalArtistCommand extends ConcurrentCommand<ArtistParameters> {
@@ -61,7 +61,7 @@ public class GlobalArtistCommand extends ConcurrentCommand<ArtistParameters> {
     }
 
     @Override
-    public void onCommand(Context e, @Nonnull ArtistParameters params) throws LastFmException {
+    public void onCommand(Context e, @NotNull ArtistParameters params) throws LastFmException {
 
         long userId = params.getLastFMData().getDiscordId();
         ScrobbledArtist sA = new ArtistValidator(db, lastFM, e).validate(params.getArtist(), true, !params.isNoredirect());

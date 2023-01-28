@@ -1,6 +1,7 @@
 package core.parsers.utils;
 
-import javax.annotation.Nonnull;
+import org.jetbrains.annotations.NotNull;
+
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
@@ -44,7 +45,7 @@ public record OptionalEntity(String value, String definition, boolean isEnabledB
      * @return the substring without the optional prefixes
      */
     //Valid needs to
-    public static String getOptPartFromValid(@Nonnull String valid, Set<OptionalEntity> opts, Map<String, OptionalEntity> optAliases) {
+    public static String getOptPartFromValid(@NotNull String valid, Set<OptionalEntity> opts, Map<String, OptionalEntity> optAliases) {
 
         Matcher matcher = options.matcher(valid);
         if (matcher.matches()) {

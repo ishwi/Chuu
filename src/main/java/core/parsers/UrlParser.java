@@ -4,11 +4,9 @@ import core.commands.Context;
 import core.commands.ContextMessageReceived;
 import core.commands.InteracionReceived;
 import core.commands.utils.CommandUtil;
-import core.exceptions.LastFmException;
 import core.parsers.explanation.UrlExplanation;
 import core.parsers.explanation.util.Explanation;
 import core.parsers.params.UrlParameters;
-import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.interactions.commands.CommandInteraction;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
@@ -40,7 +38,7 @@ public class UrlParser extends Parser<UrlParameters> {
     }
 
     @Override
-    public UrlParameters parseSlashLogic(InteracionReceived<? extends CommandInteraction> ctx) throws LastFmException, InstanceNotFoundException {
+    public UrlParameters parseSlashLogic(InteracionReceived<? extends CommandInteraction> ctx) {
         CommandInteraction e = ctx.e();
 
         if (permCheck && (CommandUtil.notEnoughPerms(ctx))) {

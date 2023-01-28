@@ -2,7 +2,6 @@ package core.parsers;
 
 import core.commands.Context;
 import core.commands.InteracionReceived;
-import core.exceptions.LastFmException;
 import core.parsers.explanation.PermissiveUserExplanation;
 import core.parsers.explanation.RatingExplanation;
 import core.parsers.explanation.util.Explanation;
@@ -31,7 +30,7 @@ public class RYMRatingParser extends DaoParser<RYMRatingParams> {
     }
 
     @Override
-    public RYMRatingParams parseSlashLogic(InteracionReceived<? extends CommandInteraction> ctx) throws LastFmException, InstanceNotFoundException {
+    public RYMRatingParams parseSlashLogic(InteracionReceived<? extends CommandInteraction> ctx) throws InstanceNotFoundException {
         CommandInteraction e = ctx.e();
         Short rating = Optional.ofNullable(e.getOption(RatingExplanation.NAME)).map(OptionMapping::getAsLong).map(Long::shortValue).orElse(null);
         User user = InteractionAux.parseUser(e);

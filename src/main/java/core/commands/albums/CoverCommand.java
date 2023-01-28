@@ -9,8 +9,8 @@ import core.util.ServiceView;
 import dao.entities.ScrobbledArtist;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.requests.RestAction;
+import org.jetbrains.annotations.CheckReturnValue;
 
-import javax.annotation.CheckReturnValue;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -107,7 +107,7 @@ public class CoverCommand extends AlbumPlaysCommand {
     }
 
     @CheckReturnValue
-    private RestAction<Message> sendCover(InputStream inputStream, ScrobbledArtist artist, String album, Context e, String albumUrl) throws IOException {
+    private RestAction<Message> sendCover(InputStream inputStream, ScrobbledArtist artist, String album, Context e, String albumUrl) {
         return e.sendFile(inputStream, "cat.png", String.format("**%s** - **%s**", artist.getArtist(), album));
     }
 }

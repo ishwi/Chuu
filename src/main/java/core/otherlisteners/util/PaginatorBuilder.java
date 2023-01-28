@@ -8,8 +8,8 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.requests.RestAction;
 import net.dv8tion.jda.internal.utils.Checks;
+import org.jetbrains.annotations.CheckReturnValue;
 
-import javax.annotation.CheckReturnValue;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;

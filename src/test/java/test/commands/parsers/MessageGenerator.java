@@ -1,37 +1,28 @@
 package test.commands.parsers;
 
-import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.SelfUser;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.entities.channel.ChannelType;
-import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
-import net.dv8tion.jda.api.entities.channel.unions.GuildMessageChannelUnion;
 import net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion;
-import net.dv8tion.jda.api.entities.sticker.StickerSnowflake;
 import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import net.dv8tion.jda.api.requests.restaction.MessageCreateAction;
-import net.dv8tion.jda.api.utils.FileUpload;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
-import net.dv8tion.jda.api.utils.data.DataArray;
 import net.dv8tion.jda.internal.JDAImpl;
 import net.dv8tion.jda.internal.entities.GuildImpl;
-import net.dv8tion.jda.internal.entities.MemberImpl;
-import net.dv8tion.jda.internal.entities.MessageMentionsImpl;
-import net.dv8tion.jda.internal.entities.mentions.AbstractMentions;
-import net.dv8tion.jda.internal.requests.restaction.MessageCreateActionImpl;
+import net.dv8tion.jda.internal.entities.SelfUserImpl;
 import net.dv8tion.jda.internal.utils.config.AuthorizationConfig;
 import org.apache.commons.collections4.map.ReferenceIdentityMap;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.mockito.Mockito;
 import test.commands.parsers.factories.Factory;
 import test.commands.parsers.factories.FactoryDeps;
+import test.commands.parsers.mock.CustomMentionMessage;
+import test.commands.parsers.mock.MockReceivedEvent;
+import test.commands.parsers.mock.MockedMessageChannel;
+import test.commands.utils.TestResources;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Consumer;
 
 
 public class MessageGenerator {
@@ -41,8 +32,8 @@ public class MessageGenerator {
     private final Message message;
     private final GuildImpl guild;
     private final MessageReceivedEvent event;
-    private User user;
-    private Factory factory;
+    private final User user;
+    private final Factory factory;
 
     public MessageGenerator(String content) {
         this(content, Factory.def());
@@ -59,12 +50,21 @@ public class MessageGenerator {
 
         message = mockMessage(content);
         publisher = new EventEmitter(new HashMap<>(), new HashMap<>(), new ReferenceIdentityMap<>(), new AtomicInteger(0));
-        event = mockMessageReceivedEvent(content);
+        event = mockMessageReceivedEvent();
     }
 
-    private static JDAImpl mockJDA() {
+    public static JDAImpl mockJDA() {
         return new JDAImpl(new AuthorizationConfig("false-token"), null, null, null) {
+            @Override
+            public SelfUser getSelfUser() {
+                return new SelfUserImpl(-1L, null);
+            }
 
+            @NotNull
+            @Override
+            public List<Object> getRegisteredListeners() {
+                return TestResources.manager.getRegisteredListeners();
+            }
         };
 
 
@@ -79,91 +79,24 @@ public class MessageGenerator {
         return publisher;
     }
 
-    private MessageReceivedEvent mockMessageReceivedEvent(String content) {
-        MessageChannel chann = mockChannel();
-        return new MessageReceivedEvent(jda, 0, message) {
-            @NotNull
-            @Override
-            public GuildMessageChannelUnion getGuildChannel() {
-                return (GuildMessageChannelUnion) chann;
-            }
-
-            @NotNull
-            @Override
-            public Guild getGuild() {
-                return getGuildChannel().getGuild();
-            }
-
-            @Nullable
-            @Override
-            public Member getMember() {
-                return new MemberImpl(guild, user);
-            }
-
-            @NotNull
-            @Override
-            public User getAuthor() {
-                return user;
-            }
-
-            @Override
-            public MessageChannelUnion getChannel() {
-                return (MessageChannelUnion) Objects.requireNonNull(chann);
-            }
-
-            @Override
-            public boolean isFromGuild() {
-                return true;
-            }
-        };
+    private MessageReceivedEvent mockMessageReceivedEvent() {
+        return new MockReceivedEvent(jda, mockChannel(), message, guild, user);
     }
 
     private Message mockMessage(String content) {
-        AbstractMentions abstractMentions = new MessageMentionsImpl(jda, guild, content, false, DataArray.empty(), DataArray.empty());
         return Mockito.mock(Message.class, invocation ->
                 switch (invocation.getMethod().getName()) {
                     case "getmentionedmembers", "getmentionedusers" -> new ArrayList<>();
                     case "getContentRaw" -> content;
                     case "getCacheFlags" -> EnumSet.noneOf(CacheFlag.class);
-                    case "getMentions" -> abstractMentions;
+                    case "getMentions" -> new CustomMentionMessage(jda, guild, content);
+                    case "getAttachments" -> Collections.emptyList();
                     default -> null;
                 });
     }
 
-    private MessageChannel mockChannel() {
-        return new MockedMessageChannel(publisher, jda, guild) {
-
-            @Override
-            public @NotNull MessageCreateAction sendStickers(@NotNull StickerSnowflake... stickers) {
-                return super.sendStickers(stickers);
-            }
-
-
-            @NotNull
-            @Override
-            public MessageCreateAction sendFiles(@NotNull FileUpload... files) {
-                List<MessageCreateAction> actions = new ArrayList<>();
-                for (FileUpload file : files) {
-                    actions.add(new MessageCreateActionImpl(this));
-                }
-                return new MessageCreateActionImpl(this) {
-                    @Override
-                    public void queue(Consumer<? super Message> success, Consumer<? super Throwable> failure) {
-                        for (FileUpload file : files) {
-                            publisher.publishEvent(new EventEmitter.SendImage(file.getData(), file.getName()));
-
-                        }
-                    }
-                }.addFiles(files);
-
-            }
-
-
-            @Override
-            public @NotNull ChannelType getType() {
-                return ChannelType.TEXT;
-            }
-        };
+    private MessageChannelUnion mockChannel() {
+        return new MockedMessageChannel(publisher, jda, guild);
     }
 
 

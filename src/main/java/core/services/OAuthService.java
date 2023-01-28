@@ -6,8 +6,7 @@ import core.exceptions.UnknownLastFmException;
 import dao.ChuuService;
 import dao.entities.LastFMData;
 import dao.exceptions.ChuuServiceException;
-
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 public record OAuthService(ChuuService db, ConcurrentLastFM lastFM) {
 

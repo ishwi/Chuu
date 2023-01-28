@@ -15,8 +15,8 @@ import dao.entities.ArtistPlays;
 import dao.entities.DiscordUserDisplay;
 import dao.entities.UniqueWrapper;
 import net.dv8tion.jda.api.EmbedBuilder;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.util.Collections;
 import java.util.List;
 
@@ -71,7 +71,7 @@ public class CrownsCommand extends ConcurrentCommand<NumberParameters<ChuuDataPa
     }
 
     @Override
-    public void onCommand(Context e, @Nonnull NumberParameters<ChuuDataParams> params) {
+    public void onCommand(Context e, @NotNull NumberParameters<ChuuDataParams> params) {
 
 
         ChuuDataParams innerParams = params.getInnerParams();
@@ -79,7 +79,7 @@ public class CrownsCommand extends ConcurrentCommand<NumberParameters<ChuuDataPa
         DiscordUserDisplay userInformation = CommandUtil.getUserInfoEscaped(e, innerParams.getLastFMData().getDiscordId());
         String userName = userInformation.username();
         String userUrl = userInformation.urlImage();
-        List<ArtistPlays> resultWrapper = uniqueDataUniqueWrapper.getUniqueData();
+        List<ArtistPlays> resultWrapper = uniqueDataUniqueWrapper.uniqueData();
 
         int rows = resultWrapper.size();
         if (rows == 0) {
@@ -89,7 +89,7 @@ public class CrownsCommand extends ConcurrentCommand<NumberParameters<ChuuDataPa
 
         long discordId = params.getInnerParams().getLastFMData().getDiscordId();
         EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e)
-                .setTitle(String.format("%s's %scrowns", userName, getTitle()), CommandUtil.getLastFmUser(uniqueDataUniqueWrapper.getLastFmId())).setFooter(String.format("%s has %d %scrowns!!%n", CommandUtil.unescapedUser(userName, discordId, e), resultWrapper.size(), getTitle()), null)
+                .setTitle(String.format("%s's %scrowns", userName, getTitle()), CommandUtil.getLastFmUser(uniqueDataUniqueWrapper.lastFmId())).setFooter(String.format("%s has %d %scrowns!!%n", CommandUtil.unescapedUser(userName, discordId, e), resultWrapper.size(), getTitle()), null)
                 .setThumbnail(userUrl);
 
         new PaginatorBuilder<>(e, embedBuilder, resultWrapper).build().queue();

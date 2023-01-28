@@ -3,13 +3,12 @@ package core.otherlisteners;
 import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.hooks.EventListener;
-
-import javax.annotation.Nonnull;
+import org.jetbrains.annotations.NotNull;
 
 public interface ConstantListener extends EventListener {
 
     @Override
-    default void onEvent(@Nonnull GenericEvent event) {
+    default void onEvent(@NotNull GenericEvent event) {
         if (event instanceof ButtonInteractionEvent e) {
             onButtonClicked(e);
         }

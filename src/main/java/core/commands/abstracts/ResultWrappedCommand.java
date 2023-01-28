@@ -5,9 +5,8 @@ import core.imagerenderer.util.pie.PieableListResultWrapper;
 import core.parsers.params.CommandParameters;
 import core.util.ServiceView;
 import dao.entities.ResultWrapper;
+import org.jetbrains.annotations.NotNull;
 import org.knowm.xchart.PieChart;
-
-import javax.annotation.Nonnull;
 
 public abstract class ResultWrappedCommand<T, Y extends CommandParameters> extends PieableListCommand<ResultWrapper<T>, Y> {
     public PieableListResultWrapper<T, Y> pie;
@@ -18,7 +17,7 @@ public abstract class ResultWrappedCommand<T, Y extends CommandParameters> exten
     }
 
     @Override
-    public void onCommand(Context e, @Nonnull Y params) {
+    public void onCommand(Context e, @NotNull Y params) {
 
         if (params.hasOptional("pie")) {
             doPie(getList(params), params);

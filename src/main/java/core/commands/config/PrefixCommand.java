@@ -9,8 +9,8 @@ import core.parsers.PrefixParser;
 import core.parsers.params.CharacterParameters;
 import core.services.PrefixService;
 import core.util.ServiceView;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.util.Collections;
 import java.util.List;
 
@@ -44,7 +44,7 @@ public class PrefixCommand extends ConcurrentCommand<CharacterParameters> {
     }
 
     @Override
-    public void onCommand(Context e, @Nonnull CharacterParameters params) {
+    public void onCommand(Context e, @NotNull CharacterParameters params) {
 
         char newPrefix = params.getaChar();
         db.createGuild(e.getGuild().getIdLong());

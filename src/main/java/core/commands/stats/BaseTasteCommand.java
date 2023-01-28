@@ -18,9 +18,9 @@ import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Role;
 import org.apache.commons.lang3.tuple.Pair;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.List;
@@ -50,7 +50,7 @@ public abstract class BaseTasteCommand<T extends CommandParameters> extends Conc
     String hasCustomUrl(T params);
 
     @Override
-    public void onCommand(Context e, @Nonnull T params) throws LastFmException, InstanceNotFoundException {
+    public void onCommand(Context e, @NotNull T params) throws LastFmException, InstanceNotFoundException {
         Pair<LastFMData, LastFMData> userDatas = getUserDatas(e, params);
         if (userDatas == null) {
             return;

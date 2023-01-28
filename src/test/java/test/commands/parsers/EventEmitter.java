@@ -38,15 +38,16 @@ public record EventEmitter(Map<Class<? extends TestEvent>, BlockingQueue<? exten
 
     @SuppressWarnings("unchecked")
     private <T extends TestEvent> T retrieveFirst(TestAssertion<T> assertion) {
-        BlockingQueue<? extends TestEvent> q = queue.get(assertion.receiver());
+        Class<T> receiver = assertion.receiver();
+        BlockingQueue<? extends TestEvent> q = queue.get(receiver);
         if (q == null) {
             CountDownLatch latch = new CountDownLatch(1);
-            latches.put(assertion.receiver(), latch);
+            latches.put(receiver, latch);
             try {
                 boolean succesfully = latch.await(getSeconds(), TimeUnit.SECONDS);
                 assertThat(succesfully).as("Awaited and received and event").isTrue();
-                latches.remove(assertion.receiver());
-                q = queue.get(assertion.receiver());
+                latches.remove(receiver);
+                q = queue.get(receiver);
                 assertThat(q).as("Now we should have at least one item").isNotNull();
                 return (T) q.poll();
             } catch (InterruptedException e) {
@@ -65,7 +66,7 @@ public record EventEmitter(Map<Class<? extends TestEvent>, BlockingQueue<? exten
         Integer eventPosition = positions.get(event);
         switch (mode) {
             case ORDER_REQUIRED -> assertThat(eventPosition)
-                    .as("We are expecting the assertion {} in position {}", assertion, index)
+                    .as("We are expecting the assertion %s in position %d", assertion, index)
                     .isEqualTo(index);
             case ANY_ORDER -> {
             }
@@ -90,6 +91,7 @@ public record EventEmitter(Map<Class<? extends TestEvent>, BlockingQueue<? exten
     }
 
     public record SendImage(InputStream io, String filename) implements TestEvent {
+
 
     }
 

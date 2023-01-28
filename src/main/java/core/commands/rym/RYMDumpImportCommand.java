@@ -12,8 +12,8 @@ import dao.exceptions.InstanceNotFoundException;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -95,7 +95,7 @@ public class RYMDumpImportCommand extends ConcurrentCommand<UrlParameters> {
     }
 
     @Override
-    public void onCommand(Context e, @Nonnull UrlParameters params) {
+    public void onCommand(Context e, @NotNull UrlParameters params) {
 
 
         List<RYMImportRating> ratings = new ArrayList<>();

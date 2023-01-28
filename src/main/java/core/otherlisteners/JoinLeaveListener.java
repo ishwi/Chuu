@@ -16,7 +16,6 @@ import net.dv8tion.jda.api.events.guild.member.GuildMemberRemoveEvent;
 import net.dv8tion.jda.api.hooks.EventListener;
 import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
@@ -40,7 +39,7 @@ public record JoinLeaveListener(ChuuService db, ConcurrentLastFM lastFM) impleme
         }
     }
 
-    public void onGuildJoin(@Nonnull GuildJoinEvent event) {
+    public void onGuildJoin(@NotNull GuildJoinEvent event) {
         GUILD_JOIN_POOL.execute(() -> {
             db.createGuild(event.getGuild().getIdLong());
             Set<Long> thisServer = db.getAll(event.getGuild().getIdLong()).stream().map(UsersWrapper::getDiscordID).collect(Collectors.toUnmodifiableSet());
@@ -58,7 +57,7 @@ public record JoinLeaveListener(ChuuService db, ConcurrentLastFM lastFM) impleme
         });
     }
 
-    public void onGuildMemberJoin(@Nonnull GuildMemberJoinEvent event) {
+    public void onGuildMemberJoin(@NotNull GuildMemberJoinEvent event) {
         if (event.getUser().isBot()) {
             return;
         }
@@ -75,7 +74,7 @@ public record JoinLeaveListener(ChuuService db, ConcurrentLastFM lastFM) impleme
         });
     }
 
-    public void onGuildMemberRemove(@Nonnull GuildMemberRemoveEvent event) {
+    public void onGuildMemberRemove(@NotNull GuildMemberRemoveEvent event) {
 
         long idLong = event.getUser().getIdLong();
         MEMBER_JOIN_POOL

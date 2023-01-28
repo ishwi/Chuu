@@ -2,12 +2,10 @@ package core.parsers;
 
 import core.commands.Context;
 import core.commands.InteracionReceived;
-import core.exceptions.LastFmException;
 import core.parsers.explanation.util.Explanation;
 import core.parsers.explanation.util.ExplanationLineType;
 import core.parsers.interactions.InteractionAux;
 import core.parsers.params.ChannelParameters;
-import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel;
@@ -26,12 +24,7 @@ public class ChannelParser extends Parser<ChannelParameters> {
     }
 
     @Override
-    protected void setUpErrorMessages() {
-
-    }
-
-    @Override
-    public ChannelParameters parseSlashLogic(InteracionReceived<? extends CommandInteraction> ctx) throws LastFmException, InstanceNotFoundException {
+    public ChannelParameters parseSlashLogic(InteracionReceived<? extends CommandInteraction> ctx) {
         return new ChannelParameters(ctx, ctx.e().getOption("channel").getAsChannel());
     }
 

@@ -11,8 +11,8 @@ import core.services.validators.ArtistValidator;
 import core.util.ServiceView;
 import dao.entities.ScrobbledArtist;
 import dao.entities.UserListened;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.util.List;
 
 import static core.commands.stats.WhoLastCommand.handleUserListened;
@@ -51,7 +51,7 @@ public class WhoFirstCommand extends ConcurrentCommand<ArtistParameters> {
 
 
     @Override
-    public void onCommand(Context e, @Nonnull ArtistParameters params) throws LastFmException {
+    public void onCommand(Context e, @NotNull ArtistParameters params) throws LastFmException {
 
 
         ScrobbledArtist sA = new ArtistValidator(db, lastFM, e).validate(params.getArtist(), !params.isNoredirect());

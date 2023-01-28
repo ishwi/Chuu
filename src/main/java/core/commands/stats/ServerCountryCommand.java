@@ -6,7 +6,6 @@ import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
-import core.exceptions.LastFmException;
 import core.imagerenderer.WorldMapRenderer;
 import core.otherlisteners.util.PaginatorBuilder;
 import core.parsers.NoOpParser;
@@ -25,8 +24,8 @@ import dao.musicbrainz.MusicBrainzService;
 import dao.musicbrainz.MusicBrainzServiceSingleton;
 import net.dv8tion.jda.api.EmbedBuilder;
 import org.apache.commons.io.FileUtils;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -92,7 +91,7 @@ public class ServerCountryCommand extends ConcurrentCommand<NumberParameters<Com
     }
 
     @Override
-    public void onCommand(Context e, @Nonnull NumberParameters<CommandParameters> params) throws LastFmException {
+    public void onCommand(Context e, @NotNull NumberParameters<CommandParameters> params) {
 
 
         Long palette = params.getExtraParam();

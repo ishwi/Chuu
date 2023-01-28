@@ -6,12 +6,11 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
-import net.dv8tion.jda.api.events.interaction.component.SelectMenuInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.requests.RestAction;
 import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -146,7 +145,7 @@ public class ReactValidator<T> extends ReactionListener {
     }
 
     @Override
-    public void onEvent(@Nonnull GenericEvent event) {
+    public void onEvent(@NotNull GenericEvent event) {
         if (event instanceof MessageReactionAddEvent e) {
             if (isValid(e)) {
                 onMessageReactionAdd(e);
@@ -155,7 +154,7 @@ public class ReactValidator<T> extends ReactionListener {
     }
 
     @Override
-    public void onMessageReactionAdd(@Nonnull MessageReactionAddEvent event) {
+    public void onMessageReactionAdd(@NotNull MessageReactionAddEvent event) {
         Reaction<T, MessageReactionAddEvent, ReactionResult> action = this.actionMap.get(event.getReaction().getEmoji().getFormatted());
         if (action == null)
             return;
@@ -176,7 +175,7 @@ public class ReactValidator<T> extends ReactionListener {
         refresh(event.getJDA());
     }
 
-    public boolean isValid(@Nonnull MessageReactionAddEvent event) {
+    public boolean isValid(@NotNull MessageReactionAddEvent event) {
         if (this.message == null) {
             return false;
         }
@@ -190,16 +189,16 @@ public class ReactValidator<T> extends ReactionListener {
     }
 
     @Override
-    public boolean isValid(SelectMenuInteractionEvent event) {
+    public boolean isValid(StringSelectInteractionEvent event) {
         return false;
     }
 
     @Override
-    public void onButtonClickedEvent(@Nonnull ButtonInteractionEvent event) {
+    public void onButtonClickedEvent(@NotNull ButtonInteractionEvent event) {
     }
 
     @Override
-    public void onSelectedMenuEvent(@NotNull SelectMenuInteractionEvent event) {
+    public void onSelectedMenuEvent(@NotNull StringSelectInteractionEvent event) {
 
     }
 

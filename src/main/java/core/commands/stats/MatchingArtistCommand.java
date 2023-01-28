@@ -16,8 +16,8 @@ import core.util.ServiceView;
 import dao.entities.DiscordUserDisplay;
 import dao.entities.LbEntry;
 import net.dv8tion.jda.api.EmbedBuilder;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -65,7 +65,7 @@ public class MatchingArtistCommand extends ConcurrentCommand<NumberParameters<Ch
     }
 
     @Override
-    public void onCommand(Context e, @Nonnull NumberParameters<ChuuDataParams> params) {
+    public void onCommand(Context e, @NotNull NumberParameters<ChuuDataParams> params) {
 
         ChuuDataParams innerParams = params.getInnerParams();
 

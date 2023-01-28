@@ -10,8 +10,8 @@ import core.parsers.params.ChuuDataParams;
 import core.parsers.utils.OptionalEntity;
 import core.util.ServiceView;
 import dao.entities.LastFMData;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.util.List;
 
 public class ScrooblingCommand extends ConcurrentCommand<ChuuDataParams> {
@@ -47,14 +47,14 @@ public class ScrooblingCommand extends ConcurrentCommand<ChuuDataParams> {
     }
 
     @Override
-    public void onCommand(Context e, @Nonnull ChuuDataParams params) {
+    public void onCommand(Context e, @NotNull ChuuDataParams params) {
         LastFMData lastFMData = params.getLastFMData();
         boolean scrobbling = lastFMData.isScrobbling();
         char messagePrefix = CommandUtil.getMessagePrefix(e);
 
         if (lastFMData.getSession() == null) {
             sendMessageQueue(e, "You have not authorized " + params.getE().getJDA().getSelfUser().getName() + " to scrobble!\n" +
-                    "do `" + messagePrefix + "login` to enable it.");
+                                "do `" + messagePrefix + "login` to enable it.");
             return;
         }
         if (params.hasOptional("enable")) {

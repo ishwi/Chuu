@@ -1,6 +1,6 @@
 package dao.entities;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 public record ProfileEntity(String lastmId, String discordName, String imageUrl,
                             int scrobbles, int albums, int artist, int randomCount,

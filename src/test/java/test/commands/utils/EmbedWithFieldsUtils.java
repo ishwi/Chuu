@@ -1,6 +1,7 @@
 package test.commands.utils;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
+
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.regex.Matcher;

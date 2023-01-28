@@ -16,8 +16,8 @@ import dao.entities.DiscordUserDisplay;
 import dao.entities.ScrobbledTrack;
 import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.text.DecimalFormat;
 import java.util.Comparator;
 import java.util.List;
@@ -60,7 +60,7 @@ public class PopularityCommand extends ConcurrentCommand<ChuuDataParams> {
     }
 
     @Override
-    public void onCommand(Context e, @Nonnull ChuuDataParams params) {
+    public void onCommand(Context e, @NotNull ChuuDataParams params) {
         String name = params.getLastFMData().getName();
         List<ScrobbledTrack> topTracks = db.getTopTracks(name, 2000);
         if (params.hasOptional("sort")) {

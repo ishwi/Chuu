@@ -4,8 +4,8 @@ import dao.entities.*;
 import dao.utils.Order;
 import org.apache.commons.collections4.ListValuedMap;
 import org.apache.commons.lang3.tuple.Pair;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nullable;
 import java.sql.Connection;
 import java.time.Instant;
 import java.time.Year;
@@ -76,8 +76,6 @@ interface SQLQueriesDao {
     int getRandomCount(Connection connection, Long userId);
 
     List<GlobalCrown> getGlobalKnows(Connection connection, long artistID, boolean includeBottedUsers, long ownerId);
-
-    void getGlobalRank(Connection connection, String lastfmid);
 
     UniqueWrapper<ArtistPlays> getGlobalCrowns(Connection connection, String lastFmId, int threshold, boolean includeBottedUsers, long ownerId);
 

@@ -6,8 +6,8 @@ import dao.entities.ResultWrapper;
 import dao.entities.UserArtistComparison;
 import dao.entities.UserInfo;
 import org.apache.commons.lang3.tuple.Pair;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nullable;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;

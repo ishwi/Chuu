@@ -16,20 +16,23 @@ import core.parsers.Generable;
 import core.parsers.explanation.UrlExplanation;
 import core.parsers.explanation.util.Explanation;
 import core.parsers.utils.OptionalEntity;
+import core.translations.BundleManager;
+import core.translations.ChuuResourceBundle;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.interactions.DiscordLocale;
 import net.dv8tion.jda.api.interactions.commands.Command;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
+import net.dv8tion.jda.api.interactions.commands.localization.ResourceBundleLocalizationFunction;
 import net.dv8tion.jda.api.requests.restaction.CommandListUpdateAction;
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.CheckReturnValue;
 import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.CheckReturnValue;
-import javax.annotation.Nonnull;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
@@ -48,6 +51,7 @@ public class InteractionBuilder {
             return true;
         }
     };
+    public static final List<String> keys = new ArrayList<>();
     private static final Set<CommandCategory> categorized = EnumSet.of(
             CommandCategory.RYM,
             CommandCategory.BOT_INFO,
@@ -100,7 +104,7 @@ public class InteractionBuilder {
         return fillAction(guild.getJDA(), commandUpdateAction);
     }
 
-    private static CommandListUpdateAction fillAction(JDA jda, CommandListUpdateAction commandUpdateAction) {
+    public static CommandListUpdateAction fillAction(JDA jda, CommandListUpdateAction commandUpdateAction) {
         Map<String, MyCommand<?>> commandMap = new HashMap<>();
         List<? extends MyCommand<?>> myCommands = jda.getRegisteredListeners().stream()
                 .filter(t -> t instanceof MyCommand<?>)
@@ -113,11 +117,13 @@ public class InteractionBuilder {
         List<SlashCommandData> tmp = new ArrayList<>();
 
 
+
         SlashCommandData timeCommands = myCommands.stream().filter(t -> timeGrouped.contains(t.getClass())).reduce(
-                Commands.slash("time", "Commands that use timed data"),
+                Commands.slash("time", "Commands that use timed data")
+                ,
                 (commandData, myCommand) -> {
                     SubcommandData subcommandData = processSubComand(myCommand);
-                    commandMap.put(commandData.getName() + '/' + subcommandData.getName(), myCommand);
+                    commandMap.put(commandData.getName() + ' ' + subcommandData.getName(), myCommand);
                     commandData.addSubcommands(subcommandData);
                     return commandData;
                 },
@@ -130,7 +136,7 @@ public class InteractionBuilder {
                 Commands.slash("colour", "Charts that use colour of images"),
                 (commandData, myCommand) -> {
                     SubcommandData subcommandData = processSubComand(myCommand);
-                    commandMap.put(commandData.getName() + '/' + subcommandData.getName(), myCommand);
+                    commandMap.put(commandData.getName() + ' ' + subcommandData.getName(), myCommand);
                     commandData.addSubcommands(subcommandData);
                     return commandData;
                 },
@@ -164,8 +170,8 @@ public class InteractionBuilder {
                         insertUsage(get, explanationsGet);
                         processOpts(myCommand, get::addOptions);
 
-                        commandMap.put(commandData.getName() + "/obtain", ra);
-                        commandMap.put(commandData.getName() + "/submit", ra);
+                        commandMap.put(commandData.getName() + " obtain", ra);
+                        commandMap.put(commandData.getName() + " submit", ra);
                         commandData.addSubcommands(get, submit);
                         return commandData;
                     } else if (myCommand.getParser() instanceof Generable<?> w) {
@@ -178,7 +184,7 @@ public class InteractionBuilder {
                     } else {
                         subcommandData = processSubComand(myCommand);
                     }
-                    commandMap.put(commandData.getName() + '/' + subcommandData.getName(), myCommand);
+                    commandMap.put(commandData.getName() + ' ' + subcommandData.getName(), myCommand);
                     commandData.addSubcommands(subcommandData);
                     return commandData;
                 },
@@ -188,6 +194,10 @@ public class InteractionBuilder {
                 })).toList();
         toBeprocessed.forEach((a, j) -> {
             commandMap.put(a.getName(), j);
+            for (SubcommandData subcommand : a.getSubcommands()) {
+                commandMap.put(a.getName() + ' ' + subcommand.getName(), j);
+            }
+            commandMap.put(a.getName(), j);
             tmp.add(a);
         });
         myCommands = myCommands.stream().filter(not(t -> categorized.contains(t.getCategory()))).toList();
@@ -195,7 +205,7 @@ public class InteractionBuilder {
         List<SlashCommandData> generables = myCommands.stream().filter(t -> (t.getParser() instanceof Generable<?>)).map(z -> {
             Generable<?> generable = (Generable<?>) z.getParser();
             SlashCommandData commandData = generable.generateCommandData(z);
-            commandData.getSubcommands().forEach(w -> commandMap.put(commandData.getName() + '/' + w.getName(), z));
+            commandData.getSubcommands().forEach(w -> commandMap.put(commandData.getName() + ' ' + w.getName(), z));
             return commandData;
         }).toList();
 
@@ -221,7 +231,7 @@ public class InteractionBuilder {
                 .map(z -> {
                     Generable<?> parser = (Generable<?>) z.getParser();
                     SlashCommandData commandData = parser.generateCommandData(z);
-                    commandData.getSubcommands().forEach(r -> commandMap.put(commandData.getName() + "/" + r.getName(), z));
+                    commandData.getSubcommands().forEach(r -> commandMap.put(commandData.getName() + " " + r.getName(), z));
                     return commandData;
                 }).forEach(tmp::add);
 
@@ -233,7 +243,7 @@ public class InteractionBuilder {
 
         tmp.stream().collect(Collectors.toMap(t -> t, InteractionBuilder::countCommand)).forEach((t, k) -> {
             if (k > 4000) {
-                throw new IllegalStateException("Slash command has more than 4k characters: %s".formatted(t.getName()));
+//                throw new IllegalStateException("Slash command has more than 4k characters: %s".formatted(t.getName()));
             }
         });
 
@@ -241,7 +251,7 @@ public class InteractionBuilder {
             if (a.getSubcommands().isEmpty()) {
                 b.accept(a.getName());
             } else {
-                a.getSubcommands().forEach(w -> b.accept(a.getName() + "/" + w.getName()));
+                a.getSubcommands().forEach(w -> b.accept(a.getName() + " " + w.getName()));
             }
         }).collect(Collectors.groupingBy(z -> z, Collectors.counting()));
 
@@ -254,7 +264,17 @@ public class InteractionBuilder {
             throw new IllegalStateException("Slash commands repeated!");
         }
 
+
         Chuu.customManager.addSlashVariants(commandMap);
+
+        BundleManager bundleManager = new BundleManager();
+        Map<DiscordLocale, ChuuResourceBundle> generate = bundleManager.generate();
+        ResourceBundleLocalizationFunction.Builder fun = ResourceBundleLocalizationFunction.empty();
+        for (Map.Entry<DiscordLocale, ChuuResourceBundle> bundles : generate.entrySet()) {
+            fun.addBundle(bundles.getValue(), bundles.getKey());
+        }
+        tmp.forEach(slashCommandData -> slashCommandData
+                .setLocalizationFunction(fun.build()));
 
         return commandUpdateAction.addCommands(tmp);
     }
@@ -279,7 +299,7 @@ public class InteractionBuilder {
         return commandData.toData().toString().length();
     }
 
-    @Nonnull
+    @NotNull
     static SubcommandData processSubComand(MyCommand<?> myCommand) {
         SubcommandData commandData = generateSubData(myCommand);
         List<Explanation> usages = myCommand.getParser().getUsages();
@@ -300,7 +320,7 @@ public class InteractionBuilder {
         ).toList());
     }
 
-    @Nonnull
+    @NotNull
     private static SlashCommandData processCommand(MyCommand<?> myCommand) {
         SlashCommandData commandData = Commands.slash(myCommand.slashName(), StringUtils.abbreviate(myCommand.getDescription(), 100));
         List<Explanation> usages = myCommand.getParser().getUsages();

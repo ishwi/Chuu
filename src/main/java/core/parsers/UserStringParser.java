@@ -2,7 +2,6 @@ package core.parsers;
 
 import core.commands.Context;
 import core.commands.InteracionReceived;
-import core.exceptions.LastFmException;
 import core.parsers.explanation.StrictUserExplanation;
 import core.parsers.explanation.util.Explanation;
 import core.parsers.explanation.util.ExplanationLineType;
@@ -34,7 +33,7 @@ public class UserStringParser extends DaoParser<UserStringParameters> {
     }
 
     @Override
-    public UserStringParameters parseSlashLogic(InteracionReceived<? extends CommandInteraction> ctx) throws LastFmException, InstanceNotFoundException {
+    public UserStringParameters parseSlashLogic(InteracionReceived<? extends CommandInteraction> ctx) throws InstanceNotFoundException {
         CommandInteraction e = ctx.e();
         User user = InteractionAux.parseUser(e);
         OptionMapping option = e.getOption("search-phrase");

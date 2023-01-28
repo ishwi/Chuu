@@ -13,26 +13,24 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageType;
 import net.dv8tion.jda.api.entities.channel.Channel;
 import net.dv8tion.jda.api.events.GenericEvent;
-import net.dv8tion.jda.api.events.ReadyEvent;
 import net.dv8tion.jda.api.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberRemoveEvent;
-import net.dv8tion.jda.api.events.guild.voice.GuildVoiceJoinEvent;
-import net.dv8tion.jda.api.events.guild.voice.GuildVoiceLeaveEvent;
-import net.dv8tion.jda.api.events.guild.voice.GuildVoiceMoveEvent;
+import net.dv8tion.jda.api.events.guild.voice.GuildVoiceUpdateEvent;
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.UserContextInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
-import net.dv8tion.jda.api.events.interaction.component.SelectMenuInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
+import net.dv8tion.jda.api.events.session.ReadyEvent;
 import net.dv8tion.jda.api.hooks.EventListener;
 import net.dv8tion.jda.api.hooks.IEventManager;
 import net.dv8tion.jda.api.interactions.commands.CommandInteraction;
 import net.dv8tion.jda.internal.JDAImpl;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.nio.CharBuffer;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -59,12 +57,12 @@ public class CustomInterfacedEventManager implements IEventManager {
     public CustomInterfacedEventManager() {
     }
 
-    private void handleReaction(@Nonnull GenericEvent event) {
-        assert event instanceof MessageReactionAddEvent || event instanceof ButtonInteractionEvent || event instanceof SelectMenuInteractionEvent;
+    private void handleReaction(@NotNull GenericEvent event) {
+        assert event instanceof MessageReactionAddEvent || event instanceof ButtonInteractionEvent || event instanceof StringSelectInteractionEvent;
         long channelId = switch (event) {
             case MessageReactionAddEvent e3 -> e3.getChannel().getIdLong();
             case ButtonInteractionEvent e3 -> Optional.of(e3.getChannel()).map(Channel::getIdLong).orElse(0L);
-            case SelectMenuInteractionEvent e3 -> e3.getChannel().getIdLong();
+            case StringSelectInteractionEvent e3 -> e3.getChannel().getIdLong();
             default -> throw new IllegalStateException("Unexpected value: " + event);
         };
         ChannelConstantListener c = channelConstantListeners.get(channelId);
@@ -86,7 +84,7 @@ public class CustomInterfacedEventManager implements IEventManager {
 
 
     @Override
-    public void register(@Nonnull Object listener) {
+    public void register(@NotNull Object listener) {
         if (!(listener instanceof EventListener))
             throw new IllegalArgumentException("Listener must implement EventListener");
         if (listener instanceof VoiceListener voiceListener) {
@@ -133,7 +131,7 @@ public class CustomInterfacedEventManager implements IEventManager {
     }
 
     @Override
-    public void unregister(@Nonnull Object listener) {
+    public void unregister(@NotNull Object listener) {
         switch (listener) {
             case MyCommand<?> myCommand -> {
                 List<String> aliases = myCommand.getAliases();
@@ -171,12 +169,13 @@ public class CustomInterfacedEventManager implements IEventManager {
      *              the code or use the default one
      */
     @Override
-    public void handle(@Nonnull GenericEvent event) {
+    public void handle(@NotNull GenericEvent event) {
         try {
             switch (event) {
                 case CommandAutoCompleteInteractionEvent ignored ->
                         autocompleteExecutor.submit((ChuuRunnable) () -> autoCompleteListener.onEvent(event));
-                case MessageReceivedEvent mes -> handleMessageReceived(mes); // Delegate running in pool if its a valid message
+                case MessageReceivedEvent mes ->
+                        handleMessageReceived(mes); // Delegate running in pool if its a valid message
                 case UserContextInteractionEvent ucie -> handleUserCommand(ucie);
                 case SlashCommandInteractionEvent sce -> handleSlashCommand(sce);
                 case ReadyEvent re -> {
@@ -186,13 +185,11 @@ public class CustomInterfacedEventManager implements IEventManager {
                 case MessageReactionAddEvent react ->
                         reactionExecutor.submit((ChuuRunnable) () -> this.handleReaction(react));
                 case ButtonInteractionEvent button -> this.handleReaction(button);
-                case SelectMenuInteractionEvent selected ->
+                case StringSelectInteractionEvent selected ->
                         reactionExecutor.submit((ChuuRunnable) () -> this.handleReaction(selected));
 
                 // TODO cant group then on one
-                case GuildVoiceJoinEvent gvje -> this.voiceListener.onEvent(gvje);
-                case GuildVoiceLeaveEvent gvle -> this.voiceListener.onEvent(gvle);
-                case GuildVoiceMoveEvent gvme -> this.voiceListener.onEvent(gvme);
+                case GuildVoiceUpdateEvent gvje -> this.voiceListener.onEvent(gvje);
 
                 case GuildMemberRemoveEvent gmre -> this.joinLeaveListener.onEvent(gmre);
                 case GuildMemberJoinEvent gmje -> this.joinLeaveListener.onEvent(gmje);
@@ -212,7 +209,7 @@ public class CustomInterfacedEventManager implements IEventManager {
         }
         MyCommand<? extends CommandParameters> myCommand = parseCommand(sce);
         if (myCommand == null) {
-            Chuu.getLogger().warn("Not found command {} ", sce.getCommandPath());
+            Chuu.getLogger().warn("Not found command {} ", sce.getFullCommandName());
             return;
         }
         ContextSlashReceived ctx = new ContextSlashReceived(sce);
@@ -232,7 +229,7 @@ public class CustomInterfacedEventManager implements IEventManager {
         if (sce.getSubcommandName() == null) {
             myCommand = commandListeners.get(sce.getName().toLowerCase(Locale.ROOT));
         } else {
-            myCommand = slashVariants.get(sce.getCommandPath());
+            myCommand = slashVariants.get(sce.getFullCommandName());
             if (myCommand == null) {
                 myCommand = commandListeners.get(sce.getSubcommandName());
             }
@@ -245,7 +242,7 @@ public class CustomInterfacedEventManager implements IEventManager {
         if (sce.getSubcommandName() == null) {
             myCommand = commandListeners.get(sce.getName().toLowerCase(Locale.ROOT));
         } else {
-            myCommand = slashVariants.get(sce.getCommandPath());
+            myCommand = slashVariants.get(sce.getFullCommandName());
             if (myCommand == null) {
                 myCommand = commandListeners.get(sce.getSubcommandName());
             }
@@ -268,7 +265,7 @@ public class CustomInterfacedEventManager implements IEventManager {
         if (mes.getAuthor().isBot()) {
             return;
         }
-        Character correspondingPrefix = Chuu.prefixService.getCorrespondingPrefix(mes.isFromGuild(), mes.getGuild());
+        Character correspondingPrefix = Chuu.prefixService.getCorrespondingPrefix(mes);
         String contentRaw = mes.getMessage().getContentRaw();
         int length = contentRaw.length();
         if ((length <= 1)) {
@@ -316,7 +313,7 @@ public class CustomInterfacedEventManager implements IEventManager {
         }
     }
 
-    @Nonnull
+    @NotNull
     @Override
     public List<Object> getRegisteredListeners() {
         return Stream.concat(

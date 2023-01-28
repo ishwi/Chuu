@@ -3,7 +3,7 @@ package core.services;
 import dao.ChuuService;
 import gnu.trove.map.TLongCharMap;
 import gnu.trove.map.hash.TLongCharHashMap;
-import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.Map;
 
@@ -34,10 +34,10 @@ public class PrefixService {
         }
     }
 
-    public Character getCorrespondingPrefix(boolean isFromGuild, Guild guild) {
-        if (isFromGuild)
+    public Character getCorrespondingPrefix(MessageReceivedEvent mes) {
+        if (!mes.isFromGuild())
             return DEFAULT_PREFIX;
-        long id = guild.getIdLong();
+        long id = mes.getGuild().getIdLong();
         char character = prefixMap.get(id);
         return character == prefixMap.getNoEntryValue() ? DEFAULT_PREFIX : character;
 

@@ -2,7 +2,6 @@ package core.parsers;
 
 import core.commands.Context;
 import core.commands.InteracionReceived;
-import core.exceptions.LastFmException;
 import core.parsers.explanation.AlbumExplanation;
 import core.parsers.explanation.YearExplanation;
 import core.parsers.explanation.util.Explanation;
@@ -11,7 +10,6 @@ import core.parsers.params.AlbumYearParameters;
 import core.parsers.utils.OptionalEntity;
 import dao.ChuuService;
 import dao.entities.AlbumInfo;
-import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.interactions.commands.CommandInteraction;
 
 import java.time.Year;
@@ -28,7 +26,7 @@ public class AlbumYearParser extends DaoParser<AlbumYearParameters> {
     }
 
     @Override
-    protected AlbumYearParameters parseLogic(Context e, String[] words) throws InstanceNotFoundException, LastFmException {
+    protected AlbumYearParameters parseLogic(Context e, String[] words) {
         // Check if it exists
         String message = String.join(" ", words);
         Matcher matcher = a.matcher(message);
@@ -70,7 +68,7 @@ public class AlbumYearParser extends DaoParser<AlbumYearParameters> {
     }
 
     @Override
-    public AlbumYearParameters parseSlashLogic(InteracionReceived<? extends CommandInteraction> ctx) throws LastFmException, InstanceNotFoundException {
+    public AlbumYearParameters parseSlashLogic(InteracionReceived<? extends CommandInteraction> ctx) {
         InteractionAux.ArtistAlbum artistAlbum = InteractionAux.parseAlbum(ctx.e(), () -> {
         });
         Year year = InteractionAux.parseYear(ctx.e(), () -> sendError("Inputted year is a future year and cannot be used.", ctx));

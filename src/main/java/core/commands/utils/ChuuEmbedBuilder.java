@@ -6,9 +6,9 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.internal.utils.Checks;
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nonnull;
 import java.awt.*;
 import java.util.regex.Pattern;
 
@@ -23,7 +23,7 @@ public class ChuuEmbedBuilder extends EmbedBuilder {
         setColor(CommandUtil.pastelColor());
     }
 
-    @Nonnull
+    @NotNull
     @Override
     public EmbedBuilder setColor(@Nullable Color color) {
         if (color != null && color.equals(Color.white)) {
@@ -32,7 +32,7 @@ public class ChuuEmbedBuilder extends EmbedBuilder {
         return super.setColor(color);
     }
 
-    @Nonnull
+    @NotNull
     @Override
     public MessageEmbed build() {
         if (this.getDescriptionBuilder().length() > MessageEmbed.DESCRIPTION_MAX_LENGTH) {
@@ -42,7 +42,7 @@ public class ChuuEmbedBuilder extends EmbedBuilder {
         return super.build();
     }
 
-    @Nonnull
+    @NotNull
     @Override
     public EmbedBuilder setFooter(@Nullable String text, @Nullable String iconUrl) {
         if (text != null) {
@@ -51,7 +51,7 @@ public class ChuuEmbedBuilder extends EmbedBuilder {
         return super.setFooter(null, iconUrl);
     }
 
-    @Nonnull
+    @NotNull
     @Override
     public EmbedBuilder setAuthor(@Nullable String name, @Nullable String url, @Nullable String iconUrl) {
         if (name != null) {
@@ -60,7 +60,7 @@ public class ChuuEmbedBuilder extends EmbedBuilder {
         return super.setAuthor(null, url, iconUrl);
     }
 
-    @Nonnull
+    @NotNull
     @Override
     public EmbedBuilder setImage(@Nullable String url) {
         if (StringUtils.isBlank(url)) {
@@ -69,8 +69,8 @@ public class ChuuEmbedBuilder extends EmbedBuilder {
         return super.setImage(url);
     }
 
-    @Nonnull
-    public EmbedBuilder appendDescription(@Nonnull CharSequence description) {
+    @NotNull
+    public EmbedBuilder appendDescription(@NotNull CharSequence description) {
         Checks.notNull(description, "description");
         if (this.getDescriptionBuilder().length() + description.length() > MessageEmbed.DESCRIPTION_MAX_LENGTH) {
             return super.appendDescription(linkMatcher.matcher(description.toString()).replaceAll("$1"));

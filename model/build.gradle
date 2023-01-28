@@ -37,12 +37,12 @@ repositories {
 
 dependencies {
     testImplementation group: 'junit', name: 'junit', version: '4.13.2'
-    implementation group: 'org.postgresql', name: 'postgresql', version: '42.5.0'
+    implementation group: 'org.postgresql', name: 'postgresql', version: '42.5.1'
     implementation 'com.google.code.findbugs:jsr305:3.0.2'
     api group: 'org.apache.commons', name: 'commons-lang3', version: '3.12.0'
-    api group: 'org.apache.commons', name: 'commons-text', version: '1.9'
-    api group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.13.4'
-    api 'org.jetbrains:annotations:23.0.0'
+    api group: 'org.apache.commons', name: 'commons-text', version: '1.10.0'
+    api group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.14.1'
+    api 'org.jetbrains:annotations:24.0.0'
     api 'com.neovisionaries:nv-i18n:1.29'
 
 
@@ -50,29 +50,29 @@ dependencies {
     implementation group: 'com.zaxxer', name: 'HikariCP', version: '5.0.1'
     api group: 'org.apache.commons', name: 'commons-collections4', version: '4.4'
     // https://mvnrepository.com/artifact/org.mariadb.jdbc/mariadb-java-client
-    api 'org.mariadb.jdbc:mariadb-java-client:3.0.8'
+    api 'org.mariadb.jdbc:mariadb-java-client:3.1.2'
 
 
 //    implementation group: 'mysql', name: 'mysql-connector-java', version: '8.0.25'
 
-    testImplementation 'org.mockito:mockito-core:4.8.0'
-    testImplementation 'org.assertj:assertj-core:3.23.1'
+    testImplementation 'org.mockito:mockito-core:5.0.0'
+    testImplementation 'org.assertj:assertj-core:3.24.2'
     // https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-engine
-    testImplementation 'org.junit.jupiter:junit-jupiter:5.9.1'
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.9.2'
 
-    testImplementation "org.testcontainers:testcontainers:1.17.3"
-    testImplementation "org.testcontainers:junit-jupiter:1.17.3"
-    testImplementation "org.testcontainers:mariadb:1.17.3"
+    testImplementation "org.testcontainers:testcontainers:1.17.6"
+    testImplementation "org.testcontainers:junit-jupiter:1.17.6"
+    testImplementation "org.testcontainers:mariadb:1.17.6"
 
 // https://mvnrepository.com/artifact/org.mariadb.jdbc/mariadb-java-client
-    liquibaseRuntime 'org.mariadb.jdbc:mariadb-java-client:3.0.8'
+    liquibaseRuntime 'org.mariadb.jdbc:mariadb-java-client:3.1.2'
 
-    liquibaseRuntime 'org.liquibase:liquibase-core:4.16.1'
+    liquibaseRuntime 'org.liquibase:liquibase-core:4.19.0'
     liquibaseRuntime 'org.liquibase:liquibase-groovy-dsl:3.0.2'
 //    liquibaseRuntime group: 'mysql', name: 'mysql-connector-java', version: '8.0.25'
     liquibaseRuntime group: 'javax.xml.bind', name: 'jaxb-api', version: '2.4.0-b180830.0359'
 // https://mvnrepository.com/artifact/org.yaml/snakeyaml
-    liquibaseRuntime group: 'org.yaml', name: 'snakeyaml', version: '1.32'
+    liquibaseRuntime group: 'org.yaml', name: 'snakeyaml', version: '1.33'
     liquibaseRuntime files('build/classes/java/main')
     liquibaseRuntime files('build/resources/db')
 }

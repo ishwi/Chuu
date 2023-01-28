@@ -6,7 +6,6 @@ import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.commands.utils.PrivacyUtils;
-import core.exceptions.LastFmException;
 import core.otherlisteners.util.PaginatorBuilder;
 import core.parsers.OnlyUsernameParser;
 import core.parsers.Parser;
@@ -15,10 +14,9 @@ import core.util.ServiceView;
 import dao.entities.PrivacyUserCount;
 import dao.entities.Rank;
 import dao.entities.UsersWrapper;
-import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.EmbedBuilder;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -66,7 +64,7 @@ public class GlobalCommandsIssuedCommand extends ConcurrentCommand<ChuuDataParam
 
 
     @Override
-    public void onCommand(Context e, @Nonnull ChuuDataParams params) throws LastFmException, InstanceNotFoundException {
+    public void onCommand(Context e, @NotNull ChuuDataParams params) {
 
         long idLong = params.getLastFMData().getDiscordId();
         CompletableFuture<Optional<Rank<PrivacyUserCount>>> rankOpt = CommandUtil.supplyLog((() -> db.getUserPosition(idLong)));

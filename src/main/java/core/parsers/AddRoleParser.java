@@ -1,10 +1,8 @@
 package core.parsers;
 
 import core.commands.Context;
-import core.exceptions.LastFmException;
 import core.parsers.explanation.util.Explanation;
 import core.parsers.params.AddRoleParameters;
-import dao.exceptions.InstanceNotFoundException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.beryx.awt.color.ColorFactory;
@@ -18,12 +16,7 @@ public class AddRoleParser extends Parser<AddRoleParameters> {
     private final Pattern fromTo = Pattern.compile("(\\d+) ?(?:to|:|->)? ?(\\d+)");
 
     @Override
-    protected void setUpErrorMessages() {
-
-    }
-
-    @Override
-    protected AddRoleParameters parseLogic(Context e, String[] words) throws InstanceNotFoundException, LastFmException {
+    protected AddRoleParameters parseLogic(Context e, String[] words) {
         String all = String.join(" ", words);
         Matcher matcher = fromTo.matcher(all);
         int first;

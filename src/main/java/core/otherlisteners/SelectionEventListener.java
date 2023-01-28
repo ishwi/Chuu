@@ -4,7 +4,7 @@ import core.commands.Context;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
-import net.dv8tion.jda.api.events.interaction.component.SelectMenuInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.selections.SelectMenu;
@@ -47,7 +47,7 @@ public class SelectionEventListener extends ReactionListener {
     }
 
     @Override
-    public boolean isValid(SelectMenuInteractionEvent event) {
+    public boolean isValid(StringSelectInteractionEvent event) {
         if (this.message == null) {
             return false;
         }
@@ -75,7 +75,7 @@ public class SelectionEventListener extends ReactionListener {
     }
 
     @Override
-    public void onSelectedMenuEvent(@NotNull SelectMenuInteractionEvent event) {
+    public void onSelectedMenuEvent(@NotNull StringSelectInteractionEvent event) {
         event.deferEdit().queue();
         SelectMenu component = event.getComponent();
         List<ActionRow> actionRows = event.getMessage().getActionRows();

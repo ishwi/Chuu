@@ -1,10 +1,8 @@
 package core.parsers;
 
 import core.commands.Context;
-import core.exceptions.LastFmException;
 import core.parsers.explanation.util.Explanation;
 import core.parsers.params.TrackListParameters;
-import dao.exceptions.InstanceNotFoundException;
 
 import java.util.Collections;
 import java.util.List;
@@ -14,12 +12,7 @@ public class TrackListParser extends Parser<TrackListParameters> {
     private final Pattern linePattern = Pattern.compile("^(\\d+\\. )(.*)$");
 
     @Override
-    void setUpOptionals() {
-
-    }
-
-    @Override
-    protected TrackListParameters parseLogic(Context e, String[] words) throws InstanceNotFoundException, LastFmException {
+    protected TrackListParameters parseLogic(Context e, String[] words) {
         if (hasOptional("spotify", e) || hasOptional("musicbrainz", e) || hasOptional("lastfm", e)) {
             return new TrackListParameters(e, false);
         }

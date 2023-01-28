@@ -31,9 +31,9 @@ import net.dv8tion.jda.api.exceptions.InsufficientPermissionException;
 import net.dv8tion.jda.api.hooks.EventListener;
 import net.dv8tion.jda.api.requests.ErrorResponse;
 import net.dv8tion.jda.api.requests.RestAction;
+import org.jetbrains.annotations.CheckReturnValue;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.CheckReturnValue;
-import javax.annotation.Nonnull;
 import java.awt.image.BufferedImage;
 import java.time.Instant;
 import java.util.EnumSet;
@@ -97,7 +97,7 @@ public abstract class MyCommand<T extends CommandParameters> implements EventLis
     public void onEvent(@org.jetbrains.annotations.NotNull GenericEvent event) {
     }
 
-    public void onSlashCommandReceived(@Nonnull SlashCommandInteractionEvent event) {
+    public void onSlashCommandReceived(@NotNull SlashCommandInteractionEvent event) {
         if (!event.isFromGuild() && !respondInPrivate) {
             event.reply("This command only works in a server").queue();
             return;
@@ -261,7 +261,7 @@ public abstract class MyCommand<T extends CommandParameters> implements EventLis
         }
     }
 
-    public abstract void onCommand(Context e, @Nonnull T params) throws LastFmException, InstanceNotFoundException;
+    public abstract void onCommand(Context e, @NotNull T params) throws LastFmException, InstanceNotFoundException;
 
     protected final String getUserString(Context e, long discordId) {
         return getUserString(e, discordId, "Unknown");

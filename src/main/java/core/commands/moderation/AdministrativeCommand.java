@@ -9,8 +9,8 @@ import core.parsers.UrlParser;
 import core.parsers.params.UrlParameters;
 import core.util.ServiceView;
 import org.imgscalr.Scalr;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.BufferedInputStream;
@@ -53,7 +53,7 @@ public class AdministrativeCommand extends ConcurrentCommand<UrlParameters> {
     }
 
     @Override
-    public void onCommand(Context e, @Nonnull UrlParameters urlParameters) {
+    public void onCommand(Context e, @NotNull UrlParameters urlParameters) {
         String url = urlParameters.getUrl();
         if (url.length() == 0) {
             db.removeLogo(e.getGuild().getIdLong());

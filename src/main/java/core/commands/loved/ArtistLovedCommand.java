@@ -14,10 +14,9 @@ import core.parsers.params.ArtistParameters;
 import core.services.validators.ArtistValidator;
 import core.util.ServiceView;
 import dao.entities.*;
-import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.EmbedBuilder;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.util.List;
@@ -58,7 +57,7 @@ public class ArtistLovedCommand extends ConcurrentCommand<ArtistParameters> {
     }
 
     @Override
-    public void onCommand(Context e, @Nonnull ArtistParameters params) throws LastFmException, InstanceNotFoundException {
+    public void onCommand(Context e, @NotNull ArtistParameters params) throws LastFmException {
         CountWrapper<List<TrackWithArtistId>> wrapper = lastFM.getLovedSongs(params.getLastFMData());
         ScrobbledArtist sA = new ArtistValidator(db, lastFM, e).validate(params.getArtist(), false, !params.isNoredirect());
         List<TrackWithArtistId> artists = wrapper.getResult().stream().filter(w -> w.getArtist().equalsIgnoreCase(sA.getArtist())).toList();
@@ -84,7 +83,6 @@ public class ArtistLovedCommand extends ConcurrentCommand<ArtistParameters> {
                 .unnumered().build().queue();
 
         CommandUtil.runLog(() -> db.updateLovedSongs(params.getLastFMData().getName(), wrapper.getResult().stream().map(w -> new ScrobbledTrack(w.getArtist(), w.getName(), 0, true, 0, null, null, null)).toList()));
-        ;
 
     }
 }

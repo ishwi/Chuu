@@ -28,7 +28,6 @@ import org.imgscalr.Scalr;
 import org.jetbrains.annotations.NotNull;
 import org.knowm.xchart.PieChart;
 
-import javax.annotation.Nonnull;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
@@ -78,7 +77,7 @@ public abstract class WhoKnowsBaseCommand<T extends CommandParameters> extends C
     }
 
     @Override
-    public void onCommand(Context e, @Nonnull T params) throws LastFmException {
+    public void onCommand(Context e, @NotNull T params) throws LastFmException {
 
 
         WhoKnowsDisplayMode whoknowsDisplayMode = getWhoknowsMode(params);

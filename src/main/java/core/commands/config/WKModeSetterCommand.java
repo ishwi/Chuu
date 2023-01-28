@@ -13,8 +13,8 @@ import core.parsers.params.EnumListParameters;
 import core.util.ServiceView;
 import dao.entities.WKMode;
 import net.dv8tion.jda.api.EmbedBuilder;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.function.Function;
@@ -66,7 +66,7 @@ public class WKModeSetterCommand extends ConcurrentCommand<EnumListParameters<WK
     }
 
     @Override
-    public void onCommand(Context e, @Nonnull EnumListParameters<WKMode> params) {
+    public void onCommand(Context e, @NotNull EnumListParameters<WKMode> params) {
 
         EnumSet<WKMode> modes = params.getEnums();
         if (params.isHelp()) {

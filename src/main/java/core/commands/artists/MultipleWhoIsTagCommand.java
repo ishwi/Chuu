@@ -16,8 +16,8 @@ import dao.entities.ScrobbledArtist;
 import dao.entities.SearchMode;
 import net.dv8tion.jda.api.EmbedBuilder;
 import org.apache.commons.text.WordUtils;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -74,7 +74,7 @@ public class MultipleWhoIsTagCommand extends ConcurrentCommand<MultipleGenresPar
     }
 
     @Override
-    public void onCommand(Context e, @Nonnull MultipleGenresParameters params) {
+    public void onCommand(Context e, @NotNull MultipleGenresParameters params) {
 
 
         Set<String> genres = params.getGenres();

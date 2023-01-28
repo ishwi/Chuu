@@ -13,8 +13,8 @@ import core.util.ServiceView;
 import dao.entities.UsersWrapper;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
@@ -62,7 +62,7 @@ public class IndexCommand extends ConcurrentCommand<CommandParameters> {
 
 
     @Override
-    public void onCommand(Context e, @Nonnull CommandParameters params) {
+    public void onCommand(Context e, @NotNull CommandParameters params) {
         if (CommandUtil.notEnoughPerms(e)) {
             sendMessageQueue(e, CommandUtil.notEnoughPermsTemplate() + "re-index the whole serverlist");
             return;

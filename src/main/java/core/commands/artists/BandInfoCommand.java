@@ -25,9 +25,9 @@ import dao.utils.LinkUtils;
 import jdk.incubator.concurrent.StructuredTaskScope;
 import net.dv8tion.jda.api.EmbedBuilder;
 import org.imgscalr.Scalr;
+import org.jetbrains.annotations.NotNull;
 import org.knowm.xchart.PieChart;
 
-import javax.annotation.Nonnull;
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -200,7 +200,7 @@ public class BandInfoCommand extends ConcurrentCommand<ArtistParameters> {
     }
 
     @Override
-    public void onCommand(Context e, @Nonnull ArtistParameters params) throws LastFmException {
+    public void onCommand(Context e, @NotNull ArtistParameters params) throws LastFmException {
         ScrobbledArtist sA = new ArtistValidator(db, lastFM, e).validate(params.getArtist(), !params.isNoredirect());
         params.setScrobbledArtist(sA);
         bandLogic(params);

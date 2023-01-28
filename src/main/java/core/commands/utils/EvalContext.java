@@ -16,9 +16,9 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.User;
 import org.apache.commons.lang3.reflect.FieldUtils;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nonnull;
 import java.util.function.Consumer;
 
 import static core.commands.abstracts.ConcurrentCommand.threadStats;
@@ -73,7 +73,7 @@ public record EvalContext(JDA jda, Context e,
             }
 
             @Override
-            public void onCommand(Context e, @Nonnull CommandParameters params) {
+            public void onCommand(Context e, @NotNull CommandParameters params) {
                 if (e instanceof ContextMessageReceived f) {
                     mes.accept(f);
                 }

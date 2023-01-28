@@ -10,8 +10,8 @@ import core.util.ServiceView;
 import dao.entities.LastFMData;
 import dao.entities.Role;
 import dao.exceptions.InstanceNotFoundException;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.util.List;
 
 public class BanTagCommand extends ConcurrentCommand<CommandParameters> {
@@ -45,7 +45,7 @@ public class BanTagCommand extends ConcurrentCommand<CommandParameters> {
     }
 
     @Override
-    public void onCommand(Context e, @Nonnull CommandParameters params) throws InstanceNotFoundException {
+    public void onCommand(Context e, @NotNull CommandParameters params) throws InstanceNotFoundException {
         long idLong = e.getAuthor().getIdLong();
         LastFMData lastFMData = db.findLastFMData(idLong);
         if (lastFMData.getRole() != Role.ADMIN) {

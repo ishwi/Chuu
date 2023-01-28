@@ -39,7 +39,7 @@ public interface TrackDao {
 
     Map<Genre, Integer> genreCountsByTracks(Connection connection, List<AlbumInfo> albumInfos);
 
-    String getTrackUrlByName(Connection connection, String name, long artistId) throws InstanceNotFoundException;
+    String getTrackUrlByName(Connection connection, String name, long artistId);
 
     void fillIdsMbids(Connection connection, List<ScrobbledTrack> list);
 

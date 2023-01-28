@@ -25,8 +25,8 @@ import core.parsers.EnumParser;
 import core.parsers.Parser;
 import core.parsers.params.EnumParameters;
 import core.util.ServiceView;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.util.List;
 
 public class RepeatCommand extends MusicCommand<EnumParameters<RepeatOption>> {
@@ -57,7 +57,7 @@ public class RepeatCommand extends MusicCommand<EnumParameters<RepeatOption>> {
     }
 
     @Override
-    public void onCommand(Context e, @Nonnull EnumParameters<RepeatOption> params) {
+    public void onCommand(Context e, @NotNull EnumParameters<RepeatOption> params) {
         RepeatOption element = params.getElement();
         MusicManager manager = getManager(e);
         manager.setRepeatOption(element);

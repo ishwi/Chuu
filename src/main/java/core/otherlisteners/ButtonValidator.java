@@ -6,7 +6,7 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
-import net.dv8tion.jda.api.events.interaction.component.SelectMenuInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.interactions.components.ActionComponent;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
@@ -15,7 +15,6 @@ import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.requests.RestAction;
 import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -140,7 +139,7 @@ public class ButtonValidator<T> extends ReactionListener {
     }
 
     @Override
-    public void onEvent(@Nonnull GenericEvent event) {
+    public void onEvent(@NotNull GenericEvent event) {
         if (event instanceof ButtonInteractionEvent e) {
             if (isValid(e)) {
                 onButtonClickedEvent(e);
@@ -175,7 +174,7 @@ public class ButtonValidator<T> extends ReactionListener {
     }
 
     @Override
-    public boolean isValid(SelectMenuInteractionEvent event) {
+    public boolean isValid(StringSelectInteractionEvent event) {
         return false;
     }
 
@@ -185,12 +184,12 @@ public class ButtonValidator<T> extends ReactionListener {
     }
 
     @Override
-    public void onMessageReactionAdd(@Nonnull MessageReactionAddEvent event) {
+    public void onMessageReactionAdd(@NotNull MessageReactionAddEvent event) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public void onButtonClickedEvent(@Nonnull ButtonInteractionEvent event) {
+    public void onButtonClickedEvent(@NotNull ButtonInteractionEvent event) {
         if (!event.isAcknowledged()) {
             event.deferEdit().queue();
         }
@@ -212,7 +211,7 @@ public class ButtonValidator<T> extends ReactionListener {
     }
 
     @Override
-    public void onSelectedMenuEvent(@NotNull SelectMenuInteractionEvent event) {
+    public void onSelectedMenuEvent(@NotNull StringSelectInteractionEvent event) {
 
     }
 

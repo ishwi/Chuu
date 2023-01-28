@@ -1,6 +1,6 @@
 package core.apis.lyrics;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 public class Lyrics {
     private final String lyrics;

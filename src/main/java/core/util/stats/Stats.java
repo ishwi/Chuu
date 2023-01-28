@@ -11,8 +11,8 @@ import dao.entities.LastFMData;
 import dao.entities.ScrobbledTrack;
 import dao.entities.UserInfo;
 import org.apache.commons.text.WordUtils;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -94,11 +94,11 @@ public enum Stats {
     }
 
 
-    Stats(@Nonnull Cache<?> cache) {
+    Stats(@NotNull Cache<?> cache) {
         this(cache, AllMode.NORMAL, new String[]{});
     }
 
-    Stats(@Nonnull Cache<?> cache, String... aliases) {
+    Stats(@NotNull Cache<?> cache, String... aliases) {
         this(cache, AllMode.NORMAL, aliases);
     }
 

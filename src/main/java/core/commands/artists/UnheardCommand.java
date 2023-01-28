@@ -19,7 +19,6 @@ import core.util.ServiceView;
 import dao.entities.DiscordUserDisplay;
 import dao.entities.ScrobbledArtist;
 import dao.entities.UnheardCount;
-import dao.exceptions.InstanceNotFoundException;
 import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import org.jetbrains.annotations.NotNull;
@@ -70,7 +69,7 @@ public class UnheardCommand extends ConcurrentCommand<NumberParameters<ArtistPar
 
 
     @Override
-    public void onCommand(Context e, @NotNull NumberParameters<ArtistParameters> numberParameters) throws LastFmException, InstanceNotFoundException {
+    public void onCommand(Context e, @NotNull NumberParameters<ArtistParameters> numberParameters) throws LastFmException {
         ArtistParameters params = numberParameters.getInnerParams();
         long userId = params.getLastFMData().getDiscordId();
 

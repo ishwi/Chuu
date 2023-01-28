@@ -20,8 +20,8 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -68,7 +68,7 @@ public class AlbumAltCovers extends ConcurrentCommand<ArtistAlbumParameters> {
     }
 
     @Override
-    public void onCommand(Context e, @Nonnull ArtistAlbumParameters params) throws LastFmException {
+    public void onCommand(Context e, @NotNull ArtistAlbumParameters params) throws LastFmException {
         ScrobbledAlbum album = new AlbumValidator(db, lastFM).validate(params.getArtist(), params.getAlbum());
         List<String> covers = Chuu.getCoverService().getCovers(album.getAlbumId());
         if (covers.isEmpty()) {

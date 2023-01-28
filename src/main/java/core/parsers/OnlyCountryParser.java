@@ -3,14 +3,12 @@ package core.parsers;
 import com.neovisionaries.i18n.CountryCode;
 import core.commands.Context;
 import core.commands.InteracionReceived;
-import core.exceptions.LastFmException;
 import core.parsers.explanation.CountryExplanation;
 import core.parsers.explanation.util.Explanation;
 import core.parsers.interactions.InteractionAux;
 import core.parsers.params.OnlyCountryParameters;
 import core.parsers.utils.CountryParse;
 import dao.ChuuService;
-import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.interactions.commands.CommandInteraction;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 
@@ -29,7 +27,7 @@ public class OnlyCountryParser extends DaoParser<OnlyCountryParameters> {
     }
 
     @Override
-    public OnlyCountryParameters parseSlashLogic(InteracionReceived<? extends CommandInteraction> ctx) throws LastFmException, InstanceNotFoundException {
+    public OnlyCountryParameters parseSlashLogic(InteracionReceived<? extends CommandInteraction> ctx) {
         CommandInteraction e = ctx.e();
         OptionMapping country = e.getOption("country");
         CountryCode countryCode = CountryParse.fromString(this, ctx, country.getAsString());
@@ -38,7 +36,7 @@ public class OnlyCountryParser extends DaoParser<OnlyCountryParameters> {
     }
 
     @Override
-    protected OnlyCountryParameters parseLogic(Context e, String[] words) throws InstanceNotFoundException {
+    protected OnlyCountryParameters parseLogic(Context e, String[] words) {
         String countryCode;
         if (words.length == 0) {
             sendError(getErrorMessage(5), e);

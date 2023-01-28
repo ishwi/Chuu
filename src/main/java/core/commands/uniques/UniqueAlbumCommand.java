@@ -15,8 +15,8 @@ import dao.entities.AlbumPlays;
 import dao.entities.DiscordUserDisplay;
 import dao.entities.UniqueWrapper;
 import net.dv8tion.jda.api.EmbedBuilder;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.util.List;
 
 public class UniqueAlbumCommand extends ConcurrentCommand<ChuuDataParams> {
@@ -56,7 +56,7 @@ public class UniqueAlbumCommand extends ConcurrentCommand<ChuuDataParams> {
     }
 
     @Override
-    public void onCommand(Context e, @Nonnull ChuuDataParams params) {
+    public void onCommand(Context e, @NotNull ChuuDataParams params) {
 
         String lastFmName = params.getLastFMData().getName();
 
@@ -65,11 +65,11 @@ public class UniqueAlbumCommand extends ConcurrentCommand<ChuuDataParams> {
         long discordId = params.getLastFMData().getDiscordId();
         if (new NotOnServerGuard(db).notOnServer(e.getGuild().getIdLong(), discordId)) {
             sendMessageQueue(e, ("You are not registered in this server.\n" +
-                    "You need to do %sset or %slogin to get tracked in this server.").formatted(e.getPrefix(), e.getPrefix()));
+                                 "You need to do %sset or %slogin to get tracked in this server.").formatted(e.getPrefix(), e.getPrefix()));
             return;
         }
 
-        int rows = resultWrapper.getUniqueData().size();
+        int rows = resultWrapper.uniqueData().size();
         if (rows == 0) {
             sendMessageQueue(e, String.format("You have no %sunique albums :(", isGlobal() ? "global " : ""));
             return;
@@ -80,7 +80,7 @@ public class UniqueAlbumCommand extends ConcurrentCommand<ChuuDataParams> {
         EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e).setAuthor(String.format("%s's%s unique albums", userInfo.username(), isGlobal() ? " global" : ""), CommandUtil.getLastFmUser(lastFmName), userInfo.urlImage())
                 .setFooter(String.format("%s has %d%s unique albums!%n", CommandUtil.unescapedUser(userInfo.username(), discordId, e), rows, isGlobal() ? " global" : ""), null);
 
-        new PaginatorBuilder<>(e, embedBuilder, resultWrapper.getUniqueData()).build().queue();
+        new PaginatorBuilder<>(e, embedBuilder, resultWrapper.uniqueData()).build().queue();
 
 
     }

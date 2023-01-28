@@ -17,8 +17,8 @@ import core.util.ServiceView;
 import net.dv8tion.jda.api.EmbedBuilder;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -74,7 +74,7 @@ public class EvalCommand extends MyCommand<CommandParameters> {
     }
 
     @Override
-    public void onCommand(Context e, @Nonnull CommandParameters params) {
+    public void onCommand(Context e, @NotNull CommandParameters params) {
         if (ownerId == null) {
             e.getJDA().retrieveApplicationInfo().queue(x -> ownerId = x.getOwner().getIdLong());
             return;

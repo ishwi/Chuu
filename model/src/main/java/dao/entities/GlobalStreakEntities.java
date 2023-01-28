@@ -1,9 +1,9 @@
 package dao.entities;
 
 import dao.utils.LinkUtils;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nonnull;
 import java.time.Instant;
 import java.util.function.Consumer;
 
@@ -24,7 +24,7 @@ public class GlobalStreakEntities extends StreakEntity {
         this.lastfmId = lastfmId;
     }
 
-    @Nonnull
+    @NotNull
     public static String getComboString(String aString, StringBuilder description, int i, String currentArtist, int albCounter, String currentAlbum, int i2, String currentSong, @Nullable DateHolder start) {
         if (i > 1) {
             description.append("**Artist**: ")
@@ -97,6 +97,6 @@ public class GlobalStreakEntities extends StreakEntity {
         this.calculatedDisplayName = calculatedDisplayName;
     }
 
-    public static record DateHolder(Instant start, String date, String link) {
+    public record DateHolder(Instant start, String date, String link) {
     }
 }

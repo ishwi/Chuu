@@ -9,8 +9,8 @@ import dao.entities.UsersWrapper;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.regex.Matcher;
@@ -51,7 +51,7 @@ public class ParserAux {
         return Optional.empty();
     }
 
-    @Nonnull
+    @NotNull
     User getOneUserPermissive(Context e, ChuuService dao) throws InstanceNotFoundException {
         User sample;
         String join = String.join(" ", message);
@@ -122,7 +122,7 @@ public class ParserAux {
         return sample;
     }
 
-    @Nonnull
+    @NotNull
     User getOneUser(Context e, ChuuService dao) throws InstanceNotFoundException {
         User sample = null;
         List<String> tempArray = new ArrayList<>();

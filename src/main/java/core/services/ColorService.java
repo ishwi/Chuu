@@ -9,9 +9,9 @@ import dao.entities.EmbedColor;
 import gnu.trove.map.hash.TLongObjectHashMap;
 import gnu.trove.set.hash.TLongHashSet;
 import net.dv8tion.jda.api.entities.Role;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.awt.*;
 import java.util.Objects;
 import java.util.Optional;
@@ -32,7 +32,7 @@ public class ColorService {
         hasEmptyGuild = new TLongHashSet(chuuService.getGuildsWithEmptyColorOverride());
     }
 
-    public static @Nonnull
+    public static @NotNull
     Color computeColor(Context event) {
         if (event.isFromGuild()) {
             EmbedColor.EmbedColorType colorType = guildColorTypes.get(event.getGuild().getIdLong());

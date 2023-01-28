@@ -22,35 +22,40 @@ import core.music.MusicManager;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.guild.voice.GenericGuildVoiceEvent;
-import net.dv8tion.jda.api.events.guild.voice.GuildVoiceJoinEvent;
-import net.dv8tion.jda.api.events.guild.voice.GuildVoiceLeaveEvent;
-import net.dv8tion.jda.api.events.guild.voice.GuildVoiceMoveEvent;
+import net.dv8tion.jda.api.events.guild.voice.GuildVoiceUpdateEvent;
 import net.dv8tion.jda.api.hooks.EventListener;
-
-import javax.annotation.Nonnull;
+import org.jetbrains.annotations.NotNull;
 
 public class VoiceListener implements EventListener {
 
-    public void onEvent(@Nonnull GenericEvent event) {
-        if (!(event instanceof GenericGuildVoiceEvent) || !core.Chuu.isLoaded()) {
-            return;
-        }
-        switch (event) {
-            case GuildVoiceJoinEvent e -> onGuildVoiceJoin(e);
-            case GuildVoiceLeaveEvent e -> onGuildVoiceLeave(e);
-            case GuildVoiceMoveEvent e -> onGuildVoiceMove(e);
-            default -> {
+    private void handleUpdate(GuildVoiceUpdateEvent event) {
+        if (event.getChannelLeft() != null) {
+            if (event.getChannelJoined() != null) {
+                onGuildVoiceMove(event);
+            } else {
+                onGuildVoiceLeave(event);
             }
+        } else {
+            onGuildVoiceJoin(event);
         }
     }
 
-    private void onGuildVoiceJoin(GuildVoiceJoinEvent event) {
+    public void onEvent(@NotNull GenericEvent event) {
+        if (!(event instanceof GenericGuildVoiceEvent) || !core.Chuu.isLoaded()) {
+            return;
+        }
+        if (event instanceof GuildVoiceUpdateEvent e) {
+            handleUpdate(e);
+        }
+    }
+
+    private void onGuildVoiceJoin(GuildVoiceUpdateEvent event) {
         if (event.getMember().getUser().getIdLong() != event.getJDA().getSelfUser().getIdLong()) {
             checkVoiceState(event.getGuild());
         }
     }
 
-    private void onGuildVoiceLeave(GuildVoiceLeaveEvent event) {
+    private void onGuildVoiceLeave(GuildVoiceUpdateEvent event) {
         if (event.getMember().getUser().getIdLong() == event.getJDA().getSelfUser().getIdLong()) {
             Chuu.playerRegistry.destroy(event.getGuild());
         } else {
@@ -58,7 +63,7 @@ public class VoiceListener implements EventListener {
         }
     }
 
-    private void onGuildVoiceMove(GuildVoiceMoveEvent event) {
+    private void onGuildVoiceMove(GuildVoiceUpdateEvent event) {
         if (event.getMember().getUser().getIdLong() != event.getJDA().getSelfUser().getIdLong()) {
             return;
         }
@@ -67,6 +72,7 @@ public class VoiceListener implements EventListener {
         if (manager == null) {
             return;
         }
+        assert event.getChannelJoined() != null;
         if (event.getGuild().getAfkChannel() != null && event.getChannelJoined().getId().equals(event.getGuild().getAfkChannel().getId())) {
             Chuu.playerRegistry.destroy(event.getGuild());
             return;

@@ -7,9 +7,9 @@ import core.imagerenderer.util.pie.IPieableList;
 import core.parsers.params.ChartParameters;
 import core.util.ServiceView;
 import dao.entities.CountWrapper;
+import org.jetbrains.annotations.NotNull;
 import org.knowm.xchart.PieChart;
 
-import javax.annotation.Nonnull;
 import java.util.concurrent.BlockingQueue;
 
 public abstract class OnlyChartCommand<T extends ChartParameters> extends ChartableCommand<T> {
@@ -23,7 +23,7 @@ public abstract class OnlyChartCommand<T extends ChartParameters> extends Charta
     }
 
     @Override
-    public void onCommand(Context e, @Nonnull T params) throws LastFmException {
+    public void onCommand(Context e, @NotNull T params) throws LastFmException {
 
         CountWrapper<BlockingQueue<UrlCapsule>> countWrapper = processQueue(params);
         BlockingQueue<UrlCapsule> urlCapsules = countWrapper.getResult();

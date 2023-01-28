@@ -9,6 +9,7 @@ import core.exceptions.DiscogsServiceException;
 import core.exceptions.LastFmEntityNotFoundException;
 import core.exceptions.LastFmException;
 import core.parsers.params.CommandParameters;
+import core.services.ChuuRunnable;
 import core.services.ColorService;
 import core.services.validators.ArtistValidator;
 import core.util.ChuuVirtualPool;
@@ -25,9 +26,9 @@ import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.utils.TimeFormat;
 import net.dv8tion.jda.internal.requests.CompletedRestAction;
 import org.apache.commons.lang3.tuple.Pair;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -106,7 +107,7 @@ public class CommandUtil {
         return null;
     }
 
-    public static String updateUrl(DiscogsApi discogsApi, @Nonnull ScrobbledArtist scrobbledArtist, ChuuService dao, Spotify spotify) {
+    public static String updateUrl(DiscogsApi discogsApi, @NotNull ScrobbledArtist scrobbledArtist, ChuuService dao, Spotify spotify) {
         String newUrl = null;
         try {
             newUrl = discogsApi.findArtistImage(scrobbledArtist.getArtist());
@@ -480,7 +481,7 @@ public class CommandUtil {
         });
     }
 
-    public static CompletableFuture<Void> runLog(Runnable supplier) {
+    public static CompletableFuture<Void> runLog(ChuuRunnable supplier) {
         return CompletableFuture.runAsync(supplier, logSupply).whenComplete((u, ex) -> {
             if (ex != null) {
                 Chuu.getLogger().warn(ex.getMessage(), ex);

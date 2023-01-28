@@ -2,12 +2,10 @@ package core.parsers;
 
 import core.commands.Context;
 import core.commands.InteracionReceived;
-import core.exceptions.LastFmException;
 import core.parsers.explanation.util.Explanation;
 import core.parsers.explanation.util.ExplanationLineType;
 import core.parsers.params.WordParameter;
 import core.parsers.utils.OptionalEntity;
-import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.interactions.commands.CommandInteraction;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
@@ -21,17 +19,12 @@ public class HelpParser extends Parser<WordParameter> {
     }
 
     @Override
-    protected void setUpErrorMessages() {
-
-    }
-
-    @Override
-    public WordParameter parseSlashLogic(InteracionReceived<? extends CommandInteraction> ctx) throws LastFmException, InstanceNotFoundException {
+    public WordParameter parseSlashLogic(InteracionReceived<? extends CommandInteraction> ctx) {
         return new WordParameter(ctx, Optional.ofNullable(ctx.e().getOption("command")).map(OptionMapping::getAsString).orElse(null));
     }
 
     @Override
-    protected WordParameter parseLogic(Context e, String[] words) throws InstanceNotFoundException, LastFmException {
+    protected WordParameter parseLogic(Context e, String[] words) {
         if (words.length == 0) {
             return new WordParameter(e, null);
         }

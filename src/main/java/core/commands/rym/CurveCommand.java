@@ -12,8 +12,8 @@ import core.parsers.params.ChuuDataParams;
 import core.util.ServiceView;
 import dao.entities.DiscordUserDisplay;
 import net.dv8tion.jda.api.EmbedBuilder;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -53,7 +53,7 @@ public class CurveCommand extends ConcurrentCommand<ChuuDataParams> {
     }
 
     @Override
-    public void onCommand(Context e, @Nonnull ChuuDataParams params) {
+    public void onCommand(Context e, @NotNull ChuuDataParams params) {
         long discordId = params.getLastFMData().getDiscordId();
         Map<Integer, Integer> userCurve = db.getUserCurve(discordId);
         DiscordUserDisplay uInfo = CommandUtil.getUserInfoUnescaped(e, discordId);

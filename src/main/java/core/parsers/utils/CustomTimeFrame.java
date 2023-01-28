@@ -3,8 +3,8 @@ package core.parsers.utils;
 import core.commands.utils.CommandUtil;
 import dao.entities.NaturalTimeFrameEnum;
 import dao.entities.TimeFrameEnum;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
@@ -40,7 +40,7 @@ public class CustomTimeFrame {
 
     }
 
-    public CustomTimeFrame(@Nonnull TimeFrameEnum timeFrameEnum) {
+    public CustomTimeFrame(@NotNull TimeFrameEnum timeFrameEnum) {
         this.timeFrameEnum = timeFrameEnum;
         this.count = -1;
         this.from = timeFrameEnum.toLocalDate(1).atOffset(ZoneOffset.UTC);

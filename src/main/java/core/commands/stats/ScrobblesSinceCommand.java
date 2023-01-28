@@ -12,8 +12,8 @@ import core.util.ServiceView;
 import dao.entities.LastFMData;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.utils.TimeFormat;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -50,7 +50,7 @@ public class ScrobblesSinceCommand extends ConcurrentCommand<DateParameters> {
     }
 
     @Override
-    public void onCommand(Context e, @Nonnull DateParameters params) throws LastFmException, InstanceNotFoundException {
+    public void onCommand(Context e, @NotNull DateParameters params) throws LastFmException, InstanceNotFoundException {
 
         LastFMData lastFMData = db.findLastFMData(params.getUser().getIdLong());
         ZonedDateTime date = params.getDate().atZoneSameInstant(lastFMData.getTimeZone().toZoneId());

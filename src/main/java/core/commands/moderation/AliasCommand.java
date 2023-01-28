@@ -15,8 +15,8 @@ import dao.entities.LastFMData;
 import dao.entities.Role;
 import dao.exceptions.DuplicateInstanceException;
 import dao.exceptions.InstanceNotFoundException;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.util.List;
 
 public class AliasCommand extends ConcurrentCommand<TwoArtistParams> {
@@ -52,7 +52,7 @@ public class AliasCommand extends ConcurrentCommand<TwoArtistParams> {
     }
 
     @Override
-    public void onCommand(Context e, @Nonnull TwoArtistParams params) throws LastFmException, InstanceNotFoundException {
+    public void onCommand(Context e, @NotNull TwoArtistParams params) throws LastFmException, InstanceNotFoundException {
 
         long idLong = e.getAuthor().getIdLong();
         LastFMData lastFMData = db.findLastFMData(idLong);

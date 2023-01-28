@@ -7,14 +7,12 @@ import core.commands.InteracionReceived;
 import core.commands.abstracts.MyCommand;
 import core.commands.moderation.DisabledCommand;
 import core.commands.utils.CommandUtil;
-import core.exceptions.LastFmException;
 import core.interactions.InteractionBuilder;
 import core.parsers.explanation.CommandExplanation;
 import core.parsers.explanation.util.Explanation;
 import core.parsers.explanation.util.ExplanationLineType;
 import core.parsers.params.DisabledCommandParameters;
 import core.parsers.utils.OptionalEntity;
-import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.interactions.commands.CommandInteraction;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
@@ -29,11 +27,6 @@ import java.util.Optional;
 public class DisabledCommandParser extends Parser<DisabledCommandParameters> implements Generable<DisabledCommandParameters> {
 
     @Override
-    protected void setUpErrorMessages() {
-
-    }
-
-    @Override
     void setUpOptionals() {
         addOptional(
                 new OptionalEntity("channel", "only does the toggle in this specific channel instead of in the whole server"),
@@ -45,7 +38,7 @@ public class DisabledCommandParser extends Parser<DisabledCommandParameters> imp
     }
 
     @Override
-    public DisabledCommandParameters parseSlashLogic(InteracionReceived<? extends CommandInteraction> ctx) throws LastFmException, InstanceNotFoundException {
+    public DisabledCommandParameters parseSlashLogic(InteracionReceived<? extends CommandInteraction> ctx) {
         return parseLogic(ctx, new String[]{ctx.e().getOption("command-name").getAsString()});
     }
 

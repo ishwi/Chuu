@@ -3,11 +3,11 @@ package core.apis.lyrics;
 import core.Chuu;
 import core.apis.ClientSingleton;
 import dao.exceptions.ChuuServiceException;
+import org.jetbrains.annotations.NotNull;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
-import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
@@ -29,7 +29,7 @@ public class EvanLyrics {
     }
 
 
-    @Nonnull
+    @NotNull
     private Optional<Lyrics> doLyrics(String q) {
         try {
             HttpRequest build = HttpRequest.newBuilder()

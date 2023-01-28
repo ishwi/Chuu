@@ -7,8 +7,8 @@ import core.parsers.params.NumberParameters;
 import core.util.ServiceView;
 import dao.entities.BillboardEntity;
 import dao.entities.Week;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
@@ -48,7 +48,7 @@ public class GlobalBillboardCommand extends BillboardCommand {
     }
 
     @Override
-    public void onCommand(Context e, @Nonnull NumberParameters<CommandParameters> params) {
+    public void onCommand(Context e, @NotNull NumberParameters<CommandParameters> params) {
 
         Week week = db.getCurrentWeekId();
         if (week.getId() == 1) {

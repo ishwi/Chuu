@@ -10,8 +10,8 @@ import core.parsers.params.EmotiParameters;
 import core.parsers.utils.OptionalEntity;
 import core.util.ServiceView;
 import net.dv8tion.jda.api.Permission;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
@@ -52,7 +52,7 @@ public class NpReactionsServerCommand extends ConcurrentCommand<EmotiParameters>
     }
 
     @Override
-    public void onCommand(Context e, @Nonnull EmotiParameters params) {
+    public void onCommand(Context e, @NotNull EmotiParameters params) {
         if (params.hasOptional("check")) {
             List<String> serverReactions = db.getServerReactions(e.getGuild().getIdLong());
             if (serverReactions.isEmpty()) {

@@ -2,8 +2,8 @@ package core.music.utils;
 
 import core.apis.last.entities.Scrobble;
 import core.music.sources.youtube.webscrobbler.processers.Processed;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -23,7 +23,7 @@ public record TrackScrobble(Scrobble scrobble, List<Processed> processeds, Strin
                 .orElse(new Times(0, total));
     }
 
-    @Nonnull
+    @NotNull
     private Map<Times, Processed> generateTimes(long total) {
         Map<Times, Processed> reduced = new TreeMap<>(Comparator.comparingLong(m -> m.start));
         processeds.stream().reduce((a, b) -> {

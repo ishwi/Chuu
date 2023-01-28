@@ -16,8 +16,8 @@ import core.util.ServiceView;
 import dao.entities.ChartMode;
 import dao.entities.CountWrapper;
 import dao.entities.TimeFrameEnum;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
@@ -43,7 +43,7 @@ public abstract class GroupingChartCommand extends ChartableCommand<ChartGroupPa
     }
 
     @Override
-    public void onCommand(Context e, @Nonnull ChartGroupParameters params) throws LastFmException {
+    public void onCommand(Context e, @NotNull ChartGroupParameters params) throws LastFmException {
 
         CountWrapper<GroupingQueue> countWrapper = processGroupedQueue(params);
         if (countWrapper.getResult().isEmpty()) {

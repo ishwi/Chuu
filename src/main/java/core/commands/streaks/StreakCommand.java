@@ -21,8 +21,8 @@ import dao.entities.ScrobbledArtist;
 import dao.entities.StreakEntity;
 import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
@@ -66,7 +66,7 @@ public class StreakCommand extends ConcurrentCommand<ChuuDataParams> {
     }
 
     @Override
-    public void onCommand(Context e, @Nonnull ChuuDataParams params) throws LastFmException {
+    public void onCommand(Context e, @NotNull ChuuDataParams params) throws LastFmException {
 
 
         LastFMData user = params.getLastFMData();
@@ -93,7 +93,6 @@ public class StreakCommand extends ConcurrentCommand<ChuuDataParams> {
             }
             Long fId = albumId;
             CommandUtil.runLog(() -> db.insertCombo(combo, discordID, sA.getArtistId(), fId));
-            ;
         }
 
 

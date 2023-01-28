@@ -3,12 +3,10 @@ package core.parsers;
 import core.commands.Context;
 import core.commands.ContextMessageReceived;
 import core.commands.InteracionReceived;
-import core.exceptions.LastFmException;
 import core.parsers.explanation.util.Explanation;
 import core.parsers.explanation.util.ExplanationLineType;
 import core.parsers.interactions.InteractionAux;
 import core.parsers.params.WordParameter;
-import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.interactions.commands.CommandInteraction;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
@@ -17,18 +15,14 @@ import java.util.List;
 import java.util.Optional;
 
 public class MusicInputParser extends Parser<WordParameter> {
-    @Override
-    protected void setUpErrorMessages() {
-        //
-    }
 
     @Override
-    public WordParameter parseSlashLogic(InteracionReceived<? extends CommandInteraction> ctx) throws LastFmException, InstanceNotFoundException {
+    public WordParameter parseSlashLogic(InteracionReceived<? extends CommandInteraction> ctx) {
         return new WordParameter(ctx, ctx.e().getOption("input").getAsString());
     }
 
     @Override
-    protected WordParameter parseLogic(Context e, String[] words) throws InstanceNotFoundException, LastFmException {
+    protected WordParameter parseLogic(Context e, String[] words) {
         if (words.length == 0) {
             if (e instanceof ContextMessageReceived mes) {
                 List<Message.Attachment> attachments = mes.e().getMessage().getAttachments();

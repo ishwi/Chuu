@@ -10,8 +10,8 @@ import core.parsers.params.GenreParameters;
 import core.parsers.utils.Optionals;
 import core.util.ServiceView;
 import dao.entities.ScrobbledArtist;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.util.List;
 
 public class WhoIsTagCommand extends ConcurrentCommand<GenreParameters> {
@@ -46,7 +46,7 @@ public class WhoIsTagCommand extends ConcurrentCommand<GenreParameters> {
     }
 
     @Override
-    public void onCommand(Context e, @Nonnull GenreParameters params) {
+    public void onCommand(Context e, @NotNull GenreParameters params) {
 
 
         String genre = params.getGenre();

@@ -24,23 +24,17 @@ public enum FriendsActions implements Subcommand, Aliasable, Descriptible {
     WK((deps) -> new ArtistParser(deps.db(), deps.lastFM()), "Who knows an artist in your friend list", WhoKnowsCommand.WK_ALIASES),
     WKT((deps) -> new ArtistSongParser(deps.db(), deps.lastFM()), "Who knows a song in your friend list", LocalWhoKnowsSongCommand.WKT_ALIASES),
     WKA((deps) -> new ArtistAlbumParser(deps.db(), deps.lastFM()), "Who knows an album in your friend list", LocalWhoKnowsAlbumCommand.WKA_ALIASES),
-    TOP((deps) -> {
-        return new OnlyChartSizeParser(deps.db())
-                .replaceOptional("plays", Optionals.NOPLAYS.opt)
-                .addOptional(Optionals.PLAYS.opt.withBlockedBy("noplays"));
-    }, "Chart compose of all your friends favourite artists"),
-    CHART((deps) -> {
-        return new OnlyChartSizeParser(deps.db())
-                .replaceOptional("plays", Optionals.NOPLAYS.opt)
-                .addOptional(Optionals.PLAYS.opt.withBlockedBy("noplays"));
-    }, "Chart compose of all your friends favourite albums", "c"),
-    TOPTRACKS((deps -> {
-        return new OnlyChartSizeParser(deps.db())
-                .replaceOptional("plays", Optionals.NOPLAYS.opt)
-                .replaceOptional("list", Optionals.IMAGE.opt)
-                .addOptional(Optionals.LIST.opt.withBlockedBy("image", "pie", "aside"))
-                .addOptional(Optionals.PLAYS.opt.withBlockedBy("noplays"));
-    }), "List of top tracks for your friends", "tt"),
+    TOP((deps) -> new OnlyChartSizeParser(deps.db())
+            .replaceOptional("plays", Optionals.NOPLAYS.opt)
+            .addOptional(Optionals.PLAYS.opt.withBlockedBy("noplays")), "Chart compose of all your friends favourite artists"),
+    CHART((deps) -> new OnlyChartSizeParser(deps.db())
+            .replaceOptional("plays", Optionals.NOPLAYS.opt)
+            .addOptional(Optionals.PLAYS.opt.withBlockedBy("noplays")), "Chart compose of all your friends favourite albums", "c"),
+    TOPTRACKS((deps -> new OnlyChartSizeParser(deps.db())
+            .replaceOptional("plays", Optionals.NOPLAYS.opt)
+            .replaceOptional("list", Optionals.IMAGE.opt)
+            .addOptional(Optionals.LIST.opt.withBlockedBy("image", "pie", "aside"))
+            .addOptional(Optionals.PLAYS.opt.withBlockedBy("noplays"))), "List of top tracks for your friends", "tt"),
     FAVS((deps) -> new ArtistParser(deps.db(), deps.lastFM())
             .addOptional(Optionals.LIST.opt)
             .addOptional(Optionals.PIE.opt)

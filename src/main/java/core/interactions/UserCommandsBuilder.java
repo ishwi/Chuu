@@ -8,8 +8,8 @@ import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.requests.restaction.CommandListUpdateAction;
 import org.apache.commons.text.WordUtils;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -30,7 +30,7 @@ public class UserCommandsBuilder {
 
     }
 
-    @Nonnull
+    @NotNull
     private static CommandData processCommand(MyCommand<?> myCommand) {
         return Commands.user(WordUtils.capitalize(myCommand.slashName()));
     }

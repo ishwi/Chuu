@@ -2,7 +2,6 @@ package core.parsers;
 
 import core.commands.Context;
 import core.commands.InteracionReceived;
-import core.exceptions.LastFmException;
 import core.parsers.explanation.NaturalTimeframeExplanation;
 import core.parsers.explanation.PermissiveUserExplanation;
 import core.parsers.explanation.util.Explanation;
@@ -26,7 +25,7 @@ public class NaturalTimeFrameParser extends DaoParser<NaturalTimeParams> {
     }
 
     @Override
-    public NaturalTimeParams parseSlashLogic(InteracionReceived<? extends CommandInteraction> ctx) throws LastFmException, InstanceNotFoundException {
+    public NaturalTimeParams parseSlashLogic(InteracionReceived<? extends CommandInteraction> ctx) throws InstanceNotFoundException {
         CommandInteraction e = ctx.e();
         User user = InteractionAux.parseUser(e);
         NaturalTimeFrameEnum ntfe = InteractionAux.parseNaturalTimeFrame(e, defaultTFE);

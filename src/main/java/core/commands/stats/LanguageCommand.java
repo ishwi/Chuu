@@ -25,9 +25,9 @@ import dao.entities.*;
 import dao.musicbrainz.MusicBrainzService;
 import dao.musicbrainz.MusicBrainzServiceSingleton;
 import net.dv8tion.jda.api.EmbedBuilder;
+import org.jetbrains.annotations.NotNull;
 import org.knowm.xchart.PieChart;
 
-import javax.annotation.Nonnull;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.Comparator;
@@ -75,7 +75,7 @@ public class LanguageCommand extends ConcurrentCommand<TimeFrameParameters> {
     }
 
     @Override
-    public void onCommand(Context e, @Nonnull TimeFrameParameters params) throws LastFmException {
+    public void onCommand(Context e, @NotNull TimeFrameParameters params) throws LastFmException {
 
 
         BlockingQueue<UrlCapsule> queue = new ArrayBlockingQueue<>(3000);
@@ -108,7 +108,7 @@ public class LanguageCommand extends ConcurrentCommand<TimeFrameParameters> {
         }
 
         List<String> stringedList = languageCountByMbid.entrySet().stream().sorted(Comparator.comparingLong((ToLongFunction<Map.Entry<Language, Long>>) Map.Entry::getValue).reversed()).map((t) ->
-                        String.format(". **%s** - %s %s\n", CommandUtil.escapeMarkdown(t.getKey().getName()), t.getValue().toString(), CommandUtil.singlePlural(Math.toIntExact(t.getValue()), "album", "albums")))
+                        String.format(". **%s** - %s %s\n", CommandUtil.escapeMarkdown(t.getKey().name()), t.getValue().toString(), CommandUtil.singlePlural(Math.toIntExact(t.getValue()), "album", "albums")))
                 .toList();
 
         String title = userName + "'s most common languages" + params.getTime().getDisplayString();

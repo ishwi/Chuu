@@ -7,8 +7,8 @@ import core.parsers.NoOpParser;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
 import core.util.ServiceView;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.util.List;
 
 public class SupportCommand extends MyCommand<CommandParameters> {
@@ -42,7 +42,7 @@ public class SupportCommand extends MyCommand<CommandParameters> {
     }
 
     @Override
-    public void onCommand(Context e, @Nonnull CommandParameters params) {
+    public void onCommand(Context e, @NotNull CommandParameters params) {
         sendMessageQueue(e, "If you found bugs, have issues with the bots, want to request features or simply want to talk you can find us here:\nhttps://discord.gg/3tYsPMWvQG");
     }
 }

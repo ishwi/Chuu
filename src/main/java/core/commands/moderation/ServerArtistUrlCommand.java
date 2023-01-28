@@ -15,7 +15,7 @@
 //import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 //
 //import javax.imageio.ImageIO;
-//import javax.annotation.Nonnull;
+//import org.jetbrains.annotations.NotNull;
 //import java.awt.image.BufferedImage;
 //import java.io.IOException;
 //import java.io.InputStream;
@@ -51,7 +51,7 @@
 //    }
 //
 //    @Override
-//    protected void onCommand(Context e, @Nonnull ArtistUrlParameters params) throws LastFmException {
+//    protected void onCommand(Context e, @NotNull ArtistUrlParameters params) throws LastFmException {
 //        if (e.getMember() == null || !e.getMember().hasPermission(Permission.MESSAGE_MANAGE)) {
 //            sendMessageQueue(e, "Only server mods can use this command");
 //            return;

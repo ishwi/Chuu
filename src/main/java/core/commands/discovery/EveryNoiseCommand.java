@@ -5,17 +5,15 @@ import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
-import core.exceptions.LastFmException;
 import core.otherlisteners.util.PaginatorBuilder;
 import core.parsers.Parser;
 import core.parsers.UserStringParser;
 import core.parsers.params.UserStringParameters;
 import core.util.ServiceView;
 import dao.everynoise.NoiseGenre;
-import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.EmbedBuilder;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.util.List;
 
 public class EveryNoiseCommand extends ConcurrentCommand<UserStringParameters> {
@@ -49,7 +47,7 @@ public class EveryNoiseCommand extends ConcurrentCommand<UserStringParameters> {
     }
 
     @Override
-    public void onCommand(Context e, @Nonnull UserStringParameters params) throws LastFmException, InstanceNotFoundException {
+    public void onCommand(Context e, @NotNull UserStringParameters params) {
         String input = params.getInput();
         List<NoiseGenre> genres;
         boolean isSearchResult = !input.isBlank();

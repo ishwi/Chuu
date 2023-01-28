@@ -7,17 +7,15 @@ import core.commands.stats.SourceCommand;
 import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
-import core.exceptions.LastFmException;
 import core.otherlisteners.util.PaginatorBuilder;
 import core.parsers.Parser;
 import core.parsers.QueryParser;
 import core.parsers.params.WordParameter;
 import core.util.ServiceView;
 import dao.entities.DiscordUserDisplay;
-import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.EmbedBuilder;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -55,7 +53,7 @@ public class SearchCommand extends ConcurrentCommand<WordParameter> {
     }
 
     @Override
-    public void onCommand(Context e, @Nonnull WordParameter params) throws LastFmException, InstanceNotFoundException {
+    public void onCommand(Context e, @NotNull WordParameter params) {
         String word = params.getWord().toLowerCase(Locale.ROOT);
         List<? extends MyCommand<?>> strings;
         String title;

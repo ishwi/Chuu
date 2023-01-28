@@ -3,7 +3,6 @@ package core.commands.moderation;
 import core.commands.Context;
 import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
-import core.exceptions.LastFmException;
 import core.parsers.OnlyUsernameParser;
 import core.parsers.Parser;
 import core.parsers.params.ChuuDataParams;
@@ -13,8 +12,8 @@ import dao.entities.LastFMData;
 import dao.entities.Role;
 import dao.entities.ScrobbledArtist;
 import dao.exceptions.InstanceNotFoundException;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.util.List;
 
 public class MbidUpdatedCommand extends ConcurrentCommand<ChuuDataParams> {
@@ -50,7 +49,7 @@ public class MbidUpdatedCommand extends ConcurrentCommand<ChuuDataParams> {
 
 
     @Override
-    public void onCommand(Context e, @Nonnull ChuuDataParams params) throws LastFmException, InstanceNotFoundException {
+    public void onCommand(Context e, @NotNull ChuuDataParams params) throws InstanceNotFoundException {
         long issuer = e.getAuthor().getIdLong();
         LastFMData lastFMData = db.findLastFMData(issuer);
         if (lastFMData.getRole() != Role.ADMIN) {

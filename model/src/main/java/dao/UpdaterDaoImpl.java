@@ -7,8 +7,8 @@ import dao.exceptions.InstanceNotFoundException;
 import dao.utils.SQLUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nullable;
 import java.sql.*;
 import java.text.Normalizer;
 import java.time.Instant;

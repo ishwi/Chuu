@@ -1,9 +1,9 @@
 package core.commands.utils;
 
 import core.imagerenderer.GraphicUtils;
+import org.jetbrains.annotations.Nullable;
 import org.knowm.xchart.PieChart;
 
-import javax.annotation.Nullable;
 import java.awt.*;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;

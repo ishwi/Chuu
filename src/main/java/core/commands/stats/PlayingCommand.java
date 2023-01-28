@@ -18,8 +18,8 @@ import core.util.VirtualParallel;
 import dao.entities.LastFMData;
 import dao.entities.NowPlayingArtist;
 import net.dv8tion.jda.api.EmbedBuilder;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -115,7 +115,7 @@ public class PlayingCommand extends ConcurrentCommand<CommandParameters> {
     }
 
     @Override
-    public void onCommand(Context e, @Nonnull CommandParameters params) {
+    public void onCommand(Context e, @NotNull CommandParameters params) {
 
 
         boolean showFresh = !params.hasOptional("recent");

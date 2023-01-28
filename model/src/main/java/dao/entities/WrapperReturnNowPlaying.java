@@ -1,16 +1,17 @@
 package dao.entities;
 
-import javax.annotation.Nonnull;
+import org.jetbrains.annotations.NotNull;
+
 import java.util.List;
 
 public class WrapperReturnNowPlaying {
     private List<ReturnNowPlaying> returnNowPlayings;
     private int rows;
     private String url;
-    private @Nonnull
+    private @NotNull
     String artist;
 
-    public WrapperReturnNowPlaying(List<ReturnNowPlaying> returnNowPlayings, int rows, String url, @Nonnull String artist) {
+    public WrapperReturnNowPlaying(List<ReturnNowPlaying> returnNowPlayings, int rows, String url, @NotNull String artist) {
         this.returnNowPlayings = returnNowPlayings;
         this.rows = rows;
         this.url = url;
@@ -25,12 +26,12 @@ public class WrapperReturnNowPlaying {
         this.url = url;
     }
 
-    public @Nonnull
+    public @NotNull
     String getArtist() {
         return artist;
     }
 
-    public void setArtist(@Nonnull String artist) {
+    public void setArtist(@NotNull String artist) {
         this.artist = artist;
     }
 

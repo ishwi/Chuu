@@ -12,8 +12,8 @@ import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.requests.RestAction;
 import net.dv8tion.jda.api.utils.FileUpload;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nullable;
 import java.io.InputStream;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -71,7 +71,7 @@ public sealed abstract class InteracionReceived<T extends CommandInteraction> im
 
     @Override
     public String toLog() {
-        return "%s -> /%s | %s".formatted(e.getUser(), e.getCommandPath(), e.getOptions().stream().map(OptionMapping::toString).collect(Collectors.joining(", ")));
+        return "%s -> /%s | %s".formatted(e.getUser(), e.getFullCommandName(), e.getOptions().stream().map(OptionMapping::toString).collect(Collectors.joining(", ")));
     }
 
     @Override

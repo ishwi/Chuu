@@ -44,7 +44,7 @@ public class ArtistAlbumUrlParser extends DaoParser<ArtistAlbumUrlParameters> {
     }
 
     @Override
-    public ArtistAlbumUrlParameters parseSlashLogic(InteracionReceived<? extends CommandInteraction> ctx) throws LastFmException, InstanceNotFoundException {
+    public ArtistAlbumUrlParameters parseSlashLogic(InteracionReceived<? extends CommandInteraction> ctx) throws InstanceNotFoundException {
         CommandInteraction e = ctx.e();
         User oneUser = InteractionAux.parseUser(e);
         LastFMData userName = findLastfmFromID(oneUser, ctx);

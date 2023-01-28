@@ -12,7 +12,7 @@ import java.util.HashSet;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public final record RandomRadio(String name, long guildId, boolean onlyServer) implements RadioSource {
+public record RandomRadio(String name, long guildId, boolean onlyServer) implements RadioSource {
 
     public RandomRadio(long guildId, boolean onlyServer) {
         this("Random radio", guildId, onlyServer);

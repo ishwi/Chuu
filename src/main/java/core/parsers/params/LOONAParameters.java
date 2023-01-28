@@ -3,8 +3,7 @@ package core.parsers.params;
 import core.commands.Context;
 import dao.entities.LOONA;
 import dao.entities.LastFMData;
-
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 public class LOONAParameters extends ChuuDataParams {
 

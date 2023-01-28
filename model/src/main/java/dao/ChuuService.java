@@ -9,11 +9,11 @@ import dao.utils.Order;
 import org.apache.commons.collections4.ListValuedMap;
 import org.apache.commons.collections4.MultiValuedMap;
 import org.apache.commons.lang3.tuple.Pair;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.InputStream;
@@ -164,7 +164,7 @@ public class ChuuService implements EveryNoiseService {
         }
     }
 
-    @Nonnull
+    @NotNull
     private <T extends ScrobbledArtist> Long handleNonExistingArtistFromAlbum(Connection connection, T x, Long artistId) {
         if (artistId == null) {
             String correction = updaterDao.findCorrection(connection, x.getArtist());
@@ -1767,7 +1767,7 @@ public class ChuuService implements EveryNoiseService {
         }
     }
 
-    public void setChartEmbed(long discordId, @Nonnull ChartMode chartMode) {
+    public void setChartEmbed(long discordId, @NotNull ChartMode chartMode) {
         try (Connection connection = dataSource.getConnection()) {
             userGuildDao.setUserProperty(connection, discordId, "chart_mode", chartMode);
         } catch (SQLException e) {
@@ -1846,7 +1846,7 @@ public class ChuuService implements EveryNoiseService {
 
     }
 
-    public void setWhoknowsMode(long discordId, @Nonnull WhoKnowsDisplayMode whoKnowsDisplayMode) {
+    public void setWhoknowsMode(long discordId, @NotNull WhoKnowsDisplayMode whoKnowsDisplayMode) {
         try (Connection connection = dataSource.getConnection()) {
             userGuildDao.setUserProperty(connection, discordId, "whoknows_mode", whoKnowsDisplayMode);
         } catch (SQLException e) {
@@ -1855,7 +1855,7 @@ public class ChuuService implements EveryNoiseService {
 
     }
 
-    public void setRemainingImagesMode(long discordId, @Nonnull RemainingImagesMode remainingImagesMode) {
+    public void setRemainingImagesMode(long discordId, @NotNull RemainingImagesMode remainingImagesMode) {
         try (Connection connection = dataSource.getConnection()) {
             userGuildDao.setUserProperty(connection, discordId, "remaining_mode", remainingImagesMode);
         } catch (SQLException e) {
@@ -1864,7 +1864,7 @@ public class ChuuService implements EveryNoiseService {
 
     }
 
-    public void setPrivacyMode(long discordId, @Nonnull PrivacyMode privacyMode) {
+    public void setPrivacyMode(long discordId, @NotNull PrivacyMode privacyMode) {
         try (Connection connection = dataSource.getConnection()) {
             userGuildDao.setUserProperty(connection, discordId, "privacy_mode", privacyMode);
         } catch (SQLException e) {
@@ -4022,15 +4022,15 @@ public class ChuuService implements EveryNoiseService {
 
     public boolean strikeExisting(ReportEntity r) {
         try (Connection connection = dataSource.getConnection()) {
-            updaterDao.removeReport(connection, r.getReportId());
-            long rejectedId = updaterDao.storeRejected(connection, r.getUrl(), r.getArtistReported(), r.getWhoGotReported());
-            updaterDao.addStrike(connection, r.getWhoGotReported(), rejectedId);
-            long count = updaterDao.userStrikes(connection, r.getWhoGotReported());
+            updaterDao.removeReport(connection, r.reportId());
+            long rejectedId = updaterDao.storeRejected(connection, r.url(), r.artistReported(), r.whoGotReported());
+            updaterDao.addStrike(connection, r.whoGotReported(), rejectedId);
+            long count = updaterDao.userStrikes(connection, r.whoGotReported());
             if (count >= 5) {
                 try {
-                    LastFMData lastFmData = userGuildDao.findLastFmData(connection, r.getWhoGotReported());
+                    LastFMData lastFmData = userGuildDao.findLastFmData(connection, r.whoGotReported());
                     if (lastFmData.getRole() != Role.ADMIN) {
-                        updaterDao.banUserImage(connection, r.getWhoGotReported());
+                        updaterDao.banUserImage(connection, r.whoGotReported());
                         return true;
                     }
                 } catch (InstanceNotFoundException exception) {
@@ -4605,7 +4605,7 @@ public class ChuuService implements EveryNoiseService {
     }
 
     private interface HiddenRunnable<T> {
-        T executeInHiddenServer(Connection connection, long guildId) throws SQLException;
+        T executeInHiddenServer(Connection connection, long guildId);
     }
 }
 

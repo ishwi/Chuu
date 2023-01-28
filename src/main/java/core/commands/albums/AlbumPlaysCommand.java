@@ -13,8 +13,8 @@ import core.util.ServiceView;
 import dao.entities.LastFMData;
 import dao.entities.ScrobbledArtist;
 import dao.exceptions.InstanceNotFoundException;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.util.Collections;
 import java.util.List;
 
@@ -53,7 +53,7 @@ public class AlbumPlaysCommand extends ConcurrentCommand<ArtistAlbumParameters> 
     }
 
     @Override
-    public void onCommand(Context e, @Nonnull ArtistAlbumParameters params) throws LastFmException, InstanceNotFoundException {
+    public void onCommand(Context e, @NotNull ArtistAlbumParameters params) throws LastFmException, InstanceNotFoundException {
 
         ScrobbledArtist validable = new ArtistValidator(db, lastFM, e).validate(params.getArtist(), false, !params.isNoredirect());
         params.setScrobbledArtist(validable);

@@ -1,5 +1,5 @@
--- liquibase formatted sql
--- changeset ish:data-inital
+--liquibase formatted sql
+--changeset ish:data-inital
 insert into `user`(discord_id, lastfm_id)
 values (-1, 'ishwaracoello');
 

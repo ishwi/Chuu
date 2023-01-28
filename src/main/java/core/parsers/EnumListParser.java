@@ -4,7 +4,6 @@ import core.commands.Context;
 import core.commands.InteracionReceived;
 import core.commands.abstracts.MyCommand;
 import core.commands.utils.CommandUtil;
-import core.exceptions.LastFmException;
 import core.parsers.explanation.StrictUserExplanation;
 import core.parsers.explanation.util.Explanation;
 import core.parsers.explanation.util.ExplanationLine;
@@ -101,7 +100,7 @@ public class EnumListParser<T extends Enum<T>> extends DaoParser<EnumListParamet
     }
 
     @Override
-    public EnumListParameters<T> parseSlashLogic(InteracionReceived<? extends CommandInteraction> ctx) throws LastFmException, InstanceNotFoundException {
+    public EnumListParameters<T> parseSlashLogic(InteracionReceived<? extends CommandInteraction> ctx) {
         CommandInteraction e = ctx.e();
         String subcommandName = e.getSubcommandName();
         User user = InteractionAux.parseUser(e);

@@ -26,9 +26,9 @@ import dao.entities.CountWrapper;
 import dao.entities.DiscordUserDisplay;
 import dao.entities.ScrobbledAlbum;
 import net.dv8tion.jda.api.EmbedBuilder;
+import org.jetbrains.annotations.NotNull;
 import org.knowm.xchart.PieChart;
 
-import javax.annotation.Nonnull;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
@@ -75,7 +75,7 @@ public abstract class ChartableCommand<T extends ChartParameters> extends Concur
     }
 
     @Override
-    public void onCommand(Context e, @Nonnull T params) throws LastFmException {
+    public void onCommand(Context e, @NotNull T params) throws LastFmException {
 
 
         CountWrapper<BlockingQueue<UrlCapsule>> countWrapper = processQueue(params);
@@ -147,7 +147,6 @@ public abstract class ChartableCommand<T extends ChartParameters> extends Concur
                         .forEach(z -> {
                             try {
                                 ScrobbledAlbum scrobbledAlbum = CommandUtil.validateAlbum(db, z.getArtistName(), z.getAlbumName(), lastFM, null, null, false, false);
-                                ;
                                 db.updateAlbumImage(scrobbledAlbum.getAlbumId(), z.getUrl());
                             } catch (LastFmException ignored) {
                             }

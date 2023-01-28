@@ -1,31 +1,39 @@
-package test.commands.parsers;
+package test.commands.parsers.mock;
 
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.ChannelType;
 import net.dv8tion.jda.api.entities.channel.attribute.IPermissionContainer;
+import net.dv8tion.jda.api.entities.channel.attribute.IThreadContainer;
+import net.dv8tion.jda.api.entities.channel.concrete.*;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
-import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.StandardGuildChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.StandardGuildMessageChannel;
+import net.dv8tion.jda.api.entities.channel.unions.GuildMessageChannelUnion;
+import net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.entities.sticker.StickerSnowflake;
 import net.dv8tion.jda.api.managers.channel.ChannelManager;
 import net.dv8tion.jda.api.requests.RestAction;
 import net.dv8tion.jda.api.requests.restaction.AuditableRestAction;
 import net.dv8tion.jda.api.requests.restaction.MessageCreateAction;
+import net.dv8tion.jda.api.utils.FileUpload;
+import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 import net.dv8tion.jda.internal.JDAImpl;
 import net.dv8tion.jda.internal.entities.GuildImpl;
 import net.dv8tion.jda.internal.requests.CompletedRestAction;
-import net.dv8tion.jda.internal.requests.restaction.MessageCreateActionImpl;
 import org.jetbrains.annotations.NotNull;
+import test.commands.parsers.EventEmitter;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
-import java.util.function.Consumer;
+import java.util.List;
 
-public class MockedMessageChannel implements MessageChannel, GuildMessageChannel {
+public class MockedMessageChannel implements MessageChannelUnion, GuildMessageChannel, GuildMessageChannelUnion {
 
     private final EventEmitter eventEmitter;
     private final JDAImpl jda;
@@ -52,16 +60,32 @@ public class MockedMessageChannel implements MessageChannel, GuildMessageChannel
         return new CompletedRestAction<>(jda, null);
     }
 
+    @Override
+    public MessageCreateAction sendMessage(MessageCreateData msg) {
+        List<MessageCreateAction> messageCreateAction = new ArrayList<>();
+        if (!msg.getFiles().isEmpty()) {
+            messageCreateAction.add(sendFiles(msg.getFiles().toArray(FileUpload[]::new)));
+        }
+        if (!msg.getContent().isBlank()) {
+            messageCreateAction.add(sendMessage(msg.getContent()));
+        }
+        if (!msg.getEmbeds().isEmpty()) {
+            messageCreateAction.add(sendMessageEmbeds(msg.getEmbeds()));
+        }
+        return new MessageCreateActionCompose(messageCreateAction, this);
+
+    }
+
+    @NotNull
+    @Override
+    public MessageCreateAction sendFiles(@NotNull FileUpload... files) {
+        return new CustomFileMessageAction(this, eventEmitter, Arrays.asList(files)).addFiles(files);
+    }
+
     @NotNull
     @Override
     public MessageCreateAction sendMessage(@NotNull CharSequence text) {
-        eventEmitter.publishEvent(new EventEmitter.SendText(text));
-        return new MessageCreateActionImpl(this) {
-            @Override
-            public void queue(Consumer<? super Message> success, Consumer<? super Throwable> failure) {
-                // DO NOTHING
-            }
-        };
+        return new TextMessageAction(this, eventEmitter, text);
     }
 
     @NotNull
@@ -73,7 +97,7 @@ public class MockedMessageChannel implements MessageChannel, GuildMessageChannel
     @NotNull
     @Override
     public ChannelType getType() {
-        return null;
+        return ChannelType.TEXT;
     }
 
     @NotNull
@@ -147,12 +171,58 @@ public class MockedMessageChannel implements MessageChannel, GuildMessageChannel
 
     @NotNull
     @Override
-    public MessageCreateAction sendStickers(@NotNull StickerSnowflake... stickers) {
-        return GuildMessageChannel.super.sendStickers(stickers);
+    public MessageCreateAction sendStickers(@NotNull Collection<? extends StickerSnowflake> stickers) {
+        return null;
     }
+
 
     @Override
     public int compareTo(@NotNull GuildChannel o) {
         return 0;
+    }
+
+    @Override
+    public PrivateChannel asPrivateChannel() {
+        return null;
+    }
+
+    @Override
+    public TextChannel asTextChannel() {
+        return (TextChannel) this;
+    }
+
+    @Override
+    public NewsChannel asNewsChannel() {
+        return null;
+    }
+
+    @Override
+    public ThreadChannel asThreadChannel() {
+        return null;
+    }
+
+    @Override
+    public VoiceChannel asVoiceChannel() {
+        return null;
+    }
+
+    @Override
+    public IThreadContainer asThreadContainer() {
+        return null;
+    }
+
+    @Override
+    public GuildMessageChannel asGuildMessageChannel() {
+        return null;
+    }
+
+    @Override
+    public StandardGuildChannel asStandardGuildChannel() {
+        return null;
+    }
+
+    @Override
+    public StandardGuildMessageChannel asStandardGuildMessageChannel() {
+        return null;
     }
 }

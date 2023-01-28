@@ -39,15 +39,15 @@ import net.dv8tion.jda.api.interactions.components.ItemComponent;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.selections.SelectMenu;
 import net.dv8tion.jda.api.interactions.components.selections.SelectOption;
+import net.dv8tion.jda.api.interactions.components.selections.StringSelectMenu;
 import net.dv8tion.jda.api.requests.RestAction;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.WordUtils;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -123,7 +123,7 @@ public class HelpCommand extends ConcurrentCommand<WordParameter> {
     }
 
     @Override
-    public void onCommand(Context e, @Nonnull WordParameter params) {
+    public void onCommand(Context e, @NotNull WordParameter params) {
         Character prefix = e.getPrefix();
         if (params.hasOptional("all")) {
 
@@ -258,7 +258,7 @@ public class HelpCommand extends ConcurrentCommand<WordParameter> {
 
     @NotNull
     private ActionRow buildMenuCategory(List<CommandCategory> categories, String value) {
-        SelectMenu.Builder category = SelectMenu.create("category_id")
+        StringSelectMenu.Builder category = StringSelectMenu.create("category_id")
                 .setPlaceholder("Select a command of the %s category to see the details of that command".formatted(value))
                 .setMinValues(1)
                 .addOption("All commands", CUSTOM_ALL, "A list of all the commands available in the bot")
@@ -276,7 +276,7 @@ public class HelpCommand extends ConcurrentCommand<WordParameter> {
 
         AtomicInteger ranker = new AtomicInteger(0);
 
-        return (commandsPartitions.stream().map(z -> ActionRow.of(SelectMenu.create(String.valueOf(ranker.incrementAndGet()))
+        return (commandsPartitions.stream().map(z -> ActionRow.of(StringSelectMenu.create(String.valueOf(ranker.incrementAndGet()))
                 .addOptions(z.stream().map(w -> SelectOption.of(w.getName(), w.getAliases().get(0))
                         .withDefault(active == w)
                         .withDescription(StringUtils.abbreviate(w.getDescription(), 100))).toList())

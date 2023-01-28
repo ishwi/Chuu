@@ -11,8 +11,8 @@ import dao.entities.ScrobbledArtist;
 import dao.entities.TriFunction;
 import dao.entities.UpdaterStatus;
 import dao.exceptions.InstanceNotFoundException;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
@@ -37,11 +37,11 @@ public class DiscardByQueue extends DiscardableQueue<PreComputedChartEntity> {
 
     }
 
-    private static void getUrl(@Nonnull UrlCapsule item, ChuuService dao, DiscogsApi discogsApi, Spotify spotifyApi) {
+    private static void getUrl(@NotNull UrlCapsule item, ChuuService dao, DiscogsApi discogsApi, Spotify spotifyApi) {
         fetchArtistURL(item, dao, discogsApi, spotifyApi);
     }
 
-    static void fetchArtistURL(@Nonnull UrlCapsule item, ChuuService db, DiscogsApi discogsApi, Spotify spotifyApi) {
+    static void fetchArtistURL(@NotNull UrlCapsule item, ChuuService db, DiscogsApi discogsApi, Spotify spotifyApi) {
         try {
             UpdaterStatus updaterStatusByName = db.getUpdaterStatusByName(item.getArtistName());
             VirtualParallel.handleInterrupt();

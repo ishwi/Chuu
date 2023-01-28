@@ -22,10 +22,10 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.utils.FileUpload;
+import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import javax.annotation.Nonnull;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -173,7 +173,7 @@ public class ImportCommand extends ConcurrentCommand<UrlParameters> {
     }
 
     @Override
-    public void onCommand(Context e, @Nonnull UrlParameters params) {
+    public void onCommand(Context e, @NotNull UrlParameters params) {
         Member member = e.getGuild().getMember(e.getAuthor());
         if (CommandUtil.notEnoughPerms(e)) {
             sendMessageQueue(e, CommandUtil.notEnoughPermsTemplate() + "export the data");

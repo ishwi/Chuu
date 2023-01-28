@@ -4,7 +4,6 @@ import core.commands.Context;
 import core.commands.InteracionReceived;
 import core.commands.abstracts.MyCommand;
 import core.commands.utils.CommandUtil;
-import core.exceptions.LastFmException;
 import core.parsers.explanation.util.Explanation;
 import core.parsers.explanation.util.ExplanationLineType;
 import core.parsers.params.UserConfigParameters;
@@ -13,8 +12,8 @@ import core.parsers.utils.OptionalEntity;
 import dao.ChuuService;
 import dao.entities.ChartMode;
 import dao.entities.RemainingImagesMode;
+import dao.entities.WKMode;
 import dao.entities.WhoKnowsDisplayMode;
-import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.interactions.commands.Command;
 import net.dv8tion.jda.api.interactions.commands.CommandInteraction;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
@@ -38,7 +37,7 @@ public class UserConfigParser extends DaoParser<UserConfigParameters> implements
     }
 
     @Override
-    public UserConfigParameters parseSlashLogic(InteracionReceived<? extends CommandInteraction> ctx) throws LastFmException, InstanceNotFoundException {
+    public UserConfigParameters parseSlashLogic(InteracionReceived<? extends CommandInteraction> ctx) {
         CommandInteraction e = ctx.e();
         String subcommandName = e.getSubcommandName();
         String[] words;
@@ -143,6 +142,18 @@ public class UserConfigParser extends DaoParser<UserConfigParameters> implements
                     OptionData chosen = new OptionData(OptionType.STRING, "colours-select", "Fill with a list of colours. Only if you have chosen colour mode");
                     data.addOptions(mode, chosen);
                 }
+//                case PRIVACY_MODE -> {
+//                    OptionData mode = new OptionData(OptionType.STRING, "privacy-mode", StringUtils.abbreviate(userConfigType.getExplanation(), 100), true);
+//                    for (PrivacyMode value : PrivacyMode.values()) {
+//                        mode.addChoice(WordUtils.capitalizeFully(value.toString()), value.name());
+//                    }
+//                    mode.addChoices(clear);
+//                    data.addOptions(mode);
+//                }
+                case NP -> {
+                    OptionData mode = new OptionData(OptionType.STRING, "mode", StringUtils.abbreviate(userConfigType.getExplanation(), 100), true);
+                    data.addOptions(mode);
+                }
                 case PRIVATE_UPDATE, NOTIFY_IMAGE, NOTIFY_RATING, PRIVATE_LASTFM, SHOW_BOTTED, SCROBBLING, OWN_TAGS -> {
                     OptionData mode = new OptionData(OptionType.BOOLEAN, userConfigType.getCommandName(), StringUtils.abbreviate(userConfigType.getExplanation(), 95), true);
                     data.addOptions(mode);
@@ -174,6 +185,14 @@ public class UserConfigParser extends DaoParser<UserConfigParameters> implements
                     data.addOptions(chartOptions);
                 }
                 case TIMEZONE -> {
+                }
+                case WK_MODE -> {
+                    OptionData mode = new OptionData(OptionType.STRING, "wk-mode", StringUtils.abbreviate(userConfigType.getExplanation(), 100), true);
+                    for (WKMode value : WKMode.values()) {
+                        mode.addChoice(WordUtils.capitalizeFully(value.toString()), value.name());
+                    }
+                    mode.addChoices(clear);
+                    data.addOptions(mode);
                 }
             }
             commandData.addSubcommands(data);

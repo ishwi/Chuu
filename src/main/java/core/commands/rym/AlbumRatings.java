@@ -19,8 +19,8 @@ import dao.entities.ScrobbledAlbum;
 import dao.entities.ScrobbledArtist;
 import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.time.Year;
@@ -35,7 +35,7 @@ public class AlbumRatings extends ConcurrentCommand<ArtistAlbumParameters> {
         super(dao);
     }
 
-    @Nonnull
+    @NotNull
     public static Function<Byte, String> getStartsFromScore() {
         return (score) -> {
             float number = score / 2f;
@@ -73,7 +73,7 @@ public class AlbumRatings extends ConcurrentCommand<ArtistAlbumParameters> {
     }
 
     @Override
-    public void onCommand(Context e, @Nonnull ArtistAlbumParameters params) throws LastFmException {
+    public void onCommand(Context e, @NotNull ArtistAlbumParameters params) throws LastFmException {
         EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e);
 
         ScrobbledArtist sA = new ArtistValidator(db, lastFM, e).validate(params.getArtist(), !params.isNoredirect());
@@ -98,10 +98,10 @@ public class AlbumRatings extends ConcurrentCommand<ArtistAlbumParameters> {
         FullAlbumEntityExtended albumSummary = lastFM.getAlbumSummary(params.getLastFMData(), sA.getArtist(), album);
         String lastFmArtistAlbumUrl = LinkUtils.getLastFmArtistAlbumUrl(artist, album);
         List<String> stringList = userRatings.stream().filter(Rating::isSameGuild).map(x -> ". **[" +
-                getUserString(e, x.getDiscordId()) +
-                "](" + lastFmArtistAlbumUrl +
-                ")** - " + starFormatter.apply(x.getRating()) +
-                "\n").toList();
+                                                                                            getUserString(e, x.discordId()) +
+                                                                                            "](" + lastFmArtistAlbumUrl +
+                                                                                            ")** - " + starFormatter.apply(x.rating()) +
+                                                                                            "\n").toList();
         if (stringList.isEmpty()) {
             sendMessageQueue(e, String.format("**%s** by **%s** was not rated by anyone.", album, artist));
             return;
@@ -112,8 +112,8 @@ public class AlbumRatings extends ConcurrentCommand<ArtistAlbumParameters> {
         List<Rating> servcerList = userRatings.stream().filter(Rating::isSameGuild).toList();
         String serverName = e.getGuild().getName();
         String botName = e.getJDA().getSelfUser().getName();
-        String name = String.format("%s Average: **%s** | Ratings: **%d**", serverName, average.format(servcerList.stream().mapToDouble(rating -> rating.getRating() / 2f).average().orElse(0)), servcerList.size());
-        String global = String.format("%s Average: **%s** | Ratings: **%d**", botName, average.format(userRatings.stream().mapToDouble(rating -> rating.getRating() / 2f).average().orElse(0)), userRatings.size());
+        String name = String.format("%s Average: **%s** | Ratings: **%d**", serverName, average.format(servcerList.stream().mapToDouble(rating -> rating.rating() / 2f).average().orElse(0)), servcerList.size());
+        String global = String.format("%s Average: **%s** | Ratings: **%d**", botName, average.format(userRatings.stream().mapToDouble(rating -> rating.rating() / 2f).average().orElse(0)), userRatings.size());
 
         embedBuilder.setTitle(String.format("%s - %s Ratings in %s", albumSummary.getArtist(), albumSummary.getAlbum(), serverName), lastFmArtistAlbumUrl)
 

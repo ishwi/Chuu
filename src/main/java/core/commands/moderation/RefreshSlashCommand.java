@@ -11,8 +11,8 @@ import core.parsers.params.CommandParameters;
 import core.parsers.utils.OptionalEntity;
 import core.parsers.utils.Optionals;
 import core.util.ServiceView;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -58,7 +58,7 @@ public class RefreshSlashCommand extends ConcurrentCommand<CommandParameters> {
     }
 
     @Override
-    public void onCommand(Context e, @Nonnull CommandParameters params) {
+    public void onCommand(Context e, @NotNull CommandParameters params) {
         e.getJDA().retrieveApplicationInfo().queue(t -> {
             if (t.getOwner().getIdLong() == e.getAuthor().getIdLong()) {
                 if (params.hasOptional("delete")) {

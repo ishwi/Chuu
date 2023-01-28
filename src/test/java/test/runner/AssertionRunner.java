@@ -30,8 +30,8 @@ public interface AssertionRunner {
     }
 
 
-    static CommandRunner fromCommand(MyCommand<?> command, String message) {
-        return fromCommand(command, message, Factory.def());
+    static CommandRunner fromCommand(MyCommand<?> command, String params) {
+        return fromCommand(command, params, Factory.def());
     }
 
 
@@ -77,7 +77,7 @@ public interface AssertionRunner {
             scope.join();
             scope.throwIfFailed();
         } catch (InterruptedException | ExecutionException e) {
-            Assertions.fail("Error happened while running", e);
+            Assertions.fail("Error happened while running", e.getCause());
         }
 
     }

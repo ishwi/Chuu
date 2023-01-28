@@ -15,8 +15,8 @@ import core.util.ServiceView;
 import dao.entities.ScrobbledArtist;
 import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.function.Function;
 
@@ -54,7 +54,7 @@ public class AliasesCommand extends ConcurrentCommand<ArtistParameters> {
     }
 
     @Override
-    public void onCommand(Context e, @Nonnull ArtistParameters params) throws LastFmException {
+    public void onCommand(Context e, @NotNull ArtistParameters params) throws LastFmException {
         String artist = params.getArtist();
         char prefix = CommandUtil.getMessagePrefix(e);
 

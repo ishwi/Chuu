@@ -39,7 +39,7 @@ class AlbumChartCommandTest extends MyCommandTest<ChartParameters, AlbumChartCom
                         List.of(
                                 TestAssertion.typing(),
                                 TestAssertion.image(
-                                        (e) -> ImageUtils2.testImage(e, 1650, 3000, ".jpg"),
+                                        (e) -> ImageUtils2.testImage(e, 3300, 1650, ".jpg"),
                                         "Then I should receive a 900x1500 jpg image"
                                 )));
     }

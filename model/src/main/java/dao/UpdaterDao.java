@@ -3,8 +3,8 @@ package dao;
 import dao.entities.*;
 import dao.exceptions.DuplicateInstanceException;
 import dao.exceptions.InstanceNotFoundException;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nullable;
 import java.sql.Connection;
 import java.time.Instant;
 import java.util.*;
@@ -89,7 +89,7 @@ interface UpdaterDao {
 
     ReportEntity getReportEntity(Connection connection, long maxIdAllowed, Set<Long> skippedIds);
 
-    void deleteAliasById(Connection connection, long aliasId) throws InstanceNotFoundException;
+    void deleteAliasById(Connection connection, long aliasId);
 
     void updateUrlStatus(Connection connection, long artistId, String spotifyId);
 

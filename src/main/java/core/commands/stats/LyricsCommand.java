@@ -19,8 +19,8 @@ import core.util.ServiceView;
 import dao.entities.ScrobbledArtist;
 import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.Optional;
 
@@ -60,7 +60,7 @@ public class LyricsCommand extends ConcurrentCommand<ArtistAlbumParameters> {
     }
 
     @Override
-    public void onCommand(Context e, @Nonnull ArtistAlbumParameters params) throws LastFmException {
+    public void onCommand(Context e, @NotNull ArtistAlbumParameters params) throws LastFmException {
         String song = params.getAlbum();
         String artist = params.getArtist();
         String url = null;

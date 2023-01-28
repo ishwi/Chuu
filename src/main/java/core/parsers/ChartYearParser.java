@@ -2,7 +2,6 @@ package core.parsers;
 
 import core.commands.Context;
 import core.commands.InteracionReceived;
-import core.exceptions.LastFmException;
 import core.parsers.exceptions.InvalidChartValuesException;
 import core.parsers.explanation.TimeframeExplanation;
 import core.parsers.explanation.YearExplanation;
@@ -41,7 +40,7 @@ public class ChartYearParser extends ChartableParser<ChartYearParameters> {
     }
 
     @Override
-    public ChartYearParameters parseSlashLogic(InteracionReceived<? extends CommandInteraction> ctx) throws LastFmException, InstanceNotFoundException {
+    public ChartYearParameters parseSlashLogic(InteracionReceived<? extends CommandInteraction> ctx) throws InstanceNotFoundException {
         CommandInteraction e = ctx.e();
         User user = InteractionAux.parseUser(e);
         Year year = InteractionAux.parseYear(e, () -> sendError(getErrorMessage(6), ctx));

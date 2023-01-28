@@ -103,11 +103,6 @@ public class FriendsCommand extends ParentCommmand<FriendsActions> {
     }
 
     @Override
-    public String getUsageInstructions() {
-        return super.getUsageInstructions();
-    }
-
-    @Override
     public String getDescription() {
         return "Manage your friend list and do commands for your full friend list";
     }

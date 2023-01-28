@@ -1,8 +1,8 @@
 package dao.entities;
 
 import org.apache.commons.text.WordUtils;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.util.Collection;
 import java.util.EnumSet;
 import java.util.stream.Collectors;
@@ -22,7 +22,7 @@ public enum ChartOptions {
         return modes.stream().map(ChartOptions::toString).collect(Collectors.joining(" | "));
     }
 
-    public static long getRaw(@Nonnull ChartOptions... opts) {
+    public static long getRaw(@NotNull ChartOptions... opts) {
         long raw = 0;
         for (ChartOptions opt : opts) {
             if (opt != NONE)
@@ -31,7 +31,7 @@ public enum ChartOptions {
         return raw;
     }
 
-    @Nonnull
+    @NotNull
     public static EnumSet<ChartOptions> getChartOptions(long modeRaw) {
         if (modeRaw == 0L || modeRaw == -1L)
             return ChartOptions.defaultMode();

@@ -23,11 +23,6 @@ public class NoOpParser extends Parser<CommandParameters> {
     }
 
     @Override
-    protected void setUpErrorMessages() {
-        //Cleaning previous
-    }
-
-    @Override
     public CommandParameters parseSlashLogic(InteracionReceived<? extends CommandInteraction> ctx) {
         return new CommandParameters(ctx);
     }

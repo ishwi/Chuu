@@ -22,10 +22,10 @@ import dao.entities.ScrobbledArtist;
 import dao.entities.ScrobbledTrack;
 import net.dv8tion.jda.api.EmbedBuilder;
 import org.apache.commons.lang3.tuple.Pair;
+import org.jetbrains.annotations.NotNull;
 import se.michaelthelin.spotify.model_objects.specification.AudioFeatures;
 import se.michaelthelin.spotify.model_objects.specification.Track;
 
-import javax.annotation.Nonnull;
 import java.text.DecimalFormat;
 import java.util.List;
 import java.util.Set;
@@ -64,7 +64,7 @@ public class SongAudioFeaturesCommand extends ConcurrentCommand<ArtistAlbumParam
     }
 
     @Override
-    public void onCommand(Context e, @Nonnull ArtistAlbumParameters params) throws LastFmException {
+    public void onCommand(Context e, @NotNull ArtistAlbumParameters params) throws LastFmException {
         LastFMData lastFMData = params.getLastFMData();
 
         ScrobbledArtist sA = new ArtistValidator(db, lastFM, e).validate(params.getArtist(), false, true);

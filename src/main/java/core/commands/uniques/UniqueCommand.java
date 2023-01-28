@@ -15,8 +15,8 @@ import dao.entities.ArtistPlays;
 import dao.entities.DiscordUserDisplay;
 import dao.entities.UniqueWrapper;
 import net.dv8tion.jda.api.EmbedBuilder;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.util.Collections;
 import java.util.List;
 
@@ -62,20 +62,20 @@ public class UniqueCommand extends ConcurrentCommand<ChuuDataParams> {
     }
 
     @Override
-    public void onCommand(Context e, @Nonnull ChuuDataParams params) {
+    public void onCommand(Context e, @NotNull ChuuDataParams params) {
 
         String lastFmName = params.getLastFMData().getName();
 
         long discordId = params.getLastFMData().getDiscordId();
         if (new NotOnServerGuard(db).notOnServer(e.getGuild().getIdLong(), discordId)) {
             sendMessageQueue(e, ("You are not registered in this server.\n" +
-                    "You need to do %sset or %slogin to get tracked in this server.").formatted(e.getPrefix(), e.getPrefix()));
+                                 "You need to do %sset or %slogin to get tracked in this server.").formatted(e.getPrefix(), e.getPrefix()));
             return;
         }
 
 
         UniqueWrapper<ArtistPlays> resultWrapper = getList(isGlobal() ? -1 : e.getGuild().getIdLong(), lastFmName);
-        int rows = resultWrapper.getUniqueData().size();
+        int rows = resultWrapper.uniqueData().size();
         if (rows == 0) {
             sendMessageQueue(e, String.format("You have no %sunique artists :(", isGlobal() ? "global " : ""));
             return;
@@ -88,7 +88,7 @@ public class UniqueCommand extends ConcurrentCommand<ChuuDataParams> {
                 .setAuthor(String.format("%s's%s unique artists", userInfo.username(), isGlobal() ? " global" : ""), CommandUtil.getLastFmUser(lastFmName), userInfo.urlImage())
                 .setFooter(String.format("%s has %d%s unique artists!%n", CommandUtil.unescapedUser(userInfo.username(), discordId, e), rows, isGlobal() ? " global" : ""), null);
 
-        new PaginatorBuilder<>(e, embedBuilder, resultWrapper.getUniqueData()).build().queue();
+        new PaginatorBuilder<>(e, embedBuilder, resultWrapper.uniqueData()).build().queue();
 
 
     }

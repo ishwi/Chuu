@@ -2,7 +2,6 @@ package core.parsers;
 
 import core.commands.Context;
 import core.commands.InteracionReceived;
-import core.exceptions.LastFmException;
 import core.parsers.explanation.util.Explanation;
 import core.parsers.explanation.util.ExplanationLine;
 import core.parsers.params.TimezoneParams;
@@ -45,10 +44,6 @@ public class TimezoneParser extends DaoParser<TimezoneParams> {
     }
 
     @Override
-    void setUpOptionals() {
-    }
-
-    @Override
     protected void setUpErrorMessages() {
         this.errorMessages.put(10, """
                 Couldn't parse any timezone from the given message :(
@@ -58,7 +53,7 @@ public class TimezoneParser extends DaoParser<TimezoneParams> {
     }
 
     @Override
-    public TimezoneParams parseSlashLogic(InteracionReceived<? extends CommandInteraction> ctx) throws LastFmException, InstanceNotFoundException {
+    public TimezoneParams parseSlashLogic(InteracionReceived<? extends CommandInteraction> ctx) throws InstanceNotFoundException {
         return parseLogic(ctx, new String[]{ctx.e().getOption("timezone").getAsString()});
     }
 

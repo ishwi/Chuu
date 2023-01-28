@@ -2,8 +2,8 @@ package core.parsers.explanation.util;
 
 import core.parsers.utils.OptionalEntity;
 import org.apache.commons.text.WordUtils;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -44,7 +44,7 @@ public record UsageLogic(String commandName, List<Explanation> explanations, Set
         return headerLine + "\n" + body + a;
     }
 
-    @Nonnull
+    @NotNull
     private String mapHeader(String t) {
         if (words.matcher(t).matches()) return "**[" + WordUtils.capitalizeFully(t.replaceAll("\\s+", "-")) + "]**";
         return "**" + t + "**";

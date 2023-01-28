@@ -295,7 +295,7 @@ public class NPModeBuilder {
                             if (!uri.isBlank())
                                 embedBuilder.setTitle("\t<:spochuu:896516103197569044> " + embedBuilder.build().getTitle(), uri);
                         }
-                        if (npModes.contains(NPMode.RYM_LINK) && !StringUtils.isEmpty(np.albumName())) {
+                        if (npModes.contains(NPMode.RYM_LINK) && np.albumName() != null && !np.albumName().isBlank()) {
                             String url = rymSearch.searchUrl(np.artistName(), np.albumName());
 
                             String a = "**" + CommandUtil.escapeMarkdown(np.artistName()) +
@@ -313,25 +313,22 @@ public class NPModeBuilder {
                         break;
                     }
                     completableFutures.add(CommandUtil.runLog(() -> {
-                        try {
-                            boolean extended = npModes.contains(NPMode.EXTENDED_TAGS);
-                            int limit = extended ? 12 : 5;
-                            Set<String> tags = new LinkedHashSet<>();
-                            if (lastFMName.getSession() != null && lastFMName.useOwnTags()) {
-                                tags.addAll(lastFM.getUserArtistTags(limit, scrobbledArtist.getArtist(), lastFMName, lastFMName.getSession()));
-                            }
-                            if (tags.size() < limit) {
-                                tags.addAll(new HashSet<>(new TagStorer(service, lastFM, executor, np).findTags(limit)));
-                            }
-                            var filteredTags = new TagCleaner(service).cleanTags(tags);
-                            if (filteredTags.isEmpty()) {
-                                return;
-                            }
-                            String tagsField = EmbedBuilder.ZERO_WIDTH_SPACE + " • " + String.join(" - ", filteredTags);
-                            tagsField += '\n';
-                            footerSpaces[index] = tagsField;
-                        } catch (LastFmException ignored) {
+                        boolean extended = npModes.contains(NPMode.EXTENDED_TAGS);
+                        int limit = extended ? 12 : 5;
+                        Set<String> tags = new LinkedHashSet<>();
+                        if (lastFMName.getSession() != null && lastFMName.useOwnTags()) {
+                            tags.addAll(lastFM.getUserArtistTags(limit, scrobbledArtist.getArtist(), lastFMName, lastFMName.getSession()));
                         }
+                        if (tags.size() < limit) {
+                            tags.addAll(new HashSet<>(new TagStorer(service, lastFM, executor, np).findTags(limit)));
+                        }
+                        var filteredTags = new TagCleaner(service).cleanTags(tags);
+                        if (filteredTags.isEmpty()) {
+                            return;
+                        }
+                        String tagsField = EmbedBuilder.ZERO_WIDTH_SPACE + " • " + String.join(" - ", filteredTags);
+                        tagsField += '\n';
+                        footerSpaces[index] = tagsField;
                     }));
                     break;
                 case CROWN:
@@ -499,28 +496,28 @@ public class NPModeBuilder {
                                     List<Rating> serverList = userRatings.stream().filter(Rating::isSameGuild).toList();
                                     if (!serverList.isEmpty()) {
                                         footerSpaces[footerIndexes.get(NPMode.SERVER_ALBUM_RYM)] =
-                                                (String.format("%s Average: %s | Ratings: %d", serverName, average.format(serverList.stream().mapToDouble(rating -> rating.getRating() / 2f).average().orElse(0)), serverList.size()));
+                                                (String.format("%s Average: %s | Ratings: %d", serverName, average.format(serverList.stream().mapToDouble(rating -> rating.rating() / 2f).average().orElse(0)), serverList.size()));
                                     }
                                 }
                                 if (npModes.contains(NPMode.BOT_ALBUM_RYM)) {
                                     if (!userRatings.isEmpty()) {
                                         footerSpaces[footerIndexes.get(NPMode.BOT_ALBUM_RYM)] =
                                                 (String.format("%s Average: %s | Ratings: %d", e.getJDA().getSelfUser().getName()
-                                                        , average.format(userRatings.stream().mapToDouble(rating -> rating.getRating() / 2f).average().orElse(0)), userRatings.size()));
+                                                        , average.format(userRatings.stream().mapToDouble(rating -> rating.rating() / 2f).average().orElse(0)), userRatings.size()));
                                     }
 
                                 }
                                 if (npModes.contains(NPMode.ALBUM_RYM)) {
-                                    Optional<Rating> first = userRatings.stream().filter(x -> x.getDiscordId() == discordId).findFirst();
+                                    Optional<Rating> first = userRatings.stream().filter(x -> x.discordId() == discordId).findFirst();
                                     first.ifPresent(rating -> {
                                         previousNewLinesToAdd.add(footerIndexes.get(NPMode.ALBUM_RYM));
-                                        footerSpaces[footerIndexes.get(NPMode.ALBUM_RYM)] = userName + ": " + getStartsFromScore().apply(rating.getRating());
+                                        footerSpaces[footerIndexes.get(NPMode.ALBUM_RYM)] = userName + ": " + getStartsFromScore().apply(rating.rating());
                                     });
                                 }
                             } else if (npModes.contains(NPMode.ALBUM_RYM) && !npModes.contains(NPMode.BOT_ALBUM_RYM) && !npModes.contains(NPMode.SERVER_ALBUM_RYM)) {
                                 Rating rating = service.getUserAlbumRating(discordId, albumId, scrobbledArtist.getArtistId());
                                 if (rating != null) {
-                                    footerSpaces[footerIndexes.get(NPMode.ALBUM_RYM)] = userName + ": " + getStartsFromScore().apply(rating.getRating());
+                                    footerSpaces[footerIndexes.get(NPMode.ALBUM_RYM)] = userName + ": " + getStartsFromScore().apply(rating.rating());
                                     previousNewLinesToAdd.add(footerIndexes.get(NPMode.ALBUM_RYM));
                                 }
                             }
@@ -540,14 +537,14 @@ public class NPModeBuilder {
 
 
                             if (npModes.contains(NPMode.GLOBAL_CROWN)) {
-                                String holder = getPrivateString(returnNowPlaying.getDiscordId());
+                                String holder = getPrivateString(returnNowPlaying.discordId());
                                 footerSpaces[footerIndexes.get(NPMode.GLOBAL_CROWN)] =
-                                        "Global 👑 " + returnNowPlaying.getPlaycount() + " (" + holder + ")";
+                                        "Global 👑 " + returnNowPlaying.playcount() + " (" + holder + ")";
                             }
                             if (npModes.contains(NPMode.GLOBAL_RANK)) {
-                                Optional<GlobalCrown> yourPosition = globalArtistRanking.stream().filter(x -> x.getDiscordId() == discordId).findFirst();
+                                Optional<GlobalCrown> yourPosition = globalArtistRanking.stream().filter(x -> x.discordId() == discordId).findFirst();
                                 yourPosition.
-                                        map(gc -> "Global Rank: " + gc.getRanking() + CommandUtil.getDayNumberSuffix(gc.getRanking()) + "/" + globalArtistRanking.size())
+                                        map(gc -> "Global Rank: " + gc.ranking() + CommandUtil.getDayNumberSuffix(gc.ranking()) + "/" + globalArtistRanking.size())
                                         .map(x -> {
                                             if (npModes.contains(NPMode.GLOBAL_CROWN)) {
                                                 previousNewLinesToAdd.add(footerIndexes.get(NPMode.GLOBAL_CROWN));

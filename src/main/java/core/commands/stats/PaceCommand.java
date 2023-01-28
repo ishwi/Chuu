@@ -15,8 +15,8 @@ import dao.entities.LastFMData;
 import dao.entities.NaturalTimeFrameEnum;
 import dao.entities.UserInfo;
 import net.dv8tion.jda.api.utils.TimeFormat;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.text.DecimalFormat;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -87,7 +87,7 @@ public class PaceCommand extends ConcurrentCommand<NumberParameters<NumberParame
     }
 
     @Override
-    public void onCommand(Context e, @Nonnull NumberParameters<NumberParameters<NaturalTimeParams>> hopefullyNoOneSeesThis) throws LastFmException {
+    public void onCommand(Context e, @NotNull NumberParameters<NumberParameters<NaturalTimeParams>> hopefullyNoOneSeesThis) throws LastFmException {
 
 
         NumberParameters<NaturalTimeParams> unitCount = hopefullyNoOneSeesThis.getInnerParams();

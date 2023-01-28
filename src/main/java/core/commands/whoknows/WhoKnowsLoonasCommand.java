@@ -17,12 +17,12 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import org.apache.commons.collections4.MultiValuedMap;
 import org.apache.commons.collections4.multimap.HashSetValuedHashMap;
 import org.apache.commons.lang3.tuple.Pair;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.awt.image.BufferedImage;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -102,7 +102,7 @@ public class WhoKnowsLoonasCommand extends WhoKnowsBaseCommand<LOONAParameters> 
     }
 
     @Override
-    public void onCommand(Context e, @Nonnull LOONAParameters params) {
+    public void onCommand(Context e, @NotNull LOONAParameters params) {
 
 
         @Nullable String nullableOwner = params.getSubject() == LOONAParameters.Subject.ME ? params.getLastFMData().getName() : null;

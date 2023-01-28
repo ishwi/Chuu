@@ -1,8 +1,8 @@
 package dao.entities;
 
 import org.beryx.awt.color.ColorFactory;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nullable;
 import java.awt.*;
 import java.util.List;
 import java.util.*;

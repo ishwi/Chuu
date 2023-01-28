@@ -3,6 +3,7 @@ package test.commands.parsers.factories;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.internal.entities.GuildImpl;
 import net.dv8tion.jda.internal.entities.UserImpl;
+import test.commands.parsers.mock.GuildMock;
 
 import java.util.function.Function;
 
@@ -15,7 +16,7 @@ public record Factory(Function<FactoryDeps, User> userFn, Function<FactoryDeps, 
                     user.setName("testing");
                     return user;
                 },
-                (deps) -> new GuildImpl(deps.jda(), -1)
+                GuildMock::new
         );
     }
 
@@ -26,4 +27,5 @@ public record Factory(Function<FactoryDeps, User> userFn, Function<FactoryDeps, 
     public Factory withGuild(Function<FactoryDeps, GuildImpl> gF) {
         return new Factory(userFn, gF);
     }
+
 }

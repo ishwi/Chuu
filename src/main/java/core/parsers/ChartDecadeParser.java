@@ -3,7 +3,6 @@ package core.parsers;
 import core.commands.Context;
 import core.commands.InteracionReceived;
 import core.commands.utils.CommandUtil;
-import core.exceptions.LastFmException;
 import core.parsers.exceptions.InvalidChartValuesException;
 import core.parsers.explanation.DecadeExplanation;
 import core.parsers.explanation.util.Explanation;
@@ -43,7 +42,7 @@ public class ChartDecadeParser extends ChartableParser<ChartYearRangeParameters>
     }
 
     @Override
-    public ChartYearRangeParameters parseSlashLogic(InteracionReceived<? extends CommandInteraction> ctx) throws LastFmException, InstanceNotFoundException {
+    public ChartYearRangeParameters parseSlashLogic(InteracionReceived<? extends CommandInteraction> ctx) throws InstanceNotFoundException {
         CommandInteraction e = ctx.e();
         TimeFrameEnum tfe = InteractionAux.parseTimeFrame(e, defaultTFE);
         User user = InteractionAux.parseUser(e);

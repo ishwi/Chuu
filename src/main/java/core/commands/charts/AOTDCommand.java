@@ -118,8 +118,8 @@ public class AOTDCommand extends ChartableCommand<ChartYearRangeParameters> {
         queue.removeIf(urlCapsule -> {
             for (AlbumInfo albumInfo : albumsMbizMatchingYear) {
                 if ((!albumInfo.getMbid().isEmpty() && albumInfo.getMbid().equals(urlCapsule.getMbid())) || urlCapsule
-                        .getAlbumName().equalsIgnoreCase(albumInfo.getName()) && urlCapsule.getArtistName()
-                        .equalsIgnoreCase(albumInfo.getArtist())) {
+                                                                                                                    .getAlbumName().equalsIgnoreCase(albumInfo.getName()) && urlCapsule.getArtistName()
+                                                                                                                    .equalsIgnoreCase(albumInfo.getArtist())) {
                     urlCapsule.setPos(counter2.getAndAdd(1));
                     return false;
                 }
@@ -178,7 +178,7 @@ public class AOTDCommand extends ChartableCommand<ChartYearRangeParameters> {
         emptyMbid.removeAll(mbFoundBYName.stream().map(CountWrapper::getResult).toList());
 
 
-        albumsMbizMatchingYear = accum.stream().map(CountWrapper::getResult).toList();
+        albumsMbizMatchingYear = accum.stream().map(CountWrapper::getResult).collect(Collectors.toCollection(ArrayList::new));
         accum.addAll(mbFoundBYName);
         albumsMbizMatchingYear.addAll(mbFoundBYName.stream().map(CountWrapper::getResult).toList());
 

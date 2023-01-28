@@ -23,9 +23,7 @@ public record FullTimeframeExplanation(TimeFrameEnum timeFrame) implements Expla
         }
         from = new OptionData(OptionType.STRING, "from", "From: date parsing");
         to = new OptionData(OptionType.STRING, "to", "To: date parsing");
-        for (TimeFrameEnum value : TimeFrameEnum.values()) {
-            optionData.addChoice(value.toValueString(), value.getName());
-        }
+
     }
 
     @Override

@@ -6,8 +6,8 @@ import core.apis.spotify.Spotify;
 import core.util.VirtualParallel;
 import dao.ChuuService;
 import dao.exceptions.ChuuServiceException;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Comparator;
@@ -45,7 +45,7 @@ public abstract class GroupingQueue extends ArtistQueue {
     }
 
     @Override
-    public boolean offer(@Nonnull UrlCapsule item) {
+    public boolean offer(@NotNull UrlCapsule item) {
         artistMap.merge(mappingFunction().apply(item), item, reductorFunction());
         return true;
     }

@@ -20,8 +20,8 @@ import dao.entities.TrackPlays;
 import dao.entities.UniqueWrapper;
 import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.util.List;
 
 import static core.parsers.NumberParser.generateThresholdParser;
@@ -82,7 +82,7 @@ public class GlobalTrackArtistCrownsCommand extends ConcurrentCommand<NumberPara
     }
 
     @Override
-    public void onCommand(Context e, @Nonnull NumberParameters<ArtistParameters> params) throws LastFmException {
+    public void onCommand(Context e, @NotNull NumberParameters<ArtistParameters> params) throws LastFmException {
 
 
         ArtistParameters innerParams = params.getInnerParams();
@@ -93,7 +93,7 @@ public class GlobalTrackArtistCrownsCommand extends ConcurrentCommand<NumberPara
         UniqueWrapper<TrackPlays> uniqueDataUniqueWrapper = getList(params);
         DiscordUserDisplay userInformation = CommandUtil.getUserInfoEscaped(e, innerParams.getLastFMData().getDiscordId());
         String userName = userInformation.username();
-        List<TrackPlays> resultWrapper = uniqueDataUniqueWrapper.getUniqueData();
+        List<TrackPlays> resultWrapper = uniqueDataUniqueWrapper.uniqueData();
 
         int rows = resultWrapper.size();
         if (rows == 0) {
@@ -110,7 +110,7 @@ public class GlobalTrackArtistCrownsCommand extends ConcurrentCommand<NumberPara
 
         long discordId = params.getInnerParams().getLastFMData().getDiscordId();
         EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e)
-                .setAuthor(String.format("%s's %scrowns", userName, getTitle(scrobbledArtist)), CommandUtil.getLastFmUser(uniqueDataUniqueWrapper.getLastFmId()), userInformation.urlImage())
+                .setAuthor(String.format("%s's %scrowns", userName, getTitle(scrobbledArtist)), CommandUtil.getLastFmUser(uniqueDataUniqueWrapper.lastFmId()), userInformation.urlImage())
                 .setThumbnail(scrobbledArtist.getUrl())
                 .setFooter(String.format("%s has %d %scrowns!!%n", CommandUtil.unescapedUser(userName, discordId, e), resultWrapper.size(), getTitle(scrobbledArtist)), null);
 

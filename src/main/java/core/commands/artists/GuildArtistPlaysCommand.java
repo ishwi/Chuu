@@ -12,8 +12,8 @@ import core.services.validators.ArtistValidator;
 import core.util.ServiceView;
 import dao.entities.LastFMData;
 import dao.entities.ScrobbledArtist;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.util.List;
 
 public class GuildArtistPlaysCommand extends ConcurrentCommand<ArtistParameters> {
@@ -53,7 +53,7 @@ public class GuildArtistPlaysCommand extends ConcurrentCommand<ArtistParameters>
     }
 
     @Override
-    public void onCommand(Context e, @Nonnull ArtistParameters params) throws LastFmException {
+    public void onCommand(Context e, @NotNull ArtistParameters params) throws LastFmException {
 
         String artist = params.getArtist();
 

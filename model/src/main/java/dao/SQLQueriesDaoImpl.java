@@ -7,9 +7,9 @@ import org.apache.commons.collections4.ListValuedMap;
 import org.apache.commons.collections4.multimap.ArrayListValuedHashMap;
 import org.apache.commons.lang3.tuple.Pair;
 import org.intellij.lang.annotations.Language;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.sql.*;
 import java.time.Instant;
 import java.time.Year;
@@ -20,11 +20,6 @@ import static dao.UpdaterDaoImpl.preparePlaceHolders;
 
 public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
 
-
-    @Override
-    public void getGlobalRank(Connection connection, String lastfmId) {
-        // TODO ONE DAY
-    }
 
     @Override
     public UniqueWrapper<ArtistPlays> getGlobalCrowns(Connection connection, String lastfmId, int threshold, boolean includeBottedUsers, long ownerId) {
@@ -166,7 +161,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
         return getArtistPlaysResultWrapper(connection, guildId, normalQuery, countQuery);
     }
 
-    @Nonnull
+    @NotNull
     private ResultWrapper<ArtistPlays> getArtistPlaysResultWrapper(Connection connection, Long guildId, String normalQuery, String countQuery) {
         try (PreparedStatement preparedStatement2 = connection.prepareStatement(countQuery)) {
             preparedStatement2.setLong(1, guildId);
@@ -235,7 +230,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
         return returnList;
     }
 
-    @Nonnull
+    @NotNull
     private ResultWrapper<ArtistPlays> getArtistPlaysResultWrapper(int rows, PreparedStatement preparedStatement) throws SQLException {
         ResultSet resultSet;
         resultSet = preparedStatement.executeQuery();
@@ -265,7 +260,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
 
     }
 
-    @Nonnull
+    @NotNull
     private ResultWrapper<ArtistPlays> getArtistPlaysResultWrapper(Connection connection, String normalQuery, String countQuery) {
         int rows;
         try (PreparedStatement preparedStatement2 = connection.prepareStatement(countQuery)) {
@@ -699,7 +694,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
                                                                 join ranks r on us.artist_id = r.artist_id
                                                                 join artist b on us.artist_id = b.id
                                                                 ) main
-                                                                where 1 = 1 
+                                                                where 1 = 1
                                                                """;
         } else {
             sql = """
@@ -2449,7 +2444,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
     }
 
     //TriFunction is not the simplest approach but i felt like using it so :D
-    @Nonnull
+    @NotNull
     private <T extends Number> List<LbEntry<T>> getLbEntries(Connection connection, long guildId, String
             queryString, TriFunction<String, Long, T, LbEntry<T>> fun, boolean needsReSet, int resetThreshold, Class<T> tClass) {
         List<LbEntry<T>> returnedList = new ArrayList<>();

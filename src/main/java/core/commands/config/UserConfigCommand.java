@@ -6,7 +6,6 @@ import core.commands.abstracts.ConcurrentCommand;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.commands.utils.PrivacyUtils;
-import core.exceptions.LastFmException;
 import core.parsers.ChartParserAux;
 import core.parsers.Parser;
 import core.parsers.UserConfigParser;
@@ -18,8 +17,8 @@ import core.util.ServiceView;
 import dao.entities.*;
 import dao.exceptions.InstanceNotFoundException;
 import org.apache.commons.text.WordUtils;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.awt.*;
 import java.util.EnumSet;
 import java.util.HashSet;
@@ -58,7 +57,7 @@ public class UserConfigCommand extends ConcurrentCommand<UserConfigParameters> {
     }
 
     @Override
-    public void onCommand(Context e, @Nonnull UserConfigParameters params) throws LastFmException, InstanceNotFoundException {
+    public void onCommand(Context e, @NotNull UserConfigParameters params) throws InstanceNotFoundException {
 
         UserConfigType config = params.getConfig();
         String value = params.getValue().trim();

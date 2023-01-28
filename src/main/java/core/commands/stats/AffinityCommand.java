@@ -20,8 +20,8 @@ import dao.entities.DiscordUserDisplay;
 import dao.entities.LastFMData;
 import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.EmbedBuilder;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.awt.image.BufferedImage;
 import java.util.Comparator;
 import java.util.List;
@@ -63,7 +63,7 @@ public class AffinityCommand extends ConcurrentCommand<AffinityParameters> imple
     }
 
     @Override
-    public void onCommand(Context e, @Nonnull AffinityParameters params) throws LastFmException, InstanceNotFoundException {
+    public void onCommand(Context e, @NotNull AffinityParameters params) throws LastFmException, InstanceNotFoundException {
         if (params.isDoServer()) {
             doGuild(params);
         } else {

@@ -1,8 +1,7 @@
 package core.exceptions;
 
 import dao.entities.LastFMData;
-
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 public class UnknownLastFmException extends LastFmException {
     public static final int INVALID_SERVICE = 2;

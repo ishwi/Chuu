@@ -4,7 +4,6 @@ import core.commands.Context;
 import core.commands.InteracionReceived;
 import core.commands.abstracts.MyCommand;
 import core.commands.utils.CommandUtil;
-import core.exceptions.LastFmException;
 import core.parsers.explanation.util.Explanation;
 import core.parsers.explanation.util.ExplanationLine;
 import core.parsers.explanation.util.ExplanationLineType;
@@ -13,7 +12,6 @@ import core.parsers.params.GuildConfigType;
 import core.parsers.utils.OptionalEntity;
 import dao.ChuuService;
 import dao.entities.*;
-import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.interactions.commands.Command;
 import net.dv8tion.jda.api.interactions.commands.CommandInteraction;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
@@ -37,7 +35,7 @@ public class GuildConfigParser extends DaoParser<GuildConfigParams> implements G
     }
 
     @Override
-    public GuildConfigParams parseSlashLogic(InteracionReceived<? extends CommandInteraction> ctx) throws LastFmException, InstanceNotFoundException {
+    public GuildConfigParams parseSlashLogic(InteracionReceived<? extends CommandInteraction> ctx) {
         CommandInteraction e = ctx.e();
         String subcommandName = e.getSubcommandName();
         String[] words;
@@ -168,6 +166,11 @@ public class GuildConfigParser extends DaoParser<GuildConfigParams> implements G
                     data.addOptions(mode);
                 }
 
+                case NP -> {
+                    OptionData mode = new OptionData(OptionType.STRING, "mode", StringUtils.abbreviate(guildConfigType.getExplanation(), 100), true);
+                    data.addOptions(mode);
+
+                }
                 case REMAINING_MODE -> {
                     OptionData mode = new OptionData(OptionType.STRING, "remaining-mode", StringUtils.abbreviate(guildConfigType.getExplanation(), 100), true);
                     for (RemainingImagesMode value : RemainingImagesMode.values()) {

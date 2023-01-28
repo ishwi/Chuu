@@ -58,19 +58,16 @@ public class PrivacyUtils {
 
 
     public static String getUrlTitle(ReturnNowPlaying returnNowPlaying) {
-        if (returnNowPlaying instanceof ReturnNowPlayingAlbum p) {
-            return getLastFmAlbumUserUrl(p.getArtist(), p.getAlbum(), p.getLastFMId());
-        } else if (returnNowPlaying instanceof ReturnNowPlayingSong p) {
-            return getLastFmArtistTrackUserUrl(p.getArtist(), p.getSong(), p.getLastFMId());
-        } else if (returnNowPlaying instanceof GlobalReturnNowPlayingSong p) {
-            return getLastFmArtistTrackUserUrl(p.getArtist(), p.getSong(), p.getLastFMId());
-        } else if (returnNowPlaying instanceof GlobalReturnNowPlayingAlbum p) {
-            return getLastFmAlbumUserUrl(p.getArtist(), p.getAlbum(), p.getLastFMId());
-        } else if (returnNowPlaying instanceof TagPlaying p) {
-            return getLastFmGenreUserUrl(p.getArtist(), p.getLastFMId());
-        } else {
-            return getLastFmArtistUserUrl(returnNowPlaying.getArtist(), returnNowPlaying.getLastFMId() == null ? Chuu.DEFAULT_LASTFM_ID : returnNowPlaying.getLastFMId());
-        }
+        return switch (returnNowPlaying) {
+            case ReturnNowPlayingAlbum p -> getLastFmAlbumUserUrl(p.getArtist(), p.getAlbum(), p.getLastFMId());
+            case ReturnNowPlayingSong p -> getLastFmArtistTrackUserUrl(p.getArtist(), p.getSong(), p.getLastFMId());
+            case GlobalReturnNowPlayingSong p ->
+                    getLastFmArtistTrackUserUrl(p.getArtist(), p.getSong(), p.getLastFMId());
+            case GlobalReturnNowPlayingAlbum p -> getLastFmAlbumUserUrl(p.getArtist(), p.getAlbum(), p.getLastFMId());
+            case TagPlaying p -> getLastFmGenreUserUrl(p.getArtist(), p.getLastFMId());
+            case null, default ->
+                    getLastFmArtistUserUrl(returnNowPlaying.getArtist(), returnNowPlaying.getLastFMId() == null ? Chuu.DEFAULT_LASTFM_ID : returnNowPlaying.getLastFMId());
+        };
     }
 
     public static PrivateString getPublicString(PrivacyMode privacyMode, long discordId, String lastfmId, AtomicInteger atomicInteger, Context e, Set<Long> showableUsers) {

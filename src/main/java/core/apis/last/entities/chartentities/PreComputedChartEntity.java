@@ -4,8 +4,8 @@ import core.imagerenderer.ChartLine;
 import core.imagerenderer.GraphicUtils;
 import core.imagerenderer.stealing.colorpicker.ColorThiefCustom;
 import org.apache.commons.lang3.tuple.Pair;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.Collections;
@@ -62,7 +62,7 @@ public abstract class PreComputedChartEntity extends UrlCapsule implements Compa
         return dominantColor;
     }
 
-    public abstract int compareTo(@Nonnull PreComputedChartEntity o);
+    public abstract int compareTo(@NotNull PreComputedChartEntity o);
 
     public BufferedImage getImage() {
         return image;

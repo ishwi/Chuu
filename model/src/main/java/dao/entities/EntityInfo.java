@@ -18,8 +18,7 @@ public class EntityInfo {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof EntityInfo)) return false;
-        EntityInfo that = (EntityInfo) o;
+        if (!(o instanceof EntityInfo that)) return false;
         if (getArtist() == null) {
             return that.getArtist() == null;
         }

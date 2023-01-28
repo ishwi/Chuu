@@ -15,11 +15,11 @@ public record TestAssertion<T extends EventEmitter.TestEvent>(Class<T> receiver,
         );
     }
 
-    public static TestAssertion<EventEmitter.SendImage> image(Consumer<EventEmitter.SendImage> assertion) {
+    public static TestAssertion<EventEmitter.SendImage> image(ChuuConsumer<EventEmitter.SendImage> assertion) {
         return image(assertion, "An image is expected");
     }
 
-    public static TestAssertion<EventEmitter.SendImage> image(Consumer<EventEmitter.SendImage> assertion, String as) {
+    public static TestAssertion<EventEmitter.SendImage> image(ChuuConsumer<EventEmitter.SendImage> assertion, String as) {
         return new TestAssertion<>(EventEmitter.SendImage.class, assertion, as);
     }
 
@@ -29,6 +29,11 @@ public record TestAssertion<T extends EventEmitter.TestEvent>(Class<T> receiver,
 
     public static TestAssertion<EventEmitter.SendText> text(Consumer<EventEmitter.SendText> assertion, String as) {
         return new TestAssertion<>(EventEmitter.SendText.class, assertion, as);
+    }
+
+    public static TestAssertion<EventEmitter.SendText> error(Consumer<CharSequence> assertion) {
+        Consumer<EventEmitter.SendText> text = (txt) -> txt.error(assertion);
+        return new TestAssertion<>(EventEmitter.SendText.class, text, "Error expected");
     }
 
 }

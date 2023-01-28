@@ -20,9 +20,9 @@ import dao.entities.ScrobbledArtist;
 import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
 import org.knowm.xchart.PieChart;
 
-import javax.annotation.Nonnull;
 import java.awt.image.BufferedImage;
 import java.util.Arrays;
 import java.util.List;
@@ -115,7 +115,7 @@ public class GlobalFavesFromArtistCommand extends ConcurrentCommand<ArtistParame
     }
 
     @Override
-    public void onCommand(Context e, @Nonnull ArtistParameters params) throws LastFmException {
+    public void onCommand(Context e, @NotNull ArtistParameters params) throws LastFmException {
 
         long userId = params.getLastFMData().getDiscordId();
         String artist = params.getArtist();

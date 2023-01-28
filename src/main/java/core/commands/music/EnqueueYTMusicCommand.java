@@ -26,8 +26,8 @@ import core.parsers.MusicInputParser;
 import core.parsers.Parser;
 import core.parsers.params.WordParameter;
 import core.util.ServiceView;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.util.List;
 
 public class EnqueueYTMusicCommand extends core.commands.abstracts.MusicCommand<WordParameter> {
@@ -81,7 +81,7 @@ public class EnqueueYTMusicCommand extends core.commands.abstracts.MusicCommand<
     }
 
     @Override
-    public void onCommand(Context e, @Nonnull WordParameter params) {
+    public void onCommand(Context e, @NotNull WordParameter params) {
 
         var newManager = Chuu.playerRegistry.get(e.getGuild());
         play(e, newManager, params.getWord(), false, false);

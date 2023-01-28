@@ -4,8 +4,8 @@ import core.commands.Context;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
 import core.util.ServiceView;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.util.List;
 
 public abstract class ListCommand<T, Y extends CommandParameters> extends ConcurrentCommand<Y> {
@@ -22,7 +22,7 @@ public abstract class ListCommand<T, Y extends CommandParameters> extends Concur
     public abstract Parser<Y> initParser();
 
     @Override
-    public void onCommand(Context e, @Nonnull Y params) {
+    public void onCommand(Context e, @NotNull Y params) {
 
 
         List<T> list = getList(params);

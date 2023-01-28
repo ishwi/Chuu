@@ -19,9 +19,9 @@ import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.interactions.commands.context.UserContextInteraction;
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.awt.*;
 import java.time.Year;
 import java.util.List;
@@ -133,7 +133,7 @@ public class InteractionAux {
         }
     }
 
-    public static <T> T processAlbum(@Nonnull ArtistAlbum album, ConcurrentLastFM lastFM, LastFMData callerData, boolean forComparison, User author, User caller, Function<User, Optional<LastFMData>> getter, BiFunction<NowPlayingArtist, LastFMData, T> npFound, BiFunction<String[], LastFMData, T> notFound) throws LastFmException, InstanceNotFoundException {
+    public static <T> T processAlbum(@NotNull ArtistAlbum album, ConcurrentLastFM lastFM, LastFMData callerData, boolean forComparison, User author, User caller, Function<User, Optional<LastFMData>> getter, BiFunction<NowPlayingArtist, LastFMData, T> npFound, BiFunction<String[], LastFMData, T> notFound) throws LastFmException, InstanceNotFoundException {
 
         if (album.empty()) {
             NowPlayingArtist np;

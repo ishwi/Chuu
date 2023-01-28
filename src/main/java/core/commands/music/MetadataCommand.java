@@ -13,8 +13,8 @@ import core.parsers.params.CommandParameters;
 import core.util.ServiceView;
 import dao.entities.Metadata;
 import net.dv8tion.jda.api.entities.Message;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -49,7 +49,7 @@ public class MetadataCommand extends MusicCommand<CommandParameters> {
     }
 
     @Override
-    public void onCommand(Context e, @Nonnull CommandParameters params) {
+    public void onCommand(Context e, @NotNull CommandParameters params) {
         String[] message = parser.getSubMessage(e);
         MusicManager manager = getManager(e);
         AudioTrack track = manager.getCurrentTrack();

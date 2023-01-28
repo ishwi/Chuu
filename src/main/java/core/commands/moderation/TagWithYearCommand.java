@@ -24,8 +24,8 @@ import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.time.Year;
 import java.util.List;
 
@@ -66,7 +66,7 @@ public class TagWithYearCommand extends ConcurrentCommand<AlbumYearParameters> {
     }
 
     @Override
-    public void onCommand(Context e, @Nonnull AlbumYearParameters params) throws InstanceNotFoundException {
+    public void onCommand(Context e, @NotNull AlbumYearParameters params) throws InstanceNotFoundException {
 
         Year y = params.getYear();
         AlbumInfo ai = params.getAlbumInfo();

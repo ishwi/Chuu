@@ -18,8 +18,8 @@ import dao.entities.LastFMData;
 import dao.entities.NowPlayingArtist;
 import dao.entities.Rank;
 import net.dv8tion.jda.api.EmbedBuilder;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -61,7 +61,7 @@ public class RecentListCommand extends ConcurrentCommand<NumberParameters<ChuuDa
     }
 
     @Override
-    public void onCommand(Context e, @Nonnull NumberParameters<ChuuDataParams> params) throws LastFmException {
+    public void onCommand(Context e, @NotNull NumberParameters<ChuuDataParams> params) throws LastFmException {
 
 
         long limit = params.getExtraParam();

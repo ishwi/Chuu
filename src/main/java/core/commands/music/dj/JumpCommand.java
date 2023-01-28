@@ -25,8 +25,8 @@ import core.parsers.MinutesParser;
 import core.parsers.Parser;
 import core.parsers.params.MinutesParameters;
 import core.util.ServiceView;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.util.List;
 
 public class JumpCommand extends MusicCommand<MinutesParameters> {
@@ -58,7 +58,7 @@ public class JumpCommand extends MusicCommand<MinutesParameters> {
     }
 
     @Override
-    public void onCommand(Context e, @Nonnull MinutesParameters params) {
+    public void onCommand(Context e, @NotNull MinutesParameters params) {
         MusicManager manager = getManager(e);
         AudioTrack track = manager.getPlayer().getPlayingTrack();
         if (!track.isSeekable()) {

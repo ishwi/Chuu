@@ -24,9 +24,10 @@ public class RandomAlbumCommandTest extends CommandTest {
     @Test
     public void normalUSage() {
         Pattern emptyResponse = Pattern.compile("The pool of urls was empty, add one first!");
-        Pattern oneResponse = Pattern.compile("(.*?), here's your random recommendation\n" +
-                "Posted by: (.*?)\n" +
-                "Link: (.*)");
+        Pattern oneResponse = Pattern.compile("""
+                (.*?), here's your random recommendation
+                Posted by: (.*?)
+                Link: (.*)""");
         Pattern addedUrl = Pattern.compile("Successfully added (.*)'s link to the pool");
         Pattern alreadyOnPool = Pattern.compile("The provided url: (.*) was already on the pool");
         String url = "https://www.youtube.com/watch?v=iH0kfH04U68";

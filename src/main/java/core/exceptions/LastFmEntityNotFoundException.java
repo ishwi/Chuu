@@ -23,6 +23,7 @@ public class LastFmEntityNotFoundException extends LastFmException {
         if (exceptionCause instanceof AlbumException alb) {
             return m(Messages.ERROR_LASTFM_ALBUM_NOT_FOUND, alb.getAlbum(), alb.getArtist());
         }
+
         if (exceptionCause instanceof TrackException tr) {
             return m(Messages.ERROR_LASTFM_TRACK_NOT_FOUND, tr.getSong(), tr.getArtist());
         }

@@ -26,13 +26,13 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.message.BasicNameValuePair;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
-import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
@@ -829,7 +829,7 @@ public class ConcurrentLastFM {//implements LastFMService {
     }
 
 
-    @Nonnull
+    @NotNull
     public List<ScrobbledArtist> getAllArtists(LastFMData user, CustomTimeFrame customTimeFrame) throws
             LastFmException {
         if (customTimeFrame.getType() != CustomTimeFrame.Type.NORMAL) {
@@ -881,7 +881,7 @@ public class ConcurrentLastFM {//implements LastFMService {
         return scrobbledArtistData;
     }
 
-    @Nonnull
+    @NotNull
     public List<ScrobbledTrack> getAllTracks(LastFMData user, CustomTimeFrame timeFrame) throws LastFmException {
         if (timeFrame.getType() != CustomTimeFrame.Type.NORMAL) {
             return getCustomT(TopEntity.TRACK, user, capsule -> new ScrobbledTrack(capsule.getArtistName(), capsule.getAlbumName(), capsule.getPlays(), false, SONG_AVERAGE_DURATION, capsule.getUrl(), null, capsule.getMbid()), 1000, timeFrame);
@@ -947,7 +947,7 @@ public class ConcurrentLastFM {//implements LastFMService {
 
     }
 
-    @Nonnull
+    @NotNull
     public List<ScrobbledAlbum> getAllAlbums(LastFMData user, CustomTimeFrame timeFrame) throws LastFmException {
         if (timeFrame.getType() != CustomTimeFrame.Type.NORMAL) {
             return getCustomT(TopEntity.ALBUM, user, capsule -> {
@@ -1611,7 +1611,7 @@ public class ConcurrentLastFM {//implements LastFMService {
         return attrObj.getInt("total");
     }
 
-    public List<String> getUserArtistTags(int count, String artist, LastFMData user, @Nonnull String session) throws
+    public List<String> getUserArtistTags(int count, String artist, LastFMData user, @NotNull String session) throws
             LastFmException {
         String url = BASE + GET_USER_ARTIST_TAGS + "&artist=" +
                      URLEncoder
@@ -1681,7 +1681,7 @@ public class ConcurrentLastFM {//implements LastFMService {
                 int i = summary.indexOf("<a");
                 if (i != -1) {
                     String substring = summary.substring(0, i);
-                    if (substring.length() != summary.length() && !substring.trim().endsWith("."))
+                    if (!substring.trim().endsWith("."))
                         substring += "...";
                     summary = substring;
                 }

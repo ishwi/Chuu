@@ -26,8 +26,8 @@ import core.parsers.NoOpParser;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
 import core.util.ServiceView;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.util.List;
 
 public class SkipChapterCommand extends MusicCommand<CommandParameters> {
@@ -59,7 +59,7 @@ public class SkipChapterCommand extends MusicCommand<CommandParameters> {
     }
 
     @Override
-    public void onCommand(Context e, @Nonnull CommandParameters params) {
+    public void onCommand(Context e, @NotNull CommandParameters params) {
         MusicManager manager = getManager(e);
         manager.getTrackScrobble().thenAccept(z -> {
             if (!(z.processeds().size() > 1)) {

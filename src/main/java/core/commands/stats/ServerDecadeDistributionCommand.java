@@ -11,8 +11,8 @@ import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
 import core.util.ServiceView;
 import net.dv8tion.jda.api.EmbedBuilder;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -59,7 +59,7 @@ public class ServerDecadeDistributionCommand extends ConcurrentCommand<CommandPa
 
 
     @Override
-    public void onCommand(Context e, @Nonnull CommandParameters params) {
+    public void onCommand(Context e, @NotNull CommandParameters params) {
         var counts = db.getGuildDecades(e.getGuild().getIdLong());
         List<String> lines = counts.entrySet().stream().sorted(Map.Entry.comparingByValue((Comparator.reverseOrder()))).map(t ->
                 ". **%ds**: %d %s%n".formatted(CommandUtil.getDecade(t.getKey().getValue()), t.getValue(), CommandUtil.singlePlural(t.getValue(), "album", "albums"))

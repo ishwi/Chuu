@@ -24,7 +24,7 @@ public class ChartGroupParser extends ChartableParser<ChartGroupParameters> {
     }
 
     @Override
-    public ChartGroupParameters parseSlashLogic(InteracionReceived<? extends CommandInteraction> ctx) throws LastFmException, InstanceNotFoundException {
+    public ChartGroupParameters parseSlashLogic(InteracionReceived<? extends CommandInteraction> ctx) throws InstanceNotFoundException {
         ChartParameters chartParameters;
         try {
             chartParameters = inner.parse(ctx);

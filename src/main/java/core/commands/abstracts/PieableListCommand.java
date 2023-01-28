@@ -4,9 +4,9 @@ import core.commands.Context;
 import core.imagerenderer.GraphicUtils;
 import core.parsers.params.CommandParameters;
 import core.util.ServiceView;
+import org.jetbrains.annotations.NotNull;
 import org.knowm.xchart.PieChart;
 
-import javax.annotation.Nonnull;
 import java.awt.*;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
@@ -23,7 +23,7 @@ public abstract class PieableListCommand<T, Y extends CommandParameters> extends
     }
 
     @Override
-    public void onCommand(Context e, @Nonnull Y params) {
+    public void onCommand(Context e, @NotNull Y params) {
 
         if (params.hasOptional("pie")) {
             doPie(getList(params), params);

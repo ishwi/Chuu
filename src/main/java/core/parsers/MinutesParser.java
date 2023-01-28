@@ -2,11 +2,9 @@ package core.parsers;
 
 import core.commands.Context;
 import core.commands.InteracionReceived;
-import core.exceptions.LastFmException;
 import core.parsers.explanation.util.Explanation;
 import core.parsers.explanation.util.ExplanationLineType;
 import core.parsers.params.MinutesParameters;
-import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.interactions.commands.CommandInteraction;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
@@ -21,12 +19,7 @@ public class MinutesParser extends Parser<MinutesParameters> {
     private static final Pattern timeRegexp = Pattern.compile("(\\d{1,4})\\s*(h(?:ours?)?|m(?:inutes?)?|s(?:econds?)?)?");
 
     @Override
-    protected void setUpErrorMessages() {
-
-    }
-
-    @Override
-    public MinutesParameters parseSlashLogic(InteracionReceived<? extends CommandInteraction> ctx) throws LastFmException, InstanceNotFoundException {
+    public MinutesParameters parseSlashLogic(InteracionReceived<? extends CommandInteraction> ctx) {
         CommandInteraction e = ctx.e();
         int seconds = Optional.ofNullable(e.getOption("seconds")).map(OptionMapping::getAsLong).map(Math::toIntExact).orElse(0);
         int minutes = Optional.ofNullable(e.getOption("minutes")).map(OptionMapping::getAsLong).map(Math::toIntExact).orElse(0);
@@ -39,7 +32,7 @@ public class MinutesParser extends Parser<MinutesParameters> {
     }
 
     @Override
-    protected MinutesParameters parseLogic(Context e, String[] words) throws InstanceNotFoundException, LastFmException {
+    protected MinutesParameters parseLogic(Context e, String[] words) {
         if (words.length == 0) {
             sendError("You need to introduce the amount of seconds,minutes or hours you want to skip. Examples: `10 secs, 10 mins, 3:20, 10 mins 10 seconds, 10...", e);
             return null;

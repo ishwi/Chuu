@@ -12,8 +12,8 @@ import core.util.ServiceView;
 import dao.ServerStats;
 import dao.entities.ObscurityEntry;
 import net.dv8tion.jda.api.EmbedBuilder;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.util.List;
 
 public class ServerStatsCommand extends ConcurrentCommand<CommandParameters> {
@@ -53,7 +53,7 @@ public class ServerStatsCommand extends ConcurrentCommand<CommandParameters> {
     }
 
     @Override
-    public void onCommand(Context e, @Nonnull CommandParameters params) {
+    public void onCommand(Context e, @NotNull CommandParameters params) {
         ServerStats serverStats = db.getServerStats(e.getGuild().getIdLong());
 
         EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e)

@@ -13,8 +13,7 @@ import core.util.ServiceView;
 import dao.entities.LastFMData;
 import dao.entities.NowPlayingArtist;
 import org.apache.commons.lang3.StringUtils;
-
-import javax.annotation.Nonnull;
+import org.jetbrains.annotations.NotNull;
 
 public abstract class NpCommand extends ConcurrentCommand<NowPlayingParameters> {
 
@@ -34,7 +33,7 @@ public abstract class NpCommand extends ConcurrentCommand<NowPlayingParameters> 
     }
 
     @Override
-    public void onCommand(Context e, @Nonnull NowPlayingParameters params) {
+    public void onCommand(Context e, @NotNull NowPlayingParameters params) {
         NowPlayingArtist np = params.getNowPlayingArtist();
         doSomethingWithArtist(np, e, params.getLastFMData().getDiscordId(), params.getLastFMData(), params);
         CommandUtil.runLog(() -> {

@@ -15,8 +15,8 @@ import dao.entities.AlbumPlays;
 import dao.entities.DiscordUserDisplay;
 import dao.entities.UniqueWrapper;
 import net.dv8tion.jda.api.EmbedBuilder;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.util.Arrays;
 import java.util.List;
 
@@ -61,7 +61,7 @@ public class AlbumCrownsCommand extends ConcurrentCommand<NumberParameters<ChuuD
     }
 
     @Override
-    public void onCommand(Context e, @Nonnull NumberParameters<ChuuDataParams> params) {
+    public void onCommand(Context e, @NotNull NumberParameters<ChuuDataParams> params) {
 
         ChuuDataParams innerParams = params.getInnerParams();
         DiscordUserDisplay userInfo = CommandUtil.getUserInfoEscaped(e, innerParams.getLastFMData().getDiscordId());
@@ -75,7 +75,7 @@ public class AlbumCrownsCommand extends ConcurrentCommand<NumberParameters<ChuuD
         }
         UniqueWrapper<AlbumPlays> uniqueDataUniqueWrapper = db
                 .getUserAlbumCrowns(innerParams.getLastFMData().getName(), e.getGuild().getIdLong(), Math.toIntExact(threshold));
-        List<AlbumPlays> resultWrapper = uniqueDataUniqueWrapper.getUniqueData();
+        List<AlbumPlays> resultWrapper = uniqueDataUniqueWrapper.uniqueData();
 
         int rows = resultWrapper.size();
         if (rows == 0) {
@@ -84,7 +84,7 @@ public class AlbumCrownsCommand extends ConcurrentCommand<NumberParameters<ChuuD
         }
 
         EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e)
-                .setTitle(String.format("%s's album crowns", name), CommandUtil.getLastFmUser(uniqueDataUniqueWrapper.getLastFmId()))
+                .setTitle(String.format("%s's album crowns", name), CommandUtil.getLastFmUser(uniqueDataUniqueWrapper.lastFmId()))
                 .setFooter(String.format("%s has %d album crowns!!%n", CommandUtil.unescapedUser(name, innerParams.getLastFMData().getDiscordId(), e), resultWrapper.size()), null)
                 .setThumbnail(url);
 

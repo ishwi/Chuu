@@ -6,7 +6,6 @@ import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandCategory;
 import core.commands.utils.CommandUtil;
 import core.commands.utils.PrivacyUtils;
-import core.exceptions.LastFmException;
 import core.otherlisteners.util.PaginatorBuilder;
 import core.parsers.OnlyUsernameParser;
 import core.parsers.Parser;
@@ -16,7 +15,6 @@ import core.util.ServiceView;
 import dao.entities.DiscordUserDisplay;
 import dao.entities.LastFMData;
 import dao.entities.Track;
-import dao.exceptions.InstanceNotFoundException;
 import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import org.jetbrains.annotations.NotNull;
@@ -55,7 +53,7 @@ public class DurationCommand extends ConcurrentCommand<ChuuDataParams> {
     }
 
     @Override
-    public void onCommand(Context e, @NotNull ChuuDataParams params) throws LastFmException, InstanceNotFoundException {
+    public void onCommand(Context e, @NotNull ChuuDataParams params) {
         LastFMData data = params.getLastFMData();
         List<Track> tracks = db.getUserTrackByLength(data.getName(), !params.hasOptional("shortest"));
         DiscordUserDisplay uInfo = CommandUtil.getUserInfoUnescaped(e, params.getLastFMData().getDiscordId());

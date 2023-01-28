@@ -137,7 +137,6 @@ public class AOTYCommand extends ChartableCommand<ChartYearParameters> {
         albumsMbizMatchingYear.addAll(foundByYear);
         List<AlbumInfo> mbFoundBYName = mb.findArtistByRelease(emptyMbid, year);
         CommandUtil.runLog(() -> db.insertAlbumsOfYear(mbFoundBYName, year));
-        ;
         //CompletableFuture.supplyAsync( x -> dao.insertAlbum(x))
         emptyMbid.removeAll(mbFoundBYName);
 

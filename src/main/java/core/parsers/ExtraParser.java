@@ -100,11 +100,6 @@ public class ExtraParser<Z extends ExtraParameters<Y, J>, Y extends CommandParam
     }
 
     @Override
-    protected void setUpErrorMessages() {
-        //Ovverriding
-    }
-
-    @Override
     public Z parseSlashLogic(InteracionReceived<? extends CommandInteraction> ctx) throws LastFmException, InstanceNotFoundException {
 
         J item = fromSlash.apply(ctx.e());

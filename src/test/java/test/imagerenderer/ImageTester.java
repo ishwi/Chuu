@@ -42,7 +42,7 @@ public class ImageTester {
     TemporalField weekOfYear = WeekFields.of(Locale.getDefault()).weekOfYear();
 
     @BeforeAll
-    public static void beforeClass() throws Exception {
+    public static void beforeClass() {
         Properties properties = readToken();
         service = new ChuuService(null);
         DiscogsSingleton.init(properties.getProperty("DC_SC"), properties.getProperty("DC_KY"));
@@ -88,7 +88,7 @@ public class ImageTester {
     }
 
     @Test
-    public void name() throws IOException, ClassNotFoundException {
+    public void name() {
         boolean getData = false;
         if (getData) {
             a();

@@ -14,8 +14,8 @@ import dao.entities.LastFMData;
 import dao.entities.SecondsTimeFrameCount;
 import dao.entities.TimeFrameEnum;
 import dao.entities.Track;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.text.MessageFormat;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -55,7 +55,7 @@ public class DailyCommand extends ConcurrentCommand<ChuuDataParams> {
     }
 
     @Override
-    public void onCommand(Context e, @Nonnull ChuuDataParams params) throws LastFmException {
+    public void onCommand(Context e, @NotNull ChuuDataParams params) throws LastFmException {
 
         LastFMData user = params.getLastFMData();
         String lastFmName = user.getName();

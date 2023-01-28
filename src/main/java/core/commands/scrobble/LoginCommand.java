@@ -20,8 +20,8 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.requests.RestAction;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.awt.*;
 import java.util.Collections;
 import java.util.List;
@@ -66,7 +66,7 @@ public class LoginCommand extends ConcurrentCommand<CommandParameters> {
     }
 
     @Override
-    public void onCommand(Context e, @Nonnull CommandParameters params) throws LastFmException {
+    public void onCommand(Context e, @NotNull CommandParameters params) throws LastFmException {
         boolean notExisting = false;
         LastFMData lastFMData = null;
         long authorId = e.getAuthor().getIdLong();

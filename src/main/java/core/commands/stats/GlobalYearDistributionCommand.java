@@ -11,8 +11,8 @@ import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
 import core.util.ServiceView;
 import net.dv8tion.jda.api.EmbedBuilder;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -59,7 +59,7 @@ public class GlobalYearDistributionCommand extends ConcurrentCommand<CommandPara
 
 
     @Override
-    public void onCommand(Context e, @Nonnull CommandParameters params) {
+    public void onCommand(Context e, @NotNull CommandParameters params) {
         var yearCount = db.getGlobalYears();
         List<String> lines = yearCount.entrySet().stream().sorted(Map.Entry.comparingByValue((Comparator.reverseOrder()))).map(t ->
                 ". **%d**: %d %s%n".formatted(t.getKey().getValue(), t.getValue(), CommandUtil.singlePlural(t.getValue(), "album", "albums"))

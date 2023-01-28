@@ -10,8 +10,8 @@ import core.exceptions.LastFmEntityNotFoundException;
 import core.exceptions.LastFmException;
 import dao.ChuuService;
 import dao.entities.*;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nullable;
 import java.util.*;
 import java.util.stream.Collectors;
 

@@ -2,13 +2,11 @@ package core.parsers;
 
 import core.commands.Context;
 import core.commands.InteracionReceived;
-import core.exceptions.LastFmException;
 import core.parsers.explanation.util.Explanation;
 import core.parsers.explanation.util.ExplanationLineType;
 import core.parsers.interactions.InteractionAux;
 import core.parsers.params.WordParameter;
 import core.parsers.utils.OptionalEntity;
-import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.interactions.commands.CommandInteraction;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
@@ -25,12 +23,7 @@ public class QueryParser extends Parser<WordParameter> {
     }
 
     @Override
-    protected void setUpErrorMessages() {
-
-    }
-
-    @Override
-    public WordParameter parseSlashLogic(InteracionReceived<? extends CommandInteraction> ctx) throws LastFmException, InstanceNotFoundException {
+    public WordParameter parseSlashLogic(InteracionReceived<? extends CommandInteraction> ctx) {
         String word = Optional.ofNullable(ctx.e().getOption("search-term")).map(OptionMapping::getAsString).orElse(null);
         if (word == null && !allowEmpty) {
             sendError("Need at least one word!", ctx);

@@ -7,8 +7,8 @@ import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.emoji.CustomEmoji;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.entities.emoji.RichCustomEmoji;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 public class ReactValidation {
 
 
-    public static List<String> validateEmotes(Context e, @Nonnull EmotiParameters params) {
+    public static List<String> validateEmotes(Context e, @NotNull EmotiParameters params) {
         TextChannel channelToTestIn = Chuu.getShardManager().getTextChannelById(Chuu.channelId);
         List<CustomEmoji> rejected = new ArrayList<>();
         boolean sentMessage = false;

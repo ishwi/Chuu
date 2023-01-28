@@ -11,8 +11,8 @@ import core.util.ServiceView;
 import dao.entities.LastFMData;
 import dao.entities.Role;
 import dao.exceptions.InstanceNotFoundException;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.util.List;
 
 public class FlagBottedCommand extends ConcurrentCommand<ChuuDataParams> {
@@ -48,7 +48,7 @@ public class FlagBottedCommand extends ConcurrentCommand<ChuuDataParams> {
     }
 
     @Override
-    public void onCommand(Context e, @Nonnull ChuuDataParams params) throws InstanceNotFoundException {
+    public void onCommand(Context e, @NotNull ChuuDataParams params) throws InstanceNotFoundException {
         LastFMData lastFMData = db.findLastFMData(e.getAuthor().getIdLong());
         LastFMData botter = params.getLastFMData();
         if (lastFMData.getRole() != Role.ADMIN) {

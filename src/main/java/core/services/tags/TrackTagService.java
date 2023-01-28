@@ -43,7 +43,7 @@ public class TrackTagService extends TagService<TrackInfo, ScrobbledTrack> {
         }).filter(Objects::nonNull).collect(Collectors.toMap(t -> t.left, t -> t.right, (f, s) -> f));
     }
 
-    private static record Holder(TrackInfo left, ScrobbledTrack right) {
+    private record Holder(TrackInfo left, ScrobbledTrack right) {
 
     }
 }

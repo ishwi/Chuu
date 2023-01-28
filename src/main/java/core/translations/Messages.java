@@ -8,7 +8,7 @@ public enum Messages {
     ERROR_LASTFM_USER_NOT_FOUND("error.lastfm.user.not-found");
 
 
-    private String key;
+    private final String key;
 
     Messages(String key) {
         this.key = key;

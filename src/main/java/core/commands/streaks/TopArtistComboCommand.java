@@ -22,8 +22,8 @@ import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.SelfUser;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -78,7 +78,7 @@ public class TopArtistComboCommand extends ConcurrentCommand<NumberParameters<Ar
     }
 
     @Override
-    public void onCommand(Context e, @Nonnull NumberParameters<ArtistParameters> params) throws LastFmException {
+    public void onCommand(Context e, @NotNull NumberParameters<ArtistParameters> params) throws LastFmException {
 
         Long author = e.getAuthor().getIdLong();
 

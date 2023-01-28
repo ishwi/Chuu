@@ -8,8 +8,8 @@ import core.commands.utils.CommandUtil;
 import core.util.VirtualParallel;
 import dao.ChuuService;
 import dao.exceptions.ChuuServiceException;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.io.Serial;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -52,7 +52,7 @@ public class ArtistQueue extends LinkedBlockingQueue<UrlCapsule> {
     }
 
     @Override
-    public boolean offer(@Nonnull UrlCapsule item) {
+    public boolean offer(@NotNull UrlCapsule item) {
         CompletableFuture<UrlCapsule> future = CommandUtil.supplyLog(() -> {
             if (needsImages) {
                 if ((item.getUrl() != null && item.getUrl().isBlank()) || (item.getUrl() != null && item.getUrl().equalsIgnoreCase(defaultTrackImage))) {
@@ -66,12 +66,12 @@ public class ArtistQueue extends LinkedBlockingQueue<UrlCapsule> {
 
     }
 
-    public void getUrl(@Nonnull UrlCapsule item) {
+    public void getUrl(@NotNull UrlCapsule item) {
         DiscardByQueue.fetchArtistURL(item, dao, discogsApi, spotifyApi);
     }
 
 
-    @Nonnull
+    @NotNull
     @Override
     public UrlCapsule take() throws InterruptedException {
         try {

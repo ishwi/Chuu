@@ -10,8 +10,8 @@ import core.parsers.Parser;
 import core.parsers.params.ChuuDataParams;
 import core.parsers.params.NumberParameters;
 import core.util.ServiceView;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -53,7 +53,7 @@ public class TotalArtistNumberCommand extends ConcurrentCommand<NumberParameters
     }
 
     @Override
-    public void onCommand(Context e, @Nonnull NumberParameters<ChuuDataParams> params) {
+    public void onCommand(Context e, @NotNull NumberParameters<ChuuDataParams> params) {
 
         ChuuDataParams innerParams = params.getInnerParams();
         String lastFmName = innerParams.getLastFMData().getName();

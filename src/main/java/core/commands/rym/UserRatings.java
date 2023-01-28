@@ -15,8 +15,8 @@ import dao.entities.RymStats;
 import dao.entities.ScoredAlbumRatings;
 import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
@@ -53,7 +53,7 @@ public class UserRatings extends ConcurrentCommand<RYMRatingParams> {
     }
 
     @Override
-    public void onCommand(Context e, @Nonnull RYMRatingParams params) {
+    public void onCommand(Context e, @NotNull RYMRatingParams params) {
 
 
         Short rating = params.getRating();

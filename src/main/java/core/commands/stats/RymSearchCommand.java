@@ -11,8 +11,8 @@ import core.parsers.params.ExtraParameters;
 import core.parsers.params.WordParameter;
 import core.util.ServiceView;
 import net.dv8tion.jda.api.entities.User;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.util.Arrays;
 import java.util.List;
 
@@ -46,7 +46,7 @@ public class RymSearchCommand extends ConcurrentCommand<ExtraParameters<WordPara
     }
 
     @Override
-    public void onCommand(Context e, @Nonnull ExtraParameters<WordParameter, User> params) {
+    public void onCommand(Context e, @NotNull ExtraParameters<WordParameter, User> params) {
 
 
         String query = params.getInnerParams().getWord();

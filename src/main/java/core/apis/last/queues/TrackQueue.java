@@ -7,8 +7,8 @@ import core.apis.last.entities.chartentities.UrlCapsule;
 import core.apis.spotify.Spotify;
 import core.commands.utils.CommandUtil;
 import dao.ChuuService;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -24,7 +24,7 @@ public class TrackQueue extends ArtistQueue {
     }
 
     @Override
-    public boolean offer(@Nonnull UrlCapsule item) {
+    public boolean offer(@NotNull UrlCapsule item) {
         if (item.getUrl() == null || item.getUrl().isBlank() || item.getUrl().equals(TrackGroupAlbumQueue.defaultTrackImage)) {
             return super.offer(item);
         }

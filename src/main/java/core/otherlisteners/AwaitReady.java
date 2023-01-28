@@ -2,11 +2,11 @@ package core.otherlisteners;
 
 import core.Chuu;
 import net.dv8tion.jda.api.events.GenericEvent;
-import net.dv8tion.jda.api.events.ReadyEvent;
+import net.dv8tion.jda.api.events.session.ReadyEvent;
 import net.dv8tion.jda.api.hooks.EventListener;
 import net.dv8tion.jda.api.sharding.ShardManager;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
@@ -30,7 +30,7 @@ public class AwaitReady implements EventListener {
 
 
     @Override
-    public void onEvent(@Nonnull GenericEvent event) {
+    public void onEvent(@NotNull GenericEvent event) {
         if (event instanceof ReadyEvent e) {
             int i = counter.incrementAndGet();
             Chuu.getLogger().info("Shard {} loading, total loaded {} / {}", e.getJDA().getShardInfo().getShardId(), i, e.getJDA().getShardInfo().getShardTotal());

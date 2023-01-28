@@ -2,7 +2,6 @@ package core.parsers;
 
 import core.commands.Context;
 import core.commands.InteracionReceived;
-import core.exceptions.LastFmException;
 import core.parsers.explanation.CommandExplanation;
 import core.parsers.explanation.util.Explanation;
 import core.parsers.explanation.util.ExplanationLine;
@@ -34,17 +33,12 @@ public class LOOONAParser extends DaoParser<LOONAParameters> {
     }
 
     @Override
-    void setUpOptionals() {
-        // Intentionally Empty
-    }
-
-    @Override
     protected void setUpErrorMessages() {
         // Intentionally Empty
     }
 
     @Override
-    public LOONAParameters parseSlashLogic(InteracionReceived<? extends CommandInteraction> ctx) throws LastFmException, InstanceNotFoundException {
+    public LOONAParameters parseSlashLogic(InteracionReceived<? extends CommandInteraction> ctx) throws InstanceNotFoundException {
         CommandInteraction e = ctx.e();
         User user = InteractionAux.parseUser(e);
         LastFMData data = findLastfmFromID(user, ctx);
@@ -163,35 +157,24 @@ public class LOOONAParser extends DaoParser<LOONAParameters> {
 
     @Override
     public List<Explanation> getUsages() {
-        String types = Arrays.stream(LOONA.Type.values()).map(Enum::toString).collect(Collectors.joining("|"));
-        String loonas = Arrays.stream(LOONA.values()).map(Enum::toString).map(x -> x.replaceAll("_", " ")).collect(Collectors.joining("|"));
-        String modes = Arrays.stream(LOONAParameters.Mode.values()).map(Enum::toString).collect(Collectors.joining("|"));
-        String subject = Arrays.stream(LOONAParameters.Subject.values()).map(Enum::toString).collect(Collectors.joining("|"));
-        String operations = Arrays.stream(LOONAParameters.Display.values()).map(Enum::toString).collect(Collectors.joining("|"));
-
-
-        String selector = String.format(("[%s|%s]"), types, loonas);
-        String ops = String.format(("[%s]"), operations);
-        String mods = String.format(("[%s]"), modes);
-        String target = String.format(("[%s]"), subject);
 
 
         OptionData selectorData = new OptionData(OptionType.STRING, "selector", StringUtils.abbreviate("You can either select all the members, a specific member,all subgroups, a specific subgroup,the main group or what is tagged as Misc.", 100), false);
         for (LOONA value : LOONA.values()) {
-            String s = value.toString().replaceAll("_", " ");
+            String s = StringUtils.capitalize(value.toString()).replaceAll("_", " ");
             selectorData.addChoice(s, s);
         }
         OptionData groupSelector = new OptionData(OptionType.STRING, "group-selector", StringUtils.abbreviate("Instead of selecting a specific unit you can select a group", 100), false);
         for (LOONA.Type value : LOONA.Type.values()) {
-            String s = value.toString().replaceAll("_", " ");
+            String s = StringUtils.capitalize(value.toString()).replaceAll("_", " ");
             groupSelector.addChoice(s, s);
         }
         OptionData opsData = new OptionData(OptionType.STRING, "operations", "The possible operations on the resulting image/embed", false);
-        Arrays.stream(LOONAParameters.Display.values()).map(Enum::toString).forEach(t -> opsData.addChoice(t, t));
+        Arrays.stream(LOONAParameters.Display.values()).map(Enum::toString).map(StringUtils::capitalize).forEach(t -> opsData.addChoice(t, t));
         OptionData modsDatga = new OptionData(OptionType.STRING, "modes", "Whether the results will be shown grouped within the selector or not", false);
-        Arrays.stream(LOONAParameters.Mode.values()).map(Enum::toString).forEach(t -> modsDatga.addChoice(t, t));
+        Arrays.stream(LOONAParameters.Mode.values()).map(Enum::toString).map(StringUtils::capitalize).forEach(t -> modsDatga.addChoice(t, t));
         OptionData targetData = new OptionData(OptionType.STRING, "target", "Whether the results contains info from all the server members or only the caller of the command.", false);
-        Arrays.stream(LOONAParameters.Subject.values()).map(Enum::toString).forEach(t -> targetData.addChoice(t, t));
+        Arrays.stream(LOONAParameters.Subject.values()).map(Enum::toString).map(StringUtils::capitalize).forEach(t -> targetData.addChoice(t, t));
         return List.of(
                 () ->
                         new ExplanationLine(

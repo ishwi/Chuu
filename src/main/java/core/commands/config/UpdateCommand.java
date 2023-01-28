@@ -19,8 +19,8 @@ import core.util.ChuuVirtualPool;
 import core.util.ServiceView;
 import dao.entities.*;
 import dao.exceptions.InstanceNotFoundException;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
@@ -82,7 +82,7 @@ public class UpdateCommand extends ConcurrentCommand<ChuuDataParams> {
     }
 
     @Override
-    public void onCommand(Context e, @Nonnull ChuuDataParams params) throws LastFmException, InstanceNotFoundException {
+    public void onCommand(Context e, @NotNull ChuuDataParams params) throws LastFmException, InstanceNotFoundException {
 
         LastFMData lastFMData = params.getLastFMData();
         String lastFmName = lastFMData.getName();

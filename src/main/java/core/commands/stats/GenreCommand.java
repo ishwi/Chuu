@@ -26,9 +26,9 @@ import dao.musicbrainz.MusicBrainzService;
 import dao.musicbrainz.MusicBrainzServiceSingleton;
 import net.dv8tion.jda.api.EmbedBuilder;
 import org.apache.commons.text.WordUtils;
+import org.jetbrains.annotations.NotNull;
 import org.knowm.xchart.PieChart;
 
-import javax.annotation.Nonnull;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.Collections;
@@ -77,8 +77,7 @@ public class GenreCommand extends ConcurrentCommand<NumberParameters<TimeFramePa
     public Parser<NumberParameters<TimeFrameParameters>> initParser() {
         Map<Integer, String> map = new HashMap<>(2);
         map.put(LIMIT_ERROR, "The number introduced must be between 1 and a big number");
-        String s = "You can also introduce a number to vary the number of genres shown in the pie," +
-                   "defaults to 10";
+        String s = "You can also introduce a number to vary the number of genres shown in the pie. Defaults to 10";
 
         TimerFrameParser timerFrameParser = new TimerFrameParser(db, TimeFrameEnum.ALL);
         timerFrameParser.addOptional(new OptionalEntity("albums", "use albums"));
@@ -116,7 +115,7 @@ public class GenreCommand extends ConcurrentCommand<NumberParameters<TimeFramePa
     }
 
     @Override
-    public void onCommand(Context e, @Nonnull NumberParameters<TimeFrameParameters> params) throws LastFmException {
+    public void onCommand(Context e, @NotNull NumberParameters<TimeFrameParameters> params) throws LastFmException {
 
 
         TimeFrameParameters innerParams = params.getInnerParams();

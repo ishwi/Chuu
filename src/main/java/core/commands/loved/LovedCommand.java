@@ -16,10 +16,9 @@ import dao.entities.CountWrapper;
 import dao.entities.DiscordUserDisplay;
 import dao.entities.ScrobbledTrack;
 import dao.entities.TrackWithArtistId;
-import dao.exceptions.InstanceNotFoundException;
 import net.dv8tion.jda.api.EmbedBuilder;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.util.List;
@@ -55,7 +54,7 @@ public class LovedCommand extends ConcurrentCommand<ChuuDataParams> {
     }
 
     @Override
-    public void onCommand(Context e, @Nonnull ChuuDataParams params) throws LastFmException, InstanceNotFoundException {
+    public void onCommand(Context e, @NotNull ChuuDataParams params) throws LastFmException {
         CountWrapper<List<TrackWithArtistId>> wrapper = lastFM.getLovedSongs(params.getLastFMData());
         DiscordUserDisplay uInfo = CommandUtil.getUserInfoUnescaped(e, params.getLastFMData().getDiscordId());
         if (wrapper.getRows() == 0) {
@@ -76,7 +75,6 @@ public class LovedCommand extends ConcurrentCommand<ChuuDataParams> {
 
 
         CommandUtil.runLog(() -> db.updateLovedSongs(params.getLastFMData().getName(), wrapper.getResult().stream().map(w -> new ScrobbledTrack(w.getArtist(), w.getName(), 0, true, 0, null, null, null)).toList()));
-        ;
 
     }
 }

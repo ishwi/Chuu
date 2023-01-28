@@ -18,8 +18,8 @@
 package core.music.radio;
 
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nullable;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;

@@ -18,9 +18,9 @@ import dao.entities.*;
 import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
 import org.knowm.xchart.PieChart;
 
-import javax.annotation.Nonnull;
 import java.awt.image.BufferedImage;
 import java.util.Arrays;
 import java.util.List;
@@ -63,7 +63,7 @@ public class FavesFromArtistCommand extends ConcurrentCommand<ArtistTimeFramePar
     }
 
     @Override
-    public void onCommand(Context e, @Nonnull ArtistTimeFrameParameters params) throws LastFmException {
+    public void onCommand(Context e, @NotNull ArtistTimeFrameParameters params) throws LastFmException {
 
         long userId = params.getLastFMData().getDiscordId();
         TimeFrameEnum timeframew = params.getTimeFrame();

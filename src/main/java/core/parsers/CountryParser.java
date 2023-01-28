@@ -3,7 +3,6 @@ package core.parsers;
 import com.neovisionaries.i18n.CountryCode;
 import core.commands.Context;
 import core.commands.InteracionReceived;
-import core.exceptions.LastFmException;
 import core.parsers.explanation.CountryExplanation;
 import core.parsers.explanation.TimeframeExplanation;
 import core.parsers.explanation.util.Explanation;
@@ -35,7 +34,7 @@ public class CountryParser extends DaoParser<CountryParameters> {
     }
 
     @Override
-    public CountryParameters parseSlashLogic(InteracionReceived<? extends CommandInteraction> ctx) throws LastFmException, InstanceNotFoundException {
+    public CountryParameters parseSlashLogic(InteracionReceived<? extends CommandInteraction> ctx) throws InstanceNotFoundException {
         CommandInteraction e = ctx.e();
         TimeFrameEnum timeFrameEnum = InteractionAux.parseTimeFrame(e, TimeFrameEnum.ALL);
         User user = InteractionAux.parseUser(e);

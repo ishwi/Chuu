@@ -11,8 +11,8 @@ import core.parsers.params.CommandParameters;
 import core.util.ServiceView;
 import dao.BotStats;
 import net.dv8tion.jda.api.EmbedBuilder;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.text.DecimalFormat;
 import java.util.List;
 
@@ -52,7 +52,7 @@ public class HardwareStatsCommand extends ConcurrentCommand<CommandParameters> {
     }
 
     @Override
-    public void onCommand(Context e, @Nonnull CommandParameters params) {
+    public void onCommand(Context e, @NotNull CommandParameters params) {
         BotStats botStats = db.getBotStats();
         int shardTotal = e.getJDA().getShardInfo().getShardTotal();
         int mb = 1024 * 1024;

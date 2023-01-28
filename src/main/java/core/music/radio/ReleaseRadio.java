@@ -17,8 +17,8 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public final record ReleaseRadio(String name, String genre, String uri, ChuuService db,
-                                 Set<String> previousIdentifiers) implements RadioSource {
+public record ReleaseRadio(String name, String genre, String uri, ChuuService db,
+                           Set<String> previousIdentifiers) implements RadioSource {
     public ReleaseRadio(String name, String genre, String uri, ChuuService db) {
         this(name, genre, uri, db, new HashSet<>());
     }

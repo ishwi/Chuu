@@ -1,11 +1,7 @@
 package test.commands;
 
-import core.apis.discogs.DiscogsApi;
-import core.apis.discogs.DiscogsSingleton;
 import core.apis.last.ConcurrentLastFM;
 import core.apis.last.LastFMFactory;
-import core.apis.spotify.Spotify;
-import core.apis.spotify.SpotifySingleton;
 import core.exceptions.LastFmException;
 import dao.entities.LastFMData;
 import dao.entities.NowPlayingArtist;
@@ -47,20 +43,18 @@ public class FavesCommandTest extends CommandTest {
     @Test
     public void edgeCasesParser() throws LastFmException {
         ConcurrentLastFM newInstance = LastFMFactory.getNewInstance();
-        DiscogsApi discogsApi = DiscogsSingleton.getInstanceUsingDoubleLocking();
-        Spotify spotify = SpotifySingleton.getInstance();
         NowPlayingArtist np = newInstance.getNowPlayingInfo(LastFMData.ofUser("pablopita"));
         String artistUrl = null;
         EmbedUtils
                 .testLeaderboardEmbed(COMMAND_ALIAS + " w", EmbedUtils.descriptionArtistRegexNoMarkDownLink, "${header}'s Top (.*) Tracks in (.*)",
-                        false, false, artistUrl, Pattern
+                        false, false, null, Pattern
                                 .compile("Coudnt't find your fav tracks of " + np.artistName() + " in the last week!"));
 
         np = newInstance.getNowPlayingInfo(LastFMData.ofUser("guilleecs"));
         EmbedUtils
                 .testLeaderboardEmbed(COMMAND_ALIAS + " w " + TestResources.ogJDA.getSelfUser()
                                 .getAsMention(), EmbedUtils.descriptionArtistRegexNoMarkDownLink, "${header}'s Top (.*) Tracks in (.*)",
-                        false, false, artistUrl, Pattern
+                        false, false, null, Pattern
                                 .compile("Coudnt't find your fav tracks of " + np.artistName() + " in the last week!"));
     }
 }

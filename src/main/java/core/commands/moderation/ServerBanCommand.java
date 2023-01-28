@@ -8,8 +8,8 @@ import core.parsers.OnlyUsernameParser;
 import core.parsers.Parser;
 import core.parsers.params.ChuuDataParams;
 import core.util.ServiceView;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.util.List;
 
 public class ServerBanCommand extends ConcurrentCommand<ChuuDataParams> {
@@ -44,7 +44,7 @@ public class ServerBanCommand extends ConcurrentCommand<ChuuDataParams> {
     }
 
     @Override
-    public void onCommand(Context e, @Nonnull ChuuDataParams params) {
+    public void onCommand(Context e, @NotNull ChuuDataParams params) {
 
         if (CommandUtil.notEnoughPerms(e)) {
             sendMessageQueue(e, CommandUtil.notEnoughPermsTemplate() + "block one person from crowns/leaderboards");
