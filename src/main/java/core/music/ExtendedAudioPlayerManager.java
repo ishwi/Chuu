@@ -29,6 +29,8 @@ import com.sedmelluq.discord.lavaplayer.source.vimeo.VimeoAudioSourceManager;
 import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAccessTokenTracker;
 import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioSourceManager;
 import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeHttpContextFilter;
+import com.sedmelluq.discord.lavaplayer.tools.http.ExtendedHttpConfigurable;
+import com.sedmelluq.discord.lavaplayer.tools.io.HttpInterfaceManager;
 import com.sedmelluq.discord.lavaplayer.tools.io.MessageInput;
 import com.sedmelluq.discord.lavaplayer.tools.io.MessageOutput;
 import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
@@ -65,19 +67,23 @@ public class ExtendedAudioPlayerManager extends DefaultAudioPlayerManager {
         configuration.setFrameBufferFactory(NonAllocatingAudioFrameBuffer::new);
         YoutubeAudioSourceManager youtubeAudioSourceManager = YoutubeSearchManagerSingleton.getInstance();
 
-        YoutubeAccessTokenTracker byPasser = new YoutubeAccessTokenTracker(null, null, null);
-        YoutubeHttpContextFilter filter = new YoutubeHttpContextFilter();
-        filter.setTokenTracker(byPasser);
 
-        if (Chuu.ipv6Block != null && !Chuu.ipv6Block.isEmpty()) {
-            @SuppressWarnings("rawtypes") List<IpBlock> blocks = List.of(new Ipv6Block(Chuu.ipv6Block));
-            RotatingNanoIpRoutePlanner planner = new RotatingNanoIpRoutePlanner(blocks);
-            new YoutubeIpRotatorSetup(planner)
-                    .withRetryLimit(6)
-                    .withMainDelegateFilter(filter)
-                    .withSearchDelegateFilter(filter)
-                    .forSource(youtubeAudioSourceManager).setup();
+        ExtendedHttpConfigurable config = youtubeAudioSourceManager.getMainHttpConfiguration();
+        if (config instanceof HttpInterfaceManager manager) {
+            YoutubeAccessTokenTracker byPasser = new YoutubeAccessTokenTracker(manager, null, null);
+            YoutubeHttpContextFilter filter = new YoutubeHttpContextFilter();
+            filter.setTokenTracker(byPasser);
+            if (Chuu.ipv6Block != null && !Chuu.ipv6Block.isEmpty()) {
+                @SuppressWarnings("rawtypes") List<IpBlock> blocks = List.of(new Ipv6Block(Chuu.ipv6Block));
+                RotatingNanoIpRoutePlanner planner = new RotatingNanoIpRoutePlanner(blocks);
+                new YoutubeIpRotatorSetup(planner)
+                        .withRetryLimit(6)
+                        .withMainDelegateFilter(filter)
+                        .withSearchDelegateFilter(filter)
+                        .forSource(youtubeAudioSourceManager).setup();
+            }
         }
+
 
         registerSourceManagers(
                 new SpotifyAudioSourceManager(youtubeAudioSourceManager),

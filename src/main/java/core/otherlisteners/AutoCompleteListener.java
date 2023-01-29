@@ -26,7 +26,7 @@ public class AutoCompleteListener implements EventListener {
         }
     }
 
-    private void handle(CommandAutoCompleteInteractionEvent e) {
+    public void handle(CommandAutoCompleteInteractionEvent e) {
         Logger logger = Chuu.getLogger();
         logger.debug("Autocompleting event {}", e);
         AutoCompleteQuery focusedOption = e.getFocusedOption();
@@ -35,7 +35,9 @@ public class AutoCompleteListener implements EventListener {
                 .filter(w -> w instanceof Autocompletable)
                 .map(w -> (Autocompletable & Interactible) w)
                 .filter(w -> w.options().stream().anyMatch(optionData -> optionData.isAutoComplete() && optionData.getName().equals(focusedOption.getName())))
-                .flatMap(w -> w.autocomplete(e).stream()).toList();
+                .flatMap(w -> w.autocomplete(e).stream())
+                .filter(w -> w != Autocompletable.EMPTY_CHOICE)
+                .toList();
         logger.debug("Autocompleting event {} | replying with {}", e, interactibles);
         e.replyChoices(interactibles).queue();
     }

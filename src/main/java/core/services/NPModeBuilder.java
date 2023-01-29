@@ -827,7 +827,9 @@ public class NPModeBuilder {
 
     public static class Sets {
         public static <T> Set<T> difference(Set<T> a, Set<T> b) {
-            return new HashSet<>();
+            Set<T> copy = new HashSet<>(a);
+            copy.removeIf(b::contains);
+            return copy;
         }
     }
 }

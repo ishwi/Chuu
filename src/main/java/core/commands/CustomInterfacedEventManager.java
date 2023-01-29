@@ -172,8 +172,8 @@ public class CustomInterfacedEventManager implements IEventManager {
     public void handle(@NotNull GenericEvent event) {
         try {
             switch (event) {
-                case CommandAutoCompleteInteractionEvent ignored ->
-                        autocompleteExecutor.submit((ChuuRunnable) () -> autoCompleteListener.onEvent(event));
+                case CommandAutoCompleteInteractionEvent cacie ->
+                        autocompleteExecutor.submit((ChuuRunnable) () -> autoCompleteListener.handle(cacie));
                 case MessageReceivedEvent mes ->
                         handleMessageReceived(mes); // Delegate running in pool if its a valid message
                 case UserContextInteractionEvent ucie -> handleUserCommand(ucie);
