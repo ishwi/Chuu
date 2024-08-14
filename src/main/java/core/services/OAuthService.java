@@ -21,7 +21,7 @@ public record OAuthService(ChuuService db, ConcurrentLastFM lastFM) {
             return url;
         }
         try {
-            if (lastFMData.getToken() != null) {
+            if (lastFMData.getSession() == null && lastFMData.getToken() != null) {
                 String authSession = lastFM.getAuthSession(lastFMData);
                 db.storeSess(authSession, lastFMData.getName());
                 lastFMData.setSession(authSession);

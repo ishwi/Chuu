@@ -1,6 +1,7 @@
 package core.imagerenderer;
 
 import core.Chuu;
+import core.apis.ClientSingleton;
 import core.commands.Context;
 import core.commands.utils.CommandUtil;
 import core.imagerenderer.stealing.blur.GaussianFilter;
@@ -30,12 +31,15 @@ import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
-import java.net.URLConnection;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.AttributedString;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -558,10 +562,13 @@ public class GraphicUtils {
     }
 
     private static BufferedImage downloadImage(String url, Path file) {
-        try (var is = new BufferedInputStream(createCon(url).getInputStream())) {
+        HttpClient instance = ClientSingleton.getInstance();
+        HttpRequest req = setHeaders(HttpRequest.newBuilder().GET().uri(URI.create(url))).build();
 
+        try {
+            var is = instance.send(req, HttpResponse.BodyHandlers.ofInputStream());
             VirtualParallel.handleInterrupt();
-            BufferedImage read = ImageIO.read(is);
+            BufferedImage read = ImageIO.read(is.body());
             if (read != null) {
                 BufferedImage copied = deepCopy(read);
                 CommandUtil.runLog((ChuuRunnable) () -> {
@@ -571,7 +578,7 @@ public class GraphicUtils {
                 });
             }
             return read;
-        } catch (IOException | ArrayIndexOutOfBoundsException ex) {
+        } catch (IOException | InterruptedException | ArrayIndexOutOfBoundsException ex) {
             Chuu.getLogger().warn("Error downloading image {}", url, ex);
             VirtualParallel.handleInterrupt();
             return null;
@@ -647,19 +654,18 @@ public class GraphicUtils {
         return cover;
     }
 
-    private static URLConnection createCon(String url) throws IOException {
-        URLConnection urlConnection = new URL(url)
-                .openConnection();
-        urlConnection.setRequestProperty("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36");
-        urlConnection.setRequestProperty("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36");
-        urlConnection.setRequestProperty("sec-ch-ua", "Not_A Brand\";v=\"99\", \"Google Chrome\";v=\"109\", \"Chromium\";v=\"109\"");
-        urlConnection.setRequestProperty("sec-ch-ua-mobile", "?0");
-        urlConnection.setRequestProperty("sec-ch-ua-platform", "\" Windows\"");
-        urlConnection.setRequestProperty("sec-fetch-dest", "document");
-        urlConnection.setRequestProperty("sec-fetch-mode", "navigate");
-        urlConnection.setRequestProperty("sec-fetch-site", "none");
-        urlConnection.setRequestProperty("sec-fetch-user", "?1");
-        return urlConnection;
+    private static HttpRequest.Builder setHeaders(HttpRequest.Builder req) {
+        req.timeout(Duration.ofSeconds(10));
+        req.setHeader("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36");
+        req.setHeader("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36");
+        req.setHeader("sec-ch-ua", "Not_A Brand\";v=\"99\", \"Google Chrome\";v=\"109\", \"Chromium\";v=\"109\"");
+        req.setHeader("sec-ch-ua-mobile", "?0");
+        req.setHeader("sec-ch-ua-platform", "\" Windows\"");
+        req.setHeader("sec-fetch-dest", "document");
+        req.setHeader("sec-fetch-mode", "navigate");
+        req.setHeader("sec-fetch-site", "none");
+        req.setHeader("sec-fetch-user", "?1");
+        return req;
     }
 }
 
