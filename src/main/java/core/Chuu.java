@@ -199,7 +199,7 @@ public class Chuu {
         DefaultShardManagerBuilder builder = DefaultShardManagerBuilder.
                 create(getIntents())
                 .setChunkingFilter(ChunkingFilter.NONE)
-                .setThreadFactory(Thread.ofVirtual()
+                .setThreadFactory(Thread.ofPlatform()
                         .inheritInheritableThreadLocals(false)
                         .name("Application-thread", 0).factory())
                 .enableCache(CacheFlag.EMOJI, CacheFlag.VOICE_STATE)
