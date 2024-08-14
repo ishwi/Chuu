@@ -50,20 +50,20 @@ mainClassName = "core.Chuu"
 group 'org.ish'
 version '1.1.0'
 
-sourceCompatibility = "22.PREVIEW"
-targetCompatibility = "22.PREVIEW"
+sourceCompatibility = "23.PREVIEW"
+targetCompatibility = "23.PREVIEW"
 
 
 compileJava {
-    options.compilerArgs += ["-Xlint:deprecation", "--enable-preview", "--add-modules", "jdk.incubator.concurrent"]
+    options.compilerArgs += ["-Xlint:deprecation", "--enable-preview"]
 
 }
 compileTestJava {
-    options.compilerArgs += ["-Xlint:deprecation", "--enable-preview", "--add-modules", "jdk.incubator.concurrent"]
+    options.compilerArgs += ["-Xlint:deprecation", "--enable-preview"]
 
 }
 test {
-    jvmArgs += ['--enable-preview', '--add-modules', 'jdk.incubator.concurrent']
+    jvmArgs += ['--enable-preview']
 
 }
 compileJava.options.encoding = 'UTF-8'

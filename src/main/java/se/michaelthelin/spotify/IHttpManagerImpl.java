@@ -122,7 +122,13 @@ public class IHttpManagerImpl implements IHttpManager {
     @Override
     public String post(URI uri, Header[] headers, HttpEntity body) throws IOException, SpotifyWebApiException, ParseException {
         HttpRequest.Builder request = HttpRequest.newBuilder()
-                .POST(HttpRequest.BodyPublishers.ofString(body.toString()))
+                .POST(HttpRequest.BodyPublishers.ofInputStream(() -> {
+                    try {
+                        return body.getContent();
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                }))
                 .timeout(Duration.ofSeconds(5))
                 .uri(uri);
 
@@ -139,11 +145,12 @@ public class IHttpManagerImpl implements IHttpManager {
 
     @Override
     public String put(URI uri, Header[] headers, HttpEntity body) throws IOException, SpotifyWebApiException, ParseException {
-        throw new UnsupportedOperationException();
+        return delegate.put(uri, headers, body);
     }
 
     @Override
     public String delete(URI uri, Header[] headers, HttpEntity body) throws IOException, SpotifyWebApiException, ParseException {
-        throw new UnsupportedOperationException();
+        return delegate.delete(uri, headers, body);
+
     }
 }

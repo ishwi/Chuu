@@ -58,7 +58,7 @@ public class WebhookCreator extends ConcurrentCommand<StringParameters> {
     @Override
     public void onCommand(Context e, @NotNull StringParameters params) throws LastFmException, InstanceNotFoundException {
         if (CommandUtil.notEnoughPerms(e, Permission.MANAGE_WEBHOOKS)) {
-            sendMessageQueue(e, STR."\{CommandUtil.notEnoughPermsTemplate()}manage webhooks");
+            sendMessageQueue(e, CommandUtil.notEnoughPermsTemplate() + "manage webhooks");
             return;
         }
         TextChannel tc = e.getChannelUnion().asTextChannel();

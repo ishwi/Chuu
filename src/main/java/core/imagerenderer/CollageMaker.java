@@ -2,21 +2,23 @@ package core.imagerenderer;
 
 import core.Chuu;
 import core.apis.last.entities.chartentities.UrlCapsule;
-import core.util.VirtualParallel;
 import dao.exceptions.ChuuServiceException;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.StructuredTaskScope;
-import java.util.concurrent.TimeoutException;
+import java.util.concurrent.Callable;
+import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class CollageMaker {
     private static final int DEFAULT_SIZE = 300;
+    private static final ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(10, 20, 60, TimeUnit.SECONDS, new LinkedBlockingDeque<>());
 
     private CollageMaker() {
     }
@@ -65,19 +67,19 @@ public class CollageMaker {
         AtomicInteger max = new AtomicInteger(size);
         ReentrantLock lock = new ReentrantLock();
 
-        ThreadQueue tq = new ThreadQueue(queue, g, x, y, max, imageSize == 150, asideMode, lock);
-        try (var scope = new StructuredTaskScope<>("collagemaker", Thread.ofVirtual().name("collagemaker-", 0).factory())) {
-            queue.forEach(ca ->
-                    scope.fork(() -> {
-                        tq.run0(ca);
-                        return null;
-                    }));
-            scope.joinUntil(Instant.now().plus(1, ChronoUnit.MINUTES));
-        } catch (TimeoutException | InterruptedException e) {
-            VirtualParallel.handleInterrupt();
+
+        java.util.List<Callable<Object>> calls = new ArrayList<>();
+        int bound = Math.min(15, size);
+        for (int i = 0; i < bound; i++) {
+            calls.add(Executors.callable(new ThreadQueue(queue, g, x, y, max, imageSize == 150, asideMode, lock)));
+        }
+        try {
+            threadPoolExecutor.invokeAll(calls);
+        } catch (InterruptedException e) {
             Chuu.getLogger().warn(e.getMessage(), e);
             throw new ChuuServiceException(e);
         }
+
 
         g.dispose();
         return result;

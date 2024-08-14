@@ -5,6 +5,7 @@ import core.Chuu;
 import dao.entities.ScrobbledTrack;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.hc.core5.http.ParseException;
+import se.michaelthelin.spotify.IHttpManagerImpl;
 import se.michaelthelin.spotify.SpotifyApi;
 import se.michaelthelin.spotify.exceptions.SpotifyWebApiException;
 import se.michaelthelin.spotify.model_objects.credentials.ClientCredentials;
@@ -38,7 +39,7 @@ public class Spotify {
 
     public Spotify(String clientSecret, String clientId) {
         SpotifyApi tempItem = new SpotifyApi.Builder()
-
+                .setHttpManager(new IHttpManagerImpl())
                 .setClientId(clientId).setClientSecret(clientSecret).build();
         this.clientCredentialsRequest = tempItem.clientCredentials().build();
 

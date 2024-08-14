@@ -41,8 +41,8 @@ repositories {
 
 }
 
-sourceCompatibility = "22.PREVIEW"
-targetCompatibility = "22.PREVIEW"
+sourceCompatibility = "23.PREVIEW"
+targetCompatibility = "23.PREVIEW"
 dependencies {
     testImplementation group: 'junit', name: 'junit', version: '4.13.2'
     implementation group: 'org.postgresql', name: 'postgresql', version: '42.7.3'
