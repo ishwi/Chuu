@@ -108,13 +108,12 @@ public class EvalCommand extends MyCommand<CommandParameters> {
         try {
             JavaEvaluator javaEvaluator = new JavaEvaluator();
             CompilationResult r = javaEvaluator.compile()
-                    .addCompilerOptions("-Xlint:unchecked", "--target=19", "--enable-preview", "--source=19")
+                    .addCompilerOptions("-Xlint:unchecked", "--target=23", "--enable-preview", "--source=23")
                     .source("Eval", source
                     )
                     .execute();
             EvalClassLoader ecl = new EvalClassLoader();
             r.classes().forEach((name, bytes) -> ecl.define(bytes));
-
             ecl.loadClass("core.commands.Eval").getMethod("run", EvalContext.class).invoke(null, evalContext);
         } catch (CompilationException noSuchMethodException) {
             EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e).addField("Code", "```java\n" + StringUtils.abbreviate(source, 1000) + "\n```\n", false);

@@ -18,7 +18,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 public class CollageMaker {
     private static final int DEFAULT_SIZE = 300;
-    private static final ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(10, 20, 60, TimeUnit.SECONDS, new LinkedBlockingDeque<>());
+    public static final ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(10, 20, 60, TimeUnit.SECONDS, new LinkedBlockingDeque<>());
 
     private CollageMaker() {
     }

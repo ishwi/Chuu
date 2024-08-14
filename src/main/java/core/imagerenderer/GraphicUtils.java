@@ -10,7 +10,6 @@ import core.imagerenderer.util.CIELab;
 import core.imagerenderer.util.D;
 import core.imagerenderer.util.fitter.StringFitter;
 import core.imagerenderer.util.fitter.StringFitterBuilder;
-import core.services.ChuuRunnable;
 import core.util.VirtualParallel;
 import dao.entities.ReturnNowPlaying;
 import dao.entities.WrapperReturnNowPlaying;
@@ -44,6 +43,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import java.util.Random;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.stream.Stream;
 
 public class GraphicUtils {
@@ -66,7 +67,7 @@ public class GraphicUtils {
     public static List<Path> wallpapers;
 
     static {
-
+        ImageIO.setUseCache(false);
 
         try (InputStream in = GraphicUtils.class.getResourceAsStream("/all.properties");
              InputStream in2 = WhoKnowsMaker.class.getResourceAsStream("/images/noArtistImage.png")) {
@@ -564,25 +565,35 @@ public class GraphicUtils {
     private static BufferedImage downloadImage(String url, Path file) {
         HttpClient instance = ClientSingleton.getInstance();
         HttpRequest req = setHeaders(HttpRequest.newBuilder().GET().uri(URI.create(url))).build();
+        CompletableFuture<BufferedImage> bufferedImage = CompletableFuture.supplyAsync(() -> {
+            try {
+                var is = instance.send(req, HttpResponse.BodyHandlers.ofInputStream());
+                VirtualParallel.handleInterrupt();
+                BufferedImage read = ImageIO.read(is.body());
+                if (read != null) {
+                    BufferedImage copied = deepCopy(read);
+                    CommandUtil.runLog(() -> {
+                        try (var output = new BufferedOutputStream(Files.newOutputStream(file))) {
+                            ImageIO.write(copied, "png", output);
+                        }
+                    });
+                }
+                return read;
+            } catch (IOException | InterruptedException | ArrayIndexOutOfBoundsException ex) {
+                Chuu.getLogger().warn("Error downloading image {}", url, ex);
+                VirtualParallel.handleInterrupt();
+                return null;
+            }
+        }, CollageMaker.threadPoolExecutor);
 
         try {
-            var is = instance.send(req, HttpResponse.BodyHandlers.ofInputStream());
-            VirtualParallel.handleInterrupt();
-            BufferedImage read = ImageIO.read(is.body());
-            if (read != null) {
-                BufferedImage copied = deepCopy(read);
-                CommandUtil.runLog((ChuuRunnable) () -> {
-                    try (var output = new BufferedOutputStream(Files.newOutputStream(file))) {
-                        ImageIO.write(copied, "png", output);
-                    }
-                });
-            }
-            return read;
-        } catch (IOException | InterruptedException | ArrayIndexOutOfBoundsException ex) {
-            Chuu.getLogger().warn("Error downloading image {}", url, ex);
+            return bufferedImage.get();
+        } catch (InterruptedException | ExecutionException e) {
+            Chuu.getLogger().warn("Error downloading image {}", url, e);
             VirtualParallel.handleInterrupt();
             return null;
         }
+
     }
 
     public static void setQuality(Graphics2D g) {
