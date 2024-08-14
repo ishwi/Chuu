@@ -3,11 +3,12 @@ package core.services;
 import core.Chuu;
 import core.commands.Context;
 import core.commands.utils.CommandUtil;
-import core.util.TroveIniter;
+import core.util.FastUtilsInit;
 import dao.ChuuService;
 import dao.entities.EmbedColor;
-import gnu.trove.map.hash.TLongObjectHashMap;
-import gnu.trove.set.hash.TLongHashSet;
+import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
+import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
+import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Role;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -18,31 +19,32 @@ import java.util.Optional;
 
 public class ColorService {
 
-    private static TLongObjectHashMap<EmbedColor.EmbedColorType> guildColorTypes;
-    private static TLongObjectHashMap<EmbedColor.EmbedColorType> userColorTypes;
-    private static TLongObjectHashMap<Color[]> usersByColor;
-    private static TLongObjectHashMap<Color[]> guildByColors;
-    private static TLongHashSet hasEmptyGuild;
+    private static Long2ObjectMap<EmbedColor.EmbedColorType> guildColorTypes;
+    private static Long2ObjectMap<EmbedColor.EmbedColorType> userColorTypes;
+    private static Long2ObjectMap<Color[]> usersByColor;
+    private static Long2ObjectMap<Color[]> guildByColors;
+    private static LongOpenHashSet hasEmptyGuild;
 
     public static void init(ChuuService chuuService) {
-        guildByColors = TroveIniter.init(chuuService.getServerWithPalette());
-        usersByColor = TroveIniter.init(chuuService.getUsersWithPalette());
-        guildColorTypes = TroveIniter.init(chuuService.getServerColorTypes());
-        userColorTypes = TroveIniter.init(chuuService.getUserColorTypes());
-        hasEmptyGuild = new TLongHashSet(chuuService.getGuildsWithEmptyColorOverride());
+        guildByColors = FastUtilsInit.init(chuuService.getServerWithPalette());
+        usersByColor = FastUtilsInit.init(chuuService.getUsersWithPalette());
+        guildColorTypes = FastUtilsInit.init(chuuService.getServerColorTypes());
+        userColorTypes = FastUtilsInit.init(chuuService.getUserColorTypes());
+        hasEmptyGuild = new LongOpenHashSet(chuuService.getGuildsWithEmptyColorOverride());
     }
 
     public static @NotNull
     Color computeColor(Context event) {
         if (event.isFromGuild()) {
-            EmbedColor.EmbedColorType colorType = guildColorTypes.get(event.getGuild().getIdLong());
+            Guild guild = event.getGuild();
+            EmbedColor.EmbedColorType colorType = guildColorTypes.get(guild.getIdLong());
             if (colorType == null) {
                 Color userMode = getUserMode(event);
                 if (userMode == null) {
                     return CommandUtil.pastelColor();
                 }
             } else {
-                if (!hasEmptyGuild.contains(event.getGuild().getIdLong())) {
+                if (!hasEmptyGuild.contains(guild.getIdLong())) {
                     return getServerMode(event, colorType);
                 }
                 Color userMode = getUserMode(event);
@@ -72,7 +74,7 @@ public class ColorService {
     }
 
     @Nullable
-    private static Color getColor(Context e, EmbedColor.EmbedColorType colorType, TLongObjectHashMap<Color[]> map, long key) {
+    private static Color getColor(Context e, EmbedColor.EmbedColorType colorType, Long2ObjectMap<Color[]> map, long key) {
         return switch (colorType) {
             case RANDOM -> CommandUtil.pastelColor();
 
@@ -105,7 +107,7 @@ public class ColorService {
         handleLists(userId, newEmbedColor, userColorTypes, usersByColor);
     }
 
-    private static void handleLists(long id, @Nullable EmbedColor newEmbedColor, TLongObjectHashMap<EmbedColor.EmbedColorType> typeMap, TLongObjectHashMap<Color[]> colorMap) {
+    private static void handleLists(long id, @Nullable EmbedColor newEmbedColor, Long2ObjectMap<EmbedColor.EmbedColorType> typeMap, Long2ObjectMap<Color[]> colorMap) {
         if (newEmbedColor == null) {
             typeMap.remove(id);
             colorMap.remove(id);

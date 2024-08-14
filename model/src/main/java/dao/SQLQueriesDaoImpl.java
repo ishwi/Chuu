@@ -1,19 +1,85 @@
 package dao;
 
-import dao.entities.*;
+import dao.entities.AlbumCrownLbEntry;
+import dao.entities.AlbumInfo;
+import dao.entities.AlbumLbEntry;
+import dao.entities.AlbumPlays;
+import dao.entities.ArtistInfo;
+import dao.entities.ArtistLbEntry;
+import dao.entities.ArtistPlays;
+import dao.entities.ArtistTag;
+import dao.entities.AudioFeatures;
+import dao.entities.AudioLbEntry;
+import dao.entities.AudioStats;
+import dao.entities.CommandUsage;
+import dao.entities.CoverItem;
+import dao.entities.CrownableArtist;
+import dao.entities.CrownsLbEntry;
+import dao.entities.Genre;
+import dao.entities.GlobalCrown;
+import dao.entities.GlobalReturnNowPlaying;
+import dao.entities.GlobalReturnNowPlayingAlbum;
+import dao.entities.GlobalReturnNowPlayingSong;
+import dao.entities.GlobalStreakEntities;
+import dao.entities.LbEntry;
+import dao.entities.ObscurityEntry;
+import dao.entities.ObscurityStats;
+import dao.entities.ObscuritySummary;
+import dao.entities.PresenceInfo;
+import dao.entities.PrivacyMode;
+import dao.entities.PrivacyUserCount;
+import dao.entities.Rank;
+import dao.entities.ResultWrapper;
+import dao.entities.ReturnNowPlaying;
+import dao.entities.ScoredAlbumRatings;
+import dao.entities.ScrobbleLbEntry;
+import dao.entities.ScrobbledAlbum;
+import dao.entities.ScrobbledArtist;
+import dao.entities.ScrobbledTrack;
+import dao.entities.SearchMode;
+import dao.entities.StolenCrown;
+import dao.entities.StolenCrownWrapper;
+import dao.entities.StreakEntity;
+import dao.entities.TagPlaying;
+import dao.entities.TagPlays;
+import dao.entities.TrackCrownLbEntry;
+import dao.entities.TrackInfo;
+import dao.entities.TrackLbEntry;
+import dao.entities.TrackPlays;
+import dao.entities.TriFunction;
+import dao.entities.UniqueAlbumLbEntry;
+import dao.entities.UniqueLbEntry;
+import dao.entities.UniqueSongLbEntry;
+import dao.entities.UniqueWrapper;
+import dao.entities.UserArtistComparison;
+import dao.entities.UserCount;
+import dao.entities.UserListened;
+import dao.entities.VotingEntity;
+import dao.entities.WrapperReturnNowPlaying;
 import dao.exceptions.ChuuServiceException;
 import dao.utils.Order;
-import org.apache.commons.collections4.ListValuedMap;
-import org.apache.commons.collections4.multimap.ArrayListValuedHashMap;
-import org.apache.commons.lang3.tuple.Pair;
 import org.intellij.lang.annotations.Language;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.Year;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.TimeZone;
 import java.util.stream.Collectors;
 
 import static dao.UpdaterDaoImpl.preparePlaceHolders;
@@ -3798,8 +3864,8 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
     }
 
     @Override
-    public Set<Pair<String, String>> getArtistBannedTags(Connection connection) {
-        Set<Pair<String, String>> bannedTags = new HashSet<>();
+    public Set<ArtistTag> getArtistBannedTags(Connection connection) {
+        Set<ArtistTag> bannedTags = new HashSet<>();
         String queryString = "SELECT tag,name FROM banned_artist_tags a JOIN artist b ON a.artist_id = b.id";
         try (
                 PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
@@ -3809,7 +3875,7 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
                 String tag = resultSet.getString(1);
                 String artist = resultSet.getString(2);
 
-                bannedTags.add(Pair.of(artist.toLowerCase(), tag.toLowerCase()));
+                bannedTags.add(new ArtistTag(artist.toLowerCase(), tag.toLowerCase()));
             }
         } catch (SQLException e) {
             throw new ChuuServiceException(e);
@@ -4454,7 +4520,6 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
 
     @Override
     public Optional<String> findArtistUrlAbove(Connection connection, long artistId, int upvotes) {
-        Set<Pair<String, String>> bannedTags = new HashSet<>();
         String queryString = "SELECT url FROM alt_url a WHERE artist_id = ? AND score > ? ORDER BY RAND()";
         try (
                 PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
@@ -4935,8 +5000,8 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
     }
 
     @Override
-    public ListValuedMap<CoverItem, String> getBannedCovers(Connection connection) {
-        ListValuedMap<CoverItem, String> resultMap = new ArrayListValuedHashMap<>();
+    public Map<CoverItem, List<String>> getBannedCovers(Connection connection) {
+        Map<CoverItem, List<String>> resultMap = new HashMap<>();
         String queryString = "SELECT album_id,replacement_cover,b.album_name,c.name  FROM banned_cover a JOIN album b ON a.album_id = b.id JOIN artist c ON b.artist_id = c.id ";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
             int i = 1;
@@ -4944,14 +5009,13 @@ public class SQLQueriesDaoImpl extends BaseDAO implements SQLQueriesDao {
             ResultSet resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
                 long aLong = resultSet.getLong(1);
-                String string = resultSet.getString(2);
+                String replacement = resultSet.getString(2);
                 String album = resultSet.getString(3);
                 String artist = resultSet.getString(4);
-                resultMap.put(new CoverItem(album, artist, aLong), string);
+                resultMap.computeIfAbsent(new CoverItem(album, artist, aLong), k -> new ArrayList<>()).add(replacement);
 
             }
             return resultMap;
-
 
         } catch (SQLException e) {
             throw new ChuuServiceException(e);

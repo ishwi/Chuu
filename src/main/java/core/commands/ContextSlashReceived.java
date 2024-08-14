@@ -1,6 +1,6 @@
 package core.commands;
 
-import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
+import net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 
 public final class ContextSlashReceived extends InteracionReceived<SlashCommandInteractionEvent> implements Context {
@@ -9,7 +9,7 @@ public final class ContextSlashReceived extends InteracionReceived<SlashCommandI
     }
 
     @Override
-    public MessageChannel getChannel() {
+    public MessageChannelUnion getChannelUnion() {
         return e.getChannel();
     }
 }

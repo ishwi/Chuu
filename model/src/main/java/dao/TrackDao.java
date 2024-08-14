@@ -1,8 +1,17 @@
 package dao;
 
-import dao.entities.*;
+import dao.entities.Album;
+import dao.entities.AlbumInfo;
+import dao.entities.AlbumUserPlays;
+import dao.entities.FullAlbumEntity;
+import dao.entities.Genre;
+import dao.entities.IdTrack;
+import dao.entities.ResultWrapper;
+import dao.entities.ScrobbledArtist;
+import dao.entities.ScrobbledTrack;
+import dao.entities.Track;
+import dao.entities.UnheardCount;
 import dao.exceptions.InstanceNotFoundException;
-import org.apache.commons.lang3.tuple.Pair;
 
 import java.sql.Connection;
 import java.util.List;
@@ -70,7 +79,7 @@ public interface TrackDao {
     void resetLovedSongs(Connection connection, String lastfm);
 
 
-    Pair<Long, Track> findTrackByName(Connection connection, String track, long artistId) throws InstanceNotFoundException;
+    IdTrack findTrackByName(Connection connection, String track, long artistId) throws InstanceNotFoundException;
 
     void deleteTracklist(Connection connection, long albumId);
 

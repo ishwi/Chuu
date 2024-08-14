@@ -17,7 +17,7 @@ public final class MbizDatasource implements CommonDatasource {
 
     public MbizDatasource(boolean selector) {
         HikariConfig config = new HikariConfig(CONFIG);
-        config.setThreadFactory(Thread.ofVirtual().uncaughtExceptionHandler((t, e) -> log.warn(e.getMessage(), e)).name("musicbrinz", 0).factory());
+        config.setThreadFactory(Thread.ofVirtual().uncaughtExceptionHandler((t, e) -> log.warn(e.getMessage(), e)).name("musicbrainz", 0).factory());
         this.ds = new HikariDataSource(config);
 
     }

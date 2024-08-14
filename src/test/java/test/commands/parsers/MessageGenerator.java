@@ -21,7 +21,11 @@ import test.commands.parsers.mock.MockReceivedEvent;
 import test.commands.parsers.mock.MockedMessageChannel;
 import test.commands.utils.TestResources;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 
@@ -54,7 +58,7 @@ public class MessageGenerator {
     }
 
     public static JDAImpl mockJDA() {
-        return new JDAImpl(new AuthorizationConfig("false-token"), null, null, null) {
+        return new JDAImpl(new AuthorizationConfig("false-token"), null, null, null, null) {
             @Override
             public SelfUser getSelfUser() {
                 return new SelfUserImpl(-1L, null);

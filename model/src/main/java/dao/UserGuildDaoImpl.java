@@ -1,23 +1,50 @@
 package dao;
 
-import dao.entities.*;
+import dao.entities.ChannelMapping;
+import dao.entities.ChartMode;
+import dao.entities.ChartOptions;
+import dao.entities.CommandStats;
+import dao.entities.EmbedColor;
+import dao.entities.GuildProperties;
+import dao.entities.LastFMData;
+import dao.entities.ObscurityStats;
+import dao.entities.OverrideColorMode;
+import dao.entities.OverrideMode;
+import dao.entities.PrivacyMode;
+import dao.entities.RemainingImagesMode;
+import dao.entities.Role;
+import dao.entities.RoleColour;
+import dao.entities.UsersWrapper;
+import dao.entities.VoiceAnnouncement;
+import dao.entities.WKMode;
+import dao.entities.WhoKnowsDisplayMode;
 import dao.exceptions.ChuuServiceException;
 import dao.exceptions.InstanceNotFoundException;
 import dao.utils.SQLUtils;
-import org.apache.commons.collections4.MultiValuedMap;
-import org.apache.commons.collections4.multimap.ArrayListValuedHashMap;
-import org.apache.commons.collections4.multimap.HashSetValuedHashMap;
-import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.imageio.ImageIO;
 import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.io.*;
-import java.sql.*;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.sql.Types;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
-import java.util.*;
+import java.util.Map;
+import java.util.Objects;
+import java.util.OptionalDouble;
+import java.util.Random;
+import java.util.Set;
+import java.util.TimeZone;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -170,10 +197,10 @@ public class UserGuildDaoImpl implements UserGuildDao {
     }
 
     @Override
-    public MultiValuedMap<Long, Long> getWholeUserGuild(Connection connection) {
+    public Map<Long, List<Long>> getWholeUserGuild(Connection connection) {
         String queryString = "SELECT discord_id,guild_id  FROM user_guild ";
 
-        MultiValuedMap<Long, Long> map = new ArrayListValuedHashMap<>();
+        HashMap<Long, List<Long>> map = new HashMap<>();
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
 
             ResultSet resultSet = preparedStatement.executeQuery();
@@ -182,7 +209,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
 
                 long guildId = resultSet.getLong("guild_Id");
                 long discordId = resultSet.getLong("discord_Id");
-                map.put(guildId, discordId);
+                map.computeIfAbsent(guildId, k -> new ArrayList<>()).add(discordId);
 
 
             }
@@ -377,23 +404,19 @@ public class UserGuildDaoImpl implements UserGuildDao {
     }
 
     @Override
-    public void addLogo(Connection con, long guildID, BufferedImage image) {
+    public void addLogo(Connection con, long guildID, byte[] image) {
         String queryString = "UPDATE  guild SET  logo = ? WHERE guild_id = ? ";
         try (PreparedStatement preparedStatement = con.prepareStatement(queryString)) {
 
             /* Fill "preparedStatement". */
             int i = 1;
-
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            ImageIO.write(image, "png", baos);
-            InputStream is = new ByteArrayInputStream(baos.toByteArray());
-            preparedStatement.setBlob(i++, new BufferedInputStream(is));
+            preparedStatement.setBlob(i++, new ByteArrayInputStream(image));
             preparedStatement.setLong(i, guildID);
 
             preparedStatement.executeUpdate();
 
 
-        } catch (SQLException | IOException e) {
+        } catch (SQLException e) {
             throw new ChuuServiceException(e);
         }
     }
@@ -695,9 +718,9 @@ public class UserGuildDaoImpl implements UserGuildDao {
     }
 
     @Override
-    public MultiValuedMap<Long, String> initServerCommandStatuses(Connection connection) {
+    public Map<Long, List<String>> initServerCommandStatuses(Connection connection) {
         String queryString = "SELECT guild_id,command_name FROM command_guild_disabled";
-        MultiValuedMap<Long, String> map = new HashSetValuedHashMap<>();
+        Map<Long, List<String>> map = new HashMap<>();
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
 
             ResultSet resultSet = preparedStatement.executeQuery();
@@ -707,7 +730,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
                 long guildId = resultSet.getLong("guild_id");
                 String commandName = resultSet.getString("command_name");
 
-                map.put(guildId, commandName);
+                map.computeIfAbsent(guildId, k -> new ArrayList<>()).add(commandName);
 
             }
         } catch (SQLException e) {
@@ -717,9 +740,9 @@ public class UserGuildDaoImpl implements UserGuildDao {
     }
 
     @Override
-    public MultiValuedMap<Pair<Long, Long>, String> initServerChannelsCommandStatuses(Connection connection, boolean enabled) {
+    public Map<ChannelMapping, List<String>> initServerChannelsCommandStatuses(Connection connection, boolean enabled) {
         String queryString = "SELECT guild_id,channel_id,command_name FROM command_guild_channel_disabled WHERE enabled = ? ";
-        MultiValuedMap<Pair<Long, Long>, String> map = new HashSetValuedHashMap<>();
+        Map<ChannelMapping, List<String>> map = new HashMap<>();
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
 
             preparedStatement.setBoolean(1, enabled);
@@ -732,7 +755,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
 
                 String commandName = resultSet.getString("command_name");
 
-                map.put(Pair.of(guildId, channel_id), commandName);
+                map.computeIfAbsent(new ChannelMapping(guildId, channel_id), k -> new ArrayList<>()).add(commandName);
 
             }
         } catch (SQLException e) {
@@ -803,7 +826,6 @@ public class UserGuildDaoImpl implements UserGuildDao {
         SQLUtils.updateStringLong(connection, guildId, value, queryString);
 
     }
-
 
     @Override
     public <T extends Enum<T>> void setUserProperty(Connection connection, long discordId, String propertyName, T value) {
@@ -1395,7 +1417,6 @@ public class UserGuildDaoImpl implements UserGuildDao {
         }
     }
 
-
     @Override
     public void flagBotted(String lastfmId, Connection connection) {
         String queryString = "INSERT IGNORE botted(lastfm_id) VALUES (?)";
@@ -1595,7 +1616,6 @@ public class UserGuildDaoImpl implements UserGuildDao {
             throw new ChuuServiceException(e);
         }
     }
-
 
     @Override
     public void insertObscurity(Connection connection, String lastfmId, double obscurity) {
@@ -1864,6 +1884,7 @@ public class UserGuildDaoImpl implements UserGuildDao {
         }
         return returnSet;
     }
+
 
 }
 

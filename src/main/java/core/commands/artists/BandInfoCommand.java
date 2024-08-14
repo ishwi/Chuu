@@ -19,10 +19,14 @@ import core.parsers.utils.Optionals;
 import core.services.CoverService;
 import core.services.validators.ArtistValidator;
 import core.util.ServiceView;
-import dao.entities.*;
+import dao.entities.AlbumUserPlays;
+import dao.entities.ArtistAlbums;
+import dao.entities.DiscordUserDisplay;
+import dao.entities.ReturnNowPlaying;
+import dao.entities.ScrobbledArtist;
+import dao.entities.WrapperReturnNowPlaying;
 import dao.exceptions.ChuuServiceException;
 import dao.utils.LinkUtils;
-import jdk.incubator.concurrent.StructuredTaskScope;
 import net.dv8tion.jda.api.EmbedBuilder;
 import org.imgscalr.Scalr;
 import org.jetbrains.annotations.NotNull;
@@ -37,7 +41,7 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.Future;
+import java.util.concurrent.StructuredTaskScope;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -241,23 +245,21 @@ public class BandInfoCommand extends ConcurrentCommand<ArtistParameters> {
         private volatile Throwable ex;
 
         public BandScope() {
-            super("bs", r -> new Thread(r, "aa"));
+            super("bandscope", Thread.ofVirtual().name("bandscope-", 0).factory());
         }
 
         @Override
-        protected void handleComplete(Future<BandStructure> future) {
+        protected void handleComplete(Subtask<? extends BandStructure> future) {
             switch (future.state()) {
-                case RUNNING -> {
-                }
                 case SUCCESS -> {
-                    switch (future.resultNow()) {
+                    switch (future.get()) {
                         case Albums u -> p = u;
                         case WK w -> this.wk = w;
                         case AP a -> this.ap = a;
                     }
                 }
-                case FAILED -> ex = future.exceptionNow();
-                case CANCELLED -> throw new ChuuServiceException(ex);
+                case FAILED -> ex = future.exception();
+                case UNAVAILABLE -> throw new ChuuServiceException(ex);
             }
         }
 

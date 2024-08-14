@@ -1,17 +1,25 @@
 package dao;
 
-import dao.entities.*;
+import dao.entities.ChannelMapping;
+import dao.entities.CommandStats;
+import dao.entities.EmbedColor;
+import dao.entities.GuildProperties;
+import dao.entities.LastFMData;
+import dao.entities.RoleColour;
+import dao.entities.UsersWrapper;
+import dao.entities.VoiceAnnouncement;
 import dao.exceptions.InstanceNotFoundException;
-import org.apache.commons.collections4.MultiValuedMap;
-import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.Nullable;
 
 import java.awt.*;
-import java.awt.image.BufferedImage;
 import java.io.InputStream;
 import java.sql.Connection;
+import java.util.Collection;
 import java.util.List;
-import java.util.*;
+import java.util.Map;
+import java.util.OptionalDouble;
+import java.util.Set;
+import java.util.TimeZone;
 
 interface UserGuildDao {
 
@@ -25,7 +33,7 @@ interface UserGuildDao {
 
     List<Long> guildsFromUser(Connection connection, long userId);
 
-    MultiValuedMap<Long, Long> getWholeUserGuild(Connection connection);
+    Map<Long, List<Long>> getWholeUserGuild(Connection connection);
 
     void updateLastFmData(Connection con, LastFMData lastFMData);
 
@@ -41,7 +49,7 @@ interface UserGuildDao {
 
     void addGuild(Connection con, long userId, long guildId);
 
-    void addLogo(Connection con, long guildID, BufferedImage image);
+    void addLogo(Connection con, long guildID, byte[] image);
 
     boolean isFlagged(Connection con, String lastfm);
 
@@ -72,9 +80,9 @@ interface UserGuildDao {
     void deleteServerCommandStatus(Connection connection, long discordId, String commandName);
 
 
-    MultiValuedMap<Long, String> initServerCommandStatuses(Connection connection);
+    Map<Long, List<String>> initServerCommandStatuses(Connection connection);
 
-    MultiValuedMap<Pair<Long, Long>, String> initServerChannelsCommandStatuses(Connection connection, boolean enabled);
+    Map<ChannelMapping, List<String>> initServerChannelsCommandStatuses(Connection connection, boolean enabled);
 
     void setUserProperty(Connection connection, long discordId, String additional_embed, boolean chartEmbed);
 

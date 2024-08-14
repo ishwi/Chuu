@@ -1,8 +1,8 @@
 package core.services;
 
 import dao.ChuuService;
-import gnu.trove.map.TLongCharMap;
-import gnu.trove.map.hash.TLongCharHashMap;
+import it.unimi.dsi.fastutil.longs.Long2CharMap;
+import it.unimi.dsi.fastutil.longs.Long2CharOpenHashMap;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.Map;
@@ -10,7 +10,7 @@ import java.util.Map;
 import static core.Chuu.DEFAULT_PREFIX;
 
 public class PrefixService {
-    private final TLongCharMap prefixMap;
+    private final Long2CharMap prefixMap;
 
 
     public PrefixService(ChuuService db) {
@@ -23,11 +23,12 @@ public class PrefixService {
             datas[i] = entry.getValue();
             i++;
         }
-        this.prefixMap = new TLongCharHashMap(ids, datas);
+        this.prefixMap = new Long2CharOpenHashMap(ids, datas);
+
     }
 
-    public void addGuildPrefix(long guildId, Character prefix) {
-        if (prefix.equals(DEFAULT_PREFIX)) {
+    public void addGuildPrefix(long guildId, char prefix) {
+        if (prefix == DEFAULT_PREFIX) {
             prefixMap.remove(guildId);
         } else {
             prefixMap.put(guildId, prefix);
@@ -39,7 +40,7 @@ public class PrefixService {
             return DEFAULT_PREFIX;
         long id = mes.getGuild().getIdLong();
         char character = prefixMap.get(id);
-        return character == prefixMap.getNoEntryValue() ? DEFAULT_PREFIX : character;
+        return character == 0 ? DEFAULT_PREFIX : character;
 
     }
 

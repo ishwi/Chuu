@@ -25,6 +25,7 @@ public final class ChuuDatasource implements CommonDatasource {
         config.setMaximumPoolSize(18);
         config.setMinimumIdle(10);
         config.setIdleTimeout(Duration.ofMinutes(2).toMillis());
+        config.setThreadFactory(Thread.ofVirtual().uncaughtExceptionHandler((t, e) -> log.warn(e.getMessage(), e)).name("mariadb-pool-", 0).factory());
         config.setMaxLifetime(Duration.ofMinutes(10).toMillis());
         config.setValidationTimeout(1000);
         config.setConnectionTimeout(5000);

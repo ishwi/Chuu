@@ -4,9 +4,14 @@ import core.imagerenderer.ChartQuality;
 import dao.exceptions.ChuuServiceException;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
-import net.dv8tion.jda.api.entities.*;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
+import net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion;
 import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.requests.RestAction;
@@ -16,10 +21,14 @@ import org.jetbrains.annotations.CheckReturnValue;
 import org.jetbrains.annotations.Nullable;
 
 import javax.imageio.ImageIO;
+import javax.imageio.ImageTypeSpecifier;
+import javax.imageio.ImageWriter;
 import java.awt.image.BufferedImage;
+import java.awt.image.RenderedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Iterator;
 import java.util.List;
 
 public sealed interface Context permits ContextMessageReceived, ContextSlashReceived, ContextUserCommandReceived, InteracionReceived {
@@ -32,7 +41,22 @@ public sealed interface Context permits ContextMessageReceived, ContextSlashRece
 
     Member getMember();
 
-    MessageChannel getChannel();
+    private static ImageWriter getWriter(RenderedImage im,
+                                         String formatName) {
+        ImageTypeSpecifier type =
+                ImageTypeSpecifier.createFromRenderedImage(im);
+        Iterator<ImageWriter> iter = ImageIO.getImageWriters(type, formatName);
+
+        if (iter.hasNext()) {
+            return iter.next();
+        } else {
+            return null;
+        }
+    }
+
+    default MessageChannel getChannel() {
+        return getChannelUnion();
+    }
 
     Guild getGuild();
 
@@ -86,6 +110,8 @@ public sealed interface Context permits ContextMessageReceived, ContextSlashRece
 
     void doSendImage(byte[] img, String format, @Nullable EmbedBuilder embedBuilder);
 
+    MessageChannelUnion getChannelUnion();
+
     default void sendImage(BufferedImage image, ChartQuality chartQuality, EmbedBuilder embedBuilder) {
         if (image == null) {
             sendMessageQueue("Something went wrong generating the image");
@@ -96,6 +122,9 @@ public sealed interface Context permits ContextMessageReceived, ContextSlashRece
             String format = "png";
             if (chartQuality == ChartQuality.JPEG_SMALL || chartQuality == ChartQuality.JPEG_BIG)
                 format = "jpg";
+//            ImageWriter im = getWriter(image, format);
+//            im.wr(new IIOImage(image,null,new ));
+//            ImageIO.getImageWriter().write(new IIOImage(image, null, imageWriteParam), format, b);
             ImageIO.write(image, format, b);
 
             byte[] img = b.toByteArray();

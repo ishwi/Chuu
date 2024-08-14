@@ -22,6 +22,7 @@ public class ClientSingleton {
         private static final HttpClient instance = HttpClient.newBuilder()
                 .priority(1) //HTTP/2 priority
                 .connectTimeout(Duration.ofSeconds(5))
+                .executor(command -> Thread.ofVirtual().start(command))
                 .version(HttpClient.Version.HTTP_2)
                 .build();
 

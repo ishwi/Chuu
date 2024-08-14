@@ -25,7 +25,7 @@ public abstract class MusicCommand<T extends CommandParameters> extends Concurre
     }
 
     @Override
-    protected final CommandCategory initCategory() {
+    protected CommandCategory initCategory() {
         return CommandCategory.MUSIC;
     }
 

@@ -1,6 +1,7 @@
 package core.commands;
 
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
+import net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion;
 import net.dv8tion.jda.api.events.interaction.command.UserContextInteractionEvent;
 
 public final class ContextUserCommandReceived extends InteracionReceived<UserContextInteractionEvent> implements Context {
@@ -11,6 +12,11 @@ public final class ContextUserCommandReceived extends InteracionReceived<UserCon
     @Override
     public MessageChannel getChannel() {
         return e.getMessageChannel();
+    }
+
+    @Override
+    public MessageChannelUnion getChannelUnion() {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
 

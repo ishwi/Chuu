@@ -6,9 +6,13 @@ import dao.ChuuService;
 import dao.entities.EntityInfo;
 import dao.entities.Genre;
 import dao.entities.ScrobbledArtist;
-import org.apache.commons.lang3.tuple.Pair;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -39,12 +43,13 @@ abstract class TagService<T extends EntityInfo, Y extends ScrobbledArtist> imple
         List<T> entities = this.genres.values().stream().flatMap(Collection::stream).toList();
         Map<T, Y> validate = validate(entities);
         Set<Genre> bannedTags = dao.getBannedTags();
-        Set<Pair<String, Genre>> artistBannedTags = dao.getArtistBannedTags().stream().map(t -> Pair.of(t.getLeft(), new Genre(t.getRight()))).collect(Collectors.toSet());
+
+        Set<ArtistGenre> artistBannedTags = dao.getArtistBannedTags().stream().map(t -> new ArtistGenre(t.artist(), new Genre(t.tag()))).collect(Collectors.toSet());
 
         Map<Genre, List<Y>> validatedEntities = this.genres.entrySet().stream()
                 .filter(x -> !yearFilter.matcher(x.getKey().getName()).find())
                 .filter(x -> !bannedTags.contains(x.getKey()))
-                .filter(x -> x.getValue().stream().noneMatch(a -> artistBannedTags.contains(Pair.of(a.getArtist().toLowerCase(), x.getKey()))))
+                .filter(x -> x.getValue().stream().noneMatch(a -> artistBannedTags.contains(new ArtistGenre(a.getArtist().toLowerCase(), x.getKey()))))
                 .collect(Collectors.toMap(Map.Entry::getKey, k -> k.getValue().stream().map(validate::get)
                         .collect(Collectors.toCollection(ArrayList::new)), (f, s) -> {
                     f.addAll(s);
@@ -56,4 +61,8 @@ abstract class TagService<T extends EntityInfo, Y extends ScrobbledArtist> imple
     protected abstract void insertGenres(Map<Genre, List<Y>> genres);
 
     protected abstract Map<T, Y> validate(List<T> toValidate);
+
+    private record ArtistGenre(String artist, Genre genre) {
+
+    }
 }

@@ -15,10 +15,12 @@ import dao.ChuuService;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.User;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.LoggerFactory;
 
+import java.nio.charset.StandardCharsets;
 import java.util.function.Consumer;
 
 import static core.commands.abstracts.ConcurrentCommand.threadStats;
@@ -62,8 +64,8 @@ public record EvalContext(JDA jda, Context e,
 
 
     public void t() {
-        this.e.sendFile(org.apache.commons.io.IOUtils.toInputStream(threadStats.stream().map(ConcurrentCommand.ThreadStats::toString)
-                .collect(java.util.stream.Collectors.joining("\n\n"))), "a", "a").queue();
+        this.e.sendFile(IOUtils.toInputStream(threadStats.stream().map(ConcurrentCommand.ThreadStats::toString)
+                .collect(java.util.stream.Collectors.joining("\n\n")), StandardCharsets.UTF_8), "a", "a").queue();
     }
 
     public void createAnonymousCommand(Consumer<ContextMessageReceived> mes) {

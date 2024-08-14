@@ -1,14 +1,30 @@
 package dao;
 
-import dao.entities.*;
+import dao.entities.Album;
+import dao.entities.AlbumInfo;
+import dao.entities.AlbumUserPlays;
+import dao.entities.Genre;
+import dao.entities.ScrobbledAlbum;
+import dao.entities.UnheardCount;
 import dao.exceptions.ChuuServiceException;
 import dao.exceptions.InstanceNotFoundException;
 import dao.utils.SQLUtils;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.text.Normalizer;
 import java.time.Year;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -29,48 +45,44 @@ public class AlbumDaoImpl extends BaseDAO implements AlbumDao {
         if (list.isEmpty()) {
             return;
         }
-        String queryString = "SELECT id,artist_id,album_name FROM  album USE INDEX (artist_id) WHERE  (artist_id,album_name) in  (%s)  ";
-
-        String sql = String.format(queryString, prepareINQueryTuple(list.size()));
+        Pattern compile = Pattern.compile("\\p{M}");
 
         UUID a = UUID.randomUUID();
         String seed = a.toString();
-        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-            for (int i = 0; i < list.size(); i++) {
-                preparedStatement.setLong(2 * i + 1, list.get(i).getArtistId());
-                preparedStatement.setString(2 * i + 2, list.get(i).getAlbum());
-            }
+        Map<String, ScrobbledAlbum> albumMap = list.stream().collect(Collectors.toMap(scrobbledAlbum -> scrobbledAlbum.getArtistId() + "_" + seed + "_" + scrobbledAlbum.getAlbum().toLowerCase(), Function.identity(), (scrobbledArtist, scrobbledArtist2) -> {
+            scrobbledArtist.setCount(scrobbledArtist.getCount() + scrobbledArtist2.getCount());
+            return scrobbledArtist;
+        }));
 
-            /* Fill "preparedStatement". */
-            ResultSet resultSet = preparedStatement.executeQuery();
-            Map<String, ScrobbledAlbum> albumMap = list.stream().collect(Collectors.toMap(scrobbledAlbum -> scrobbledAlbum.getArtistId() + "_" + seed + "_" + scrobbledAlbum.getAlbum().toLowerCase(), Function.identity(), (scrobbledArtist, scrobbledArtist2) -> {
-                scrobbledArtist.setCount(scrobbledArtist.getCount() + scrobbledArtist2.getCount());
-                return scrobbledArtist;
-            }));
-            Pattern compile = Pattern.compile("\\p{M}");
+        SQLUtils.doBatchesSelect(connection, "SELECT id,artist_id,album_name FROM  album USE INDEX (artist_id) WHERE  (artist_id,album_name) in  ( ",
+                list,
+                (ps, st, i) -> {
+                    ps.setLong(2 * i + 1, st.getArtistId());
+                    ps.setString(2 * i + 2, st.getAlbum());
+                },
+                resultSet -> {
+                    while (resultSet.next()) {
+                        long id = resultSet.getLong("id");
+                        long artist_id = resultSet.getLong("artist_id");
 
-            while (resultSet.next()) {
-                long id = resultSet.getLong("id");
-                long artist_id = resultSet.getLong("artist_id");
-
-                String name = resultSet.getString("album_name");
-                ScrobbledAlbum scrobbledAlbum = albumMap.get(artist_id + "_" + seed + "_" + name.toLowerCase());
-                if (scrobbledAlbum != null) {
-                    scrobbledAlbum.setAlbumId(id);
-                } else {
-                    // name can be stripped or maybe the element is collect is the stripped one
-                    String normalizeArtistName = compile.matcher(
-                            Normalizer.normalize(name, Normalizer.Form.NFKD)
-                    ).replaceAll("");
-                    ScrobbledAlbum normalizedArtist = albumMap.get(artist_id + "_" + seed + "_" + normalizeArtistName.toLowerCase());
-                    if (normalizedArtist != null) {
-                        normalizedArtist.setAlbumId(id);
+                        String name = resultSet.getString("album_name");
+                        ScrobbledAlbum scrobbledAlbum = albumMap.get(artist_id + "_" + seed + "_" + name.toLowerCase());
+                        if (scrobbledAlbum != null) {
+                            scrobbledAlbum.setAlbumId(id);
+                        } else {
+                            // name can be stripped or maybe the element is collect is the stripped one
+                            String normalizeArtistName = compile.matcher(
+                                    Normalizer.normalize(name, Normalizer.Form.NFKD)
+                            ).replaceAll("");
+                            ScrobbledAlbum normalizedArtist = albumMap.get(artist_id + "_" + seed + "_" + normalizeArtistName.toLowerCase());
+                            if (normalizedArtist != null) {
+                                normalizedArtist.setAlbumId(id);
+                            }
+                        }
                     }
-                }
-            }
-        } catch (SQLException e) {
-            throw new ChuuServiceException(e);
-        }
+                },
+                2, " ) ");
+
     }
 
     @Override

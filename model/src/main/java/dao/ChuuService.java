@@ -1,31 +1,142 @@
 package dao;
 
-import dao.entities.*;
-import dao.everynoise.*;
+import dao.entities.Affinity;
+import dao.entities.Album;
+import dao.entities.AlbumInfo;
+import dao.entities.AlbumInfoIgnoreMbid;
+import dao.entities.AlbumPlays;
+import dao.entities.AlbumRatings;
+import dao.entities.AlbumUserPlays;
+import dao.entities.AliasEntity;
+import dao.entities.ArtistInfo;
+import dao.entities.ArtistLbGlobalEntry;
+import dao.entities.ArtistPlays;
+import dao.entities.ArtistTag;
+import dao.entities.AudioFeatures;
+import dao.entities.AudioStats;
+import dao.entities.BillboardEntity;
+import dao.entities.ChannelMapping;
+import dao.entities.ChartMode;
+import dao.entities.ChartOptions;
+import dao.entities.CommandStats;
+import dao.entities.CommandUsage;
+import dao.entities.CoverItem;
+import dao.entities.CrownableArtist;
+import dao.entities.EmbedColor;
+import dao.entities.Friend;
+import dao.entities.FullAlbumEntity;
+import dao.entities.Genre;
+import dao.entities.GlobalAffinity;
+import dao.entities.GlobalCrown;
+import dao.entities.GlobalStreakEntities;
+import dao.entities.GuildProperties;
+import dao.entities.IdTrack;
+import dao.entities.LastFMData;
+import dao.entities.LbEntry;
+import dao.entities.Metadata;
+import dao.entities.Metrics;
+import dao.entities.NPMode;
+import dao.entities.ObscurityStats;
+import dao.entities.ObscuritySummary;
+import dao.entities.OverrideColorMode;
+import dao.entities.OverrideMode;
+import dao.entities.PreBillboardUserData;
+import dao.entities.PreBillboardUserDataTimestamped;
+import dao.entities.PresenceInfo;
+import dao.entities.PrivacyMode;
+import dao.entities.PrivacyUserCount;
+import dao.entities.RYMAlbumStats;
+import dao.entities.RYMImportRating;
+import dao.entities.RandomTarget;
+import dao.entities.RandomUrlDetails;
+import dao.entities.RandomUrlEntity;
+import dao.entities.Rank;
+import dao.entities.Rating;
+import dao.entities.RemainingImagesMode;
+import dao.entities.ReportEntity;
+import dao.entities.ResultWrapper;
+import dao.entities.Role;
+import dao.entities.RoleColour;
+import dao.entities.RymStats;
+import dao.entities.ScoredAlbumRatings;
+import dao.entities.ScrobbledAlbum;
+import dao.entities.ScrobbledArtist;
+import dao.entities.ScrobbledTrack;
+import dao.entities.SearchMode;
+import dao.entities.StolenCrownWrapper;
+import dao.entities.StreakEntity;
+import dao.entities.TagPlays;
+import dao.entities.TimestampWrapper;
+import dao.entities.Track;
+import dao.entities.TrackInfo;
+import dao.entities.TrackPlays;
+import dao.entities.TrackWithArtistId;
+import dao.entities.UnheardCount;
+import dao.entities.UniqueWrapper;
+import dao.entities.UpdaterStatus;
+import dao.entities.UpdaterUserWrapper;
+import dao.entities.UserArtistComparison;
+import dao.entities.UserCount;
+import dao.entities.UserInfo;
+import dao.entities.UserListened;
+import dao.entities.UsersWrapper;
+import dao.entities.VoiceAnnouncement;
+import dao.entities.VoteStatus;
+import dao.entities.VotingEntity;
+import dao.entities.WKMode;
+import dao.entities.Week;
+import dao.entities.WhoKnowsDisplayMode;
+import dao.entities.WrapperReturnNowPlaying;
+import dao.everynoise.EveryNoiseService;
+import dao.everynoise.EveryNoiseServiceImpl;
+import dao.everynoise.NoiseGenre;
+import dao.everynoise.NoiseGenreReleases;
+import dao.everynoise.Release;
+import dao.everynoise.ReleaseWithGenres;
 import dao.exceptions.ChuuServiceException;
 import dao.exceptions.DuplicateInstanceException;
 import dao.exceptions.InstanceNotFoundException;
 import dao.utils.Order;
-import org.apache.commons.collections4.ListValuedMap;
-import org.apache.commons.collections4.MultiValuedMap;
-import org.apache.commons.lang3.tuple.Pair;
+import dao.webhook.Webhook;
+import dao.webhook.WebhookTypeData;
+import dao.webhook.dao.WebhookDAO;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jooq.impl.DSL;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.awt.*;
-import java.awt.image.BufferedImage;
 import java.io.InputStream;
+import java.sql.Connection;
 import java.sql.Date;
-import java.sql.*;
+import java.sql.SQLException;
+import java.sql.SQLSyntaxErrorException;
+import java.sql.SQLTransactionRollbackException;
+import java.sql.Savepoint;
 import java.text.Normalizer;
-import java.time.*;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.Year;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.IsoFields;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.List;
-import java.util.*;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.OptionalDouble;
+import java.util.OptionalLong;
+import java.util.Set;
+import java.util.TimeZone;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.ToIntFunction;
 import java.util.regex.Pattern;
@@ -49,6 +160,7 @@ public class ChuuService implements EveryNoiseService {
     private final MusicDao musicDao;
     private final EveryNoiseService everyNoiseService;
     private final FriendDAO friendDAO;
+    private final WebhookDAO webhookDAO;
 
     public ChuuService(CommonDatasource dataSource) {
         this.dataSource = dataSource;
@@ -64,6 +176,7 @@ public class ChuuService implements EveryNoiseService {
         musicDao = new MusidDaoImpl();
         this.everyNoiseService = new EveryNoiseServiceImpl(dataSource);
         this.friendDAO = new FriendDAOImpl();
+        this.webhookDAO = new WebhookDAO();
     }
 
 
@@ -619,7 +732,7 @@ public class ChuuService implements EveryNoiseService {
         this.upsertSpotify(url, artistId, 537353774205894676L, spotifyId);
     }
 
-    public void addLogo(long guildId, BufferedImage in) {
+    public void addLogo(long guildId, byte[] in) {
         try (Connection connection = dataSource.getConnection()) {
             userGuildDao.addLogo(connection, guildId, in);
         } catch (SQLException e) {
@@ -761,7 +874,7 @@ public class ChuuService implements EveryNoiseService {
         }
     }
 
-    public MultiValuedMap<Long, Long> getMapGuildUsers() {
+    public Map<Long, List<Long>> getMapGuildUsers() {
         try (Connection connection = dataSource.getConnection()) {
             connection.setReadOnly(true);
             return userGuildDao.getWholeUserGuild(connection);
@@ -1807,7 +1920,7 @@ public class ChuuService implements EveryNoiseService {
         }
     }
 
-    public MultiValuedMap<Long, String> initServerCommandStatuses() {
+    public Map<Long, List<String>> initServerCommandStatuses() {
         try (Connection connection = dataSource.getConnection()) {
             return this.userGuildDao.initServerCommandStatuses(connection);
         } catch (SQLException e) {
@@ -1815,7 +1928,7 @@ public class ChuuService implements EveryNoiseService {
         }
     }
 
-    public MultiValuedMap<Pair<Long, Long>, String> initServerChannelsCommandStatuses(boolean enabled) {
+    public Map<ChannelMapping, List<String>> initServerChannelsCommandStatuses(boolean enabled) {
         try (Connection connection = dataSource.getConnection()) {
             return this.userGuildDao.initServerChannelsCommandStatuses(connection, enabled);
         } catch (SQLException e) {
@@ -3277,7 +3390,7 @@ public class ChuuService implements EveryNoiseService {
 
     }
 
-    public Set<Pair<String, String>> getArtistBannedTags() {
+    public Set<ArtistTag> getArtistBannedTags() {
 
         try (Connection connection = dataSource.getConnection()) {
             return queriesDao.getArtistBannedTags(connection);
@@ -3344,7 +3457,7 @@ public class ChuuService implements EveryNoiseService {
 
     }
 
-    public Pair<Long, Track> findTrackByName(long artistId, String track) throws InstanceNotFoundException {
+    public IdTrack findTrackByName(long artistId, String track) throws InstanceNotFoundException {
         try (Connection connection = dataSource.getConnection()) {
             return trackDao.findTrackByName(connection, track, artistId);
         } catch (SQLException e) {
@@ -4083,7 +4196,7 @@ public class ChuuService implements EveryNoiseService {
         }
     }
 
-    public ListValuedMap<CoverItem, String> getBannedCovers() {
+    public Map<CoverItem, List<String>> getBannedCovers() {
         try (Connection connection = dataSource.getConnection()) {
             connection.setReadOnly(true);
             return queriesDao.getBannedCovers(connection);
@@ -4604,6 +4717,51 @@ public class ChuuService implements EveryNoiseService {
         }
     }
 
+    @SuppressWarnings("unchecked")
+    public <T extends WebhookTypeData> boolean createWebhook(Webhook<T> webhook) {
+        try (Connection connection = dataSource.getConnection()) {
+            return switch (webhook.data()) {
+                case WebhookTypeData.BandcampReleases r -> {
+                    if (r.genres().isEmpty()) {
+                        throw new ChuuServiceException("Empty genres webhook");
+                    }
+                    yield webhookDAO.create(DSL.using(connection), (Webhook<WebhookTypeData.BandcampReleases>) webhook);
+                }
+            };
+
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    public List<Webhook<WebhookTypeData.BandcampReleases>> obtainAllWebhooks() {
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setReadOnly(true);
+            return webhookDAO.obtainAll(DSL.using(connection));
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    public List<Webhook<?>> obtainAllGuildWebhooks(long guildId) {
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setReadOnly(true);
+            return webhookDAO.obtainAllGuildWebhooks(DSL.using(connection), guildId);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+    public boolean deleteWebhook(String url) {
+        try (Connection connection = dataSource.getConnection()) {
+            return webhookDAO.delete(DSL.using(connection), url);
+        } catch (SQLException e) {
+            throw new ChuuServiceException(e);
+        }
+    }
+
+
+    @FunctionalInterface
     private interface HiddenRunnable<T> {
         T executeInHiddenServer(Connection connection, long guildId);
     }

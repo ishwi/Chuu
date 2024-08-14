@@ -3,10 +3,11 @@ package core.scheduledtasks;
 import core.Chuu;
 import core.apis.spotify.Spotify;
 import core.apis.spotify.SpotifySingleton;
+import core.apis.spotify.UrlAndId;
 import dao.ChuuService;
 import dao.entities.ScrobbledArtist;
-import org.apache.commons.lang3.tuple.Pair;
 
+import java.util.Optional;
 import java.util.Set;
 
 
@@ -32,16 +33,19 @@ public class SpotifyUpdaterThread implements Runnable {
         for (ScrobbledArtist artistDatum : artistData) {
             String url;
 
-            Pair<String, String> urlAndId = spotifyApi.getUrlAndId(artistDatum.getArtist());
-            url = urlAndId.getLeft();
-            if (url != null) {
-                if (url.isEmpty()) {
-                    artistDatum.setUrl("");
-                    artistDatum.setUpdateBit(false);
-                    dao.updateImageStatus(artistDatum.getArtistId(), "", false);
-                } else {
-                    dao.upsertSpotify(url, artistDatum.getArtistId(), urlAndId.getRight());
-                    counter++;
+            Optional<UrlAndId> urlAndId = spotifyApi.getUrlAndId(artistDatum.getArtist());
+            if (urlAndId.isPresent()) {
+                UrlAndId id = urlAndId.get();
+                url = id.url();
+                if (url != null) {
+                    if (url.isEmpty()) {
+                        artistDatum.setUrl("");
+                        artistDatum.setUpdateBit(false);
+                        dao.updateImageStatus(artistDatum.getArtistId(), "", false);
+                    } else {
+                        dao.upsertSpotify(url, artistDatum.getArtistId(), id.id());
+                        counter++;
+                    }
                 }
             }
 

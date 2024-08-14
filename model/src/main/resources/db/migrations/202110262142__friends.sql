@@ -9,5 +9,4 @@ create table friends
     status       enum ('PENDING_FIRST','PENDING_SECOND','ACCEPTED'),
     UNIQUE (first_user, second_user)
 );
---
-rollback drop table friends;
+--rollback drop table friends;

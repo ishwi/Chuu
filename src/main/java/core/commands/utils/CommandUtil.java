@@ -4,6 +4,7 @@ import core.Chuu;
 import core.apis.discogs.DiscogsApi;
 import core.apis.last.ConcurrentLastFM;
 import core.apis.spotify.Spotify;
+import core.apis.spotify.UrlAndId;
 import core.commands.Context;
 import core.exceptions.DiscogsServiceException;
 import core.exceptions.LastFmEntityNotFoundException;
@@ -15,7 +16,15 @@ import core.services.validators.ArtistValidator;
 import core.util.ChuuVirtualPool;
 import core.util.VirtualParallel;
 import dao.ChuuService;
-import dao.entities.*;
+import dao.entities.Album;
+import dao.entities.DiscordUserDisplay;
+import dao.entities.FullAlbumEntityExtended;
+import dao.entities.GlobalStreakEntities;
+import dao.entities.LastFMData;
+import dao.entities.RemainingImagesMode;
+import dao.entities.ScrobbledAlbum;
+import dao.entities.ScrobbledArtist;
+import dao.entities.UpdaterStatus;
 import dao.exceptions.InstanceNotFoundException;
 import dao.utils.LinkUtils;
 import net.dv8tion.jda.api.Permission;
@@ -25,7 +34,6 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.utils.TimeFormat;
 import net.dv8tion.jda.internal.requests.CompletedRestAction;
-import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -53,15 +61,27 @@ import java.util.stream.IntStream;
 public class CommandUtil {
 
     public static final Random rand = new Random();
+    public static final long ONE_KB = 1024;
+    /**
+     * The number of bytes in a megabyte.
+     */
+    public static final long ONE_MB = ONE_KB * ONE_KB;
+    /**
+     * The number of bytes in a gigabyte.
+     */
+    public static final long ONE_GB = ONE_KB * ONE_MB;
     private static final ExecutorService logSupply = ChuuVirtualPool.of("Log-Supplier");
-
 
     private CommandUtil() {
     }
 
-    public static boolean notEnoughPerms(Context e) {
+    public static boolean notEnoughPerms(Context e, Permission... perm) {
         Member member = e.getMember();
-        return member == null || !member.hasPermission(Permission.MESSAGE_MANAGE);
+        return member == null || !member.hasPermission(perm);
+    }
+
+    public static boolean notEnoughPerms(Context e) {
+        return notEnoughPerms(e, Permission.MESSAGE_MANAGE);
     }
 
     public static String notEnoughPermsTemplate() {
@@ -93,7 +113,6 @@ public class CommandUtil {
         return new Color((float) r, (float) g, (float) b);
     }
 
-
     public static BufferedImage getLogo(ChuuService dao, Context e) {
         if (e.isFromGuild()) {
             try (var is = dao.findLogo(e.getGuild().getIdLong());
@@ -116,17 +135,21 @@ public class CommandUtil {
                 dao.upsertUrl(newUrl, scrobbledArtist.getArtistId());
                 VirtualParallel.handleInterrupt();
             } else {
-                Pair<String, String> urlAndId = spotify.getUrlAndId(scrobbledArtist.getArtist());
+                var urlAndId = spotify.getUrlAndId(scrobbledArtist.getArtist());
                 VirtualParallel.handleInterrupt();
-                newUrl = urlAndId.getLeft();
-                if (newUrl.isBlank()) {
-                    scrobbledArtist.setUrl("");
-                    scrobbledArtist.setUpdateBit(false);
-                    dao.upsertArtistSad(scrobbledArtist);
-                    VirtualParallel.handleInterrupt();
-                } else {
-                    dao.upsertSpotify(newUrl, scrobbledArtist.getArtistId(), urlAndId.getRight());
-                    VirtualParallel.handleInterrupt();
+                if (urlAndId.isPresent()) {
+                    UrlAndId id = urlAndId.get();
+                    var url = id.url();
+                    if (url != null) {
+                        if (url.isEmpty()) {
+                            scrobbledArtist.setUrl("");
+                            scrobbledArtist.setUpdateBit(false);
+                            dao.upsertArtistSad(scrobbledArtist);
+                        } else {
+                            dao.upsertSpotify(newUrl, scrobbledArtist.getArtistId(), id.url());
+                        }
+                        VirtualParallel.handleInterrupt();
+                    }
                 }
             }
         } catch (DiscogsServiceException ignored) {
@@ -135,11 +158,9 @@ public class CommandUtil {
         return newUrl;
     }
 
-
     public static void validate(ChuuService dao, ScrobbledArtist scrobbledArtist, ConcurrentLastFM lastFM, DiscogsApi discogsApi, Spotify spotify) throws LastFmException {
         validate(dao, scrobbledArtist, lastFM, discogsApi, spotify, true, true);
     }
-
 
     public static void validate(ChuuService dao, ScrobbledArtist scrobbledArtist, ConcurrentLastFM lastFM, DiscogsApi discogsApi, Spotify spotify, boolean doUrlCheck, boolean findCorrection) throws LastFmException {
         if (findCorrection) {
@@ -214,7 +235,6 @@ public class CommandUtil {
         }
     }
 
-
     public static String albumUrl(ChuuService dao, ConcurrentLastFM lastFM, String artist, String album, DiscogsApi discogsApi, Spotify spotifyApi) throws LastFmException {
         ScrobbledArtist scrobbledArtist = new ScrobbledArtist(artist, 0, null);
         validate(dao, scrobbledArtist, lastFM, discogsApi, spotifyApi);
@@ -237,7 +257,6 @@ public class CommandUtil {
         }
     }
 
-
     public static ScrobbledAlbum validateAlbum(ChuuService dao, String artist, String albumName, ConcurrentLastFM lastFM, DiscogsApi discogsApi, Spotify spotify, boolean doUrlCheck, boolean findCorrection) throws LastFmException {
         ScrobbledArtist sA = new ArtistValidator(dao, lastFM, null).validate(artist, false, findCorrection);
         Album album = CommandUtil.albumvalidate(dao, sA, lastFM, albumName);
@@ -257,7 +276,6 @@ public class CommandUtil {
         return new ScrobbledAlbum(album, sA.getArtist());
     }
 
-
     public static String getLastFmUser(String username) {
         return "https://www.last.fm/user/" + encodeUrl(Chuu.getLastFmId(username));
     }
@@ -265,7 +283,6 @@ public class CommandUtil {
     public static String singlePlural(long count, String singular, String plural) {
         return count == 1 ? singular : plural;
     }
-
 
     public static String getGlobalUsername(long discordID) {
         return getGlobalUsername(null, discordID);
@@ -327,7 +344,6 @@ public class CommandUtil {
         return handleUser(null, discordID, false);
     }
 
-
     public static DiscordUserDisplay getUserInfoEscaped(Context e, long discordID) {
         return getUserInfoEscaped(e, discordID, true);
     }
@@ -336,7 +352,6 @@ public class CommandUtil {
         DiscordUserDisplay discordUserDisplay = handleUser(e.isFromGuild() ? e.getGuild() : null, discordID, isFromServer);
         return new DiscordUserDisplay(escapeMarkdown(discordUserDisplay.username()), discordUserDisplay.urlImage());
     }
-
 
     public static char getMessagePrefix(Context e) {
         return e.getPrefix();
@@ -445,7 +460,6 @@ public class CommandUtil {
 
     }
 
-
     public static String msToString(long ms) {
         var s = ms / 1000;
         var m = s / 60;
@@ -489,8 +503,22 @@ public class CommandUtil {
         });
     }
 
-
-    public static <T extends Enum<T>> List<List<T>> partition(List<T> ts, int i) {
+    public static <T> List<List<T>> partition(List<T> ts, int i) {
         return new ArrayList<>(IntStream.range(0, ts.size()).boxed().collect(Collectors.groupingBy(index -> index / i, Collectors.mapping(ts::get, Collectors.toList()))).values());
+    }
+
+    public static String byteCountToDisplaySize(long size) {
+        String displaySize;
+
+        if (size / ONE_GB > 0) {
+            displaySize = size / ONE_GB + " GB";
+        } else if (size / ONE_MB > 0) {
+            displaySize = String.valueOf(size / ONE_MB) + " MB";
+        } else if (size / ONE_KB > 0) {
+            displaySize = String.valueOf(size / ONE_KB) + " KB";
+        } else {
+            displaySize = String.valueOf(size) + " bytes";
+        }
+        return displaySize;
     }
 }

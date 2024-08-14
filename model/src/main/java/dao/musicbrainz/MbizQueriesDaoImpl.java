@@ -2,10 +2,21 @@ package dao.musicbrainz;
 
 import com.neovisionaries.i18n.CountryCode;
 import dao.BaseDAO;
-import dao.entities.*;
+import dao.entities.AlbumGenre;
+import dao.entities.AlbumInfo;
+import dao.entities.ArtistInfo;
+import dao.entities.ArtistMusicBrainzDetails;
+import dao.entities.CountWrapper;
+import dao.entities.Country;
+import dao.entities.FullAlbumEntityExtended;
+import dao.entities.Genre;
+import dao.entities.Language;
+import dao.entities.MusicbrainzFullAlbumEntity;
+import dao.entities.ScrobbledAlbum;
+import dao.entities.ScrobbledArtist;
+import dao.entities.Track;
+import dao.entities.TrackInfo;
 import dao.exceptions.ChuuServiceException;
-import org.apache.commons.collections4.MultiValuedMap;
-import org.apache.commons.collections4.multimap.HashSetValuedHashMap;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -13,7 +24,13 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.Year;
 import java.time.temporal.ChronoField;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 
@@ -201,9 +218,8 @@ public class MbizQueriesDaoImpl extends BaseDAO implements MbizQueriesDao {
 
 
     @Override
-    public MultiValuedMap<Genre, String> genreCount(Connection con, List<AlbumInfo> releaseInfo) {
-        MultiValuedMap<Genre, String> returnMap = new HashSetValuedHashMap<>();
-        List<Genre> list = new ArrayList<>();
+    public Map<Genre, List<String>> genreCount(Connection con, List<AlbumInfo> releaseInfo) {
+        Map<Genre, List<String>> returnMap = new HashMap<>();
         StringBuilder queryString = new StringBuilder("""
                 SELECT\s
                        c.name as neim, d.gid as mbid
@@ -236,7 +252,7 @@ public class MbizQueriesDaoImpl extends BaseDAO implements MbizQueriesDao {
                 String genreName = resultSet.getString("neim");
                 String mbid = resultSet.getString("mbid");
                 Genre genre = new Genre(genreName);
-                returnMap.put(genre, mbid);
+                returnMap.computeIfAbsent(genre, k -> new ArrayList<>()).add(mbid);
             }
         } catch (SQLException e) {
             logger.warn(e.getMessage(), e);
@@ -591,7 +607,7 @@ public class MbizQueriesDaoImpl extends BaseDAO implements MbizQueriesDao {
         try (PreparedStatement preparedStatement = connection.prepareStatement(tempTable)) {
             preparedStatement.execute();
             String append = "insert into findAlbumByTrackName(artist,track) values (?,?)" +
-                    (",(?,?)").repeat(Math.max(0, urlCapsules.size() - 1));
+                            (",(?,?)").repeat(Math.max(0, urlCapsules.size() - 1));
             PreparedStatement preparedStatement1 = connection.prepareStatement(append);
             for (int i = 0; i < urlCapsules.size(); i++) {
                 preparedStatement1.setString(2 * i + 1, urlCapsules.get(i).getArtist());
@@ -640,7 +656,7 @@ public class MbizQueriesDaoImpl extends BaseDAO implements MbizQueriesDao {
         try (PreparedStatement preparedStatement = connection.prepareStatement(tempTable)) {
             preparedStatement.execute();
             String append = "insert into frequencies(mbid) values (?)" +
-                    (",(?)").repeat(Math.max(0, urlCapsules.size() - 1));
+                            (",(?)").repeat(Math.max(0, urlCapsules.size() - 1));
             PreparedStatement preparedStatement1 = connection.prepareStatement(append);
             for (int i = 0; i < urlCapsules.size(); i++) {
                 preparedStatement1.setObject(i + 1, java.util.UUID.fromString(urlCapsules.get(i).getAlbumMbid()));
@@ -648,10 +664,10 @@ public class MbizQueriesDaoImpl extends BaseDAO implements MbizQueriesDao {
             preparedStatement1.execute();
 
             String queryString = "SELECT a.gid AS mbid,c.gid AS ambid ,c.name AS albumname, e.name AS artistaname  FROM musicbrainz.track a " +
-                    "JOIN musicbrainz.medium b ON a.medium = b.id " +
-                    "JOIN musicbrainz.release c ON b.release = c.id " +
-                    "JOIN musicbrainz.artist_credit e ON a.artist_credit = e.id " +
-                    "JOIN frequencies d ON a.gid = d.mbid";
+                                 "JOIN musicbrainz.medium b ON a.medium = b.id " +
+                                 "JOIN musicbrainz.release c ON b.release = c.id " +
+                                 "JOIN musicbrainz.artist_credit e ON a.artist_credit = e.id " +
+                                 "JOIN frequencies d ON a.gid = d.mbid";
             ResultSet resultSet = connection.prepareStatement(queryString).executeQuery();
             while (resultSet.next()) {
                 String mbid = resultSet.getString("mbid");
@@ -1152,8 +1168,8 @@ public class MbizQueriesDaoImpl extends BaseDAO implements MbizQueriesDao {
     }
 
     @Override
-    public MultiValuedMap<Genre, String> genreCountByArtist(Connection connection, List<ArtistInfo> releaseInfo) {
-        MultiValuedMap<Genre, String> returnMap = new HashSetValuedHashMap<>();
+    public Map<Genre, List<String>> genreCountByArtist(Connection connection, List<ArtistInfo> releaseInfo) {
+        Map<Genre, List<String>> returnMap = new HashMap<>();
         if (releaseInfo.isEmpty()) {
             return returnMap;
         }
@@ -1190,7 +1206,7 @@ public class MbizQueriesDaoImpl extends BaseDAO implements MbizQueriesDao {
                 String genreName = resultSet.getString("neim");
                 String mbid = resultSet.getString("mbid");
                 Genre genre = new Genre(genreName);
-                returnMap.put(genre, mbid);
+                returnMap.computeIfAbsent(genre, k -> new ArrayList<>()).add(mbid);
             }
         } catch (SQLException e) {
             logger.warn(e.getMessage(), e);

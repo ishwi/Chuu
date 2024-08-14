@@ -16,8 +16,6 @@ import core.util.ServiceView;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.ISnowflake;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel;
-import org.apache.commons.collections4.MultiValuedMap;
-import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
@@ -59,24 +57,35 @@ public class DisabledStatusCommand extends ConcurrentCommand<CommandParameters> 
     @Override
     public void onCommand(Context e, @NotNull CommandParameters params) {
         MessageDisablingService messageDisablingService = Chuu.getMessageDisablingService();
-        MultiValuedMap<Pair<Long, Long>, MyCommand<?>> disabledChannelsMap = messageDisablingService.disabledChannelsMap;
-        MultiValuedMap<Pair<Long, Long>, MyCommand<?>> enabledChannelsMap = messageDisablingService.enabledChannelsMap;
-        MultiValuedMap<Long, MyCommand<?>> disabledServersMap = messageDisablingService.disabledServersMap;
+        var disabledChannelsMap = messageDisablingService.disabledChannelsMap;
+        var enabledChannelsMap = messageDisablingService.enabledChannelsMap;
+        var disabledServersMap = messageDisablingService.disabledServersMap;
         Map<Long, GuildChannel> channelMap = e.getGuild().getChannels().stream().collect(Collectors.toMap(ISnowflake::getIdLong, x ->
                 x));
         List<? extends MyCommand<?>>
-                disabledServerCommands = disabledServersMap.entries().stream().filter(x -> x.getKey().equals(e.getGuild().getIdLong())).map(Map.Entry::getValue).toList();
-        Map<GuildChannel, List<MyCommand<?>>> channelSpecificDisables = disabledChannelsMap.entries().stream()
-                .filter(x -> x.getKey().getLeft().equals(e.getGuild().getIdLong()))
-                .filter(x -> !disabledServerCommands.contains(x.getValue()))
-                .collect(Collectors.groupingBy(x -> channelMap.get(x.getKey().getRight()),
-                        Collectors.mapping(Map.Entry::getValue, Collectors.toList())));
+                disabledServerCommands = disabledServersMap.entrySet().stream()
+                .filter(x -> x.getKey().equals(e.getGuild().getIdLong()))
+                .flatMap(z -> z.getValue().stream())
+                .toList();
+        Map<GuildChannel, List<MyCommand<?>>> channelSpecificDisables = disabledChannelsMap.entrySet()
+                .stream()
+                .filter(x -> e.getGuild().getIdLong() == x.getKey().guildId())
+                .collect(Collectors.groupingBy(x -> channelMap.get(x.getKey().channelId()),
+                        Collectors.flatMapping(x -> x.getValue().stream(),
+                                Collectors.filtering(z ->
+                                                !disabledServerCommands.contains(z),
+                                        Collectors.toList()))));
 
-        Map<GuildChannel, List<MyCommand<?>>> channelSpecificEnabled = enabledChannelsMap.entries().stream()
-                .filter(x -> x.getKey().getLeft().equals(e.getGuild().getIdLong()))
-                .filter(x -> disabledServerCommands.contains(x.getValue()))
-                .collect(Collectors.groupingBy(x -> channelMap.get(x.getKey().getRight()),
-                        Collectors.mapping(Map.Entry::getValue, Collectors.toList())));
+        Map<GuildChannel, List<MyCommand<?>>> channelSpecificEnabled = enabledChannelsMap.entrySet().stream()
+                .filter(x -> x.getKey().guildId() == e.getGuild().getIdLong())
+                .collect(Collectors.groupingBy(x -> channelMap.get(x.getKey().channelId()),
+                        Collectors.flatMapping(x -> x.getValue().stream(),
+                                Collectors.filtering(disabledServerCommands::contains,
+                                        Collectors.toList()))));
+
+        channelSpecificDisables.entrySet().removeIf(z -> z.getValue().isEmpty());
+        channelSpecificEnabled.entrySet().removeIf(z -> z.getValue().isEmpty());
+
         EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e).setThumbnail(e.getGuild().getIconUrl());
         StringBuilder a = new StringBuilder();
 

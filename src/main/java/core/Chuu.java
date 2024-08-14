@@ -19,8 +19,17 @@ import core.music.listeners.VoiceListener;
 import core.music.scrobble.ScrobbleEventManager;
 import core.music.scrobble.StatusProcessor;
 import core.music.utils.ScrabbleProcessor;
-import core.otherlisteners.*;
-import core.services.*;
+import core.otherlisteners.AlbumYearApproval;
+import core.otherlisteners.AutoCompleteListener;
+import core.otherlisteners.AwaitReady;
+import core.otherlisteners.FriendRequester;
+import core.otherlisteners.JoinLeaveListener;
+import core.services.ColorService;
+import core.services.CoverService;
+import core.services.MessageDeletionService;
+import core.services.MessageDisablingService;
+import core.services.PrefixService;
+import core.services.ScheduledService;
 import core.services.validators.AlbumFinder;
 import core.util.ServiceView;
 import core.util.botlists.BotListPoster;
@@ -32,13 +41,13 @@ import dao.entities.Callback;
 import dao.entities.Metrics;
 import dao.entities.UsersWrapper;
 import dao.exceptions.ChuuServiceException;
-import gnu.trove.set.TLongSet;
-import gnu.trove.set.hash.TLongHashSet;
 import io.github.bucket4j.Bandwidth;
 import io.github.bucket4j.Bucket;
 import io.github.bucket4j.Refill;
 import io.github.classgraph.ClassGraph;
 import io.github.classgraph.ScanResult;
+import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
+import it.unimi.dsi.fastutil.longs.LongSet;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Message;
@@ -59,23 +68,30 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.time.Duration;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.EnumSet;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Properties;
+import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.LongAdder;
 import java.util.function.Consumer;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class Chuu {
 
-    public static final Character DEFAULT_PREFIX = '!';
+    public static final char DEFAULT_PREFIX = '!';
     public static final String DEFAULT_LASTFM_ID = "chuubot";
     private static final LongAdder lastFMMetric = new LongAdder();
     private static final LongAdder cacheMetric = new LongAdder();
     private static final Set<String> privateLastFms = new HashSet<>();
-    private static final TLongSet knownIds = new TLongHashSet();
+    private static final LongSet knownIds = new LongOpenHashSet(200_000);
 
 
     public static PlayerRegistry playerRegistry;
@@ -87,7 +103,6 @@ public class Chuu {
     public static PrefixService prefixService;
     public static CustomInterfacedEventManager customManager;
     public static boolean doTyping = true;
-    public static Pattern PING_REGEX = Pattern.compile("");
     private static ShardManager shardManager;
     private static Logger logger;
     private static Map<Long, Bucket> ratelimited;
@@ -141,7 +156,7 @@ public class Chuu {
         scrabbleProcessor = new ScrabbleProcessor(new AlbumFinder(service, LastFMFactory.getNewInstance()));
         playerManager = new ExtendedAudioPlayerManager(scrobbleEventManager, scrabbleProcessor);
         playerRegistry = new PlayerRegistry(playerManager);
-        scheduledService = new ScheduledService(Executors.newScheduledThreadPool(6), db.normalService());
+        scheduledService = new ScheduledService(Executors.newSingleThreadScheduledExecutor(), db.normalService());
         ratelimited = service.getRateLimited().entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, y -> {
             Refill refill = Refill.intervally((long) (y.getValue() * 10), Duration.ofSeconds(10));
             Bandwidth classic = Bandwidth.classic(10, refill);
@@ -184,6 +199,9 @@ public class Chuu {
         DefaultShardManagerBuilder builder = DefaultShardManagerBuilder.
                 create(getIntents())
                 .setChunkingFilter(ChunkingFilter.NONE)
+                .setThreadFactory(Thread.ofVirtual()
+                        .inheritInheritableThreadLocals(false)
+                        .name("Application-thread", 0).factory())
                 .enableCache(CacheFlag.EMOJI, CacheFlag.VOICE_STATE)
                 .disableCache(CacheFlag.ACTIVITY, CacheFlag.CLIENT_STATUS, CacheFlag.ONLINE_STATUS, CacheFlag.MEMBER_OVERRIDES, CacheFlag.STICKER, CacheFlag.ROLE_TAGS)
                 .setAudioSendFactory(new NativeAudioSendFactory()).setBulkDeleteSplittingEnabled(false)
@@ -191,7 +209,7 @@ public class Chuu {
                     try {
                         return knownIds.contains(member.getIdLong());
                     } catch (Exception e) {
-                        getLogger().info("Timeout on member caching | Member {} | Guild {} ", member.getUser().getAsTag(), member.getGuild().getName(), e);
+                        getLogger().info("Timeout on member caching | Member {} | Guild {} ", member.getUser().getName(), member.getGuild().getName(), e);
                         return false;
                     }
                 })
@@ -211,7 +229,10 @@ public class Chuu {
                             customManager.isReady = true;
                             doTyping = true;
                             messageDisablingService = new MessageDisablingService(firstShard, service);
-                            InteractionBuilder.setGlobalCommands(firstShard);
+                            if (installGlobalCommands) {
+
+                                InteractionBuilder.setGlobalCommands(firstShard);
+                            }
                         });
                     }
                     scheduledService.addSchedule(() -> new BotListPoster().doPost(), 5, 120, TimeUnit.MINUTES);
@@ -233,7 +254,10 @@ public class Chuu {
         if (startRightAway) {
             shardManager.getShards().stream().findFirst().ifPresent(z -> {
                 messageDisablingService = new MessageDisablingService(z, service);
-                CommandListUpdateAction ignored = InteractionBuilder.setGlobalCommands(z);
+                if (installGlobalCommands) {
+
+                    CommandListUpdateAction ignored = InteractionBuilder.setGlobalCommands(z);
+                }
             });
         }
 

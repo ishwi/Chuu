@@ -7,13 +7,12 @@ import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackInfo;
 import core.Chuu;
 import core.music.sources.MetadataTrack;
-import core.music.sources.youtube.webscrobbler.ChuuYoutubeAudioTrack;
 import core.music.sources.youtube.webscrobbler.processers.ChuuAudioTrackInfo;
+import core.music.sources.youtube.webscrobbler.processers.ChuuYoutubeAudioTrack;
 import core.music.sources.youtube.webscrobbler.processers.Processed;
 import core.services.validators.AlbumFinder;
 import dao.entities.Album;
 import dao.entities.Metadata;
-import jdk.incubator.concurrent.StructuredTaskScope;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -21,6 +20,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.StructuredTaskScope;
 
 public record ScrabbleProcessor(AlbumFinder albumFinder) {
     public static final Cache<String, TrackScrobble> processed = Caffeine.newBuilder()

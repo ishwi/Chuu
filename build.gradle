@@ -1,16 +1,23 @@
 buildscript {
+    repositories {
+        mavenLocal()
+        mavenCentral()
+    }
+
     dependencies {
-        classpath 'org.ow2.asm:asm:9.4'
+        classpath 'org.jooq:jooq-codegen:3.19.7'
+        classpath 'org.mariadb.jdbc:mariadb-java-client:3.3.3'
     }
 }
 
 plugins {
     id 'java'
     id 'application'
-    id "com.github.johnrengelman.shadow" version "7.1.2"
-    id 'info.solidsoft.pitest' version '1.9.11'
+    id 'idea'
+    id "com.github.johnrengelman.shadow" version "8.1.1"
+    id 'info.solidsoft.pitest' version '1.15.0'
     id 'se.patrikerdes.use-latest-versions' version '0.2.18'
-    id 'com.github.ben-manes.versions' version '0.44.0'
+    id 'com.github.ben-manes.versions' version '0.51.0'
 
 }
 
@@ -22,7 +29,12 @@ repositories {
         name 'm2-dv8tion'
     }
     maven { url 'https://jitpack.io' }
-
+    maven {
+        url = "https://oss.sonatype.org/content/repositories/snapshots"
+        mavenContent {
+            snapshotsOnly()
+        }
+    }
 
 }
 
@@ -32,17 +44,14 @@ test {
 
 }
 
-apply plugin: 'java'
-apply plugin: 'idea'
 
 mainClassName = "core.Chuu"
 
 group 'org.ish'
 version '1.1.0'
-apply plugin: 'java'
 
-sourceCompatibility = "19.PREVIEW"
-targetCompatibility = "19.PREVIEW"
+sourceCompatibility = "22.PREVIEW"
+targetCompatibility = "22.PREVIEW"
 
 
 compileJava {
@@ -65,17 +74,18 @@ shadowJar {
 
 dependencies {
     implementation project(':model')
-    implementation group: 'org.knowm.xchart', name: 'xchart', version: '3.8.3'
+    implementation group: 'org.knowm.xchart', name: 'xchart', version: '3.8.7'
 
 
-    implementation 'se.michaelthelin.spotify:spotify-web-api-java:7.3.0'
+    implementation 'se.michaelthelin.spotify:spotify-web-api-java:9.0.0-RC1'
 
-    implementation 'ch.qos.logback:logback-classic:1.4.5'
+    implementation 'ch.qos.logback:logback-classic:1.5.6'
 
 
-    implementation 'com.github.walkyst.lavaplayer-fork:lavaplayer:1.3.99.2'
-// https://mvnrepository.com/artifact/net.sf.trove4j/trove4j
-    implementation 'net.sf.trove4j:trove4j:3.0.3'
+    implementation 'com.github.devoxin:lavaplayer:1.8.0'
+
+    implementation 'it.unimi.dsi:fastutil:8.5.13'
+
 
     // Audio
     implementation 'com.github.natanbc:lavadsp:0.7.7'
@@ -85,42 +95,43 @@ dependencies {
 
     implementation 'com.sedmelluq:jda-nas:1.1.0'
 
-    implementation 'com.github.ben-manes.caffeine:caffeine:3.1.2'
+    implementation 'com.github.ben-manes.caffeine:caffeine:3.1.8'
 
     implementation 'com.neovisionaries:nv-i18n:1.29'
     implementation 'com.github.ishwi:java-eval:8de726df14c18523912aa6ff21bfd1b0b7d54924'
-    implementation("net.dv8tion:JDA:5.0.0-beta.3")
+    implementation("net.dv8tion:JDA:5.0.0-beta.22")
 
-    implementation group: 'org.jsoup', name: 'jsoup', version: '1.15.3'
+    implementation group: 'org.jsoup', name: 'jsoup', version: '1.17.2'
 // https://mvnrepository.com/artifact/javax.annotation/javax.annotation-api
     implementation 'javax.annotation:javax.annotation-api:1.3.2'
 
-    implementation group: 'org.apache.commons', name: 'commons-collections4', version: '4.4'
-    implementation group: 'org.json', name: 'json', version: '20220924'
-    implementation group: 'io.github.classgraph', name: 'classgraph', version: '4.8.154'
-    implementation group: 'com.twelvemonkeys.imageio', name: 'imageio-core', version: '3.9.4'
-    implementation group: 'com.twelvemonkeys.imageio', name: 'imageio-jpeg', version: '3.9.4'
-    implementation group: 'com.twelvemonkeys.imageio', name: 'imageio-webp', version: '3.9.4'
+    implementation group: 'org.apache.commons', name: 'commons-collections4', version: '4.5.0-M1'
+    implementation group: 'org.json', name: 'json', version: '20240303'
+    implementation group: 'io.github.classgraph', name: 'classgraph', version: '4.8.172'
+    implementation group: 'com.twelvemonkeys.imageio', name: 'imageio-core', version: '3.10.1'
+    implementation group: 'com.twelvemonkeys.imageio', name: 'imageio-jpeg', version: '3.10.1'
+    implementation group: 'com.twelvemonkeys.imageio', name: 'imageio-webp', version: '3.10.1'
     implementation group: 'org.imgscalr', name: 'imgscalr-lib', version: '4.2'
-    implementation group: 'org.apache.xmlgraphics', name: 'batik-transcoder', version: '1.16'
-    implementation group: 'org.apache.xmlgraphics', name: 'batik-codec', version: '1.16'
-    implementation group: 'org.apache.xmlgraphics', name: 'batik-svggen', version: '1.16'
-    implementation group: 'com.zaxxer', name: 'HikariCP', version: '5.0.1'
+    implementation group: 'org.apache.xmlgraphics', name: 'batik-transcoder', version: '1.17'
+    implementation group: 'org.apache.xmlgraphics', name: 'batik-codec', version: '1.17'
+    implementation group: 'org.apache.xmlgraphics', name: 'batik-svggen', version: '1.17'
+    implementation group: 'com.zaxxer', name: 'HikariCP', version: '5.1.0'
     implementation("com.github.minndevelopment:emoji-java:6.1.0")
 // https://mvnrepository.com/artifact/com.opencsv/opencsv
-    implementation 'org.apache.commons:commons-csv:1.9.0'
+    implementation 'org.apache.commons:commons-csv:1.10.0'
 
 // https://mvnrepository.com/artifact/com.github.vladimir-bukhtoyarov/bucket4j-core
-    implementation 'com.github.vladimir-bukhtoyarov:bucket4j-core:7.6.0'
+    implementation 'com.github.vladimir-bukhtoyarov:bucket4j-core:8.0.1'
+    implementation group: 'club.minnced', name: 'discord-webhooks', version: '0.8.4'
 
 
     // TEST
 // https://mvnrepository.com/artifact/org.awaitility/awaitility
-    testImplementation group: 'org.awaitility', name: 'awaitility', version: '4.2.0'
+    testImplementation group: 'org.awaitility', name: 'awaitility', version: '4.2.1'
     testImplementation group: 'com.openpojo', name: 'openpojo', version: '0.9.1'
 
 // https://mvnrepository.com/artifact/org.ow2.asm/asm
-    testImplementation group: 'org.ow2.asm', name: 'asm', version: '9.4'
+    testImplementation group: 'org.ow2.asm', name: 'asm', version: '9.7'
 
 // https://mvnrepository.com/artifact/org.graphwalker/graphwalker-core
     testImplementation group: 'org.graphwalker', name: 'graphwalker-core', version: '4.3.2'
@@ -130,26 +141,25 @@ dependencies {
 // https://mvnrepository.com/artifact/com.pholser/junit-quickcheck-core
     //a
 //    testImplementation group: 'com.pholser', name: 'junit-quickcheck-core', version: '1.0'
-    testImplementation 'org.mockito:mockito-core:5.0.0'
+    testImplementation 'org.mockito:mockito-core:5.11.0'
 // https://mvnrepository.com/artifact/org.assertj/assertj-core
-    testImplementation 'org.assertj:assertj-core:3.24.2'
+    testImplementation 'org.assertj:assertj-core:3.25.3'
     // https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-engine
-    testImplementation 'org.junit.jupiter:junit-jupiter:5.9.2'
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.10.2'
 
-    testImplementation "org.testcontainers:testcontainers:1.17.6"
-    testImplementation "org.testcontainers:junit-jupiter:1.17.6"
-    testImplementation "org.testcontainers:mariadb:1.17.6"
-    testImplementation 'org.mariadb.jdbc:mariadb-java-client:3.1.2'
-    testImplementation 'org.liquibase:liquibase-core:4.19.0'
-    testImplementation group: 'org.yaml', name: 'snakeyaml', version: '1.33'
+    testImplementation "org.testcontainers:testcontainers:1.19.7"
+    testImplementation "org.testcontainers:junit-jupiter:1.19.7"
+    testImplementation "org.testcontainers:mariadb:1.19.7"
+    testImplementation 'org.mariadb.jdbc:mariadb-java-client:3.3.3'
+    testImplementation 'org.liquibase:liquibase-core:4.27.0'
+    testImplementation group: 'org.yaml', name: 'snakeyaml', version: '2.2'
 
 
-    testImplementation group: 'org.openjdk.jmh', name: 'jmh-core', version: '1.36'
-    testAnnotationProcessor group: 'org.openjdk.jmh', name: 'jmh-generator-annprocess', version: '1.36'
+    testImplementation group: 'org.openjdk.jmh', name: 'jmh-core', version: '1.37'
+    testAnnotationProcessor group: 'org.openjdk.jmh', name: 'jmh-generator-annprocess', version: '1.37'
 
 
 }
-
 
 tasks.withType(JavaCompile).configureEach {
     options.fork = true

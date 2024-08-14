@@ -3,7 +3,6 @@ package dao.utils;
 import dao.entities.ResultSetConsumer;
 import dao.entities.TriConsumer;
 import dao.exceptions.ChuuServiceException;
-import jdk.incubator.concurrent.StructuredTaskScope;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -12,6 +11,7 @@ import java.sql.SQLException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.concurrent.StructuredTaskScope;
 import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;

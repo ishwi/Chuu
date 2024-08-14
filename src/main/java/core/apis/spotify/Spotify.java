@@ -9,7 +9,11 @@ import se.michaelthelin.spotify.SpotifyApi;
 import se.michaelthelin.spotify.exceptions.SpotifyWebApiException;
 import se.michaelthelin.spotify.model_objects.credentials.ClientCredentials;
 import se.michaelthelin.spotify.model_objects.special.SearchResult;
-import se.michaelthelin.spotify.model_objects.specification.*;
+import se.michaelthelin.spotify.model_objects.specification.Artist;
+import se.michaelthelin.spotify.model_objects.specification.AudioFeatures;
+import se.michaelthelin.spotify.model_objects.specification.Image;
+import se.michaelthelin.spotify.model_objects.specification.Paging;
+import se.michaelthelin.spotify.model_objects.specification.Track;
 import se.michaelthelin.spotify.requests.authorization.client_credentials.ClientCredentialsRequest;
 import se.michaelthelin.spotify.requests.data.search.SearchItemRequest;
 import se.michaelthelin.spotify.requests.data.search.simplified.SearchAlbumsRequest;
@@ -18,7 +22,13 @@ import se.michaelthelin.spotify.requests.data.tracks.GetAudioFeaturesForSeveralT
 
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 
 public class Spotify {
 
@@ -28,6 +38,7 @@ public class Spotify {
 
     public Spotify(String clientSecret, String clientId) {
         SpotifyApi tempItem = new SpotifyApi.Builder()
+
                 .setClientId(clientId).setClientSecret(clientSecret).build();
         this.clientCredentialsRequest = tempItem.clientCredentials().build();
 
@@ -203,10 +214,6 @@ public class Spotify {
 
     }
 
-    public record AlbumResult(String id, String artist, String album, String uri, String cover) {
-
-    }
-
     public String searchItems(String track, String artist, String album) {
         initRequest();
         SearchItemRequest tracksRequest =
@@ -243,17 +250,17 @@ public class Spotify {
         return "";
     }
 
-    public Pair<String, String> getUrlAndId(String artist) {
+    public Optional<UrlAndId> getUrlAndId(String artist) {
         Artist[] artists = searchArtist(artist);
         if (artists == null) {
-            return Pair.of("", "");
+            return Optional.empty();
         }
         for (Artist item : artists) {
             Image[] images = item.getImages();
             if (images.length != 0)
-                return Pair.of(images[0].getUrl(), item.getId());
+                return Optional.of(new UrlAndId(images[0].getUrl(), item.getId()));
         }
-        return Pair.of("", "");
+        return Optional.empty();
     }
 
     private Artist[] searchArtist(String artist) {
@@ -275,8 +282,11 @@ public class Spotify {
         return null;
     }
 
-
     public SpotifyApi getSpotifyApi() {
         return spotifyApi;
+    }
+
+    public record AlbumResult(String id, String artist, String album, String uri, String cover) {
+
     }
 }

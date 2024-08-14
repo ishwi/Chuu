@@ -2,7 +2,6 @@ package core.util;
 
 import core.Chuu;
 import dao.exceptions.ChuuServiceException;
-import jdk.incubator.concurrent.StructuredTaskScope;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -12,7 +11,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentLinkedDeque;
-import java.util.concurrent.Future;
+import java.util.concurrent.StructuredTaskScope;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -39,6 +38,8 @@ public class VirtualParallel {
 
     public static <T, J> List<T> runIO(List<J> items, long limit, CheckedFunction<J, T> IOMapper, Instant timeout) {
         Supplier<CustomPools<T>> scoper;
+
+
         if (limit <= 0) {
             scoper = ExecuteAllIgnoreErrors::new;
         } else {
@@ -51,12 +52,12 @@ public class VirtualParallel {
                 J z = items.get(i);
                 scope.fork(() -> IOMapper.apply(z));
                 switch (scope) {
-                    case ExecuteSome<T> _e -> {
+                    case ExecuteSome<T> _ -> {
                         if (i > limit) {
                             break outer;
                         }
                     }
-                    case ExecuteAllIgnoreErrors<T> _e -> {
+                    case ExecuteAllIgnoreErrors<T> _ -> {
                     }
                 }
             }
@@ -78,13 +79,14 @@ public class VirtualParallel {
         }
     }
 
+    @FunctionalInterface
     public interface CheckedFunction<J, T> {
         T apply(J item) throws Exception;
     }
 
     private static sealed abstract class CustomPools<T> extends StructuredTaskScope<T> {
         public CustomPools() {
-            super("Custom-pool", r -> new Thread(r, "Custom-pool"));
+            super("Custom-pool", Thread.ofVirtual().name("Custom-pool").factory());
         }
 
         abstract List<T> results();
@@ -102,20 +104,21 @@ public class VirtualParallel {
             this.numTasksForSuccess = numTasksForSuccess;
         }
 
+
         @Override
-        protected void handleComplete(Future<T> future) {
-            switch (future.state()) {
+        protected void handleComplete(Subtask<? extends T> subtask) {
+            switch (subtask.state()) {
                 case SUCCESS -> {
                     int numSuccess = successCounter.incrementAndGet();
                     if (numSuccess <= numTasksForSuccess) {
-                        results.add(future.resultNow());
+                        results.add(subtask.get());
                     }
                     if (numSuccess == numTasksForSuccess) {
                         shutdown();
                     }
                 }
                 case FAILED -> failCounter.incrementAndGet();
-                case CANCELLED -> throw new ChuuServiceException(new InterruptedException());
+                case UNAVAILABLE -> throw new ChuuServiceException(new InterruptedException());
             }
         }
 
@@ -146,7 +149,7 @@ public class VirtualParallel {
         }
 
         @Override
-        public <U extends T> Future<U> fork(Callable<? extends U> task) {
+        public <U extends T> Subtask<U> fork(Callable<? extends U> task) {
             forkCount.incrementAndGet();
             forkCount.addAndGet(preJoinCount.get());
             return super.fork(task);
@@ -165,15 +168,13 @@ public class VirtualParallel {
         }
 
         @Override
-        protected void handleComplete(Future<T> future) {
+        protected void handleComplete(Subtask<? extends T> future) {
             var state = future.state();
             switch (state) {
-                case RUNNING -> {
-                }
                 case SUCCESS -> {
                     writeLock.lock();
                     try {
-                        T e = future.resultNow();
+                        T e = future.get();
                         if (e != null) {
                             results.add(e);
                         }
@@ -182,7 +183,7 @@ public class VirtualParallel {
                     }
                 }
                 case FAILED -> failCounter.incrementAndGet();
-                case CANCELLED -> throw new ChuuServiceException(new InterruptedException());
+                case UNAVAILABLE -> throw new ChuuServiceException(new InterruptedException());
             }
             if (isInCollection.get()) {
                 int i = forkCount.decrementAndGet();

@@ -1,8 +1,20 @@
 package dao.musicbrainz;
 
 import com.neovisionaries.i18n.CountryCode;
-import dao.entities.*;
-import org.apache.commons.collections4.MultiValuedMap;
+import dao.entities.AlbumGenre;
+import dao.entities.AlbumInfo;
+import dao.entities.ArtistInfo;
+import dao.entities.ArtistMusicBrainzDetails;
+import dao.entities.CountWrapper;
+import dao.entities.Country;
+import dao.entities.FullAlbumEntityExtended;
+import dao.entities.Genre;
+import dao.entities.Language;
+import dao.entities.MusicbrainzFullAlbumEntity;
+import dao.entities.ScrobbledAlbum;
+import dao.entities.ScrobbledArtist;
+import dao.entities.Track;
+import dao.entities.TrackInfo;
 
 import java.sql.Connection;
 import java.time.Year;
@@ -19,7 +31,7 @@ interface MbizQueriesDao {
 
     List<AlbumInfo> getDecadeAlbumsByReleaseName(Connection con, List<AlbumInfo> releaseInfo, int decade, int numberOfYears);
 
-    MultiValuedMap<Genre, String> genreCount(Connection connection, List<AlbumInfo> releaseInfo);
+    Map<Genre, List<String>> genreCount(Connection connection, List<AlbumInfo> releaseInfo);
 
     Map<Country, Integer> countryCount(Connection connection, List<ArtistInfo> releaseInfo);
 
@@ -61,7 +73,7 @@ interface MbizQueriesDao {
 
     List<AlbumGenre> getAlbumRecommendationsByGenre(Connection connection, Map<Genre, Integer> map, List<ScrobbledArtist> recs);
 
-    MultiValuedMap<Genre, String> genreCountByArtist(Connection connection, List<ArtistInfo> releaseInfo);
+    Map<Genre, List<String>> genreCountByArtist(Connection connection, List<ArtistInfo> releaseInfo);
 
     MusicbrainzFullAlbumEntity retrieveAlbumInfo(Connection connection, FullAlbumEntityExtended albumInfo);
 

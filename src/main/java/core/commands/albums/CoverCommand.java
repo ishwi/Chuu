@@ -13,7 +13,8 @@ import org.jetbrains.annotations.CheckReturnValue;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -58,32 +59,32 @@ public class CoverCommand extends AlbumPlaysCommand {
         String big = albumUrl.replaceAll("i/u/[\\d\\w]+/", "i/u/4096x4096/");
         InputStream io = null;
         try {
-            io = new URL(big).openStream();
+            io = new URI(big).toURL().openStream();
             String finalAlbumUrl = albumUrl;
             InputStream finalIo = io;
             sendCover(io, artist, album, e, big).queue(message -> closeIO(finalIo), throwable -> {
                 closeIO(finalIo);
                 InputStream io2 = null;
                 try {
-                    io2 = new URL(finalAlbumUrl).openStream();
+                    io2 = new URI(finalAlbumUrl).toURL().openStream();
                     InputStream finalIo1 = io2;
                     sendCover(io2, artist, album, e, finalAlbumUrl).queue(a -> closeIO(finalIo1), b -> {
                         closeIO(finalIo1);
                         sendError(e, artist.getArtist(), album);
                     });
-                } catch (IOException exception) {
+                } catch (IOException | URISyntaxException exception) {
                     closeIO(io2);
                     sendError(e, artist.getArtist(), album);
                 }
             });
-        } catch (IOException exception) {
+        } catch (URISyntaxException | IOException exception) {
             closeIO(io);
             InputStream io2 = null;
             try {
-                io2 = new URL(big).openStream();
+                io2 = new URI(big).toURL().openStream();
                 InputStream finalIo = io2;
                 sendCover(io2, artist, album, e, albumUrl).queue(message -> closeIO(finalIo), throwable -> sendError(e, artist.getArtist(), album));
-            } catch (IOException e2) {
+            } catch (IOException | URISyntaxException e2) {
                 closeIO(io2);
                 sendError(e, artist.getArtist(), album);
             }

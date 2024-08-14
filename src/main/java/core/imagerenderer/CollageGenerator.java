@@ -3,7 +3,6 @@ package core.imagerenderer;
 import core.Chuu;
 import core.util.VirtualParallel;
 import dao.exceptions.ChuuServiceException;
-import jdk.incubator.concurrent.StructuredTaskScope;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.awt.*;
@@ -11,6 +10,7 @@ import java.awt.image.BufferedImage;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.StructuredTaskScope;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
@@ -39,7 +39,7 @@ public class CollageGenerator {
         ReentrantLock lock = new ReentrantLock();
 
         CollageQueue cq = new CollageQueue(g, x, y, max, false, false, queue, lock);
-        try (var scope = new StructuredTaskScope<>("a", r -> new Thread(r, "r"))) {
+        try (var scope = new StructuredTaskScope<>("collage", Thread.ofVirtual().name("collage-", 0).factory())) {
             queue.forEach(ca ->
                     scope.fork(() -> {
                         cq.run0(ca);

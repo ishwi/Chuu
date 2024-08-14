@@ -1,6 +1,12 @@
 package core.music.sources.youtube;
 
-import com.sedmelluq.discord.lavaplayer.source.youtube.*;
+import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioSourceManager;
+import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioTrack;
+import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeLinkRouter;
+import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeMixLoader;
+import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubePlaylistLoader;
+import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeSearchMusicResultLoader;
+import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeSearchResultLoader;
 import com.sedmelluq.discord.lavaplayer.tools.ExceptionTools;
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.tools.io.HttpClientTools;
@@ -8,7 +14,7 @@ import com.sedmelluq.discord.lavaplayer.tools.io.HttpInterface;
 import com.sedmelluq.discord.lavaplayer.track.AudioItem;
 import com.sedmelluq.discord.lavaplayer.track.AudioReference;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackInfo;
-import core.music.sources.youtube.webscrobbler.ChuuYoutubeAudioTrack;
+import core.music.sources.youtube.webscrobbler.processers.ChuuYoutubeAudioTrack;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.protocol.HttpClientContext;

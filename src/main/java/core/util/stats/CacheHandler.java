@@ -2,7 +2,6 @@ package core.util.stats;
 
 import java.util.IdentityHashMap;
 import java.util.Map;
-import java.util.function.BiFunction;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class CacheHandler {
@@ -20,8 +19,7 @@ public class CacheHandler {
 
     private <T, A, B> T walk(Combination<StatsCtx, A, StatsCtx, B, T> c, StatsCtx ctx) {
         StatsGenerator<StatsCtx, A> l = c.leftProcess();
-        StatsGenerator<StatsCtx, B> b = c.getOther();
-        BiFunction<A, B, T> otherMapping = c.getOtherMapping();
+
         if (l instanceof Combination b3) {
             A walk = (A) walk(b3, ctx);
             return c.getOtherMapping().apply(walk, getT1(c.getOther(), ctx));

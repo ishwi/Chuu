@@ -14,6 +14,7 @@ import org.jetbrains.annotations.NotNull;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.BufferedInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Collections;
@@ -68,7 +69,9 @@ public class AdministrativeCommand extends ConcurrentCommand<UrlParameters> {
                 }
                 image = Scalr.resize(image, Scalr.Method.QUALITY, 75, Scalr.OP_ANTIALIAS);
 
-                db.addLogo(e.getGuild().getIdLong(), image);
+                ByteArrayOutputStream b = new ByteArrayOutputStream();
+                ImageIO.write(image, "png", b);
+                db.addLogo(e.getGuild().getIdLong(), b.toByteArray());
                 sendMessageQueue(e, "Logo updated");
             } catch (IOException exception) {
                 Chuu.getLogger().warn(exception.getMessage(), exception);

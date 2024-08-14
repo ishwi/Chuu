@@ -6,9 +6,10 @@ import dao.ChuuService;
 import dao.entities.Album;
 import dao.entities.CoverItem;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
-import org.apache.commons.collections4.ListValuedMap;
-import org.apache.commons.collections4.multimap.ArrayListValuedHashMap;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -18,45 +19,40 @@ import java.util.stream.Collectors;
 public class CoverService {
 
 
-    private final ListValuedMap<CoverItem, String> bannedCovers;
-    private final ListValuedMap<Long, String> bannedCoversById;
+    private final Map<CoverItem, List<String>> bannedCovers;
+    private final Map<Long, List<String>> bannedCoversById;
     private final Set<Long> guildsAcceptingAll;
     private final ChuuService db;
 
     public CoverService(ChuuService db) {
         bannedCovers = db.getBannedCovers();
         guildsAcceptingAll = db.getGuildsAcceptingCovers();
-        bannedCoversById = new ArrayListValuedHashMap<>();
-        bannedCovers.asMap().forEach((key, value) -> bannedCoversById.putAll(key.albumId(), value));
+        bannedCoversById = new HashMap<>();
+        bannedCovers.forEach((key, value) -> bannedCoversById.put(key.albumId(), value));
         this.db = db;
     }
 
     public void addCover(CoverItem coverItem, String cover) {
         db.insertBannedCover(coverItem.albumId(), cover);
-        bannedCovers.put(coverItem, cover);
-        bannedCoversById.put(coverItem.albumId(), cover);
+        bannedCovers.computeIfAbsent(coverItem, k -> new ArrayList<>()).add(cover);
+        bannedCoversById.computeIfAbsent(coverItem.albumId(), k -> new ArrayList<>()).add(cover);
     }
 
-
-    public void removeCover(long albumId, String cover) {
-        db.insertBannedCover(albumId, cover);
-        bannedCovers.removeMapping(albumId, cover);
-    }
 
     public String getCover(long albumId, String replacement, Context e) {
-        return obtain(replacement, e, () -> bannedCoversById.get(albumId));
+        return obtain(replacement, e, () -> bannedCoversById.getOrDefault(albumId, Collections.emptyList()));
     }
 
     public String getCover(Album album, Context e) {
-        return obtain(album.url(), e, () -> bannedCoversById.get(album.id()));
+        return obtain(album.url(), e, () -> bannedCoversById.getOrDefault(album.id(), Collections.emptyList()));
     }
 
     public List<String> getCovers(long albumId) {
-        return bannedCoversById.get(albumId);
+        return bannedCoversById.getOrDefault(albumId, Collections.emptyList());
     }
 
     public String getCover(CoverItem coverItem, String replacement, Context e) {
-        return obtain(replacement, e, () -> bannedCovers.get(coverItem));
+        return obtain(replacement, e, () -> bannedCovers.getOrDefault(coverItem, Collections.emptyList()));
     }
 
     private String obtain(String replacement, Context e, Supplier<List<String>> altCovers) {
@@ -78,7 +74,7 @@ public class CoverService {
 
 
     public Map<CoverItem, Integer> getCounts() {
-        return bannedCovers.asMap().entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, t -> t.getValue().size()));
+        return bannedCovers.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, t -> t.getValue().size()));
     }
 
     private boolean dontCensor(Context e) {

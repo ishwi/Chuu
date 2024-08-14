@@ -20,12 +20,15 @@ package core.music;
 import com.sedmelluq.discord.lavaplayer.format.StandardAudioDataFormats;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.event.AudioEventAdapter;
+import com.sedmelluq.discord.lavaplayer.source.AudioSourceManager;
+import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioSourceManager;
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackEndReason;
 import com.sedmelluq.discord.lavaplayer.track.playback.MutableAudioFrame;
 import core.Chuu;
 import core.apis.last.entities.Scrobble;
+import core.apis.lyrics.Lyrics;
 import core.commands.Context;
 import core.commands.utils.ChuuEmbedBuilder;
 import core.commands.utils.CommandUtil;
@@ -33,7 +36,11 @@ import core.music.listeners.ScrobblerEventListener;
 import core.music.radio.PlaylistRadio;
 import core.music.radio.RadioTrackContext;
 import core.music.sources.youtube.webscrobbler.processers.Processed;
-import core.music.utils.*;
+import core.music.utils.RepeatOption;
+import core.music.utils.ScrabbleProcessor;
+import core.music.utils.Task;
+import core.music.utils.TrackContext;
+import core.music.utils.TrackScrobble;
 import core.services.VoiceAnnounceService;
 import dao.entities.Metadata;
 import dao.entities.VoiceAnnouncement;
@@ -52,7 +59,13 @@ import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Array;
 import java.nio.ByteBuffer;
-import java.util.*;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Deque;
+import java.util.List;
+import java.util.Optional;
+import java.util.Queue;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -568,6 +581,20 @@ public class MusicManager extends AudioEventAdapter implements AudioSendHandler 
 
         });
     }
+
+    public Optional<Lyrics> getLyrics() {
+        AudioTrack tr = getCurrentTrack();
+        if (tr == null) {
+            return Optional.empty();
+        }
+        AudioSourceManager sourceManager = tr.getSourceManager();
+        if (sourceManager instanceof YoutubeAudioSourceManager y) {
+
+            return Optional.ofNullable(y.getLyricsForVideo(tr.getIdentifier())).map(z -> new Lyrics(z, tr.getInfo().title, tr.getInfo().author));
+        }
+        return Optional.empty();
+    }
+
 
     public CompletableFuture<Void> signalChapter(long currentMs, long totalMs, long baseline) {
         return getTrackScrobble().thenAccept(z -> this.listener.signalChapterEnd(z, currentMs, totalMs, baseline));

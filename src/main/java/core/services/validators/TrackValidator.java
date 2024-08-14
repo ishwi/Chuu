@@ -8,9 +8,14 @@ import core.apis.spotify.SpotifySingleton;
 import core.commands.utils.CommandUtil;
 import core.exceptions.LastFmException;
 import dao.ChuuService;
-import dao.entities.*;
+import dao.entities.IdTrack;
+import dao.entities.LastFMData;
+import dao.entities.NowPlayingArtist;
+import dao.entities.ScrobbledAlbum;
+import dao.entities.ScrobbledArtist;
+import dao.entities.ScrobbledTrack;
+import dao.entities.Track;
 import dao.exceptions.InstanceNotFoundException;
-import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
 
 public record TrackValidator(ChuuService db, ConcurrentLastFM lastFM) {
@@ -34,9 +39,9 @@ public record TrackValidator(ChuuService db, ConcurrentLastFM lastFM) {
         var l = trackValidate(sA, track);
         ScrobbledTrack scrobbledTrack = new ScrobbledTrack(artist, track, 0, false, -1, null, null, null);
         scrobbledTrack.setArtistId(sA.getArtistId());
-        scrobbledTrack.setTrackId(l.getLeft());
-        scrobbledTrack.setImageUrl(l.getRight().getImageUrl());
-        scrobbledTrack.setName(l.getRight().getName());
+        scrobbledTrack.setTrackId(l.id());
+        scrobbledTrack.setImageUrl(l.track().getImageUrl());
+        scrobbledTrack.setName(l.track().getName());
         return scrobbledTrack;
     }
 
@@ -64,7 +69,7 @@ public record TrackValidator(ChuuService db, ConcurrentLastFM lastFM) {
     }
 
 
-    private Pair<Long, Track> trackValidate(ScrobbledArtist artist, String track) throws LastFmException {
+    private IdTrack trackValidate(ScrobbledArtist artist, String track) throws LastFmException {
         try {
             return db.findTrackByName(artist.getArtistId(), track);
         } catch (InstanceNotFoundException exception) {
@@ -72,7 +77,7 @@ public record TrackValidator(ChuuService db, ConcurrentLastFM lastFM) {
             ScrobbledTrack scrobbledTrack = new ScrobbledTrack(artist.getArtist(), track, 0, false, trackInfo.getDuration(), trackInfo.getImageUrl(), null, trackInfo.getMbid());
             scrobbledTrack.setArtistId(artist.getArtistId());
             db.insertTrack(scrobbledTrack);
-            return Pair.of(scrobbledTrack.getTrackId(), trackInfo);
+            return new IdTrack(scrobbledTrack.getTrackId(), trackInfo);
         }
     }
 }

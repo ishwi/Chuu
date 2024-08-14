@@ -2,19 +2,21 @@ plugins {
     id 'java-library'
     id 'se.patrikerdes.use-latest-versions'
     id 'com.github.ben-manes.versions'
-    id 'org.liquibase.gradle' version '2.1.1'
+    id 'org.liquibase.gradle' version '2.2.1'
+    id 'org.jooq.jooq-codegen-gradle' version '3.19.7'
 
 }
+
 
 apply plugin: 'java-library'
 
 
 compileJava {
-    options.compilerArgs += ["-Xlint:deprecation", "--enable-preview", "--add-modules", "jdk.incubator.concurrent"]
+    options.compilerArgs += ["-Xlint:deprecation", "--enable-preview",]
 
 }
 compileTestJava {
-    options.compilerArgs += ["-Xlint:deprecation", "--enable-preview", "--add-modules", "jdk.incubator.concurrent"]
+    options.compilerArgs += ["-Xlint:deprecation", "--enable-preview",]
 
 }
 test {
@@ -22,8 +24,6 @@ test {
 }
 
 compileJava.options.encoding = 'UTF-8'
-sourceCompatibility = 19
-targetCompatibility = 19
 group 'ish'
 version '1.0'
 update.dependsOn processResources
@@ -32,47 +32,60 @@ update.dependsOn processResources
 
 repositories {
     mavenCentral()
+    maven {
+        url = "https://oss.sonatype.org/content/repositories/snapshots"
+        mavenContent {
+            snapshotsOnly()
+        }
+    }
+
 }
 
-
+sourceCompatibility = "22.PREVIEW"
+targetCompatibility = "22.PREVIEW"
 dependencies {
     testImplementation group: 'junit', name: 'junit', version: '4.13.2'
-    implementation group: 'org.postgresql', name: 'postgresql', version: '42.5.1'
+    implementation group: 'org.postgresql', name: 'postgresql', version: '42.7.3'
+    implementation "org.mariadb.jdbc:mariadb-java-client:3.3.3"
+
     implementation 'com.google.code.findbugs:jsr305:3.0.2'
-    api group: 'org.apache.commons', name: 'commons-lang3', version: '3.12.0'
-    api group: 'org.apache.commons', name: 'commons-text', version: '1.10.0'
-    api group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.14.1'
-    api 'org.jetbrains:annotations:24.0.0'
+    api group: 'org.apache.commons', name: 'commons-lang3', version: '3.14.0'
+    api group: 'org.apache.commons', name: 'commons-text', version: '1.12.0'
+    api group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.17.0'
+    api 'org.jetbrains:annotations:24.1.0'
     api 'com.neovisionaries:nv-i18n:1.29'
 
+// https://mvnrepository.com/artifact/org.jooq/jooq-meta-extensions
+    jooqCodegen "org.mariadb.jdbc:mariadb-java-client:3.3.3"
 
     api 'org.beryx:awt-color-factory:1.0.2'
-    implementation group: 'com.zaxxer', name: 'HikariCP', version: '5.0.1'
-    api group: 'org.apache.commons', name: 'commons-collections4', version: '4.4'
+    implementation group: 'com.zaxxer', name: 'HikariCP', version: '5.1.0'
+    api group: 'org.apache.commons', name: 'commons-collections4', version: '4.5.0-M1'
     // https://mvnrepository.com/artifact/org.mariadb.jdbc/mariadb-java-client
-    api 'org.mariadb.jdbc:mariadb-java-client:3.1.2'
+    implementation 'org.jooq:jooq:3.19.7'
 
 
 //    implementation group: 'mysql', name: 'mysql-connector-java', version: '8.0.25'
 
-    testImplementation 'org.mockito:mockito-core:5.0.0'
-    testImplementation 'org.assertj:assertj-core:3.24.2'
+    testImplementation 'org.mockito:mockito-core:5.11.0'
+    testImplementation 'org.assertj:assertj-core:3.25.3'
     // https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-engine
-    testImplementation 'org.junit.jupiter:junit-jupiter:5.9.2'
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.10.2'
 
-    testImplementation "org.testcontainers:testcontainers:1.17.6"
-    testImplementation "org.testcontainers:junit-jupiter:1.17.6"
-    testImplementation "org.testcontainers:mariadb:1.17.6"
+    testImplementation "org.testcontainers:testcontainers:1.19.7"
+    testImplementation "org.testcontainers:junit-jupiter:1.19.7"
+    testImplementation "org.testcontainers:mariadb:1.19.7"
+    testImplementation 'org.liquibase:liquibase-core:4.27.0'
 
 // https://mvnrepository.com/artifact/org.mariadb.jdbc/mariadb-java-client
-    liquibaseRuntime 'org.mariadb.jdbc:mariadb-java-client:3.1.2'
+    liquibaseRuntime 'org.mariadb.jdbc:mariadb-java-client:3.3.3'
 
-    liquibaseRuntime 'org.liquibase:liquibase-core:4.19.0'
-    liquibaseRuntime 'org.liquibase:liquibase-groovy-dsl:3.0.2'
+    liquibaseRuntime 'org.liquibase:liquibase-core:4.27.0'
+    liquibaseRuntime 'org.liquibase:liquibase-groovy-dsl:3.0.3'
 //    liquibaseRuntime group: 'mysql', name: 'mysql-connector-java', version: '8.0.25'
     liquibaseRuntime group: 'javax.xml.bind', name: 'jaxb-api', version: '2.4.0-b180830.0359'
 // https://mvnrepository.com/artifact/org.yaml/snakeyaml
-    liquibaseRuntime group: 'org.yaml', name: 'snakeyaml', version: '1.33'
+    liquibaseRuntime group: 'org.yaml', name: 'snakeyaml', version: '2.2'
     liquibaseRuntime files('build/classes/java/main')
     liquibaseRuntime files('build/resources/db')
 }
@@ -112,4 +125,42 @@ test {
 
 tasks.withType(JavaCompile).configureEach {
     options.fork = true
+}
+
+
+jooq {
+    configuration {
+        jdbc {
+            driver = 'org.mariadb.jdbc.Driver'
+            url = 'jdbc:mariadb://localhost:3306/lastfm'
+            user = 'lastfm'
+            password = 'lastfm'
+        }
+        generator {
+            database {
+                name = 'org.jooq.meta.mariadb.MariaDBDatabase'
+                inputSchema = 'lastfm'
+                excludes = 'DATABASECHANGELOG | DATABASECHANGELOGLOCK'
+
+            }
+            strategy {
+                name = ''
+            }
+            generate {
+                deprecated = false
+            }
+            target {
+                packageName = 'dao.jooq'
+                directory = "$buildDir/generated"
+            }
+        }
+    }
+}
+
+sourceSets {
+    main {
+        java {
+            srcDirs 'src/main/java', "$buildDir/generated"
+        }
+    }
 }

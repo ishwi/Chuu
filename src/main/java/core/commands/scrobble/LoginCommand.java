@@ -100,7 +100,7 @@ public class LoginCommand extends ConcurrentCommand<CommandParameters> {
             if (e instanceof ContextMessageReceived t) {
                 sendMessage(e, "Sent you a DM with the login details!").queue();
             }
-            ScheduledExecutorService scheduledExecutor = Executors.newSingleThreadScheduledExecutor();
+            ScheduledExecutorService scheduledExecutor = Executors.newSingleThreadScheduledExecutor(Thread.ofVirtual().name("one-shot-virtual-scheduled").factory());
             AtomicInteger counter = new AtomicInteger();
                 scheduledExecutor.scheduleWithFixedDelay(() -> {
                     counter.incrementAndGet();

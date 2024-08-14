@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
 
 public class CustomBandcampAudioTrack extends DelegatedAudioTrack implements MetadataTrack {
     private static final Logger log = LoggerFactory.getLogger(BandcampAudioTrack.class);
@@ -56,7 +57,7 @@ public class CustomBandcampAudioTrack extends DelegatedAudioTrack implements Met
         try (CloseableHttpResponse response = httpInterface.execute(new HttpGet(trackInfo.identifier))) {
             HttpClientTools.assertSuccessWithContent(response, "track page");
 
-            String responseText = IOUtils.toString(response.getEntity().getContent());
+            String responseText = IOUtils.toString(response.getEntity().getContent(), StandardCharsets.UTF_8);
             JsonBrowser trackInfo = sourceManager.readTrackListInformation(responseText);
 
             return trackInfo.get("trackinfo").index(0).get("file").get("mp3-128").text();

@@ -10,7 +10,11 @@ import com.sedmelluq.discord.lavaplayer.tools.io.HttpClientTools;
 import com.sedmelluq.discord.lavaplayer.tools.io.HttpConfigurable;
 import com.sedmelluq.discord.lavaplayer.tools.io.HttpInterface;
 import com.sedmelluq.discord.lavaplayer.tools.io.HttpInterfaceManager;
-import com.sedmelluq.discord.lavaplayer.track.*;
+import com.sedmelluq.discord.lavaplayer.track.AudioItem;
+import com.sedmelluq.discord.lavaplayer.track.AudioReference;
+import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
+import com.sedmelluq.discord.lavaplayer.track.AudioTrackInfo;
+import com.sedmelluq.discord.lavaplayer.track.BasicAudioPlaylist;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.text.StringEscapeUtils;
 import org.apache.http.HttpStatus;
@@ -22,6 +26,7 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
@@ -164,7 +169,7 @@ public class CustomBandcampAudioSourceManager implements AudioSourceManager, Htt
                 throw new IOException("Invalid status code for track page: " + statusCode);
             }
 
-            responseText = IOUtils.toString(response.getEntity().getContent());
+            responseText = IOUtils.toString(response.getEntity().getContent(), StandardCharsets.UTF_8);
         }
 
         return extractor.extract(httpInterface, responseText);

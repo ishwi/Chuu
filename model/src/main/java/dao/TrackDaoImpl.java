@@ -1,15 +1,36 @@
 package dao;
 
-import dao.entities.*;
+import dao.entities.Album;
+import dao.entities.AlbumInfo;
+import dao.entities.AlbumUserPlays;
+import dao.entities.FullAlbumEntity;
+import dao.entities.Genre;
+import dao.entities.IdTrack;
+import dao.entities.ResultWrapper;
+import dao.entities.ScrobbledArtist;
+import dao.entities.ScrobbledTrack;
+import dao.entities.Track;
+import dao.entities.UnheardCount;
 import dao.exceptions.ChuuServiceException;
 import dao.exceptions.InstanceNotFoundException;
 import dao.utils.SQLUtils;
-import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.Nullable;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Types;
 import java.text.Normalizer;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -506,7 +527,7 @@ public class TrackDaoImpl extends BaseDAO implements TrackDao {
     }
 
     @Override
-    public Pair<Long, Track> findTrackByName(Connection connection, String track, long artistId) throws InstanceNotFoundException {
+    public IdTrack findTrackByName(Connection connection, String track, long artistId) throws InstanceNotFoundException {
         String queryString = "SELECT id,track_name,url FROM  track WHERE track_name = ? AND artist_id = ?  ";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
             preparedStatement.setLong(2, artistId);
@@ -517,8 +538,9 @@ public class TrackDaoImpl extends BaseDAO implements TrackDao {
                 String name = execute.getString(2);
                 String url = execute.getString(3);
                 Track trackR = new Track(null, name, 0, false, 0);
+
                 trackR.setImageUrl(url);
-                return Pair.of(id, trackR);
+                return new IdTrack(id, trackR);
             }
             throw new InstanceNotFoundException(track);
         } catch (SQLException e) {

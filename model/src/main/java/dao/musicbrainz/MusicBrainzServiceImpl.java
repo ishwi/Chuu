@@ -2,14 +2,32 @@ package dao.musicbrainz;
 
 import com.neovisionaries.i18n.CountryCode;
 import dao.MbizDatasource;
-import dao.entities.*;
+import dao.entities.AlbumGenre;
+import dao.entities.AlbumInfo;
+import dao.entities.ArtistInfo;
+import dao.entities.ArtistMusicBrainzDetails;
+import dao.entities.CountWrapper;
+import dao.entities.Country;
+import dao.entities.EntityInfo;
+import dao.entities.FullAlbumEntityExtended;
+import dao.entities.Genre;
+import dao.entities.Language;
+import dao.entities.MusicbrainzFullAlbumEntity;
+import dao.entities.ScrobbledAlbum;
+import dao.entities.ScrobbledArtist;
+import dao.entities.Track;
+import dao.entities.TrackInfo;
 import dao.exceptions.ChuuServiceException;
-import org.apache.commons.collections4.MultiValuedMap;
 
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.Year;
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class MusicBrainzServiceImpl implements MusicBrainzService {
@@ -134,8 +152,8 @@ public class MusicBrainzServiceImpl implements MusicBrainzService {
                 missing.put(y.getMbid(), y);
                 return x;
             }));
-            MultiValuedMap<Genre, String> genresAndMbids = mbizQueriesDao.genreCount(connection, releaseInfo);
-            return genresAndMbids.asMap().entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, (Map.Entry<Genre, Collection<String>> k) -> k.getValue().stream().map(key -> {
+            Map<Genre, List<String>> genresAndMbids = mbizQueriesDao.genreCount(connection, releaseInfo);
+            return genresAndMbids.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, (Map.Entry<Genre, List<String>> k) -> k.getValue().stream().map(key -> {
                 AlbumInfo ai = mbidIndexMap.get(key);
                 if (ai == null) {
                     return missing.get(key);
@@ -157,8 +175,8 @@ public class MusicBrainzServiceImpl implements MusicBrainzService {
                 missing.put(y.getMbid(), y);
                 return x;
             }));
-            MultiValuedMap<Genre, String> genresAndMbids = mbizQueriesDao.genreCountByArtist(connection, releaseInfo);
-            return genresAndMbids.asMap().entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, (Map.Entry<Genre, Collection<String>> k) -> k.getValue().stream().map(key -> {
+            Map<Genre, List<String>> genresAndMbids = mbizQueriesDao.genreCountByArtist(connection, releaseInfo);
+            return genresAndMbids.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, (Map.Entry<Genre, List<String>> k) -> k.getValue().stream().map(key -> {
                 ArtistInfo artistInfo = mbidIndexMap.get(key);
                 if (artistInfo == null) {
                     return missing.get(key);

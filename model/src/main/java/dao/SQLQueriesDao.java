@@ -1,9 +1,42 @@
 package dao;
 
-import dao.entities.*;
+import dao.entities.AlbumInfo;
+import dao.entities.AlbumPlays;
+import dao.entities.ArtistInfo;
+import dao.entities.ArtistPlays;
+import dao.entities.ArtistTag;
+import dao.entities.AudioFeatures;
+import dao.entities.AudioStats;
+import dao.entities.CommandUsage;
+import dao.entities.CoverItem;
+import dao.entities.CrownableArtist;
+import dao.entities.Genre;
+import dao.entities.GlobalCrown;
+import dao.entities.GlobalStreakEntities;
+import dao.entities.LbEntry;
+import dao.entities.ObscurityStats;
+import dao.entities.ObscuritySummary;
+import dao.entities.PresenceInfo;
+import dao.entities.PrivacyUserCount;
+import dao.entities.Rank;
+import dao.entities.ResultWrapper;
+import dao.entities.ScoredAlbumRatings;
+import dao.entities.ScrobbledAlbum;
+import dao.entities.ScrobbledArtist;
+import dao.entities.ScrobbledTrack;
+import dao.entities.SearchMode;
+import dao.entities.StolenCrownWrapper;
+import dao.entities.StreakEntity;
+import dao.entities.TagPlays;
+import dao.entities.TrackInfo;
+import dao.entities.TrackPlays;
+import dao.entities.UniqueWrapper;
+import dao.entities.UserArtistComparison;
+import dao.entities.UserCount;
+import dao.entities.UserListened;
+import dao.entities.VotingEntity;
+import dao.entities.WrapperReturnNowPlaying;
 import dao.utils.Order;
-import org.apache.commons.collections4.ListValuedMap;
-import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.Nullable;
 
 import java.sql.Connection;
@@ -202,7 +235,7 @@ interface SQLQueriesDao {
 
     List<ScrobbledArtist> getTopTagSet(Connection connection, Set<String> genre, Long guildId, int limit, SearchMode mode);
 
-    Set<Pair<String, String>> getArtistBannedTags(Connection connection);
+    Set<ArtistTag> getArtistBannedTags(Connection connection);
 
     Set<String> getArtistTag(Connection connection, long artistId);
 
@@ -268,7 +301,7 @@ interface SQLQueriesDao {
 
     List<LbEntry<Integer>> trackLeaderboard(Connection connection, long guildId, int threshold);
 
-    ListValuedMap<CoverItem, String> getBannedCovers(Connection connection);
+    Map<CoverItem, List<String>> getBannedCovers(Connection connection);
 
     UniqueWrapper<AlbumPlays> getGlobalAlbumUniques(Connection connection, String lastfmid);
 

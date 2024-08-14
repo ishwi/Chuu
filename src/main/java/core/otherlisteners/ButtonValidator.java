@@ -15,7 +15,11 @@ import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.requests.RestAction;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiFunction;
@@ -78,6 +82,22 @@ public class ButtonValidator<T> extends ReactionListener {
         List<ActionRow> finalActionRows = rows;
         return () -> new ButtonResult.Result(false, finalActionRows);
     }
+
+    public static <T> @NotNull Supplier<T> paginate(AtomicInteger counter, List<T> webhooks) {
+        return () -> {
+            if (counter.get() >= webhooks.size() - 1) {
+                counter.set(webhooks.size() - 1);
+            }
+            if (counter.get() < 0) {
+                counter.set(0);
+            }
+            if (webhooks.isEmpty()) {
+                return null;
+            }
+            return webhooks.get(counter.get());
+        };
+    }
+
 
     @org.jetbrains.annotations.NotNull
     public static ButtonResult leftMove(int size, AtomicInteger counter, ButtonInteractionEvent r, boolean isSame, List<ActionRow> baseRows) {

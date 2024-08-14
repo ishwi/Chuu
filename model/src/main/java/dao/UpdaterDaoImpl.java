@@ -1,6 +1,26 @@
 package dao;
 
-import dao.entities.*;
+import dao.entities.AlbumInfo;
+import dao.entities.AliasEntity;
+import dao.entities.AudioFeatures;
+import dao.entities.EntityInfo;
+import dao.entities.Genre;
+import dao.entities.PrivacyMode;
+import dao.entities.RYMImportRating;
+import dao.entities.RandomRating;
+import dao.entities.RandomTarget;
+import dao.entities.RandomUrlDetails;
+import dao.entities.RandomUrlEntity;
+import dao.entities.ReportEntity;
+import dao.entities.Role;
+import dao.entities.ScrobbledAlbum;
+import dao.entities.ScrobbledArtist;
+import dao.entities.ScrobbledTrack;
+import dao.entities.StreakEntity;
+import dao.entities.UpdaterStatus;
+import dao.entities.UpdaterUserWrapper;
+import dao.entities.UserInfo;
+import dao.entities.UsersWrapper;
 import dao.exceptions.ChuuServiceException;
 import dao.exceptions.DuplicateInstanceException;
 import dao.exceptions.InstanceNotFoundException;
@@ -9,10 +29,26 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.Nullable;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.sql.Types;
 import java.text.Normalizer;
 import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.OptionalLong;
+import java.util.Set;
+import java.util.TimeZone;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -102,25 +138,15 @@ public class UpdaterDaoImpl extends BaseDAO implements UpdaterDao {
 
     @Override
     public void upsertArtist(Connection con, List<ScrobbledArtist> scrobbledArtists) {
-        StringBuilder mySql =
-                new StringBuilder("INSERT INTO  scrobbled_artist" +
-                                  "                (artist_id,lastfm_id,playnumber) VALUES (?, ?, ?) ");
 
-        mySql.append(", (?,?,?)".repeat(Math.max(0, scrobbledArtists.size() - 1)));
-        mySql.append(" ON DUPLICATE KEY UPDATE playnumber =  playnumber + VALUES(playnumber)");
+        SQLUtils.doBatches(con, "INSERT INTO  scrobbled_artist (artist_id,lastfm_id,playnumber) VALUES ",
+                scrobbledArtists, (ps, t, i) -> {
+                    int base = 3 * i;
+                    ps.setLong(base + 1, scrobbledArtists.get(i).getArtistId());
+                    ps.setString(base + 2, scrobbledArtists.get(i).getDiscordID());
+                    ps.setInt(base + 3, scrobbledArtists.get(i).getCount());
+                }, 3, "  ON DUPLICATE KEY UPDATE playnumber =  playnumber + VALUES(playnumber) ");
 
-        try {
-            PreparedStatement preparedStatement = con.prepareStatement(mySql.toString());
-            for (int i = 0; i < scrobbledArtists.size(); i++) {
-                preparedStatement.setLong(3 * i + 1, scrobbledArtists.get(i).getArtistId());
-                preparedStatement.setString(3 * i + 2, scrobbledArtists.get(i).getDiscordID());
-                preparedStatement.setInt(3 * i + 3, scrobbledArtists.get(i).getCount());
-
-            }
-            preparedStatement.execute();
-        } catch (SQLException e) {
-            throw new ChuuServiceException(e);
-        }
     }
 
     @Override
@@ -577,7 +603,7 @@ public class UpdaterDaoImpl extends BaseDAO implements UpdaterDao {
                 ?,
                 ?,
                 ?)
-
+                
                 ON DUPLICATE KEY UPDATE
                   plays = ?,
                   discordid =  ?;""";

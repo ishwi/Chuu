@@ -56,6 +56,17 @@ public class ServerBanCommand extends ConcurrentCommand<ChuuDataParams> {
             sendMessageQueue(e, "You can't block/unblock yourself.");
             return;
         }
+//        boolean blocking = switch (e) {
+//            case core.commands.ContextMessageReceived contextMessageReceived -> {
+//                String contentRaw = parser.getAlias(e);
+//                yield contentRaw.startsWith("serverblock") || contentRaw.startsWith("serverban");
+//            }
+//            case core.commands.ContextSlashReceived contextSlashReceived -> {
+//
+//            }
+//            case core.commands.ContextUserCommandReceived contextUserCommandReceived -> {
+//            }
+//        }
         String contentRaw = parser.getAlias(e);
         String user = getUserString(e, discordId);
         String server = e.getGuild().getName();

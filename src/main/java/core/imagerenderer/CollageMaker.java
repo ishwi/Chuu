@@ -4,13 +4,13 @@ import core.Chuu;
 import core.apis.last.entities.chartentities.UrlCapsule;
 import core.util.VirtualParallel;
 import dao.exceptions.ChuuServiceException;
-import jdk.incubator.concurrent.StructuredTaskScope;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.StructuredTaskScope;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
@@ -66,7 +66,7 @@ public class CollageMaker {
         ReentrantLock lock = new ReentrantLock();
 
         ThreadQueue tq = new ThreadQueue(queue, g, x, y, max, imageSize == 150, asideMode, lock);
-        try (var scope = new StructuredTaskScope<>("a", (r) -> new Thread(r, "ThreadPool"))) {
+        try (var scope = new StructuredTaskScope<>("collagemaker", Thread.ofVirtual().name("collagemaker-", 0).factory())) {
             queue.forEach(ca ->
                     scope.fork(() -> {
                         tq.run0(ca);

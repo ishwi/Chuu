@@ -1,14 +1,12 @@
 --liquibase formatted sql
---changeset ish:search_indexes endDelimiter:
-\$
-\$
+--changeset ish:search_indexes endDelimiter:ñ
 --ignoreLines:1
-DELIMITER $$
+DELIMITER ñ
 
 alter table artist
-    add column play_ranking int default -1 $$
+    add column play_ranking int default -1 ñ
 
-DROP PROCEDURE IF EXISTS update_artist_ranking $$
+DROP PROCEDURE IF EXISTS update_artist_ranking ñ
 
 CREATE or replace PROCEDURE update_artist_ranking(IN batch_size int)
 BEGIN
@@ -37,9 +35,7 @@ BEGIN
             SET batch_end_id = batch_end_id + batch_size;
             SET loop_counter = loop_counter + 1;
         END WHILE;
-
-
-END $$
+            END ñ
 
 
 CREATE or replace PROCEDURE update_artist_ranking_not_set(IN batch_size int)
@@ -71,7 +67,7 @@ BEGIN
         END WHILE;
 
 
-END $$
+    END ñ
 
 -- rollback drop procedure update_artist_ranking_not_set;
 -- rollback drop procedure update_artist_ranking;

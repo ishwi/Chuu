@@ -25,6 +25,8 @@ public final class UpdateDatasource implements CommonDatasource {
         config.setConnectionTimeout(5000);
         config.setIdleTimeout(Duration.ofMinutes(2).toMillis());
         config.setMaxLifetime(Duration.ofMinutes(10).toMillis());
+        config.setThreadFactory(Thread.ofVirtual().uncaughtExceptionHandler((t, e) -> log.warn(e.getMessage(), e)).name("mariadb-pool-update", 0).factory());
+
         config.setValidationTimeout(1000);
         config.setPoolName("Update-Pool-Chuu");
         config.addDataSourceProperty("connectionCollation", "utf8mb4_unicode_ci");

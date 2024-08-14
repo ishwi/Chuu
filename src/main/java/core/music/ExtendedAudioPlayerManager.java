@@ -54,8 +54,16 @@ import org.jetbrains.annotations.Nullable;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.io.*;
-import java.util.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UncheckedIOException;
+import java.util.ArrayList;
+import java.util.Base64;
+import java.util.List;
+import java.util.Optional;
+import java.util.Properties;
 
 public class ExtendedAudioPlayerManager extends DefaultAudioPlayerManager {
 
@@ -112,7 +120,7 @@ public class ExtendedAudioPlayerManager extends DefaultAudioPlayerManager {
         }
     }
 
-    private void registerSourceManagers(AudioSourceManager... sourceManager) {
+    public void registerSourceManagers(AudioSourceManager... sourceManager) {
         for (AudioSourceManager audioSourceManager : sourceManager) {
             registerSourceManager(audioSourceManager);
 

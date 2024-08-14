@@ -29,7 +29,7 @@ public abstract class ConcurrentCommand<T extends CommandParameters> extends MyC
     @Override
     protected void measureTime(Context e) {
         ex.execute(() -> {
-            ThreadStats stats = new ThreadStats(Thread.currentThread(), this.getAliases().get(0), e.toLog());
+            ThreadStats stats = new ThreadStats(Thread.currentThread(), this.getAliases().getFirst(), e.toLog());
             try {
                 threadStats.add(stats);
                 super.measureTime(e);

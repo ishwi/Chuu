@@ -1,7 +1,10 @@
 package core.parsers;
 
-import core.Chuu;
-import core.commands.*;
+import core.commands.Context;
+import core.commands.ContextMessageReceived;
+import core.commands.ContextSlashReceived;
+import core.commands.ContextUserCommandReceived;
+import core.commands.InteracionReceived;
 import core.commands.utils.CommandUtil;
 import core.exceptions.LastFmException;
 import core.parsers.explanation.util.Explanation;
@@ -16,7 +19,14 @@ import net.dv8tion.jda.api.interactions.commands.OptionType;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.nio.CharBuffer;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -27,7 +37,6 @@ public abstract class Parser<T extends CommandParameters> {
     final Map<Integer, String> errorMessages = new HashMap<>(10);
     final Map<String, OptionalEntity> optAliases = new HashMap<>();
     private final Set<OptionalEntity> opts = new LinkedHashSet<>();
-    private String regex;
 
 
     Parser() {
@@ -144,7 +153,7 @@ public abstract class Parser<T extends CommandParameters> {
     public String[] getSubMessage(Context context) {
         if (context instanceof ContextMessageReceived mes) {
             if (mes.isPingPrefix()) {
-                return getSubMessage(Chuu.PING_REGEX.matcher(mes.e().getMessage().getContentRaw()).replaceAll(""));
+                return getSubMessage(mes.e().getMessage().getContentRaw().replaceFirst(((ContextMessageReceived) context).e().getJDA().getSelfUser().getAsMention(), ""));
             } else {
                 return getSubMessage(mes.e().getMessage().getContentRaw());
 
@@ -158,7 +167,12 @@ public abstract class Parser<T extends CommandParameters> {
 
     public String getAlias(Context context) {
         if (context instanceof ContextMessageReceived mes) {
-            return mes.e().getMessage().getContentRaw().substring(1).toLowerCase();
+            if (mes.isPingPrefix()) {
+                String[] subMessage = getSubMessage(context);
+                return subMessage[0];
+            } else {
+                return mes.e().getMessage().getContentRaw().substring(1).toLowerCase();
+            }
         } else {
             throw new IllegalStateException();
         }

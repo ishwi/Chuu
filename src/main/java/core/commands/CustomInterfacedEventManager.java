@@ -3,7 +3,12 @@ package core.commands;
 import core.Chuu;
 import core.commands.abstracts.MyCommand;
 import core.music.listeners.VoiceListener;
-import core.otherlisteners.*;
+import core.otherlisteners.AutoCompleteListener;
+import core.otherlisteners.AwaitReady;
+import core.otherlisteners.ChannelConstantListener;
+import core.otherlisteners.ConstantListener;
+import core.otherlisteners.JoinLeaveListener;
+import core.otherlisteners.ReactionListener;
 import core.parsers.params.CommandParameters;
 import core.services.ChuuRunnable;
 import core.util.ChuuVirtualPool;
@@ -32,7 +37,15 @@ import net.dv8tion.jda.internal.JDAImpl;
 import org.jetbrains.annotations.NotNull;
 
 import java.nio.CharBuffer;
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.WeakHashMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -279,7 +292,7 @@ public class CustomInterfacedEventManager implements IEventManager {
                 if (mes.getMessage().getContentRaw().contains("prefix")) {
                     mes.getChannel().sendMessage("My prefix is: `" + correspondingPrefix + "`").queue();
                 } else {
-                    contentRaw = Chuu.PING_REGEX.matcher(contentRaw).replaceAll("");
+                    contentRaw = contentRaw.replace(mes.getJDA().getSelfUser().getAsMention(), "").strip();
                     pingPrefix = true;
                 }
             } else {

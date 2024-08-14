@@ -15,7 +15,7 @@ public class ScrobbleEventManager {
     public ScrobbleEventManager(StatusProcessor statusProcessor) {
         processor = statusProcessor;
         Thread.ofVirtual().name("Scrobble Manager")
-                .allowSetThreadLocals(false)
+
                 .inheritInheritableThreadLocals(false)
                 .uncaughtExceptionHandler((t, e) -> Chuu.getLogger().warn(e.getMessage(), e))
                 .start(new ScrobbleLoop());

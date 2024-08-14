@@ -30,7 +30,6 @@ import core.parsers.NoOpParser;
 import core.parsers.Parser;
 import core.parsers.params.CommandParameters;
 import core.util.ServiceView;
-import jdk.incubator.concurrent.StructuredTaskScope;
 import net.dv8tion.jda.api.EmbedBuilder;
 import org.jetbrains.annotations.NotNull;
 
@@ -38,7 +37,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Future;
+import java.util.concurrent.StructuredTaskScope;
 import java.util.concurrent.TimeUnit;
 
 public class QueueCommand extends MusicCommand<CommandParameters> {
@@ -136,18 +135,18 @@ public class QueueCommand extends MusicCommand<CommandParameters> {
 
 
         try (var scope = new StructuredTaskScope.ShutdownOnFailure()) {
-            List<Future<DecodedAndCoded>> items = queue.stream().map(decoding ->
+            var items = queue.stream().map(decoding ->
                     scope.fork(() ->
                     {
                         AudioTrack track = Chuu.playerManager.decodeAudioTrack(decoding);
                         TrackScrobble cf = manager.getTrackScrobble(track).get(10, TimeUnit.SECONDS);
                         return new DecodedAndCoded(track, cf);
                     })).toList();
-            Future<DecodedAndCoded> last = scope.fork(() -> new DecodedAndCoded(manager.getCurrentTrack(), manager.getTrackScrobble().join()));
+            var last = scope.fork(() -> new DecodedAndCoded(manager.getCurrentTrack(), manager.getTrackScrobble().join()));
             scope.join();
 
-            List<DecodedAndCoded> decodedAndCodeds = items.stream().map(Future::resultNow).toList();
-            handleList(decodedAndCodeds, manager, e, last.resultNow());
+            List<DecodedAndCoded> decodedAndCodeds = items.stream().map(StructuredTaskScope.Subtask::get).toList();
+            handleList(decodedAndCodeds, manager, e, last.get());
         } catch (InterruptedException ex) {
             sendMessageQueue(e, "An error happened while processing the queue!");
             throw new RuntimeException(ex);
