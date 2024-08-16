@@ -184,33 +184,37 @@ public class CustomInterfacedEventManager implements IEventManager {
     @Override
     public void handle(@NotNull GenericEvent event) {
         try {
-            switch (event) {
-                case CommandAutoCompleteInteractionEvent cacie ->
-                        autocompleteExecutor.submit((ChuuRunnable) () -> autoCompleteListener.handle(cacie));
-                case MessageReceivedEvent mes ->
-                        handleMessageReceived(mes); // Delegate running in pool if its a valid message
-                case UserContextInteractionEvent ucie -> handleUserCommand(ucie);
-                case SlashCommandInteractionEvent sce -> handleSlashCommand(sce);
-                case ReadyEvent re -> {
-                    for (EventListener listener : otherListeners)
-                        listener.onEvent(re);
+            autocompleteExecutor.submit(() -> {
+                switch (event) {
+                    case CommandAutoCompleteInteractionEvent cacie ->
+                            autocompleteExecutor.submit((ChuuRunnable) () -> autoCompleteListener.handle(cacie));
+                    case MessageReceivedEvent mes ->
+                            handleMessageReceived(mes); // Delegate running in pool if its a valid message
+                    case UserContextInteractionEvent ucie -> handleUserCommand(ucie);
+                    case SlashCommandInteractionEvent sce -> handleSlashCommand(sce);
+                    case ReadyEvent re -> {
+                        for (EventListener listener : otherListeners)
+                            listener.onEvent(re);
+                    }
+                    case MessageReactionAddEvent react ->
+                            reactionExecutor.submit((ChuuRunnable) () -> this.handleReaction(react));
+                    case ButtonInteractionEvent button -> this.handleReaction(button);
+                    case StringSelectInteractionEvent selected ->
+                            reactionExecutor.submit((ChuuRunnable) () -> this.handleReaction(selected));
+
+                    // TODO cant group then on one
+                    case GuildVoiceUpdateEvent gvje -> reactionExecutor.submit(() -> this.voiceListener.onEvent(gvje));
+
+                    case GuildMemberRemoveEvent gmre ->
+                            reactionExecutor.submit(() -> this.joinLeaveListener.onEvent(gmre));
+                    case GuildMemberJoinEvent gmje ->
+                            reactionExecutor.submit(() -> this.joinLeaveListener.onEvent(gmje));
+                    case GuildJoinEvent gje -> reactionExecutor.submit(() -> this.joinLeaveListener.onEvent(gje));
+                    default -> {
+                    }
+
                 }
-                case MessageReactionAddEvent react ->
-                        reactionExecutor.submit((ChuuRunnable) () -> this.handleReaction(react));
-                case ButtonInteractionEvent button -> this.handleReaction(button);
-                case StringSelectInteractionEvent selected ->
-                        reactionExecutor.submit((ChuuRunnable) () -> this.handleReaction(selected));
-
-                // TODO cant group then on one
-                case GuildVoiceUpdateEvent gvje -> this.voiceListener.onEvent(gvje);
-
-                case GuildMemberRemoveEvent gmre -> this.joinLeaveListener.onEvent(gmre);
-                case GuildMemberJoinEvent gmje -> this.joinLeaveListener.onEvent(gmje);
-                case GuildJoinEvent gje -> this.joinLeaveListener.onEvent(gje);
-                default -> {
-                }
-
-            }
+            });
         } catch (Throwable throwable) {
             JDAImpl.LOG.error("One of the EventListeners had an uncaught exception", throwable);
         }

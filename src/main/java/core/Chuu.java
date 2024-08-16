@@ -200,6 +200,7 @@ public class Chuu {
                 create(getIntents())
                 .setChunkingFilter(ChunkingFilter.NONE)
                 .setThreadFactory(Thread.ofPlatform()
+                        .priority(Thread.MAX_PRIORITY - 1)
                         .inheritInheritableThreadLocals(false)
                         .name("Application-thread", 0).factory())
                 .enableCache(CacheFlag.EMOJI, CacheFlag.VOICE_STATE)

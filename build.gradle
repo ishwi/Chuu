@@ -99,7 +99,7 @@ dependencies {
 
     implementation 'com.neovisionaries:nv-i18n:1.29'
     implementation 'com.github.ishwi:java-eval:8de726df14c18523912aa6ff21bfd1b0b7d54924'
-    implementation("net.dv8tion:JDA:5.0.0-beta.22")
+    implementation("net.dv8tion:JDA:5.0.2")
 
     implementation group: 'org.jsoup', name: 'jsoup', version: '1.17.2'
 // https://mvnrepository.com/artifact/javax.annotation/javax.annotation-api
