@@ -4,7 +4,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -14,7 +13,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class ChuuVirtualPool {
 
     private static final Logger log = LoggerFactory.getLogger(ChuuVirtualPool.class);
-    private static final ThreadPoolExecutor tpe = new ThreadPoolExecutor(10, 64, 2, TimeUnit.MINUTES, new LinkedBlockingQueue<>(), Thread.ofPlatform()
+    private static final ThreadPoolExecutor tpe = new ThreadPoolExecutor(5, 25, 2, TimeUnit.MINUTES, new java.util.concurrent.ArrayBlockingQueue<>(200),
+            Thread.ofPlatform()
             .name("global-workaround-pool")
             .factory());
 

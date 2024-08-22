@@ -7,10 +7,10 @@ import dao.exceptions.ChuuServiceException;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executors;
-import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -18,7 +18,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 public class CollageMaker {
     private static final int DEFAULT_SIZE = 300;
-    public static final ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(10, 20, 60, TimeUnit.SECONDS, new LinkedBlockingDeque<>());
+    public static final ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(2, 12, 60, TimeUnit.SECONDS, new ArrayBlockingQueue<>(200));
 
     private CollageMaker() {
     }
@@ -69,7 +69,7 @@ public class CollageMaker {
 
 
         java.util.List<Callable<Object>> calls = new ArrayList<>();
-        int bound = Math.min(15, size);
+        int bound = Math.min(4, size);
         for (int i = 0; i < bound; i++) {
             calls.add(Executors.callable(new ThreadQueue(queue, g, x, y, max, imageSize == 150, asideMode, lock)));
         }

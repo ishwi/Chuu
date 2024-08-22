@@ -23,7 +23,7 @@ import java.util.concurrent.TimeUnit;
 
 public class ScheduledService {
     private final ScheduledExecutorService scheduledExecutorService;
-    private final ExecutorService executorService = Executors.newVirtualThreadPerTaskExecutor();
+    private final ExecutorService executorService = Executors.newFixedThreadPool(4);
     private final ChuuService dao;
 
     public ScheduledService(ScheduledExecutorService scheduledExecutorService, ChuuService dao) {

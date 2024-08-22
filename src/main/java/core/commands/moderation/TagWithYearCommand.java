@@ -85,7 +85,8 @@ public class TagWithYearCommand extends ConcurrentCommand<AlbumYearParameters> {
         EmbedBuilder embedBuilder = new ChuuEmbedBuilder(e)
                 .setTitle("Year confirmation")
                 .setDescription(String.format("%s, want to tag the album **%s** of **%s** with the year **%s**?", userString, album, artist, y));
-        List<ConfirmatorItem> items = List.of(new ConfirmatorItem(Reactions.ACCEPT, who -> {
+        List<ConfirmatorItem> items = List.of(
+                new ConfirmatorItem(Reactions.ACCEPT, who -> {
             if (lastFMData.getRole() == Role.ADMIN) {
                 return who.clear().setTitle(String.format("**%s** - **%s** was tagged as a **%s** album", artist, album, y)).setColor(CommandUtil.pastelColor());
             } else {
@@ -107,7 +108,8 @@ public class TagWithYearCommand extends ConcurrentCommand<AlbumYearParameters> {
                             )
                             .queue();
             }
-        }), new ConfirmatorItem(Reactions.REJECT, who -> who.clear().setTitle(String.format("Didn't tag %s - %s", artist, album)).setColor(CommandUtil.pastelColor()),
+                }), new ConfirmatorItem(Reactions.REJECT,
+                        who -> who.clear().setTitle(String.format("Didn't tag %s - %s", artist, album)).setColor(CommandUtil.pastelColor()),
                 (z) -> {
                 }));
 

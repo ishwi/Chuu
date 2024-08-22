@@ -22,10 +22,12 @@ public final class AlbumYearApproval extends ChannelConstantListener {
 
     @Override
     public void handleClick(ButtonInteractionEvent e) {
+
         Message message = e.getMessage();
         if (e.getComponentId().equals(REJECT)) {
             message.delete().queue();
         } else if (e.getComponentId().equals(ACCEPT)) {
+            e.deferEdit().queue();
             doSomething(message);
         }
     }
