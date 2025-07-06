@@ -159,7 +159,7 @@ public class ConsumerUtils {
     public static <T extends ScrobbledArtist> String percentage(CountWrapper<List<T>> list, StatsCtx ctx, Entity entity) {
         int per = Optional.ofNullable(ctx.count()).orElse(10);
         long numberToReach = topPercentage(list, ctx, per);
-        return "**# of %s to equal %s%% of scrobbles**: %d".formatted(entity.format().toLowerCase(Locale.ROOT), per, numberToReach);
+        return "**\# of %s to equal %s%% of scrobbles**: %d".formatted(entity.format().toLowerCase(Locale.ROOT), per, numberToReach);
     }
 
 
